@@ -1,0 +1,35 @@
+{
+  "name": "synectic",
+  "productName": "Synectic Development Environment",
+  "description": "",
+  "version": "0.6.0",
+  "repository": "https://github.com/nelsonni/synectic",
+  "author": "Nicholas Nelson <nelsonni@oregonstate.edu",
+  "copyright": "© 2017, Nicholas Nelson",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . Synectic --asar --overwrite --icon=icon.icns --out=release-builds --ignore=test",
+    "build-all": "npm run build-mac && npm run build-win && npm run build-linux",
+    "build-mac": "electron-packager . Synectic --platform=darwin --arch=x64 --asar --overwrite --icon=icon.icns --out=release-builds --ignore=test",
+    "build-win": "electron-packager . Synectic --platform=win32 --arch=x64 --asar --overwrite --icon=icon.icns --out=release-builds --ignore=test",
+    "build-linux": "electron-packager . Synectic --platform=linux --arch=x64 --asar --overwrite --icon=icon.icns --out=release-builds --ignore=test",
+    "build-dev": "electron-packager . Synectic-dev --overwrite --no-prune --icon=icon.icns --out=release-builds",
+    "clean": "rm -Rf release-builds/*",
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "ace-code-editor": "^1.2.3",
+    "asar": "^0.13.0",
+    "electron": "1.6.11",
+    "electron-mocha": "^4.0.0",
+    "electron-packager": "^8.7.2",
+    "jquery": "^3.2.1",
+    "mocha": "^3.4.2",
+    "raphael": "^2.2.7",
+    "slick-carousel": "^1.6.0",
+    "spectron": "^3.7.2",
+    "username": "^3.0.0"
+  }
+}
