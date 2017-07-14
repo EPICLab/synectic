@@ -1,28 +1,21 @@
-notifications:
-  email: false
-
 language: node_js
 node_js:
-  - "node"
-  - "7"
+  - node
+  - 7
 os:
-  - linux
   - osx
+  - linux
 env:
   - TARGET_ARCH=x64
-
+before_install:
+  - export DISPLAY=:99.0
+  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+install:
+  - npm install --no-progress
+script:
+  - npm test
 branches:
   only:
     - master
-
-addons:
-  apt:
-    packages:
-      - xvfb
-
-install:
-  - export DISPLAY=':99.0'
-  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-
-before_script:
-  - export DISPLAY=:99.0; sh -e /etc/init.d/xvfb start
+notifications:
+  email: false
