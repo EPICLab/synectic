@@ -12,17 +12,11 @@ Download: http://web.engr.oregonstate.edu/~nelsonni/synectics/
 
 1. Install [Node.js](https://nodejs.org/en/).
 2. Install [Electron](https://electron.atom.io/):
-```bash
-  npm i -g electron
-```
+`npm i -g electron`
 3. Clone this repository:
-```bash
-  git clone git@github.com:nelsonni/synectic.git
-```
+`git clone git@github.com:nelsonni/synectic.git`
 4. Execute Synectic IDE from within the project directory:
-```bash
-  npm run start
-```
+`npm run start`
 
 # Builds
 
