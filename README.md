@@ -1,4 +1,5 @@
 # Synectic Integrated Development Environment
+[![Build Status](https://travis-ci.org/nelsonni/synectic.svg?branch=master)](https://travis-ci.org/nelsonni/synectic)
 
 Synectics is a problem solving methodology that stimulates thought processes of which the subject may be unaware. Synectic IDE is a fundamentally different type of IDE, focused on supporting a holistic view of problem solving in software development and allowing context-specific functionality that stimulates complex, diverse solutions to computational problems.
 
