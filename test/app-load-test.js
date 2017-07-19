@@ -11,7 +11,7 @@ var app = new Application({
 });
 
 describe('application launch', function () {
-  this.timeout(10000);
+  this.timeout(30000);
 
   beforeEach(function () {
     this.app = new Application({
