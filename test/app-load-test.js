@@ -13,22 +13,25 @@ var app = new Application({
 describe('application launch', function () {
   this.timeout(30000);
 
-  beforeEach(function () {
+  before(function () {
     this.app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
+      webPreferences: {
+        devTools: false,
+      },
     });
     return this.app.start();
   });
 
-  afterEach(function () {
+  after(function () {
     if (this.app && this.app.isRunning()) {
       return this.app.stop();
     }
   });
 
-  it('shows an initial window', function () {
-    this.app.webContents.closeDevTools();
+  it('creates an initial window', function () {
+    // this.app.webContents.closeDevTools(); // DevTools count as a window
     return this.app.client.getWindowCount().then(function (count) {
       assert.equal(count, 1);
     });
