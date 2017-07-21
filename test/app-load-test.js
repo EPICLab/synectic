@@ -17,9 +17,6 @@ describe('application launch', function () {
     this.app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
-      webPreferences: {
-        devTools: false,
-      },
     });
     return this.app.start();
   });
@@ -31,7 +28,7 @@ describe('application launch', function () {
   });
 
   it('creates an initial window', function () {
-    // this.app.webContents.closeDevTools(); // DevTools count as a window
+    // WARNING: Spectron considers DevTools a window; count is 2 when enabled
     return this.app.client.getWindowCount().then(function (count) {
       assert.equal(count, 1);
     });

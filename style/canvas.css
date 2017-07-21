@@ -1,0 +1,16 @@
+/* temporary fix to suppress Chromium error, issue is being tracked via
+    the following issue: https://github.com/electron/electron/issues/4420 */
+::selection {
+    #background: transparent;
+}
+
+img.logo {
+  content: url('../asset/logo_full.png');
+  width: inherit;
+  height: inherit;
+}
+
+div.dialog {
+  /*display: none;*/
+  white-space: pre-wrap;
+}

@@ -17,6 +17,7 @@
     "build-linux": "electron-packager . Synectic --platform=linux --arch=x64 --asar --overwrite --icon=icon.icns --out=release-builds --ignore=test",
     "build-dev": "electron-packager . Synectic-dev --overwrite --no-prune --icon=icon.icns --out=release-builds",
     "clean": "rm -Rf release-builds/*",
+    "rebuild": "./node_modules/.bin/electron-rebuild",
     "test": "mocha --compilers js:babel-core/register ./test/*.js"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "electron-packager": "^8.7.2",
     "electron-prebuilt": "^1.4.13",
     "jquery": "^3.2.1",
+    "jquery-ui": "^1.12.1",
     "mocha": "^3.4.2",
     "raphael": "^2.2.7",
     "slick-carousel": "^1.6.0",
