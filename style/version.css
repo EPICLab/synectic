@@ -36,3 +36,22 @@ img.logo {
   left: 50%;
   transform: translate(-50%, -15%);
 }
+
+button.close {
+  background: url('../asset/close_dark.svg') no-repeat;
+  background-size: cover;
+  height: 19px;
+  width: 19px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 0;
+  border-radius: 50%;
+}
+
+button.close:hover,
+button.close:active {
+  background: url('../asset/close_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
