@@ -23,24 +23,23 @@ module.exports = class Canvas {
 
   displayVersion() {
     let dialog = document.createElement('div');
-    let content = document.createElement('div');
     let logo = document.createElement('img');
-    let versionText = document.createElement('span');
+    let versionText = document.createElement('div');
     let remoteApp = require('electron').remote.app;
 
     $(dialog).attr('class', 'dialog');
-    $(content).attr('class', 'content');
     $(logo).attr('class', 'logo');
+    $(versionText).attr('class', 'versions');
     $(versionText).html(
       remoteApp.getName() + ' ' + remoteApp.getVersion() + '<br/>' +
-      'Node.js ' + process.versions.node + '<br/>' +
-      'Chrome ' + process.versions.chrome + '<br/>' +
-      'Electron ' + process.versions.electron
+      '<span id=\'frameworks\'>' +
+      'Node.js ' + process.versions.node + ', ' +
+      'Chrome ' + process.versions.chrome + ', and ' +
+      'Electron ' + process.versions.electron + '</span>'
     );
 
-    content.appendChild(logo);
-    content.appendChild(versionText);
-    dialog.appendChild(content);
+    dialog.appendChild(logo);
+    dialog.appendChild(versionText);
     document.body.appendChild(dialog);
   }
 };

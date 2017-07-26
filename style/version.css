@@ -1,0 +1,38 @@
+@@font-face {
+  font-family: 'Lato';
+  src: url('../asset/font/Lato-Light.woff');
+}
+
+#frameworks {
+  font-family: 'Lato', Georgia, Serif;
+  font-weight: 100;
+  font-size: 68%;
+}
+
+div.versions {
+  display: inline-block;
+  position: absolute;
+  bottom: 40px;
+  left: 30%;
+  transform: translate(-20%, 0);
+  text-align: center;
+  font-family: 'Lato', Georgia, Serif;
+  font-size: 90%;
+}
+
+div.dialog {
+  background: rgba(71, 0, 153, 1.0) center/20px auto no-repeat;
+  color: rgba(255, 255, 255, 1.0);
+  position: relative;
+  max-width: 400px;
+  height: 300px;
+  margin: auto;
+  overflow: hidden;
+}
+
+img.logo {
+  content: url('../asset/logo_full.png');
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, -15%);
+}
