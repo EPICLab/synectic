@@ -1,5 +1,3 @@
-// require('jquery-ui');
-
 module.exports = class Canvas {
   constructor() {
     this.counter = 3;
@@ -13,38 +11,36 @@ module.exports = class Canvas {
     console.log(this.counter);
   }
 
+  testJQ() {
+    console.log(window.jqueryui);
+  }
+
   addObj() {
-    var block = document.createElement('div');
-    $(block).attr('class', 'dialog');
+    let block = document.createElement('div');
+    $(block).attr('class', 'overlay');
     document.body.appendChild(block);
   };
 
   displayVersion() {
-    var nodeVer = process.versions.node;
-    var chromeVer = process.versions.chrome;
-    var electronVer = process.versions.electron;
-    var appVersion = require('electron').remote.app.getVersion();
-    var appName = require('electron').remote.app.getName();
-    // alert(
-    //   appName + ' ' + appVersion + '\n' +
-    //   'Using node ' + nodeVer +
-    //   ', Chrome ' + chromeVer +
-    //   ', and Electron ' + electronVer + '.'
-    // );
-    var appLogo = document.createElement('img');
-    $(appLogo).attr('class', 'logo');
-    var versionDialog = document.createElement('div');
-    $(versionDialog).attr('class', 'dialog');
-    // versionDialog.appendChild(appLogo);
-    $(versionDialog).text(
-      appName + ' ' + appVersion + '\n' +
-        'using Node ' + nodeVer +
-        ', Chrome ' + chromeVer +
-        ', and Electron ' + electronVer + '.'
-    );
-    $(versionDialog).html($(versionDialog).html().replace(/\n/g,'<br/>'));
-    document.body.appendChild(versionDialog);
+    let dialog = document.createElement('div');
+    let content = document.createElement('div');
+    let logo = document.createElement('img');
+    let versionText = document.createElement('span');
+    let remoteApp = require('electron').remote.app;
 
-    $('div.dialog').dialog({ width: 491, height: 436, modal: true });
+    $(dialog).attr('class', 'dialog');
+    $(content).attr('class', 'content');
+    $(logo).attr('class', 'logo');
+    $(versionText).html(
+      remoteApp.getName() + ' ' + remoteApp.getVersion() + '<br/>' +
+      'Node.js ' + process.versions.node + '<br/>' +
+      'Chrome ' + process.versions.chrome + '<br/>' +
+      'Electron ' + process.versions.electron
+    );
+
+    content.appendChild(logo);
+    content.appendChild(versionText);
+    dialog.appendChild(content);
+    document.body.appendChild(dialog);
   }
 };

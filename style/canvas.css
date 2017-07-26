@@ -4,13 +4,54 @@
     #background: transparent;
 }
 
-img.logo {
-  content: url('../asset/logo_full.png');
-  width: inherit;
-  height: inherit;
+span {
+  display: block;
+  float: left;
+  border: 1px solid blue;
+  text-align: left;
+  top: 20%;
 }
 
 div.dialog {
-  /*display: none;*/
-  white-space: pre-wrap;
+  background: rgba(71, 0, 153, 1.0) center/20px auto no-repeat;
+  color: rgba(255, 255, 255, 1.0);
+  max-width: 400px;
+  margin: auto;
+}
+
+div.dialog .content {
+  /*width: 90%;*/
+  width: 100%;
+  text-align: center;
+  /*margin: auto;*/
+  overflow: hidden;
+  border: 1px solid blue;
+}
+
+img.logo { /* 983 x 350 */
+  content: url('../asset/logo_full.png');
+  position: relative;
+  left: 50%;
+  transform: translate(-50%, -10%);
+  border: 1px solid red;
+}
+
+div.loading-img {
+  background: rgba(71, 0, 153, 1.0) url('../asset/loading.gif') center/20px auto no-repeat;
+  width: 250px;
+  height: 250px;
+  margin: 0 auto;
+  position: relative;
+  top: 50%;
+  transform: perspective(1px) translateY(100%);
+}
+
+div.overlay {
+  background: rgba(40, 44, 52, 0.4);
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }

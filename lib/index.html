@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>synectic</title>
+    <script src="init.js"></script>
+    <script>
+      var Canvas = require('../app/Canvas.js');
+      var canvas = new Canvas();
+      // canvas.printCounter();
+    </script>
+  </head>
+  <body>
+    <div class="overlay">
+      <!-- <img class="logo"></div> -->
+      <div class="loading-img"></div>
+    </div>
+
+    <div class="content">
+      <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ea velit provident sint aliquid eos omnis aperiam officia architecto error incidunt nemo obcaecati adipisci doloremque dicta neque placeat natus beatae cupiditate minima ipsam quaerat explicabo non reiciendis qui sit. ...</div>
+      <button id="button">Submit</button>
+    </div>
+
+    <script>
+      $('#button').click(function () {
+        console.log("button clicked");
+        $('.overlay').toggle();
+      });
+    </script>
+
+    <button onclick="canvas.displayVersion()" class="version">Version</button>
+    <button onclick="canvas.addObj()" class="test">addObj</button>
+    <button onclick="canvas.testJQ()" class="test">testJQ</button>
+    <br />
+    <button onclick="canvas.incCounter()" class="counter">incCounter</button>
+    <button onclick="canvas.printCounter()" class="counter">printCounter</button>
+  </body>
+</html>
