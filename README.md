@@ -16,7 +16,7 @@ Download: http://web.engr.oregonstate.edu/~nelsonni/synectics/
 1. Install [Node.js](https://nodejs.org/en/).
 2. Clone this repository:
 `git clone git@github.com:nelsonni/synectic.git`
-2. Install dependencies (listed in `package.json`) via `npm` from within the project directory:
+3. Install dependencies (listed in `package.json`) via `npm` from within the project directory:
 `npm i`
 4. Execute Synectic IDE from within the project directory:
 `npm run start`
