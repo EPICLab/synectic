@@ -22,15 +22,12 @@ module.exports = class Canvas {
   };
 
   displayVersion() {
-    // TODO: Convert this dialog into a standardized dialog with parameters for:
-    //      dimensions, singleton, modality, etc.
-    let dialog = document.createElement('div');
-    let logo = document.createElement('img');
-    let versionText = document.createElement('div');
-    let closeButton = document.createElement('button');
+    let dialog = require('../app/Dialog.js').dialog();
     let remoteApp = require('electron').remote.app;
 
-    $(dialog).attr('class', 'dialog');
+    const logo = document.createElement('img');
+    const versionText = document.createElement('div');
+
     $(logo).attr('class', 'logo');
     $(versionText).attr('class', 'versions');
     $(versionText).html(
@@ -40,14 +37,8 @@ module.exports = class Canvas {
       'Chrome ' + process.versions.chrome + ', and ' +
       'Electron ' + process.versions.electron + '</span>'
     );
-    $(closeButton).attr('class', 'close');
-    $(closeButton).click(function() {
-      this.closest('.dialog').remove();
-    });
 
     dialog.appendChild(logo);
     dialog.appendChild(versionText);
-    dialog.appendChild(closeButton);
-    document.body.appendChild(dialog);
   }
 };
