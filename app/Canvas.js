@@ -1,3 +1,5 @@
+const Dialog = require('../app/Dialog.js');
+
 module.exports = class Canvas {
   constructor() {
     this.counter = 3;
@@ -11,18 +13,12 @@ module.exports = class Canvas {
     console.log(this.counter);
   }
 
-  testJQ() {
-    console.log(window.jqueryui);
-  }
-
   addObj() {
-    let block = document.createElement('div');
-    $(block).attr('class', 'overlay');
-    document.body.appendChild(block);
+    Dialog.warning();
   };
 
   displayVersion() {
-    let dialog = require('../app/Dialog.js').dialog();
+    let dialog = Dialog.notice();
     let remoteApp = require('electron').remote.app;
 
     const logo = document.createElement('img');
