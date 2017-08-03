@@ -223,6 +223,12 @@ module.exports = class Card {
   destructor() { //removes ipc listeners from card
     this.channels.forEach(ele => __IPC.ipcRenderer.removeAllListeners(ele));
   }
+
+  module.exports = class Card {
+    constructor(id = throwIfMissing('id')) {
+      this.id = id;
+    }
+
 }
 
 function throwIfMissing(param) {

@@ -1,7 +1,8 @@
 /* temporary fix to suppress Chromium error, issue is being tracked via
     the following issue: https://github.com/electron/electron/issues/4420 */
 ::selection {
-    #background: transparent;
+  background:rgba(255, 255, 125, 0.99);
+  color:#032764;
 }
 
 div.loading-img {
