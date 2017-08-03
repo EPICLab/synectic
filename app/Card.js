@@ -1,5 +1,12 @@
+"use strict";
+
 module.exports = class Card {
-  constructor() {
-    this.id = 1;
+  constructor(id = throwIfMissing('id')) {
+    this.id = id;
   }
+
+}
+
+function throwIfMissing(param) {
+  throw new Error('Missing parameter \'' + param + '\'');
 }

@@ -1,4 +1,4 @@
-// A test to verify a canvas is created with buttons
+// A test to verify cards can be created and interacted
 var Application = require('spectron').Application;
 var electron = require('electron-prebuilt');
 var assert = require('assert');
@@ -29,7 +29,13 @@ describe('cards interactions', function () {
   });
 
   it('creates a Card instance', function () {
-    var card = new Card();
-    return assert.equal(card.id, 1);
+    var card = new Card(1);
+    return assert.equal(card.constructor.name, 'Card');
+  });
+
+  it('Card instantiation not allowed without ID', function () {
+    return assert.throws(() => {
+      new Card();
+    }, Error );
   });
 });
