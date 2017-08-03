@@ -1,20 +1,44 @@
+"use strict";
 const Dialog = require('../app/Dialog.js');
+const Card = require('../app/Card.js');
 
 module.exports = class Canvas {
   constructor() {
-    this.counter = 3;
+    this.cards = [];
   }
 
-  incCounter() {
-    this.counter++;
+  addCard(cardType = 'text') {
+    let card = new Card(this.nextCardId());
+    this.cards.push(card);
   }
 
-  printCounter() {
-    console.log(this.counter);
+  nextCardId() {
+    let ids = this.cards.map((card) => {
+      return card.id;
+    });
+    if (ids.length < 1) return 1; // no cards on canvas yet
+
+    let next = 1;
+    while (ids.indexOf(next += 1) > -1);
+    return next;
+  }
+
+  printCards() {
+    console.log('CARDS: (' + this.cards.length + ')');
+    for (var card of this.cards) {
+      console.log('card: ' + card.id);
+    }
   }
 
   addObj() {
     Dialog.warning();
+    let myNotification = new Notification('Title', {
+      body: 'Lorem Ipsum Dolor Sit Amet'
+    });
+
+    myNotification.onclick = () => {
+      console.log('Notification clicked')
+    };
   };
 
   displayVersion() {
