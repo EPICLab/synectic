@@ -2,38 +2,54 @@
 
 module.exports = {
 
+  // non-modal, non-interactive dialog for application notices
   notice: ({
     height = '300px',
-    width = '400px',
-    modal = false
+    width = '400px'
   } = {}) => {
+    const overlay = document.createElement('div');
+    $(overlay).attr('class', 'overlay');
+
     const dialog = document.createElement('div');
     $(dialog).attr('class', 'dialog').height(height).width(width);
-    if (modal) $(dialog).draggable();
+
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(function() { this.closest('.dialog').remove(); });
+    $(closeButton).click(function() { this.closest('.overlay').remove(); });
+
     dialog.appendChild(closeButton);
-    document.body.appendChild(dialog);
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
     return dialog;
   },
 
-  warning: ({
-    height = '200px',
-    width = '300px',
+  // generic dialog for interactive dialogs that are modal by default
+  dialog: ({
+    height = '300px',
+    width = '400px',
     modal = true
   } = {}) => {
     const dialog = document.createElement('div');
     $(dialog).attr('class', 'dialog').height(height).width(width);
-    if (modal) $(dialog).draggable({ containment: 'window' });
-    const username = require('username');
-    let creator = username.sync();
+
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
     $(closeButton).click(function() { this.closest('.dialog').remove(); });
-    // TODO: Add acknowledgment button to the bottom of the warning
+
     dialog.appendChild(closeButton);
     document.body.appendChild(dialog);
+
+    if (modal) $(dialog).draggable({
+      containment: 'window',
+      start: function() {
+        $(this).css({
+          transform: 'none',
+          top: $(this).offset().top+'px',
+          left: $(this).offset().left+'px'
+        });
+      }
+    });
+
     return dialog;
   },
 
