@@ -7,15 +7,19 @@ module.exports = {
     height = '300px',
     width = '400px'
   } = {}) => {
+    const overlay = document.createElement('div');
+    $(overlay).attr('class', 'overlay');
+
     const dialog = document.createElement('div');
     $(dialog).attr('class', 'dialog').height(height).width(width);
 
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(function() { this.closest('.dialog').remove(); });
+    $(closeButton).click(function() { this.closest('.overlay').remove(); });
 
     dialog.appendChild(closeButton);
-    document.body.appendChild(dialog);
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
     return dialog;
   },
 
