@@ -1,6 +1,6 @@
 {
   "name": "synectic",
-  "productName": "Synectic Development Environment",
+  "productName": "Synectic IDE",
   "description": "",
   "version": "0.6.0",
   "repository": "https://github.com/nelsonni/synectic",
@@ -17,7 +17,7 @@
     "build-linux": "electron-packager . Synectic --platform=linux --arch=x64 --asar --overwrite --icon=lib/icon.icns --out=release-builds --ignore=test",
     "build-dev": "electron-packager . Synectic-dev --overwrite --no-prune --icon=lib/icon.icns --out=release-builds",
     "clean": "rm -Rf release-builds/*",
-    "rebuild": "./node_modules/.bin/electron-rebuild",
+    "rebuild": "electron-rebuild -f",
     "test": "mocha --compilers js:babel-core/register ./test/*.js"
   },
   "devDependencies": {
@@ -29,6 +29,7 @@
     "electron-mocha": "^4.0.0",
     "electron-packager": "^8.7.2",
     "electron-prebuilt": "^1.4.13",
+    "electron-rebuild": "^1.6.0",
     "mocha": "^3.5.0",
     "spectron": "^3.7.2"
   },
