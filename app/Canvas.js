@@ -31,9 +31,16 @@ module.exports = class Canvas {
   }
 
   addObj() {
-    Dialog.warning();
+    let dialog = Dialog.dialog();
+
+    const ackButton = document.createElement('button');
+    $(ackButton).attr('class', 'acknowledge');
+    $(ackButton).html('OK');
+    $(ackButton).click(function() { this.closest('.dialog').remove(); });
+    dialog.appendChild(ackButton);
+
     let myNotification = new Notification('Title', {
-      body: 'Lorem Ipsum Dolor Sit Amet'
+      body: 'username: ' + require('username').sync()
     });
 
     myNotification.onclick = () => {
@@ -42,14 +49,14 @@ module.exports = class Canvas {
   };
 
   displayVersion() {
-    let dialog = Dialog.notice();
+    let dialog = Dialog.notice({height: '300px', width: '400px'});
     let remoteApp = require('electron').remote.app;
 
     const logo = document.createElement('img');
     const versionText = document.createElement('div');
 
-    $(logo).attr('class', 'logo');
-    $(versionText).attr('class', 'versions');
+    $(logo).attr('id', 'version_logo');
+    $(versionText).attr('id', 'version_text');
     $(versionText).html(
       remoteApp.getName() + ' ' + remoteApp.getVersion() + '<br/>' +
       '<span id=\'frameworks\'>' +
