@@ -1,6 +1,7 @@
 "use strict";
+
 module.exports = class Card {
-  constructor(id = throwIfMissing('id'), fileData) {
+  constructor(id = throwIfMissing('id'), type, fileData) {
     this.id = id; //establishes id of each card
     this.name = ""; //updated in cardbuilder
     this.parentStackID; //only used for ipc listener in sketchpards.js, necessary?
@@ -20,7 +21,7 @@ module.exports = class Card {
     const username = require('username');
     this.creator = username.sync();
 
-    this.cardBuilder(fileData);
+    this.cardBuilder(type, fileData);
     this.arrowListeners();
     this.disableSelectable();
     // this.setDraggable();
@@ -28,11 +29,11 @@ module.exports = class Card {
     // ipcRenderer.on("saveComplete", () => $('body').removeClass('waiting'));
   }
 
-  cardBuilder(fileData) {
+  cardBuilder(type, fileData) {
     var card = document.createElement('div');
     $(card).attr({
       id: 'card_' + this.id,
-      // type: type,
+      type: type,
       class: 'card',
     });
     this.card = card;
@@ -223,12 +224,6 @@ module.exports = class Card {
   destructor() { //removes ipc listeners from card
     this.channels.forEach(ele => __IPC.ipcRenderer.removeAllListeners(ele));
   }
-
-  module.exports = class Card {
-    constructor(id = throwIfMissing('id')) {
-      this.id = id;
-    }
-
 }
 
 function throwIfMissing(param) {

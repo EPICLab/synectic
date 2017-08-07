@@ -6,6 +6,9 @@ const path = require('path');
 var fs = require('fs');
 var Card = require('../app/Card.js');
 var Canvas = require('../app/Canvas.js');
+var TextEditor = require('../app/textEditor.js')
+var SketchPad = require('../app/sketchPad.js')
+var CodeEditor = require('../app/codeEditor.js')
 
 var app = new Application({
   path: electron,
@@ -33,7 +36,7 @@ describe('cards interactions', function () {
   });
 
   it('creates a Card instance', function () {
-    var card = new Card(1);
+    let card = new Card(1);
     return assert.equal(card.constructor.name, 'Card');
   });
 
@@ -48,15 +51,14 @@ describe('cards interactions', function () {
       return assert.equal(card.name, "Card: " + card.id);
     });
 
-    it('two cards do not have the same name', function () {
-        let card = new Card(1);
-        let card2 = new Card(2);
-        return assert.notEqual(card.name, card2.name);
-      });
+  it('two cards do not have the same name', function () {
+      let card = new Card(1);
+      let card2 = new Card(2);
+      return assert.notEqual(card.name, card2.name);
+  });
 
   it('document contains a card and header div', function () {
     let card = new Card(1);
-    card.cardBuilder();
     if(document.querySelector('.card') != undefined && document.querySelector('.card-header') != undefined)
       var div = 1;
     return assert.equal(div, 1);
@@ -64,7 +66,6 @@ describe('cards interactions', function () {
 
   it('document contains namebox span', function () {
     let card = new Card(1);
-    card.cardBuilder();
     if(document.querySelector('.nameBox') != undefined)
       var span = 1;
     return assert.equal(span, 1);
@@ -72,7 +73,6 @@ describe('cards interactions', function () {
 
   it('document contains close, expand, and save buttons', function () {
     let card = new Card(1);
-    card.cardBuilder();
     if(document.querySelector('.close') != undefined && document.querySelector('.expand') != undefined && document.querySelector('.save') != undefined)
       var buttons = 1;
     return assert.equal(buttons, 1);
@@ -97,4 +97,59 @@ describe('cards interactions', function () {
     }, 3000);
     return assert.notEqual(built, updated);
   });
+
+  it('creates a texteditor card instance', function () {
+    let textEditor = new TextEditor(1);
+    return assert.equal(textEditor.constructor.name, 'TextEditor');
+  });
+
+  it('texteditor contains three faces', function () {
+    let textEditor = new TextEditor(1);
+    return assert.equal(textEditor.faces.length, 3);
+  });
+
+  it('texteditor contains two \'editor\' faces', function () {
+    let textEditor = new TextEditor(1);
+    return assert.equal(textEditor.editors.length, 2);
+  });
+
+  it('creates a sketchpad card instance', function () {
+    let sketchPad = new SketchPad(1);
+    return assert.equal(sketchPad.constructor.name, 'SketchPad')
+  });
+
+  it('sketchpad has 4 sketch pens', function () {
+    let sketchPad = new SketchPad(1);
+    return assert.equal(sketchPad.pens.length, 4);
+  });
+
+  it('sketchpad has sketch pen buttons', function () {
+    let sketchPad = new SketchPad(1);
+    if(document.querySelector('.colorBtn') != undefined);
+      var pen = 1;
+    return assert.equal(pen, 1);
+  });
+
+  it('sketchpad has eraser button', function () {
+    let sketchPad = new SketchPad(1);
+    if(document.querySelector('.eraser') != undefined);
+      var eraser = 1;
+    return assert.equal(eraser, 1);
+  });
+
+  it('sketchpad contains two sketchpads', function () {
+    let sketchPad = new SketchPad(1);
+    return assert.equal(sketchPad.sketches.length, 2);
+  });
+
+  it('creates a codeEditors card instance', function () {
+    let codeEditor = new CodeEditor(1);
+    return assert.equal(codeEditor.constructor.name, 'CodeEditor')
+  });
+
+  it('codeEditor has 2 code editors', function () {
+    let codeEditor = new CodeEditor(1);
+    return assert.equal(codeEditor.editors, 2);
+  });
+
 });

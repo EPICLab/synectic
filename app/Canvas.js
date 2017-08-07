@@ -12,13 +12,10 @@ module.exports = class Canvas {
     this.cards.push(card);
   }
 
-<<<<<<< HEAD
   removeCard() {
     this.cards.pop();
   }
 
-=======
->>>>>>> e0a4be2d441f17e0cae9558c1894184c5b2d6972
   nextCardId() {
     let ids = this.cards.map((card) => {
       return card.id;
