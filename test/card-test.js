@@ -118,6 +118,11 @@ describe('cards interactions', function () {
     return assert.equal(sketchPad.constructor.name, 'SketchPad')
   });
 
+  it('sketchpad contains three faces', function () {
+    let sketchPad = new SketchPad(1);
+    return assert.equal(sketchPad.faces.length, 3);
+  });
+
   it('sketchpad has 4 sketch pens', function () {
     let sketchPad = new SketchPad(1);
     return assert.equal(sketchPad.pens.length, 4);
@@ -137,19 +142,14 @@ describe('cards interactions', function () {
     return assert.equal(eraser, 1);
   });
 
-  it('sketchpad contains two sketchpads', function () {
-    let sketchPad = new SketchPad(1);
-    return assert.equal(sketchPad.sketches.length, 2);
-  });
-
   it('creates a codeEditors card instance', function () {
     let codeEditor = new CodeEditor(1);
     return assert.equal(codeEditor.constructor.name, 'CodeEditor')
   });
 
-  it('codeEditor has 2 code editors', function () {
+  it('codeeditor contains three faces', function () {
     let codeEditor = new CodeEditor(1);
-    return assert.equal(codeEditor.editors, 2);
+    return assert.equal(codeEditor.faces.length, 3);
   });
 
 });

@@ -5,14 +5,13 @@ module.exports = class SketchPad extends Card {
   constructor(type, name) {
     super(type, name);
     this.type = type;
+    this.faces = [];
     this.sketches = [];
     this.pens = [];
 
     this.contentBuilder(this.card);
-    this.setDrawEffects();
+    // this.setDrawEffects();
     this.addButtons();
-    // this.penListeners();
-    // this.buildMetadata('sketch');
   }
 
   contentBuilder(card) {
@@ -21,15 +20,14 @@ module.exports = class SketchPad extends Card {
       class: 'editor',
       id: card.id + '_editor_' + this.id,
     });
-    let faces = [];
     for (let i = 0; i < 3; i++) {
       let face = document.createElement('div');
       let faceEditor = document.createElement('div');
       face.appendChild(faceEditor);
-      faces.push(face);
+      this.faces.push(face);
     }
 
-    faces.forEach(function (element, idx) {
+    this.faces.forEach(function (element, idx) {
       $(element.firstChild).attr({
         class: 'sketchEditor',
         id: card.id + 'sketch_' + idx,
