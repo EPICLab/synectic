@@ -5,42 +5,49 @@ var assert = require('assert');
 const path = require('path');
 var Card = require('../app/Card.js');
 
-var app = new Application({
-  path: electron,
-  args: [path.join(__dirname, '..', 'main.js')],
-  webPreferences: [],
-});
-
 describe('cards interactions', function () {
   this.timeout(30000);
+  var app;
 
   before(function () {
-    this.app = new Application({
+    app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
     });
-    return this.app.start();
+    return app.start();
   });
 
   after(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop();
+    if (app && app.isRunning()) {
+      return app.stop();
     }
   });
 
   it('creates a Card instance', function () {
-    var card = new Card(1);
+    var card = new Card({id: 1, context: document.body, modal: false});
     return assert.equal(card.constructor.name, 'Card');
   });
 
-  it('Card instantiation not allowed without ID', function () {
+  it('Card instantiation without parameters throws Error', function () {
     return assert.throws(() => {
       new Card();
     }, Error );
   });
 
+  it('Card instantiation without \'id\' parameter throws Error', function () {
+    return assert.throws(() => {
+      new Card({context: document.body, modal: false});
+    }, Error );
+  });
+
+  it('Card instantiation without \'context\' parameter throws Error', function () {
+    return assert.throws(() => {
+      new Card({id: 1, modal: false});
+    }, Error );
+  });
+
   it('Card metadata updates only interaction timestamp', function () {
-    var card = new Card(1);
+    var card = new Card({id: 1, context: document.body, modal: false});
     var createdTimestampBefore = card.createdTimestamp;
     var createdByBefore = card.createdBy;
     var lastInteractionBefore = card.lastInteraction;
