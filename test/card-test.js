@@ -88,6 +88,20 @@ describe('cards interactions', function () {
       return assert.notEqual(card.buildMetadata(), undefined);
   });
 
+  it('Card metadata updates only interaction timestamp', function () {
+    var card = new Card(1);
+    var createdTimestampBefore = card.createdTimestamp;
+    var createdByBefore = card.createdBy;
+    var lastInteractionBefore = card.lastInteraction;
+
+    let msg1 = card.createdTimestamp + " == " + createdTimestampBefore +
+      "\n\t(createdTimestamp should not change once Card is instantiated)";
+    let msg2 = card.createdBy + " == " + createdByBefore +
+      "\n\t(createdBy should not change once Card is instantiated)";
+    assert.equal(card.createdTimestamp, createdTimestampBefore, msg1);
+    assert.equal(card.createdBy, createdByBefore, msg2);
+  });
+
   it('metadata will update', function () {
     let card = new Card(1);
     var built = card.buildMetadata();
@@ -98,25 +112,6 @@ describe('cards interactions', function () {
     return assert.notEqual(built, updated);
   });
 
-  it('Card metadata updates only interaction timestamp', function () {
-    var card = new Card(1);
-    var createdTimestampBefore = card.createdTimestamp;
-    var createdByBefore = card.createdBy;
-    var lastInteractionBefore = card.lastInteraction;
-    wait(10);
-    card.updateMetadata();
-
-    let msg1 = card.createdTimestamp + " == " + createdTimestampBefore +
-      "\n\t(createdTimestamp should not change once Card is instantiated)";
-    let msg2 = card.createdBy + " == " + createdByBefore +
-      "\n\t(createdBy should not change once Card is instantiated)";
-    let msg3 = card.lastInteraction + " != " + lastInteractionBefore +
-      "\n\t(lastInteraction should update after Card#updateMetadata()" +
-      " method is evoked)";
-    assert.equal(card.createdTimestamp, createdTimestampBefore, msg1);
-    assert.equal(card.createdBy, createdByBefore, msg2);
-    assert.notEqual(card.lastInteraction, lastInteractionBefore, msg3);
-  });
 
   it('creates a texteditor card instance', function () {
     let textEditor = new TextEditor(1);

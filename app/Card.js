@@ -13,6 +13,7 @@ module.exports = class Card {
     this.createdBy = require('username').sync();
 
     this.cardBuilder(type);
+    this.updateMetadata();
   }
 
   cardBuilder(type) {
