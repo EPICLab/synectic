@@ -5,10 +5,36 @@ const Card = require('../app/Card.js');
 module.exports = class Canvas {
   constructor() {
     this.cards = [];
+
+    this.canvas = document.createElement('div');
+    $(this.canvas).attr('class', 'canvas');
+
+    const versionDialogButton = document.createElement('button');
+    $(versionDialogButton).click(() => { this.displayVersion(); });
+    $(versionDialogButton).html('Version');
+
+    const modalDialogButton = document.createElement('button');
+    $(modalDialogButton).click(() => { this.addObj(); });
+    $(modalDialogButton).html('Modal Dialog');
+
+    const addCardButton = document.createElement('button');
+    $(addCardButton).click(() => { this.addCard('text'); });
+    $(addCardButton).html('Add Card');
+
+    const printCardsButton = document.createElement('button');
+    $(printCardsButton).click(() => { this.printCards(); });
+    $(printCardsButton).html("Print Card(s)");
+
+    this.canvas.appendChild(versionDialogButton);
+    this.canvas.appendChild(modalDialogButton);
+    this.canvas.appendChild(document.createElement('br'));
+    this.canvas.appendChild(addCardButton);
+    this.canvas.appendChild(printCardsButton);
+    document.body.appendChild(this.canvas);
   }
 
-  addCard(cardType = 'text') {
-    let card = new Card(this.nextCardId());
+  addCard(cardType = 'text', modality = true) {
+    let card = new Card({id: this.nextCardId(), context: this.canvas, modal: modality});
     this.cards.push(card);
   }
 
@@ -28,7 +54,7 @@ module.exports = class Canvas {
   }
 
   printCards() {
-    console.log('CARDS: (' + this.cards.length + ')');
+    console.log('CARDS (' + this.cards.length + ')');
     for (var card of this.cards) {
       console.log('card: ' + card.id);
     }
