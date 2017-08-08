@@ -7,11 +7,10 @@ module.exports = class Card {
     this.inStack = false; //false if card is not in a stack
 
     //for metadata
-    this.creation_timestamp = new Date().toString();
-    this.interaction_timestamp = this.creation_timestamp;
+    this.createdTimestamp = new Date().toString();
+    this.lastInteraction = new Date();
     // npm module: username, url: https://www.npmjs.com/package/username
-    const username = require('username');
-    this.creator = username.sync();
+    this.createdBy = require('username').sync();
 
     this.cardBuilder(type);
   }
@@ -76,18 +75,18 @@ module.exports = class Card {
     $(id).attr({
       class: 'card-metadata',
     });
-    var metadata = 'Interaction: ' + this.interaction_timestamp +
-      '<br/><br/>Creator: ' + this.creator +
-      '<br/><br/>Created: ' + this.creation_timestamp;
+    var metadata = 'Interaction: ' + this.lastInteraction +
+      '<br/><br/>Creator: ' + this.createdBy +
+      '<br/><br/>Created: ' + this.createdTimestamp;
     $(id).html(metadata);
       return metadata;
   }
 
   updateMetadata(cardType){ //updates metadata of card
     let id = '#card_' + this.id + cardType + '_2';
-    var  updatedMetadata = 'Interaction: ' + new Date().toString() +
-    '<br/><br/>Creator: ' + this.creator +
-    '<br/><br/>Created: ' + this.creation_timestamp;
+    var  updatedMetadata = 'Interaction: ' + this.lastInteraction +
+    '<br/><br/>Creator: ' + this.createdBy +
+    '<br/><br/>Created: ' + this.createdTimestamp;
     $(id).html(updatedMetadata);
     return updatedMetadata;
   }

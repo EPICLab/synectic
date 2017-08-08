@@ -28,9 +28,9 @@ describe('application launch', function () {
   });
 
   it('creates an initial window', function () {
-    // WARNING: Spectron considers DevTools a window; count is 2 when enabled
     return this.app.client.getWindowCount().then(function (count) {
-      assert.equal(count, 1);
+      let msg = count + " == 1\n\t(warning: DevTools is considered a separate window, if enabled count is +1)";
+      assert.equal(count, 1, msg);
     });
   });
 
