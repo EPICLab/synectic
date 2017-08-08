@@ -18,7 +18,7 @@
     "build-dev": "electron-packager . Synectic-dev --overwrite --no-prune --icon=lib/icon.icns --out=release-builds",
     "clean": "rm -Rf release-builds/*",
     "rebuild": "electron-rebuild -f",
-    "test": "mocha --compilers js:babel-core/register ./test/*.js"
+    "test": "mocha --compilers js:babel-core/register --require jsdom-global/register ./test/*.js"
   },
   "devDependencies": {
     "asar": "^0.13.0",
@@ -30,6 +30,8 @@
     "electron-packager": "^8.7.2",
     "electron-prebuilt": "^1.4.13",
     "electron-rebuild": "^1.6.0",
+    "jsdom": "^11.1.0",
+    "jsdom-global": "^3.0.2",
     "mocha": "^3.5.0",
     "spectron": "^3.7.2"
   },

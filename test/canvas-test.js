@@ -5,26 +5,26 @@ var assert = require('assert');
 const path = require('path');
 var Canvas = require('../app/Canvas.js');
 
-var app = new Application({
-  path: electron,
-  args: [path.join(__dirname, '..', 'main.js')],
-  webPreferences: [],
+global.before(function () {
+  // this.jsdom = require('jsdom-global')();
+  global.$ = global.jQuery = require('jquery');
 });
 
 describe('canvas interactions', function () {
   this.timeout(30000);
+  var app;
 
   before(function () {
-    this.app = new Application({
+    app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
     });
-    return this.app.start();
+    return app.start();
   });
 
   after(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop();
+    if (app && app.isRunning()) {
+      return app.stop();
     }
   });
 
@@ -40,22 +40,22 @@ describe('canvas interactions', function () {
 
   it('added cards are tracked by Canvas instance', function () {
     let canvas = new Canvas();
-    canvas.addCard();
-    canvas.addCard();
+    canvas.addCard('text', false);
+    canvas.addCard('text', false);
     return assert.equal(canvas.cards.length, 2);
   });
 
   it('each added card receives different ID in a Canvas instance', function () {
     let canvas = new Canvas();
-    canvas.addCard();
-    canvas.addCard();
+    canvas.addCard('text', false);
+    canvas.addCard('text', false);
     return assert.notEqual(canvas.cards[0].id, canvas.cards[1].id);
   });
 
   it('two Canvas instances contain a separate set of cards', function () {
     let canvas1 = new Canvas();
     let canvas2 = new Canvas();
-    canvas1.addCard();
+    canvas1.addCard('text', false);
     return assert.notEqual(canvas1.cards.length, canvas2.cards.length);
   });
 });
