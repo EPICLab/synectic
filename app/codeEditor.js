@@ -8,32 +8,19 @@ module.exports = class CodeEditor extends Card {
     this.type = type;
     this.faces = [];
     this.editors = [];
-    this.contentBuilder(this.card);
     this.buildMetadata('codeEditor');
-  }
 
-  contentBuilder(card) {
-    var content = document.createElement('div');
-    $(content).attr({
-      class: 'editor',
-      id: card.id + '_editor_' + this.id,
-    });
+    this.ontent = document.createElement('div');
+    $(this.content).attr('class', 'codeEditor');
+
     for (let i = 0; i < 3; i++) {
-      let face = document.createElement('div');
+      this.face = document.createElement('div');
       if (i == 2)
-        var faceEditor = document.createElement('div');
+        this.faceEditor = document.createElement('div');
       else
-        var faceEditor = document.createElement('textarea');
-      face.appendChild(faceEditor);
-      this.faces.push(face);
+        this.faceEditor = document.createElement('textarea');
+      this.face.appendChild(this.faceEditor);
+      this.faces.push(this.face);
     }
-
-    this.faces.forEach(function(element, idx) {
-      $(element.firstChild).attr({
-        class: 'editor',
-        id: card.id + 'codeEditor_' + idx,
-      });
-      content.appendChild(element);
-    });
   }
 }

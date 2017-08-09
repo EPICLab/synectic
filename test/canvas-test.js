@@ -63,17 +63,17 @@ describe('canvas interactions', function () {
 
   it('removed card is tracked by canvas instance', function () {
     let canvas = new Canvas();
-    canvas.addCard();
+    canvas.addCard('text', false);
     canvas.removeCard();
     return assert.equal(canvas.cards.length, 0);
   });
 
   it('canvas instance correctly tracks added and removed cards', function () {
     let canvas = new Canvas();
-    canvas.addCard();
-    canvas.addCard();
+    canvas.addCard('text', false);
+    canvas.addCard('text', false);
     canvas.removeCard();
-    canvas.addCard();
+    canvas.addCard('text', false);
     return assert.equal(canvas.cards.length, 2);
   });
 });

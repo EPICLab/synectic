@@ -9,47 +9,17 @@ module.exports = class SketchPad extends Card {
     this.sketches = [];
     this.pens = [];
 
-    this.contentBuilder(this.card);
-    // this.setDrawEffects();
-    this.addButtons();
-  }
+    this.content = document.createElement('div');
+    $(this.content).attr('class', 'sketchEditor');
 
-  contentBuilder(card) {
-    var content = document.createElement('div');
-    $(content).attr({
-      class: 'editor',
-      id: card.id + '_editor_' + this.id,
-    });
     for (let i = 0; i < 3; i++) {
-      let face = document.createElement('div');
-      let faceEditor = document.createElement('div');
-      face.appendChild(faceEditor);
-      this.faces.push(face);
+      this.face = document.createElement('div');
+      this.faceEditor = document.createElement('div');
+      this.face.appendChild(this.faceEditor);
+      this.faces.push(this.face);
     }
 
-    this.faces.forEach(function (element, idx) {
-      $(element.firstChild).attr({
-        class: 'sketchEditor',
-        id: card.id + 'sketch_' + idx,
-      });
-      content.appendChild(element);
-    });
-  }
-
-  setDrawEffects() {
-    let canvases = [];
-    for (let i = 0; i < 3; i++)
-      canvases.push('card_' + this.id + 'sketch_' + i);
-    let curCard = this;
-    $(canvases).each(function (idx) {
-      let sketchPad = Raphael.sketchpad(canvases[idx], {
-        height: '100%',
-        width: '100%',
-        editing: true,
-      });
-      curCard.sketches.push(sketchPad);
-      sketchPad.change(() => curCard.updateMetadata('sketch'));
-    });
+      this.addButtons();
   }
 
   addButtons() {
@@ -67,23 +37,11 @@ module.exports = class SketchPad extends Card {
       }).css({
         backgroundColor: colors[idx],
       });
-      $(cur.card).find('.editor').append(this);
+      $(cur.card).find('.sketchEditor').append(this);
       cur.pens.push($(this)[0]);
     });
 
-    $(erase).attr({
-      id: 'pen_erase' + cur.id,
-    }).addClass('eraser');
-
-    $(cur.card).find('.editor').append(erase);
-
-    $(erase).on('click', () => {
-      for (let i in cur.sketches) {
-        if (cur.sketches[i].getState().editing === true)
-          cur.sketches[i].editing('erase');
-        else
-          cur.sketches[i].editing(true);
-      };
-    });
+    $(erase).attr('class', 'eraser');
+    $(cur.card).find('.sketchEditor').append(erase);
   }
 }
