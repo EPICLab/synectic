@@ -9,19 +9,19 @@ module.exports = {
     width = '400px',
     context = Error.throwIfMissing('context')
   } = {}) => {
-    const overlay = document.createElement('div');
-    $(overlay).attr('class', 'overlay');
+    // const overlay = document.createElement('div');
+    // $(overlay).attr('class', 'overlay');
 
     const dialog = document.createElement('div');
     $(dialog).attr('class', 'dialog').height(height).width(width);
 
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(() => { $(overlay).remove(); });
+    $(closeButton).click(() => { $(dialog).remove(); });
 
     dialog.appendChild(closeButton);
-    overlay.appendChild(dialog);
-    context.appendChild(overlay);
+    // overlay.appendChild(dialog);
+    context.appendChild(dialog);
     return dialog;
   },
 

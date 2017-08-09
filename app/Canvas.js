@@ -19,9 +19,17 @@ module.exports = class Canvas {
     $(versionDialogButton).click(() => { this.displayVersion(); });
     $(versionDialogButton).html('Version');
 
+    const invertVersionDialogButton = document.createElement('button');
+    $(invertVersionDialogButton).click(() => { this.invertVersion(); });
+    $(invertVersionDialogButton).html('Inverse Version');
+
     const modalDialogButton = document.createElement('button');
     $(modalDialogButton).click(() => { this.addObj(); });
     $(modalDialogButton).html('Modal Dialog');
+
+    const inverseModalDialogButton = document.createElement('button');
+    $(inverseModalDialogButton).click(() => { this.displayInverse(); });
+    $(inverseModalDialogButton).html('Inverse Modal Dialog');
 
     const addCardButton = document.createElement('button');
     $(addCardButton).click(() => { this.addCard('text'); });
@@ -32,7 +40,10 @@ module.exports = class Canvas {
     $(printCardsButton).html("Print Card(s)");
 
     this.canvas.appendChild(versionDialogButton);
+    this.canvas.appendChild(invertVersionDialogButton);
+    this.canvas.appendChild(document.createElement('br'));
     this.canvas.appendChild(modalDialogButton);
+    this.canvas.appendChild(inverseModalDialogButton);
     this.canvas.appendChild(document.createElement('br'));
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
@@ -93,14 +104,73 @@ module.exports = class Canvas {
     $(ackButton).click(function() { this.closest('.dialog').remove(); });
     dialog.appendChild(ackButton);
 
-    let myNotification = new Notification('Title', {
-      body: 'username: ' + require('username').sync()
+    // let myNotification = new Notification('Title', {
+    //   body: 'username: ' + require('username').sync()
+    // });
+    //
+    // myNotification.onclick = () => {
+    //   console.log('Notification clicked')
+    // };
+  };
+
+  displayInverse() {
+    let dialog1 = Dialog.dialog();
+    $(dialog1).css({
+      'background-color': 'transparent'
     });
 
-    myNotification.onclick = () => {
-      console.log('Notification clicked')
-    };
-  };
+    const image1 = document.createElement('img');
+    $(image1).attr('src', '../asset/Spot_the_difference1.png');
+
+    dialog1.appendChild(image1);
+
+    let dialog2 = Dialog.dialog();
+    $(dialog2).css({
+      'background-color': 'transparent'
+    });
+
+    const image2 = document.createElement('img');
+    $(image2).attr('src', '../asset/Spot_the_difference2.png');
+    $(image2).css({
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      // margin: 'auto',
+      'z-index': 10000,
+      filter: 'invert(100%) opacity(50%)',
+    });
+
+    dialog2.appendChild(image2);
+  }
+
+  invertVersion() {
+    let dialog = Dialog.notice({height: '300px', width: '400px'});
+    $(dialog).css({
+      filter: 'invert(100%) opacity(50%)'
+    });
+    let remoteApp = require('electron').remote.app;
+
+    const logo = document.createElement('img');
+    const versionText = document.createElement('div');
+
+    var v = process.versions.electron;
+    var vp = v.slice(0,-1);
+    vp += "4";
+
+    $(logo).attr('id', 'version_logo');
+    $(versionText).attr('id', 'version_text');
+    $(versionText).html(
+      remoteApp.getName() + ' ' + remoteApp.getVersion() + '<br/>' +
+      '<span id=\'frameworks\'>' +
+      'Node.js ' + process.versions.node + ', ' +
+      'Chrome ' + process.versions.chrome + ', and ' +
+      'Electron ' + vp + '</span>'
+    );
+
+    dialog.appendChild(logo);
+    dialog.appendChild(versionText);
+  }
 
   displayVersion() {
     let dialog = Dialog.notice({height: '300px', width: '400px', context: this.canvas});
