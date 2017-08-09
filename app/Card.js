@@ -1,5 +1,5 @@
 "use strict";
-const Error = require('../app/Error.js');
+const Error = require('../lib/error.js');
 const uuidv4 = require('uuid/v4');
 
 module.exports = class Card {
