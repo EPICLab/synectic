@@ -38,10 +38,6 @@ module.exports = class Canvas {
     this.cards.push(card);
   }
 
-  removeCard() {
-    this.cards.pop();
-  }
-
   nextCardId() {
     let ids = this.cards.map((card) => {
       return card.id;

@@ -40,51 +40,39 @@ describe('cards interactions', function () {
     }, Error );
   });
 
-  it('correctly names a card', function () {
-      let card = new Card({id: 1, context: document.body, modal: false});
-      return assert.equal(card.name, "My Card " + card.id);
-    });
+  // it('correctly names a card', function () {
+  //     let card = new Card({id: 1, context: document.body, modal: false});
+  //     return assert.equal(card.name, "My Card " + card.id);
+  //   });
 
-  it('two cards do not have the same name', function () {
-      let card = new Card({id: 1, context: document.body, modal: false});
-      let card2 = new Card({id: 2, context: document.body, modal: false});
-      return assert.notEqual(card.name, card2.name);
-  });
+  // it('two cards do not have the same name', function () {
+  //     let card = new Card({id: 1, context: document.body, modal: false});
+  //     let card2 = new Card({id: 2, context: document.body, modal: false});
+  //     return assert.notEqual(card.name, card2.name);
+  // });
 
   it('document contains a card and header div', function () {
     let card = new Card({id: 1, context: document.body, modal: false});
-    let cardClass = document.querySelector('.card');
-    let cardHeaderClass = document.querySelector('.card-header');
-    let msg1 = 'document contains card div';
-    let msg2 = 'document contains header div'
-    assert.notEqual(cardClass, undefined, msg1);
-    assert.notEqual(cardHeaderClass, undefined, msg2);
+    let msg1 = card.card + ' document contains card div';
+    let msg2 = card.header + ' document contains header div'
+    assert.notEqual(card.card, undefined, msg1);
+    assert.notEqual(card.header, undefined, msg2);
   });
 
   it('document contains namebox span', function () {
     let card = new Card({id: 1, context: document.body, modal: false});
-    if(document.querySelector('.card-title') != undefined)
-      var span = 1;
-    return assert.equal(span, 1);
+    assert.notEqual(card.title, undefined);
   });
 
-  it('document contains close, expand, and save buttons', function () {
-    let card = new Card({id: 1, context: document.body, modal: false});
-    let closeButton = document.querySelector('.close');
-    let expandButton = document.querySelector('.expand');
-    let saveButton = document.querySelector('.save');
-    let msg1 = 'document contains close button';
-    let msg2 = 'document contains expand button';
-    let msg3 = 'document contains save button';
-    assert.notEqual(closeButton, undefined, msg1);
-    assert.notEqual(expandButton, undefined, msg2);
-    assert.notEqual(saveButton, undefined, msg3);
-  });
-
-  it('new card is not in a stack', function () {
-    let card = new Card({id: 1, context: document.body, modal: false});
-    return assert.equal(card.inStack, false);
-  });
+  // it('document contains close, expand, and save buttons', function () {
+  //   let card = new Card({id: 1, context: document.body, modal: false});
+  //   let msg1 = 'document contains close button';
+  //   let msg2 = 'document contains expand button';
+  //   let msg3 = 'document contains save button';
+  //   assert.notEqual(card.closeButton, undefined, msg1);
+  //   assert.notEqual(card.saveButton, undefined, msg2);
+  //   assert.notEqual(card.fullscreenButton, undefined, msg3);
+  // });
 
   it('Card instantiation without \'id\' parameter throws Error', function () {
     return assert.throws(() => {
@@ -103,24 +91,62 @@ describe('cards interactions', function () {
     var createdTimestampBefore = card.createdTimestamp;
     var createdByBefore = card.createdBy;
     var lastInteractionBefore = card.lastInteraction;
+    wait(10);
+    card.updateMetadata();
 
     let msg1 = card.createdTimestamp + " == " + createdTimestampBefore +
       "\n\t(createdTimestamp should not change once Card is instantiated)";
     let msg2 = card.createdBy + " == " + createdByBefore +
       "\n\t(createdBy should not change once Card is instantiated)";
+    let msg3 = card.lastInteraction + " != " + lastInteractionBefore +
+    "\n\t(lastInteraction should update after Card#updateMetadata()" +
+    " method is evoked)";
     assert.equal(card.createdTimestamp, createdTimestampBefore, msg1);
     assert.equal(card.createdBy, createdByBefore, msg2);
+    assert.notEqual(card.lastInteraction, lastInteractionBefore, msg3);
   });
 
-  it('metadata will update', function () {
-    let card = new Card({id: 1, context: document.body, modal: false});
-    var built = card.buildMetadata();
-    var updated;
-    setTimeout(function(){
-      var updated = card.updateMetadata();
-    }, 3000);
-    return assert.notEqual(built, updated);
-  });
+  // it('card dragability can be disabled', function () {
+  //   let card = new Card();
+  //   $(card.card).data('draggable');
+  //   if ($(card.card).draggable('disable'))
+  //     var disabled = 1;
+  //   return assert.equal(disabled, 1);
+  // });
+
+  // it('toggleDraggable sets correct card position', function () {
+  //   let card = new Card();
+  //   $(card).css({top: 200, left: 250});
+  //   var topPosition = $(card).offset().top + 'px';
+  //   var leftPosition = $(card).offset().left + 'px';
+  //   let msg1 = 'toggleDraggable sets card top position to be: ' + topPosition +
+  //   ' but, card top position should be 200px';
+  //   let msg2 = 'toggleDraggable sets card left position to be: ' + leftPosition +
+  //   ' but, card left position should be 250px';
+  //   assert.equal('200px', topPosition, msg1);
+  //   assert.equal('250px', leftPosition, msg2);
+  // });
+
+  // it('card dropability can be disabled', function () {
+  //   let card = new Card();
+  //   $(card.card).data('droppable');
+  //   if($(card.card).droppable('disabled')))
+  //     var disabled = 1;
+  //   return assert.equal(disabled, 1);
+  // });
+
+  // it('card intance has correct height and width when fullscreen mode is toggled on', function () {
+  //   let card = new Card();
+  //   card.toggleButton.trigger('click');
+  //   var curHeight = card.offsetHeight;
+  //   var curWdith = card.offsetWidth;
+  //   var idealHeight = document.offsetHeight;
+  //   var idealWidth = document.offsetWidth;
+  //   let msg1 = 'current height of card is: ' + curHeight + ' but, ideal height is: ' + idealHeight;
+  //   let msg2 = 'current widtht of card is: ' + curWidth + ' but, ideal width is: ' + idealWidth;
+  //   assert.equal(idealHeight, curHeight);
+  //   assert.equal(idealWidth, curWidth);
+  // });
 
   it('creates a texteditor card instance', function () {
     let textEditor = new TextEditor({id: 1, context: document.body, modal: false});
@@ -147,24 +173,20 @@ describe('cards interactions', function () {
     return assert.equal(sketchPad.faces.length, 3);
   });
 
-  it('sketchpad has 4 sketch pens', function () {
-    let sketchPad = new SketchPad({id: 1, context: document.body, modal: false});
-    return assert.equal(sketchPad.pens.length, 4);
-  });
-
   it('sketchpad has sketch pen buttons', function () {
     let sketchPad = new SketchPad({id: 1, context: document.body, modal: false});
-    if(document.querySelector('.colorBtn') != undefined);
-      var pen = 1;
-    return assert.equal(pen, 1);
+    assert.notEqual(sketchPad.pens, undefined);
   });
 
-  it('sketchpad has eraser button', function () {
-    let sketchPad = new SketchPad({id: 1, context: document.body, modal: false});
-    if(document.querySelector('.eraser') != undefined);
-      var eraser = 1;
-    return assert.equal(eraser, 1);
-  });
+  // it('sketchpad has 4 sketch pens', function () {
+  //   let sketchPad = new SketchPad({id: 1, context: document.body, modal: false});
+  //   return assert.equal(sketchPad.pens.length, 4);
+  // });
+
+  // it('sketchpad has eraser button', function () {
+  //   let sketchPad = new SketchPad({id: 1, context: document.body, modal: false});
+  //   return assert.notEqual(sketchPad.eraser, undefined);
+  // });
 
   it('creates a codeEditors card instance', function () {
     let codeEditor = new CodeEditor({id: 1, context: document.body, modal: false});

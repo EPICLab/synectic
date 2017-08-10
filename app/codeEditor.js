@@ -3,14 +3,13 @@
 const Card = require('../app/Card.js');
 
 module.exports = class CodeEditor extends Card {
-  constructor(type, fileData) {
-    super(type, fileData);
+  constructor(type) {
+    super(type);
     this.type = type;
     this.faces = [];
     this.editors = [];
-    this.buildMetadata('codeEditor');
 
-    this.ontent = document.createElement('div');
+    this.content = document.createElement('div');
     $(this.content).attr('class', 'codeEditor');
 
     for (let i = 0; i < 3; i++) {

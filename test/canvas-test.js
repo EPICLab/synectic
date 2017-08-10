@@ -61,19 +61,19 @@ describe('canvas interactions', function () {
     return assert.notEqual(canvas1.cards.length, canvas2.cards.length);
   });
 
-  it('removed card is tracked by canvas instance', function () {
-    let canvas = new Canvas();
-    canvas.addCard('text', false);
-    canvas.removeCard();
-    return assert.equal(canvas.cards.length, 0);
-  });
+  // it('removed card is tracked by canvas instance', function () {
+  //   let canvas = new Canvas();
+  //   canvas.addCard('text', false);
+  //   canvas.removeCard();
+  //   return assert.equal(canvas.cards.length, 0);
+  // });
 
-  it('canvas instance correctly tracks added and removed cards', function () {
-    let canvas = new Canvas();
-    canvas.addCard('text', false);
-    canvas.addCard('text', false);
-    canvas.removeCard();
-    canvas.addCard('text', false);
-    return assert.equal(canvas.cards.length, 2);
-  });
+  // it('canvas instance correctly tracks added and removed cards', function () {
+  //   let canvas = new Canvas();
+  //   canvas.addCard('text', false);
+  //   canvas.addCard('text', false);
+  //   canvas.removeCard();
+  //   canvas.addCard('text', false);
+  //   return assert.equal(canvas.cards.length, 2);
+  // });
 });

@@ -1,12 +1,12 @@
 "use strict";
 const Card = require('../app/Card.js');
+var Raphael = require('raphael');
 
 module.exports = class SketchPad extends Card {
-  constructor(type, name) {
-    super(type, name);
+  constructor(type) {
+    super(type);
     this.type = type;
     this.faces = [];
-    this.sketches = [];
     this.pens = [];
 
     this.content = document.createElement('div');
@@ -19,29 +19,5 @@ module.exports = class SketchPad extends Card {
       this.faces.push(this.face);
     }
 
-      this.addButtons();
-  }
-
-  addButtons() {
-    let red = document.createElement('button');
-    let blue = document.createElement('button');
-    let green = document.createElement('button');
-    let black = document.createElement('button');
-    let erase = document.createElement('button');
-    let colors = ['red', 'blue', 'green', 'black'];
-    let cur = this;
-    $([red, blue, green, black]).each(function (idx) {
-      $(this).addClass('colorBtn').attr({
-        id: 'pen_' + colors[idx] + cur.id,
-        value: colors[idx],
-      }).css({
-        backgroundColor: colors[idx],
-      });
-      $(cur.card).find('.sketchEditor').append(this);
-      cur.pens.push($(this)[0]);
-    });
-
-    $(erase).attr('class', 'eraser');
-    $(cur.card).find('.sketchEditor').append(erase);
   }
 }

@@ -1,5 +1,4 @@
 "use strict";
-const VERTICAL_PADDING = 30;
 const Card = require('../app/Card.js');
 
 module.exports = class TextEditor extends Card{
@@ -24,14 +23,5 @@ module.exports = class TextEditor extends Card{
       this.face.appendChild(this.faceEditor);
       this.faces.push(this.face);
     }
-
-    this.faces.forEach((element, idx) => {
-      $(element.firstChild).attr({
-          class: 'editor',
-          rows: 19,
-          cols: 200,
-        });
-      this.content.appendChild(element);
-    });
   }
 }
