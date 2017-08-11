@@ -38,8 +38,8 @@ describe('stack interactions', function () {
     return assert.equal(stack.constructor.name, 'Stack')
   });
 
-  it('stack contains div body, close button, expand button, and annotation textarea',
-    function () {
+  it('stack contains div body, close button, expand button, ' +
+  'and annotation textarea', function () {
     let stack = new Stack();
     var stackDiv = stack.stack;
     var closeButton = stack.closeButton;
@@ -87,4 +87,23 @@ describe('stack interactions', function () {
     return assert.equal(stack.cards.length, 0);
   });
 
+  // it('cards are positioned correctly in a stack instance', function () {
+  //   let stack = new Stack();
+  //   let card = new Card({id: 1, context: document.body, modal: false});
+  //   stack.addCard(card);
+  //   $(stack.stack).css({
+  //     top: 100,
+  //     left: 150,
+  //   });
+  //   stack.cascadeCards();
+  //   let topPosition = $(stack.cards[0]).offset().top;
+  //   let leftPosition = $(stack.cards[0]).offset().left;
+  //   var index = 0;
+  //   let idealTop = $(stack.stack).offset().top + ((index + 1) * 25) + 'px';
+  //   let idealLeft = $(stack.stack).offset().left + ((index + 1) * 25) + 'px';
+  //   console.log('topPosition: ' + topPosition + ' leftPosition: ' + leftPosition);
+  //   console.log('idealTop: ' + idealTop + ' idealLeft: ' + idealLeft);
+  //   assert.equal(topPosition, idealTop);
+  //   asser.equal(leftPosition, idealLeft);
+  // });
 });
