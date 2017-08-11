@@ -17,7 +17,8 @@ describe('cards interactions', function () {
   before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
-      app = new Application({      path: electron,
+    app = new Application({
+      path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
     });
     return app.start();
@@ -99,8 +100,8 @@ describe('cards interactions', function () {
     let msg2 = card.createdBy + " == " + createdByBefore +
       "\n\t(createdBy should not change once Card is instantiated)";
     let msg3 = card.lastInteraction + " != " + lastInteractionBefore +
-    "\n\t(lastInteraction should update after Card#updateMetadata()" +
-    " method is evoked)";
+      "\n\t(lastInteraction should update after Card#updateMetadata()" +
+      " method is evoked)";
     assert.equal(card.createdTimestamp, createdTimestampBefore, msg1);
     assert.equal(card.createdBy, createdByBefore, msg2);
     assert.notEqual(card.lastInteraction, lastInteractionBefore, msg3);
