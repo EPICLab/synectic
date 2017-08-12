@@ -36,7 +36,7 @@ describe('Dialog interactions', function () {
     let dialogClass = document.querySelector('.dialog');
     let overlayClass = document.querySelector('.overlay');
     let closeClass = document.querySelector('.close');
-    let msg1 = 'document must contain notice dialog div';
+    let msg1 = 'document must contain notice dialog body div';
     let msg2 = 'document must contain notice overlay div';
     let msg3 = 'document must contain notice close button';
     assert.notEqual(dialogClass, undefined, msg1);
@@ -44,12 +44,18 @@ describe('Dialog interactions', function () {
     assert.notEqual(closeClass, undefined, msg3)
   });
 
-  // it('notice dialog overlay is removed on click', function () {
+  // it('all contents of a notice dialog are removed on close button click', function () {
   //   let dialog = Dialog.notice({height: '300px', width: '400px'});
   //   let closeButton = document.querySelector('.close');
   //   $(closeButton).trigger('click');
+  //   let dialogBody = document.querySelector('.dialog');
   //   let overlayDiv = document.querySelector('.overlay');
-  //   return assert.equal(overlayDiv, undefined);
+  //   let msg1 = 'document must remove notice dialog body div';
+  //   let msg2 = 'document must remove notice overlay div';
+  //   let msg3 = 'document must remove notice close button';
+  //   assert.equal(dialogBody, undefined, msg1);
+  //   assert.equal(overlayDiv, undefined, msg2);
+  //   assert.equal(closeButton, undefined, msg3)
   // });
 
   it('notice dialog has correct height and width', function () {
@@ -73,13 +79,24 @@ describe('Dialog interactions', function () {
   // });
 
   // it('generic dialog has correct height and width', function () {
-  //   let dialog = Dialog.dialog();
+  //   let dialog = Dialog.dialog({height: '300px', width: '400px'});
   //   let dialogHeight = $(dialog).height();
   //   let dialogWidth = $(dialog).width();
   //   let msg1 = 'dialog height is ' + dialogHeight +' but, dialog height should be 300px';
   //   let msg2 = 'dialog width is ' + dialogWidth + ' but, dialog width should be 400px';
   //   assert.equal(dialogHeight, '300', msg1);
   //   assert.equal(dialogWidth, '400', msg2);
+  // });
+
+  // it('all contents of a general dialog are removed on close button click', function () {
+  //   let dialog = Dialog.dialog({height: '300px', width: '400px'});
+  //   let closeButton = document.querySelector('.close');
+  //   $(closeButton).trigger('click');
+  //   let dialogBody = document.querySelector('.dialog');
+  //   let msg1 = 'document must remove notice dialog body div';
+  //   let msg2 = 'document must remove notice close button';
+  //   assert.equal(dialogBody, undefined, msg1);
+  //   assert.equal(closeButton, undefined, msg3)
   // });
 
 });
