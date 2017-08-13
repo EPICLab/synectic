@@ -34,7 +34,12 @@ module.exports = class Canvas {
   }
 
   addCard(cardType = 'text', modality = true) {
-    let card = new Card({id: this.nextCardId(), context: this.canvas, modal: modality});
+    let card = new Card({
+      id: this.nextCardId(),
+      type: cardType,
+      context: this.canvas,
+      modal: modality
+    });
     this.cards.push(card);
   }
 
@@ -52,7 +57,7 @@ module.exports = class Canvas {
   printCards() {
     console.log('CARDS (' + this.cards.length + ')');
     for (var card of this.cards) {
-      console.log('card: ' + card.id);
+      card.printMetadata();
     }
   }
 

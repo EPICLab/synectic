@@ -1,6 +1,6 @@
 "use strict";
+var Card = require('../app/Card.js');
 // require('./libs/ace/ext-modelist.js'); // Don't delete me! Needed by ace.req
-const Card = require('../app/Card.js');
 
 module.exports = class CodeEditor extends Card {
   constructor(type) {

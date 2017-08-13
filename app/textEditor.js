@@ -1,5 +1,5 @@
 "use strict";
-const Card = require('../app/Card.js');
+var Card = require('../app/Card.js');
 
 module.exports = class TextEditor extends Card{
   constructor(type) {

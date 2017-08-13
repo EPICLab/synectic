@@ -4,13 +4,14 @@ const CARD_WIDTH = 250;
 const TOTAL_SIZE = CARD_WIDTH + CARD_PADDING;
 const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
-const Card = require('../app/Card.js');
-const Canvas = require('../app/Canvas.js');
+const uuidv4 = require('uuid/v4');
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
   constructor() {
     this.cards = [];
+    this.id = 3;
+    this.uuid = uuidv4();
     this.state = 'collapsed';
 
     this.stack = document.createElement('div');

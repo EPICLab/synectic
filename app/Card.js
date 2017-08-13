@@ -1,13 +1,17 @@
 "use strict";
-const Error = require('../app/Error.js');
+const Error = require('../lib/error.js');
+const uuidv4 = require('uuid/v4');
 
 module.exports = class Card {
   constructor({
       id = Error.throwIfMissing('id'),
+      type = Error.throwIfMissing('type'),
       context = Error.throwIfMissing('context'),
       modal = true
     }) {
     this.id = id;
+    this.uuid = uuidv4();
+    this.cardType = type;
     this.createdBy = require('username').sync();
     this.createdTimestamp = new Date();
     this.lastInteraction = new Date();
@@ -32,6 +36,13 @@ module.exports = class Card {
 
   updateMetadata() {
     this.lastInteraction = new Date();
+  }
+
+  printMetadata() {
+    console.log('id: ' + this.id + ', uuid: ' + this.uuid);
+    console.log('cardType: ' + this.cardType + ', createdBy: ' + this.createdBy);
+    console.log('createdTimestamp: ' + this.createdTimestamp);
+    console.log('lastInteraction: ' + this.lastInteraction);
   }
 
   toggleDraggable() {
