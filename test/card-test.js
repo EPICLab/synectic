@@ -66,16 +66,16 @@ describe('cards interactions', function () {
   //   }, Error);
   // });
 
+  it('two Card instances do not have the same uuid', function () {
+      let card = new Card({id: 1, type: 'text', context: document.body, modal: false});
+      let card2 = new Card({id: 2, type: 'text', context: document.body, modal: false});
+      return assert.notEqual(card.uuid, card2.uuid);
+  });
+
   // it('correctly names a card', function () {
   //     let card = new Card({id: 1, context: document.body, modal: false});
   //     return assert.equal(card.name, "My Card " + card.id);
   //   });
-
-  // it('two cards do not have the same name', function () {
-  //     let card = new Card({id: 1, context: document.body, modal: false});
-  //     let card2 = new Card({id: 2, context: document.body, modal: false});
-  //     return assert.notEqual(card.name, card2.name);
-  // });
 
   it('document contains a card and header div', function () {
     let card = new Card({id: 1, type: 'text', context: document.body, modal: false});
