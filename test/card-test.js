@@ -17,7 +17,7 @@ describe('cards interactions', function () {
   before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
-	require('./../lib/jquery-ui-1.12.1/jquery-ui.min') 
+    require('jquery-ui-bundle')
 
     app = new Application({
       path: electron,
