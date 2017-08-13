@@ -1,6 +1,12 @@
 "use strict";
+const BrowserWindow = require('electron').BrowserWindow;
+const Utility = require('../lib/utility.js');
 
-define('template', [
+function other() {
+  // do nothing for now
+}
+
+Utility.defineConstant(module.exports, 'template', [
   {
     label: 'Edit',
     submenu: [
@@ -30,6 +36,31 @@ define('template', [
     ]
   },
   {
+    label: 'Control',
+    submenu: [
+      {
+        label: 'New Canvas',
+        click() {
+          CanvasManager.register();
+          console.log('CanvasManager is saying ' + CanvasManager.size);
+        }
+      },
+      {
+        label: 'New Card',
+        click() {
+          CanvasManager.current.addCard('text', true);
+        }
+      },
+      {
+        label: 'Other',
+        click() {
+          BrowserWindow.fromId(1).webContents
+            .executeJavaScript(Utility.getFunctionBody(other));
+        }
+      }
+    ]
+  },
+  {
     role: 'window',
     submenu: [
       {role: 'minimize'},
@@ -41,8 +72,7 @@ define('template', [
     submenu: [
       {
         label: 'Learn More',
-        click () {
-          const BrowserWindow = require('electron').BrowserWindow;
+        click() {
           BrowserWindow.fromId(1).webContents.executeJavaScript(`document.querySelectorAll('.dialog').length`, function (result) {
             console.log('dialogs: ' + result);
           })
@@ -51,13 +81,13 @@ define('template', [
       },
       {
         label: 'Find BrowserWindows',
-        click () {
+        click() {
           showAllBrowserWindows();
         }
       },
       {
         label: 'About Synectic',
-        click () {
+        click() {
           const BrowserWindow = require('electron').BrowserWindow;
           BrowserWindow.fromId(1).webContents.executeJavaScript(`
             var Canvas = require('../app/Canvas.js');
@@ -71,7 +101,7 @@ define('template', [
 ]);
 
 module.exports.configDarwinMenu = function () {
-  const app = require('electron').app;
+  const app = require('electron').remote.app;
   this.template.unshift({
     label: app.getName(),
     submenu: [
@@ -100,7 +130,7 @@ module.exports.configDarwinMenu = function () {
   )
 
   // Window menu
-  this.template[3].submenu = [
+  this.template[4].submenu = [
     {role: 'close'},
     {role: 'minimize'},
     {role: 'zoom'},
@@ -119,12 +149,4 @@ function showAllBrowserWindows() {
     console.log('name: \t\t' + windowObject.__name);
     console.log('tag: \t\t' + windowObject.__tag);
   }
-}
-
-// helper function for defining immutable constants
-function define(name, value) {
-  Object.defineProperty(module.exports, name, {
-    value: value,
-    enumerable: true
-  });
 }

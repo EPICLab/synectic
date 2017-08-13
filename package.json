@@ -41,6 +41,7 @@
     "jquery-ui": "^1.12.1",
     "raphael": "^2.2.7",
     "slick-carousel": "^1.6.0",
-    "username": "^3.0.0"
+    "username": "^3.0.0",
+    "uuid": "^3.1.0"
   }
 }

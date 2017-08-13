@@ -1,5 +1,5 @@
 "use strict";
-const Card = require('../app/Card.js');
+var Card = require('../app/Card.js');
 var Raphael = require('raphael');
 
 module.exports = class SketchPad extends Card {
