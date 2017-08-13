@@ -1,7 +1,6 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const url = require('url');
-const menus = require('./app/Menu.js');
 
 let win;
 
@@ -15,10 +14,6 @@ function createWindow() {
     protocol: 'file:',
     slashes: true,
   }));
-
-  if (process.platform === 'darwin') menus.configDarwinMenu();
-  const menu = Menu.buildFromTemplate(menus.template);
-  Menu.setApplicationMenu(menu);
 
   // Open the DevTools.
   // win.webContents.openDevTools();
