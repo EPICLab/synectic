@@ -17,7 +17,7 @@ describe('cards interactions', function () {
   before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
-    require('jquery-ui-bundle')
+	require('jquery-ui-bundle')
 
     app = new Application({
       path: electron,
@@ -33,7 +33,7 @@ describe('cards interactions', function () {
   });
 
   it('creates a Card instance', function () {
-    var card = new Card({id: 1, context: document.body, modal: true});
+    var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     return assert.equal(card.constructor.name, 'Card');
   });
 
@@ -45,19 +45,19 @@ describe('cards interactions', function () {
 
   it('Card instantiation without \'id\' parameter throws Error', function () {
     return assert.throws(() => {
-      new Card({type: 'text', context: document.body, modal: false});
+      new Card({type: 'text', context: document.body, modal: true});
     }, Error);
   });
 
   it('Card instantiation without \'type\' parameter throws Error', function () {
     return assert.throws(() => {
-      new Card({id: 1, context: document.body, modal: false});
+      new Card({id: 1, context: document.body, modal: true});
     }, Error);
   });
 
   it('Card instantiation without \'context\' parameter throws Error', function () {
     return assert.throws(() => {
-      new Card({id: 1, type: 'text', modal: false});
+      new Card({id: 1, type: 'text', modal: true});
     }, Error);
   });
 
@@ -69,8 +69,8 @@ describe('cards interactions', function () {
   // });
 
   it('two Card instances do not have the same uuid', function () {
-      let card = new Card({id: 1, type: 'text', context: document.body, modal: false});
-      let card2 = new Card({id: 2, type: 'text', context: document.body, modal: false});
+      let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+      let card2 = new Card({id: 2, type: 'text', context: document.body, modal: true});
       return assert.notEqual(card.uuid, card2.uuid);
   });
 
@@ -80,7 +80,7 @@ describe('cards interactions', function () {
   //   });
 
   it('document contains a card and header div', function () {
-    let card = new Card({id: 1, context: document.body, modal: true});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     let msg1 = card.card + ' document contains card div';
     let msg2 = card.header + ' document contains header div'
     assert.notEqual(card.card, undefined, msg1);
@@ -88,7 +88,7 @@ describe('cards interactions', function () {
   });
 
   it('document contains namebox span', function () {
-    let card = new Card({id: 1, context: document.body, modal: true});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     assert.notEqual(card.title, undefined);
   });
 
@@ -102,20 +102,8 @@ describe('cards interactions', function () {
   //   assert.notEqual(card.fullscreenButton, undefined, msg3);
   // });
 
-  it('Card instantiation without \'id\' parameter throws Error', function () {
-    return assert.throws(() => {
-      new Card({context: document.body, modal: true});
-    }, Error );
-  });
-
-  it('Card instantiation without \'context\' parameter throws Error', function () {
-    return assert.throws(() => {
-      new Card({id: 1, modal: true});
-    }, Error );
-  });
-
   it('Card metadata updates only interaction timestamp', function () {
-    var card = new Card({id: 1, context: document.body, modal: true});
+    var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     var createdTimestampBefore = card.createdTimestamp;
     var createdByBefore = card.createdBy;
     var lastInteractionBefore = card.lastInteraction;
@@ -177,32 +165,32 @@ describe('cards interactions', function () {
   // });
 
   it('creates a texteditor card instance', function () {
-    let textEditor = new TextEditor({id: 1, context: document.body, modal: true});
+    let textEditor = new TextEditor({id: 1, type: 'text', context: document.body, modal: true});
     return assert.equal(textEditor.constructor.name, 'TextEditor');
   });
 
   it('texteditor contains three faces', function () {
-    let textEditor = new TextEditor({id: 1, context: document.body, modal: true});
+    let textEditor = new TextEditor({id: 1, type: 'text', context: document.body, modal: true});
     return assert.equal(textEditor.faces.length, 3);
   });
 
   it('texteditor contains two \'editor\' faces', function () {
-    let textEditor = new TextEditor({id: 1, context: document.body, modal: true});
+    let textEditor = new TextEditor({id: 1, type: 'text', context: document.body, modal: true});
     return assert.equal(textEditor.editors.length, 2);
   });
 
   it('creates a sketchpad card instance', function () {
-    let sketchPad = new SketchPad({id: 1, context: document.body, modal: true});
+    let sketchPad = new SketchPad({id: 1, type: 'sketch', context: document.body, modal: true});
     return assert.equal(sketchPad.constructor.name, 'SketchPad')
   });
 
   it('sketchpad contains three faces', function () {
-    let sketchPad = new SketchPad({id: 1, context: document.body, modal: true});
+    let sketchPad = new SketchPad({id: 1, type: 'sketch', context: document.body, modal: true});
     return assert.equal(sketchPad.faces.length, 3);
   });
 
   it('sketchpad has sketch pen buttons', function () {
-    let sketchPad = new SketchPad({id: 1, context: document.body, modal: true});
+    let sketchPad = new SketchPad({id: 1, type: 'sketch', context: document.body, modal: true});
     assert.notEqual(sketchPad.pens, undefined);
   });
 
@@ -217,12 +205,12 @@ describe('cards interactions', function () {
   // });
 
   it('creates a codeEditors card instance', function () {
-    let codeEditor = new CodeEditor({id: 1, context: document.body, modal: true});
+    let codeEditor = new CodeEditor({id: 1, type: 'editor', context: document.body, modal: true});
     return assert.equal(codeEditor.constructor.name, 'CodeEditor')
   });
 
-  it('codeeditor contains three faces', function () {
-    let codeEditor = new CodeEditor({id: 1, context: document.body, modal: true});
+  it('codeEditor contains three faces', function () {
+    let codeEditor = new CodeEditor({id: 1, type: 'editor', context: document.body, modal: true});
     return assert.equal(codeEditor.faces.length, 3);
   });
 
