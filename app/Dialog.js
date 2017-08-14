@@ -15,7 +15,7 @@ module.exports = {
 
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(function() { this.closest('.overlay').remove(); });
+    $(closeButton).click(() => { $(overlay).remove(); });
 
     dialog.appendChild(closeButton);
     overlay.appendChild(dialog);
@@ -34,7 +34,7 @@ module.exports = {
 
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(function() { this.closest('.dialog').remove(); });
+    $(closeButton).click(() => { $(dialog).remove(); });
 
     dialog.appendChild(closeButton);
     document.body.appendChild(dialog);
