@@ -20,16 +20,18 @@ describe('stack interactions', function () {
   before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
-    this.app = new Application({
+    // require('jquery-ui-bundle');
+
+    app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
     });
-    return this.app.start();
+    return app.start();
   });
 
   after(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop();
+    if (app && app.isRunning()) {
+      return app.stop();
     }
   });
 
@@ -74,36 +76,45 @@ describe('stack interactions', function () {
   it('two stack instances contain a separate set of cards', function () {
     let stack = new Stack();
     let stack2 = new Stack();
-    let card = new Card({id: 1, context: document.body, modal: false});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: false});
     stack.addCard(card);
     return assert.notEqual(stack.cards.length, stack2.cards.length);
   });
 
   it('cards can be removed from a stack instance', function () {
     let stack = new Stack();
-    let card = new Card({id: 1, context: document.body, modal: false});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: false});
     stack.addCard(card);
     stack.removeCard();
     return assert.equal(stack.cards.length, 0);
   });
 
   // it('cards are positioned correctly in a stack instance', function () {
-  //   let stack = new Stack();
-  //   let card = new Card({id: 1, context: document.body, modal: false});
-  //   stack.addCard(card);
-  //   $(stack.stack).css({
-  //     top: 100,
-  //     left: 150,
+  //   let stack1 = new Stack();
+  //   let card1 = new Card({id: 1, type: 'text', context: document.body, modal: false});
+  //   let card2 = new Card({id: 2, type: 'text', context: document.body, modal: false});
+  //   $(stack1.stack).css({
+  //     top: '0px',
+  //     left: '0px',
   //   });
-  //   stack.cascadeCards();
-  //   let topPosition = $(stack.cards[0]).offset().top;
-  //   let leftPosition = $(stack.cards[0]).offset().left;
-  //   var index = 0;
-  //   let idealTop = $(stack.stack).offset().top + ((index + 1) * 25) + 'px';
-  //   let idealLeft = $(stack.stack).offset().left + ((index + 1) * 25) + 'px';
-  //   console.log('topPosition: ' + topPosition + ' leftPosition: ' + leftPosition);
-  //   console.log('idealTop: ' + idealTop + ' idealLeft: ' + idealLeft);
-  //   assert.equal(topPosition, idealTop);
-  //   asser.equal(leftPosition, idealLeft);
+  //   stack1.addCard(card1);
+  //   stack1.addCard(card2);
+  //   stack1.cascadeCards();
+  //   let card1Top = $(stack1.cards[0]).offset().top;
+  //   let card1Left = $(stack1.cards[0]).offset().left;
+  //   let card2Top = $(stack1.cards[1]).offset().top;
+  //   let card2Left = $(stack1.cards[1]).offset().left;
+  //   let msg1 = 'card1 should have top value: 25px, but has top value: ' +
+  //     card1Top;
+  //   let msg2 = + 'card1 should have left value: 25px, but has left value: ' +
+  //     card1Left;
+  //   let msg3 = 'card2 should have top value: 50px, but has top value: ' +
+  //     card2Top;
+  //   let msg4 = + 'card2 should have left value: 50x, but has left value: ' +
+  //     card2Left;
+  //   assert.equal('25px', card1Top, msg1);
+  //   assert.equal('25px', card1Left, msg2);
+  //   assert.equal('50px', card2Top, msg3);
+  //   assert.equal('50px', card2Left, msg4);
   // });
 });
