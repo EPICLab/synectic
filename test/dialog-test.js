@@ -18,6 +18,8 @@ describe('Dialog interactions', function () {
   before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
+    require('jquery-ui-bundle');
+
     this.app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
