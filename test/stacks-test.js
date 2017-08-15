@@ -14,13 +14,13 @@ var app = new Application({
   webPreferences: [],
 });
 
-describe('stack interactions', function () {
+describe('Stack interactions', function () {
   this.timeout(30000);
 
   before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
-    // require('jquery-ui-bundle');
+    require('jquery-ui-bundle');
 
     app = new Application({
       path: electron,
@@ -41,7 +41,7 @@ describe('stack interactions', function () {
   });
 
   it('stack contains div body, close button, expand button, ' +
-  'and annotation textarea', function () {
+    'and annotation textarea', function () {
     let stack = new Stack();
     var stackDiv = stack.stack;
     var closeButton = stack.closeButton;
@@ -76,14 +76,14 @@ describe('stack interactions', function () {
   it('two stack instances contain a separate set of cards', function () {
     let stack = new Stack();
     let stack2 = new Stack();
-    let card = new Card({id: 1, type: 'text', context: document.body, modal: false});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     stack.addCard(card);
     return assert.notEqual(stack.cards.length, stack2.cards.length);
   });
 
   it('cards can be removed from a stack instance', function () {
     let stack = new Stack();
-    let card = new Card({id: 1, type: 'text', context: document.body, modal: false});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     stack.addCard(card);
     stack.removeCard();
     return assert.equal(stack.cards.length, 0);
@@ -100,10 +100,8 @@ describe('stack interactions', function () {
   //   stack1.addCard(card1);
   //   stack1.addCard(card2);
   //   stack1.cascadeCards();
-  //   let card1Top = $(stack1.cards[0]).offset().top;
-  //   let card1Left = $(stack1.cards[0]).offset().left;
-  //   let card2Top = $(stack1.cards[1]).offset().top;
-  //   let card2Left = $(stack1.cards[1]).offset().left;
+  //   let card1Position = $(stack1.cards[0]).offset();
+  //   let card2Position = $(stack1.cards[1]).offset();
   //   let msg1 = 'card1 should have top value: 25px, but has top value: ' +
   //     card1Top;
   //   let msg2 = + 'card1 should have left value: 25px, but has left value: ' +
@@ -112,9 +110,9 @@ describe('stack interactions', function () {
   //     card2Top;
   //   let msg4 = + 'card2 should have left value: 50x, but has left value: ' +
   //     card2Left;
-  //   assert.equal('25px', card1Top, msg1);
-  //   assert.equal('25px', card1Left, msg2);
-  //   assert.equal('50px', card2Top, msg3);
-  //   assert.equal('50px', card2Left, msg4);
+  //   assert.equal('25px', card1Position.top(), msg1);
+  //   assert.equal('25px', card1Position.left(), msg2);
+  //   assert.equal('50px', card2Position.top(), msg3);
+  //   assert.equal('50px', card2Position.left(), msg4);
   // });
 });

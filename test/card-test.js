@@ -61,12 +61,11 @@ describe('cards interactions', function () {
     }, Error);
   });
 
-  // // this test works except that modal: true crashes Spectron due to JQuery-UI
-  // it('Card instantiation without \'modal\' parameter does not throw Error', function () {
-  //   return assert.doesNotThrow(() => {
-  //     new Card({id: 1, type: 'text', context: document.body});
-  //   }, Error);
-  // });
+  it('Card instantiation without \'modal\' parameter does not throw Error', function () {
+    return assert.doesNotThrow(() => {
+      new Card({id: 1, type: 'text', context: document.body});
+    }, Error);
+  });
 
   it('two Card instances do not have the same uuid', function () {
       let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
@@ -92,15 +91,15 @@ describe('cards interactions', function () {
     assert.notEqual(card.title, undefined);
   });
 
-  // it('document contains close, expand, and save buttons', function () {
-  //   let card = new Card({id: 1, context: document.body, modal: false});
-  //   let msg1 = 'document contains close button';
-  //   let msg2 = 'document contains expand button';
-  //   let msg3 = 'document contains save button';
-  //   assert.notEqual(card.closeButton, undefined, msg1);
-  //   assert.notEqual(card.saveButton, undefined, msg2);
-  //   assert.notEqual(card.fullscreenButton, undefined, msg3);
-  // });
+  it('document contains close, expand, and save buttons', function () {
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    let msg1 = 'document contains close button';
+    let msg2 = 'document contains expand button';
+    let msg3 = 'document contains save button';
+    assert.notEqual(card.closeButton, undefined, msg1);
+    assert.notEqual(card.saveButton, undefined, msg2);
+    assert.notEqual(card.fullscreenButton, undefined, msg3);
+  });
 
   it('Card metadata updates only interaction timestamp', function () {
     var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
@@ -122,16 +121,17 @@ describe('cards interactions', function () {
     assert.notEqual(card.lastInteraction, lastInteractionBefore, msg3);
   });
 
-  // it('card dragability can be disabled', function () {
-  //   let card = new Card();
-  //   $(card.card).data('draggable');
-  //   if ($(card.card).draggable('disable'))
-  //     var disabled = 1;
-  //   return assert.equal(disabled, 1);
-  // });
+  it('card dragability can be disabled', function () {
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    $(card.card).data('draggable');
+    if ($(card.card).draggable('disable'))
+      var disabled = 1;
+    return assert.equal(disabled, 1);
+  });
 
+  //error: elem.getClientRects is not a function (error references $(card).offset())
   // it('toggleDraggable sets correct card position', function () {
-  //   let card = new Card();
+  //   let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
   //   $(card).css({top: 200, left: 250});
   //   var topPosition = $(card).offset().top + 'px';
   //   var leftPosition = $(card).offset().left + 'px';
@@ -143,16 +143,17 @@ describe('cards interactions', function () {
   //   assert.equal('250px', leftPosition, msg2);
   // });
 
-  // it('card dropability can be disabled', function () {
-  //   let card = new Card();
-  //   $(card.card).data('droppable');
-  //   if($(card.card).droppable('disabled')))
-  //     var disabled = 1;
-  //   return assert.equal(disabled, 1);
-  // });
+  it('card dropability can be disabled', function () {
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    $(card.card).data('droppable');
+    $(card.card).droppable();
+    if($(card.card).droppable('disable'))
+      var disabled = 1;
+    return assert.equal(disabled, 1);
+  });
 
   // it('card intance has correct height and width when fullscreen mode is toggled on', function () {
-  //   let card = new Card();
+  //   let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
   //   card.toggleButton.trigger('click');
   //   var curHeight = card.offsetHeight;
   //   var curWdith = card.offsetWidth;

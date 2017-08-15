@@ -28,7 +28,14 @@ module.exports = class Card {
     this.title = document.createElement('span');
     $(this.title).html("My Card");
 
+    this.closeButton = document.createElement('button');
+    this.saveButton = document.createElement('button');
+    this.fullscreenButton = document.createElement('button');
+
     this.header.appendChild(this.title);
+    this.header.appendChild(this.closeButton);
+    this.header.appendChild(this.saveButton);
+    this.header.appendChild(this.fullscreenButton);
     this.card.appendChild(this.header);
     context.appendChild(this.card);
     if (modal) this.toggleDraggable();
