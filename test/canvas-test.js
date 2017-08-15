@@ -5,11 +5,6 @@ var assert = require('assert');
 const path = require('path');
 var Canvas = require('../app/Canvas.js');
 
-global.before(function () {
-  // this.jsdom = require('jsdom-global')();
-  global.$ = global.jQuery = require('jquery');
-});
-
 describe('canvas interactions', function () {
   this.timeout(30000);
   var app;
@@ -17,6 +12,8 @@ describe('canvas interactions', function () {
   before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
+    require('jquery-ui-bundle');
+    
     app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
