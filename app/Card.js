@@ -2,6 +2,7 @@
 const Error = require('../lib/error.js');
 const uuidv4 = require('uuid/v4');
 
+
 module.exports = class Card {
   constructor({
       id = Error.throwIfMissing('id'),
@@ -15,6 +16,7 @@ module.exports = class Card {
     this.createdBy = require('username').sync();
     this.createdTimestamp = new Date();
     this.lastInteraction = new Date();
+    this.cardLoggerInit();
 
     this.card = document.createElement('div');
     $(this.card).attr({
@@ -34,6 +36,14 @@ module.exports = class Card {
     if (modal) this.toggleDraggable();
   }
 
+  cardLoggerInit(){
+    let initString = "Card Created: " + this.createdTimestamp + ", ";
+    initString += "Card id: " + this.uuid + ", ";
+    initString += "Card Type: " + this.cardType +  ", ";
+    initString += "Created By: " + this.createdBy;
+    logger.logs("created",initString)
+  }
+
   updateMetadata() {
     this.lastInteraction = new Date();
   }
@@ -45,7 +55,24 @@ module.exports = class Card {
     console.log('lastInteraction: ' + this.lastInteraction);
   }
 
+  logMovements(offset, startStop){
+    let startTop;
+    let startLeft;
+    if(startStop == "start"){
+      startTop = offset.top + "px, "
+      startLeft = offset.left + "px "
+      console.log(startTop)
+    }
+    if (startStop == "stop"){
+      let s = "Card start left: " + startLeft + "Card start top: ";
+      s += startTop
+
+
+    }
+  }
+
   toggleDraggable() {
+    let self = this;
     // warning: draggable object must be appended to DOM before being enabled
     if ($(this.card).data('draggable')) {
       $(this.card).draggable('disable');
@@ -53,13 +80,15 @@ module.exports = class Card {
       $(this.card).draggable({
         handle: '.card-header',
         containment: 'window',
-        start: function() {
+        start: function(){
           $(this).css({
             transform: 'none',
             top: $(this).offset().top+'px',
             left: $(this).offset().left+'px'
           });
-        }
+          self.logMovements($(this).offset(), "start");
+        },
+        stop: function(){self.logMovements($(this).offset(), "stop");}
       });
     }
   }

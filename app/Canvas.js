@@ -35,10 +35,12 @@ module.exports = class Canvas {
   }
 
   canvasLoggerInit(){
+    console.log("weeee")
     let initString = "Canvas Created, ";
     initString += "Canvas Height: " + window.innerHeight + "px, ";
     initString += "Canvas Width: " + window.innerWidth + "px."
-    logger.log("info", initString);
+    console.log(logs.log)
+    logs.log("canvasCreation",initString);
   }
 
   addCard(cardType = 'text', modality = true) {
