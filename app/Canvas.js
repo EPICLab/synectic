@@ -5,6 +5,7 @@ const Card = require('../app/Card.js');
 module.exports = class Canvas {
   constructor() {
     this.cards = [];
+    this.canvasLoggerInit();
 
     this.canvas = document.createElement('div');
     $(this.canvas).attr('class', 'canvas');
@@ -31,6 +32,13 @@ module.exports = class Canvas {
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
     document.body.appendChild(this.canvas);
+  }
+
+  canvasLoggerInit(){
+    let initString = "Canvas Created, ";
+    initString += "Canvas Height: " + window.innerHeight + "px, ";
+    initString += "Canvas Width: " + window.innerWidth + "px."
+    logger.log("info", initString);
   }
 
   addCard(cardType = 'text', modality = true) {
