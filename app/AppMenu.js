@@ -39,25 +39,29 @@ Utility.defineConstant(module.exports, 'template', [
     label: 'Control',
     submenu: [
       {
+        label: 'Switch Canvas',
+        submenu: [ ]
+      },
+      {type: 'separator'},
+      {
         label: 'New Canvas',
         click() {
-          CanvasManager.register();
-          console.log('CanvasManager is saying ' + CanvasManager.size);
+          AppManager.addCanvas();
         }
       },
       {
         label: 'New Card',
         click() {
-          CanvasManager.current.addCard('text', true);
+          AppManager.current.addCard('text', true);
         }
       },
       {
-        label: 'Other',
+        label: 'New Group',
         click() {
           BrowserWindow.fromId(1).webContents
             .executeJavaScript(Utility.getFunctionBody(other));
         }
-      }
+      },
     ]
   },
   {
@@ -73,27 +77,14 @@ Utility.defineConstant(module.exports, 'template', [
       {
         label: 'Learn More',
         click() {
-          BrowserWindow.fromId(1).webContents.executeJavaScript(`document.querySelectorAll('.dialog').length`, function (result) {
-            console.log('dialogs: ' + result);
-          })
-          showAllBrowserWindows();
-        }
-      },
-      {
-        label: 'Find BrowserWindows',
-        click() {
-          showAllBrowserWindows();
+          const shell = require('electron').shell;
+          shell.openExternal('https://github.com/nelsonni/synectic');
         }
       },
       {
         label: 'About Synectic',
         click() {
-          const BrowserWindow = require('electron').BrowserWindow;
-          BrowserWindow.fromId(1).webContents.executeJavaScript(`
-            var Canvas = require('../app/Canvas.js');
-            var canvas = new Canvas();
-            canvas.displayVersion();
-            `);
+          AppManager.current.displayVersion();
         }
       }
     ]
@@ -138,15 +129,3 @@ module.exports.configDarwinMenu = function () {
     {role: 'front'}
   ]
 };
-
-// helper function that displays all currently open BrowserWindow objects
-function showAllBrowserWindows() {
-  const BrowserWindow = require('electron').BrowserWindow;
-  var windowObjectArray = BrowserWindow.getAllWindows();
-  for (var i = 0, len = windowObjectArray.length; i < len; i ++) {
-    var windowObject = windowObjectArray[i];
-    console.log('window id: \t' + windowObject.id);
-    console.log('name: \t\t' + windowObject.__name);
-    console.log('tag: \t\t' + windowObject.__tag);
-  }
-}

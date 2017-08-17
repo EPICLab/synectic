@@ -1,9 +1,15 @@
 "use strict";
+const Error = require('../lib/error.js');
+const uuidv4 = require('uuid/v4');
 const Dialog = require('../app/Dialog.js');
 const Card = require('../app/Card.js');
 
 module.exports = class Canvas {
-  constructor() {
+  constructor({
+    id = Error.throwIfMissing('id')
+  }) {
+    this.id = id;
+    this.uuid = uuidv4();
     this.cards = [];
 
     this.canvas = document.createElement('div');

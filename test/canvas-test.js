@@ -13,7 +13,7 @@ describe('canvas interactions', function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
     require('jquery-ui-bundle');
-    
+
     app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
@@ -28,32 +28,32 @@ describe('canvas interactions', function () {
   });
 
   it('creates a Canvas instance', function () {
-    let canvas = new Canvas();
+    let canvas = new Canvas({id: 1});
     return assert.equal(canvas.constructor.name, 'Canvas');
   });
 
   it('new Canvas instance has no cards', function () {
-    let canvas = new Canvas();
+    let canvas = new Canvas({id: 1});
     return assert.equal(canvas.cards.length, 0);
   });
 
   it('added cards are tracked by Canvas instance', function () {
-    let canvas = new Canvas();
+    let canvas = new Canvas({id: 1});
     canvas.addCard('text', false);
     canvas.addCard('text', false);
     return assert.equal(canvas.cards.length, 2);
   });
 
   it('each added card receives different ID in a Canvas instance', function () {
-    let canvas = new Canvas();
+    let canvas = new Canvas({id: 1});
     canvas.addCard('text', false);
     canvas.addCard('text', false);
     return assert.notEqual(canvas.cards[0].id, canvas.cards[1].id);
   });
 
   it('two Canvas instances contain a separate set of cards', function () {
-    let canvas1 = new Canvas();
-    let canvas2 = new Canvas();
+    let canvas1 = new Canvas({id: 1});
+    let canvas2 = new Canvas({id: 2});
     canvas1.addCard('text', false);
     return assert.notEqual(canvas1.cards.length, canvas2.cards.length);
   });
