@@ -50,6 +50,18 @@ describe('canvas interactions', function () {
     return assert.equal(canvas.cards.length, 2);
   });
 
+  it('Canvas instance removes Card instances', function () {
+    let canvas = new Canvas({id: 1});
+    canvas.addCard('text', false);
+    canvas.addCard('text', false);
+    let card3 = canvas.addCard('text', false);
+    assert.equal(canvas.cards.length, 3);
+    canvas.removeCard({id: 2});
+    assert.equal(canvas.cards.length, 2, 'Canvas did not remove Card via \'id\' field');
+    canvas.removeCard({uuid: card3.uuid});
+    assert.equal(canvas.cards.length, 1, 'Canvas did not remove Card via \'uuid\' field');
+  });
+
   it('Canvas instance provides different \'id\' values to added Cards', function () {
     let canvas = new Canvas({id: 1});
     canvas.addCard('text', true);
@@ -70,15 +82,4 @@ describe('canvas interactions', function () {
     return assert.notEqual(canvas1.cards.length, canvas2.cards.length);
   });
 
-  it('Canvas instance removes Card instances', function () {
-    let canvas = new Canvas({id: 1});
-    canvas.addCard('text', false);
-    canvas.addCard('text', false);
-    let card3 = canvas.addCard('text', false);
-    assert.equal(canvas.cards.length, 3);
-    canvas.removeCard({id: 2});
-    assert.equal(canvas.cards.length, 2, 'Canvas did not remove Card via \'id\' field');
-    canvas.removeCard({uuid: card3.uuid});
-    assert.equal(canvas.cards.length, 1, 'Canvas did not remove Card via \'uuid\' field');
-  });
 });
