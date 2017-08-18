@@ -46,6 +46,10 @@ module.exports = class Card {
     this.toggleDroppable();
   }
 
+  destructor() {
+    $(this.card).remove();
+  }
+
   updateMetadata() {
     this.lastInteraction = new Date();
   }

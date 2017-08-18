@@ -47,6 +47,23 @@ module.exports = class Canvas {
       modal: modality
     });
     this.cards.push(card);
+    return card;
+  }
+
+  removeCard({id, uuid} = {}) {
+    if (uuid !== undefined) {
+      let found = this.cards.find(card => card.uuid === uuid);
+      let index = this.cards.indexOf(found);
+      found.destructor();
+      this.cards.splice(index, 1);
+    } else if (id !== undefined) {
+      let found = this.cards.find(card => card.id === id);
+      let index = this.cards.indexOf(found);
+      found.destructor();
+      this.cards.splice(index, 1);
+    } else {
+      Error.throwIfMissingMinimum(1, 'id', 'uuid');
+    }
   }
 
   nextCardId() {
