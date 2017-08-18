@@ -5,20 +5,26 @@ const TOTAL_SIZE = CARD_WIDTH + CARD_PADDING;
 const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
 const uuidv4 = require('uuid/v4');
+const Card = require('../app/Card.js');
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
-  constructor() {
+  constructor(...cards) {
     this.cards = [];
     this.id = 3;
     this.uuid = uuidv4();
     this.state = 'collapsed';
 
     this.stack = document.createElement('div');
-    $(this.stack).attr('class', 'stack');
-
+    $(this.stack).attr('class', 'stack')
+      // .css({
+      //   top: $(cards[0]).offset().top - 25,
+      //   left: $(cards[0]).offset().left - 25,
+      // });
     this.closeButton = document.createElement('button');
     $(this.closeButton).attr('class', 'stackClose');
+    $(this.closeButton).click(() => console.log('close button clicked'))
+
 
     this.annotation = document.createElement('textarea');
     $(this.annotation).attr({
@@ -28,16 +34,27 @@ module.exports = class Stack {
 
     this.expandButton = document.createElement('button');
     $(this.expandButton).attr('class', 'stackExpandButton');
+    $(this.expandButton).click(() => console.log('expand button clicked'))
 
     this.stack.appendChild(this.closeButton);
     this.stack.appendChild(this.annotation);
     this.stack.appendChild(this.expandButton);
     document.body.appendChild(this.stack);
+
+    for(var i = 0; i < cards.length; i++){
+      this.addCard(cards[i]);
+    }
+    this.toggleDraggable();
+    this.cascadeCards();
   }
 
   // add individual card to the top of the stack
-  addCard(card) {
-    this.cards.push(card);
+  addCard(currCard) {
+    this.cards.push(currCard);
+    let body = document.querySelector('.card');
+    this.stack.appendChild(body);
+    // currCard.droppable('disable');
+    console.log('card added');
   }
 
   // remove individual card from the stack
@@ -47,12 +64,28 @@ module.exports = class Stack {
 
   // position all stacked cards according to their index within the stack
   cascadeCards() {
-    this.cards.forEach((cards, index) => {
-      $(cards.card).css({
-        top: $(this.stack).offset().top + ((index + 1) * 25) + 'px',
-        left: $(this.stack).offset().left + ((index + 1) * 25) + 'px',
-        'z-index': (index + 1),
+    for(var i = 0; i < this.cards.length; i++){
+      $(this.cards[i]).css({
+        top: $(this.stack).offset().top + ((i + 1) * 25) + 'px',
+        left: $(this.stack).offset().left + ((i + 1) * 25) + 'px',
+        'z-index': (i + 1),
       });
-    });
+    }
   }
+
+  //enables a stack to be dragged
+  toggleDraggable() {
+    if($(this.stack).data('draggable')) {
+      $(this.stack).draggable('disable');
+    }
+    else {
+      $(this.stack).draggable({
+        containment: 'window',
+        stack: '.stack, .card',
+        drag: (event, ui) => this.cascadeCards(),
+      });
+    }
+  }
+
+
 }
