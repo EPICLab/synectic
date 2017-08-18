@@ -8,14 +8,9 @@ var Card = require('../app/Card.js');
 var Canvas = require('../app/Canvas.js');
 var Stack = require('../app/Stacks.js');
 
-var app = new Application({
-  path: electron,
-  args: [path.join(__dirname, '..', 'main.js')],
-  webPreferences: [],
-});
-
 describe('Stack interactions', function () {
   this.timeout(30000);
+  var app;
 
   before(function () {
     this.jsdom = require('jsdom-global')()
