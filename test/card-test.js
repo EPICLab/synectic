@@ -33,50 +33,42 @@ describe('cards interactions', function () {
   });
 
   it('creates a Card instance', function () {
-    var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    assert(card instanceof Card);
     return assert.equal(card.constructor.name, 'Card');
   });
 
   it('Card instantiation without parameters throws Error', function () {
     return assert.throws(() => {
-      new Card();
-    }, Error);
+      new Canvas();
+    }, Error, 'Card cannot be instantiated without parameters');
   });
 
-  it('Card instantiation without \'id\' parameter throws Error', function () {
-    return assert.throws(() => {
+  it('Card instantiation throws Error when missing required parameters', function () {
+    assert.throws(() => {
       new Card({type: 'text', context: document.body, modal: true});
-    }, Error);
-  });
+    }, Error, 'Card requires \'id\' parameter during instantiation');
 
-  it('Card instantiation without \'type\' parameter throws Error', function () {
-    return assert.throws(() => {
+    assert.throws(() => {
       new Card({id: 1, context: document.body, modal: true});
-    }, Error);
-  });
+    }, Error, 'Card requires \'type\' parameter during instantiation');
 
-  it('Card instantiation without \'context\' parameter throws Error', function () {
-    return assert.throws(() => {
+    assert.throws(() => {
       new Card({id: 1, type: 'text', modal: true});
-    }, Error);
+    }, Error, 'Card requires \'context\' parameter during instantiation');
   });
 
-  it('Card instantiation without \'modal\' parameter does not throw Error', function () {
+  it('Card instantiation does not throw Error when missing optional parameters', function () {
     return assert.doesNotThrow(() => {
       new Card({id: 1, type: 'text', context: document.body});
     }, Error);
   });
 
-  it('two Card instances do not have the same uuid', function () {
+  it('Card instances contain different \'uuid\' field values', function () {
       let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
       let card2 = new Card({id: 2, type: 'text', context: document.body, modal: true});
       return assert.notEqual(card.uuid, card2.uuid);
   });
-
-  // it('correctly names a card', function () {
-  //     let card = new Card({id: 1, context: document.body, modal: false});
-  //     return assert.equal(card.name, "My Card " + card.id);
-  //   });
 
   it('document contains a card and header div', function () {
     let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
@@ -91,7 +83,7 @@ describe('cards interactions', function () {
     assert.notEqual(card.title, undefined);
   });
 
-  it('Card metadata updates only interaction timestamp', function () {
+  it('Card interactions cause only interaction timestamp metadata to update', function () {
     var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     var createdTimestampBefore = card.createdTimestamp;
     var createdByBefore = card.createdBy;
@@ -104,7 +96,7 @@ describe('cards interactions', function () {
     let msg2 = card.createdBy + " == " + createdByBefore +
       "\n\t(createdBy should not change once Card is instantiated)";
     let msg3 = card.lastInteraction + " != " + lastInteractionBefore +
-      "\n\t(lastInteraction should update after Card#updateMetadata()" +
+      "\n\t(lastInteraction should update after Card.updateMetadata()" +
       " method is evoked)";
     assert.equal(card.createdTimestamp, createdTimestampBefore, msg1);
     assert.equal(card.createdBy, createdByBefore, msg2);
