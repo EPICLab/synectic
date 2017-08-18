@@ -6,13 +6,7 @@ const path = require('path');
 var fs = require('fs');
 var Dialog = require('../app/Dialog.js');
 
-var app = new Application({
-  path: electron,
-  args: [path.join(__dirname, '..', 'main.js')],
-  webPreferences: [],
-});
-
-describe('Dialog interactions', function () {
+describe('Dialog.notice interactions', function () {
   this.timeout(30000);
 
   before(function () {
@@ -33,72 +27,92 @@ describe('Dialog interactions', function () {
     }
   });
 
-  it('document contains div for notice dialog', function () {
-    let dialog = Dialog.notice({height: '300px', width: '400px'});
-    let dialogClass = document.querySelector('.dialog');
-    let overlayClass = document.querySelector('.overlay');
-    let closeClass = document.querySelector('.close');
-    let msg1 = 'document must contain notice dialog body div';
-    let msg2 = 'document must contain notice overlay div';
-    let msg3 = 'document must contain notice close button';
-    assert.notEqual(dialogClass, undefined, msg1);
-    assert.notEqual(overlayClass, undefined, msg2);
-    assert.notEqual(closeClass, undefined, msg3)
+  it('creates a Dialog.notice element', function () {
+    let dialog = Dialog.notice({context: document.body});
+    assert(dialog instanceof HTMLDivElement);
+    let dialogsOnDOM = document.getElementsByClassName('dialog');
+    return assert.equal(dialogsOnDOM.length, 1);
   });
 
-  // it('all contents of a notice dialog are removed on close button click', function () {
-  //   let dialog = Dialog.notice({height: '300px', width: '400px'});
-  //   let closeButton = document.querySelector('.close');
-  //   $(closeButton).trigger('click');
-  //   let dialogBody = document.querySelector('.dialog');
-  //   let overlayDiv = document.querySelector('.overlay');
-  //   let msg1 = 'document must remove notice dialog body div';
-  //   let msg2 = 'document must remove notice overlay div';
-  //   let msg3 = 'document must remove notice close button';
-  //   assert.equal(dialogBody, undefined, msg1);
-  //   assert.equal(overlayDiv, undefined, msg2);
-  //   assert.equal(closeButton, undefined, msg3)
-  // });
-
-  it('notice dialog has correct height and width', function () {
-    let dialog = Dialog.notice();
-    let dialogHeight = $(dialog).height();
-    let dialogWidth = $(dialog).width();
-    let msg1 = 'dialog height is ' + dialogHeight +' but, dialog height should be 300px';
-    let msg2 = 'dialog width is ' + dialogWidth + ' but, dialog width should be 400px';
-    assert.equal(dialogHeight, '300', msg1);
-    assert.equal(dialogWidth, '400', msg2);
+  it('Dialog.notice creation without parameters throws Error', function () {
+    return assert.throws(() => {
+      Dialog.notice();
+    }, Error, 'Dialog.notice cannot be created without parameters');
   });
 
-  // it('document contains div for generic dialog', function () {
-  //   let dialog = Dialog.dialog({height: '300px', width: '400px'});
-  //   let dialogClass = document.querySelector('.dialog');
-  //   let closeClass = document.querySelector('.close');
-  //   let msg1 = 'document must contain notice dialog div';
-  //   let msg2 = 'document must contain notice close button';
-  //   assert.notEqual(dialogClass, undefined, msg1);
-  //   assert.notEqual(closeClass, undefined, msg2)
-  // });
+  it('Dialog.notice throws Error when missing required parameter', function () {
+    return assert.throws(() => {
+      Dialog.notice({height: '300px', weight: '400px'});
+    }, Error, 'Dialog.notice requires \'context\' parameter during creation');
+  });
 
-  // it('generic dialog has correct height and width', function () {
-  //   let dialog = Dialog.dialog({height: '300px', width: '400px'});
-  //   let dialogHeight = $(dialog).height();
-  //   let dialogWidth = $(dialog).width();
-  //   let msg1 = 'dialog height is ' + dialogHeight +' but, dialog height should be 300px';
-  //   let msg2 = 'dialog width is ' + dialogWidth + ' but, dialog width should be 400px';
-  //   assert.equal(dialogHeight, '300', msg1);
-  //   assert.equal(dialogWidth, '400', msg2);
-  // });
+  it('Dialog.notice height and width parameters are respected', function () {
+    let dialog = Dialog.notice({height: '10px', width: '65px', context: document.body});
+    let msgHeight = 'dialog height is ' + $(dialog).height() +', but should be 10';
+    let msgWidth = 'dialog width is ' + $(dialog).width() + ', but should be 65';
+    assert.equal($(dialog).height(), '10', msgHeight);
+    assert.equal($(dialog).width(), '65', msgWidth);
+  });
 
-  // it('all contents of a general dialog are removed on close button click', function () {
-  //   let dialog = Dialog.dialog({height: '300px', width: '400px'});
-  //   let closeButton = document.querySelector('.close');
-  //   $(closeButton).trigger('click');
-  //   let dialogBody = document.querySelector('.dialog');
-  //   let msg1 = 'document must remove notice dialog body div';
-  //   let msg2 = 'document must remove notice close button';
-  //   assert.equal(dialogBody, undefined, msg1);
-  //   assert.equal(closeButton, undefined, msg3)
-  // });
+  it('Dialog.notice element is removed on close button click', function () {
+    let dialogsOnDOM = document.getElementsByClassName('dialog').length;
+
+    let dialog = Dialog.notice({context: document.body});
+    let closeButton = $(dialog).children('button.close');
+    $(closeButton).trigger('click');
+
+    let msg = 'DOM contains ' + document.getElementsByClassName('dialog').length + ' dialogs after removal, but should be ' + dialogsOnDOM;
+    return assert.equal(document.getElementsByClassName('dialog').length, dialogsOnDOM, msg);
+  });
+
+});
+
+describe('Dialog.dialog interactions', function () {
+  this.timeout(30000);
+
+  before(function () {
+    this.jsdom = require('jsdom-global')()
+    global.$ = global.jQuery = require('jquery');
+    require('jquery-ui-bundle');
+
+    this.app = new Application({
+      path: electron,
+      args: [path.join(__dirname, '..', 'main.js')],
+    });
+    return this.app.start();
+  });
+
+  after(function () {
+    if (this.app && this.app.isRunning()) {
+      return this.app.stop();
+    }
+  });
+
+  it('creates a Dialog.dialog element', function () {
+    let dialog = Dialog.dialog({context: document.body});
+    assert(dialog instanceof HTMLDivElement);
+    let dialogsOnDOM = document.getElementsByClassName('dialog');
+    return assert.equal(dialogsOnDOM.length, 1);
+  });
+
+  it('Dialog.dialog creation without parameters throws Error', function () {
+    return assert.throws(() => {
+      Dialog.dialog();
+    }, Error, 'Dialog.dialog cannot be created without parameters');
+  });
+
+  it('Dialog.dialog throws Error when missing required parameter', function () {
+    return assert.throws(() => {
+      Dialog.notice({height: '300px', weight: '400px', modal: false});
+    }, Error, 'Dialog.dialog requires \'context\' parameter during creation');
+  });
+
+  it('Dialog.dialog height and width parameters are respected', function () {
+    let dialog = Dialog.dialog({height: '10px', width: '65px', context: document.body});
+    let msgHeight = 'dialog height is ' + $(dialog).height() +', but should be 10';
+    let msgWidth = 'dialog width is ' + $(dialog).width() + ', but should be 65';
+    assert.equal($(dialog).height(), '10', msgHeight);
+    assert.equal($(dialog).width(), '65', msgWidth);
+  });
 
 });

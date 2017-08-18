@@ -103,7 +103,7 @@ module.exports = class Canvas {
   };
 
   displayVersion() {
-    let dialog = Dialog.notice({height: '300px', width: '400px'});
+    let dialog = Dialog.notice({height: '300px', width: '400px', context: this.canvas});
     let remoteApp = require('electron').remote.app;
 
     const logo = document.createElement('img');
