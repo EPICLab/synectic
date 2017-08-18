@@ -1,6 +1,7 @@
 "use strict";
 const Error = require('../lib/error.js');
 const uuidv4 = require('uuid/v4');
+const Stack = require('../app/Stacks.js');
 
 module.exports = class Card {
   constructor({
@@ -29,8 +30,11 @@ module.exports = class Card {
     $(this.title).html("My Card");
 
     this.closeButton = document.createElement('button');
+      $(this.closeButton).click(() => console.log('close button clicked'))
     this.saveButton = document.createElement('button');
+      $(this.saveButton).click(() => console.log('save button clicked'))
     this.fullscreenButton = document.createElement('button');
+      $(this.fullscreenButton).click(() => console.log('fullscreen button clicked'));
 
     this.header.appendChild(this.title);
     this.header.appendChild(this.closeButton);
@@ -39,6 +43,7 @@ module.exports = class Card {
     this.card.appendChild(this.header);
     context.appendChild(this.card);
     if (modal) this.toggleDraggable();
+    this.toggleDroppable();
   }
 
   updateMetadata() {
@@ -60,12 +65,16 @@ module.exports = class Card {
       $(this.card).draggable({
         handle: '.card-header',
         containment: 'window',
+        stack: '.card, .stack',
         start: function() {
           $(this).css({
             transform: 'none',
             top: $(this).offset().top+'px',
             left: $(this).offset().left+'px'
           });
+        },
+        drag: (event, ui) => {
+          this.updateMetadata();
         }
       });
     }
@@ -75,7 +84,17 @@ module.exports = class Card {
     if ($(this.card).data('droppable')) {
       $(this.card).droppable('disable');
     } else {
-      $(this.card).droppable();
+      $(this.card).droppable({
+        accept: '.card, .stack',
+        drop: function(event, ui) {
+          //handles card-to-card drop events
+          if ($(ui.draggable).hasClass('card')) {
+            new Stack($(this), $(ui.draggable));
+            // console.log(this, ui.draggable);
+            // console.log($(this), $(ui.draggable));
+          }
+        },
+      });
     }
   }
 }
