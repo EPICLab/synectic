@@ -45,12 +45,14 @@ Utility.defineConstant(module.exports, 'template', [
       {type: 'separator'},
       {
         label: 'New Canvas',
+        accelerator: 'Cmd+M',
         click() {
           AppManager.addCanvas();
         }
       },
       {
         label: 'New Card',
+        accelerator: 'Cmd+N',
         click() {
           AppManager.current.addCard('text', true);
         }
