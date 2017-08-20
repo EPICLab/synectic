@@ -1,11 +1,13 @@
 "use strict";
+const Error = require('../lib/error.js');
 
 module.exports = {
 
   // non-modal, non-interactive dialog for application notices
   notice: ({
     height = '300px',
-    width = '400px'
+    width = '400px',
+    context = Error.throwIfMissing('context')
   } = {}) => {
     const overlay = document.createElement('div');
     $(overlay).attr('class', 'overlay');
@@ -15,11 +17,11 @@ module.exports = {
 
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(function() { this.closest('.overlay').remove(); });
+    $(closeButton).click(() => { $(overlay).remove(); });
 
     dialog.appendChild(closeButton);
     overlay.appendChild(dialog);
-    document.body.appendChild(overlay);
+    context.appendChild(overlay);
     return dialog;
   },
 
@@ -27,6 +29,7 @@ module.exports = {
   dialog: ({
     height = '300px',
     width = '400px',
+    context = Error.throwIfMissing('context'),
     modal = true
   } = {}) => {
     const dialog = document.createElement('div');
@@ -34,10 +37,10 @@ module.exports = {
 
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(function() { this.closest('.dialog').remove(); });
+    $(closeButton).click(() => { $(dialog).remove(); });
 
     dialog.appendChild(closeButton);
-    document.body.appendChild(dialog);
+    context.appendChild(dialog);
 
     if (modal) $(dialog).draggable({
       containment: 'window',

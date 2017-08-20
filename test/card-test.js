@@ -33,51 +33,42 @@ describe('cards interactions', function () {
   });
 
   it('creates a Card instance', function () {
-    var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    assert(card instanceof Card);
     return assert.equal(card.constructor.name, 'Card');
   });
 
   it('Card instantiation without parameters throws Error', function () {
     return assert.throws(() => {
-      new Card();
-    }, Error);
+      new Canvas();
+    }, Error, 'Card cannot be instantiated without parameters');
   });
 
-  it('Card instantiation without \'id\' parameter throws Error', function () {
-    return assert.throws(() => {
+  it('Card instantiation throws Error when missing required parameters', function () {
+    assert.throws(() => {
       new Card({type: 'text', context: document.body, modal: true});
-    }, Error);
-  });
+    }, Error, 'Card requires \'id\' parameter during instantiation');
 
-  it('Card instantiation without \'type\' parameter throws Error', function () {
-    return assert.throws(() => {
+    assert.throws(() => {
       new Card({id: 1, context: document.body, modal: true});
-    }, Error);
-  });
+    }, Error, 'Card requires \'type\' parameter during instantiation');
 
-  it('Card instantiation without \'context\' parameter throws Error', function () {
-    return assert.throws(() => {
+    assert.throws(() => {
       new Card({id: 1, type: 'text', modal: true});
+    }, Error, 'Card requires \'context\' parameter during instantiation');
+  });
+
+  it('Card instantiation does not throw Error when missing optional parameters', function () {
+    return assert.doesNotThrow(() => {
+      new Card({id: 1, type: 'text', context: document.body});
     }, Error);
   });
 
-  // // this test works except that modal: true crashes Spectron due to JQuery-UI
-  // it('Card instantiation without \'modal\' parameter does not throw Error', function () {
-  //   return assert.doesNotThrow(() => {
-  //     new Card({id: 1, type: 'text', context: document.body});
-  //   }, Error);
-  // });
-
-  it('two Card instances do not have the same uuid', function () {
+  it('Card instances contain different \'uuid\' field values', function () {
       let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
       let card2 = new Card({id: 2, type: 'text', context: document.body, modal: true});
       return assert.notEqual(card.uuid, card2.uuid);
   });
-
-  // it('correctly names a card', function () {
-  //     let card = new Card({id: 1, context: document.body, modal: false});
-  //     return assert.equal(card.name, "My Card " + card.id);
-  //   });
 
   it('document contains a card and header div', function () {
     let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
@@ -92,17 +83,7 @@ describe('cards interactions', function () {
     assert.notEqual(card.title, undefined);
   });
 
-  // it('document contains close, expand, and save buttons', function () {
-  //   let card = new Card({id: 1, context: document.body, modal: false});
-  //   let msg1 = 'document contains close button';
-  //   let msg2 = 'document contains expand button';
-  //   let msg3 = 'document contains save button';
-  //   assert.notEqual(card.closeButton, undefined, msg1);
-  //   assert.notEqual(card.saveButton, undefined, msg2);
-  //   assert.notEqual(card.fullscreenButton, undefined, msg3);
-  // });
-
-  it('Card metadata updates only interaction timestamp', function () {
+  it('Card interactions cause only interaction timestamp metadata to update', function () {
     var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     var createdTimestampBefore = card.createdTimestamp;
     var createdByBefore = card.createdBy;
@@ -115,23 +96,54 @@ describe('cards interactions', function () {
     let msg2 = card.createdBy + " == " + createdByBefore +
       "\n\t(createdBy should not change once Card is instantiated)";
     let msg3 = card.lastInteraction + " != " + lastInteractionBefore +
-      "\n\t(lastInteraction should update after Card#updateMetadata()" +
+      "\n\t(lastInteraction should update after Card.updateMetadata()" +
       " method is evoked)";
     assert.equal(card.createdTimestamp, createdTimestampBefore, msg1);
     assert.equal(card.createdBy, createdByBefore, msg2);
     assert.notEqual(card.lastInteraction, lastInteractionBefore, msg3);
   });
 
-  // it('card dragability can be disabled', function () {
-  //   let card = new Card();
-  //   $(card.card).data('draggable');
-  //   if ($(card.card).draggable('disable'))
-  //     var disabled = 1;
-  //   return assert.equal(disabled, 1);
+  //test that if card dragability is disabled, that card cannot
+  //actually be moved in synectic app!
+  // it('card draggability can be disabled', function () {
+  //   var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+  //
+  //   $(card).draggable({
+  //     start: function (event, ui) {
+  //       startPosition = ui.position;
+  //       startOffset = ui.offset;
+  //     },
+  //     drag: function (event, ui) {
+  //       dragPosition = ui.position;
+  //       dragOffset = ui.offset;
+  //     },
+  //     stop: function (event, ui) {
+  //       stopPosition = ui.position;
+  //       stopOffset = ui.offset;
+  //     },
+  //   });
+  //   card.simulate('drag', {
+  //     dx: 10,
+  //     dy: 10,
+  //     moves: 1
+  //   });
+  //   startPosition.top += 10;
+  //   startPosition.left += 10;
+  //   startOffset.top += 10;
+  //   startOffset.left += 10;
+  //   let msg1 = "start potision equals drag position plus distance"
+  //   let msg2 = "drag position equals stop position"
+  //   let msg3 = "start offset equals drag offset plus distance"
+  //   let msg4 = "drag offset equals stop offset"
+  //   assert.equal(startPosition, dragPosition, msg1);
+  //   assert.equal(dragPosition, stopPosition, msg2);
+  //   assert.equal(startOffset, dragOffset, msg3);
+  //   assert.equal(dragOffset, stopOffset, msg4);
   // });
 
+  //error: elem.getClientRects is not a function (error references $(card).offset())
   // it('toggleDraggable sets correct card position', function () {
-  //   let card = new Card();
+  //   let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
   //   $(card).css({top: 200, left: 250});
   //   var topPosition = $(card).offset().top + 'px';
   //   var leftPosition = $(card).offset().left + 'px';
@@ -143,16 +155,19 @@ describe('cards interactions', function () {
   //   assert.equal('250px', leftPosition, msg2);
   // });
 
-  // it('card dropability can be disabled', function () {
-  //   let card = new Card();
-  //   $(card.card).data('droppable');
-  //   if($(card.card).droppable('disabled')))
-  //     var disabled = 1;
-  //   return assert.equal(disabled, 1);
-  // });
+  //test to see that if card droppability is disabled,
+  //that card can no longer be dropped in synectic app!
+  it('card dropability can be disabled', function () {
+    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    $(card.card).data('droppable');
+    $(card.card).droppable();
+    if($(card.card).droppable('disable'))
+      var disabled = 1;
+    return assert.equal(disabled, 1);
+  });
 
   // it('card intance has correct height and width when fullscreen mode is toggled on', function () {
-  //   let card = new Card();
+  //   let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
   //   card.toggleButton.trigger('click');
   //   var curHeight = card.offsetHeight;
   //   var curWdith = card.offsetWidth;

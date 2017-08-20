@@ -13,7 +13,7 @@ describe('canvas interactions', function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
     require('jquery-ui-bundle');
-    
+
     app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
@@ -28,49 +28,58 @@ describe('canvas interactions', function () {
   });
 
   it('creates a Canvas instance', function () {
-    let canvas = new Canvas();
+    let canvas = new Canvas({id: 1});
     return assert.equal(canvas.constructor.name, 'Canvas');
   });
 
-  it('new Canvas instance has no cards', function () {
-    let canvas = new Canvas();
+  it('Canvas instantiation without parameters throws Error', function () {
+    return assert.throws(() => {
+      new Card();
+    }, Error);
+  });
+
+  it('new Canvas instance contains no Cards', function () {
+    let canvas = new Canvas({id: 1});
     return assert.equal(canvas.cards.length, 0);
   });
 
-  it('added cards are tracked by Canvas instance', function () {
-    let canvas = new Canvas();
-    canvas.addCard('text', false);
+  it('Canvas instance creates and tracks new Card instances', function () {
+    let canvas = new Canvas({id: 1});
+    canvas.addCard('text', true);
     canvas.addCard('text', false);
     return assert.equal(canvas.cards.length, 2);
   });
 
-  it('each added card receives different ID in a Canvas instance', function () {
-    let canvas = new Canvas();
+  it('Canvas instance removes Card instances', function () {
+    let canvas = new Canvas({id: 1});
     canvas.addCard('text', false);
+    canvas.addCard('text', false);
+    let card3 = canvas.addCard('text', false);
+    assert.equal(canvas.cards.length, 3);
+    canvas.removeCard({id: 2});
+    assert.equal(canvas.cards.length, 2, 'Canvas did not remove Card via \'id\' field');
+    canvas.removeCard({uuid: card3.uuid});
+    assert.equal(canvas.cards.length, 1, 'Canvas did not remove Card via \'uuid\' field');
+  });
+
+  it('Canvas instance provides different \'id\' values to added Cards', function () {
+    let canvas = new Canvas({id: 1});
+    canvas.addCard('text', true);
     canvas.addCard('text', false);
     return assert.notEqual(canvas.cards[0].id, canvas.cards[1].id);
   });
 
-  it('two Canvas instances contain a separate set of cards', function () {
-    let canvas1 = new Canvas();
-    let canvas2 = new Canvas();
+  it('Canvas instances contain different \'uuid\' field values', function () {
+    let canvas1 = new Canvas({id: 1});
+    let canvas2 = new Canvas({id: 2});
+    return assert.notEqual(canvas1.uuid, canvas2.uuid);
+  });
+
+  it('Canvas instances contain different sets of Cards', function () {
+    let canvas1 = new Canvas({id: 1});
+    let canvas2 = new Canvas({id: 2});
     canvas1.addCard('text', false);
     return assert.notEqual(canvas1.cards.length, canvas2.cards.length);
   });
 
-  // it('removed card is tracked by canvas instance', function () {
-  //   let canvas = new Canvas();
-  //   canvas.addCard('text', false);
-  //   canvas.removeCard();
-  //   return assert.equal(canvas.cards.length, 0);
-  // });
-
-  // it('canvas instance correctly tracks added and removed cards', function () {
-  //   let canvas = new Canvas();
-  //   canvas.addCard('text', false);
-  //   canvas.addCard('text', false);
-  //   canvas.removeCard();
-  //   canvas.addCard('text', false);
-  //   return assert.equal(canvas.cards.length, 2);
-  // });
 });
