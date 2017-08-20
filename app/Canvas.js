@@ -15,6 +15,7 @@ module.exports = class Canvas {
     this.uuid = uuidv4();
     this.cards = [];
     this.canvasLoggerInit();
+    this.canvasResizer();
 
     this.canvas = document.createElement('div');
     $(this.canvas).attr('class', 'canvas');
@@ -52,12 +53,35 @@ module.exports = class Canvas {
   }
 
   canvasLoggerInit() {
-    // console.log("weeee")
     let initString = "Canvas " + this.uuid + " Created, ";
     initString += "Canvas Height: " + window.innerHeight + "px, ";
     initString += "Canvas Width: " + window.innerWidth + "px."
     this.loggers.canvasCreations.info(initString)
   }
+
+  canvasResizer() {
+    let resizeTimer;
+    let started = false;
+    $(window).resize((e) => {
+      if (!started) {
+        started = true;
+        console.log("started")
+      }
+
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        console.log("Stopped!")
+        started = false;
+      }, 250);
+    });
+  }
+
+  handleCanvasResize(e) {
+    console.log(e)
+
+  }
+
+
 
   addCard(cardType = 'text', modality = true) {
     let card = new Card({
