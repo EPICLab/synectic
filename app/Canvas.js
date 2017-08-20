@@ -9,7 +9,7 @@ module.exports = class Canvas {
     id = Error.throwIfMissing('id'),
     loggers = Error.throwIfMissing('logs')
   }) {
-    console.log(loggers)
+    // console.log(loggers)
     this.loggers = loggers;
     this.id = id;
     this.uuid = uuidv4();
@@ -52,8 +52,8 @@ module.exports = class Canvas {
   }
 
   canvasLoggerInit() {
-    console.log("weeee")
-    let initString = "Canvas Created, ";
+    // console.log("weeee")
+    let initString = "Canvas " + this.uuid + " Created, ";
     initString += "Canvas Height: " + window.innerHeight + "px, ";
     initString += "Canvas Width: " + window.innerWidth + "px."
     this.loggers.canvasCreations.info(initString)

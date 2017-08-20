@@ -6,18 +6,18 @@ const Stack = require('../app/Stacks.js');
 
 module.exports = class Card {
   constructor({
-      id = Error.throwIfMissing('id'),
-      type = Error.throwIfMissing('type'),
-      context = Error.throwIfMissing('context'),
-      modal = true
-    }) {
+    id = Error.throwIfMissing('id'),
+    type = Error.throwIfMissing('type'),
+    context = Error.throwIfMissing('context'),
+    modal = true
+  }) {
     this.id = id;
     this.uuid = uuidv4();
     this.cardType = type;
     this.createdBy = require('username').sync();
     this.createdTimestamp = new Date();
     this.lastInteraction = new Date();
-    this.cardLoggerInit();
+    // this.cardLoggerInit();
 
     this.card = document.createElement('div');
     $(this.card).attr({
@@ -32,11 +32,11 @@ module.exports = class Card {
     $(this.title).html("My Card");
 
     this.closeButton = document.createElement('button');
-      $(this.closeButton).click(() => console.log('close button clicked'))
+    $(this.closeButton).click(() => console.log('close button clicked'))
     this.saveButton = document.createElement('button');
-      $(this.saveButton).click(() => console.log('save button clicked'))
+    $(this.saveButton).click(() => console.log('save button clicked'))
     this.fullscreenButton = document.createElement('button');
-      $(this.fullscreenButton).click(() => console.log('fullscreen button clicked'));
+    $(this.fullscreenButton).click(() => console.log('fullscreen button clicked'));
 
     this.header.appendChild(this.title);
     this.header.appendChild(this.closeButton);
@@ -52,13 +52,13 @@ module.exports = class Card {
     $(this.card).remove();
   }
 
-  cardLoggerInit(){
-    let initString = "Card Created: " + this.createdTimestamp + ", ";
-    initString += "Card id: " + this.uuid + ", ";
-    initString += "Card Type: " + this.cardType +  ", ";
-    initString += "Created By: " + this.createdBy;
-    logger.logs("created",initString)
-  }
+  // cardLoggerInit(){
+  //   let initString = "Card Created: " + this.createdTimestamp + ", ";
+  //   initString += "Card id: " + this.uuid + ", ";
+  //   initString += "Card Type: " + this.cardType +  ", ";
+  //   initString += "Created By: " + this.createdBy;
+  //   logger.logs("created",initString)
+  // }
 
   updateMetadata() {
     this.lastInteraction = new Date();
@@ -71,15 +71,15 @@ module.exports = class Card {
     console.log('lastInteraction: ' + this.lastInteraction);
   }
 
-  logMovements(offset, startStop){
+  logMovements(offset, startStop) {
     let startTop;
     let startLeft;
-    if(startStop == "start"){
+    if (startStop == "start") {
       startTop = offset.top + "px, "
       startLeft = offset.left + "px "
-      console.log(startTop)
+      // console.log(startTop)
     }
-    if (startStop == "stop"){
+    if (startStop == "stop") {
       let s = "Card start left: " + startLeft + "Card start top: ";
       s += startTop
 
@@ -100,15 +100,17 @@ module.exports = class Card {
         start: function() {
           $(this).css({
             transform: 'none',
-            top: $(this).offset().top+'px',
-            left: $(this).offset().left+'px'
+            top: $(this).offset().top + 'px',
+            left: $(this).offset().left + 'px'
           });
           self.logMovements($(this).offset(), "start");
         },
         drag: (event, ui) => {
           this.updateMetadata();
         },
-        stop: function(){self.logMovements($(this).offset(), "stop");}
+        stop: function() {
+          self.logMovements($(this).offset(), "stop");
+        }
       });
     }
   }
