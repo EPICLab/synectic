@@ -30,7 +30,6 @@ coverage
 build/Release
 
 # Optional npm log files and directory
-*.log
 npm-debug.log*
 
 # Dependency directories
