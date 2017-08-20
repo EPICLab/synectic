@@ -1,9 +1,15 @@
 "use strict";
+const Error = require('../lib/error.js');
+const uuidv4 = require('uuid/v4');
 const Dialog = require('../app/Dialog.js');
 const Card = require('../app/Card.js');
 
 module.exports = class Canvas {
-  constructor() {
+  constructor({
+    id = Error.throwIfMissing('id')
+  }) {
+    this.id = id;
+    this.uuid = uuidv4();
     this.cards = [];
 
     this.canvas = document.createElement('div');
@@ -41,6 +47,23 @@ module.exports = class Canvas {
       modal: modality
     });
     this.cards.push(card);
+    return card;
+  }
+
+  removeCard({id, uuid} = {}) {
+    if (uuid !== undefined) {
+      let found = this.cards.find(card => card.uuid === uuid);
+      let index = this.cards.indexOf(found);
+      found.destructor();
+      this.cards.splice(index, 1);
+    } else if (id !== undefined) {
+      let found = this.cards.find(card => card.id === id);
+      let index = this.cards.indexOf(found);
+      found.destructor();
+      this.cards.splice(index, 1);
+    } else {
+      Error.throwIfMissingMinimum(1, 'id', 'uuid');
+    }
   }
 
   nextCardId() {
@@ -80,7 +103,7 @@ module.exports = class Canvas {
   };
 
   displayVersion() {
-    let dialog = Dialog.notice({height: '300px', width: '400px'});
+    let dialog = Dialog.notice({height: '300px', width: '400px', context: this.canvas});
     let remoteApp = require('electron').remote.app;
 
     const logo = document.createElement('img');
