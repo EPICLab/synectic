@@ -17,19 +17,27 @@ module.exports = class Canvas {
     $(this.canvas).attr('class', 'canvas');
 
     const versionDialogButton = document.createElement('button');
-    $(versionDialogButton).click(() => { this.displayVersion(); });
+    $(versionDialogButton).click(() => {
+      this.displayVersion();
+    });
     $(versionDialogButton).html('Version');
 
     const modalDialogButton = document.createElement('button');
-    $(modalDialogButton).click(() => { this.addObj(); });
+    $(modalDialogButton).click(() => {
+      this.addObj();
+    });
     $(modalDialogButton).html('Modal Dialog');
 
     const addCardButton = document.createElement('button');
-    $(addCardButton).click(() => { this.addCard('text'); });
+    $(addCardButton).click(() => {
+      this.addCard('text');
+    });
     $(addCardButton).html('Add Card');
 
     const printCardsButton = document.createElement('button');
-    $(printCardsButton).click(() => { this.printCards(); });
+    $(printCardsButton).click(() => {
+      this.printCards();
+    });
     $(printCardsButton).html("Print Card(s)");
 
     this.canvas.appendChild(versionDialogButton);
@@ -40,13 +48,13 @@ module.exports = class Canvas {
     document.body.appendChild(this.canvas);
   }
 
-  canvasLoggerInit(){
+  canvasLoggerInit() {
     console.log("weeee")
     let initString = "Canvas Created, ";
     initString += "Canvas Height: " + window.innerHeight + "px, ";
     initString += "Canvas Width: " + window.innerWidth + "px."
-    console.log(logs.log)
-    logs.log("canvasCreation",initString);
+    // console.log(logs.log)
+    // logs.log("canvasCreation",initString);
   }
 
   addCard(cardType = 'text', modality = true) {
@@ -60,7 +68,10 @@ module.exports = class Canvas {
     return card;
   }
 
-  removeCard({id, uuid} = {}) {
+  removeCard({
+    id,
+    uuid
+  } = {}) {
     if (uuid !== undefined) {
       let found = this.cards.find(card => card.uuid === uuid);
       let index = this.cards.indexOf(found);
@@ -100,7 +111,9 @@ module.exports = class Canvas {
     const ackButton = document.createElement('button');
     $(ackButton).attr('class', 'acknowledge');
     $(ackButton).html('OK');
-    $(ackButton).click(function() { this.closest('.dialog').remove(); });
+    $(ackButton).click(function() {
+      this.closest('.dialog').remove();
+    });
     dialog.appendChild(ackButton);
 
     let myNotification = new Notification('Title', {
@@ -113,7 +126,11 @@ module.exports = class Canvas {
   };
 
   displayVersion() {
-    let dialog = Dialog.notice({height: '300px', width: '400px', context: this.canvas});
+    let dialog = Dialog.notice({
+      height: '300px',
+      width: '400px',
+      context: this.canvas
+    });
     let remoteApp = require('electron').remote.app;
 
     const logo = document.createElement('img');
