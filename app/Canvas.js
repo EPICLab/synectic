@@ -6,8 +6,11 @@ const Card = require('../app/Card.js');
 
 module.exports = class Canvas {
   constructor({
-    id = Error.throwIfMissing('id')
+    id = Error.throwIfMissing('id'),
+    loggers = Error.throwIfMissing('logs')
   }) {
+    console.log(loggers)
+    this.loggers = loggers;
     this.id = id;
     this.uuid = uuidv4();
     this.cards = [];
@@ -53,8 +56,7 @@ module.exports = class Canvas {
     let initString = "Canvas Created, ";
     initString += "Canvas Height: " + window.innerHeight + "px, ";
     initString += "Canvas Width: " + window.innerWidth + "px."
-    // console.log(logs.log)
-    // logs.log("canvasCreation",initString);
+    this.loggers.canvasCreations.info(initString)
   }
 
   addCard(cardType = 'text', modality = true) {
