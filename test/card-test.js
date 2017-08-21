@@ -10,11 +10,11 @@ var TextEditor = require('../app/textEditor.js')
 var SketchPad = require('../app/sketchPad.js')
 var CodeEditor = require('../app/codeEditor.js')
 
-describe('cards interactions', function () {
+describe('cards interactions', function() {
   this.timeout(30000);
   var app;
 
-  before(function () {
+  before(function() {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
     require('jquery-ui-bundle');
@@ -26,65 +26,111 @@ describe('cards interactions', function () {
     return app.start();
   });
 
-  after(function () {
+  after(function() {
     if (app && app.isRunning()) {
       return app.stop();
     }
   });
 
-  it('creates a Card instance', function () {
-    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+  it('creates a Card instance', function() {
+    let card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     assert(card instanceof Card);
     return assert.equal(card.constructor.name, 'Card');
   });
 
-  it('Card instantiation without parameters throws Error', function () {
+  it('Card instantiation without parameters throws Error', function() {
     return assert.throws(() => {
       new Canvas();
     }, Error, 'Card cannot be instantiated without parameters');
   });
 
-  it('Card instantiation throws Error when missing required parameters', function () {
+  it('Card instantiation throws Error when missing required parameters', function() {
     assert.throws(() => {
-      new Card({type: 'text', context: document.body, modal: true});
+      new Card({
+        type: 'text',
+        context: document.body,
+        modal: true
+      });
     }, Error, 'Card requires \'id\' parameter during instantiation');
 
     assert.throws(() => {
-      new Card({id: 1, context: document.body, modal: true});
+      new Card({
+        id: 1,
+        context: document.body,
+        modal: true
+      });
     }, Error, 'Card requires \'type\' parameter during instantiation');
 
     assert.throws(() => {
-      new Card({id: 1, type: 'text', modal: true});
+      new Card({
+        id: 1,
+        type: 'text',
+        modal: true
+      });
     }, Error, 'Card requires \'context\' parameter during instantiation');
   });
 
-  it('Card instantiation does not throw Error when missing optional parameters', function () {
+  it('Card instantiation does not throw Error when missing optional parameters', function() {
     return assert.doesNotThrow(() => {
-      new Card({id: 1, type: 'text', context: document.body});
+      new Card({
+        id: 1,
+        type: 'text',
+        context: document.body
+      });
     }, Error);
   });
 
-  it('Card instances contain different \'uuid\' field values', function () {
-      let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
-      let card2 = new Card({id: 2, type: 'text', context: document.body, modal: true});
-      return assert.notEqual(card.uuid, card2.uuid);
+  it('Card instances contain different \'uuid\' field values', function() {
+    let card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
+    let card2 = new Card({
+      id: 2,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
+    return assert.notEqual(card.uuid, card2.uuid);
   });
 
-  it('document contains a card and header div', function () {
-    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+  it('document contains a card and header div', function() {
+    let card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     let msg1 = card.card + ' document contains card div';
     let msg2 = card.header + ' document contains header div'
     assert.notEqual(card.card, undefined, msg1);
     assert.notEqual(card.header, undefined, msg2);
   });
 
-  it('document contains namebox span', function () {
-    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+  it('document contains namebox span', function() {
+    let card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     assert.notEqual(card.title, undefined);
   });
 
-  it('Card interactions cause only interaction timestamp metadata to update', function () {
-    var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+  it('Card interactions cause only interaction timestamp metadata to update', function() {
+    var card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     var createdTimestampBefore = card.createdTimestamp;
     var createdByBefore = card.createdBy;
     var lastInteractionBefore = card.lastInteraction;
@@ -157,11 +203,16 @@ describe('cards interactions', function () {
 
   //test to see that if card droppability is disabled,
   //that card can no longer be dropped in synectic app!
-  it('card dropability can be disabled', function () {
-    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
+  it('card dropability can be disabled', function() {
+    let card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     $(card.card).data('droppable');
     $(card.card).droppable();
-    if($(card.card).droppable('disable'))
+    if ($(card.card).droppable('disable'))
       var disabled = 1;
     return assert.equal(disabled, 1);
   });
@@ -179,33 +230,63 @@ describe('cards interactions', function () {
   //   assert.equal(idealWidth, curWidth);
   // });
 
-  it('creates a texteditor card instance', function () {
-    let textEditor = new TextEditor({id: 1, type: 'text', context: document.body, modal: true});
+  it('creates a texteditor card instance', function() {
+    let textEditor = new TextEditor({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     return assert.equal(textEditor.constructor.name, 'TextEditor');
   });
 
-  it('texteditor contains three faces', function () {
-    let textEditor = new TextEditor({id: 1, type: 'text', context: document.body, modal: true});
+  it('texteditor contains three faces', function() {
+    let textEditor = new TextEditor({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     return assert.equal(textEditor.faces.length, 3);
   });
 
-  it('texteditor contains two \'editor\' faces', function () {
-    let textEditor = new TextEditor({id: 1, type: 'text', context: document.body, modal: true});
+  it('texteditor contains two \'editor\' faces', function() {
+    let textEditor = new TextEditor({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      modal: true
+    });
     return assert.equal(textEditor.editors.length, 2);
   });
 
-  it('creates a sketchpad card instance', function () {
-    let sketchPad = new SketchPad({id: 1, type: 'sketch', context: document.body, modal: true});
+  it('creates a sketchpad card instance', function() {
+    let sketchPad = new SketchPad({
+      id: 1,
+      type: 'sketch',
+      context: document.body,
+      modal: true
+    });
     return assert.equal(sketchPad.constructor.name, 'SketchPad')
   });
 
-  it('sketchpad contains three faces', function () {
-    let sketchPad = new SketchPad({id: 1, type: 'sketch', context: document.body, modal: true});
+  it('sketchpad contains three faces', function() {
+    let sketchPad = new SketchPad({
+      id: 1,
+      type: 'sketch',
+      context: document.body,
+      modal: true
+    });
     return assert.equal(sketchPad.faces.length, 3);
   });
 
-  it('sketchpad has sketch pen buttons', function () {
-    let sketchPad = new SketchPad({id: 1, type: 'sketch', context: document.body, modal: true});
+  it('sketchpad has sketch pen buttons', function() {
+    let sketchPad = new SketchPad({
+      id: 1,
+      type: 'sketch',
+      context: document.body,
+      modal: true
+    });
     assert.notEqual(sketchPad.pens, undefined);
   });
 
@@ -219,22 +300,32 @@ describe('cards interactions', function () {
   //   return assert.notEqual(sketchPad.eraser, undefined);
   // });
 
-  it('creates a codeEditors card instance', function () {
-    let codeEditor = new CodeEditor({id: 1, type: 'editor', context: document.body, modal: true});
+  it('creates a codeEditors card instance', function() {
+    let codeEditor = new CodeEditor({
+      id: 1,
+      type: 'editor',
+      context: document.body,
+      modal: true
+    });
     return assert.equal(codeEditor.constructor.name, 'CodeEditor')
   });
 
-  it('codeEditor contains three faces', function () {
-    let codeEditor = new CodeEditor({id: 1, type: 'editor', context: document.body, modal: true});
+  it('codeEditor contains three faces', function() {
+    let codeEditor = new CodeEditor({
+      id: 1,
+      type: 'editor',
+      context: document.body,
+      modal: true
+    });
     return assert.equal(codeEditor.faces.length, 3);
   });
 
 });
 
-function wait(ms){
-   var start = new Date().getTime();
-   var end = start;
-   while(end < start + ms) {
-     end = new Date().getTime();
+function wait(ms) {
+  var start = new Date().getTime();
+  var end = start;
+  while (end < start + ms) {
+    end = new Date().getTime();
   }
 };

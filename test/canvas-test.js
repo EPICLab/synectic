@@ -147,25 +147,27 @@ describe('canvas interactions', function() {
   });
 
 
-  // it("Canvas resizes should log events to canvasResizes.log file", function(done) {
-  //   app.browserWindow.setSize(200, 222);
-  //   let canvas5 = new Canvas({
-  //     id: 5,
-  //     loggers: logs
-  //   });
-  //   let uuid;
-  //   let l = fs.watch(path.join(__dirname, '../logs', "canvasResizes.log"), function(eventType, fileName) {
-  //     setTimeout(function() {
-  //       lastLine(path.join(__dirname, '../logs', fileName), function(err, res) {
-  //         console.log(canvas5)
-  //         res = JSON.parse(res).message.split(" ")[1] // get UUID of canvas
-  //         uuid = res;
-  //         assert.equal(uuid, canvas5.uuid);
-  //         done();
-  //         l.close(); // needed to unwatch file for future testing
-  //       });
-  //     }, 4000);
-  //   });
-  // }); Trouble getting the asynch tests to line up properly
+  it("Canvas resizes should log events to canvasResizes.log file", function(done) {
+    let last1;
+    lastLine(path.join(__dirname, '../logs', "canvasResizes.log"), function(err, res) {
+      last1 = res;
+    });
+
+    app.browserWindow.setSize(200, 222);
+    let canvas5 = new Canvas({
+      id: 5,
+      loggers: logs
+    });
+    let uuid;
+    let l = fs.watch(path.join(__dirname, '../logs', "canvasResizes.log"), function(eventType, fileName) {
+      setTimeout(function() {
+        lastLine(path.join(__dirname, '../logs', fileName), function(err, res) {
+          assert.notEqual(last1, res);
+          done();
+          l.close(); // needed to unwatch file for future testing
+        });
+      }, 4000);
+    });
+  }); // Trouble getting the asynch tests to line up properly
 
 });
