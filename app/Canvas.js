@@ -61,24 +61,31 @@ module.exports = class Canvas {
 
   canvasResizer() {
     let resizeTimer;
-    let started = false;
+    let stopStart;
+    let self = this;
+    let startX, startY;
     $(window).resize((e) => {
-      if (!started) {
-        started = true;
-        console.log("started")
+      if (stopStart != "start") {
+        stopStart = "start";
+        startX = window.innerWidth;
+        startY = window.innerHeight;
       }
-
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        console.log("Stopped!")
-        started = false;
-      }, 250);
+        stopStart = "stop";
+        self.logCanvasResize(startX, startY, stopStart);
+      }, 1000);
     });
   }
 
-  handleCanvasResize(e) {
-    console.log(e)
-
+  logCanvasResize(startX, startY, stopStart) {
+    let endX, endY, initString;
+    endX = window.innerWidth;
+    endY = window.innerHeight;
+    initString = "Canvas " + this.uuid + ", changed from";
+    initString += " X: " + startX + "px, and Y: " + startY;
+    initString += "px, to X: " + endX + "px, and Y: " + endY + "px."
+    this.loggers.canvasResizes.info(initString)
   }
 
 
