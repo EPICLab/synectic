@@ -6,6 +6,7 @@ const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
 const uuidv4 = require('uuid/v4');
 const Card = require('../app/Card.js');
+const Canvas = require('../app/Canvas.js')
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
@@ -17,14 +18,20 @@ module.exports = class Stack {
 
     this.stack = document.createElement('div');
     $(this.stack).attr('class', 'stack')
+    //cards[0][0] is being read as undefined
       // .css({
-      //   top: $(cards[0]).offset().top - 25,
-      //   left: $(cards[0]).offset().left - 25,
+      //   top: $(cards[0][0]).offset().top,
+      //   left: $(cards[0][0]).offset().left
       // });
+      // console.log(cards[0][0].constructor.name);
+      // console.log($(cards[0][0]).offset().top);
+      // console.log($(cards[0][0]).offset().left);
+      // console.log(this.stack.style.top);
+      // console.log(this.stack.style.left);
+
     this.closeButton = document.createElement('button');
     $(this.closeButton).attr('class', 'stackClose');
     $(this.closeButton).click(() => console.log('close button clicked'))
-
 
     this.annotation = document.createElement('textarea');
     $(this.annotation).attr({
@@ -43,9 +50,11 @@ module.exports = class Stack {
 
     for(var i = 0; i < cards.length; i++){
       this.addCard(cards[i]);
+      $(cards[i]).droppable('disable');
     }
     this.toggleDraggable();
-    this.cascadeCards();
+    this.toggleDroppable();
+    this.cascadeCards(cards[i]);
   }
 
   // add individual card to the top of the stack
@@ -53,13 +62,23 @@ module.exports = class Stack {
     this.cards.push(currCard);
     let body = document.querySelector('.card');
     this.stack.appendChild(body);
-    // currCard.droppable('disable');
-    console.log('card added');
   }
 
   // remove individual card from the stack
-  removeCard() {
+  removeCard(currCard) {
+    // $(currCard).droppable('enable'); //error: cannot call methods on droppable prior to
+                                        //initialization; attempted to call method 'enable
+    let card = document.querySelector('.card');
+    document.body.appendChild(card);
     this.cards.pop();
+  }
+
+  //stack is removed if the stack contains less than two cards
+  destructor() {
+    for(var i = 0; i < this.cards.length; i++){
+      this.removeCard($(this.cards)[i]);
+    }
+    $(this.stack).remove();
   }
 
   // position all stacked cards according to their index within the stack
@@ -87,5 +106,29 @@ module.exports = class Stack {
     }
   }
 
+  //enables cards to be added to a stack
+  toggleDroppable() {
+    $(this.stack).droppable({
+      accept: '.card, .stack',
+      classes: {
+        'ui-droppable-hover': 'highlight',
+      },
+      drop: (event, ui) => {
+        // handle card-to-stack drop event
+        if ($(ui.draggable).hasClass('card')) {
+          this.addCard($(ui.draggable));
+          this.cascadeCards();
+        }
+      },
+      out: (event, ui) => {
+        this.removeCard($(ui.draggable));
+        if (this.cards.length < 2) {
+          this.destructor();
+          return;
+        };
+        this.cascadeCards();
+      },
+    });
+  }
 
 }

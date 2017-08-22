@@ -103,69 +103,6 @@ describe('cards interactions', function () {
     assert.notEqual(card.lastInteraction, lastInteractionBefore, msg3);
   });
 
-  //test that if card dragability is disabled, that card cannot
-  //actually be moved in synectic app!
-  // it('card draggability can be disabled', function () {
-  //   var card = new Card({id: 1, type: 'text', context: document.body, modal: true});
-  //
-  //   $(card).draggable({
-  //     start: function (event, ui) {
-  //       startPosition = ui.position;
-  //       startOffset = ui.offset;
-  //     },
-  //     drag: function (event, ui) {
-  //       dragPosition = ui.position;
-  //       dragOffset = ui.offset;
-  //     },
-  //     stop: function (event, ui) {
-  //       stopPosition = ui.position;
-  //       stopOffset = ui.offset;
-  //     },
-  //   });
-  //   card.simulate('drag', {
-  //     dx: 10,
-  //     dy: 10,
-  //     moves: 1
-  //   });
-  //   startPosition.top += 10;
-  //   startPosition.left += 10;
-  //   startOffset.top += 10;
-  //   startOffset.left += 10;
-  //   let msg1 = "start potision equals drag position plus distance"
-  //   let msg2 = "drag position equals stop position"
-  //   let msg3 = "start offset equals drag offset plus distance"
-  //   let msg4 = "drag offset equals stop offset"
-  //   assert.equal(startPosition, dragPosition, msg1);
-  //   assert.equal(dragPosition, stopPosition, msg2);
-  //   assert.equal(startOffset, dragOffset, msg3);
-  //   assert.equal(dragOffset, stopOffset, msg4);
-  // });
-
-  //error: elem.getClientRects is not a function (error references $(card).offset())
-  // it('toggleDraggable sets correct card position', function () {
-  //   let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
-  //   $(card).css({top: 200, left: 250});
-  //   var topPosition = $(card).offset().top + 'px';
-  //   var leftPosition = $(card).offset().left + 'px';
-  //   let msg1 = 'toggleDraggable sets card top position to be: ' + topPosition +
-  //   ' but, card top position should be 200px';
-  //   let msg2 = 'toggleDraggable sets card left position to be: ' + leftPosition +
-  //   ' but, card left position should be 250px';
-  //   assert.equal('200px', topPosition, msg1);
-  //   assert.equal('250px', leftPosition, msg2);
-  // });
-
-  //test to see that if card droppability is disabled,
-  //that card can no longer be dropped in synectic app!
-  it('card dropability can be disabled', function () {
-    let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
-    $(card.card).data('droppable');
-    $(card.card).droppable();
-    if($(card.card).droppable('disable'))
-      var disabled = 1;
-    return assert.equal(disabled, 1);
-  });
-
   // it('card intance has correct height and width when fullscreen mode is toggled on', function () {
   //   let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
   //   card.toggleButton.trigger('click');

@@ -80,7 +80,7 @@ describe('Stack interactions', function () {
     let stack = new Stack();
     let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     stack.addCard(card);
-    stack.removeCard();
+    stack.removeCard(card);
     return assert.equal(stack.cards.length, 0);
   });
 
@@ -94,7 +94,7 @@ describe('Stack interactions', function () {
   //   });
   //   stack1.addCard(card1);
   //   stack1.addCard(card2);
-  //   stack1.cascadeCards();
+  //   console.log(stack1.cards[0]);
   //   let card1Position = $(stack1.cards[0]).offset();
   //   let card2Position = $(stack1.cards[1]).offset();
   //   let msg1 = 'card1 should have top value: 25px, but has top value: ' +
@@ -110,4 +110,5 @@ describe('Stack interactions', function () {
   //   assert.equal('50px', card2Position.top(), msg3);
   //   assert.equal('50px', card2Position.left(), msg4);
   // });
+
 });
