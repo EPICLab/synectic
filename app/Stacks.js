@@ -31,7 +31,7 @@ module.exports = class Stack {
 
     this.closeButton = document.createElement('button');
     $(this.closeButton).attr('class', 'stackClose');
-    $(this.closeButton).click(() => console.log('close button clicked'))
+    $(this.closeButton).click(() => this.destructor());
 
     this.annotation = document.createElement('textarea');
     $(this.annotation).attr({
@@ -75,7 +75,7 @@ module.exports = class Stack {
 
   //stack is removed if the stack contains less than two cards
   destructor() {
-    for(var i = 0; i < this.cards.length; i++){
+    for(var i = 0; i < this.cards.length + 1; i++){
       this.removeCard($(this.cards)[i]);
     }
     $(this.stack).remove();
