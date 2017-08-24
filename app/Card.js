@@ -73,22 +73,16 @@ module.exports = class Card {
     console.log('lastInteraction: ' + this.lastInteraction);
   }
 
-  logMovements(offset, startStop) {
-    let startTop;
-    let startLeft;
-    if (startStop == "start") {
-      startTop = offset.top + "px, "
-      startLeft = offset.left + "px "
-    }
-    if (startStop == "stop") {
-      let s = "Card start left: " + startLeft + "Card start top: ";
-      s += startTop;
-      console.log(startTop, startLeft)
-    }
+  logMovements(startOffset, stopOffset) {
+    let s = '{\"Card\": \"' + this.uuid + '\", \"start\": { \"top\": \"' + startOffset.top + '\"' +
+      ', \"left\": \"' + startOffset.left + '\"}, \"stop\":{\"top\":' + stopOffset.top +
+      ', \"left\": ' + stopOffset.left + '}}';
+    this.logger.cardMovements.info(s)
   }
 
   toggleDraggable() {
     let self = this;
+    let start = {};
     // warning: draggable object must be appended to DOM before being enabled
     if ($(this.card).data('draggable')) {
       $(this.card).draggable('disable');
@@ -103,13 +97,13 @@ module.exports = class Card {
             top: $(this).offset().top + 'px',
             left: $(this).offset().left + 'px'
           });
-          self.logMovements($(this).offset(), "start");
+          start = $(this).offset();
         },
         drag: (event, ui) => {
           this.updateMetadata();
         },
         stop: function() {
-          self.logMovements($(this).offset(), "stop");
+          self.logMovements(start, $(this).offset());
         }
       });
     }

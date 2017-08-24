@@ -14,6 +14,7 @@ const winston = require("winston");
 let logging = require("./../lib/logger");
 
 
+
 describe('cards interactions', function() {
   this.timeout(30000);
   var app;
@@ -22,6 +23,9 @@ describe('cards interactions', function() {
   before(function() {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
+    require("./../node_modules/jquery-simulate-ext/libs/jquery.simulate")
+    require("./../node_modules/jquery-simulate-ext/src/jquery.simulate.ext")
+    require("./../node_modules/jquery-simulate-ext/src/jquery.simulate.drag-n-drop")
     require('jquery-ui-bundle');
 
     app = new Application({
@@ -356,8 +360,24 @@ describe('cards interactions', function() {
     });
   });
 
-  it("moving a card logs the movements properly to log file", function() {
-
+  it("moving a card logs the movements properly to log file", function(done) {
+    let textEditor = new TextEditor({
+      id: 1,
+      type: 'text',
+      logs: loggers,
+      context: document.body,
+      modal: true
+    });
+    $(textEditor.header).simulate("drag", {
+      dx: 300,
+      interpolation: {
+        stepWidth: 10,
+        stepDelay: 50
+      }
+    });
+    setTimeout(function() {
+      done()
+    }, 5000)
   });
 
 });
