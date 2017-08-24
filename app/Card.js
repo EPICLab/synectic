@@ -29,21 +29,21 @@ module.exports = class Card {
     this.title = document.createElement('span');
     $(this.title).html("My Card");
 
-    this.closeButton = document.createElement('button');
-      $(this.closeButton).click(() => console.log('close button clicked'))
-    this.saveButton = document.createElement('button');
-      $(this.saveButton).click(() => console.log('save button clicked'))
-    this.fullscreenButton = document.createElement('button');
-      $(this.fullscreenButton).click(() => console.log('fullscreen button clicked'));
+    const saveButton = document.createElement('button');
+    $(saveButton).click(() => console.log('save button clicked'))
+    const fullscreenButton = document.createElement('button');
+    $(fullscreenButton).click(() => console.log('fullscreen button clicked'));
+    const closeButton = document.createElement('button');
+    $(closeButton).attr('class', 'close');
+    $(closeButton).click(() => { $(this.card).remove(); });
 
     this.header.appendChild(this.title);
-    this.header.appendChild(this.closeButton);
-    this.header.appendChild(this.saveButton);
-    this.header.appendChild(this.fullscreenButton);
+    this.header.appendChild(saveButton);
+    this.header.appendChild(fullscreenButton);
+    this.header.appendChild(closeButton);
     this.card.appendChild(this.header);
     context.appendChild(this.card);
     if (modal) this.toggleDraggable();
-    this.toggleDroppable();
   }
 
   destructor() {

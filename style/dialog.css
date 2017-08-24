@@ -8,7 +8,7 @@ div.dialog {
   overflow: hidden;
 }
 
-button.close {
+div.dialog button.close {
   background: url('../asset/close_dark.svg') no-repeat;
   background-size: cover;
   height: 19px;
@@ -21,14 +21,14 @@ button.close {
   z-index: 9999;
 }
 
-button.close:hover,
-button.close:active {
+div.dialog button.close:hover,
+div.dialog button.close:active {
   background: url('../asset/close_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
 
-button.acknowledge {
+div.dialog button.acknowledge {
   height: 29px;
   width: 85px;
   color: rgba(0, 0, 0, 1.0);
@@ -40,7 +40,7 @@ button.acknowledge {
   font-size: 90%;
 }
 
-div.overlay {
+div.dialog div.overlay {
   background: rgba(40, 44, 52, 0.4);
   position: absolute;
   top: 0;

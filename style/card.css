@@ -15,6 +15,10 @@ div.card {
   user-select: none;
 }
 
+div.card:hover {
+  box-shadow: 0 0 3pt 1pt rgba(102, 204, 117, 0.75);
+}
+
 div.card-header {
   height: 29px;
   background: rgba(89, 87, 90, 1.0);
@@ -26,4 +30,37 @@ div.card-header {
   transform-style: preserve-3d;
   font-family: 'Lato', Georgia, Serif;
   font-weight: bold;
+}
+
+div.card-header button {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  /*border-radius: 50%;*/
+  z-index: 9999;
+}
+
+div.card-header svg.close {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  z-index: 9999;
+}
+
+div.card-header button.close {
+  background: rgba(89, 87, 90, 1.0) url('../asset/close_dark.svg') center/15px auto no-repeat;
+  background-size: cover;
+}
+
+div.card-header button.close:hover,
+div.card-header button.close:active {
+  background: rgba(89, 87, 90, 1.0) url('../asset/close_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
 }
