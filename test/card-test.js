@@ -9,10 +9,15 @@ var Canvas = require('../app/Canvas.js');
 var TextEditor = require('../app/textEditor.js')
 var SketchPad = require('../app/sketchPad.js')
 var CodeEditor = require('../app/codeEditor.js')
+var lastLine = require("last-line");
+const winston = require("winston");
+let logging = require("./../lib/logger");
+
 
 describe('cards interactions', function() {
   this.timeout(30000);
   var app;
+  var loggers = new logging(winston);
 
   before(function() {
     this.jsdom = require('jsdom-global')()
@@ -37,6 +42,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     assert(card instanceof Card);
@@ -80,6 +86,7 @@ describe('cards interactions', function() {
       new Card({
         id: 1,
         type: 'text',
+        logs: loggers,
         context: document.body
       });
     }, Error);
@@ -90,11 +97,13 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     let card2 = new Card({
       id: 2,
       type: 'text',
+      logs: loggers,
       context: document.body,
       modal: true
     });
@@ -106,6 +115,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     let msg1 = card.card + ' document contains card div';
@@ -119,6 +129,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     assert.notEqual(card.title, undefined);
@@ -129,6 +140,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     var createdTimestampBefore = card.createdTimestamp;
@@ -208,6 +220,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     $(card.card).data('droppable');
@@ -235,6 +248,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     return assert.equal(textEditor.constructor.name, 'TextEditor');
@@ -245,6 +259,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     return assert.equal(textEditor.faces.length, 3);
@@ -255,6 +270,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'text',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     return assert.equal(textEditor.editors.length, 2);
@@ -265,6 +281,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'sketch',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     return assert.equal(sketchPad.constructor.name, 'SketchPad')
@@ -274,6 +291,7 @@ describe('cards interactions', function() {
     let sketchPad = new SketchPad({
       id: 1,
       type: 'sketch',
+      logs: loggers,
       context: document.body,
       modal: true
     });
@@ -284,6 +302,7 @@ describe('cards interactions', function() {
     let sketchPad = new SketchPad({
       id: 1,
       type: 'sketch',
+      logs: loggers,
       context: document.body,
       modal: true
     });
@@ -305,6 +324,7 @@ describe('cards interactions', function() {
       id: 1,
       type: 'editor',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     return assert.equal(codeEditor.constructor.name, 'CodeEditor')
@@ -315,12 +335,33 @@ describe('cards interactions', function() {
       id: 1,
       type: 'editor',
       context: document.body,
+      logs: loggers,
       modal: true
     });
     return assert.equal(codeEditor.faces.length, 3);
   });
 
+  it("creating a card logs the data properly to the log file", function(done) {
+    let textEditor = new TextEditor({
+      id: 1,
+      type: 'text',
+      logs: loggers,
+      context: document.body,
+      modal: true
+    });
+    lastLine(path.join(__dirname, '../logs', "cardCreations.log"), function(err, res) {
+      var message = JSON.parse(JSON.parse(res).message);
+      assert.equal(message["Card id"], textEditor.uuid)
+      done()
+    });
+  });
+
+  it("moving a card logs the movements properly to log file", function() {
+
+  });
+
 });
+
 
 function wait(ms) {
   var start = new Date().getTime();

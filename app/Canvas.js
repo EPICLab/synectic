@@ -53,9 +53,9 @@ module.exports = class Canvas {
   }
 
   canvasLoggerInit() {
-    let initString = "Canvas " + this.uuid + " Created, ";
-    initString += "Canvas Height: " + window.innerHeight + "px, ";
-    initString += "Canvas Width: " + window.innerWidth + "px."
+    let initString = '{\"Canvas\": \"' + this.uuid + '\" ,';
+    initString += '\"Canvas Height\": \"' + window.innerHeight + '\", ';
+    initString += '\"Canvas Width\": \"' + window.innerWidth + '\"}'
     this.loggers.canvasCreations.info(initString)
   }
 
@@ -82,9 +82,9 @@ module.exports = class Canvas {
     let endX, endY, initString;
     endX = window.innerWidth;
     endY = window.innerHeight;
-    initString = "Canvas " + this.uuid + ", changed from";
-    initString += " X: " + startX + "px, and Y: " + startY;
-    initString += "px, to X: " + endX + "px, and Y: " + endY + "px."
+    initString = '{ \"Canvas\": \"' + this.uuid + '\",';
+    initString += ' \"startX\": \"' + startX + '\", \"startY\": \"' + startY + '\"';
+    initString += ', \"endX\": \"' + endX + '\", \"endY\": \"' + endY + '\"' + ' }'
     this.loggers.canvasResizes.info(initString)
   }
 
@@ -95,6 +95,7 @@ module.exports = class Canvas {
       id: this.nextCardId(),
       type: cardType,
       context: this.canvas,
+      logs: this.loggers,
       modal: modality
     });
     this.cards.push(card);

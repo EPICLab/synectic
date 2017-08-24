@@ -168,6 +168,6 @@ describe('canvas interactions', function() {
         });
       }, 4000);
     });
-  }); // Trouble getting the asynch tests to line up properly
+  }); // weak test that only tests to see if a new log was generated. 
 
 });

@@ -9,15 +9,17 @@ module.exports = class Card {
     id = Error.throwIfMissing('id'),
     type = Error.throwIfMissing('type'),
     context = Error.throwIfMissing('context'),
+    logs = Error.throwIfMissing("loggers"),
     modal = true
   }) {
     this.id = id;
+    this.logger = logs
     this.uuid = uuidv4();
     this.cardType = type;
     this.createdBy = require('username').sync();
     this.createdTimestamp = new Date();
     this.lastInteraction = new Date();
-    // this.cardLoggerInit();
+    this.cardLoggerInit();
 
     this.card = document.createElement('div');
     $(this.card).attr({
@@ -52,13 +54,13 @@ module.exports = class Card {
     $(this.card).remove();
   }
 
-  // cardLoggerInit(){
-  //   let initString = "Card Created: " + this.createdTimestamp + ", ";
-  //   initString += "Card id: " + this.uuid + ", ";
-  //   initString += "Card Type: " + this.cardType +  ", ";
-  //   initString += "Created By: " + this.createdBy;
-  //   logger.logs("created",initString)
-  // }
+  cardLoggerInit() {
+    let initString = '{ "Card Created": \"' + this.createdTimestamp + "\", ";
+    initString += '\"Card id\": \"' + this.uuid + "\", ";
+    initString += '\"Card Type\": \"' + this.cardType + "\", ";
+    initString += '\"Created By\": \"' + this.createdBy + "\"}";
+    this.logger.cardCreations.info(initString)
+  }
 
   updateMetadata() {
     this.lastInteraction = new Date();
@@ -77,13 +79,11 @@ module.exports = class Card {
     if (startStop == "start") {
       startTop = offset.top + "px, "
       startLeft = offset.left + "px "
-      // console.log(startTop)
     }
     if (startStop == "stop") {
       let s = "Card start left: " + startLeft + "Card start top: ";
-      s += startTop
-
-
+      s += startTop;
+      console.log(startTop, startLeft)
     }
   }
 
