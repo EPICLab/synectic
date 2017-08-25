@@ -361,25 +361,12 @@ describe('cards interactions', function() {
   });
 
   it("moving a card logs the movements properly to log file", function(done) {
-    let textEditor = new TextEditor({
-      id: 1,
-      type: 'text',
-      logs: loggers,
-      context: document.body,
-      modal: true
-    });
-    $(textEditor.header).simulate("drag", {
-      dx: 300,
-      interpolation: {
-        stepWidth: 10,
-        stepDelay: 50
-      }
-    });
-    setTimeout(function() {
+    lastLine(path.join(__dirname, '../logs', "cardMovements.log"), function(err, res) {
+      var message = JSON.parse(JSON.parse(res).message);
+      assert(message)
       done()
-    }, 5000)
+    });
   });
-
 });
 
 

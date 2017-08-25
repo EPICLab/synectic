@@ -1,407 +1,264 @@
-{"level":"info","message":"Canvas 7dbf97dc-cb7d-4386-968b-d1f9015932c8 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:32:41.427Z"}
-{"level":"info","message":"Canvas 30363c36-337e-424a-b1f5-e2e1dfa2c41b Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:32:43.994Z"}
-{"level":"info","message":"Canvas 78344deb-6bdd-45a7-8b42-9dc57356e783 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.132Z"}
-{"level":"info","message":"Canvas fd28406f-b720-484c-b2ea-58187d0d725c Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.140Z"}
-{"level":"info","message":"Canvas b054fcf0-481e-4f8c-bb7c-b9d7b9f267b6 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.142Z"}
-{"level":"info","message":"Canvas a1c11ef0-b0e0-4f9f-b2ea-b042f371658a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.210Z"}
-{"level":"info","message":"Canvas c18b7177-d874-4347-a44a-fb48450bf6d0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.221Z"}
-{"level":"info","message":"Canvas 9e06bc8d-f820-4799-924a-258a01ac5d4a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.229Z"}
-{"level":"info","message":"Canvas aad60f83-2c83-4787-9e0f-3585b01f9fdd Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.232Z"}
-{"level":"info","message":"Canvas 07cf8ff2-2350-40aa-85e9-f687e6adf1e0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.234Z"}
-{"level":"info","message":"Canvas e2b2d306-fea8-4b42-9e14-c2997e06f5d4 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.236Z"}
-{"level":"info","message":"Canvas ce514811-1578-4d13-bd8d-ab852fb06cfe Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.238Z"}
-{"level":"info","message":"Canvas 5403bc51-f24f-4d14-8ae0-3cb65c94ceb0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:32:44.244Z"}
-{"level":"info","message":"Canvas c8a9f257-f28e-4f35-8309-2d2a1d1bfef0 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:32:51.422Z"}
-{"level":"info","message":"Canvas 2189ce79-8ee9-433a-bdd6-53d0209e0761 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:32:53.836Z"}
-{"level":"info","message":"Canvas 3541874c-03af-4ce4-b18d-0733d8272298 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:32:56.178Z"}
-{"level":"info","message":"Canvas 17eb4b52-d7c3-4e02-8965-a04e911c3874 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:32:58.660Z"}
-{"level":"info","message":"Canvas ae7740f2-de3b-4d79-aef9-1e16509a7649 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:34:54.721Z"}
-{"level":"info","message":"Canvas c46af873-49e7-44de-b754-1dfd5ed12b3b Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:34:57.314Z"}
-{"level":"info","message":"Canvas 3528afbc-54fb-4f57-a2c4-2e7e6349a8dd Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.462Z"}
-{"level":"info","message":"Canvas 84786866-9df4-43e2-9b26-d83bfa725949 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.470Z"}
-{"level":"info","message":"Canvas c410d566-0b6b-48f9-8f9f-68d62307c454 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.471Z"}
-{"level":"info","message":"Canvas 3fb8c58a-45cd-43cc-91ba-717bc7027d4a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.550Z"}
-{"level":"info","message":"Canvas e0dd4e4b-5fc0-45b0-848c-2337c32af164 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.561Z"}
-{"level":"info","message":"Canvas 58dcfabf-8d1f-4922-8000-480d6c736c17 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.570Z"}
-{"level":"info","message":"Canvas 97683f60-9e89-4a98-a51e-531597bbbbca Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.571Z"}
-{"level":"info","message":"Canvas bd1e1358-8612-49fe-b030-0c4f23d50e70 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.573Z"}
-{"level":"info","message":"Canvas 40e53018-2275-4f69-8b96-dc4157d31188 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.575Z"}
-{"level":"info","message":"Canvas dd6fbab6-2e49-4548-ab86-ff4726a5b3b8 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.577Z"}
-{"level":"info","message":"Canvas 89f69c0f-bc9f-405f-8824-269c2cd4b80b Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:34:57.584Z"}
-{"level":"info","message":"Canvas b3144a54-4177-40f4-bc5d-6b53ca9d2701 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:35:04.806Z"}
-{"level":"info","message":"Canvas 57d1463c-7be4-4547-911c-e246ffea6fb5 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:35:07.209Z"}
-{"level":"info","message":"Canvas 6d413352-c385-4f4a-8ec3-015e346e2145 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:35:09.541Z"}
-{"level":"info","message":"Canvas 1f626c61-964e-417b-b208-f390eb606dd4 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:35:11.903Z"}
-{"level":"info","message":"Canvas e7c3ccee-6aa9-4c51-87e2-7cbc065bddfc Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:35:56.947Z"}
-{"level":"info","message":"Canvas d4f4eb5f-b586-4909-b42b-85ab48146ab5 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:35:59.547Z"}
-{"level":"info","message":"Canvas 754bafee-14ef-4de0-b0ee-1e274a1bf8bd Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.686Z"}
-{"level":"info","message":"Canvas d946c858-6d62-4ff1-bdc1-a8907d9d8a8e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.702Z"}
-{"level":"info","message":"Canvas 0aa490d9-aa83-4a17-ab5b-26b875749539 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.704Z"}
-{"level":"info","message":"Canvas c9cc4906-86bd-47a9-be5f-76ac8098bd02 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.775Z"}
-{"level":"info","message":"Canvas 1bd48949-e126-4d9f-8606-adc9af4f75e3 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.786Z"}
-{"level":"info","message":"Canvas a5ca26fe-0e6f-400d-a009-24d638d92c75 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.794Z"}
-{"level":"info","message":"Canvas 6963aaf2-adae-4320-9f9f-db22a50f9d83 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.795Z"}
-{"level":"info","message":"Canvas 4f77c42a-ddb9-47f3-8c53-632ebaaf962d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.797Z"}
-{"level":"info","message":"Canvas d14060c7-b04f-44ea-bd58-76fb8b5dd9c1 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.799Z"}
-{"level":"info","message":"Canvas 8c318417-0af4-4ba5-a730-83a25c1499d7 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.801Z"}
-{"level":"info","message":"Canvas 99a268fe-3c9f-44ce-82f0-d1ae0bd40ccd Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:35:59.807Z"}
-{"level":"info","message":"Canvas b70e8bd5-7998-4392-8f0a-a726faf72953 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:36:07.167Z"}
-{"level":"info","message":"Canvas bd45a1f3-1fe0-41cf-8f23-21fb790d8ed4 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:36:09.709Z"}
-{"level":"info","message":"Canvas 925f125b-c885-4f5d-a4df-88c09f05c739 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:36:12.115Z"}
-{"level":"info","message":"Canvas c45e50c2-02fe-43c9-9352-a8dd21d47b4e Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:36:14.559Z"}
-{"level":"info","message":"Canvas 80a3c959-1128-4811-b8cd-03f101e97975 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:36:50.799Z"}
-{"level":"info","message":"Canvas bd88a3cd-a6ec-45cb-bf0b-9f06b9f8bd37 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:36:53.434Z"}
-{"level":"info","message":"Canvas 07bb40c1-3db7-4e8a-a626-311827c8cf7f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.580Z"}
-{"level":"info","message":"Canvas 7694ca46-081a-494b-85cc-9a6bd076645e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.587Z"}
-{"level":"info","message":"Canvas ed717f40-8f0a-410b-ac79-1fc111888005 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.589Z"}
-{"level":"info","message":"Canvas 137a09dd-6da6-43bb-94ce-a39bc9653071 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.671Z"}
-{"level":"info","message":"Canvas 88d170b0-1073-4ae8-bdf5-4b739b7c6f94 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.681Z"}
-{"level":"info","message":"Canvas 59e92e79-26b7-47eb-a9d3-51d5d447cb78 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.689Z"}
-{"level":"info","message":"Canvas 4022cf0e-ce56-4ec6-9e7f-a5cbb8922095 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.690Z"}
-{"level":"info","message":"Canvas 85f8e29b-7ead-4e5e-b12c-f785e8b2fa56 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.693Z"}
-{"level":"info","message":"Canvas 9c684c7d-caac-4602-ab4b-2f95d5dfa847 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.695Z"}
-{"level":"info","message":"Canvas 858d284c-24fc-458c-a2cc-2a44101efb67 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:36:53.698Z"}
-{"level":"info","message":"Canvas bdab08be-e2b9-4344-9646-f44a4e5fcd2b Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:23.702Z"}
-{"level":"info","message":"Canvas 528d6294-a526-4183-a314-1eb6cd772ffc Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:26.004Z"}
-{"level":"info","message":"Canvas 5c95921e-29eb-416e-8fd0-1da5159292d7 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:26.537Z"}
-{"level":"info","message":"Canvas 24ab9d7c-3672-4230-920f-d8ec17359482 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:27.403Z"}
-{"level":"info","message":"Canvas 757fe398-68b7-4822-b09f-973126d87f0b Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:27.612Z"}
-{"level":"info","message":"Canvas b7696521-bbf8-43f3-a62c-b5c468b36410 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:39.925Z"}
-{"level":"info","message":"Canvas 2a3466d1-b1fc-4513-8f52-709c0a182c3b Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:42.593Z"}
-{"level":"info","message":"Canvas e9311a55-9251-4a74-b34a-db4f4cd3d10a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.713Z"}
-{"level":"info","message":"Canvas 47c84a0f-0380-4969-88a6-a832df3002b0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.721Z"}
-{"level":"info","message":"Canvas 3ba8012b-afcb-40d6-9ba0-62d4a74c27aa Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.723Z"}
-{"level":"info","message":"Canvas fdb5753c-5a19-4cde-b6f8-81f1cb14a426 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.802Z"}
-{"level":"info","message":"Canvas 3881f97c-97d6-4a5f-bcb7-23ef0b38a81f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.813Z"}
-{"level":"info","message":"Canvas c8e90c95-5911-41d8-be87-fe6d6098dcda Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.823Z"}
-{"level":"info","message":"Canvas 97d42db8-0656-4d3e-9508-7f0f8dfa9537 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.823Z"}
-{"level":"info","message":"Canvas 88c9b1c9-ee1c-4154-8b48-d2a2260ac400 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.825Z"}
-{"level":"info","message":"Canvas 841e3e96-f4e5-4788-9b47-a09667536855 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.827Z"}
-{"level":"info","message":"Canvas 02f141a9-aecc-4dd6-921e-00e96ebc0d75 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.829Z"}
-{"level":"info","message":"Canvas 5dce006a-0126-4126-9975-086b587f0a81 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:37:42.836Z"}
-{"level":"info","message":"Canvas 473885a1-0520-4324-ab90-7ca5143a0f79 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:53.062Z"}
-{"level":"info","message":"Canvas 6a9e24a1-9b76-425d-824f-97be685fd42e Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:55.473Z"}
-{"level":"info","message":"Canvas 6aa82cd8-bd3b-424a-ac6d-8f814b5b3c6a Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:37:57.840Z"}
-{"level":"info","message":"Canvas d0fc0967-5995-47d4-8ee2-a00bd0a267ef Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:38:00.151Z"}
-{"level":"info","message":"Canvas 60cd453a-f49b-4f0f-90c3-7b5497d41590 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:40:41.350Z"}
-{"level":"info","message":"Canvas e8107e2e-c0b0-41cf-8b13-dd311def0dcb Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:40:43.969Z"}
-{"level":"info","message":"Canvas 1484bdf4-ddaa-4146-9ee4-31800786c81b Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.088Z"}
-{"level":"info","message":"Canvas 6bd46216-7897-4847-9456-1242b876c60d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.096Z"}
-{"level":"info","message":"Canvas 8e28b287-21e4-428f-b9b1-6d637f6f70ac Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.098Z"}
-{"level":"info","message":"Canvas 2479215a-1b04-4cf8-ba77-a38ce95363a9 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.174Z"}
-{"level":"info","message":"Canvas 8982acdb-1e0e-4ce7-bbdb-2f5d948de648 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.185Z"}
-{"level":"info","message":"Canvas 83d45dee-3e3d-45fe-9f1a-2e7b8f7c080a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.194Z"}
-{"level":"info","message":"Canvas b2fc6300-32f3-480e-a5b0-6d5b3f713d6c Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.194Z"}
-{"level":"info","message":"Canvas f0b6b8be-e003-44bc-a6bd-06506221d64d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.196Z"}
-{"level":"info","message":"Canvas b6a4e2fe-9dde-4f49-84ab-221d51197205 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.198Z"}
-{"level":"info","message":"Canvas 2188dc99-12b3-49e8-8eac-416a3aa2cefe Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.200Z"}
-{"level":"info","message":"Canvas ad3d5212-b65d-4741-a396-79d645c5a8fb Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:40:44.207Z"}
-{"level":"info","message":"Canvas d3a12feb-eedc-4b2e-a466-2a54f0fc06de Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:41:16.614Z"}
-{"level":"info","message":"Canvas f2b7a680-90a8-49b3-84ab-8af3535d813c Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:41:16.662Z"}
-{"level":"info","message":"Canvas 3ed4e4f4-e4f8-452c-b7b2-3be1ab42575c Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:41:19.410Z"}
-{"level":"info","message":"Canvas 8a315182-2cd7-4790-a536-e05d88f45e1e Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:41:19.550Z"}
-{"level":"info","message":"Canvas c530b653-1699-48b7-a6ba-4e54104c0a4b Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:41:19.828Z"}
-{"level":"info","message":"Canvas 8421b1e5-b6a8-4860-8c7e-cfa02379db24 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:19.533Z"}
-{"level":"info","message":"Canvas c9dfb53e-77e0-43d1-8825-ca512c92093a Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:22.149Z"}
-{"level":"info","message":"Canvas 418d717e-45b3-4577-a229-63a4fc1925c8 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.264Z"}
-{"level":"info","message":"Canvas 83b396fc-fa32-40e4-a594-dfd277f60dd8 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.272Z"}
-{"level":"info","message":"Canvas 352d7305-a529-4ce3-b834-19ceaaa75e96 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.274Z"}
-{"level":"info","message":"Canvas 0e9c1dd4-0279-4f73-b2e8-7f5ac1cce846 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.352Z"}
-{"level":"info","message":"Canvas e2cd34a2-ec76-4107-94f0-5a104ff4d9b0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.362Z"}
-{"level":"info","message":"Canvas 176c92e0-5f13-4f2e-95ef-8217b0ce066e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.370Z"}
-{"level":"info","message":"Canvas a290c22d-ddcd-4fa3-8688-65859ce55274 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.371Z"}
-{"level":"info","message":"Canvas 16d3e11d-6c06-4b8a-ab24-20318085eb39 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.374Z"}
-{"level":"info","message":"Canvas 2eb6353b-6c71-4db6-86fe-ea4ae26a94d7 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.375Z"}
-{"level":"info","message":"Canvas 37651337-66d2-4e5f-8fba-c00d8ca377c4 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.377Z"}
-{"level":"info","message":"Canvas 87feaad3-1aad-41da-b53d-09eba10fe981 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:22.384Z"}
-{"level":"info","message":"Canvas edb3a165-fd0d-4bab-8b0d-e6382fc11139 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:25.714Z"}
-{"level":"info","message":"Canvas ad789fa8-0e21-4f8a-88a9-700d9c449685 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:26.096Z"}
-{"level":"info","message":"Canvas 30a16603-ec20-4cc6-aba8-99a1895eba19 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:26.965Z"}
-{"level":"info","message":"Canvas 686ece83-fa7c-4a9b-8c2c-a62163a8af5b Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:28.533Z"}
-{"level":"info","message":"Canvas e412009d-834a-413b-bf11-c3b3a598d44f Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:50.621Z"}
-{"level":"info","message":"Canvas 23720fb7-87d9-44cd-8510-017e0e11c64a Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:42:53.212Z"}
-{"level":"info","message":"Canvas 354576fa-fa76-4056-a153-fd5c727e64bb Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.356Z"}
-{"level":"info","message":"Canvas 37a167d6-6444-4556-b442-3769a79a8821 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.364Z"}
-{"level":"info","message":"Canvas b3a278e9-983a-49a9-861f-b361c37ba7b8 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.366Z"}
-{"level":"info","message":"Canvas bb9eccf6-005e-4be3-acd7-37084e3b3bc4 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.443Z"}
-{"level":"info","message":"Canvas 5489ef6f-59f0-4a15-b47a-67675ecb64ad Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.455Z"}
-{"level":"info","message":"Canvas b8c7f106-750a-4bab-9204-d97d05225b5e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.463Z"}
-{"level":"info","message":"Canvas a7ddee3d-8f01-4d6a-a3b4-723e12d1b77d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.464Z"}
-{"level":"info","message":"Canvas 5806e470-120b-4815-814a-1ded4cc4ae3a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.466Z"}
-{"level":"info","message":"Canvas 3876e303-40ad-41a1-970c-6766b0a256dd Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.468Z"}
-{"level":"info","message":"Canvas c06b50e4-21ee-4092-bdae-04440743746a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:42:53.470Z"}
-{"level":"info","message":"Canvas 40f8de19-693b-452f-8194-19877221d8a2 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:43:23.479Z"}
-{"level":"info","message":"Canvas b70340f3-02c8-44fd-a25a-3c772b218ebd Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:43:25.999Z"}
-{"level":"info","message":"Canvas 6503e63b-9a21-4838-9024-7fdbcf1cec1d Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:43:26.121Z"}
-{"level":"info","message":"Canvas 0835c8a4-db89-49c5-a24b-3fae51522c87 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:43:27.233Z"}
-{"level":"info","message":"Canvas 36361405-1573-4502-b47a-fbc350a47df6 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:43:27.308Z"}
-{"level":"info","message":"Canvas ea3f286e-69ab-4063-b097-cb0376646e7d Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:43:59.270Z"}
-{"level":"info","message":"Canvas 871b093c-95e7-4410-9db0-2f6138dea0cf Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:44:01.864Z"}
-{"level":"info","message":"Canvas 68ae479e-1532-4eb3-9f37-158778081738 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:01.998Z"}
-{"level":"info","message":"Canvas 927baca1-530e-4a3a-b590-7f14e46be322 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.007Z"}
-{"level":"info","message":"Canvas f4939a66-a769-4ef7-bc11-68cad9f265a6 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.009Z"}
-{"level":"info","message":"Canvas 80940e6e-24de-4d79-b1dd-c219d4f0ed2f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.103Z"}
-{"level":"info","message":"Canvas 705797f0-eb78-4efa-ad1c-81ed7c0bf8c3 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.122Z"}
-{"level":"info","message":"Canvas 84289912-5db7-473e-92ea-adde841546a4 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.131Z"}
-{"level":"info","message":"Canvas 48093308-46e6-49bb-bb15-03ea8b32ae5f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.132Z"}
-{"level":"info","message":"Canvas edfc9f34-022e-4a65-9c40-d3a37a4fca45 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.134Z"}
-{"level":"info","message":"Canvas 4bebce3a-0cdc-4716-8645-b01d79deed25 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.136Z"}
-{"level":"info","message":"Canvas 9bb71a6a-b862-457b-995d-fd4f1988255a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.139Z"}
-{"level":"info","message":"Canvas a74a48d2-1ef0-4bd5-b804-d724beb2e67f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:44:02.147Z"}
-{"level":"info","message":"Canvas 17fbd2a4-529a-4bc3-8b26-2e3eaae15baf Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:44:05.381Z"}
-{"level":"info","message":"Canvas b4f77468-4031-4a0b-bb83-e5dbccfd7130 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:44:05.901Z"}
-{"level":"info","message":"Canvas c9bcc6a0-cb68-4621-8777-4c769fca563e Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:44:06.576Z"}
-{"level":"info","message":"Canvas e553adaa-3d93-4be4-8a69-e44f60c6beeb Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:44:08.185Z"}
-{"level":"info","message":"Canvas 549d2fc2-69f5-4595-ba33-74546ecec0a2 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:45:58.962Z"}
-{"level":"info","message":"Canvas 80d5338a-1135-439d-9d4c-c4799584a9ef Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:01.578Z"}
-{"level":"info","message":"Canvas b78e1794-4bc4-416a-a93a-02bb0c62b6a6 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.698Z"}
-{"level":"info","message":"Canvas 187b9425-fdb1-4c2a-8b4a-d18271c95a68 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.706Z"}
-{"level":"info","message":"Canvas 90dd72ae-f7c6-4a17-a3c2-1872598fabd7 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.708Z"}
-{"level":"info","message":"Canvas 3358c8ff-6bc5-41d0-98ca-0cdfb43dbe1e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.782Z"}
-{"level":"info","message":"Canvas 4a5b3699-fd3f-4aef-818d-232c9ee6a29d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.793Z"}
-{"level":"info","message":"Canvas d5b02353-8990-4e18-8fe0-1e4fe93e9a23 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.804Z"}
-{"level":"info","message":"Canvas 58ea732d-7c00-4109-a274-c703a3f6e494 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.805Z"}
-{"level":"info","message":"Canvas df8d5a3a-3ca4-4093-a3aa-330e06e9c5b6 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.808Z"}
-{"level":"info","message":"Canvas 0b6fc69d-d236-49c4-91cd-45588378566c Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.809Z"}
-{"level":"info","message":"Canvas 6da88eae-2d40-4cec-871b-a89833bb13a8 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:01.812Z"}
-{"level":"info","message":"Canvas de63dede-0faf-46a1-b23b-6d286dde375e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:31.815Z"}
-{"level":"info","message":"Canvas 3de9a0c6-a5a4-473b-999d-0d729ddad66e Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:34.134Z"}
-{"level":"info","message":"Canvas 133c2bda-3324-4d18-ac67-75db468a91d0 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:34.379Z"}
-{"level":"info","message":"Canvas a93c3d81-0f8c-48e2-9c62-2566e48997c9 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:35.394Z"}
-{"level":"info","message":"Canvas 29a68f95-4405-4397-a68f-fcdfdef97656 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:35.595Z"}
-{"level":"info","message":"Canvas 3a0ff8c8-121e-4e51-9d42-8c0f87a4fac0 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:40.663Z"}
-{"level":"info","message":"Canvas c1a2075f-0883-4f87-9ebf-9d096a77dba5 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:43.280Z"}
-{"level":"info","message":"Canvas 25ca9173-7614-447c-9bcb-81fdd201bab1 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.422Z"}
-{"level":"info","message":"Canvas fabb355e-b94d-4d0a-a970-55b25e033f25 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.443Z"}
-{"level":"info","message":"Canvas 04aca610-2bba-4c89-b203-1cdf8c134f14 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.445Z"}
-{"level":"info","message":"Canvas a28ad303-0e90-4ca0-ad8f-7bb86fd712f2 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.522Z"}
-{"level":"info","message":"Canvas 64243f86-4788-4f25-8ef2-23d66bb7bd3a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.533Z"}
-{"level":"info","message":"Canvas e314e2d0-57ed-4284-86a0-456691be8d51 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.542Z"}
-{"level":"info","message":"Canvas d80b8b4a-8535-42a3-8a3f-a816f48d9f69 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.542Z"}
-{"level":"info","message":"Canvas ed999431-bd71-454e-b2ca-2324e05c4627 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.544Z"}
-{"level":"info","message":"Canvas f2a78c32-bdea-4e9b-83bb-96969f2e6235 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.546Z"}
-{"level":"info","message":"Canvas 1a381b40-7943-456d-8b26-c27449344b20 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.548Z"}
-{"level":"info","message":"Canvas 76e38759-5338-4d9b-8978-0d65e1c0fde6 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:46:43.554Z"}
-{"level":"info","message":"Canvas 073c9474-f379-4d01-9d26-3ddeec0ee350 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:46.815Z"}
-{"level":"info","message":"Canvas 63509ae7-da91-47f8-9306-e5003c09ffc8 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:47.821Z"}
-{"level":"info","message":"Canvas 069dcc32-e4b9-4798-88cf-7d3fa6944f48 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:48.018Z"}
-{"level":"info","message":"Canvas 12415ad0-7482-4d3e-bf90-33f50bfaf414 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:46:50.245Z"}
-{"level":"info","message":"Canvas f879c80b-d7ea-4146-b85b-b227b3869f62 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:48:17.224Z"}
-{"level":"info","message":"Canvas 9038f994-afc8-48ce-86ee-9c5d08563bdb Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:48:19.836Z"}
-{"level":"info","message":"Canvas e715b8d9-5fcd-4b38-a8f0-812abd588e8b Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:19.956Z"}
-{"level":"info","message":"Canvas 1c2e6f05-5440-43ff-81a7-12bf23030d75 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:19.964Z"}
-{"level":"info","message":"Canvas a1a11388-7444-48e4-8a75-26432c63a099 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:19.966Z"}
-{"level":"info","message":"Canvas 4ef9356c-099b-43ff-84c7-c91add62943f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.044Z"}
-{"level":"info","message":"Canvas 452e8cf7-8f72-4ce4-be15-456374a87fb7 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.055Z"}
-{"level":"info","message":"Canvas c2eab2b2-1691-4c6d-b123-3b742a933172 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.064Z"}
-{"level":"info","message":"Canvas d96cf6ab-92fb-4c99-ad54-125fcdd2c356 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.064Z"}
-{"level":"info","message":"Canvas 8f620c60-e859-4892-82ca-23e19f44f703 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.067Z"}
-{"level":"info","message":"Canvas 1d42256f-1548-437c-8987-1065537c945d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.069Z"}
-{"level":"info","message":"Canvas 56ccfb39-6184-482a-92ba-101a2bb82233 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.071Z"}
-{"level":"info","message":"Canvas 0ea9e279-e28d-4124-a8b7-0a6311b1dcdb Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:48:20.084Z"}
-{"level":"info","message":"Canvas a4a1aad9-6612-4e60-aa13-f993f488e773 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:48:23.375Z"}
-{"level":"info","message":"Canvas 265a365e-1a17-403f-8897-d009a1521bc9 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:48:24.390Z"}
-{"level":"info","message":"Canvas 6f580058-b6a6-42ea-9c0a-8ec46e2d0723 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:48:24.768Z"}
-{"level":"info","message":"Canvas e798693b-6be4-4d14-bef8-a8b3d0b46df4 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:48:26.789Z"}
-{"level":"info","message":"Canvas e73b707b-2f12-4834-9732-bc9d1a8bca63 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:49:15.491Z"}
-{"level":"info","message":"Canvas 66ebc5bf-3855-4ab9-bf33-e3c53176a190 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:49:18.130Z"}
-{"level":"info","message":"Canvas e4205eda-4cc2-409c-8b12-3c8844bb73c1 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.244Z"}
-{"level":"info","message":"Canvas 48215586-2f7f-44ad-a07e-1d9eeaae5cf0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.252Z"}
-{"level":"info","message":"Canvas 0e26c392-ccb1-4ad6-8843-77c0a93d4e59 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.254Z"}
-{"level":"info","message":"Canvas 29cb1b4f-4592-4b95-821d-c4a0accb1fab Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.332Z"}
-{"level":"info","message":"Canvas 8f7e50bb-eef9-4b68-8a34-8521c9aed9b0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.342Z"}
-{"level":"info","message":"Canvas e9d5fb94-a0fa-4564-947e-9ea088981d86 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.351Z"}
-{"level":"info","message":"Canvas 90214bbc-4016-46d1-9afd-a3f8a77c8746 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.352Z"}
-{"level":"info","message":"Canvas eb1315e7-98ae-45e5-882e-8d1e8a629d4a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.354Z"}
-{"level":"info","message":"Canvas 2793ec73-c15b-431a-8fda-e093bd1c8ce2 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.355Z"}
-{"level":"info","message":"Canvas fe0ffe73-a0e1-4018-bb3e-2234932a862e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.358Z"}
-{"level":"info","message":"Canvas 69b05bfa-0707-461d-b500-b7fd5ef0833a Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:49:18.371Z"}
-{"level":"info","message":"Canvas 760c1355-e89b-4d3c-ae9e-e079936960ea Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:49:21.588Z"}
-{"level":"info","message":"Canvas 9a3080e9-d368-4ac1-ac85-74b9226a45f9 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:49:22.749Z"}
-{"level":"info","message":"Canvas dbe938a0-3cf3-45c1-9407-bf02c9bfbb6f Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:49:23.023Z"}
-{"level":"info","message":"Canvas 04b36c8a-e565-449d-86dc-c91e45bdabb6 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:49:25.259Z"}
-{"level":"info","message":"Canvas bb415be7-02b9-4e2c-8e26-9f0ee8075e38 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:50:55.445Z"}
-{"level":"info","message":"Canvas 4328d45e-8eb6-4d6e-bdd3-c8f6e968ecfa Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:50:57.989Z"}
-{"level":"info","message":"Canvas 976f01ae-e569-4426-822c-f74b0591f6c3 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.111Z"}
-{"level":"info","message":"Canvas b12571d2-8c67-4437-9526-30116fde1534 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.120Z"}
-{"level":"info","message":"Canvas 2410860a-c600-4e45-9b74-c8d63d72d28d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.122Z"}
-{"level":"info","message":"Canvas 79c1bbda-b777-4d1c-8c41-fb4894a18958 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.207Z"}
-{"level":"info","message":"Canvas 3e38fed1-392f-4dbb-8e28-9d5dd9e19d5e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.219Z"}
-{"level":"info","message":"Canvas 9b89e16d-fc83-416a-8dc7-a1c2f620b282 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.228Z"}
-{"level":"info","message":"Canvas cee79fbd-c195-4258-9baf-e5e10d4be772 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.229Z"}
-{"level":"info","message":"Canvas 537520d8-51b6-4602-8dd4-66970378f5fd Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.232Z"}
-{"level":"info","message":"Canvas 6d17ff6b-f99a-4763-871d-00fa5f08ac97 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.233Z"}
-{"level":"info","message":"Canvas 223ac738-9eda-411f-8c1a-8907bb9c8654 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:50:58.236Z"}
-{"level":"info","message":"Canvas bc4fdcb6-2a8e-48f1-b5ec-17889b36d962 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:51:05.077Z"}
-{"level":"info","message":"Canvas fc26d254-3ed0-43e2-b776-1f0fce49b2d1 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:51:23.166Z"}
-{"level":"info","message":"Canvas 4121a89e-0870-49bd-b16b-c0206c4ba7fb Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:51:24.222Z"}
-{"level":"info","message":"Canvas e215a7fc-f315-4cea-a198-b2e2e2e8ae64 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:51:24.664Z"}
-{"level":"info","message":"Canvas b29cc30d-9e57-4b31-bbb2-8c97068c4f8f Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:51:26.543Z"}
-{"level":"info","message":"Canvas 3551a5b9-e1ad-4153-afd3-8bc51891e3b9 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:52:46.156Z"}
-{"level":"info","message":"Canvas dd8d51e5-da42-4108-8493-6b8740f14cf5 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:54:41.229Z"}
-{"level":"info","message":"Canvas 3724c3fe-4d37-4b08-9956-83951d0edd9d Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:54:43.969Z"}
-{"level":"info","message":"Canvas d884f822-86d6-4737-9736-98c9364a1894 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.076Z"}
-{"level":"info","message":"Canvas 738d8cb5-49c1-4978-93eb-f30255081007 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.084Z"}
-{"level":"info","message":"Canvas 055f8776-9201-4331-b828-8e562bc98e32 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.086Z"}
-{"level":"info","message":"Canvas beabcf84-5bfe-4758-9404-0b4113653afe Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.168Z"}
-{"level":"info","message":"Canvas 19694b95-387f-44c0-8690-4368968a489c Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.179Z"}
-{"level":"info","message":"Canvas 8a3b6de6-b82c-4226-8c86-379cfb770584 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.187Z"}
-{"level":"info","message":"Canvas c4cc6bd6-e6eb-45b1-af03-7e14b9248f82 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.188Z"}
-{"level":"info","message":"Canvas 3f1f1304-d57d-4363-922e-1319955cef6d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.191Z"}
-{"level":"info","message":"Canvas 913a0fb8-30ea-443f-905d-3d811672bd31 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.192Z"}
-{"level":"info","message":"Canvas de6f9f97-3a1d-415d-87f4-76421cb565e7 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.195Z"}
-{"level":"info","message":"Canvas e2ffbc22-7b64-4b91-a592-3e5f6f0712d4 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:54:44.208Z"}
-{"level":"info","message":"Canvas dbc633c4-4589-4b08-b9a8-e2c4cb035af0 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:55:16.715Z"}
-{"level":"info","message":"Canvas 979d3c6f-33ad-465f-8b65-df42831fa12b Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:55:17.322Z"}
-{"level":"info","message":"Canvas 087bf1bf-fe13-4d94-9386-c342ff5e1224 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:55:18.224Z"}
-{"level":"info","message":"Canvas d6ffdeea-0a63-49be-9db8-7088fd6dc1b9 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:55:19.707Z"}
-{"level":"info","message":"Canvas 62213a1e-6e22-4b2f-ae9b-52f56dab9a31 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:56:51.491Z"}
-{"level":"info","message":"Canvas a970d5d1-3f43-4cbf-aaef-003e9e928952 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:56:54.107Z"}
-{"level":"info","message":"Canvas 26482bd3-56bc-47b2-9369-593bed3a2224 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.218Z"}
-{"level":"info","message":"Canvas 76fa66a2-9beb-47f5-9343-73691d199385 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.226Z"}
-{"level":"info","message":"Canvas f5994ca9-d60e-4529-98e1-850ea5680e65 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.228Z"}
-{"level":"info","message":"Canvas f2ee5ce1-3500-4491-b706-be94b1d12353 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.308Z"}
-{"level":"info","message":"Canvas 888a1281-0f2f-4124-bdaf-536e2569d869 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.318Z"}
-{"level":"info","message":"Canvas 09ecb5d8-a2e9-4f53-9f9b-deaff6a298cb Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.327Z"}
-{"level":"info","message":"Canvas 2a69456a-01af-4d0f-ad3b-f88bfe4fb0e7 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.328Z"}
-{"level":"info","message":"Canvas 4525df69-c6d6-4c60-8871-cf3559910cdc Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.331Z"}
-{"level":"info","message":"Canvas 44bba55f-c083-4df0-879a-8fe74d3414ed Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.333Z"}
-{"level":"info","message":"Canvas 791bc258-f168-4004-9cf6-441ab04e8b68 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.335Z"}
-{"level":"info","message":"Canvas ece5904f-ae98-49f9-a8c4-ab55d52f7b81 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-20T23:56:54.349Z"}
-{"level":"info","message":"Canvas 39cecbe7-9485-476c-bc2e-71749911ee58 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:57:01.713Z"}
-{"level":"info","message":"Canvas 0af69a0a-2540-4b5c-8c5c-02bef1923781 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:57:04.109Z"}
-{"level":"info","message":"Canvas e682d49b-0415-4ebe-982a-a57103b77093 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:57:06.528Z"}
-{"level":"info","message":"Canvas 31718276-12c2-47f9-9d37-b1424b7b4db5 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-20T23:57:06.616Z"}
-{"level":"info","message":"Canvas a2970752-2f77-45ca-a44f-f9030b3b4804 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:07:25.553Z"}
-{"level":"info","message":"Canvas e5434cf1-d2be-4d44-8768-554319d87b97 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:07:28.131Z"}
-{"level":"info","message":"Canvas a5fdbb1b-20ac-450b-8010-3889bbd4e07d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.246Z"}
-{"level":"info","message":"Canvas 499d5f07-bac2-4809-9cb7-9df959e0a5cf Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.254Z"}
-{"level":"info","message":"Canvas a59a11dd-10a0-4b09-ab0c-98a160682e81 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.256Z"}
-{"level":"info","message":"Canvas 2afb5d5f-32ec-4d4a-9083-b19096d5ffa8 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.331Z"}
-{"level":"info","message":"Canvas 806ddeb7-4784-4493-935c-edf563bc3320 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.341Z"}
-{"level":"info","message":"Canvas 701df279-0614-4725-91c6-3755e9c564d6 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.349Z"}
-{"level":"info","message":"Canvas 2f82d1bf-2c38-40ab-a856-88dd8e2f1ae3 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.350Z"}
-{"level":"info","message":"Canvas 1b4831dd-5900-4424-8fda-1d5c5ef1b81f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.352Z"}
-{"level":"info","message":"Canvas 8390b507-0e28-4d37-92f6-b1ddab4571cf Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.354Z"}
-{"level":"info","message":"Canvas 990b40a9-c3c8-4cd7-9a97-46c84ab22520 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:07:28.356Z"}
-{"level":"info","message":"Canvas 4af50a82-a90c-4743-972e-98a393983d77 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:07:30.534Z"}
-{"level":"info","message":"Canvas e1286e1f-112e-49e5-ad60-7b4e138f2607 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:07:32.955Z"}
-{"level":"info","message":"Canvas d5128fc7-38d2-4c32-a143-c0afb35b27fc Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:07:35.405Z"}
-{"level":"info","message":"Canvas 8cd761ba-6e0d-4363-91f5-0ff7c152a9eb Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:07:37.834Z"}
-{"level":"info","message":"Canvas 2452f7f8-f55c-4a89-9104-0ccc0318ef2e Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:07:57.969Z"}
-{"level":"info","message":"Canvas 86dd8ef8-7d1f-4e7a-ae49-6bfa8edb3326 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:08:00.567Z"}
-{"level":"info","message":"Canvas 9d103395-367b-41f5-a1bd-c6d895361559 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.688Z"}
-{"level":"info","message":"Canvas 2a1c3dfd-1851-4b4e-be33-1d68719b486c Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.696Z"}
-{"level":"info","message":"Canvas 2c81be64-596d-4d24-b292-fa4102441149 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.697Z"}
-{"level":"info","message":"Canvas afb5e661-a697-413d-838b-c217dbb91481 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.770Z"}
-{"level":"info","message":"Canvas 316afb60-4774-4050-b09b-90b56d4bb361 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.780Z"}
-{"level":"info","message":"Canvas b7347232-5eac-4ee3-8a17-063849f5fcea Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.788Z"}
-{"level":"info","message":"Canvas 81e7f4c1-2ee3-424f-a2e9-d117acd3d6c0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.789Z"}
-{"level":"info","message":"Canvas 2d4b9401-15dd-4c03-a177-5475deff479e Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.791Z"}
-{"level":"info","message":"Canvas 7d4267f2-5efd-4566-a6f1-dc93fc920a2c Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.793Z"}
-{"level":"info","message":"Canvas 48831be4-36c5-43b4-8227-2dc519ea13a3 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.795Z"}
-{"level":"info","message":"Canvas c9853d4d-e303-41f1-b1b4-93be642935a5 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-21T00:08:00.807Z"}
-{"level":"info","message":"Canvas 54961a1b-e47b-4ca0-833e-9d4d07e37112 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:08:08.036Z"}
-{"level":"info","message":"Canvas 94ba84f9-c655-4d36-8025-923a288d8d57 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:08:10.417Z"}
-{"level":"info","message":"Canvas 77a38950-a20c-4400-8157-15547702afd7 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:08:12.735Z"}
-{"level":"info","message":"Canvas 01e3ab7e-b835-42d0-adb6-ff980262bd2a Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-21T00:08:15.043Z"}
-{"level":"info","message":"Canvas 83b3bd9e-6808-4fa3-95f1-061346c9d4be Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-23T14:29:32.379Z"}
-{"level":"info","message":"Canvas 96d97e66-df16-4243-ac5c-76801ce8e22f Created, Canvas Height: 1043px, Canvas Width: 948px.","timestamp":"2017-08-23T14:36:52.603Z"}
-{"level":"info","message":"Canvas 1aee53ee-daec-496c-a711-05dbbfeb6c76 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:36:54.673Z"}
-{"level":"info","message":"Canvas 8193290c-e2a9-4dbc-bea7-a8d7542946c6 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:38:03.332Z"}
-{"level":"info","message":"Canvas b76a96f5-6758-4f86-9bd8-480733d7aff5 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:38:35.521Z"}
-{"level":"info","message":"Canvas d26b54a4-18af-4f48-977b-2b3da6e2eee0 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:50:23.773Z"}
-{"level":"info","message":"Canvas 1d52a4a0-ada7-4af8-a516-62d00d4f2f85 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:50:56.398Z"}
-{"level":"info","message":"Canvas bc9d023d-bc35-43c5-9c28-550422c21d58 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:51:52.736Z"}
-{"level":"info","message":"Canvas 5decf474-8623-47c2-aaf1-cc6958f1c42a Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:52:19.266Z"}
-{"level":"info","message":"Canvas e49c5965-31f6-4d20-a605-601d8d46fece Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:53:09.997Z"}
-{"level":"info","message":"Canvas 1bcf0c5d-06cb-43cd-9b5c-c4c1cdfe8727 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:53:48.743Z"}
-{"level":"info","message":"Canvas 9772913f-b051-44ba-907d-088d455399fd Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:54:09.886Z"}
-{"level":"info","message":"Canvas e91590d1-673e-442b-ae62-0ed7d3ee919f Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-23T14:54:16.571Z"}
-{"level":"info","message":"Canvas c2212336-9916-477f-a54f-a3ba68ab3732 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:55:32.606Z"}
-{"level":"info","message":"Canvas 2cbb495c-b92e-4782-a350-080b86c867af Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:55:38.848Z"}
-{"level":"info","message":"Canvas 4c963e7a-d2c2-4ae2-9d27-72d7c747b12f Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:56:38.755Z"}
-{"level":"info","message":"Canvas 603b954a-01fd-427a-991b-28f8ea9c238e Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T14:56:52.731Z"}
-{"level":"info","message":"Canvas 19aa33d5-8a74-4e7b-b965-4c85bff1a87c Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T15:03:43.096Z"}
-{"level":"info","message":"Canvas f97a8cca-f0ec-4d0f-8caf-93c85c8e7d45 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T15:04:16.689Z"}
-{"level":"info","message":"Canvas 127fd53b-af19-4609-a14e-66b78003a261 Created, Canvas Height: 1200px, Canvas Width: 1457px.","timestamp":"2017-08-23T15:05:28.579Z"}
-{"level":"info","message":"Canvas 4fdaf2b4-ad8f-438f-a890-4f43e13084a1 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-23T23:58:03.542Z"}
-{"level":"info","message":"Canvas ea3a69b5-79b7-44ce-a01c-66ddaac4104d Created, Canvas Height: 994px, Canvas Width: 976px.","timestamp":"2017-08-24T00:02:22.143Z"}
-{"level":"info","message":"Canvas 95210b7f-7722-4a39-86ed-dc71b3fcab6f Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:06:52.009Z"}
-{"level":"info","message":"Canvas 2c4608b9-9dc8-4836-a9a4-8ee796828d15 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:07:13.174Z"}
-{"level":"info","message":"Canvas 151abf3a-dc2c-4744-b9d2-01cb15dfac98 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:07:16.000Z"}
-{"level":"info","message":"Canvas 1af267d0-fee5-4cfc-8a04-52d18d06941f Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.119Z"}
-{"level":"info","message":"Canvas 0e635260-c98d-477a-bc65-f2f29c124dfe Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.127Z"}
-{"level":"info","message":"Canvas d89312e2-7d54-40ed-a940-6930651badb0 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.129Z"}
-{"level":"info","message":"Canvas 7240f6c1-eb77-43ad-a464-944b78a33f23 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.213Z"}
-{"level":"info","message":"Canvas 7f0ddeda-6b91-4986-b298-753a29af2d3d Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.225Z"}
-{"level":"info","message":"Canvas e1912ef7-0e01-448f-a0f2-3e4b03221186 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.235Z"}
-{"level":"info","message":"Canvas e640e42b-5170-424b-9861-d1c80db4e249 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.236Z"}
-{"level":"info","message":"Canvas 444dad12-237e-4b34-9dc7-083ff0a046fa Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.239Z"}
-{"level":"info","message":"Canvas 621b3479-784d-4c96-b0af-b9d066654b89 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.241Z"}
-{"level":"info","message":"Canvas b72656ed-c117-4a47-a591-067a1f878d82 Created, Canvas Height: 768px, Canvas Width: 1024px.","timestamp":"2017-08-24T00:07:16.243Z"}
-{"level":"info","message":"Canvas 12bc2614-16d0-425c-90b9-2a2ccc01b19d Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:07:49.149Z"}
-{"level":"info","message":"Canvas 19f99a7d-567f-4b66-a595-8c73f695f8e3 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:11:26.825Z"}
-{"level":"info","message":"Canvas bf72219b-667b-4d5a-a4c4-0673f73670d2 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:11:53.894Z"}
-{"level":"info","message":"Canvas 8b145589-f8a8-4180-b18a-37c094e1e9ff Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:12:23.677Z"}
-{"level":"info","message":"Canvas b2b795eb-1670-4d03-9cb0-149e7c92b2ae Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:13:25.986Z"}
-{"level":"info","message":"Canvas ab758d5f-c86d-4186-b513-bf5d9fdbf938 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:15:04.560Z"}
-{"level":"info","message":"Canvas c4100912-8c66-497e-b66f-8f29dd92ee39 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:15:39.338Z"}
-{"level":"info","message":"Canvas 02a71e8e-d48b-4216-a25e-0e53df159c87 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:16:08.802Z"}
-{"level":"info","message":"Canvas 52d6ae59-c7dd-4d0a-aada-c124a16afad1 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:17:53.656Z"}
-{"level":"info","message":"Canvas 7f475029-dae2-4dc9-b4b7-f041f89a9a2d Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:18:54.832Z"}
-{"level":"info","message":"Canvas d451dc6a-ae6e-4e36-9f80-704d2302dc36 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:19:30.959Z"}
-{"level":"info","message":"Canvas ea5ebe32-a21a-456e-bc5d-8974d414d2f5 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:19:49.294Z"}
-{"level":"info","message":"Canvas 150cfbba-e18d-4a88-b0ad-02d097e9a8e1 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:21:06.226Z"}
-{"level":"info","message":"Canvas 1e660fd2-c492-4cd1-a2ae-7dc39791f2ba Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:21:52.418Z"}
-{"level":"info","message":"Canvas 2e159270-8585-4366-8867-0ab6213605e1 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:23:43.253Z"}
-{"level":"info","message":"Canvas 838f10e3-98be-42ba-9c3b-d7f0332caa57 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:29:42.510Z"}
-{"level":"info","message":"Canvas 3fc2fc84-584d-4ab5-974e-6d9f1c9c05b9 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:30:38.072Z"}
-{"level":"info","message":"Canvas cc200165-a74c-4c18-b70b-339d55cc0b12 Created, Canvas Height: 978px, Canvas Width: 737px.","timestamp":"2017-08-24T00:30:58.373Z"}
-{"level":"info","message":"Canvas 4ce589fb-e7f1-447e-a35c-01fc21d1da45 Created, Canvas Height: 978px, Canvas Width: 737px.","timestamp":"2017-08-24T00:31:12.904Z"}
-{"level":"info","message":"Canvas c0e62052-f2b4-44f4-9d22-02cc94519f97 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:31:46.133Z"}
-{"level":"info","message":"Canvas f8baef6a-765f-4deb-a603-f678f4131583 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:32:49.990Z"}
-{"level":"info","message":"Canvas c337459e-7947-489e-b29d-849ae2e0a277 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:33:19.144Z"}
-{"level":"info","message":"Canvas 745f0a8f-b692-4245-84a6-0a876da982eb Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:33:59.408Z"}
-{"level":"info","message":"Canvas ad1840a9-452c-4a61-a28a-70ff89e1d8b9 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:34:38.633Z"}
-{"level":"info","message":"Canvas 916f67fe-8939-4fe0-bab6-a58eedc12102 Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:36:23.994Z"}
-{"level":"info","message":"Canvas 815d6f69-72ca-49c3-a52e-fdd2afa5e45c Created, Canvas Height: 978px, Canvas Width: 1200px.","timestamp":"2017-08-24T00:44:00.078Z"}
-{"level":"info","message":"Canvas 392c8355-962e-4d62-88d5-d665b42c9cd9 Created, Canvas Height: 898px, Canvas Width: 1091px.","timestamp":"2017-08-24T00:45:24.190Z"}
-{"level":"info","message":"Canvas c3f40102-f61a-467e-a3c8-e2b14e5f5cff Created, Canvas Height: 868px, Canvas Width: 1058px.","timestamp":"2017-08-24T00:46:33.544Z"}
-{"level":"info","message":"\"Canvas\": \"2ef0e73e-f354-4b2c-be0e-c3bb375ef718\" ,\"Canvas Height\": \"822\", \"Canvas Width\": \"995\"","timestamp":"2017-08-24T00:49:36.797Z"}
-{"level":"info","message":"{\"Canvas\": \"5a12ca6f-6fc1-4cba-b046-b559fb6bb926\" ,\"Canvas Height\": \"822\", \"Canvas Width\": \"995\"}","timestamp":"2017-08-24T00:49:54.624Z"}
-{"level":"info","message":"{\"Canvas\": \"541be254-fae1-485b-9b41-ed377127b5c9\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:07:52.102Z"}
-{"level":"info","message":"{\"Canvas\": \"d3dd3350-9972-4b15-93f0-4bf0fa906216\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:08:27.184Z"}
-{"level":"info","message":"{\"Canvas\": \"93a2c513-08aa-43f1-9afd-749880ea95df\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:13:25.774Z"}
-{"level":"info","message":"{\"Canvas\": \"2b7dc49c-0371-440f-84fc-944b7f05537a\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:15:16.401Z"}
-{"level":"info","message":"{\"Canvas\": \"c6a59802-3945-47a7-bf37-ac72b8892046\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:18:57.418Z"}
-{"level":"info","message":"{\"Canvas\": \"7c3c7d9f-8b8c-475a-8d79-b70b5bf7d57b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:20:04.851Z"}
-{"level":"info","message":"{\"Canvas\": \"3b28b1a7-2b67-43ac-ac79-675f392115ca\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:22:43.247Z"}
-{"level":"info","message":"{\"Canvas\": \"16477696-1dac-47f8-8eb9-98613e52a7cb\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:22:57.691Z"}
-{"level":"info","message":"{\"Canvas\": \"8a33458e-2d86-47d6-9794-56afe9a3c3b5\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:23:07.073Z"}
-{"level":"info","message":"{\"Canvas\": \"44878e9a-0c16-4a25-8439-6bb7a3a8b0ff\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:26:31.237Z"}
-{"level":"info","message":"{\"Canvas\": \"af8b67c3-046f-47be-9779-bc0d861892ff\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:27:29.793Z"}
-{"level":"info","message":"{\"Canvas\": \"f024a1ab-18dd-4943-88c0-47a6aecc6c99\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:32:30.360Z"}
-{"level":"info","message":"{\"Canvas\": \"47a4bed8-350f-48de-8ba7-7c8e2b61b161\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:32:46.718Z"}
-{"level":"info","message":"{\"Canvas\": \"0e65af50-0a5c-4750-8f91-003a886e505c\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:35:30.089Z"}
-{"level":"info","message":"{\"Canvas\": \"501c3d9a-4cad-49ca-b4ec-f1fb1baf52fa\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:36:31.612Z"}
-{"level":"info","message":"{\"Canvas\": \"6bfa9b97-9788-4e24-89ca-d491e2a92c32\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:38:41.208Z"}
-{"level":"info","message":"{\"Canvas\": \"c403234f-bdaa-4997-bed7-3c764657078e\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:39:44.690Z"}
-{"level":"info","message":"{\"Canvas\": \"a866824e-c591-44e3-a5ca-f76d13249f67\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:40:03.085Z"}
-{"level":"info","message":"{\"Canvas\": \"3fce1f5b-7a8a-42f8-845e-415204588595\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:40:38.772Z"}
-{"level":"info","message":"{\"Canvas\": \"d5cf6a5f-4b67-4b07-b97d-0e12bf158481\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:41:18.922Z"}
-{"level":"info","message":"{\"Canvas\": \"eb30452d-d8c2-4a36-be69-8f84c99cda9e\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:41:46.074Z"}
-{"level":"info","message":"{\"Canvas\": \"f1c2b513-8011-4f48-a06f-61e5d350740b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:42:28.765Z"}
-{"level":"info","message":"{\"Canvas\": \"ed770c16-b954-43ed-bef9-962d9ad5c1ea\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:43:07.713Z"}
-{"level":"info","message":"{\"Canvas\": \"246bfcb8-69ef-43f5-8d43-6464b489e1c0\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:43:26.314Z"}
-{"level":"info","message":"{\"Canvas\": \"2fbb8ef3-d068-4253-b04d-28522fc11c45\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:43:39.606Z"}
-{"level":"info","message":"{\"Canvas\": \"67979406-1fe7-41d8-b440-85c5edeabdf3\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:44:31.041Z"}
-{"level":"info","message":"{\"Canvas\": \"3c9d439f-da02-41a7-a9b3-2c8eb30472c3\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:44:55.548Z"}
-{"level":"info","message":"{\"Canvas\": \"f7a2a53e-55c2-4bbc-8c44-320fbd992687\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:45:57.523Z"}
-{"level":"info","message":"{\"Canvas\": \"008edb45-152a-40e7-a11b-f2704ef9cc4c\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:46:05.042Z"}
-{"level":"info","message":"{\"Canvas\": \"928bcabe-291c-495f-a4cd-eb1dac1bd6e0\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:49:20.567Z"}
-{"level":"info","message":"{\"Canvas\": \"0f1de429-4246-4413-b2c5-128603c47de7\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"890\"}","timestamp":"2017-08-24T01:49:31.344Z"}
-{"level":"info","message":"{\"Canvas\": \"c208a0f0-bbcd-4698-930e-626f483e1c59\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:50:25.077Z"}
-{"level":"info","message":"{\"Canvas\": \"98e4f793-b91a-4d2f-8386-8dcc0ae3aeda\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:50:55.822Z"}
-{"level":"info","message":"{\"Canvas\": \"60ba19aa-34c8-4c85-b5fc-e4cd1e6932ae\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:53:56.827Z"}
-{"level":"info","message":"{\"Canvas\": \"4735bd08-f08d-4f7c-a85b-870be57d7c1c\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-24T01:54:19.790Z"}
+{"level":"info","message":"{\"Canvas\": \"da64f61a-51ef-4fce-b4c2-b1c99d81ee0c\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:23:30.722Z"}
+{"level":"info","message":"{\"Canvas\": \"07f3a077-111c-4e4f-ba0e-c182eac55e16\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:23:33.421Z"}
+{"level":"info","message":"{\"Canvas\": \"e25e8149-0f9f-428a-945d-7e00ff582bef\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.536Z"}
+{"level":"info","message":"{\"Canvas\": \"7fc04812-0f05-4dcc-ae90-08f5641880cf\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.545Z"}
+{"level":"info","message":"{\"Canvas\": \"70e33868-8253-43dd-a13f-ba5925fcb067\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.546Z"}
+{"level":"info","message":"{\"Canvas\": \"2cfaec55-8418-4edd-8475-40185143c302\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.647Z"}
+{"level":"info","message":"{\"Canvas\": \"4b34b607-ce58-4bf2-8c4b-6a0527d70258\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.658Z"}
+{"level":"info","message":"{\"Canvas\": \"91c7fbff-b77e-44c8-90c9-9b5b35da9bc4\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.667Z"}
+{"level":"info","message":"{\"Canvas\": \"3a587d41-99d6-4617-ae05-d3b0d8772448\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.669Z"}
+{"level":"info","message":"{\"Canvas\": \"80fc2656-d7dd-440e-a4bd-2f409fa9fece\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.670Z"}
+{"level":"info","message":"{\"Canvas\": \"8e008009-2fbc-4d17-a95d-d02f05401f36\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.672Z"}
+{"level":"info","message":"{\"Canvas\": \"96e4046a-71c1-4979-8176-ff00e01b4a87\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:23:33.675Z"}
+{"level":"info","message":"{\"Canvas\": \"ff7ae816-cabb-47fe-ac59-a59bdb1847c6\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:24:07.837Z"}
+{"level":"info","message":"{\"Canvas\": \"9aaf7bf7-5f76-4017-a268-d7531488626b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:24:10.543Z"}
+{"level":"info","message":"{\"Canvas\": \"ee892fd0-1555-4941-94f1-2c2ed9658dc1\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.659Z"}
+{"level":"info","message":"{\"Canvas\": \"5402dbd6-7f0a-46b9-a66b-940c10139a9e\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.669Z"}
+{"level":"info","message":"{\"Canvas\": \"3a1f1197-1289-4a2c-890e-6e2661afa0f7\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.671Z"}
+{"level":"info","message":"{\"Canvas\": \"9b3e67b2-7eb3-4f1e-b521-4db49fac2878\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.757Z"}
+{"level":"info","message":"{\"Canvas\": \"ce883820-cfd9-4b9e-b4e6-571d9bcc9e6e\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.768Z"}
+{"level":"info","message":"{\"Canvas\": \"bfc686b1-7b41-4432-9c80-02853c482eff\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.778Z"}
+{"level":"info","message":"{\"Canvas\": \"295116e5-966d-4152-935a-75092623fc2d\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.779Z"}
+{"level":"info","message":"{\"Canvas\": \"1bbccf85-58f8-4674-b1fe-c2eaeaf8d6c7\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.781Z"}
+{"level":"info","message":"{\"Canvas\": \"3426de14-ccce-4d24-8140-676952c5298c\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.783Z"}
+{"level":"info","message":"{\"Canvas\": \"6b2dce01-e073-4731-add7-77a0bf63f9b2\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.786Z"}
+{"level":"info","message":"{\"Canvas\": \"c8c9858a-17cf-49bb-b164-d8434eeaa11c\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:24:10.802Z"}
+{"level":"info","message":"{\"Canvas\": \"487362d9-5336-428f-b8a2-8c3418ea35b6\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:24:13.149Z"}
+{"level":"info","message":"{\"Canvas\": \"39fed60b-0686-4f3f-a97a-5a2a92acf9a4\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:24:14.487Z"}
+{"level":"info","message":"{\"Canvas\": \"d55e179c-fcc4-4819-9f09-9cc92cd96864\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:24:14.706Z"}
+{"level":"info","message":"{\"Canvas\": \"56fa8859-079a-4eda-b6e4-ff214dec9aaa\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:24:14.917Z"}
+{"level":"info","message":"{\"Canvas\": \"1bb8e958-8b4b-444d-bf9c-bd2cddf55467\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:00.242Z"}
+{"level":"info","message":"{\"Canvas\": \"3a11a760-afe3-49ac-ad50-38c26c8a554b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:02.926Z"}
+{"level":"info","message":"{\"Canvas\": \"38605ab2-c757-4eb0-b37c-799be2186729\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.050Z"}
+{"level":"info","message":"{\"Canvas\": \"e22e387a-3625-49e3-9658-a0c94c5592cc\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.058Z"}
+{"level":"info","message":"{\"Canvas\": \"a47d3fa8-41a6-4d08-bd5c-3530bea6b23c\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.060Z"}
+{"level":"info","message":"{\"Canvas\": \"be84d7e9-a565-43aa-994e-89f58241893b\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.157Z"}
+{"level":"info","message":"{\"Canvas\": \"4da01c17-e03e-40f5-8b6f-ee89b5b09dc2\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.168Z"}
+{"level":"info","message":"{\"Canvas\": \"b4132c99-aec7-468a-90ba-b4652bd38784\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.177Z"}
+{"level":"info","message":"{\"Canvas\": \"718a1e7a-cc05-4111-9057-b201989efc06\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.178Z"}
+{"level":"info","message":"{\"Canvas\": \"3a334939-4dc8-4a2a-9257-7b39854f8646\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.180Z"}
+{"level":"info","message":"{\"Canvas\": \"39465622-764a-445c-8a17-5d1371775c97\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.181Z"}
+{"level":"info","message":"{\"Canvas\": \"086c4522-2466-488f-95c8-e693b40ec51f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:03.184Z"}
+{"level":"info","message":"{\"Canvas\": \"3bcc9315-acfd-4f58-81f8-f82de44a93dc\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:38.896Z"}
+{"level":"info","message":"{\"Canvas\": \"8d24ad54-2359-4be8-ae13-c074f2cf5571\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:41.668Z"}
+{"level":"info","message":"{\"Canvas\": \"662ddc0e-65da-4c34-a805-e1628b4d6c92\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.782Z"}
+{"level":"info","message":"{\"Canvas\": \"4bdb6e40-11df-42d2-b5d5-df22570c68eb\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.790Z"}
+{"level":"info","message":"{\"Canvas\": \"d41e82e4-530d-4a10-acf6-8f1380a0a00e\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.792Z"}
+{"level":"info","message":"{\"Canvas\": \"0b8db350-4668-4ab8-917a-e8d0497b9d65\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.879Z"}
+{"level":"info","message":"{\"Canvas\": \"73f10162-07e5-4be9-a477-6bafc7b68b49\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.890Z"}
+{"level":"info","message":"{\"Canvas\": \"9f553fb9-a171-4436-954a-0c00e0f8c08a\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.900Z"}
+{"level":"info","message":"{\"Canvas\": \"4af3422a-bf6b-4337-8981-37961aa6ba07\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.901Z"}
+{"level":"info","message":"{\"Canvas\": \"5d1a1ea8-cdf3-4574-8820-dbfa2dc441fe\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.903Z"}
+{"level":"info","message":"{\"Canvas\": \"dd290aae-be9d-4fbd-9f3c-e1e33394d0af\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:41.905Z"}
+{"level":"info","message":"{\"Canvas\": \"6c52175d-ac7a-4831-a133-dfe69d9e8b79\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:46.908Z"}
+{"level":"info","message":"{\"Canvas\": \"2b75a3d2-6ac7-4fd7-9590-8bf184ec7090\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:25:46.924Z"}
+{"level":"info","message":"{\"Canvas\": \"ec6d52ff-ca12-44d5-8758-b33d602f7d42\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:49.357Z"}
+{"level":"info","message":"{\"Canvas\": \"55effddd-300c-448c-bd62-d21a5c776874\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:50.503Z"}
+{"level":"info","message":"{\"Canvas\": \"561a0a3b-7d34-4bb8-a0ff-12758889432a\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:50.903Z"}
+{"level":"info","message":"{\"Canvas\": \"6e10554b-f369-426f-9abd-069f5c7b3544\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:25:50.900Z"}
+{"level":"info","message":"{\"Canvas\": \"9741a107-00b9-495d-afac-21be32e6de65\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:28:23.849Z"}
+{"level":"info","message":"{\"Canvas\": \"d6051955-2025-4618-8dc0-6c1b1aef9b22\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:28:26.481Z"}
+{"level":"info","message":"{\"Canvas\": \"d5d72bf7-dd24-4d89-a44e-ad11b5f8a05d\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.602Z"}
+{"level":"info","message":"{\"Canvas\": \"8e7febc4-1614-4eb3-a582-88342a5b151f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.610Z"}
+{"level":"info","message":"{\"Canvas\": \"d0306199-b145-4ac5-bc5b-2f356c4cadd3\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.612Z"}
+{"level":"info","message":"{\"Canvas\": \"4fc936a9-8717-461f-b9b2-26690fcc1eda\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.720Z"}
+{"level":"info","message":"{\"Canvas\": \"f544ad06-283f-4752-b6c8-85aed7684826\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.730Z"}
+{"level":"info","message":"{\"Canvas\": \"c1ca429b-7fc1-4578-8e83-a79bded8ce40\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.739Z"}
+{"level":"info","message":"{\"Canvas\": \"a6ecc3cc-7d7b-4628-813b-1666cd84bc27\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.741Z"}
+{"level":"info","message":"{\"Canvas\": \"804193ed-4370-4a42-9a1d-d8a0e1400fda\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.742Z"}
+{"level":"info","message":"{\"Canvas\": \"2201308c-e04f-4fe2-975f-a8a993daa914\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:26.744Z"}
+{"level":"info","message":"{\"Canvas\": \"9d730ece-fb12-4642-bad8-6a53f25dfe4a\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:29.748Z"}
+{"level":"info","message":"{\"Canvas\": \"30600b90-b432-4235-800b-a504049fa018\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:28:29.765Z"}
+{"level":"info","message":"{\"Canvas\": \"0c400310-eaf7-4fc1-9cbf-159e63bbc9b1\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:28:32.069Z"}
+{"level":"info","message":"{\"Canvas\": \"ad623a0f-9629-4072-97a3-0da0e722bbe0\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:28:33.598Z"}
+{"level":"info","message":"{\"Canvas\": \"d9790611-a53e-4dd6-bcb3-92e1e198710f\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:28:33.607Z"}
+{"level":"info","message":"{\"Canvas\": \"6ef9434a-5bad-4f65-9b9f-aa1eff2bf89b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:28:33.748Z"}
+{"level":"info","message":"{\"Canvas\": \"819eb1ef-c0f1-4447-bb32-f879f680807c\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:01.157Z"}
+{"level":"info","message":"{\"Canvas\": \"59efb5f8-cb8d-4869-b429-4c03aa7abd3d\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:03.802Z"}
+{"level":"info","message":"{\"Canvas\": \"f8610e05-1fa5-4f6d-b198-f9f2a96731f2\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:03.914Z"}
+{"level":"info","message":"{\"Canvas\": \"e2a06dbb-40fd-4976-9ec0-3f0136b882ed\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:03.923Z"}
+{"level":"info","message":"{\"Canvas\": \"c8a70338-d151-4fa8-b82b-7590cd246eb1\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:03.926Z"}
+{"level":"info","message":"{\"Canvas\": \"94997adc-3f96-495b-ac5e-4eeea8abf6ae\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:04.009Z"}
+{"level":"info","message":"{\"Canvas\": \"1fa53bae-07c3-428f-8f22-1119956a7751\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:04.020Z"}
+{"level":"info","message":"{\"Canvas\": \"3e589db8-78d5-4678-b0f9-3624ed854e71\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:04.029Z"}
+{"level":"info","message":"{\"Canvas\": \"f8629d7c-481d-463a-94ab-e818f664a143\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:04.030Z"}
+{"level":"info","message":"{\"Canvas\": \"00ce83ec-52d7-4fd0-9b0d-fb60af625033\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:04.032Z"}
+{"level":"info","message":"{\"Canvas\": \"2cd82215-fc0a-42fe-821c-f83ba5721fdb\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:04.035Z"}
+{"level":"info","message":"{\"Canvas\": \"dbe8b1b7-b2e8-4a5b-8e5d-7d79498590e0\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:07.044Z"}
+{"level":"info","message":"{\"Canvas\": \"d1997dc0-ead3-49ce-949e-a8a0c615ea41\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:07.061Z"}
+{"level":"info","message":"{\"Canvas\": \"e8f003cf-2cf0-46d1-ba26-d08adedeb77e\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:09.322Z"}
+{"level":"info","message":"{\"Canvas\": \"f2656904-7dd5-48d1-a509-9697724a3ab2\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:10.582Z"}
+{"level":"info","message":"{\"Canvas\": \"729f3016-3f55-4b53-947a-26a9dd825e32\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:10.844Z"}
+{"level":"info","message":"{\"Canvas\": \"dd2e5b30-6006-49c0-8f5d-1ec405cb6ed5\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:11.153Z"}
+{"level":"info","message":"{\"Canvas\": \"c1443d27-1542-4097-ab36-1aa5e1c1a1f3\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:33.656Z"}
+{"level":"info","message":"{\"Canvas\": \"8b3beb74-eb3c-4dff-9a48-4bfda1d60c55\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:36.264Z"}
+{"level":"info","message":"{\"Canvas\": \"4cb472f9-2068-472e-bde5-1f2c9d7a3717\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.376Z"}
+{"level":"info","message":"{\"Canvas\": \"e926c457-c974-496f-a51f-9ae2cc894f08\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.385Z"}
+{"level":"info","message":"{\"Canvas\": \"4fb8e789-5e0b-44b4-9e21-26dcbc3528d7\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.387Z"}
+{"level":"info","message":"{\"Canvas\": \"075b17e5-10eb-4991-b3a2-3709a50abb26\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.475Z"}
+{"level":"info","message":"{\"Canvas\": \"589317e6-370a-48c9-984b-e6547aed29ed\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.487Z"}
+{"level":"info","message":"{\"Canvas\": \"02c2ef89-bc2a-4893-88d0-7c4fcd4243ae\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.496Z"}
+{"level":"info","message":"{\"Canvas\": \"16d1d48e-911e-4726-a50e-5ec207cae0c8\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.497Z"}
+{"level":"info","message":"{\"Canvas\": \"703dd16a-5854-4c3a-a99b-33aff7eef0af\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.499Z"}
+{"level":"info","message":"{\"Canvas\": \"f1c27f00-14a9-43c5-9b0d-3fd2072bc8f7\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:36.501Z"}
+{"level":"info","message":"{\"Canvas\": \"c4ceb877-36a9-4391-99a8-b7a6c971cf0b\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:39.509Z"}
+{"level":"info","message":"{\"Canvas\": \"23f9cc16-6f88-4b73-9690-47a668630364\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:29:39.526Z"}
+{"level":"info","message":"{\"Canvas\": \"c1ef8f71-e952-4b76-b7f0-7c3d89d178fd\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:41.796Z"}
+{"level":"info","message":"{\"Canvas\": \"4ee38c72-8ae3-4b19-8d4e-9be64a4cf236\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:43.185Z"}
+{"level":"info","message":"{\"Canvas\": \"15279a04-1fc3-48fc-abce-86e3f67359c9\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:43.322Z"}
+{"level":"info","message":"{\"Canvas\": \"50f843cf-3b52-443b-8e1a-2be2ecc394b8\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:29:43.363Z"}
+{"level":"info","message":"{\"Canvas\": \"1eb2840a-894b-4d25-b3ac-04b103e28c91\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:30:32.361Z"}
+{"level":"info","message":"{\"Canvas\": \"70b31a20-24cd-4dd0-af9a-72813c79c7e8\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:30:35.026Z"}
+{"level":"info","message":"{\"Canvas\": \"61ab0aa0-d620-4f15-bb5f-e2b624885278\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.150Z"}
+{"level":"info","message":"{\"Canvas\": \"0fed9af3-3897-4452-b460-9ac6f4d3c20f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.159Z"}
+{"level":"info","message":"{\"Canvas\": \"72df2905-cc6b-40a1-bf67-871b9532a99e\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.160Z"}
+{"level":"info","message":"{\"Canvas\": \"d350bff8-f14d-4c60-9b61-7b36b1ce39fa\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.238Z"}
+{"level":"info","message":"{\"Canvas\": \"d31626a0-0f76-4dd6-af19-cae5909c7a05\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.250Z"}
+{"level":"info","message":"{\"Canvas\": \"17047ac6-379d-4612-b6ad-c6b559bce73b\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.260Z"}
+{"level":"info","message":"{\"Canvas\": \"3168164e-4e4a-4435-8205-d51b38e479bc\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.261Z"}
+{"level":"info","message":"{\"Canvas\": \"2a03a126-0a3f-4276-b2c6-f96f73d8b276\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.262Z"}
+{"level":"info","message":"{\"Canvas\": \"a554f187-bdbd-4502-985b-a944b8bf56e3\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:35.264Z"}
+{"level":"info","message":"{\"Canvas\": \"dd0386d2-2146-4d9d-ae08-b7954b10a21d\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:38.268Z"}
+{"level":"info","message":"{\"Canvas\": \"cd6036e6-0618-4786-ae08-06523e885985\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:30:38.287Z"}
+{"level":"info","message":"{\"Canvas\": \"4f3008c5-c104-4436-9bd5-a9e3929b8642\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:30:40.781Z"}
+{"level":"info","message":"{\"Canvas\": \"882f1b84-c16b-4321-9738-176ede544cb9\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:30:41.101Z"}
+{"level":"info","message":"{\"Canvas\": \"75669389-e3d7-410a-84dc-e50c7edd3ab8\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:30:42.272Z"}
+{"level":"info","message":"{\"Canvas\": \"7b3fa06b-58b5-485d-b10f-446fc77bdef1\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:30:42.340Z"}
+{"level":"info","message":"{\"Canvas\": \"307d1228-aded-44ee-b5ae-53cd4091300b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:31:23.408Z"}
+{"level":"info","message":"{\"Canvas\": \"78e01c59-f2d6-40ed-a74e-84c659888a1f\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:31:25.967Z"}
+{"level":"info","message":"{\"Canvas\": \"089d3b92-a69a-4e24-8135-1217d041eb07\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.090Z"}
+{"level":"info","message":"{\"Canvas\": \"60aa14f6-0fbe-427a-b35e-404e7db82126\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.099Z"}
+{"level":"info","message":"{\"Canvas\": \"7066b5d8-4ef3-4b3d-9c88-2164efa9715d\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.101Z"}
+{"level":"info","message":"{\"Canvas\": \"a9954bce-0390-45ba-b82c-6345dedcf732\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.178Z"}
+{"level":"info","message":"{\"Canvas\": \"b95ca152-10d8-4a65-b8c5-feb24a7ccba2\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.189Z"}
+{"level":"info","message":"{\"Canvas\": \"ad40338f-81b2-4da6-a905-72d617c5b492\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.198Z"}
+{"level":"info","message":"{\"Canvas\": \"81bc5d63-5738-4fe9-88c6-bffa088b752f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.199Z"}
+{"level":"info","message":"{\"Canvas\": \"f7a16a21-6067-4d28-89a0-da8b1d332283\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.201Z"}
+{"level":"info","message":"{\"Canvas\": \"50a2cd99-3fab-4426-bd01-1a0204343893\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:26.202Z"}
+{"level":"info","message":"{\"Canvas\": \"ec940a4c-6e4c-400c-af1a-1dcbdbd257ee\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:29.207Z"}
+{"level":"info","message":"{\"Canvas\": \"8e8bac22-40ca-4c52-bf13-561da39298b4\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:31:29.223Z"}
+{"level":"info","message":"{\"Canvas\": \"734f2a7f-01d0-468f-9eb8-68b3c5e78b77\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:31:31.543Z"}
+{"level":"info","message":"{\"Canvas\": \"301d900c-7a93-4d62-9d1b-ee7caf280725\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:31:33.119Z"}
+{"level":"info","message":"{\"Canvas\": \"252ae5b7-3c26-4c4c-8969-51ddc629ce07\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:31:33.150Z"}
+{"level":"info","message":"{\"Canvas\": \"60a85fa2-9d5e-4b1f-83dc-417d25c0d64e\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:31:33.352Z"}
+{"level":"info","message":"{\"Canvas\": \"8711b984-21e7-470d-99c5-7a3dc66b79b8\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:32:08.907Z"}
+{"level":"info","message":"{\"Canvas\": \"4c080b23-54e8-4a80-8daa-faa0e77434c4\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:32:11.556Z"}
+{"level":"info","message":"{\"Canvas\": \"d453c41a-82dd-4ce2-a9a5-bc3ececb87ba\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.678Z"}
+{"level":"info","message":"{\"Canvas\": \"8655cd4f-ce7c-47d5-8270-7188de649aa3\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.685Z"}
+{"level":"info","message":"{\"Canvas\": \"b6e4937d-66e5-47a7-abb8-32384863cbbd\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.687Z"}
+{"level":"info","message":"{\"Canvas\": \"ef728604-0eee-4123-847a-9e34e66c5eab\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.761Z"}
+{"level":"info","message":"{\"Canvas\": \"99e4724f-b7e0-481d-a7ed-431ade436a60\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.772Z"}
+{"level":"info","message":"{\"Canvas\": \"bffb7a05-8348-4071-8e7e-0b62649241a4\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.781Z"}
+{"level":"info","message":"{\"Canvas\": \"94f3ba1b-e64b-4bc8-9846-2cfce173aa82\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.781Z"}
+{"level":"info","message":"{\"Canvas\": \"5811b379-a615-4df7-b0fd-11f9e1cc13ff\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.784Z"}
+{"level":"info","message":"{\"Canvas\": \"a4e8776c-9488-40dd-9e68-69357f6280c1\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:11.785Z"}
+{"level":"info","message":"{\"Canvas\": \"64d66b90-de13-47f6-bcb5-06cda21f9e2f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:14.789Z"}
+{"level":"info","message":"{\"Canvas\": \"ed7821e7-aaf9-49fe-83c1-6650f99aa378\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:32:14.807Z"}
+{"level":"info","message":"{\"Canvas\": \"a18799de-a915-4a10-b038-fc09759591f4\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:32:17.055Z"}
+{"level":"info","message":"{\"Canvas\": \"7a33ab77-36b1-4759-b350-a91f5224dc70\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:32:18.442Z"}
+{"level":"info","message":"{\"Canvas\": \"75c93300-b3e2-43a6-b97d-a11a7964df85\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:32:18.567Z"}
+{"level":"info","message":"{\"Canvas\": \"e8f67af6-2a75-4c3f-a3ba-d7dce573227f\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:32:18.865Z"}
+{"level":"info","message":"{\"Canvas\": \"18e57251-44d4-45b4-ab17-b046ed080c88\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:35:45.564Z"}
+{"level":"info","message":"{\"Canvas\": \"674a780c-a7bb-40de-856a-b46c516ff579\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:35:48.197Z"}
+{"level":"info","message":"{\"Canvas\": \"079d5c55-245f-4ba1-a4b0-d8f76518ee5e\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.323Z"}
+{"level":"info","message":"{\"Canvas\": \"aa2d6641-2b67-4138-b98b-753555beeb7f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.331Z"}
+{"level":"info","message":"{\"Canvas\": \"d47e238c-1dde-45ed-90f9-a4cccc2a1db1\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.333Z"}
+{"level":"info","message":"{\"Canvas\": \"0662e751-0714-4116-b055-0d84cb9fb247\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.410Z"}
+{"level":"info","message":"{\"Canvas\": \"1e65a50a-da0a-4f8b-a309-b2ded4d5043c\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.421Z"}
+{"level":"info","message":"{\"Canvas\": \"a1ff7414-41be-4e33-8d89-60ff13fd9837\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.430Z"}
+{"level":"info","message":"{\"Canvas\": \"769f00d5-a01f-444e-8644-0d4c5b7fa472\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.431Z"}
+{"level":"info","message":"{\"Canvas\": \"39993fed-4cd0-42a5-8fad-145490796333\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.432Z"}
+{"level":"info","message":"{\"Canvas\": \"f5446492-7113-450b-ae89-69f3cbe5adb4\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:48.434Z"}
+{"level":"info","message":"{\"Canvas\": \"590f2114-bdc3-4bb4-aed3-1a109d7ad5be\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:51.439Z"}
+{"level":"info","message":"{\"Canvas\": \"1b570793-f639-4dfa-90fb-aaa6ba727402\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:35:51.457Z"}
+{"level":"info","message":"{\"Canvas\": \"1e33904b-f03a-44c0-a928-5bb7e4286237\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:35:53.705Z"}
+{"level":"info","message":"{\"Canvas\": \"d1644e8c-fb9e-4b46-9eb3-253ea457b02e\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:35:54.880Z"}
+{"level":"info","message":"{\"Canvas\": \"0b8d1d2a-b1b2-4926-ab0f-1f1ddaaf3601\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:35:55.248Z"}
+{"level":"info","message":"{\"Canvas\": \"d301f084-3d94-4517-abd2-461ca18919eb\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:35:55.350Z"}
+{"level":"info","message":"{\"Canvas\": \"26a5b55d-62e3-401a-a8b1-b8111a97b9ec\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:41:57.231Z"}
+{"level":"info","message":"{\"Canvas\": \"cd2ffc85-14e4-402b-b1f5-c4cd95e5cd8b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:41:59.882Z"}
+{"level":"info","message":"{\"Canvas\": \"9a826273-0af8-4b63-9e46-0e7325a31b86\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.005Z"}
+{"level":"info","message":"{\"Canvas\": \"3b8857ca-0a81-415b-92e7-6c9f19ee50f8\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.014Z"}
+{"level":"info","message":"{\"Canvas\": \"d43d1d05-6dbb-4d6b-b2b7-09c0bc7a7379\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.016Z"}
+{"level":"info","message":"{\"Canvas\": \"d0991a79-0230-48c0-8c1d-bc0547cc3c41\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.095Z"}
+{"level":"info","message":"{\"Canvas\": \"588965d2-b22c-4764-8b6f-1013c8bd0671\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.106Z"}
+{"level":"info","message":"{\"Canvas\": \"2eaf21ea-8c67-4c38-89f9-574761c65674\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.116Z"}
+{"level":"info","message":"{\"Canvas\": \"f4ee00af-c783-42f8-8c06-8ad2a3cb15c1\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.117Z"}
+{"level":"info","message":"{\"Canvas\": \"ea780926-8af2-41c5-94a4-e748d7250607\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.119Z"}
+{"level":"info","message":"{\"Canvas\": \"8247e9ce-25b3-4bf0-8043-9473af3bfb3f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:00.120Z"}
+{"level":"info","message":"{\"Canvas\": \"4aac06b0-7037-4967-a2a6-acc245dc62fb\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:03.125Z"}
+{"level":"info","message":"{\"Canvas\": \"54d60d0e-fe77-4f07-ab45-0db2835d064b\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:42:03.141Z"}
+{"level":"info","message":"{\"Canvas\": \"8582425f-bd9d-4a48-ab73-d25e765f9935\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:42:10.450Z"}
+{"level":"info","message":"{\"Canvas\": \"9edc5974-0a35-4a28-ba61-39e7d6a2775d\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:42:13.031Z"}
+{"level":"info","message":"{\"Canvas\": \"f09cb230-8fba-4cdb-994d-9d830b8f6354\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:42:15.397Z"}
+{"level":"info","message":"{\"Canvas\": \"e1cd6491-688c-43e6-9875-c7c3ce3f858f\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:42:17.888Z"}
+{"level":"info","message":"{\"Canvas\": \"22822aea-549b-4283-a0e1-bea7a7c7b745\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:42:31.565Z"}
+{"level":"info","message":"{\"Canvas\": \"67b64d61-ae30-4eac-b2fe-a2c85d1ed963\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:49:19.471Z"}
+{"level":"info","message":"{\"Canvas\": \"c56eee9b-1834-4b5c-b1a6-0bce8426527c\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:49:28.445Z"}
+{"level":"info","message":"{\"Canvas\": \"b8466dd9-3d13-42b2-99b6-98b6feb7ce87\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:49:31.214Z"}
+{"level":"info","message":"{\"Canvas\": \"34bee2a5-6ce8-4931-a8fd-61cc84b64eaa\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.329Z"}
+{"level":"info","message":"{\"Canvas\": \"a070ea57-8ce7-4d91-9c63-b94879dcf4b9\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.337Z"}
+{"level":"info","message":"{\"Canvas\": \"590fa60f-4612-4ee7-81f7-fd7893057ee1\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.339Z"}
+{"level":"info","message":"{\"Canvas\": \"d1bfb650-3f2f-48ec-9c47-03289a701df2\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.425Z"}
+{"level":"info","message":"{\"Canvas\": \"a6a7eb47-b8f2-4127-83ca-d74fbdf73c2c\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.435Z"}
+{"level":"info","message":"{\"Canvas\": \"175631c1-c18a-4156-ad2f-44ca8c12364b\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.445Z"}
+{"level":"info","message":"{\"Canvas\": \"b51fdd11-1edf-4650-bf6c-336dc03ea8b8\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.446Z"}
+{"level":"info","message":"{\"Canvas\": \"bdd52414-4c8d-475b-92ad-37f250602ba9\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.448Z"}
+{"level":"info","message":"{\"Canvas\": \"a394dd68-3788-4652-9261-9c78542562ec\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:31.449Z"}
+{"level":"info","message":"{\"Canvas\": \"58298844-517e-4ff8-acb0-038831861a13\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:34.455Z"}
+{"level":"info","message":"{\"Canvas\": \"ea217ab7-2e47-47d7-853f-5b111b0dc9e6\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:49:34.470Z"}
+{"level":"info","message":"{\"Canvas\": \"120db2a4-04d6-432c-86a2-3bee3185cf55\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:49:41.836Z"}
+{"level":"info","message":"{\"Canvas\": \"754976c9-7f2c-4a90-a656-9e174b581aaf\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:49:44.284Z"}
+{"level":"info","message":"{\"Canvas\": \"95692af2-5155-4ef4-a2ae-dd25b60bac30\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:49:46.695Z"}
+{"level":"info","message":"{\"Canvas\": \"0b582544-6426-42ff-9778-e1037a78bb29\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:49:49.051Z"}
+{"level":"info","message":"{\"Canvas\": \"6e380c34-a75e-4504-9407-0d1c77d9b90b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:50:12.668Z"}
+{"level":"info","message":"{\"Canvas\": \"dd535624-ebfa-476d-83cf-2d9d9f743966\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:50:15.313Z"}
+{"level":"info","message":"{\"Canvas\": \"4c8171a9-0590-45e4-a08f-dab28dc11c93\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.455Z"}
+{"level":"info","message":"{\"Canvas\": \"14d3b7f7-036e-4c59-bf00-86c57e24ed1b\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.463Z"}
+{"level":"info","message":"{\"Canvas\": \"2de8682d-7463-4efc-8b5c-b60961594b8b\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.464Z"}
+{"level":"info","message":"{\"Canvas\": \"44e18c29-f9cd-42b3-aea8-f92180f0f315\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.537Z"}
+{"level":"info","message":"{\"Canvas\": \"996294cc-7bc8-43bb-b724-d8beeac71cc6\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.548Z"}
+{"level":"info","message":"{\"Canvas\": \"d534fe78-f11f-4a25-a5f4-40f75fe015c3\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.556Z"}
+{"level":"info","message":"{\"Canvas\": \"154bc09a-30ce-4f7b-bd9a-fc9b7a824ec5\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.557Z"}
+{"level":"info","message":"{\"Canvas\": \"00e9c0ed-c01e-43c9-8b77-1dffdd2e6579\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.564Z"}
+{"level":"info","message":"{\"Canvas\": \"f625a381-d02e-4756-88e1-1520c8004101\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:15.565Z"}
+{"level":"info","message":"{\"Canvas\": \"230a4ad6-29f0-4c78-bd28-8ae8dd9b2743\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:18.571Z"}
+{"level":"info","message":"{\"Canvas\": \"85d830e4-91a7-4ceb-b052-d8b21d603916\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:50:18.586Z"}
+{"level":"info","message":"{\"Canvas\": \"735861ce-0539-417a-a10e-7773de95b4ec\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:50:25.912Z"}
+{"level":"info","message":"{\"Canvas\": \"7d7f9bc1-30c8-492c-bfc6-59fe1e2aa5f4\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:50:28.651Z"}
+{"level":"info","message":"{\"Canvas\": \"c115fde7-f9ec-4899-864f-30fdd23ba60f\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:50:31.132Z"}
+{"level":"info","message":"{\"Canvas\": \"a2edb755-9578-4104-8254-9385f03b05c3\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:50:33.521Z"}
+{"level":"info","message":"{\"Canvas\": \"0c91997c-e73b-49fb-b096-a81f794e0b43\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:19.680Z"}
+{"level":"info","message":"{\"Canvas\": \"16929100-9640-41d7-adbe-1fddb98782b5\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:22.444Z"}
+{"level":"info","message":"{\"Canvas\": \"71bec3a0-329f-4ce0-afe8-447cb007d017\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.593Z"}
+{"level":"info","message":"{\"Canvas\": \"2ad2fb5a-5dc7-4d15-a527-09e622eaae56\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.601Z"}
+{"level":"info","message":"{\"Canvas\": \"1d00c926-e264-4edc-a438-3ec1d1d873c8\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.602Z"}
+{"level":"info","message":"{\"Canvas\": \"10498374-4322-4bc0-9b92-971e54e32f1f\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.677Z"}
+{"level":"info","message":"{\"Canvas\": \"d3bec508-ee61-41e4-846c-3cda97182ab6\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.687Z"}
+{"level":"info","message":"{\"Canvas\": \"1f1cf38e-b15f-4c3b-ab47-1afa324459d9\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.696Z"}
+{"level":"info","message":"{\"Canvas\": \"6dc3b173-6607-419e-87fe-aad65b6a59c2\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.696Z"}
+{"level":"info","message":"{\"Canvas\": \"e737f063-53cf-4c21-95eb-29db26feb865\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.699Z"}
+{"level":"info","message":"{\"Canvas\": \"a294427c-6c44-4237-837e-aabb25210ff0\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:22.700Z"}
+{"level":"info","message":"{\"Canvas\": \"dfad4139-c090-481a-bb6d-6807f3c3cfd0\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:25.704Z"}
+{"level":"info","message":"{\"Canvas\": \"10ef8807-ef9a-413e-9f19-17e3c401a6ef\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:25.719Z"}
+{"level":"info","message":"{\"Canvas\": \"1c667507-4b73-431a-9d5c-6d79b05ccad6\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:33.124Z"}
+{"level":"info","message":"{\"Canvas\": \"b4629b80-5bfa-47dc-a5d1-3ccf2e5b94b4\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:35.583Z"}
+{"level":"info","message":"{\"Canvas\": \"cf2b71f0-a459-4092-8681-e60f93c5fde1\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:38.002Z"}
+{"level":"info","message":"{\"Canvas\": \"6088cf1c-a5cc-407e-b04b-c5a4109cdf66\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:40.317Z"}
+{"level":"info","message":"{\"Canvas\": \"fcfcf80e-e0b7-43e2-aed3-9d2831164a0b\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:56.848Z"}
+{"level":"info","message":"{\"Canvas\": \"3e089232-9b44-457d-b333-cf4723b9df32\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:51:59.477Z"}
+{"level":"info","message":"{\"Canvas\": \"2bae4801-69bc-4178-b779-cf5ee4c3eefc\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.595Z"}
+{"level":"info","message":"{\"Canvas\": \"e3f093af-7f64-45ff-844d-a86a8880e6a3\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.603Z"}
+{"level":"info","message":"{\"Canvas\": \"020ecdfb-82c4-4453-b5ba-3c4913641890\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.605Z"}
+{"level":"info","message":"{\"Canvas\": \"d572c3d8-b3b2-4de0-9746-82056690bfcb\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.682Z"}
+{"level":"info","message":"{\"Canvas\": \"1833f8ba-3d38-42c8-8e3c-9ab532904254\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.693Z"}
+{"level":"info","message":"{\"Canvas\": \"ddaa8474-62e2-4eff-b370-d2a1cee1ded8\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.702Z"}
+{"level":"info","message":"{\"Canvas\": \"42d13afd-92a7-4a55-a15e-d35b49be8d4c\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.703Z"}
+{"level":"info","message":"{\"Canvas\": \"f386ce69-7da4-4729-8137-ab0ffb024dd2\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.705Z"}
+{"level":"info","message":"{\"Canvas\": \"0b9ac1be-ca1d-44c0-9250-e285d8faeb0d\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:51:59.707Z"}
+{"level":"info","message":"{\"Canvas\": \"6cb5e1b7-9d68-476a-89d9-b46e2d35aa60\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:52:02.710Z"}
+{"level":"info","message":"{\"Canvas\": \"0ab819a9-330f-43f1-8ecd-03b443122a22\" ,\"Canvas Height\": \"768\", \"Canvas Width\": \"1024\"}","timestamp":"2017-08-25T14:52:02.724Z"}
+{"level":"info","message":"{\"Canvas\": \"174aac91-d5d0-4686-93a9-b9846f97d109\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:52:10.041Z"}
+{"level":"info","message":"{\"Canvas\": \"94ababe3-fe30-435d-a527-7c93919f3300\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:52:12.503Z"}
+{"level":"info","message":"{\"Canvas\": \"927e97b1-b0a4-46ee-972c-79916047976a\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:52:14.898Z"}
+{"level":"info","message":"{\"Canvas\": \"2c6a02df-9039-4a86-adb5-99266172e665\" ,\"Canvas Height\": \"978\", \"Canvas Width\": \"1200\"}","timestamp":"2017-08-25T14:52:17.246Z"}

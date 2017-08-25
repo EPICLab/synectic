@@ -14,12 +14,13 @@ describe('canvas interactions', function() {
   this.timeout(30000);
   var app;
   var logs;
+  logs = new logging(winston);
 
   before(function() {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
     require('jquery-ui-bundle');
-    logs = new logging(winston);
+
 
     app = new Application({
       path: electron,
@@ -130,20 +131,24 @@ describe('canvas interactions', function() {
   });
 
   it("Canvas creations should to canvasCreations.log file", function(done) {
-    let canvas = new Canvas({
-      id: 1,
-      loggers: logs
-    });
     let uuid;
+    var canvas;
     let l = fs.watch(path.join(__dirname, '../logs', "canvasCreations.log"), function(eventType, fileName) {
       lastLine(path.join(__dirname, '../logs', fileName), function(err, res) {
         res = JSON.parse(res).message.split(" ")[1] // get UUID of canvas
-        uuid = res;
-        assert.equal(uuid, canvas.uuid);
+        res = res.replace(/['"]+/g, '')
+        canvas.uuid = canvas.uuid.replace(/['"]+/g, '')
+        assert.equal(res, canvas.uuid);
         done();
         l.close(); // needed to unwatch file for future testing
       });
     });
+    setTimeout(function() {
+      canvas = new Canvas({
+        id: 1,
+        loggers: logs
+      });
+    }, 3000)
   });
 
 
