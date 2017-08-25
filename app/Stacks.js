@@ -6,21 +6,27 @@ const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
 const uuidv4 = require('uuid/v4');
 const Card = require('../app/Card.js');
+const winston = require("winston");
+const logging = require("./../lib/logger");
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
   constructor(...cards) {
+    console.log("weee")
     this.cards = [];
     this.id = 3;
     this.uuid = uuidv4();
     this.state = 'collapsed';
+    this.logs = new logging(winston);
+    console.log(this.cards)
+    this.logs.stackCreations.info("Stack created!!")
 
     this.stack = document.createElement('div');
     $(this.stack).attr('class', 'stack')
-      // .css({
-      //   top: $(cards[0]).offset().top - 25,
-      //   left: $(cards[0]).offset().left - 25,
-      // });
+    // .css({
+    //   top: $(cards[0]).offset().top - 25,
+    //   left: $(cards[0]).offset().left - 25,
+    // });
     this.closeButton = document.createElement('button');
     $(this.closeButton).attr('class', 'stackClose');
     $(this.closeButton).click(() => console.log('close button clicked'))
@@ -28,9 +34,9 @@ module.exports = class Stack {
 
     this.annotation = document.createElement('textarea');
     $(this.annotation).attr({
-        class: 'annotation',
-        placeholder: "Write note..."
-      });
+      class: 'annotation',
+      placeholder: "Write note..."
+    });
 
     this.expandButton = document.createElement('button');
     $(this.expandButton).attr('class', 'stackExpandButton');
@@ -41,7 +47,7 @@ module.exports = class Stack {
     this.stack.appendChild(this.expandButton);
     document.body.appendChild(this.stack);
 
-    for(var i = 0; i < cards.length; i++){
+    for (var i = 0; i < cards.length; i++) {
       this.addCard(cards[i]);
     }
     this.toggleDraggable();
@@ -64,7 +70,7 @@ module.exports = class Stack {
 
   // position all stacked cards according to their index within the stack
   cascadeCards() {
-    for(var i = 0; i < this.cards.length; i++){
+    for (var i = 0; i < this.cards.length; i++) {
       $(this.cards[i]).css({
         top: $(this.stack).offset().top + ((i + 1) * 25) + 'px',
         left: $(this.stack).offset().left + ((i + 1) * 25) + 'px',
@@ -75,10 +81,9 @@ module.exports = class Stack {
 
   //enables a stack to be dragged
   toggleDraggable() {
-    if($(this.stack).data('draggable')) {
+    if ($(this.stack).data('draggable')) {
       $(this.stack).draggable('disable');
-    }
-    else {
+    } else {
       $(this.stack).draggable({
         containment: 'window',
         stack: '.stack, .card',
