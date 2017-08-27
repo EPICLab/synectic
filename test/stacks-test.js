@@ -9,6 +9,8 @@ var Canvas = require('../app/Canvas.js');
 var Stack = require('../app/Stacks.js');
 const winston = require("winston");
 let logging = require("./../lib/logger");
+var lastLine = require("last-line");
+
 
 describe('Stack interactions', function() {
   this.timeout(30000);
@@ -101,6 +103,31 @@ describe('Stack interactions', function() {
   });
 
   it("should log the stack creation to the stack Creations log", function(done) {
+    let card1 = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      logs: loggers,
+      modal: true
+    });
+    let card2 = new Card({
+      id: 2,
+      type: 'text',
+      context: document.body,
+      logs: loggers,
+      modal: true
+    });
+    new Stack([$(card1), $(card2)], [card1, card2]);
+    lastLine(path.join(__dirname, '../logs', "stackCreations.log"), function(err, res) {
+      var message = JSON.parse(JSON.parse(res).message);
+      assert(message)
+      done()
+    });
+
+
+
+
+
 
   })
 

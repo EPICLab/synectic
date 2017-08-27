@@ -6,14 +6,11 @@ const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
 const uuidv4 = require('uuid/v4');
 const Card = require('../app/Card.js');
-const winston = require("winston");
-const logging = require("./../lib/logger");
 
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
   constructor(cards, cardObjects) {
-    console.log("weee")
     this.cards = [];
     this.cardObjects = cardObjects;
     this.id = 3;
@@ -46,12 +43,14 @@ module.exports = class Stack {
     this.stack.appendChild(this.expandButton);
     document.body.appendChild(this.stack);
 
-    for (var i = 0; i < cards.length; i++) {
-      this.addCard(cards[i]);
-    }
+    if (cards) // gaurds for now with inconsistent testing
+      for (var i = 0; i < cards.length; i++) {
+        this.addCard(cards[i]);
+      }
     this.toggleDraggable();
     this.cascadeCards();
-    this.initStackCreationLog();
+    if (cards) // gaurds for now with inconsistent testing
+      this.initStackCreationLog();
   }
 
   initStackCreationLog() {
