@@ -9,18 +9,17 @@ const Card = require('../app/Card.js');
 const winston = require("winston");
 const logging = require("./../lib/logger");
 
+
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
-  constructor(...cards) {
+  constructor(cards, cardObjects) {
     console.log("weee")
     this.cards = [];
+    this.cardObjects = cardObjects;
     this.id = 3;
     this.uuid = uuidv4();
     this.state = 'collapsed';
-    this.logs = new logging(winston);
-    console.log(this.cards)
-    this.logs.stackCreations.info("Stack created!!")
-
+    this.loggers = new logging(winston);
     this.stack = document.createElement('div');
     $(this.stack).attr('class', 'stack')
     // .css({
@@ -52,6 +51,14 @@ module.exports = class Stack {
     }
     this.toggleDraggable();
     this.cascadeCards();
+    this.initStackCreationLog();
+  }
+
+  initStackCreationLog() {
+    let initString = '{\"Stack\": \"' + this.uuid + '\" ,';
+    initString += '\"Bottom Card\": \"' + this.cardObjects[0].uuid + '\", ';
+    initString += '\"Top Card\": \"' + this.cardObjects[1].uuid + '\"}'
+    this.loggers.stackCreations.info(initString)
   }
 
   // add individual card to the top of the stack
@@ -91,6 +98,4 @@ module.exports = class Stack {
       });
     }
   }
-
-
 }

@@ -40,6 +40,7 @@
     "jquery": "^3.2.1",
     "jquery-ui-bundle": "^1.12.1",
     "last-line": "0.0.3",
+    "lodash": "^4.17.4",
     "raphael": "^2.2.7",
     "slick-carousel": "^1.6.0",
     "username": "^3.0.0",

@@ -4,6 +4,7 @@ const uuidv4 = require('uuid/v4');
 const Stack = require('../app/Stacks.js');
 
 
+
 module.exports = class Card {
   constructor({
     id = Error.throwIfMissing('id'),
@@ -14,6 +15,7 @@ module.exports = class Card {
   }) {
     this.id = id;
     this.logger = logs
+    this.jQueryDOM = $(this);
     this.uuid = uuidv4();
     this.cardType = type;
     this.createdBy = require('username').sync();
@@ -110,6 +112,7 @@ module.exports = class Card {
   }
 
   toggleDroppable() {
+    let self = this;
     if ($(this.card).data('droppable')) {
       $(this.card).droppable('disable');
     } else {
@@ -118,9 +121,9 @@ module.exports = class Card {
         drop: function(event, ui) {
           //handles card-to-card drop events
           if ($(ui.draggable).hasClass('card')) {
-            new Stack($(this), $(ui.draggable));
-            // console.log(this, ui.draggable);
-            // console.log($(this), $(ui.draggable));
+            let secondCard = AppManager.current.getCardObject($(ui.draggable)[0].id)[0]
+            new Stack([$(this), $(ui.draggable)], [self, secondCard]);
+            // added 'this' to reference ID on canvas
           }
         },
       });

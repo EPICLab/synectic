@@ -100,6 +100,10 @@ describe('Stack interactions', function() {
     return assert.equal(stack.cards.length, 0);
   });
 
+  it("should log the stack creation to the stack Creations log", function(done) {
+
+  })
+
   // it('cards are positioned correctly in a stack instance', function () {
   //   let stack1 = new Stack();
   //   let card1 = new Card({id: 1, type: 'text', context: document.body, modal: false});

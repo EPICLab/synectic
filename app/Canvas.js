@@ -9,16 +9,15 @@ module.exports = class Canvas {
     id = Error.throwIfMissing('id'),
     loggers = Error.throwIfMissing('logs')
   }) {
-    // console.log(loggers)
     this.loggers = loggers;
     this.id = id;
     this.uuid = uuidv4();
     this.cards = [];
     this.canvasLoggerInit();
     this.canvasResizer();
-
     this.canvas = document.createElement('div');
     $(this.canvas).attr('class', 'canvas');
+    console.log(AppManager)
 
     const versionDialogButton = document.createElement('button');
     $(versionDialogButton).click(() => {
@@ -50,6 +49,13 @@ module.exports = class Canvas {
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
     document.body.appendChild(this.canvas);
+  }
+
+  getCardObject(id) {
+    return this.cards.filter(function(ele) {
+      if (ele.id == id)
+        return ele
+    })
   }
 
   canvasLoggerInit() {
@@ -141,7 +147,6 @@ module.exports = class Canvas {
 
   addObj() {
     let dialog = Dialog.dialog();
-
     const ackButton = document.createElement('button');
     $(ackButton).attr('class', 'acknowledge');
     $(ackButton).html('OK');
