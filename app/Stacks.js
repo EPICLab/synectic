@@ -6,7 +6,8 @@ const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
 const uuidv4 = require('uuid/v4');
 const Card = require('../app/Card.js');
-
+const logging = require("./../lib/logger");
+const winston = require("winston")
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
