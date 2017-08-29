@@ -1,7 +1,7 @@
 "use strict";
 const Error = require('../lib/error.js');
 const uuidv4 = require('uuid/v4');
-const Stack = require('../app/Stacks.js');
+const Stack = require('../app/Stack.js');
 
 module.exports = class Card {
   constructor({
@@ -44,6 +44,7 @@ module.exports = class Card {
     this.card.appendChild(this.header);
     context.appendChild(this.card);
     if (modal) this.toggleDraggable();
+    this.toggleDroppable();
   }
 
   destructor() {
@@ -94,8 +95,8 @@ module.exports = class Card {
           //handles card-to-card drop events
           if ($(ui.draggable).hasClass('card')) {
             new Stack($(this), $(ui.draggable));
-            // console.log(this, ui.draggable);
-            // console.log($(this), $(ui.draggable));
+            $(this).droppable('disable');
+            $(ui.draggable).droppable('disable');
           }
         },
       });

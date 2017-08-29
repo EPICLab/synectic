@@ -1,12 +1,11 @@
-// A test to verify cards can be created and interacted
+// A test to verify stacks can be created and interacted
 var Application = require('spectron').Application;
 var electron = require('electron-prebuilt');
 var assert = require('assert');
 const path = require('path');
 var fs = require('fs');
 var Card = require('../app/Card.js');
-var Canvas = require('../app/Canvas.js');
-var Stack = require('../app/Stacks.js');
+var Stack = require('../app/Stack.js');
 
 describe('Stack interactions', function () {
   this.timeout(30000);
@@ -35,21 +34,14 @@ describe('Stack interactions', function () {
     return assert.equal(stack.constructor.name, 'Stack')
   });
 
-  it('stack contains div body, close button, expand button, ' +
-    'and annotation textarea', function () {
+  it('stack contains div body and annotation textarea', function () {
     let stack = new Stack();
     var stackDiv = stack.stack;
-    var closeButton = stack.closeButton;
-    var expandButton = stack.expandButton;
     var annotation = stack.annotation;
     let msg1 = 'Document must contain stack body div.';
-    let msg2 = 'Stack instance must have a close button.';
-    let msg3 = 'Stack instance must have an expand button';
-    let msg4 = 'Stack instance must have annotation textarea';
+    let msg2 = 'Stack instance must have annotation textarea';
     assert.notEqual(stack.stack, undefined, msg1);
-    assert.notEqual(stack.closeButton, undefined, msg2);
-    assert.notEqual(stack.expandButton, undefined, msg3);
-    assert.notEqual(stack.annotation, undefined, msg4);
+    assert.notEqual(stack.annotation, undefined, msg2);
   });
 
   it('stack instance tracks contained cards', function () {
@@ -76,12 +68,16 @@ describe('Stack interactions', function () {
     return assert.notEqual(stack.cards.length, stack2.cards.length);
   });
 
-  it('cards can be removed from a stack instance', function () {
+  it('a new stack instance contains two cards', function () {
+    let stack = new Stack();
+    return assert.equal(stack.cards.length, 2);
+  });
+
+  it('cards can be added to a stanck instance', function () {
     let stack = new Stack();
     let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
     stack.addCard(card);
-    stack.removeCard(card);
-    return assert.equal(stack.cards.length, 0);
+    return assert.equal(stack.cards.length, 3);
   });
 
   // it('cards are positioned correctly in a stack instance', function () {
