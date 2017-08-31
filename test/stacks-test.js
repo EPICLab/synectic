@@ -26,6 +26,7 @@ describe('Stack interactions', function() {
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
     });
+    global.AppManager = require("./../lib/manager")
     return app.start();
   });
 

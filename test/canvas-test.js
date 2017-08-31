@@ -8,24 +8,28 @@ var fs = require('fs');
 const winston = require("winston");
 let logging = require("../lib/logger");
 var lastLine = require("last-line");
+console.log(process.type)
 
 
 describe('canvas interactions', function() {
   this.timeout(30000);
   var app;
-  var logs;
-  logs = new logging(winston);
+  var loggers;
+
 
   before(function() {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
     require('jquery-ui-bundle');
+    global.loggers = new logging(winston);
+
 
 
     app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
     });
+    global.appManager = require("./../lib/manager")
 
     return app.start();
   });
@@ -38,8 +42,7 @@ describe('canvas interactions', function() {
 
   it('creates a Canvas instance', function(done) {
     let canvas = new Canvas({
-      id: 1,
-      loggers: logs
+      id: 1
     });
     assert.equal(canvas.constructor.name, 'Canvas');
     done();
@@ -54,8 +57,7 @@ describe('canvas interactions', function() {
 
   it('new Canvas instance contains no Cards', function(done) {
     let canvas = new Canvas({
-      id: 1,
-      loggers: logs
+      id: 1
     });
     assert.equal(canvas.cards.length, 0);
     done();
@@ -63,8 +65,7 @@ describe('canvas interactions', function() {
 
   it('Canvas instance creates and tracks new Card instances', function(done) {
     let canvas = new Canvas({
-      id: 1,
-      loggers: logs
+      id: 1
     });
     canvas.addCard('text', true);
     canvas.addCard('text', false);
@@ -74,8 +75,7 @@ describe('canvas interactions', function() {
 
   it('Canvas instance removes Card instances', function(done) {
     let canvas = new Canvas({
-      id: 1,
-      loggers: logs
+      id: 1
     });
     canvas.addCard('text', false);
     canvas.addCard('text', false);
@@ -94,8 +94,7 @@ describe('canvas interactions', function() {
 
   it('Canvas instance provides different \'id\' values to added Cards', function(done) {
     let canvas = new Canvas({
-      id: 1,
-      loggers: logs
+      id: 1
     });
     canvas.addCard('text', true);
     canvas.addCard('text', false);
@@ -105,12 +104,10 @@ describe('canvas interactions', function() {
 
   it('Canvas instances contain different \'uuid\' field values', function(done) {
     let canvas1 = new Canvas({
-      id: 1,
-      loggers: logs
+      id: 1
     });
     let canvas2 = new Canvas({
-      id: 2,
-      loggers: logs
+      id: 2
     });
     assert.notEqual(canvas1.uuid, canvas2.uuid);
     done();
@@ -118,12 +115,10 @@ describe('canvas interactions', function() {
 
   it('Canvas instances contain different sets of Cards', function(done) {
     let canvas1 = new Canvas({
-      id: 1,
-      loggers: logs
+      id: 1
     });
     let canvas2 = new Canvas({
-      id: 2,
-      loggers: logs
+      id: 2
     });
     canvas1.addCard('text', false);
     assert.notEqual(canvas1.cards.length, canvas2.cards.length);
@@ -145,8 +140,7 @@ describe('canvas interactions', function() {
     });
     setTimeout(function() {
       canvas = new Canvas({
-        id: 1,
-        loggers: logs
+        id: 1
       });
     }, 3000)
   });
@@ -160,8 +154,7 @@ describe('canvas interactions', function() {
 
     app.browserWindow.setSize(200, 222);
     let canvas5 = new Canvas({
-      id: 5,
-      loggers: logs
+      id: 5
     });
     let uuid;
     let l = fs.watch(path.join(__dirname, '../logs', "canvasResizes.log"), function(eventType, fileName) {

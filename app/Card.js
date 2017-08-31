@@ -10,11 +10,10 @@ module.exports = class Card {
     id = Error.throwIfMissing('id'),
     type = Error.throwIfMissing('type'),
     context = Error.throwIfMissing('context'),
-    logs = Error.throwIfMissing("loggers"),
     modal = true
   }) {
     this.id = id;
-    this.logger = logs
+    this.logger = loggers
     this.jQueryDOM = $(this);
     this.uuid = uuidv4();
     this.cardType = type;

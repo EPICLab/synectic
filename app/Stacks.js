@@ -6,8 +6,8 @@ const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
 const uuidv4 = require('uuid/v4');
 const Card = require('../app/Card.js');
-const logging = require("./../lib/logger");
-const winston = require("winston")
+const Error = require('../lib/error.js');
+const Dialog = require('../app/Dialog.js');
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax
@@ -17,7 +17,7 @@ module.exports = class Stack {
     this.id = 3;
     this.uuid = uuidv4();
     this.state = 'collapsed';
-    this.loggers = new logging(winston);
+    this.loggers = loggers
     this.stack = document.createElement('div');
     $(this.stack).attr('class', 'stack')
     // .css({
@@ -67,6 +67,7 @@ module.exports = class Stack {
     let body = document.querySelector('.card');
     this.stack.appendChild(body);
     // currCard.droppable('disable');
+    console.log(AppManager)
     console.log('card added');
   }
 

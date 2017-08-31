@@ -6,8 +6,7 @@ const Card = require('../app/Card.js');
 
 module.exports = class Canvas {
   constructor({
-    id = Error.throwIfMissing('id'),
-    loggers = Error.throwIfMissing('logs')
+    id = Error.throwIfMissing('id')
   }) {
     this.loggers = loggers;
     this.id = id;
@@ -49,6 +48,7 @@ module.exports = class Canvas {
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
     document.body.appendChild(this.canvas);
+    console.log(AppManager)
   }
 
   getCardObject(id) {
@@ -101,7 +101,6 @@ module.exports = class Canvas {
       id: this.nextCardId(),
       type: cardType,
       context: this.canvas,
-      logs: this.loggers,
       modal: modality
     });
     this.cards.push(card);
