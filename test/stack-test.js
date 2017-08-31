@@ -75,7 +75,7 @@ describe('Stack interactions', function () {
     return assert.equal(stack.cards.length, 2);
   });
 
-  it('cards can be added to a stanck instance', function () {
+  it('cards can be added to a stack instance', function () {
     let card1 = new Card({id: 1, type: 'text', context: document.body, modal: true});
     let card2 = new Card({id: 2, type: 'text', context: document.body, modal: true});
     let card3 = new Card ({id: 3, type: 'text', context: document.body, modal: true});
@@ -83,7 +83,7 @@ describe('Stack interactions', function () {
     stack.addCard(card3);
     return assert.equal(stack.cards.length, 3);
   });
-  
+
   // it('cards are positioned correctly in a stack instance', function () {
   //   let card1 = new Card({id: 1, type: 'text', context: document.body, modal: false});
   //   let card2 = new Card({id: 2, type: 'text', context: document.body, modal: false});
