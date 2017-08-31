@@ -5,7 +5,6 @@ const TOTAL_SIZE = CARD_WIDTH + CARD_PADDING;
 const OFFSET_LEFT = 35;
 const OFFSET_TOP = 15;
 const uuidv4 = require('uuid/v4');
-// const Card = require('../app/Card.js');
 
 module.exports = class Stack {
   // constructor uses ECMA-262 rest parameters and spread syntax

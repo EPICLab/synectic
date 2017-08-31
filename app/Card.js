@@ -43,8 +43,10 @@ module.exports = class Card {
     this.header.appendChild(closeButton);
     this.card.appendChild(this.header);
     context.appendChild(this.card);
-    if (modal) this.toggleDraggable();
-    this.toggleDroppable();
+    if (modal) {
+      this.toggleDraggable();
+      this.toggleDroppable();
+    }
   }
 
   destructor() {
