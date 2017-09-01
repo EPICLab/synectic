@@ -1,12 +1,11 @@
-// A test to verify cards can be created and interacted
+// A test to verify stacks can be created and interacted
 var Application = require('spectron').Application;
 var electron = require('electron-prebuilt');
 var assert = require('assert');
 const path = require('path');
 var fs = require('fs');
 var Card = require('../app/Card.js');
-var Canvas = require('../app/Canvas.js');
-var Stack = require('../app/Stacks.js');
+var Stack = require('../app/Stack.js');
 
 describe('Stack interactions', function () {
   this.timeout(30000);
@@ -35,21 +34,14 @@ describe('Stack interactions', function () {
     return assert.equal(stack.constructor.name, 'Stack')
   });
 
-  it('stack contains div body, close button, expand button, ' +
-    'and annotation textarea', function () {
+  it('stack contains div body and annotation textarea', function () {
     let stack = new Stack();
     var stackDiv = stack.stack;
-    var closeButton = stack.closeButton;
-    var expandButton = stack.expandButton;
     var annotation = stack.annotation;
     let msg1 = 'Document must contain stack body div.';
-    let msg2 = 'Stack instance must have a close button.';
-    let msg3 = 'Stack instance must have an expand button';
-    let msg4 = 'Stack instance must have annotation textarea';
+    let msg2 = 'Stack instance must have annotation textarea';
     assert.notEqual(stack.stack, undefined, msg1);
-    assert.notEqual(stack.closeButton, undefined, msg2);
-    assert.notEqual(stack.expandButton, undefined, msg3);
-    assert.notEqual(stack.annotation, undefined, msg4);
+    assert.notEqual(stack.annotation, undefined, msg2);
   });
 
   it('stack instance tracks contained cards', function () {
@@ -76,38 +68,44 @@ describe('Stack interactions', function () {
     return assert.notEqual(stack.cards.length, stack2.cards.length);
   });
 
-  it('cards can be removed from a stack instance', function () {
-    let stack = new Stack();
+  it('a new stack instance contains two cards', function () {
     let card = new Card({id: 1, type: 'text', context: document.body, modal: true});
-    stack.addCard(card);
-    stack.removeCard();
-    return assert.equal(stack.cards.length, 0);
+    let card2 = new Card ({id: 2, type: 'text', context: document.body, modal: true});
+    let stack = new Stack(card.card, card2.card);
+    return assert.equal(stack.cards.length, 2);
+  });
+
+  it('cards can be added to a stack instance', function () {
+    let card1 = new Card({id: 1, type: 'text', context: document.body, modal: true});
+    let card2 = new Card({id: 2, type: 'text', context: document.body, modal: true});
+    let card3 = new Card ({id: 3, type: 'text', context: document.body, modal: true});
+    let stack = new Stack(card1.card, card2.card);
+    stack.addCard(card3);
+    return assert.equal(stack.cards.length, 3);
   });
 
   // it('cards are positioned correctly in a stack instance', function () {
-  //   let stack1 = new Stack();
   //   let card1 = new Card({id: 1, type: 'text', context: document.body, modal: false});
   //   let card2 = new Card({id: 2, type: 'text', context: document.body, modal: false});
+  //   let stack1 = new Stack(card1.card, card2.card);
   //   $(stack1.stack).css({
   //     top: '0px',
   //     left: '0px',
   //   });
-  //   stack1.addCard(card1);
-  //   stack1.addCard(card2);
-  //   stack1.cascadeCards();
   //   let card1Position = $(stack1.cards[0]).offset();
   //   let card2Position = $(stack1.cards[1]).offset();
   //   let msg1 = 'card1 should have top value: 25px, but has top value: ' +
-  //     card1Top;
+  //     card1Position.top;
   //   let msg2 = + 'card1 should have left value: 25px, but has left value: ' +
-  //     card1Left;
+  //     card1Position.left;
   //   let msg3 = 'card2 should have top value: 50px, but has top value: ' +
-  //     card2Top;
+  //     card2Position.top;
   //   let msg4 = + 'card2 should have left value: 50x, but has left value: ' +
-  //     card2Left;
-  //   assert.equal('25px', card1Position.top(), msg1);
-  //   assert.equal('25px', card1Position.left(), msg2);
-  //   assert.equal('50px', card2Position.top(), msg3);
-  //   assert.equal('50px', card2Position.left(), msg4);
+  //     card2Position.left;
+  //   assert.equal('25', card1Position.top, msg1);
+  //   assert.equal('25', card1Position.left, msg2);
+  //   assert.equal('50', card2Position.top, msg3);
+  //   assert.equal('50', card2Position.left, msg4);
   // });
+
 });
