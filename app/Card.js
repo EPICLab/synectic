@@ -13,7 +13,7 @@ module.exports = class Card {
     modal = true
   }) {
     this.id = id;
-    this.logger = loggers
+    this.logger = AppManager.loggers
     this.jQueryDOM = $(this);
     this.uuid = uuidv4();
     this.cardType = type;
