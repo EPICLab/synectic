@@ -71,13 +71,17 @@ module.exports = class Stack {
     let stackString = '{\"CardId\": \"' + cardObj.uuid + '\" ,';
     stackString += '\"StackId\": \"' + this.uuid + '\", ';
     stackString += '\"StackSize\": \"' + this.cards.length + '\"}'
-    console.log(stackString)
     this.loggers.stackAdditions.info(stackString)
   }
 
   // remove individual card from the stack
   removeCard() {
-    this.cards.pop();
+    let f = this.cards.pop();
+    let cardObj = AppManager.current.getCardObject(f[0].id)[0]
+    let stackString = '{\"CardId\": \"' + cardObj.uuid + '\" ,';
+    stackString += '\"StackId\": \"' + this.uuid + '\", ';
+    this.loggers.stackDeletes.info(stackString)
+
   }
 
   // position all stacked cards according to their index within the stack

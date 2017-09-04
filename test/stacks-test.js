@@ -94,7 +94,6 @@ describe('Stack interactions', function() {
       logs: loggers,
       modal: true
     });
-    console.log(card.uuid)
     AppManager.current.addCard(card)
     stack.addCard($(card));
     return assert.notEqual(stack.cards.length, stack2.cards.length);
@@ -157,6 +156,25 @@ describe('Stack interactions', function() {
       done()
     });
   })
+
+  it("should log that there was a card from the stack removed in the stackDeletes.log", function(done) {
+    let stack = new Stack();
+    let card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      logs: loggers,
+      modal: true
+    });
+    AppManager.current.addCard(card)
+
+    stack.addCard($(card));
+    stack.removeCard();
+    lastLine(path.join(__dirname, '../logs', "stackDeletes.log"), function(err, res) {
+      assert(res)
+      done()
+    });
+  });
 
   // it('cards are positioned correctly in a stack instance', function () {
   //   let stack1 = new Stack();

@@ -38,7 +38,6 @@ describe('canvas interactions', function() {
 
     setTimeout(function() {
       global.AppManager = require("./../lib/manager")
-      console.log(global.AppManager)
       let canvas = new Canvas({
         id: 1
       });
