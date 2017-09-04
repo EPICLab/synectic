@@ -16,7 +16,6 @@ module.exports = class Canvas {
     this.canvasResizer();
     this.canvas = document.createElement('div');
     $(this.canvas).attr('class', 'canvas');
-    console.log(AppManager)
 
     const versionDialogButton = document.createElement('button');
     $(versionDialogButton).click(() => {
@@ -48,7 +47,6 @@ module.exports = class Canvas {
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
     document.body.appendChild(this.canvas);
-    console.log(AppManager)
   }
 
   getCardObject(id) {

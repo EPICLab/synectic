@@ -15,9 +15,9 @@ module.exports = class Stack {
     this.cards = [];
     this.cardObjects = cardObjects;
     this.id = 3;
+    this.loggers = loggers;
     this.uuid = uuidv4();
     this.state = 'collapsed';
-    this.loggers = loggers
     this.stack = document.createElement('div');
     $(this.stack).attr('class', 'stack')
     // .css({
@@ -67,7 +67,7 @@ module.exports = class Stack {
     let body = document.querySelector('.card');
     this.stack.appendChild(body);
     // currCard.droppable('disable');
-    console.log(AppManager)
+    console.log(currCard)
     console.log('card added');
   }
 

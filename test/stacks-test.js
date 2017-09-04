@@ -15,18 +15,18 @@ var lastLine = require("last-line");
 describe('Stack interactions', function() {
   this.timeout(30000);
   var app;
-  var loggers = new logging(winston);
+  var loggers;
 
   before(function() {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
+    global.loggers = new logging(winston);
     require('jquery-ui-bundle');
 
     app = new Application({
       path: electron,
       args: [path.join(__dirname, '..', 'main.js')],
     });
-    global.AppManager = require("./../lib/manager")
     return app.start();
   });
 
@@ -37,6 +37,8 @@ describe('Stack interactions', function() {
   });
 
   it('creates a Stack instance', function() {
+    global.app = app
+    global.AppManager = require("./../lib/manager")
     let stack = new Stack();
     return assert.equal(stack.constructor.name, 'Stack')
   });
@@ -124,12 +126,6 @@ describe('Stack interactions', function() {
       assert(message)
       done()
     });
-
-
-
-
-
-
   })
 
   // it('cards are positioned correctly in a stack instance', function () {

@@ -18,7 +18,7 @@
     "build-dev": "electron-packager . Synectic-dev --overwrite --no-prune --icon=lib/icon.icns --out=release-builds",
     "clean": "rm -Rf release-builds/*",
     "rebuild": "electron-rebuild -f",
-    "test": "mocha --compilers js:babel-core/register --require jsdom-global/register ./test/*.js"
+    "test": "NODE_ENV=test mocha --compilers js:babel-core/register --require jsdom-global/register ./test/*.js"
   },
   "devDependencies": {
     "asar": "^0.13.0",
