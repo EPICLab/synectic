@@ -36,11 +36,18 @@ describe('Stack interactions', function() {
     }
   });
 
-  it('creates a Stack instance', function() {
+  it('creates a Stack instance', function(done) {
     global.app = app
-    global.AppManager = require("./../lib/manager")
-    let stack = new Stack();
-    return assert.equal(stack.constructor.name, 'Stack')
+    setTimeout(function() {
+      global.AppManager = require("./../lib/manager")
+      var canvas = new Canvas({
+        id: 1
+      })
+      global.AppManager.testAddCanvas = canvas
+      let stack = new Stack();
+      done();
+      return assert.equal(stack.constructor.name, 'Stack')
+    }, 500)
   });
 
   it('stack contains div body, close button, expand button, ' +
@@ -87,7 +94,9 @@ describe('Stack interactions', function() {
       logs: loggers,
       modal: true
     });
-    stack.addCard(card);
+    console.log(card.uuid)
+    AppManager.current.addCard(card)
+    stack.addCard($(card));
     return assert.notEqual(stack.cards.length, stack2.cards.length);
   });
 
@@ -100,7 +109,9 @@ describe('Stack interactions', function() {
       logs: loggers,
       modal: true
     });
-    stack.addCard(card);
+    AppManager.current.addCard(card)
+
+    stack.addCard($(card));
     stack.removeCard();
     return assert.equal(stack.cards.length, 0);
   });
@@ -122,6 +133,25 @@ describe('Stack interactions', function() {
     });
     new Stack([$(card1), $(card2)], [card1, card2]);
     lastLine(path.join(__dirname, '../logs', "stackCreations.log"), function(err, res) {
+      var message = JSON.parse(JSON.parse(res).message);
+      assert(message)
+      done()
+    });
+  })
+
+  it("should log the stack additions to the stack additions log", function(done) {
+    let stack = new Stack();
+    let card = new Card({
+      id: 1,
+      type: 'text',
+      context: document.body,
+      logs: loggers,
+      modal: true
+    });
+    AppManager.current.addCard(card)
+
+    stack.addCard($(card));
+    lastLine(path.join(__dirname, '../logs', "stackAdditions.log"), function(err, res) {
       var message = JSON.parse(JSON.parse(res).message);
       assert(message)
       done()

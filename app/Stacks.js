@@ -67,8 +67,12 @@ module.exports = class Stack {
     let body = document.querySelector('.card');
     this.stack.appendChild(body);
     // currCard.droppable('disable');
-    console.log(currCard)
-    console.log('card added');
+    let cardObj = AppManager.current.getCardObject(currCard[0].id)[0]
+    let stackString = '{\"CardId\": \"' + cardObj.uuid + '\" ,';
+    stackString += '\"StackId\": \"' + this.uuid + '\", ';
+    stackString += '\"StackSize\": \"' + this.cards.length + '\"}'
+    console.log(stackString)
+    this.loggers.stackAdditions.info(stackString)
   }
 
   // remove individual card from the stack
