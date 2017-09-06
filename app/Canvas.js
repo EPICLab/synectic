@@ -35,6 +35,12 @@ module.exports = class Canvas {
     });
     $(addCardButton).html('Add Card');
 
+    const terminalBtn = document.createElement('button');
+    $(terminalBtn).click(() => {
+      this.addCard('text');
+    });
+    $(terminalBtn).html('Add Card');
+
     const printCardsButton = document.createElement('button');
     $(printCardsButton).click(() => {
       this.printCards();
