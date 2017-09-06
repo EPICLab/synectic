@@ -1,7 +1,7 @@
 "use strict";
 const Error = require('../lib/error.js');
 const uuidv4 = require('uuid/v4');
-const Stack = require('../app/Stacks.js');
+const Stack = require('../app/Stack.js');
 
 
 
@@ -42,13 +42,15 @@ module.exports = class Card {
     $(this.fullscreenButton).click(() => console.log('fullscreen button clicked'));
 
     this.header.appendChild(this.title);
-    this.header.appendChild(this.closeButton);
     this.header.appendChild(this.saveButton);
     this.header.appendChild(this.fullscreenButton);
+    this.header.appendChild(this.closeButton);
     this.card.appendChild(this.header);
     context.appendChild(this.card);
-    if (modal) this.toggleDraggable();
-    this.toggleDroppable();
+    if (modal) {
+      this.toggleDraggable();
+      this.toggleDroppable();
+    }
   }
 
   destructor() {
