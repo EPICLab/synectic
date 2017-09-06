@@ -30,6 +30,8 @@ module.exports = class Card {
 
     this.header = document.createElement('div');
     $(this.header).attr('class', 'card-header');
+    this.body = document.createElement('div')
+    $(this.body).addClass('card-body-container')
 
     this.title = document.createElement('span');
     $(this.title).html("My Card");
@@ -46,6 +48,7 @@ module.exports = class Card {
     this.header.appendChild(this.fullscreenButton);
     this.header.appendChild(this.closeButton);
     this.card.appendChild(this.header);
+    this.card.appendChild(this.body)
     context.appendChild(this.card);
     if (modal) {
       this.toggleDraggable();

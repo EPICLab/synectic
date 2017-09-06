@@ -39,7 +39,7 @@ module.exports = class Canvas {
     $(terminalBtn).click(() => {
       this.addCard('text');
     });
-    $(terminalBtn).html('Add Card');
+    $(terminalBtn).html('Add Terminal Card');
 
     const printCardsButton = document.createElement('button');
     $(printCardsButton).click(() => {
@@ -52,6 +52,7 @@ module.exports = class Canvas {
     this.canvas.appendChild(document.createElement('br'));
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
+    this.canvas.appendChild(terminalBtn)
     document.body.appendChild(this.canvas);
   }
 
