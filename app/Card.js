@@ -31,7 +31,10 @@ module.exports = class Card {
     this.header = document.createElement('div');
     $(this.header).attr('class', 'card-header');
     this.body = document.createElement('div')
-    $(this.body).addClass('card-body-container')
+    $(this.body).attr({
+      class: 'card-body-container',
+      id: "body_" + this.id
+    })
 
     this.title = document.createElement('span');
     $(this.title).html("My Card");
