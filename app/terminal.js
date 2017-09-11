@@ -1,17 +1,20 @@
 let Card = require("./Card")
-const xterm = require("xterm")
+let xterm = require("xterm")
+
 
 module.exports = class Terminal extends Card {
   constructor(type) {
     super(type);
-    this.terminalWindow = new xterm({
-      cursorBlink: true, // Do not blink the terminal's cursor
-      cols: 120, // Set the terminal's width to 120 columns
-      rows: 80 // Set the terminal's height to 80 rows
-    })
+    xterm.loadAddon('attach')
+    this.terminalWindow = new xterm()
+    // this.terminalWindow.attach = require("./../node_modules/xterm/dist/addons/attach/attach").attach
+
+    console.log(this.terminalWindow.attach)
     this.terminalWindow.open(document.getElementById(this.body.id))
     this.initTerminalListeners();
-    console.log(this)
+    let f = new WebSocket("ws://localhost:7689/terminals/")
+    this.terminalWindow.attach(f)
+    // console.log(new WebSocket())
   }
 
   initTerminalListeners() {
