@@ -4,6 +4,7 @@ const uuidv4 = require('uuid/v4');
 const Dialog = require('../app/Dialog.js');
 const Card = require('../app/Card.js');
 const Terminal = require("../app/terminal")
+const textEditor = require("./textEditor")
 
 module.exports = class Canvas {
   constructor({
@@ -42,6 +43,12 @@ module.exports = class Canvas {
     });
     $(terminalBtn).html('Add Terminal Card');
 
+    const textEditorBtn = document.createElement('button');
+    $(textEditorBtn).click(() => {
+      this.addCard('text');
+    });
+    $(textEditorBtn).html('Add text Card');
+
     const printCardsButton = document.createElement('button');
     $(printCardsButton).click(() => {
       this.printCards();
@@ -54,6 +61,7 @@ module.exports = class Canvas {
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
     this.canvas.appendChild(terminalBtn)
+    this.canvas.appendChild(textEditorBtn)
     document.body.appendChild(this.canvas);
   }
 
@@ -106,6 +114,13 @@ module.exports = class Canvas {
     let card;
     if (cardType == "terminal")
       card = new Terminal({
+        id: this.nextCardId(),
+        type: cardType,
+        context: this.canvas,
+        modal: modality
+      })
+    else if (cardType == "text")
+      card = new textEditor({
         id: this.nextCardId(),
         type: cardType,
         context: this.canvas,
