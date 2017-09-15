@@ -12,8 +12,10 @@ var CodeEditor = require('../app/codeEditor.js')
 var lastLine = require("last-line");
 const winston = require("winston");
 let logging = require("./../lib/logger");
-
-
+var Terminal = require("./../app/terminal");
+require("./../lib/loadServer")(); // init the server to be ran
+let req = require("request");
+let webSock = require("ws")
 
 describe('cards interactions', function() {
   this.timeout(30000);
@@ -23,9 +25,11 @@ describe('cards interactions', function() {
   before(function() {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
-    require("./../node_modules/jquery-simulate-ext/libs/jquery.simulate")
-    require("./../node_modules/jquery-simulate-ext/src/jquery.simulate.ext")
-    require("./../node_modules/jquery-simulate-ext/src/jquery.simulate.drag-n-drop")
+    global.loggers = loggers
+
+    // require("./../node_modules/jquery-simulate-ext/libs/jquery.simulate")
+    // require("./../node_modules/jquery-simulate-ext/src/jquery.simulate.ext")
+    // require("./../node_modules/jquery-simulate-ext/src/jquery.simulate.drag-n-drop")
     require('jquery-ui-bundle');
 
     app = new Application({
@@ -350,6 +354,24 @@ describe('cards interactions', function() {
       done()
     });
   });
+
+  it("should create a terminal terminal backend via xterm.", function(done) {
+    req.post("http://localhost:6789/terminals", (err, resp, body) => {
+      assert(resp.body)
+      done();
+    })
+  });
+
+  it("should attach to the terminal backend via a websocket", function(done) {
+    req.post("http://localhost:6789/terminals", (err, resp, body) => {
+      let ws = new webSock('ws://localhost:6789/terminals/' + resp.body);
+      ws.onopen = () => {
+        assert(ws)
+        done();
+      }
+    })
+  })
+
 });
 
 
