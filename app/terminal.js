@@ -1,5 +1,6 @@
 let Card = require("./Card")
 let xterm = require("xterm")
+let request = require("request")
 
 
 module.exports = class Terminal extends Card {
@@ -12,8 +13,17 @@ module.exports = class Terminal extends Card {
     console.log(this.terminalWindow.attach)
     this.terminalWindow.open(document.getElementById(this.body.id))
     this.initTerminalListeners();
-    let f = new WebSocket("ws://localhost:7689/terminals/")
-    this.terminalWindow.attach(f)
+    let f, ws;
+    request.post("http://localhost:6789/terminals", (e, r, body) => {
+      console.log(r)
+      this.terminalWindow.open(document.getElementById(this.body.id))
+      const websock = require('ws');
+      ws = new websock('ws://localhost:6789/terminals/' + r.body);
+
+      ws.onopen = () => {
+        this.terminalWindow.attach(ws)
+      }
+    });
     // console.log(new WebSocket())
   }
 
@@ -33,6 +43,7 @@ module.exports = class Terminal extends Card {
           self.terminalWindow.write('\b \b');
         }
       } else if (printable) {
+        console.log(key)
         self.terminalWindow.write(key);
       }
     });
