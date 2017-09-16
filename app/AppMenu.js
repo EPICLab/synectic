@@ -6,43 +6,77 @@ function other() {
   // do nothing for now
 }
 
-Utility.defineConstant(module.exports, 'template', [
-  {
+Utility.defineConstant(module.exports, 'template', [{
     label: 'Edit',
-    submenu: [
-      {role: 'undo'},
-      {role: 'redo'},
-      {type: 'separator'},
-      {role: 'cut'},
-      {role: 'copy'},
-      {role: 'paste'},
-      {role: 'pasteandmatchstyle'},
-      {role: 'delete'},
-      {role: 'selectall'}
+    submenu: [{
+        role: 'undo'
+      },
+      {
+        role: 'redo'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'cut'
+      },
+      {
+        role: 'copy'
+      },
+      {
+        role: 'paste'
+      },
+      {
+        role: 'pasteandmatchstyle'
+      },
+      {
+        role: 'delete'
+      },
+      {
+        role: 'selectall'
+      }
     ]
   },
   {
     label: 'View',
-    submenu: [
-      {role: 'reload'},
-      {role: 'forcereload'},
-      {role: 'toggledevtools'},
-      {type: 'separator'},
-      {role: 'resetzoom'},
-      {role: 'zoomin'},
-      {role: 'zoomout'},
-      {type: 'separator'},
-      {role: 'togglefullscreen'}
+    submenu: [{
+        role: 'reload'
+      },
+      {
+        role: 'forcereload'
+      },
+      {
+        role: 'toggledevtools'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'resetzoom'
+      },
+      {
+        role: 'zoomin'
+      },
+      {
+        role: 'zoomout'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'togglefullscreen'
+      }
     ]
   },
   {
     label: 'Control',
-    submenu: [
-      {
+    submenu: [{
         label: 'Switch Canvas',
-        submenu: [ ]
+        submenu: []
       },
-      {type: 'separator'},
+      {
+        type: 'separator'
+      },
       {
         label: 'New Canvas',
         accelerator: 'Cmd+M',
@@ -68,15 +102,17 @@ Utility.defineConstant(module.exports, 'template', [
   },
   {
     role: 'window',
-    submenu: [
-      {role: 'minimize'},
-      {role: 'close'}
+    submenu: [{
+        role: 'minimize'
+      },
+      {
+        role: 'close'
+      }
     ]
   },
   {
     role: 'help',
-    submenu: [
-      {
+    submenu: [{
         label: 'Learn More',
         click() {
           const shell = require('electron').shell;
@@ -93,41 +129,69 @@ Utility.defineConstant(module.exports, 'template', [
   }
 ]);
 
-module.exports.configDarwinMenu = function () {
-  const app = require('electron').remote.app;
+module.exports.configDarwinMenu = function() {
   this.template.unshift({
-    label: app.getName(),
-    submenu: [
-      {role: 'about'},
-      {type: 'separator'},
-      {role: 'services', submenu: []},
-      {type: 'separator'},
-      {role: 'hide'},
-      {role: 'hideothers'},
-      {role: 'unhide'},
-      {type: 'separator'},
-      {role: 'quit'}
+    label: "Synectic IDE",
+    submenu: [{
+        role: 'about'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'services',
+        submenu: []
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'hide'
+      },
+      {
+        role: 'hideothers'
+      },
+      {
+        role: 'unhide'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'quit'
+      }
     ]
   })
 
   // Edit menu
-  this.template[1].submenu.push(
-    {type: 'separator'},
-    {
-      label: 'Speech',
-      submenu: [
-        {role: 'startspeaking'},
-        {role: 'stopspeaking'}
-      ]
-    }
-  )
+  this.template[1].submenu.push({
+    type: 'separator'
+  }, {
+    label: 'Speech',
+    submenu: [{
+        role: 'startspeaking'
+      },
+      {
+        role: 'stopspeaking'
+      }
+    ]
+  })
 
   // Window menu
-  this.template[4].submenu = [
-    {role: 'close'},
-    {role: 'minimize'},
-    {role: 'zoom'},
-    {type: 'separator'},
-    {role: 'front'}
+  this.template[4].submenu = [{
+      role: 'close'
+    },
+    {
+      role: 'minimize'
+    },
+    {
+      role: 'zoom'
+    },
+    {
+      type: 'separator'
+    },
+    {
+      role: 'front'
+    }
   ]
 };
