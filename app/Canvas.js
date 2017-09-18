@@ -3,32 +3,56 @@ const Error = require('../lib/error.js');
 const uuidv4 = require('uuid/v4');
 const Dialog = require('../app/Dialog.js');
 const Card = require('../app/Card.js');
+const Terminal = require("../app/terminal")
+const textEditor = require("./textEditor")
 
 module.exports = class Canvas {
   constructor({
     id = Error.throwIfMissing('id')
   }) {
+    this.loggers = loggers;
     this.id = id;
     this.uuid = uuidv4();
     this.cards = [];
-
+    this.canvasLoggerInit();
+    this.canvasResizer();
     this.canvas = document.createElement('div');
     $(this.canvas).attr('class', 'canvas');
 
     const versionDialogButton = document.createElement('button');
-    $(versionDialogButton).click(() => { this.displayVersion(); });
+    $(versionDialogButton).click(() => {
+      this.displayVersion();
+    });
     $(versionDialogButton).html('Version');
 
     const modalDialogButton = document.createElement('button');
-    $(modalDialogButton).click(() => { this.addObj(); });
+    $(modalDialogButton).click(() => {
+      this.addObj();
+    });
     $(modalDialogButton).html('Modal Dialog');
 
     const addCardButton = document.createElement('button');
-    $(addCardButton).click(() => { this.addCard('text'); });
+    $(addCardButton).click(() => {
+      this.addCard('text');
+    });
     $(addCardButton).html('Add Card');
 
+    const terminalBtn = document.createElement('button');
+    $(terminalBtn).click(() => {
+      this.addCard('terminal');
+    });
+    $(terminalBtn).html('Add Terminal Card');
+
+    const textEditorBtn = document.createElement('button');
+    $(textEditorBtn).click(() => {
+      this.addCard('text');
+    });
+    $(textEditorBtn).html('Add text Card');
+
     const printCardsButton = document.createElement('button');
-    $(printCardsButton).click(() => { this.printCards(); });
+    $(printCardsButton).click(() => {
+      this.printCards();
+    });
     $(printCardsButton).html("Print Card(s)");
 
     this.canvas.appendChild(versionDialogButton);
@@ -36,21 +60,88 @@ module.exports = class Canvas {
     this.canvas.appendChild(document.createElement('br'));
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
+    this.canvas.appendChild(terminalBtn)
+    this.canvas.appendChild(textEditorBtn)
     document.body.appendChild(this.canvas);
   }
 
-  addCard(cardType = 'text', modality = true) {
-    let card = new Card({
-      id: this.nextCardId(),
-      type: cardType,
-      context: this.canvas,
-      modal: modality
+  getCardObject(id) {
+    return this.cards.filter(function(ele) {
+      if (ele.id == id)
+        return ele
+    })
+  }
+
+  canvasLoggerInit() {
+    let initString = '{\"Canvas\": \"' + this.uuid + '\" ,';
+    initString += '\"Canvas Height\": \"' + window.innerHeight + '\", ';
+    initString += '\"Canvas Width\": \"' + window.innerWidth + '\"}'
+    this.loggers.canvasCreations.info(initString)
+  }
+
+  canvasResizer() {
+    let resizeTimer;
+    let stopStart;
+    let self = this;
+    let startX, startY;
+    $(window).resize((e) => {
+      if (stopStart != "start") {
+        stopStart = "start";
+        startX = window.innerWidth;
+        startY = window.innerHeight;
+      }
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        stopStart = "stop";
+        self.logCanvasResize(startX, startY, stopStart);
+      }, 1000);
     });
+  }
+
+  logCanvasResize(startX, startY, stopStart) {
+    let endX, endY, initString;
+    endX = window.innerWidth;
+    endY = window.innerHeight;
+    initString = '{ \"Canvas\": \"' + this.uuid + '\",';
+    initString += ' \"startX\": \"' + startX + '\", \"startY\": \"' + startY + '\"';
+    initString += ', \"endX\": \"' + endX + '\", \"endY\": \"' + endY + '\"' + ' }'
+    this.loggers.canvasResizes.info(initString)
+  }
+
+
+
+  addCard(cardType = 'text', modality = true) {
+    let card;
+    if (cardType == "terminal")
+      card = new Terminal({
+        id: this.nextCardId(),
+        type: cardType,
+        context: this.canvas,
+        modal: modality
+      })
+    else if (cardType == "text")
+      card = new textEditor({
+        id: this.nextCardId(),
+        type: cardType,
+        context: this.canvas,
+        modal: modality
+      })
+    else
+      card = new Card({
+        id: this.nextCardId(),
+        type: cardType,
+        context: this.canvas,
+        modal: modality
+      });
+
     this.cards.push(card);
     return card;
   }
 
-  removeCard({id, uuid} = {}) {
+  removeCard({
+    id,
+    uuid
+  } = {}) {
     if (uuid !== undefined) {
       let found = this.cards.find(card => card.uuid === uuid);
       let index = this.cards.indexOf(found);
@@ -86,11 +177,12 @@ module.exports = class Canvas {
 
   addObj() {
     let dialog = Dialog.dialog();
-
     const ackButton = document.createElement('button');
     $(ackButton).attr('class', 'acknowledge');
     $(ackButton).html('OK');
-    $(ackButton).click(function() { this.closest('.dialog').remove(); });
+    $(ackButton).click(function() {
+      this.closest('.dialog').remove();
+    });
     dialog.appendChild(ackButton);
 
     let myNotification = new Notification('Title', {
@@ -103,7 +195,11 @@ module.exports = class Canvas {
   };
 
   displayVersion() {
-    let dialog = Dialog.notice({height: '300px', width: '400px', context: this.canvas});
+    let dialog = Dialog.notice({
+      height: '300px',
+      width: '400px',
+      context: this.canvas
+    });
     let remoteApp = require('electron').remote.app;
 
     const logo = document.createElement('img');

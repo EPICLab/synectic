@@ -3,19 +3,24 @@ const Error = require('../lib/error.js');
 const uuidv4 = require('uuid/v4');
 const Stack = require('../app/Stack.js');
 
+
+
 module.exports = class Card {
   constructor({
-      id = Error.throwIfMissing('id'),
-      type = Error.throwIfMissing('type'),
-      context = Error.throwIfMissing('context'),
-      modal = true
-    }) {
+    id = Error.throwIfMissing('id'),
+    type = Error.throwIfMissing('type'),
+    context = Error.throwIfMissing('context'),
+    modal = true
+  }) {
     this.id = id;
+    this.logger = AppManager.loggers
+    this.jQueryDOM = $(this);
     this.uuid = uuidv4();
     this.cardType = type;
     this.createdBy = require('username').sync();
     this.createdTimestamp = new Date();
     this.lastInteraction = new Date();
+    this.cardLoggerInit();
 
     this.card = document.createElement('div');
     $(this.card).attr({
@@ -25,23 +30,28 @@ module.exports = class Card {
 
     this.header = document.createElement('div');
     $(this.header).attr('class', 'card-header');
+    this.body = document.createElement('div')
+    $(this.body).attr({
+      class: 'card-body-container',
+      id: "body_" + this.id
+    })
 
     this.title = document.createElement('span');
     $(this.title).html("My Card");
 
-    const saveButton = document.createElement('button');
-    $(saveButton).click(() => console.log('save button clicked'))
-    const fullscreenButton = document.createElement('button');
-    $(fullscreenButton).click(() => console.log('fullscreen button clicked'));
-    const closeButton = document.createElement('button');
-    $(closeButton).attr('class', 'close');
-    $(closeButton).click(() => { $(this.card).remove(); });
+    this.closeButton = document.createElement('button');
+    $(this.closeButton).click(() => console.log('close button clicked'))
+    this.saveButton = document.createElement('button');
+    $(this.saveButton).click(() => console.log('save button clicked'))
+    this.fullscreenButton = document.createElement('button');
+    $(this.fullscreenButton).click(() => console.log('fullscreen button clicked'));
 
     this.header.appendChild(this.title);
-    this.header.appendChild(saveButton);
-    this.header.appendChild(fullscreenButton);
-    this.header.appendChild(closeButton);
+    this.header.appendChild(this.saveButton);
+    this.header.appendChild(this.fullscreenButton);
+    this.header.appendChild(this.closeButton);
     this.card.appendChild(this.header);
+    this.card.appendChild(this.body)
     context.appendChild(this.card);
     if (modal) {
       this.toggleDraggable();
@@ -51,6 +61,14 @@ module.exports = class Card {
 
   destructor() {
     $(this.card).remove();
+  }
+
+  cardLoggerInit() {
+    let initString = '{ "Card Created": \"' + this.createdTimestamp + "\", ";
+    initString += '\"Card id\": \"' + this.uuid + "\", ";
+    initString += '\"Card Type\": \"' + this.cardType + "\", ";
+    initString += '\"Created By\": \"' + this.createdBy + "\"}";
+    this.logger.cardCreations.info(initString)
   }
 
   updateMetadata() {
@@ -64,7 +82,16 @@ module.exports = class Card {
     console.log('lastInteraction: ' + this.lastInteraction);
   }
 
+  logMovements(startOffset, stopOffset) {
+    let s = '{\"Card\": \"' + this.uuid + '\", \"start\": { \"top\": \"' + startOffset.top + '\"' +
+      ', \"left\": \"' + startOffset.left + '\"}, \"stop\":{\"top\":' + stopOffset.top +
+      ', \"left\": ' + stopOffset.left + '}}';
+    this.logger.cardMovements.info(s)
+  }
+
   toggleDraggable() {
+    let self = this;
+    let start = {};
     // warning: draggable object must be appended to DOM before being enabled
     if ($(this.card).data('draggable')) {
       $(this.card).draggable('disable');
@@ -76,18 +103,23 @@ module.exports = class Card {
         start: function() {
           $(this).css({
             transform: 'none',
-            top: $(this).offset().top+'px',
-            left: $(this).offset().left+'px'
+            top: $(this).offset().top + 'px',
+            left: $(this).offset().left + 'px'
           });
+          start = $(this).offset();
         },
         drag: (event, ui) => {
           this.updateMetadata();
+        },
+        stop: function() {
+          self.logMovements(start, $(this).offset());
         }
       });
     }
   }
 
   toggleDroppable() {
+    let self = this;
     if ($(this.card).data('droppable')) {
       $(this.card).droppable('disable');
     } else {
@@ -96,9 +128,9 @@ module.exports = class Card {
         drop: function(event, ui) {
           //handles card-to-card drop events
           if ($(ui.draggable).hasClass('card')) {
-            new Stack($(this), $(ui.draggable));
-            $(this).droppable('disable');
-            $(ui.draggable).droppable('disable');
+            let secondCard = AppManager.current.getCardObject($(ui.draggable)[0].id)[0]
+            new Stack([$(this), $(ui.draggable)], [self, secondCard]);
+            // added 'this' to reference ID on canvas
           }
         },
       });
