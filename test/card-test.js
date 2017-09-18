@@ -370,8 +370,17 @@ describe('cards interactions', function() {
         done();
       }
     })
-  })
+  });
 
+  it('should find the simpleMDE editors for the text editing faces', function() {
+    let md = new TextEditor({
+      id: 1,
+      type: "text",
+      context: document.body,
+      modal: true
+    })
+    assert.equal(md.MDEs.length, 2);
+  });
 });
 
 
