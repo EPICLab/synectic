@@ -35,7 +35,7 @@ module.exports = class Card {
     $(fullscreenButton).click(() => console.log('fullscreen button clicked'));
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
-    $(closeButton).click(() => { $(this.card).remove(); });
+    $(closeButton).click(() => { this.destructor(); });
 
     this.header.appendChild(this.title);
     this.header.appendChild(saveButton);

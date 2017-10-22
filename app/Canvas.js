@@ -31,11 +31,20 @@ module.exports = class Canvas {
     $(printCardsButton).click(() => { this.printCards(); });
     $(printCardsButton).html("Print Card(s)");
 
+    const testSelectableButton = document.createElement('button');
+    $(testSelectableButton).click(() => { this.toggleSelectable(); });
+    $(testSelectableButton).html("Toggle Selectable");
+
+    $( ".selector" ).bind( "mousedown", function ( e ) {
+      e.metaKey = true;
+    } ).selectable();
+
     this.canvas.appendChild(versionDialogButton);
     this.canvas.appendChild(modalDialogButton);
     this.canvas.appendChild(document.createElement('br'));
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
+    this.canvas.appendChild(testSelectableButton);
     document.body.appendChild(this.canvas);
   }
 
@@ -84,8 +93,27 @@ module.exports = class Canvas {
     }
   }
 
+  toggleSelectable() {
+    $(this.canvas).selectable({
+      filter: 'div.card',
+      cancel: 'input,textarea,button,select,option',
+      selecting: function (event, ui) {
+        $(ui.selecting).addClass('highlight');
+      },
+      unselecting: function (event, ui) {
+        $(ui.unselecting).removeClass('highlight');
+      },
+      selected: function (event, ui) {
+        $(ui.selected).addClass('highlight');
+      },
+      unselected: function (event, ui) {
+        $(ui.unselected).removeClass('highlight');
+      }
+    });
+  }
+
   addObj() {
-    let dialog = Dialog.dialog();
+    let dialog = Dialog.dialog({context: this.canvas});
 
     const ackButton = document.createElement('button');
     $(ackButton).attr('class', 'acknowledge');
