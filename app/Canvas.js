@@ -31,10 +31,26 @@ module.exports = class Canvas {
     $(printCardsButton).click(() => { this.printCards(); });
     $(printCardsButton).html("Print Card(s)");
 
-    const testSelectableButton = document.createElement('button');
-    $(testSelectableButton).click(() => { this.toggleSelectable(); });
-    $(testSelectableButton).html("Toggle Selectable");
+    //allow selection of cards using a lasso
+    $(this.canvas).selectable({
+      filter: 'div.card',
+      cancel: 'input,textarea,button,select,option',
+      selecting: function (event, ui) {
+        $(ui.selecting).addClass('highlight');
+      },
+      unselecting: function (event, ui) {
+        $(ui.unselecting).removeClass('highlight');
+      },
+      selected: function (event, ui) {
+        $(ui.selected).addClass('highlight');
+      },
+      unselected: function (event, ui) {
+        $(ui.unselected).removeClass('highlight');
+      }
+    });
 
+    //allow the usage of the Meta (Ctrl/Command) key to select/deselect
+    //single cards
     $( ".selector" ).bind( "mousedown", function ( e ) {
       e.metaKey = true;
     } ).selectable();
@@ -44,7 +60,6 @@ module.exports = class Canvas {
     this.canvas.appendChild(document.createElement('br'));
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
-    this.canvas.appendChild(testSelectableButton);
     document.body.appendChild(this.canvas);
   }
 
@@ -91,25 +106,6 @@ module.exports = class Canvas {
     for (var card of this.cards) {
       card.printMetadata();
     }
-  }
-
-  toggleSelectable() {
-    $(this.canvas).selectable({
-      filter: 'div.card',
-      cancel: 'input,textarea,button,select,option',
-      selecting: function (event, ui) {
-        $(ui.selecting).addClass('highlight');
-      },
-      unselecting: function (event, ui) {
-        $(ui.unselecting).removeClass('highlight');
-      },
-      selected: function (event, ui) {
-        $(ui.selected).addClass('highlight');
-      },
-      unselected: function (event, ui) {
-        $(ui.unselected).removeClass('highlight');
-      }
-    });
   }
 
   addObj() {
