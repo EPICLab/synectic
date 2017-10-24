@@ -43,11 +43,18 @@ module.exports = class Canvas {
       },
       selected: function (event, ui) {
         $(ui.selected).addClass('highlight');
+        window.addEventListener('contextmenu', (e) => {
+          e.preventDefault()
+          let context_menu = AppManager.rectangleMenuBuilder()
+          context_menu.popup()
+        }, false)
       },
       unselected: function (event, ui) {
         $(ui.unselected).removeClass('highlight');
       }
     });
+
+
 
     //allow the usage of the Meta (Ctrl/Command) key to select/deselect
     //single cards
