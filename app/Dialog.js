@@ -1,5 +1,6 @@
 "use strict";
 const Error = require('../lib/error.js');
+const Utility = require('../lib/utility.js');
 
 module.exports = {
 
@@ -14,6 +15,7 @@ module.exports = {
 
     const dialog = document.createElement('div');
     $(dialog).attr('class', 'dialog').height(height).width(width);
+    $(dialog).css('z-index', Utility.getHighestZIndex('div') + 1);
 
     const closeButton = document.createElement('button');
     $(closeButton).attr('class', 'close');
