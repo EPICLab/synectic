@@ -27,3 +27,9 @@ div.loading-img {
   top: 50%;
   transform: perspective(1px) translateY(100%);
 }
+
+.ui-selectable-helper {
+  position:absolute;
+  z-index:100001;
+  border: 1px dashed white;
+}

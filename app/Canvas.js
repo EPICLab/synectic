@@ -31,21 +31,14 @@ module.exports = class Canvas {
     $(printCardsButton).click(() => { this.printCards(); });
     $(printCardsButton).html("Print Card(s)");
 
-    const testSelectableButton = document.createElement('button');
-    $(testSelectableButton).click(() => { this.toggleSelectable(); });
-    $(testSelectableButton).html("Toggle Selectable");
-
-    $( ".selector" ).bind( "mousedown", function ( e ) {
-      e.metaKey = true;
-    } ).selectable();
-
     this.canvas.appendChild(versionDialogButton);
     this.canvas.appendChild(modalDialogButton);
     this.canvas.appendChild(document.createElement('br'));
     this.canvas.appendChild(addCardButton);
     this.canvas.appendChild(printCardsButton);
-    this.canvas.appendChild(testSelectableButton);
     document.body.appendChild(this.canvas);
+
+    this.toggleSelectable();
   }
 
   addCard(cardType = 'text', modality = true) {
@@ -93,25 +86,6 @@ module.exports = class Canvas {
     }
   }
 
-  toggleSelectable() {
-    $(this.canvas).selectable({
-      filter: 'div.card',
-      cancel: 'input,textarea,button,select,option',
-      selecting: function (event, ui) {
-        $(ui.selecting).addClass('highlight');
-      },
-      unselecting: function (event, ui) {
-        $(ui.unselecting).removeClass('highlight');
-      },
-      selected: function (event, ui) {
-        $(ui.selected).addClass('highlight');
-      },
-      unselected: function (event, ui) {
-        $(ui.unselected).removeClass('highlight');
-      }
-    });
-  }
-
   addObj() {
     let dialog = Dialog.dialog({context: this.canvas});
 
@@ -150,4 +124,46 @@ module.exports = class Canvas {
     dialog.appendChild(logo);
     dialog.appendChild(versionText);
   }
+
+  handleContexMenu() {
+    const ContextMenu = require('../app/ContextMenu.js');
+    const { Menu, MenuItem } = require('electron').remote;
+    let contextMenu = Menu.buildFromTemplate(ContextMenu.selectionTemplate);
+    contextMenu.popup();
+  }
+
+  toggleSelectable() {
+    $(this.canvas).selectable({
+      filter: 'div.card',
+      cancel: 'input,textarea,button,select,option',
+      selecting: (event, ui) => {
+        if ($('.ui-selecting').length > 1) {
+          $('.ui-selecting').map((i, selecting) => {
+            $(selecting).addClass('highlight');
+          });
+        }
+      },
+      selected: (event, ui) => {
+        if ($('.ui-selected').length > 1) {
+          $('.ui-selected').map((i, selected) => {
+            $(selected).addClass('highlight');
+            selected.addEventListener('contextmenu', this.handleContexMenu);
+          });
+        }
+      },
+      unselecting: (event, ui) => {
+        $(ui.unselecting).removeClass('highlight');
+      },
+      unselected: (event, ui) => {
+        $(ui.unselected).removeClass('highlight');
+        ui.unselected.removeEventListener('contextmenu', this.handleContexMenu);
+      }
+    });
+
+    //allow the usage of the Meta-key (Ctrl/Cmd) to select/deselect cards
+    $('.selector').bind('mousedown', function (e) {
+      e.metaKey = true;
+    }).selectable();
+  }
+
 };
