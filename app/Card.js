@@ -38,8 +38,8 @@ module.exports = class Card {
     $(closeButton).click(() => { this.destructor(); });
 
     this.header.appendChild(this.title);
-    this.header.appendChild(saveButton);
-    this.header.appendChild(fullscreenButton);
+    // this.header.appendChild(saveButton);
+    // this.header.appendChild(fullscreenButton);
     this.header.appendChild(closeButton);
     this.card.appendChild(this.header);
     context.appendChild(this.card);

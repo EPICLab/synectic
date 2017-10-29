@@ -22,7 +22,7 @@ module.exports = class Stack {
       });
 
     const closeButton = document.createElement('button');
-    $(closeButton).attr('class', 'stackClose');
+    $(closeButton).attr('class', 'close');
     $(closeButton).click(() => console.log('close button clicked'));
 
     this.annotation = document.createElement('textarea');
@@ -37,7 +37,7 @@ module.exports = class Stack {
 
     this.stack.appendChild(closeButton);
     this.stack.appendChild(this.annotation);
-    this.stack.appendChild(expandButton);
+    // this.stack.appendChild(expandButton);
     var canvas = document.querySelector('.canvas');
     $(canvas).append(this.stack);
 
