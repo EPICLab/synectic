@@ -17,12 +17,12 @@ require("./../lib/loadServer")(); // init the server to be ran
 let req = require("request");
 let webSock = require("ws")
 
-describe('cards interactions', function() {
+describe('cards interactions', function () {
   this.timeout(30000);
   var app;
   var loggers = new logging(winston);
 
-  before(function() {
+  before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
     global.loggers = loggers
@@ -39,13 +39,13 @@ describe('cards interactions', function() {
     return app.start();
   });
 
-  after(function() {
+  after(function () {
     if (app && app.isRunning()) {
       return app.stop();
     }
   });
 
-  it('creates a Card instance', function() {
+  it('creates a Card instance', function () {
     let card = new Card({
       id: 1,
       type: 'text',
@@ -56,13 +56,13 @@ describe('cards interactions', function() {
     return assert.equal(card.constructor.name, 'Card');
   });
 
-  it('Card instantiation without parameters throws Error', function() {
+  it('Card instantiation without parameters throws Error', function () {
     return assert.throws(() => {
       new Canvas();
     }, Error, 'Card cannot be instantiated without parameters');
   });
 
-  it('Card instantiation throws Error when missing required parameters', function() {
+  it('Card instantiation throws Error when missing required parameters', function () {
     assert.throws(() => {
       new Card({
         type: 'text',
@@ -88,7 +88,7 @@ describe('cards interactions', function() {
     }, Error, 'Card requires \'context\' parameter during instantiation');
   });
 
-  it('Card instantiation does not throw Error when missing optional parameters', function() {
+  it('Card instantiation does not throw Error when missing optional parameters', function () {
     return assert.doesNotThrow(() => {
       new Card({
         id: 1,
@@ -98,7 +98,7 @@ describe('cards interactions', function() {
     }, Error);
   });
 
-  it('Card instances contain different \'uuid\' field values', function() {
+  it('Card instances contain different \'uuid\' field values', function () {
     let card = new Card({
       id: 1,
       type: 'text',
@@ -114,7 +114,7 @@ describe('cards interactions', function() {
     return assert.notEqual(card.uuid, card2.uuid);
   });
 
-  it('document contains a card and header div', function() {
+  it('document contains a card and header div', function () {
     let card = new Card({
       id: 1,
       type: 'text',
@@ -127,7 +127,7 @@ describe('cards interactions', function() {
     assert.notEqual(card.header, undefined, msg2);
   });
 
-  it('document contains namebox span', function() {
+  it('document contains namebox span', function () {
     let card = new Card({
       id: 1,
       type: 'text',
@@ -137,7 +137,7 @@ describe('cards interactions', function() {
     assert.notEqual(card.title, undefined);
   });
 
-  it('Card interactions cause only interaction timestamp metadata to update', function() {
+  it('Card interactions cause only interaction timestamp metadata to update', function () {
     var card = new Card({
       id: 1,
       type: 'text',
@@ -216,7 +216,7 @@ describe('cards interactions', function() {
 
   //test to see that if card droppability is disabled,
   //that card can no longer be dropped in synectic app!
-  it('card dropability can be disabled', function() {
+  it('card dropability can be disabled', function () {
     let card = new Card({
       id: 1,
       type: 'text',
@@ -243,7 +243,7 @@ describe('cards interactions', function() {
   //   assert.equal(idealWidth, curWidth);
   // });
 
-  it('creates a texteditor card instance', function() {
+  it('creates a texteditor card instance', function () {
     let textEditor = new TextEditor({
       id: 1,
       type: 'text',
@@ -253,7 +253,7 @@ describe('cards interactions', function() {
     return assert.equal(textEditor.constructor.name, 'TextEditor');
   });
 
-  it('texteditor contains three faces', function() {
+  it('texteditor contains three faces', function () {
     let textEditor = new TextEditor({
       id: 1,
       type: 'text',
@@ -263,7 +263,7 @@ describe('cards interactions', function() {
     return assert.equal(textEditor.faces.length, 3);
   });
 
-  it('texteditor contains two \'editor\' faces', function() {
+  it('texteditor contains two \'editor\' faces', function () {
     let textEditor = new TextEditor({
       id: 1,
       type: 'text',
@@ -273,7 +273,7 @@ describe('cards interactions', function() {
     return assert.equal(textEditor.editors.length, 2);
   });
 
-  it('creates a sketchpad card instance', function() {
+  it('creates a sketchpad card instance', function () {
     let sketchPad = new SketchPad({
       id: 1,
       type: 'sketch',
@@ -283,7 +283,7 @@ describe('cards interactions', function() {
     return assert.equal(sketchPad.constructor.name, 'SketchPad')
   });
 
-  it('sketchpad contains three faces', function() {
+  it('sketchpad contains three faces', function () {
     let sketchPad = new SketchPad({
       id: 1,
       type: 'sketch',
@@ -293,7 +293,7 @@ describe('cards interactions', function() {
     return assert.equal(sketchPad.faces.length, 3);
   });
 
-  it('sketchpad has sketch pen buttons', function() {
+  it('sketchpad has sketch pen buttons', function () {
     let sketchPad = new SketchPad({
       id: 1,
       type: 'sketch',
@@ -313,7 +313,7 @@ describe('cards interactions', function() {
   //   return assert.notEqual(sketchPad.eraser, undefined);
   // });
 
-  it('creates a codeEditors card instance', function() {
+  it('creates a codeEditors card instance', function () {
     let codeEditor = new CodeEditor({
       id: 1,
       type: 'editor',
@@ -323,7 +323,7 @@ describe('cards interactions', function() {
     return assert.equal(codeEditor.constructor.name, 'CodeEditor')
   });
 
-  it('codeEditor contains three faces', function() {
+  it('codeEditor contains three faces', function () {
     let codeEditor = new CodeEditor({
       id: 1,
       type: 'editor',
@@ -333,36 +333,40 @@ describe('cards interactions', function() {
     return assert.equal(codeEditor.faces.length, 3);
   });
 
-  it("creating a card logs the data properly to the log file", function(done) {
+  it("creating a card logs the data properly to the log file", function (done) {
     let textEditor = new TextEditor({
       id: 1,
       type: 'text',
       context: document.body,
       modal: true
     });
-    lastLine(path.join(__dirname, '../logs', "cardCreations.log"), function(err, res) {
+    lastLine(path.join(__dirname, '../logs', "cardCreations.log"), function (err, res) {
       var message = JSON.parse(JSON.parse(res).message);
       assert.equal(message["Card id"], textEditor.uuid)
       done()
     });
   });
 
-  it("moving a card logs the movements properly to log file", function(done) {
-    lastLine(path.join(__dirname, '../logs', "cardMovements.log"), function(err, res) {
+  it("moving a card logs the movements properly to log file", function (done) {
+    lastLine(path.join(__dirname, '../logs', "cardMovements.log"), function (err, res) {
       var message = JSON.parse(JSON.parse(res).message);
       assert(message)
       done()
     });
   });
 
-  it("should create a terminal terminal backend via xterm.", function(done) {
+  it("should create a terminal terminal backend via xterm.", function (done) {
+    if (process.env.NODE_ENV == 'travis')
+      assert(true)
     req.post("http://localhost:6789/terminals", (err, resp, body) => {
       assert(resp.body)
       done();
     })
   });
 
-  it("should attach to the terminal backend via a websocket", function(done) {
+  it("should attach to the terminal backend via a websocket", function (done) {
+    if (process.env.NODE_ENV == 'travis')
+      assert(true)
     req.post("http://localhost:6789/terminals", (err, resp, body) => {
       let ws = new webSock('ws://localhost:6789/terminals/' + resp.body);
       ws.onopen = () => {
@@ -372,7 +376,7 @@ describe('cards interactions', function() {
     })
   });
 
-  it('should find the simpleMDE editors for the text editing faces', function() {
+  it('should find the simpleMDE editors for the text editing faces', function () {
     let md = new TextEditor({
       id: 1,
       type: "text",

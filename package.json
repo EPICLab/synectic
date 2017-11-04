@@ -19,7 +19,7 @@
     "clean": "rm -Rf release-builds/*",
     "rebuild": "electron-rebuild -f",
     "test": "NODE_ENV=test mocha --compilers js:babel-core/register --require jsdom-global/register ./test/*.js",
-    "test-travis": "NODE_ENV=travismocha --compilers js:babel-core/register --require jsdom-global/register ./test/*.js"
+    "test-travis": "NODE_ENV=travis mocha --compilers js:babel-core/register --require jsdom-global/register ./test/*.js"
   },
   "devDependencies": {
     "asar": "^0.13.0",
