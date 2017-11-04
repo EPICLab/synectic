@@ -356,8 +356,11 @@ describe('cards interactions', function () {
   });
 
   it("should create a terminal terminal backend via xterm.", function (done) {
-    if (process.env.NODE_ENV == 'travis')
+    if (process.env.NODE_ENV == 'travis') {
       assert(true)
+      done()
+    }
+
     req.post("http://localhost:6789/terminals", (err, resp, body) => {
       assert(resp.body)
       done();
@@ -365,8 +368,11 @@ describe('cards interactions', function () {
   });
 
   it("should attach to the terminal backend via a websocket", function (done) {
-    if (process.env.NODE_ENV == 'travis')
+    if (process.env.NODE_ENV == 'travis') {
       assert(true)
+      done()
+    }
+
     req.post("http://localhost:6789/terminals", (err, resp, body) => {
       let ws = new webSock('ws://localhost:6789/terminals/' + resp.body);
       ws.onopen = () => {
