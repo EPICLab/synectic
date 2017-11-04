@@ -13,16 +13,15 @@ var lastLine = require("last-line");
 const winston = require("winston");
 let logging = require("./../lib/logger");
 var Terminal = require("./../app/terminal");
-require("./../lib/loadServer")(); // init the server to be ran
 let req = require("request");
 let webSock = require("ws")
 
-describe('cards interactions', function() {
+describe('cards interactions', function () {
   this.timeout(30000);
   var app;
   var loggers = new logging(winston);
 
-  before(function() {
+  before(function () {
     this.jsdom = require('jsdom-global')()
     global.$ = global.jQuery = require('jquery');
     global.loggers = loggers
