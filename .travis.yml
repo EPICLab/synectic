@@ -13,7 +13,7 @@ before_install:
 install:
   - npm install --no-progress
 script:
-  - npm test
+  - npm run test-travis
 branches:
   only:
     - master

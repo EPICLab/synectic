@@ -1,0 +1,41 @@
+// Place your settings in this file to overwrite the default settings
+{
+   "editor.tabSize": 2,
+   "beautify.config": {
+      "indent_size": 2,
+      "indent_char": " ",
+      "html": {
+         "html.format.wrapAttributes": "force-aligned",
+         "indent_size": 2
+      }
+   },
+   "editor.formatOnSave": true,
+   "editor.detectIndentation": false,
+   "files.autoSave": "off",
+   "html.format.wrapAttributes": "force-aligned",
+   "html.format.enable": true,
+   "editor.minimap.enabled": false,
+   "beautify.language": {
+      "js": {
+         "type": [
+            "javascript",
+            "json"
+         ],
+         "filename": [
+            ".jshintrc",
+            ".jsbeautify"
+         ]
+      },
+      "css": [
+         "css",
+         "scss"
+      ],
+      "html": [
+         "html"
+      ]
+   },
+   "html.format.wrapLineLength": 100,
+   "editor.scrollBeyondLastLine": false,
+   "window.zoomLevel": 0,
+   "workbench.colorTheme": "Monokai Dimmed"
+}
