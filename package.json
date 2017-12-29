@@ -1,14 +1,16 @@
 {
   "name": "synectic",
   "version": "0.0.1",
+  "full_name": "Synectic IDE",
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.js --progress --colors",
     "prestart": "npm run build",
     "start": "electron ./dist/main.js",
     "pretest": "webpack --config webpack.tests.config.js",
-    "test": "mocha -r ts-node/register ./tests/**/*.spec.ts"
+    "test": "mocha -u bdd -r ts-node/register -r ignore-styles -r jsdom-global/register ./tests/**/*.spec.ts",
+    "checkDeps": "npm-check --skip-unused -u"
   },
   "repository": {
     "type": "git",
@@ -29,22 +31,30 @@
   "devDependencies": {
     "@types/chai": "^4.0.10",
     "@types/jsdom": "^11.0.4",
-    "@types/mocha": "^2.2.44",
-    "@types/node": "^8.5.1",
+    "@types/mocha": "^2.2.45",
+    "@types/node": "^8.5.2",
     "chai": "^4.1.2",
-    "electron": "^1.7.9",
+    "clean-webpack-plugin": "^0.1.17",
+    "css-loader": "^0.28.7",
+    "electron": "^1.7.10",
+    "extract-text-webpack-plugin": "^3.0.2",
     "html-webpack-plugin": "^2.30.1",
+    "ignore-styles": "^5.0.1",
     "jsdom": "^11.5.1",
     "jsdom-global": "^3.0.2",
     "mocha": "^4.0.1",
+    "npm-check": "^5.5.2",
     "standard": "^10.0.3",
     "standard-loader": "^6.0.1",
+    "style-loader": "^0.19.1",
     "ts-loader": "^3.2.0",
+    "ts-node": "^4.1.0",
     "tslint": "^5.8.0",
     "tslint-config-standard": "^7.0.0",
     "tslint-loader": "^3.5.3",
     "typescript": "^2.6.2",
-    "webpack": "^3.10.0"
+    "webpack": "^3.10.0",
+    "webpack-clean": "^1.0.0"
   },
   "dependencies": {}
 }

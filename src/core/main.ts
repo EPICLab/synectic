@@ -5,7 +5,8 @@ let mainWindow: Electron.BrowserWindow;
 function onReady() {
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 600
+    height: 600,
+    show: true
   });
 
   const fileName = `file://${__dirname}/index.html`;
@@ -13,7 +14,12 @@ function onReady() {
   mainWindow.on('close', () => app.quit());
 }
 
+function onClose() {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+}
+
 app.on('ready', () => onReady());
-app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => onClose());
 app.on('activate', () => onReady());
-console.log(`Electron Version ${app.getVersion()}`);

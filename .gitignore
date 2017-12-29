@@ -1,5 +1,6 @@
-# Generated webpack builds
-dist/*
+# webpack-generated JavaScript files
+dist/
+tests/*.js
 
 # Mac-specific file metadata
 .DS_Store

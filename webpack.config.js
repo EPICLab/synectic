@@ -1,11 +1,18 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const WebpackCleanPlugin = require('webpack-clean');
 
-const commonConfig = {
+var PACKAGE = require('./package.json');
+
+const webpackConfig = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js'
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -29,6 +36,13 @@ const commonConfig = {
       {
         test: /\.ts$/,
         loader: 'ts-loader'
+      },
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: "css-loader"
+        })
       }
     ]
   },
@@ -37,21 +51,44 @@ const commonConfig = {
   },
   node: {
     __dirname: false
-  },
+  }
+}
+
+let cleanOptions = {
+  root:     __dirname,
+  exclude:  ['shared.js'],
+  verbose:  true,
+  watch:    true,
+  dry:      false
 }
 
 module.exports = [
   Object.assign(
     {
       target: 'electron-main',
-      entry: { main: './src/main.ts' }
+      entry: { main: './src/core/main.ts' },
+      plugins: [
+        new ExtractTextPlugin('styles.css'),
+        new WebpackCleanPlugin([
+            'index.html',
+            '*.js',
+            '*.map'
+        ], path.join(__dirname, 'tests'))
+      ]
     },
-    commonConfig),
+    webpackConfig),
   Object.assign(
     {
       target: 'electron-renderer',
       entry: { gui: './src/gui.ts' },
-      plugins: [new HtmlWebpackPlugin()]
+      plugins: [
+        new CleanWebpackPlugin('dist', cleanOptions),
+        new ExtractTextPlugin('styles.css'),
+        new HtmlWebpackPlugin({
+          title: PACKAGE.full_name + ' - ' + PACKAGE.version,
+          // template: './src/core/index.html'
+        })
+      ]
     },
-    commonConfig)
+    webpackConfig)
 ]

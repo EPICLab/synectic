@@ -1,6 +1,6 @@
-const webPack = require('./webpack.config')
-const fs = require('fs')
-const path = require('path')
+const webPack = require('./webpack.config');
+const fs = require('fs');
+const path = require('path');
 
 const readDirRecursiveSync = (folder, filter) => {
   const currentPath = fs.readdirSync(folder).map(f => path.join(folder, f))
