@@ -11,7 +11,7 @@ body {
 }
 
 div.canvas {
-  background: url('../asset/background/grey_wash_wall.png') center/auto fixed;
+  background: url('../grey_wash_wall.png') center/auto fixed;
   width: 100%;
   height: 100%;
   padding: 8px;
@@ -19,7 +19,7 @@ div.canvas {
 }
 
 div.loading-img {
-  background: rgba(71, 0, 153, 1.0) url('../asset/loading.gif') center/20px auto no-repeat;
+  background: rgba(71, 0, 153, 1.0) url('../loading.gif') center/20px auto no-repeat;
   width: 250px;
   height: 250px;
   margin: 0 auto;
