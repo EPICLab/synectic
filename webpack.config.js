@@ -47,8 +47,18 @@ const webpackConfig = {
       {
         test: /\.(jpe?g|png|gif|svg)$/i,
         loader: "file-loader",
-        options: {}
+        query: {
+          name: '[name].[ext]',
+          outputPath: 'images/'
+        }
       },
+      {
+        test: require.resolve('jquery'),
+        use: [{
+          loader: 'expose-loader',
+          options: '$'
+        }]
+      }
     ]
   },
   resolve: {
@@ -78,7 +88,13 @@ module.exports = [
             'index.html',
             '*.js',
             '*.map'
-        ], path.join(__dirname, 'tests'))
+        ], path.join(__dirname, 'tests')),
+        new webpack.ProvidePlugin({
+          $: 'jquery',
+          jQuery: 'jquery',
+          'window.jQuery': 'jquery',
+          'window.$': 'jquery'
+        })
       ]
     },
     webpackConfig),

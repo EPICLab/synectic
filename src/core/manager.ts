@@ -1,5 +1,5 @@
 // import { Card } from './../app/Card';
-// import { Canvas } from './../app/Canvas';
+import { Canvas } from './../app/Canvas';
 
 class AppManager {
   private static _instance: AppManager;
@@ -15,7 +15,7 @@ class AppManager {
   public print(): void {
     // let a = new Card();
     // let b = new Card(a);
-    // let c = new Canvas();
+    let c = new Canvas();
     //
     // console.log('Card a');
     // console.log('uuid: ' + a.uuid);
@@ -27,8 +27,7 @@ class AppManager {
     // else console.log('parent: ' + b.parent);
     // console.log('\nCanvas');
     // console.log('uuid: ' + c.uuid);
-    // if (c.parent) console.log('parent: ' + c.parent.uuid);
-    // else console.log('parent: ' + c.parent);
+    console.log('Canvas uuid: ' + c.uuid);
   }
 }
 

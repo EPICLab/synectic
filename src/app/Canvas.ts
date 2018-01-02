@@ -1,5 +1,6 @@
 import { v4 } from 'uuid';
-import * as $ from 'jquery';
+// import * as $ from 'jquery';
+import 'jquery';
 
 export class Canvas {
 
@@ -8,7 +9,9 @@ export class Canvas {
 
   constructor() {
     this.base = document.createElement('div');
-    $(this.base).attr({class: 'canvas'});
+    $(this.base).attr({
+      class: 'canvas'
+    });
     document.body.appendChild(this.base);
   }
 
