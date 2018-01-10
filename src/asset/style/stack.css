@@ -31,13 +31,13 @@ div.stack > svg.close {
 }
 
 div.stack > button.close {
-  background: rgba(102, 204, 117, 0.0) url('../asset/close_dark.svg') center/15px auto no-repeat;
+  background: rgba(102, 204, 117, 0.0) url('../close_dark.svg') center/15px auto no-repeat;
   background-size: cover;
 }
 
 div.stack > button.close:hover,
 div.stack > button.close:active {
-  background: rgba(102, 204, 117, 0.0) url('../asset/close_active.svg') no-repeat;
+  background: rgba(102, 204, 117, 0.0) url('../close_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }

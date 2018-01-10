@@ -3,13 +3,22 @@ import { Canvas } from './../app/Canvas';
 
 class AppManager {
   private static _instance: AppManager;
+  public canvasList: Canvas[];
 
   private constructor() {
-
+    this.canvasList = new Array();
   }
 
   public static get Instance(): AppManager {
     return this._instance || (this._instance = new this());
+  }
+
+  public newCanvas(): void {
+    this.canvasList.push(new Canvas());
+  }
+
+  public last(): Canvas {
+    return this.canvasList[this.canvasList.length - 1];
   }
 
   public print(): void {

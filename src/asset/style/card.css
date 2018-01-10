@@ -58,13 +58,13 @@ div.card-header svg.close {
 }
 
 div.card-header button.close {
-  background: rgba(89, 87, 90, 1.0) url('../asset/close_dark.svg') center/15px auto no-repeat;
+  background: rgba(89, 87, 90, 1.0) url('../close_dark.svg') center/15px auto no-repeat;
   background-size: cover;
 }
 
 div.card-header button.close:hover,
 div.card-header button.close:active {
-  background: rgba(89, 87, 90, 1.0) url('../asset/close_active.svg') no-repeat;
+  background: rgba(89, 87, 90, 1.0) url('../close_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
