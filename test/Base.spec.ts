@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import { instance, mock, verify, when } from 'ts-mockito';
-import { Base } from '../src/Base';
+import { Base } from '../src/core/Base';
 
 describe('Base abstract class', () => {
 

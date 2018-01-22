@@ -1,21 +1,15 @@
 {
-  "compileOnSave": true,
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "commonjs",
-    "noImplicitAny": true,
+    "target": "ES6",
     "moduleResolution": "node",
-    "baseUrl": ".",
-    "outDir": "./dist",
-    "paths": {
-      "*": ["node_modules/*"]
-    },
     "pretty": true,
-    "rootDirs": [
-      "src",
-      "test"
-    ],
+    "newLine": "LF",
+    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "inlineSourceMap": true
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "sourceMap": true,
+    "allowJs": true
     }
 }
