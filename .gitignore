@@ -1,6 +1,5 @@
-# webpack-generated JavaScript files
+# TypeScript-compiled output
 dist/
-tests/*.js
 
 # Mac-specific file metadata
 .DS_Store

@@ -1,7 +1,7 @@
-// import { Card } from './../app/Card';
-import { Canvas } from './../app/Canvas';
+import { Canvas } from './Canvas';
 
 class AppManager {
+
   private static _instance: AppManager;
   public canvasList: Canvas[];
 
@@ -13,8 +13,9 @@ class AppManager {
     return this._instance || (this._instance = new this());
   }
 
-  public newCanvas(): void {
+  public newCanvas(): Canvas {
     this.canvasList.push(new Canvas());
+    return this.last();
   }
 
   public last(): Canvas {
