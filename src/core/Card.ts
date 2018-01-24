@@ -1,7 +1,5 @@
 import { Base } from './Base';
-// import { Canvas } from './Canvas';
-// import { Stack } from './Stack';
-import 'jquery';
+import 'jquery-ui';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 

@@ -2,10 +2,11 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const WildcardsEntryWebpackPlugin = require('wildcards-entry-webpack-plugin');
 
-var PACKAGE = require('./package.json');
-
-const webpackConfig = {
+module.exports = {
+  target: 'electron-main',
+  entry: WildcardsEntryWebpackPlugin.entry('./test/**/*.spec.ts'),
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist')
@@ -57,35 +58,17 @@ const webpackConfig = {
     ],
     extensions: ['.js', '.ts', '.json']
   },
+  plugins: [
+    new ExtractTextPlugin('styles.css'),
+    new webpack.ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery',
+      'window.$': 'jquery'
+    }),
+    new WildcardsEntryWebpackPlugin()
+  ],
   node: {
     __dirname: false
   }
 }
-
-module.exports = [
-  Object.assign(
-    {
-      target: 'electron-main',
-      entry: { app: './src/core/main.ts' },
-      plugins: [
-        new ExtractTextPlugin('styles.css'),
-        new webpack.ProvidePlugin({
-          $: 'jquery',
-          jQuery: 'jquery',
-          'window.jQuery': 'jquery',
-          'window.$': 'jquery'
-        })
-      ]
-    }, webpackConfig),
-  Object.assign(
-    {
-      target: 'electron-renderer',
-      entry: { renderer: './src/core/renderer.ts' },
-      plugins: [
-        new ExtractTextPlugin('styles.css'),
-        new HtmlWebpackPlugin({
-          title: PACKAGE.full_name + ' - ' + PACKAGE.version
-        })
-      ]
-    }, webpackConfig)
-]

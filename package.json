@@ -5,12 +5,14 @@
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
   "main": "main.js",
   "scripts": {
-    "check": "npm-check --skip-unused -u",
-    "clean": "rimraf ./dist/*",
+    "check": "npm-check --no-emoji -s -u",
+    "clean": "rimraf dist/*",
     "prestart": "webpack --config webpack.config.js --progress --colors",
-    "start": "electron ./dist/main.js",
+    "start": "electron ./dist/app.js",
     "lint": "npm run clean && tslint -c tslint.json -p tsconfig.json -t stylish",
-    "test": "mocha -u bdd -r ts-node/register -r ignore-styles -r jsdom-global/register test/**/*.spec.ts"
+    "pretest": "webpack --config webpack.test.config.js --progress --colors",
+    "test": "mocha -u bdd -r ts-node/register -r ignore-styles -r jsdom-global/register dist/**/*.spec.js",
+    "posttest": "rimraf dist/**/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -29,9 +31,9 @@
   },
   "homepage": "https://github.com/nelsonni/synectic#readme",
   "devDependencies": {
-    "@types/chai": "^4.1.1",
+    "@types/chai": "^4.1.2",
     "@types/jsdom": "^11.0.4",
-    "@types/mocha": "^2.2.46",
+    "@types/mocha": "^2.2.47",
     "@types/node": "^9.3.0",
     "chai": "^4.1.2",
     "css-loader": "^0.28.9",
@@ -49,15 +51,16 @@
     "standard": "^10.0.3",
     "standard-loader": "^6.0.1",
     "style-loader": "^0.19.1",
-    "ts-loader": "^3.3.0",
-    "ts-mockito": "^2.2.7",
+    "ts-loader": "^3.3.1",
+    "ts-mockito": "^2.2.8",
     "ts-node": "^4.1.0",
     "tslint": "^5.9.1",
     "tslint-config-standard": "^7.0.0",
-    "tslint-loader": "^3.5.3",
     "tslint-no-unused-expression-chai": "0.0.3",
     "typescript": "^2.6.2",
-    "webpack": "^3.10.0"
+    "webpack": "^3.10.0",
+    "webpack-node-externals": "^1.6.0",
+    "wildcards-entry-webpack-plugin": "^2.1.0"
   },
   "dependencies": {
     "@types/jquery": "^3.3.0",
