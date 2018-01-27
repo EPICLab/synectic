@@ -12,7 +12,7 @@
     "lint": "npm run clean && tslint -c tslint.json -p tsconfig.json -t stylish",
     "pretest": "webpack --config webpack.test.config.js --progress --colors",
     "test": "mocha -u bdd -r ts-node/register -r ignore-styles -r jsdom-global/register dist/**/*.spec.js",
-    "posttest": "rimraf dist/**/*.spec.js"
+    "posttest": "rimraf 'dist/**/*.spec.{js,js.map}'"
   },
   "repository": {
     "type": "git",
