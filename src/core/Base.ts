@@ -4,32 +4,58 @@ export abstract class Base {
 
   public readonly uuid: string = v4();
   public element: HTMLDivElement;
-  public parent: Base | null;
-  public children: Base[];
+  protected parent: Base | null;
+  protected children: Base[] = new Array();
 
-  constructor(parent?: Base, children?: Base[]) {
+  constructor(parent?: Base) {
     this.parent = parent ? parent : null;
-    this.children = children ? children : new Array();
-
     this.element = document.createElement('div');
     this.element.setAttribute('id', this.uuid);
   }
 
-  public destructor() {
-    const event = new CustomEvent('remove', { detail: this.uuid });
-    document.dispatchEvent(event);
-    if (this.element.parentNode) {
-      this.element.parentNode.removeChild(this.element);
-    }
-    delete this.element;
-  }
+  public abstract destructor(): void;
 
-  public closest(selector: string): Base | null {
-    let e = this.parent;
-    while (e && e.parent && e.constructor.name !== selector) {
+  // walks the parent tree looking for the nearest matching type
+  protected closest<T extends Base>(_prototype: T): T | null {
+    let e: Base | null = this.parent;
+    while (e && e.constructor.name !== _prototype.constructor.name) {
       e = e.parent;
     }
-    return e;
+    return e === null ? null : e as T;
   }
+
+  // generic add method for appending to children
+  protected _add<T extends Base>(object: T): boolean {
+    if (this.children.some(c => c.uuid === object.uuid)) {
+      return false;
+    } else {
+      this.children.push(object);
+      this.element.appendChild(object.element);
+      return true;
+    }
+  }
+
+  // generic remove method for removing from children
+  protected _remove<T extends Base>(object: T): boolean {
+    if (this.children.some(c => c.uuid === object.uuid)) {
+      this.children = this.children.filter(c => c !== object);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // generic search method for locating children based on uuid
+  protected _search(uuid: string): Base[] {
+    return this.children.filter(c => c.uuid === uuid);
+  }
+
+  // protected closest(selector: string): Base | null {
+  //   let e = this.parent;
+  //   while (e && e.parent && e.constructor.name !== selector) {
+  //     e = e.parent;
+  //   }
+  //   return e;
+  // }
 
 }

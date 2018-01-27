@@ -4,9 +4,11 @@ import '../asset/style/canvas.css';
 import '../asset/style/card.css';
 import '../asset/style/stack.css';
 
-let c = AppManagerInstance.newCanvas();
+global.SynecticManager = AppManagerInstance;
+
+let c = global.SynecticManager.newCanvas();
 
 let newCardButton = document.createElement('button');
 newCardButton.innerText = 'New Card';
-newCardButton.onclick = () => c.add(new Card(c));
+newCardButton.onclick = () => new Card(c);
 c.element.appendChild(newCardButton);

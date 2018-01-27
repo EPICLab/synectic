@@ -2,33 +2,40 @@ import { Base } from './Base';
 
 export class Canvas extends Base {
 
+  public parent: null;
+  public children: Base[];
+
   constructor(children?: Base[]) {
-    super(undefined, children);
+    super();
+    if(children) children.map(c => this.add(c));
     this.element.setAttribute('class', 'canvas');
     document.body.appendChild(this.element);
 
     document.addEventListener('remove', (e) => {
-      let object: Base = this.find((e as CustomEvent).detail)[0];
-      console.log('EVENT: remove ' + object.uuid);
-      this.remove(object);
+      let uuid: string = (e as CustomEvent).detail;
+      let found: Base | undefined = this.search(uuid).pop();
+      if (found) {
+        console.log('EVENT: remove ' + found.uuid);
+        this.remove(found);
+      }
     }, false);
   }
 
-  public add<T extends Base>(object: T): void {
-    this.children.push(object);
-    this.element.appendChild(object.element);
+  public destructor() {
+    document.body.removeChild(this.element);
+    delete this.element;
+  }
+
+  public add<T extends Base>(object: T): boolean {
+    return super._add(object);
   }
 
   public remove<T extends Base>(object: T): boolean {
-    if (this.children.some(c => c === object)) {
-      this.children = this.children.filter(c => c !== object);
-      return true;
-    } else {
-      return false;
-    }
+    return super._remove(object);
   }
 
-  public find(uuid: string): Base[] {
-    return this.children.filter(c => c.uuid === uuid);
+  public search(uuid: string): Base[] {
+    return super._search(uuid);
   }
+
 }
