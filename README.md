@@ -40,7 +40,7 @@ Follow the instructions in [Install](#Install) section to install dependencies a
 # Linting
 
 Follow the instructions in [Install](#Install) section to install dependencies and use the following from within the project directory:
-* `npm run lint` - executes [TSLint](https://github.com/palantir/tslint) and applies a modified version of `tslint-config-standard` rulesets on the project
+* `npm run lint` - executes [TSLint](https://github.com/palantir/tslint) and applies a modified version of `tslint-config-standard` rules
 
 # Contributors
 Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau))
