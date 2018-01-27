@@ -13,6 +13,10 @@ module.exports = {
   },
   devtool: 'source-map',
   module: {
+    // Suppress warning from mocha: "Critical dependency: the request of a dependency is an expression"
+    // @see https://webpack.js.org/configuration/module/#module-contexts
+    // @see https://github.com/mochajs/mocha/issues/2448
+    exprContextCritical: false,
     rules: [
       {
         test: /\.js$/,
