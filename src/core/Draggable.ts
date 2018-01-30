@@ -1,3 +1,3 @@
 export interface Draggable {
-  setDraggable(option: boolean): void;
+  setDraggable(opt: boolean): void;
 }

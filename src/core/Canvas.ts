@@ -7,13 +7,13 @@ export class Canvas extends Base {
 
   constructor(children?: Base[]) {
     super();
-    if(children) children.map(c => this.add(c));
+    if (children) children.map(c => this.add(c));
     this.element.setAttribute('class', 'canvas');
     document.body.appendChild(this.element);
 
     document.addEventListener('remove', (e) => {
-      let uuid: string = (e as CustomEvent).detail;
-      let found: Base | undefined = this.search(uuid).pop();
+      const uuid: string = (e as CustomEvent).detail;
+      const found: Base | undefined = this.search(uuid).pop();
       if (found) {
         console.log('EVENT: remove ' + found.uuid);
         this.remove(found);

@@ -6,9 +6,9 @@ import '../asset/style/stack.css';
 
 global.SynecticManager = AppManagerInstance;
 
-let c = global.SynecticManager.newCanvas();
+const c = global.SynecticManager.newCanvas();
 
-let newCardButton = document.createElement('button');
+const newCardButton = document.createElement('button');
 newCardButton.innerText = 'New Card';
 newCardButton.onclick = () => new Card(c);
 c.element.appendChild(newCardButton);

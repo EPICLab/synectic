@@ -3,7 +3,7 @@ div.card {
   color: rgba(171, 178, 191, 1.0);
   width: 200px; /* 7:5 aspect ratio */
   height: 280px; /* 7:5 aspect ratio */
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

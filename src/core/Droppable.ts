@@ -1,3 +1,3 @@
 export interface Droppable {
-  setDroppable(option: boolean): void;
+  setDroppable(opt: boolean): void;
 }

@@ -3,7 +3,7 @@ div.stack {
   width: calc((200px * 1.25) + 28px);
   background-color: rgba(102, 204, 117, 0.6);
   color: rgba(33, 37, 43, 1.0);
-  position: fixed;
+  position: absolute;
   cursor: move;
   border: 0.5px solid rgb(125, 125, 125);
   border-radius: 5px;

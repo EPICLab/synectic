@@ -44,8 +44,6 @@ export class Card extends Base implements Draggable, Droppable {
     }
     const event = new CustomEvent('remove', { detail: this.uuid });
     document.dispatchEvent(event);
-
-    // delete this.element;
   }
 
   public closest<T extends Base>(selector: T): T | null {
@@ -53,10 +51,10 @@ export class Card extends Base implements Draggable, Droppable {
   }
 
   public setDraggable(opt: boolean): void {
-    if (opt) {
+    if (!this.element.classList.contains('ui-draggable')) {
       $(this.element).draggable({
         handle: '.card-header',
-        containment: 'window',
+        containment: 'parent',
         stack: '.card, .stack',
         start: function() {
           $(this).css({
@@ -64,30 +62,35 @@ export class Card extends Base implements Draggable, Droppable {
           });
         }
       });
+    }
+    
+    if (opt) {
+      $(this.element).draggable('enable');
     } else {
       $(this.element).draggable('disable');
     }
   }
 
   public setDroppable(opt: boolean): void {
-    if (opt) {
+    if (!this.element.classList.contains('ui-droppable')) {
       $(this.element).droppable({
         accept: '.card, .stack',
         drop: (_, ui) => {
-          let bottom = $(ui.draggable);
-          console.log('bottom: ' + bottom.constructor.name);
-          // let canvas: Canvas = this.closest(Canvas.prototype);
-          // // let canvas = this.closest('Canvas') as Canvas;
-          // if (bottom.hasClass('card') && bottom.attr('id')) {
-          //   let uuid: string = bottom.attr('id') as string;
-          //   let bottomCard = canvas.find(uuid)[0] as Card;
-          //   let s: Stack = new Stack(this, bottomCard);
-          //   canvas.add(new Stack(this, bottomCard));
-          // } else {
-          //   console.log('it\'s Stack on Stack crime...');
-          // }
+          const bottom = $(ui.draggable);
+          const canvas: Canvas = this.closest(Canvas.prototype) as Canvas;
+          if (bottom.hasClass('card') && bottom.attr('id')) {
+            const bottomUuid: string = bottom.attr('id') as string;
+            const bottomCard: Card = canvas.search(bottomUuid)[0] as Card;
+            new Stack(this, bottomCard);
+          } else {
+            console.log('it\'s Stack on Stack crime...');
+          }
         }
       });
+    }
+
+    if (opt) {
+      $(this.element).draggable('enable');
     } else {
       $(this.element).droppable('disable');
     }

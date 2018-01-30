@@ -50,12 +50,4 @@ export abstract class Base {
     return this.children.filter(c => c.uuid === uuid);
   }
 
-  // protected closest(selector: string): Base | null {
-  //   let e = this.parent;
-  //   while (e && e.parent && e.constructor.name !== selector) {
-  //     e = e.parent;
-  //   }
-  //   return e;
-  // }
-
 }
