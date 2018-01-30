@@ -50,6 +50,13 @@ export class Card extends Base implements Draggable, Droppable {
     return super.closest(selector);
   }
 
+  public getWidth(): void {
+    console.log('css.width: ' + $(this.element).css('width'));
+    console.log('offsetWidth: ' + this.element.offsetWidth);
+    console.log('clientWidth: ' + this.element.clientWidth);
+    console.log('css.attr: ' + $(this.element).attr('width'));
+  }
+
   public setDraggable(opt: boolean): void {
     if (!this.element.classList.contains('ui-draggable')) {
       $(this.element).draggable({
@@ -63,7 +70,7 @@ export class Card extends Base implements Draggable, Droppable {
         }
       });
     }
-    
+
     if (opt) {
       $(this.element).draggable('enable');
     } else {
@@ -77,20 +84,24 @@ export class Card extends Base implements Draggable, Droppable {
         accept: '.card, .stack',
         drop: (_, ui) => {
           const bottom = $(ui.draggable);
+          const bottomUuid: string = bottom.attr('id') as string;
           const canvas: Canvas = this.closest(Canvas.prototype) as Canvas;
-          if (bottom.hasClass('card') && bottom.attr('id')) {
-            const bottomUuid: string = bottom.attr('id') as string;
+
+          if (bottom.hasClass('card')) {
+            console.log('dropped onto card');
             const bottomCard: Card = canvas.search(bottomUuid)[0] as Card;
             new Stack(this, bottomCard);
           } else {
-            console.log('it\'s Stack on Stack crime...');
+            console.log('dropped onto stack');
+            const bottomStack: Stack = canvas.search(bottomUuid)[0] as Stack;
+            bottomStack.add(this);
           }
         }
       });
     }
 
     if (opt) {
-      $(this.element).draggable('enable');
+      $(this.element).droppable('enable');
     } else {
       $(this.element).droppable('disable');
     }
