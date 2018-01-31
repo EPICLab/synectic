@@ -29,12 +29,20 @@ export class Stack extends Base implements Draggable, Droppable {
     this.parent.add(this);
     this.setDraggable(true);
     this.setDroppable(true);
+
+    document.addEventListener('destruct', (e) => {
+      const uuid: string = (e as CustomEvent).detail;
+      const found: Card | undefined = this.search(uuid).pop();
+      if (found) {
+        this.remove(found);
+      }
+    }, false);
   }
 
   public destructor(): void {
-    const event = new CustomEvent('remove', { detail: this.uuid });
+    const event = new CustomEvent('destruct', { detail: this.uuid });
     document.dispatchEvent(event);
-    this.children.map(c => this._remove(c));
+    this.children.map(c => this.remove(c));
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
@@ -45,21 +53,25 @@ export class Stack extends Base implements Draggable, Droppable {
     return super.closest(selector);
   }
 
-  public add<T extends Base & Droppable & Draggable>(card: T): boolean {
-    const added: boolean = super._add(card);
-    card.setDroppable(false);
-
-    const width: number = (this.element.style.width ? parseInt(this.element.style.width, 10) : 0);
-    const height: number = (this.element.style.height ? parseInt(this.element.style.height, 10) : 0);
-    $(this.element).css({
-      width: width + this.gap,
-      height: height + this.gap
-    });
-    $(card.element).css({
-      top: (this.children.length * this.gap).toString() + 'px',
-      left: (this.children.length * this.gap).toString() + 'px'
-    });
-    return added;
+  public add<T extends Base & Draggable & Droppable>(card: T): boolean {
+    if (super._add(card)) {
+      card.setDroppable(false);
+      this.element.appendChild(card.element);
+      const styleWidth: string | null = this.element.style.width;
+      const styleHeight: string | null = this.element.style.height;
+      const width: number = (styleWidth ? parseInt(styleWidth, 10) : 0);
+      const height: number = (styleHeight ? parseInt(styleHeight, 10) : 0);
+      $(this.element).css({
+        width: (width + this.gap).toString() + 'px',
+        height: (height + this.gap).toString() + 'px'
+      });
+      $(card.element).css({
+        top: (this.children.length * this.gap).toString() + 'px',
+        left: (this.children.length * this.gap).toString() + 'px'
+      });
+      return true;
+    }
+    return false;
   }
 
   public remove(card: Card): boolean {
@@ -67,7 +79,8 @@ export class Stack extends Base implements Draggable, Droppable {
       this.parent.add(card);
       card.setDroppable(true);
       $(this.element).css({
-        width: this.element.offsetWidth - this.gap
+        width: this.element.offsetWidth - this.gap,
+        height: this.element.offsetHeight - this.gap
       });
       return true;
     }
@@ -108,15 +121,22 @@ export class Stack extends Base implements Draggable, Droppable {
           const canvas: Canvas = this.closest(Canvas.prototype) as Canvas;
 
           if (bottom.hasClass('stack')) {
-            console.log('dropped onto stack');
-            const bottomStack: Stack = canvas.search(bottomUuid)[0] as Stack;
-            this.children.map(c =>  bottomStack.add(c));
+            const bottomStack: Stack = canvas.search(bottomUuid).pop() as Stack;
+            this.children.map(c => {
+              this.remove(c);
+              bottomStack.add(c);
+            });
             this.destructor();
           } else {
-            console.log('dropped onto card');
-            const bottomCard: Card = canvas.search(bottomUuid)[0] as Card;
+            const bottomCard: Card = canvas.search(bottomUuid).pop() as Card;
             this.add(bottomCard);
           }
+        },
+        out: (_, ui) => {
+          const depart = $(ui.draggable);
+          const departUuid: string = depart.attr('id') as string;
+          const departCard: Card = this.search(departUuid).pop() as Card;
+          this.remove(departCard);
         }
       });
     }

@@ -42,19 +42,12 @@ export class Card extends Base implements Draggable, Droppable {
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
-    const event = new CustomEvent('remove', { detail: this.uuid });
+    const event = new CustomEvent('destruct', { detail: this.uuid });
     document.dispatchEvent(event);
   }
 
   public closest<T extends Base>(selector: T): T | null {
     return super.closest(selector);
-  }
-
-  public getWidth(): void {
-    console.log('css.width: ' + $(this.element).css('width'));
-    console.log('offsetWidth: ' + this.element.offsetWidth);
-    console.log('clientWidth: ' + this.element.clientWidth);
-    console.log('css.attr: ' + $(this.element).attr('width'));
   }
 
   public setDraggable(opt: boolean): void {
@@ -88,11 +81,9 @@ export class Card extends Base implements Draggable, Droppable {
           const canvas: Canvas = this.closest(Canvas.prototype) as Canvas;
 
           if (bottom.hasClass('card')) {
-            console.log('dropped onto card');
             const bottomCard: Card = canvas.search(bottomUuid)[0] as Card;
             new Stack(this, bottomCard);
           } else {
-            console.log('dropped onto stack');
             const bottomStack: Stack = canvas.search(bottomUuid)[0] as Stack;
             bottomStack.add(this);
           }

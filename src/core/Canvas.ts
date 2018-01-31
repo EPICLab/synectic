@@ -11,11 +11,10 @@ export class Canvas extends Base {
     this.element.setAttribute('class', 'canvas');
     document.body.appendChild(this.element);
 
-    document.addEventListener('remove', (e) => {
+    document.addEventListener('destruct', (e) => {
       const uuid: string = (e as CustomEvent).detail;
       const found: Base | undefined = this.search(uuid).pop();
       if (found) {
-        console.log('EVENT: remove ' + found.uuid);
         this.remove(found);
       }
     }, false);
@@ -27,6 +26,7 @@ export class Canvas extends Base {
   }
 
   public add<T extends Base>(object: T): boolean {
+    this.element.appendChild(object.element);
     return super._add(object);
   }
 

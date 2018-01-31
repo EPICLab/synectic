@@ -29,8 +29,8 @@ export abstract class Base {
     if (this.children.some(c => c.uuid === object.uuid)) {
       return false;
     } else {
+      if (object.parent) object.parent._remove(object);
       this.children.push(object);
-      this.element.appendChild(object.element);
       return true;
     }
   }

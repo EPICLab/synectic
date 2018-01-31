@@ -14,7 +14,7 @@
       "options": [ 120 ]
     },
     "no-unused-expression": false,
-    "no-unused-expression-chai": true,
+    "no-unused-expression-chai": false,
     "prefer-const": true,
     "ter-indent": [true, 2],
     "space-before-function-paren": ["error", {
