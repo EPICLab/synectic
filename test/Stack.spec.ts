@@ -1,3 +1,4 @@
+/// <reference path="../src/core/global.d.ts" />
 import { expect } from 'chai';
 import 'mocha';
 import { AppManagerInstance } from '../src/core/AppManager';
