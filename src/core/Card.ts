@@ -7,6 +7,7 @@ import { Stack } from './Stack';
 import 'jquery-ui';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
+import 'jquery-ui/ui/widgets/selectable';
 
 
 export class Card extends Base implements Draggable, Droppable {
@@ -115,7 +116,7 @@ export class Card extends Base implements Draggable, Droppable {
   }
 
   public setSelectable(opt: boolean): void {
-    const canvas: Canvas = this.closest(Canvas.prototype) as Canvas;
+    const canvas: Canvas = global.SynecticManager.current;
     $(canvas.element).selectable({
       filter: '.card',
       cancel: 'input, textarea, button, select, option',
@@ -127,7 +128,6 @@ export class Card extends Base implements Draggable, Droppable {
         card.element.addEventListener('contextmenu', this.handleContextMenu);
       },
       unselected: (_, ui) => {
-        console.log(ui);
         const unselectedUuid: string = $(ui.unselected).attr('id') as string;
         const card : Card = canvas.search(unselectedUuid).pop() as Card;
 
