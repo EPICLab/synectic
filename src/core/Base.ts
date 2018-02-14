@@ -24,6 +24,23 @@ export abstract class Base {
     return e === null ? null : e as T;
   }
 
+  // checks CSS class on DOM object
+  protected hasClass(className: string): boolean {
+    return this.element.classList ? this.element.classList.contains(className) : new RegExp('\\b' + className + '\\b').test(this.element.className);
+  }
+
+  // appends CSS class to DOM object
+  protected addClass(className: string): void {
+    if (this.element.classList) this.element.classList.add(className);
+    else if (!this.hasClass(className)) this.element.className += ' ' + className;
+  }
+
+  // removes CSS class from DOM object
+  protected removeClass(className: string): void {
+    if (this.element.classList) this.element.classList.remove(className);
+    else this.element.className = this.element.className.replace(new RegExp('\\b' + className + '\\b', 'g'), '');
+  }
+
   // generic add method for appending to children
   protected _add<T extends Base>(object: T): boolean {
     if (this.children.some(c => c.uuid === object.uuid)) {
