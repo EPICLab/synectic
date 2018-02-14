@@ -37,13 +37,16 @@ export class Stack extends Base implements Draggable, Droppable {
         this.remove(found);
       }
     }, false);
+    document.addEventListener('remove', () => {
+      if (this.children.length <= 1) this.destructor();
+    }, false);
   }
 
   public destructor(): void {
     const event = new CustomEvent('destruct', { detail: this.uuid });
     document.dispatchEvent(event);
     this.children.map(c => this.remove(c));
-    if (this.element.parentNode) {
+    if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
     delete this.element;
@@ -82,6 +85,12 @@ export class Stack extends Base implements Draggable, Droppable {
         width: this.element.offsetWidth - this.gap,
         height: this.element.offsetHeight - this.gap
       });
+      $(card.element).css({
+        top: this.element.offsetTop,
+        left: this.element.offsetLeft
+      });
+      const event = new CustomEvent('remove', { detail: card.uuid });
+      document.dispatchEvent(event);
       return true;
     }
     return false;
@@ -120,14 +129,14 @@ export class Stack extends Base implements Draggable, Droppable {
           const bottomUuid: string = bottom.attr('id') as string;
           const canvas: Canvas = this.closest(Canvas.prototype) as Canvas;
 
-          if (bottom.hasClass('stack')) {
+          if (bottom.hasClass('stack')) { // Stack dropped onto this Stack
             const bottomStack: Stack = canvas.search(bottomUuid).pop() as Stack;
             this.children.map(c => {
               this.remove(c);
               bottomStack.add(c);
             });
             this.destructor();
-          } else {
+          } else { // Card dropped onto this Stack
             const bottomCard: Card = canvas.search(bottomUuid).pop() as Card;
             this.add(bottomCard);
           }
