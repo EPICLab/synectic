@@ -15,7 +15,8 @@
   },
   "include": [
     "node_modules/@types/**/*.d.ts",
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"

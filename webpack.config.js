@@ -66,7 +66,7 @@ module.exports = [
   Object.assign(
     {
       target: 'electron-main',
-      entry: { app: './src/core/main.ts' },
+      entry: { main: './src/core/main.ts' },
       plugins: [
         new ExtractTextPlugin('styles.css'),
         new webpack.ProvidePlugin({

@@ -1,15 +1,33 @@
 {
   "name": "synectic",
-  "version": "0.0.1",
+  "version": "0.7.0",
   "full_name": "Synectic IDE",
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
-  "main": "main.js",
+  "main": "dist/main.js",
+  "build": {
+    "files": [
+      "dist/**/*"
+    ],
+    "directories": {
+      "buildResources": "src/asset",
+      "output": "release/"
+    }
+  },
   "scripts": {
+    "prebuild": "npm run compile",
+    "build": "electron-builder --dir",
+    "prepack": "npm run compile",
+    "pack": "electron-builder",
+    "pack:mac": "electron-builder --arch=x64 --platform=darwin",
+    "pack:win": "electron-builder --arch=x64 --platform=win32",
+    "pack:linux": "electron-builder --arch=x64 --platform=linux",
     "check": "npm-check --no-emoji -s -u",
-    "clean": "rimraf dist/*",
-    "prestart": "webpack --config webpack.config.js --progress --colors",
-    "start": "electron ./dist/app.js",
-    "lint": "npm run clean && tslint -c tslint.json -p tsconfig.json -t stylish",
+    "clean": "rimraf dist/* release/*",
+    "compile": "webpack --config webpack.config.js --progress --colors",
+    "prestart": "npm run compile",
+    "start": "electron ./dist/main.js",
+    "prelint": "npm run clean",
+    "lint": "tslint -c tslint.json -p tsconfig.json -t stylish",
     "pretest": "webpack --config webpack.test.config.js --progress --colors",
     "test": "mocha -u bdd -r ts-node/register -r ignore-styles -r jsdom-global/register dist/**/*.spec.js",
     "posttest": "rimraf 'dist/**/*.spec.{js,js.map}'"
@@ -38,6 +56,7 @@
     "chai": "^4.1.2",
     "css-loader": "^0.28.9",
     "electron": "^1.7.11",
+    "electron-builder": "^19.55.3",
     "expose-loader": "^0.7.4",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",

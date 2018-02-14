@@ -24,13 +24,13 @@ Download: http://web.engr.oregonstate.edu/~nelsonni/synectics/
 # Builds
 
 Follow the instructions in [Install](#Install) section to install dependencies and use any of the following from within the project directory:
-* `npm run build` - builds a release for the host platform/architecture
-* `npm run build-all` - builds releases for `darwin`, `win32`, and `linux` platforms
-* `npm run build-mac` - builds a release for the `darwin` platform (macOS)
-* `npm run build-win` - builds a release for the `win32` platform (Windows)
-* `npm run build-linux` - builds a release for the `linux` platform
-* `npm run build-dev` - builds a version that is non-archived (no asar of `app` folder) and non-pruned (all packages included in `node_modules` folder)
-* `npm run clean` - removes all previous builds
+* `npm run pack` - build and packages a release for the host platform/architecture
+* `npm run pack:mac` - build and packages a release for the `darwin` platform (macOS)
+* `npm run pack:win` - build and packages a release for the `win32` platform (Windows)
+* `npm run pack:linux` - build and packages a release for the `linux` platform
+* `npm run build` - builds (but does not package) a release for the host platform/architecture
+* `npm run compile` - executes [webpack](https://github.com/webpack/webpack) to compile TypeScript located in `src/` directory and places the resulting JavaScript in the `dist/` directory
+* `npm run clean` - removes all previous releases and compilation results (`dist/` and `release/`)
 
 # Tests
 
@@ -43,4 +43,4 @@ Follow the instructions in [Install](#Install) section to install dependencies a
 * `npm run lint` - executes [TSLint](https://github.com/palantir/tslint) and applies a modified version of `tslint-config-standard` rules
 
 # Contributors
-Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau))
+Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)),
