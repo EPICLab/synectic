@@ -1,14 +1,8 @@
 import { Base } from './Base';
-import { Draggable } from './Draggable';
-import { Droppable } from './Droppable';
+import { Draggable, Droppable, State } from './Interactions';
 import { Menu, remote } from 'electron';
 import { Canvas } from './Canvas';
 import { Stack } from './Stack';
-import 'jquery-ui';
-import 'jquery-ui/ui/widgets/draggable';
-import 'jquery-ui/ui/widgets/droppable';
-import 'jquery-ui/ui/widgets/selectable';
-
 
 export class Card extends Base implements Draggable, Droppable {
 
@@ -42,8 +36,9 @@ export class Card extends Base implements Draggable, Droppable {
       top: this.element.offsetTop - (this.element.offsetHeight / 2),
       left: this.element.offsetLeft - (this.element.offsetWidth / 2)
     });
-    this.setDraggable(true);
-    this.setDroppable(true);
+    // this.setDraggable(true);
+    this.draggable(State.enable);
+    this.droppable(State.enable);
     this.setSelectable(true);
   }
 
@@ -67,7 +62,7 @@ export class Card extends Base implements Draggable, Droppable {
     return super.closest(selector);
   }
 
-  public setDraggable(opt: boolean): void {
+  public draggable(opt: State): void {
     if (!this.element.classList.contains('ui-draggable')) {
       $(this.element).draggable({
         handle: '.card-header',
@@ -81,14 +76,10 @@ export class Card extends Base implements Draggable, Droppable {
       });
     }
 
-    if (opt) {
-      $(this.element).draggable('enable');
-    } else {
-      $(this.element).draggable('disable');
-    }
+    $(this.element).draggable(opt);
   }
 
-  public setDroppable(opt: boolean): void {
+  public droppable(opt: State): void {
     if (!this.element.classList.contains('ui-droppable')) {
       $(this.element).droppable({
         accept: '.card, .stack',
@@ -99,7 +90,7 @@ export class Card extends Base implements Draggable, Droppable {
 
           if (bottom.hasClass('card')) { // This Card dropped onto Card
             const bottomCard: Card = canvas.search(bottomUuid)[0] as Card;
-            new Stack(this, bottomCard);
+            new Stack([this, bottomCard]);
           } else { // This Card dropped onto Stack
             const bottomStack: Stack = canvas.search(bottomUuid)[0] as Stack;
             bottomStack.add(this);
@@ -108,11 +99,7 @@ export class Card extends Base implements Draggable, Droppable {
       });
     }
 
-    if (opt) {
-      $(this.element).droppable('enable');
-    } else {
-      $(this.element).droppable('disable');
-    }
+    $(this.element).droppable(opt);
   }
 
   public setSelectable(opt: boolean): void {
@@ -151,14 +138,16 @@ export class Card extends Base implements Draggable, Droppable {
           const canvas: Canvas = global.SynecticManager.current;
           let uuids: string[] = new Array();
           $('.ui-selected').map((_, s) => uuids.push($(s).attr('id') as string));
-          let cards: Card[] = uuids.map((uuid) => canvas.search(uuid).pop() as Card);
+          let cards = uuids.map((uuid) => canvas.search(uuid).pop() as Card);
           if (cards.length >= 1) {
             cards.map((card) => {
               card.removeClass('highlight');
               card.removeClass('ui-selected');
               card.removeClass('ui-selectee');
             });
-            new Stack(cards.pop() as Card, ...cards);
+            let c: Card = cards.pop() as Card;
+            let x = new Stack([c]);
+            cards.map(c => x.add(c));
           }
         }
       },
