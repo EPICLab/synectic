@@ -4,9 +4,9 @@ import '../asset/style/canvas.css';
 import '../asset/style/card.css';
 import '../asset/style/stack.css';
 
-global.SynecticManager = AppManagerInstance;
+global.Synectic = AppManagerInstance;
 
-const c = global.SynecticManager.newCanvas();
+const c = global.Synectic.newCanvas();
 
 const newCardButton = document.createElement('button');
 newCardButton.innerText = 'New Card';

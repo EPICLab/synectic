@@ -1,41 +1,55 @@
-import { Base } from './Base';
+import { Base } from './base';
+import { Stack } from './Stack';
+import { Card } from './Card';
+import { v4 } from 'uuid';
 
-export class Canvas extends Base {
+export class Canvas implements Base<null, (Stack | Card)> {
 
-  public parent: null;
-  public children: Base[];
+  uuid: string = v4();
+  created: number = Date.now();
+  modified: number = Date.now();
+  element: HTMLDivElement = document.createElement('div');
+  parent: null;
+  children: (Stack | Card)[] = [];
 
-  constructor(children?: Base[]) {
-    super();
-    if (children) children.map(c => this.add(c));
+  constructor(children: (Stack | Card)[]) {
+    children.map(c => this.add(c));
     this.element.setAttribute('class', 'canvas');
     document.body.appendChild(this.element);
-
-    document.addEventListener('destruct', (e) => {
-      const uuid: string = (e as CustomEvent).detail;
-      const found: Base | undefined = this.search(uuid).pop();
-      if (found) {
-        this.remove(found);
-      }
-    }, false);
   }
 
-  public destructor() {
+  destructor(): void {
     document.body.removeChild(this.element);
     delete this.element;
   }
 
-  public add<T extends Base>(object: T): boolean {
-    this.element.appendChild(object.element);
-    return super._add(object);
+  add(child: Stack | Card): boolean {
+    if (this.children.some(c => c.uuid === child.uuid)) {
+      return false;
+    } else {
+      if (child instanceof Stack) child.parent.remove(child);
+      if (child instanceof Card && child.parent instanceof Canvas) {
+        child.parent.remove(child);
+      }
+      if (child instanceof Card && child.parent instanceof Stack) {
+        child.parent.remove(child);
+      }
+      this.children.push(child);
+      this.element.appendChild(child.element);
+      return true;
+    }
   }
 
-  public remove<T extends Base>(object: T): boolean {
-    return super._remove(object);
+  remove(child: Stack | Card): boolean {
+    if (this.children.some(c => c.uuid === child.uuid)) {
+      this.children = this.children.filter(c => c !== child);
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  public search(uuid: string): Base[] {
-    return super._search(uuid);
+  search(uuid: string): (Stack | Card)[] {
+    return this.children.filter(c => c.uuid === uuid);
   }
-
 }
