@@ -5,13 +5,6 @@ import { v4 } from 'uuid';
 import { OptionState, Draggable, Droppable } from './interactions';
 import { hasClass, addClass, removeClass } from './helper';
 
-export interface Stack extends Base<Canvas, Card> {
-  new(parent: Canvas, children: Card[]): Stack;
-  add(child: Card): boolean;
-  remove(child: Card): boolean;
-  search(uuid: string): Card[];
-}
-
 export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
 
   uuid: string = v4();
@@ -45,14 +38,12 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
 
     document.addEventListener('destruct', (e) => {
       const uuid: string = (e as CustomEvent).detail;
-      console.log('EVENT: destruct of ' + uuid);
       const found: Card | undefined = this.search(uuid).pop();
       if (found) {
         this.remove(found);
       }
     }, false);
     document.addEventListener('remove', () => {
-      console.log('EVENT: remove, length ' + this.children.length);
       if (this.children.length <= 1) this.destructor();
     });
   }
@@ -83,12 +74,12 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
       const width: number = (sWidth ? parseInt(sWidth, 10) : 0);
       const height: number = (sHeight ? parseInt(sHeight, 10) : 0);
       $(this.element).css({
-        width: (width + this.gap).toString() + 'px',
-        height: (height + this.gap).toString() + 'px'
+        width: (width + this.gap),
+        height: (height + this.gap)
       });
       $(child.element).css({
-        top: (this.children.length * this.gap).toString() + 'px',
-        left: (this.children.length * this.gap).toString() + 'px'
+        top: (this.children.length * this.gap),
+        left: (this.children.length * this.gap)
       });
       addClass(child.element, 'nohover');
 
@@ -104,6 +95,12 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
       $(this.element).css({
         width: this.element.offsetWidth - this.gap,
         height: this.element.offsetHeight - this.gap
+      });
+      this.children.map((card, idx) => {
+        $(card.element).css({
+          top: ((idx + 1) * this.gap),
+          left: ((idx + 1) * this.gap)
+        });
       });
       $(child.element).css({
         top: this.element.offsetTop,
@@ -144,7 +141,6 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
         drop: (_, ui) => {
           const bottom: JQuery<HTMLElement> = $(ui.draggable);
           const uuid: string = bottom.attr('id') as string;
-          console.log('Stack.drop event: ' + uuid);
           if (bottom.hasClass('stack')) {
             const bottomStack: Stack = this.parent.search(uuid).pop() as Stack;
             this.children.map(c => {
@@ -160,7 +156,6 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
         out: (_, ui) => {
           const depart: JQuery<HTMLElement> = $(ui.draggable);
           const uuid: string = depart.attr('id') as string;
-          console.log('Stack.out event: ' + uuid);
           const departCard: Card = this.search(uuid).pop() as Card;
           this.remove(departCard);
         }
