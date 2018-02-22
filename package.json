@@ -1,6 +1,6 @@
 {
   "name": "synectic",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "full_name": "Synectic IDE",
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
   "main": "dist/main.js",

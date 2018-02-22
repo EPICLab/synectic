@@ -1,105 +1,131 @@
-import { Base } from './Base';
-import { Draggable, Droppable, State } from './Interactions';
+import { Base } from './base';
 import { Canvas } from './Canvas';
 import { Card } from './Card';
+import { v4 } from 'uuid';
+import { OptionState, Draggable, Droppable } from './interactions';
+import { hasClass, addClass, removeClass } from './helper';
 
-export class Stack extends Base implements Draggable, Droppable {
+export interface Stack extends Base<Canvas, Card> {
+  new(parent: Canvas, children: Card[]): Stack;
+  add(child: Card): boolean;
+  remove(child: Card): boolean;
+  search(uuid: string): Card[];
+}
 
-  public parent: Canvas;
-  public children: [Card];
+export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
+
+  uuid: string = v4();
+  created: number = Date.now();
+  modified: number = Date.now();
+  element: HTMLDivElement = document.createElement('div');
+  parent: Canvas;
+  children: Card[] = [];
   private gap: number = 25;
 
-  constructor(cards: [Card]) {
-    super(cards[0].parent);
+  constructor(parent: Canvas, children: Card[]) {
+    this.parent = parent;
     this.element.setAttribute('class', 'stack');
+    this.element.setAttribute('id', this.uuid);
+    this.parent.add(this);
+
+    const first: Card | undefined = children.pop();
+    if (!first || children.length < 1) {
+      throw new Error('Stack instantiation underfilled');
+    }
     $(this.element).css({
-      height: cards[0].element.offsetHeight + this.gap + 28,
-      width: cards[0].element.offsetWidth + this.gap,
-      top: cards[0].element.offsetTop - 10,
-      left: cards[0].element.offsetLeft - 10
+      height: first.element.offsetHeight + this.gap + 28,
+      width: first.element.offsetWidth + this.gap,
+      top: first.element.offsetTop - 20,
+      left: first.element.offsetLeft - 20
     });
 
-    cards.map(card => this.add(card));
-
-    // HTMLElement must be appended to DOM before enabling Draggable/Droppable
-    this.parent.add(this);
-    this.draggable(State.enable);
-    this.droppable(State.enable);
+    [first, ...children].map(c => this.add(c));
+    this.draggable(OptionState.enable);
+    this.droppable(OptionState.enable);
 
     document.addEventListener('destruct', (e) => {
       const uuid: string = (e as CustomEvent).detail;
+      console.log('EVENT: destruct of ' + uuid);
       const found: Card | undefined = this.search(uuid).pop();
       if (found) {
         this.remove(found);
       }
     }, false);
     document.addEventListener('remove', () => {
+      console.log('EVENT: remove, length ' + this.children.length);
       if (this.children.length <= 1) this.destructor();
-    }, false);
+    });
   }
 
-  public destructor(): void {
+  destructor(): void {
+    this.children.map(c => this.remove(c));
     const event = new CustomEvent('destruct', { detail: this.uuid });
     document.dispatchEvent(event);
-    this.children.map(c => this.remove(c));
     if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
     delete this.element;
   }
 
-  public closest<T extends Base>(selector: T): T | null {
-    return super.closest(selector);
-  }
+  add(child: Card): boolean {
+    if (this.children.some(c => c.uuid === child.uuid)) {
+      return false;
+    } else {
+      if (child.parent instanceof Canvas) child.parent.remove(child);
+      if (child.parent instanceof Stack) child.parent.remove(child);
+      this.children.push(child);
+      this.element.appendChild(child.element);
+      child.droppable(OptionState.disable);
+      this.element.appendChild(child.element);
 
-  public add<T extends Base & Draggable & Droppable>(card: T): boolean {
-    if (super._add(card)) {
-      card.droppable(State.disable);
-      this.element.appendChild(card.element);
-      const styleWidth: string | null = this.element.style.width;
-      const styleHeight: string | null = this.element.style.height;
-      const width: number = (styleWidth ? parseInt(styleWidth, 10) : 0);
-      const height: number = (styleHeight ? parseInt(styleHeight, 10) : 0);
+      const sWidth: string | null = this.element.style.width;
+      const sHeight: string | null = this.element.style.height;
+      const width: number = (sWidth ? parseInt(sWidth, 10) : 0);
+      const height: number = (sHeight ? parseInt(sHeight, 10) : 0);
       $(this.element).css({
         width: (width + this.gap).toString() + 'px',
         height: (height + this.gap).toString() + 'px'
       });
-      $(card.element).css({
+      $(child.element).css({
         top: (this.children.length * this.gap).toString() + 'px',
         left: (this.children.length * this.gap).toString() + 'px'
       });
+      addClass(child.element, 'nohover');
+
       return true;
     }
-    return false;
   }
 
-  public remove(card: Card): boolean {
-    if (super._remove(card) && this.parent) {
-      this.parent.add(card);
-      card.droppable(State.enable);
+  remove(child: Card): boolean {
+    if (this.children.some(c => c.uuid === child.uuid)) {
+      this.children = this.children.filter(c => c !== child);
+      this.parent.add(child);
+      child.droppable(OptionState.enable);
       $(this.element).css({
         width: this.element.offsetWidth - this.gap,
         height: this.element.offsetHeight - this.gap
       });
-      $(card.element).css({
+      $(child.element).css({
         top: this.element.offsetTop,
         left: this.element.offsetLeft
       });
-      const event = new CustomEvent('remove', { detail: card.uuid });
+      removeClass(child.element, 'nohover');
+      const event = new CustomEvent('remove', { detail: child.uuid });
       document.dispatchEvent(event);
       return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
-  public search(uuid: string): Card[] {
-    return super._search(uuid).map(c => c as Card);
+  search(uuid: string): Card[] {
+    return this.children.filter(c => c.uuid === uuid);
   }
 
-  public draggable(opt: State): void {
-    if (!this.element.classList.contains('ui-draggable')) {
+  draggable(opt: OptionState): void {
+    if (!hasClass(this.element, 'ui-draggable')) {
       $(this.element).draggable({
-        containment: 'window',
+        containment: 'parent',
         stack: '.stack',
         start: function() {
           $(this).css({
@@ -108,40 +134,38 @@ export class Stack extends Base implements Draggable, Droppable {
         }
       });
     }
-
     $(this.element).draggable(opt);
   }
 
-  public droppable(opt: State): void {
-    if (!this.element.classList.contains('ui-droppable')) {
+  droppable(opt: OptionState): void {
+    if (!hasClass(this.element, 'ui-droppable')) {
       $(this.element).droppable({
         accept: '.card, .stack',
         drop: (_, ui) => {
-          const bottom = $(ui.draggable);
-          const bottomUuid: string = bottom.attr('id') as string;
-          const canvas: Canvas = this.closest(Canvas.prototype) as Canvas;
-
-          if (bottom.hasClass('stack')) { // Stack dropped onto this Stack
-            const bottomStack: Stack = canvas.search(bottomUuid).pop() as Stack;
+          const bottom: JQuery<HTMLElement> = $(ui.draggable);
+          const uuid: string = bottom.attr('id') as string;
+          console.log('Stack.drop event: ' + uuid);
+          if (bottom.hasClass('stack')) {
+            const bottomStack: Stack = this.parent.search(uuid).pop() as Stack;
             this.children.map(c => {
               this.remove(c);
               bottomStack.add(c);
             });
             this.destructor();
-          } else { // Card dropped onto this Stack
-            const bottomCard: Card = canvas.search(bottomUuid).pop() as Card;
+          } else {
+            const bottomCard: Card = this.parent.search(uuid).pop() as Card;
             this.add(bottomCard);
           }
         },
         out: (_, ui) => {
-          const depart = $(ui.draggable);
-          const departUuid: string = depart.attr('id') as string;
-          const departCard: Card = this.search(departUuid).pop() as Card;
+          const depart: JQuery<HTMLElement> = $(ui.draggable);
+          const uuid: string = depart.attr('id') as string;
+          console.log('Stack.out event: ' + uuid);
+          const departCard: Card = this.search(uuid).pop() as Card;
           this.remove(departCard);
         }
       });
     }
-
     $(this.element).droppable(opt);
   }
 

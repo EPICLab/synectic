@@ -19,6 +19,10 @@ div.card:hover {
   box-shadow: 0 0 3pt 1pt rgba(102, 204, 117, 0.75);
 }
 
+div.card.nohover:hover {
+    box-shadow: 0 0 3pt 1pt rgba(218, 46, 46, 1.0) !important;
+}
+
 div.card.highlight {
   box-shadow: 0 0 5pt 3pt rgba(218, 46, 46, 1.0);
 }
