@@ -1,13 +1,19 @@
-import * as fs from 'fs';
 import * as url from 'url';
+import * as fs from 'fs-extra';
 
-export function testLoad(): string {
-  let path: string = __dirname + '/foo.txt';
-  let fileUrl = url.parse(path);
+export function testLoad(path: string): string {
+  let fullPath: string = __dirname + path;
+  let fileUrl = url.parse(fullPath);
 
   console.log('process.cwd: ' + process.cwd());
   console.log(fileUrl);
 
-  let content: string = fs.readFileSync(path, 'utf8');
-  return content;
+  return fs.readFileSync(fullPath, 'utf8');
+}
+
+export function asyncLoad(path: string, target: HTMLDivElement): void {
+  let fullPath: string = __dirname + path;
+  fs.readFile(fullPath).then((res: Buffer) => {
+    target.innerText = res.toString();
+  });
 }
