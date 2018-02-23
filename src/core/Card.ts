@@ -6,6 +6,9 @@ import { Draggable, Droppable, OptionState, Selectable } from './interactions';
 import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
 
+/**
+ * Template definition of cards that can be extended to support specific content.
+ */
 export class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable {
 
@@ -20,6 +23,10 @@ export class Card implements Base<(Canvas | Stack), null>,
   title: HTMLSpanElement = document.createElement('span');
   closeButton: HTMLButtonElement = document.createElement('button');
 
+  /**
+   * Default constructor for creating a blank card with standard interaction controls.
+   * @param parent A canvas or stack instance that will contain the new card.
+   */
   constructor(parent: Canvas | Stack, filetypes: string[]) {
     this.parent = parent;
     this.filetypes = filetypes;
