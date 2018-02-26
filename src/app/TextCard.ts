@@ -1,7 +1,7 @@
 import { Card } from '../core/Card';
 import { Canvas } from '../core/Canvas';
 import { Stack } from '../core/Stack';
-import { openDialog } from '../core/System';
+import { openDialog } from '../core/files';
 import { addClass } from '../core/helper';
 
 export class TextCard extends Card {
