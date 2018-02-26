@@ -83,9 +83,11 @@
     "wildcards-entry-webpack-plugin": "^2.1.0"
   },
   "dependencies": {
+    "@types/fs-extra": "^5.0.0",
     "@types/jquery": "^3.3.0",
     "@types/jqueryui": "^1.12.2",
     "@types/uuid": "^3.4.3",
+    "fs-extra": "^5.0.0",
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
     "uuid": "^3.2.1"

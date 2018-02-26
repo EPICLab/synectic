@@ -12,6 +12,7 @@ export class Card implements Base<(Canvas | Stack), null>,
   uuid: string = v4();
   created: number = Date.now();
   modified: number = Date.now();
+  filetypes: string[];
   parent: Canvas | Stack;
   children: null[] = [];
   element: HTMLDivElement = document.createElement('div');
@@ -19,9 +20,9 @@ export class Card implements Base<(Canvas | Stack), null>,
   title: HTMLSpanElement = document.createElement('span');
   closeButton: HTMLButtonElement = document.createElement('button');
 
-  constructor(parent: Canvas | Stack) {
-    console.log('Card constructor...');
+  constructor(parent: Canvas | Stack, filetypes: string[]) {
     this.parent = parent;
+    this.filetypes = filetypes;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
     this.header.setAttribute('class', 'card-header');

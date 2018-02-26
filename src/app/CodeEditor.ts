@@ -8,22 +8,23 @@ import { addClass } from '../core/helper';
 
 export class CodeEditor extends Card {
 
-  public editor: HTMLDivElement;
+  public editorWindow: HTMLDivElement;
+  public editor: ace.Editor;
 
   constructor(parent: Canvas | Stack) {
-    super(parent);
+    super(parent, ['js']);
 
-    this.editor = document.createElement('div');
-    this.editor.setAttribute('id', (this.uuid + '-editor'));
+    this.editorWindow = document.createElement('div');
+    this.editorWindow.setAttribute('id', (this.uuid + '-editor'));
     addClass(this.element, 'editor');
-    $(this.editor).css({
+    $(this.editorWindow).css({
       width: '100%',
       height: '100%'
     });
-    this.element.appendChild(this.editor);
+    this.element.appendChild(this.editorWindow);
 
-    const editor = ace.edit(this.uuid + '-editor');
-    editor.getSession().setMode('ace/mode/javascript');
-    editor.setTheme('ace/theme/monokai');
+    this.editor = ace.edit(this.uuid + '-editor');
+    this.editor.getSession().setMode('ace/mode/javascript');
+    this.editor.setTheme('ace/theme/monokai');
   }
 }
