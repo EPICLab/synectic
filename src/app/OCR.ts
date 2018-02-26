@@ -10,7 +10,7 @@ export class OCR extends Card {
   public canvas: HTMLCanvasElement;
 
   constructor(parent: Canvas | Stack) {
-    super(parent);
+    super(parent, ['ocr']);
 
     this.output = document.createElement('div');
     this.output.setAttribute('id', (this.uuid + '-ocr'));

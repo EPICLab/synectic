@@ -53,6 +53,7 @@
     "@types/jsdom": "^11.0.4",
     "@types/mocha": "^2.2.48",
     "@types/node": "^9.4.6",
+    "brace": "^0.11.1",
     "chai": "^4.1.2",
     "css-loader": "^0.28.9",
     "electron": "^1.8.2",

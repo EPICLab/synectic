@@ -10,7 +10,7 @@ export class TextCard extends Card {
   public content: HTMLDivElement = document.createElement('div');
 
   constructor(parent: Canvas | Stack) {
-    super(parent);
+    super(parent, ['txt']);
     addClass(this.content, 'card-content');
 
     this.loadButton.innerText = 'Select File';
