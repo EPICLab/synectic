@@ -2,12 +2,13 @@ import { Base } from './base';
 import { Stack } from './Stack';
 import { Card } from './Card';
 import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 
 export class Canvas implements Base<null, (Stack | Card)> {
 
   uuid: string = v4();
-  created: number = Date.now();
-  modified: number = Date.now();
+  created: DateTime = DateTime.local();
+  modified: DateTime = DateTime.local();
   element: HTMLDivElement = document.createElement('div');
   parent: null;
   children: (Stack | Card)[] = [];

@@ -4,12 +4,13 @@ import { Card } from './Card';
 import { v4 } from 'uuid';
 import { OptionState, Draggable, Droppable } from './interactions';
 import { hasClass, addClass, removeClass } from './helper';
+import { DateTime } from 'luxon';
 
 export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
 
   uuid: string = v4();
-  created: number = Date.now();
-  modified: number = Date.now();
+  created: DateTime = DateTime.local();
+  modified: DateTime = DateTime.local();
   element: HTMLDivElement = document.createElement('div');
   parent: Canvas;
   children: Card[] = [];
