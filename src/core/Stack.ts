@@ -6,6 +6,9 @@ import { OptionState, Draggable, Droppable } from './interactions';
 import { hasClass, addClass, removeClass } from './helper';
 import { DateTime } from 'luxon';
 
+/**
+ * Definition of a stack for visually representing logical groups in context.
+ */
 export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
 
   uuid: string = v4();
@@ -16,6 +19,11 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
   children: Card[] = [];
   private gap: number = 25;
 
+  /**
+   * Default constructor for creating a stack.
+   * @param parent A canvas instance that will contain the new stack.
+   * @param children Array of cards to populate the new stack; can be empty.
+   */
   constructor(parent: Canvas, children: Card[]) {
     this.parent = parent;
     this.element.setAttribute('class', 'stack');
@@ -49,6 +57,9 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
     });
   }
 
+  /**
+   * Default destructor for removing children, detaching from parent, dispatching a 'destruct' event, and deleting instance.
+   */
   destructor(): void {
     this.children.map(c => this.remove(c));
     const event = new CustomEvent('destruct', { detail: this.uuid });
@@ -59,6 +70,11 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
     delete this.element;
   }
 
+  /**
+   * Adds card to this stack.
+   * @param child A card to be added.
+   * @return A boolean for insertion success; false indicates child already exists in stack.
+  */
   add(child: Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
       return false;
@@ -68,7 +84,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
       this.children.push(child);
       this.element.appendChild(child.element);
       child.droppable(OptionState.disable);
-      this.element.appendChild(child.element);
+      // this.element.appendChild(child.element);
 
       const sWidth: string | null = this.element.style.width;
       const sHeight: string | null = this.element.style.height;
@@ -88,6 +104,11 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
     }
   }
 
+  /**
+   * Removes acard from this stack.
+   * @param child A card to be removed.
+   * @return A boolean for removal success; false indicates child not found in stack.
+  */
   remove(child: Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
       this.children = this.children.filter(c => c !== child);
@@ -116,10 +137,19 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
     }
   }
 
+  /**
+   * Search for a card in this stack.
+   * @param uuid The unique user ID to search for within the stack.
+   * @return An array ofcards that match the given uuid; can be empty.
+  */
   search(uuid: string): Card[] {
     return this.children.filter(c => c.uuid === uuid);
   }
 
+  /**
+   * Configuration for enabling/disabling draggable from JQuery-UI library.
+   * @param opt A OptionState to enable or disable draggable interactions for this stack.
+   */
   draggable(opt: OptionState): void {
     if (!hasClass(this.element, 'ui-draggable')) {
       $(this.element).draggable({
@@ -135,6 +165,10 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
     $(this.element).draggable(opt);
   }
 
+  /**
+   * Configuration for enabling/disabling droppable from JQuery-UI library.
+   * @param opt A OptionState to enable or disable droppable interactions for this stack.
+   */
   droppable(opt: OptionState): void {
     if (!hasClass(this.element, 'ui-droppable')) {
       $(this.element).droppable({

@@ -8,7 +8,7 @@ import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
 
 /**
- * Template definition of cards that can be extended to support specific content.
+ * Template definition of a card; can be extended to support specific content.
  */
 export class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable {
@@ -27,6 +27,7 @@ export class Card implements Base<(Canvas | Stack), null>,
   /**
    * Default constructor for creating a blank card with standard interaction controls.
    * @param parent A canvas or stack instance that will contain the new card.
+   * @param filetypes An array of filetype extensions supported by a particular card type (i.e. ['js', 'jsx']).
    */
   constructor(parent: Canvas | Stack, filetypes: string[]) {
     this.parent = parent;
@@ -54,6 +55,9 @@ export class Card implements Base<(Canvas | Stack), null>,
     this.selectable(OptionState.enable);
   }
 
+  /**
+   * Default destructor for detaching from parent and dispatching a 'destruct' event; does not destroy instance.
+  */
   destructor(): void {
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
@@ -62,6 +66,10 @@ export class Card implements Base<(Canvas | Stack), null>,
     document.dispatchEvent(event);
   }
 
+  /**
+   * Configuration for enabling/disabling draggable from JQuery-UI library.
+   * @param opt A OptionState to enable or disable draggable interactions for this card.
+   */
   draggable(opt: OptionState): void {
     if (!hasClass(this.element, 'ui-draggable')) {
       $(this.element).draggable({
@@ -76,6 +84,10 @@ export class Card implements Base<(Canvas | Stack), null>,
     $(this.element).draggable(opt);
   }
 
+  /**
+   * Configuration for enabling/disabling droppable from JQuery-UI library.
+   * @param opt A OptionState to enable or disable droppable interactions for this card.
+   */
   droppable(opt: OptionState): void {
     if (!hasClass(this.element, 'ui-droppable')) {
       $(this.element).droppable({
@@ -99,6 +111,10 @@ export class Card implements Base<(Canvas | Stack), null>,
     $(this.element).droppable(opt);
   }
 
+  /**
+   * Configuration for enabling/disabling selectable from JQuery-UI library.
+   * @param opt A OptionState to enable or disable selectable interactions for this card.
+   */
   selectable(opt: OptionState): void {
     const canvas: Canvas = this.parent instanceof Canvas ? this.parent
       : this.parent.parent;
@@ -125,6 +141,9 @@ export class Card implements Base<(Canvas | Stack), null>,
     $(canvas.element).selectable(opt);
   }
 
+  /**
+   * Handler to build context menu for selectable cards; includes event handlers for each MenuItem.
+   */
   contextMenu(): void {
     const menuOptions = [
       {
