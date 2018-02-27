@@ -86,10 +86,12 @@
     "@types/fs-extra": "^5.0.0",
     "@types/jquery": "^3.3.0",
     "@types/jqueryui": "^1.12.2",
+    "@types/luxon": "^0.2.6",
     "@types/uuid": "^3.4.3",
     "fs-extra": "^5.0.0",
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
+    "luxon": "^0.5.3",
     "uuid": "^3.2.1"
   }
 }

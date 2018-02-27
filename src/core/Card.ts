@@ -2,6 +2,7 @@ import { Base } from './base';
 import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 import { Draggable, Droppable, OptionState, Selectable } from './interactions';
 import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
@@ -13,8 +14,8 @@ export class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable {
 
   uuid: string = v4();
-  created: number = Date.now();
-  modified: number = Date.now();
+  created: DateTime = DateTime.local();
+  modified: DateTime = DateTime.local();
   filetypes: string[];
   parent: Canvas | Stack;
   children: null[] = [];
