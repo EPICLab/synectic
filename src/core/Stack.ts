@@ -84,7 +84,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
       this.children.push(child);
       this.element.appendChild(child.element);
       child.droppable(OptionState.disable);
-      // this.element.appendChild(child.element);
+      this.element.appendChild(child.element);
 
       const sWidth: string | null = this.element.style.width;
       const sHeight: string | null = this.element.style.height;
@@ -96,8 +96,12 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
       });
       $(child.element).css({
         top: (this.children.length * this.gap),
-        left: (this.children.length * this.gap)
+        left: (this.children.length * this.gap),
+        zIndex: this.children.length
       });
+      removeClass(child.element, 'highlight');
+      removeClass(child.element, 'ui-selected');
+      removeClass(child.element, 'ui-selectee');
       addClass(child.element, 'nohover');
 
       return true;
