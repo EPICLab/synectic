@@ -1,7 +1,7 @@
 import { Card } from '../core/Card';
 import { Canvas } from '../core/Canvas';
 import { Stack } from '../core/Stack';
-import * as ace from 'brace';
+import ace from 'brace';
 import 'brace/mode/javascript';
 import 'brace/theme/monokai';
 import { addClass } from '../core/helper';

@@ -37,7 +37,7 @@ export class Card implements Base<(Canvas | Stack), null>,
     this.header.setAttribute('class', 'card-header');
     this.title.innerHTML = 'My Card';
     this.closeButton.setAttribute('class', 'close');
-    $(this.closeButton).click(() => this.destructor());
+    // $(this.closeButton).click(() => this.destructor());
 
     this.header.appendChild(this.title);
     this.header.appendChild(this.closeButton);
@@ -122,16 +122,15 @@ export class Card implements Base<(Canvas | Stack), null>,
       filter: '.card',
       cancel: 'input, textarea, button, select, option',
       selected: (_, ui) => {
-        const selected: JQuery<HTMLElement> = $(ui.selected);
-        const uuid: string = selected.attr('id') as string;
+        if (!(ui.selected)) throw new Error('Selected returns undefined');
+        const uuid: string = ui.selected.id;
         const found: Stack | Card | undefined = canvas.search(uuid).pop();
         if (!(found instanceof Card)) throw new Error('Selected not a Card');
         addClass(found.element, 'highlight');
         found.element.addEventListener('contextmenu', this.contextMenu);
       },
       unselected: (_, ui) => {
-        const unselected: JQuery<HTMLElement> = $(ui.unselected);
-        const uuid: string = unselected.attr('id') as string;
+        const uuid: string = ui.unselected.id;
         const found: Stack | Card | undefined = canvas.search(uuid).pop();
         if (!(found instanceof Card)) throw new Error('Unselected not a Card');
         removeClass(found.element, 'highlight');
@@ -172,7 +171,7 @@ export class Card implements Base<(Canvas | Stack), null>,
     ];
 
     let aContextMenu: Menu = remote.Menu.buildFromTemplate(menuOptions);
-    aContextMenu.popup();
+    aContextMenu.popup({});
   }
 
 }
