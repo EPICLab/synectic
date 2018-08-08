@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "lib": ["ES5", "ES6", "DOM"],
     "target": "ES6",
     "moduleResolution": "node",
     "pretty": true,
