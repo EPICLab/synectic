@@ -1,18 +1,19 @@
-import { Card } from '../core/Card';
-import { Canvas } from '../core/Canvas';
-import { Stack } from '../core/Stack';
+import { Card } from '../../core/lib/Card';
+import { Canvas } from '../../core/lib/Canvas';
+import { Stack } from '../../core/lib/Stack';
+import { addClass } from '../../core/lib/helper';
 import ace from 'brace';
 import 'brace/mode/javascript';
 import 'brace/theme/monokai';
-import { addClass } from '../core/helper';
 
-export class CodeEditor extends Card {
+export class Editor extends Card {
 
   public editorWindow: HTMLDivElement;
   public editor: ace.Editor;
 
   constructor(parent: Canvas | Stack) {
-    super(parent, ['js']);
+    super(parent);
+    // global.Synectic.dispatcher.addEventListener('open-file', () => console.log('opening file...'));
 
     this.editorWindow = document.createElement('div');
     this.editorWindow.setAttribute('id', (this.uuid + '-editor'));
