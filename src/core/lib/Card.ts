@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 import { Draggable, Droppable, OptionState, Selectable } from './interactions';
 import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
+// import { Clock } from './events/Clock';
 
 /**
  * Template definition of a card; can be extended to support specific content.
@@ -16,7 +17,6 @@ export class Card implements Base<(Canvas | Stack), null>,
   uuid: string = v4();
   created: DateTime = DateTime.local();
   modified: DateTime = DateTime.local();
-  filetypes: string[];
   parent: Canvas | Stack;
   children: null[] = [];
   element: HTMLDivElement = document.createElement('div');
@@ -27,17 +27,18 @@ export class Card implements Base<(Canvas | Stack), null>,
   /**
    * Default constructor for creating a blank card with standard interaction controls.
    * @param parent A canvas or stack instance that will contain the new card.
-   * @param filetypes An array of filetype extensions supported by a particular card type (i.e. ['js', 'jsx']).
    */
-  constructor(parent: Canvas | Stack, filetypes: string[]) {
+  constructor(parent: Canvas | Stack) {
     this.parent = parent;
-    this.filetypes = filetypes;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
     this.header.setAttribute('class', 'card-header');
     this.title.innerHTML = 'My Card';
     this.closeButton.setAttribute('class', 'close');
-    // $(this.closeButton).click(() => this.destructor());
+    $(this.closeButton).click(() => this.destructor());
+
+    // let clock = new Clock("Smu", 1000, 10);
+    // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
 
     this.header.appendChild(this.title);
     this.header.appendChild(this.closeButton);
