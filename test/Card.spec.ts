@@ -1,8 +1,8 @@
 /// <reference path="../src/core/global.d.ts" />
 import { expect } from 'chai';
-import { AppManagerInstance } from '../src/core/AppManager';
-import { Canvas } from '../src/core/Canvas';
-import { Card } from '../src/core/Card';
+import { AppManagerInstance } from '../src/core/lib/AppManager';
+import { Canvas } from '../src/core/lib/Canvas';
+import { Card } from '../src/core/lib/Card';
 
 describe('Card class', () => {
 
@@ -13,7 +13,7 @@ describe('Card class', () => {
 
   it('Should append HTML element to DOM when constructor is invoked', () => {
     const canvas: Canvas = global.Synectic.current;
-    const card: Card = new Card(canvas, ['js']);
+    const card: Card = new Card(canvas);
     expect(document.getElementById(card.element.id)).to.exist;
   });
 

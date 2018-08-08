@@ -1,8 +1,8 @@
 /// <reference path="../src/core/global.d.ts" />
-import { AppManagerInstance } from '../src/core/AppManager';
+import { AppManagerInstance } from '../src/core/lib/AppManager';
 import { expect } from 'chai';
 import { instance, mock, when } from 'ts-mockito';
-import { Card } from '../src/core/Card';
+import { Card } from '../src/core/lib/Card';
 
 // import jsdom = require("jsdom");
 // const { JSDOM } = jsdom;

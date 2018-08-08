@@ -2,9 +2,9 @@
 import { expect } from 'chai';
 // import { instance, mock, when } from 'ts-mockito';
 import { mock } from 'ts-mockito';
-import { Canvas } from '../src/core/Canvas';
-import { Card } from '../src/core/Card';
-import { AppManagerInstance } from '../src/core/AppManager';
+import { Canvas } from '../src/core/lib/Canvas';
+import { Card } from '../src/core/lib/Card';
+import { AppManagerInstance } from '../src/core/lib/AppManager';
 
 describe('Canvas class', () => {
 
