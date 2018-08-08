@@ -15,21 +15,19 @@ export function openCardDialog(options: OpenDialogOptions): Card | null {
         throw Error("Filename cannot be loaded into a Card.");
       }
       filenames.map((filename) => {
+        let filetype: string = fio.getFileType(filename);
         let handler: string = fio.getHandlerClass(filename);
-        console.log('handler: ' + handler);
         let card = mapper.stringToCard(handler);
         card.title.innerHTML = path.basename(filename);
 
         fio.asyncReadFile(filename).then((res: string | void) => {
           if (res !== undefined) {
-            console.log('asyncReadFile: res is not undefined');
             if (card instanceof Editor) {
-              console.log('card is an instanceof Editor');
               card.editor.setSession(new EditSession(res));
-              card.editor.getSession().setMode('ace/mode/javascript');
+              let mode = 'ace/mode/' + filetype.toLowerCase();
+              card.editor.getSession().setMode(mode);
             }
             else if (card instanceof TextView) {
-              console.log('card is an instanceof TextView');
               card.content.innerText = res;
             }
           }

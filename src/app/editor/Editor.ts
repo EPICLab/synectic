@@ -4,6 +4,9 @@ import { Stack } from '../../core/lib/Stack';
 import { addClass } from '../../core/lib/helper';
 import ace from 'brace';
 import 'brace/mode/javascript';
+import 'brace/mode/typescript';
+import 'brace/mode/latex';
+import 'brace/mode/python';
 import 'brace/theme/monokai';
 
 export class Editor extends Card {
