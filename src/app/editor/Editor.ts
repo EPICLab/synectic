@@ -14,9 +14,13 @@ export class Editor extends Card {
   public editorWindow: HTMLDivElement;
   public editor: ace.Editor;
 
-  constructor(parent: Canvas | Stack) {
-    super(parent);
-    // global.Synectic.dispatcher.addEventListener('open-file', () => console.log('opening file...'));
+  /**
+   * Default constructor for creating an Editor card.
+   * @param parent A canvas or stack instance that will contain the new Editor card.
+   * @param filename A valid filename or path to load content into new Editor card.
+   */
+  constructor(parent: Canvas | Stack, filename: string) {
+    super(parent, filename);
 
     this.editorWindow = document.createElement('div');
     this.editorWindow.setAttribute('id', (this.uuid + '-editor'));

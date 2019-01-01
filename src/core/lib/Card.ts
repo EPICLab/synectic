@@ -15,6 +15,7 @@ export class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable {
 
   uuid: string = v4();
+  filename: string;
   created: DateTime = DateTime.local();
   modified: DateTime = DateTime.local();
   parent: Canvas | Stack;
@@ -27,9 +28,11 @@ export class Card implements Base<(Canvas | Stack), null>,
   /**
    * Default constructor for creating a blank card with standard interaction controls.
    * @param parent A canvas or stack instance that will contain the new card.
+   * @param filename A valid filename or path to associate with the new card.
    */
-  constructor(parent: Canvas | Stack) {
+  constructor(parent: Canvas | Stack, filename: string) {
     this.parent = parent;
+    this.filename = filename;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
     this.header.setAttribute('class', 'card-header');

@@ -2,15 +2,15 @@ import { Card } from '../../core/lib/Card';
 import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
 import { addClass } from '../../core/lib/helper';
-import 'ocrad.js';
+// import 'ocrad.js';
 
 export class OCR extends Card {
 
   public output: HTMLDivElement;
   public canvas: HTMLCanvasElement;
 
-  constructor(parent: Canvas | Stack) {
-    super(parent);
+  constructor(parent: Canvas | Stack, filename: string) {
+    super(parent, filename);
 
     this.output = document.createElement('div');
     this.output.setAttribute('id', (this.uuid + '-ocr'));
