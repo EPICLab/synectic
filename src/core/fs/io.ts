@@ -1,35 +1,53 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as url from 'url';
 
-export function asyncWriteFile(filepath: string, data: string): Promise<void> {
-  return fs.writeFile(path.resolve(filepath), data)
-    .then(() => console.info('File created: ' + path.resolve(filepath)))
-    .catch(err => console.error(err));
+/**
+ * Return the extension of the path, from the last '.' to end of string in the last portion of the path.
+ * If there is no '.' in the last portion of the path or the first character of it is '.', then it returns the entire string.
+ * @param p The path to evaluate.
+ */
+export function extname(p: string): string {
+  let ext: string | undefined = p.split('.').pop();
+  if (ext !== undefined) return ext;
+  else return p;
 }
 
-export function asyncReadFile(filepath: string): Promise<string | void> {
-  return fs.readFile(path.resolve(filepath))
-    .then((res: Buffer) => { return res.toString(); })
-    .catch(err => console.error(err));
+/**
+ * Converts a JSON string into an object.
+ * @param json A valid JSON string.
+ * @return An object (can be an array of objects).
+ */
+export function deserialize<T>(json: string): T {
+  return <T> JSON.parse(json);
 }
 
-export function getFileType(filename: string): string {
-  let extension: string | undefined = path.extname(filename).split('.').pop();
-  return global.Synectic.filetypeMap.get(extension);
+/**
+ * Asynchronously reads file content into a string.
+ * @param filename A valid filename or path to read from.
+ * @return A string containing the file content.
+ */
+export function readFileAsync(filename: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path.resolve(filename), (error, result) => {
+      if (error) reject(error);
+      else resolve(result.toString());
+    });
+  });
 }
 
-export function getHandlerClass(filename: string): string {
-  let filetype: string = getFileType(filename);
-  return global.Synectic.handlerMap.get(filetype);
-}
-
-export function testLoad(path: string): string {
-  let fullPath = __dirname + path;
-  let fileUrl = url.parse(fullPath);
-
-  console.log('process.cwd: ' + process.cwd());
-  console.log(fileUrl);
-
-  return fs.readFileSync(fullPath, 'utf8');
+/**
+ * Asynchronously writes to a file; creates a new file if none exists.
+ * @param filename A valid filename or path to write the data to.
+ * @param data A string containing content.
+ */
+export function writeFileAsync(filename: string, data: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(path.resolve(filename), data, path.extname(filename), (error) => {
+      if (error) reject(error);
+      else {
+        console.info('File `' + path.resolve(filename) + '` created.');
+        resolve();
+      };
+    });
+  });
 }

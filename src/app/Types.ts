@@ -1,5 +1,5 @@
 import { Editor } from './editor/Editor';
-import { TextView } from './textview/TextView';
+import { OCR } from './ocr/OCR';
 
 export interface ICardTypes {
   [key:string] : any;
@@ -7,5 +7,5 @@ export interface ICardTypes {
 
 export const cardTypes: ICardTypes = {
   Editor: Editor,
-  TextView: TextView
+  OCR: OCR
 }

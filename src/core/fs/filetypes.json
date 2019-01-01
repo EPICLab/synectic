@@ -1,1 +1,566 @@
-[["abap","ABAP"],["abc","ABC"],["as","ActionScript"],["ada","ADA"],["adb","ADA"],[".htaccess","Apache_Conf"],[".htgroups","Apache_Conf"],[".htpasswd","Apache_Conf"],[".conf","Apache_Conf"],["htaccess","Apache_Conf"],["htgroups","Apache_Conf"],["htpasswd","Apache_Conf"],["asciidoc","AsciiDoc"],["adoc","AsciiDoc"],["asm","Assembly_x86"],["a","Assembly_x86"],["ahk","AutoHotKey"],["bat","BatchFile"],["cmd","BatchFile"],["bro","Bro"],["cpp","C_Cpp"],["c","C_Cpp"],["cc","C_Cpp"],["cxx","C_Cpp"],["h","C_Cpp"],["hh","C_Cpp"],["hpp","C_Cpp"],["ino","C_Cpp"],["c9search_results","C9Search"],["cirru","Cirru"],["cr","Cirru"],["clj","Clojure"],["cljs","Clojure"],["CBL","Cobol"],["COB","Cobol"],["coffee","coffee"],["cf","coffee"],["cson","coffee"],[".Cakefile","coffee"],["cfm","ColdFusion"],["cs","CSharp"],["csd","Csound_Document"],["orc","Csound_Orchestra"],["sco","Csound_Score"],["css","CSS"],["curly","Curly"],["d","D"],["di","D"],["dart","Dart"],["diff","Diff"],["patch","Diff"],[".Dockerfile","Dockerfile"],["dot","Dot"],["drl","Drools"],["dummy","DummySyntax"],["html","HTML"],["e","Eiffel"],["ge","Eiffel"],["ejs","EJS"],["ex","Elixir"],["exs","Elixir"],["elm","Elm"],["erl","Erlang"],["hrl","Erlang"],["frt","Forth"],["fs","Forth"],["ldr","Forth"],["fth","Forth"],["4th","Forth"],["f","Fortran"],["f90","Fortran"],["ftl","FTL"],["gcode","Gcode"],["feature","Gherkin"],[".gitignore","Gitignore"],["glsl","Glsl"],["frag","Glsl"],["vert","Glsl"],["gbs","Gobstones"],["go","golang"],["gql","GraphQLSchema"],["groovy","Groovy"],["haml","HAML"],["hbs","Handlebars"],["handlebars","Handlebars"],["tpl","Smarty"],["mustache","Handlebars"],["hs","Haskell"],["cabal","Haskell_Cabal"],["hx","haXe"],["hjson","Hjson"],["htm","HTML"],["xhtml","HTML"],["vue","HTML"],["we","HTML"],["wpy","HTML"],["eex","HTML_Elixir"],["html.eex","HTML_Elixir"],["erb","HTML_Ruby"],["rhtml","HTML_Ruby"],["html.erb","HTML_Ruby"],["ini","INI"],["conf","INI"],["cfg","INI"],["prefs","INI"],["io","Io"],["jack","Jack"],["jade","Jade"],["pug","Jade"],["java","Java"],["js","JavaScript"],["jsm","JavaScript"],["jsx","JSX"],["json","JSON"],["jq","JSONiq"],["jsp","JSP"],["jssm","JSSM"],["jssm_state","JSSM"],["jl","Julia"],["kt","Kotlin"],["kts","Kotlin"],["tex","Tex"],["latex","LaTeX"],["ltx","LaTeX"],["bib","LaTeX"],["less","LESS"],["liquid","Liquid"],["lisp","Lisp"],["ls","LiveScript"],["logic","LogiQL"],["lql","LogiQL"],["lsl","LSL"],["lua","Lua"],["lp","LuaPage"],["lucene","Lucene"],[".Makefile","Makefile"],[".GNUmakefile","Makefile"],[".makefile","Makefile"],[".OCamlMakefile","Makefile"],[".make","Makefile"],["md","Markdown"],["markdown","Markdown"],["mask","Mask"],["matlab","MATLAB"],["mz","Maze"],["mel","MEL"],["mc","MUSHCode"],["mush","MUSHCode"],["mysql","MySQL"],["nix","Nix"],["nsi","NSIS"],["nsh","NSIS"],["m","ObjectiveC"],["mm","ObjectiveC"],["ml","OCaml"],["mli","OCaml"],["pas","Pascal"],["p","Pascal"],["pl","Perl"],["pm","Perl"],["pgsql","pgSQL"],["php","PHP"],["phtml","PHP"],["shtml","PHP"],["php3","PHP"],["php4","PHP"],["php5","PHP"],["phps","PHP"],["phpt","PHP"],["aw","PHP"],["ctp","PHP"],["module","PHP"],["pig","Pig"],["ps1","Powershell"],["praat","Praat"],["praatscript","Praat"],["psc","Praat"],["proc","Praat"],["plg","Prolog"],["prolog","Prolog"],["properties","Properties"],["proto","Protobuf"],["py","Python"],["r","R"],["cshtml","Razor"],["asp","Razor"],["Rd","RDoc"],["red","Red"],["reds","Red"],["Rhtml","RHTML"],["rst","RST"],["rb","Ruby"],["ru","Ruby"],["gemspec","Ruby"],["rake","Ruby"],[".Guardfile","Ruby"],[".Rakefile","Ruby"],[".Gemfile","Ruby"],["rs","Rust"],["sass","SASS"],["scad","SCAD"],["scala","Scala"],["scm","Scheme"],["sm","Scheme"],["rkt","Scheme"],["oak","Scheme"],["scheme","Scheme"],["scss","SCSS"],["sh","SH"],["bash","SH"],[".bashrc","SH"],["sjs","SJS"],["smarty","Smarty"],["snippets","snippets"],["soy","Soy_Template"],["space","Space"],["sql","SQL"],["sqlserver","SQLServer"],["styl","Stylus"],["stylus","Stylus"],["svg","SVG"],["swift","Swift"],["tcl","Tcl"],["txt","Text"],["textile","Textile"],["toml","Toml"],["tsx","TSX"],["twig","Twig"],["swig","Twig"],["ts","Typescript"],["typescript","Typescript"],["str","Typescript"],["vala","Vala"],["vbs","VBScript"],["vb","VBScript"],["vm","Velocity"],["v","Verilog"],["vh","Verilog"],["sv","Verilog"],["svh","Verilog"],["vhd","VHDL"],["vhdl","VHDL"],["wlk","Wollok"],["wpgm","Wollok"],["wtest","Wollok"],["xml","XML"],["rdf","XML"],["rss","XML"],["wsdl","XML"],["xslt","XML"],["atom","XML"],["mathml","XML"],["mml","XML"],["xul","XML"],["xbl","XML"],["xaml","XML"],["xq","XQuery"],["yaml","YAML"],["yml","YAML"]]
+[{
+  "name": "ABAP",
+  "handler": "Editor",
+  "extensions": ["abap"]
+},{
+  "name": "ActionScript",
+  "handler": "Editor",
+  "extensions": ["as"]
+},{
+  "name": "ADA",
+  "handler": "Editor",
+  "extensions": ["ada","adb"]
+},{
+  "name": "Apache_Conf",
+  "handler": "Editor",
+  "extensions": [".htaccess",".htgroups",".htpasswd",".conf","htaccess","htgroups","htpasswd"]
+},{
+  "name": "AsciiDoc",
+  "handler": "Editor",
+  "extensions": ["asciidoc","adoc"]
+},{
+  "name": "Assembly_x86",
+  "handler": "Editor",
+  "extensions": ["asm","a"]
+},{
+  "name": "AutoHotKey",
+  "handler": "Editor",
+  "extensions": ["ahk"]
+},{
+  "name": "BatchFile",
+  "handler": "Editor",
+  "extensions": ["bat","cmd"]
+},{
+  "name": "Bro",
+  "handler": "Editor",
+  "extensions": ["bro"]
+},{
+  "name": "C_Cpp",
+  "handler": "Editor",
+  "extensions": ["cpp","c","cc","cxx","h","hh","hpp","ino"]
+},{
+  "name": "C9Search",
+  "handler": "Editor",
+  "extensions": ["c9search_results"]
+},{
+  "name": "Cirru",
+  "handler": "Editor",
+  "extensions": ["cirru","cr"]
+},{
+  "name": "Clojure",
+  "handler": "Editor",
+  "extensions": ["clj","cljs"]
+},{
+  "name": "Cobol",
+  "handler": "Editor",
+  "extensions": ["CBL","COB"]
+},{
+  "name": "coffee",
+  "handler": "Editor",
+  "extensions": ["coffee","cf","cson","Cakefile"]
+},{
+  "name": "ColdFusion",
+  "handler": "Editor",
+  "extensions": ["cfm"]
+},{
+  "name": "CSharp",
+  "handler": "Editor",
+  "extensions": ["cs"]
+},{
+  "name": "Csound_Document",
+  "handler": "Editor",
+  "extensions": ["csd"]
+},{
+  "name": "Csound_Orchestra",
+  "handler": "Editor",
+  "extensions": ["orc"]
+},{
+  "name": "Csound_Score",
+  "handler": "Editor",
+  "extensions": ["sco"]
+},{
+  "name": "CSS",
+  "handler": "Editor",
+  "extensions": ["css"]
+},{
+  "name": "Curly",
+  "handler": "Editor",
+  "extensions": ["curly"]
+},{
+  "name": "D",
+  "handler": "Editor",
+  "extensions": ["d","di"]
+},{
+  "name": "Dart",
+  "handler": "Editor",
+  "extensions": ["dart"]
+},{
+  "name": "Diff",
+  "handler": "Editor",
+  "extensions": ["diff","patch"]
+},{
+  "name": "Dockerfile",
+  "handler": "Editor",
+  "extensions": [".Dockerfile"]
+},{
+  "name": "Dot",
+  "handler": "Editor",
+  "extensions": ["dot"]
+},{
+  "name": "Drools",
+  "handler": "Editor",
+  "extensions": ["drl"]
+},{
+  "name": "DummySyntax",
+  "handler": "Editor",
+  "extensions": ["dummy"]
+},{
+  "name": "HTML",
+  "handler": "Editor",
+  "extensions": ["html","htm","xhtml","vue","we","wpy"]
+},{
+  "name": "Eiffel",
+  "handler": "Editor",
+  "extensions": ["e","ge"]
+},{
+  "name": "EJS",
+  "handler": "Editor",
+  "extensions": ["ejs"]
+},{
+  "name": "Elixir",
+  "handler": "Editor",
+  "extensions": ["ex","exs"]
+},{
+  "name": "Elm",
+  "handler": "Editor",
+  "extensions": ["elm"]
+},{
+  "name": "Erlang",
+  "handler": "Editor",
+  "extensions": ["erl","hrl"]
+},{
+  "name": "Forth",
+  "handler": "Editor",
+  "extensions": ["frt","fs","ldr","fth","4th"]
+},{
+  "name": "Fortran",
+  "handler": "Editor",
+  "extensions": ["f","f90"]
+},{
+  "name": "FTL",
+  "handler": "Editor",
+  "extensions": ["ftl"]
+},{
+  "name": "Gcode",
+  "handler": "Editor",
+  "extensions": ["gcode"]
+},{
+  "name": "Gherkin",
+  "handler": "Editor",
+  "extensions": ["feature"]
+},{
+  "name": "Gitignore",
+  "handler": "Editor",
+  "extensions": [".gitignore"]
+},{
+  "name": "Glsl",
+  "handler": "Editor",
+  "extensions": ["glsl","frag","vert"]
+},{
+  "name": "Gobstones",
+  "handler": "Editor",
+  "extensions": ["gbs"]
+},{
+  "name": "go",
+  "handler": "Editor",
+  "extensions": ["golang"]
+},{
+  "name": "GraphQLSchema",
+  "handler": "Editor",
+  "extensions": ["gql"]
+},{
+  "name": "Groovy",
+  "handler": "Editor",
+  "extensions": ["groovy"]
+},{
+  "name": "HAML",
+  "handler": "Editor",
+  "extensions": ["haml"]
+},{
+  "name": "Handlebars",
+  "handler": "Editor",
+  "extensions": ["hbs","handlebars","mustache"]
+},{
+  "name": "Smarty",
+  "handler": "Editor",
+  "extensions": ["tpl","smarty"]
+},{
+  "name": "Haskell",
+  "handler": "Editor",
+  "extensions": ["hs"]
+},{
+  "name": "Haskell_Cabal",
+  "handler": "Editor",
+  "extensions": ["cabal"]
+},{
+  "name": "haXe",
+  "handler": "Editor",
+  "extensions": ["hx"]
+},{
+  "name": "Hjson",
+  "handler": "Editor",
+  "extensions": ["hjson"]
+},{
+  "name": "HTML_Elixir",
+  "handler": "Editor",
+  "extensions": ["eex","html.eex"]
+},{
+  "name": "HTML_Ruby",
+  "handler": "Editor",
+  "extensions": ["erb","rhtml","html.erb"]
+},{
+  "name": "INI",
+  "handler": "Editor",
+  "extensions": ["ini","conf","cfg","prefs"]
+},{
+  "name": "Io",
+  "handler": "Editor",
+  "extensions": ["io"]
+},{
+  "name": "Jack",
+  "handler": "Editor",
+  "extensions": ["jack"]
+},{
+  "name": "Jade",
+  "handler": "Editor",
+  "extensions": ["jade","pug"]
+},{
+  "name": "Java",
+  "handler": "Editor",
+  "extensions": ["java"]
+},{
+  "name": "JavaScript",
+  "handler": "Editor",
+  "extensions": ["js","jsm"]
+},{
+  "name": "JSX",
+  "handler": "Editor",
+  "extensions": ["jsx"]
+},{
+  "name": "JSON",
+  "handler": "Editor",
+  "extensions": ["json"]
+},{
+  "name": "JSONiq",
+  "handler": "Editor",
+  "extensions": ["jq"]
+},{
+  "name": "JSP",
+  "handler": "Editor",
+  "extensions": ["jsp"]
+},{
+  "name": "JSSM",
+  "handler": "Editor",
+  "extensions": ["jssm","jssm_state"]
+},{
+  "name": "Julia",
+  "handler": "Editor",
+  "extensions": ["jl"]
+},{
+  "name": "Kotlin",
+  "handler": "Editor",
+  "extensions": ["kt","kts"]
+},{
+  "name": "Tex",
+  "handler": "Editor",
+  "extensions": ["tex"]
+},{
+  "name": "LaTeX",
+  "handler": "Editor",
+  "extensions": ["latex","ltx","bib"]
+},{
+  "name": "LESS",
+  "handler": "Editor",
+  "extensions": ["less"]
+},{
+  "name": "Liquid",
+  "handler": "Editor",
+  "extensions": ["liquid"]
+},{
+  "name": "Lisp",
+  "handler": "Editor",
+  "extensions": ["lisp"]
+},{
+  "name": "LiveScript",
+  "handler": "Editor",
+  "extensions": ["ls"]
+},{
+  "name": "LogiQL",
+  "handler": "Editor",
+  "extensions": ["logic","lql"]
+},{
+  "name": "LSL",
+  "handler": "Editor",
+  "extensions": ["lsl"]
+},{
+  "name": "Lua",
+  "handler": "Editor",
+  "extensions": ["lua"]
+},{
+  "name": "LuaPage",
+  "handler": "Editor",
+  "extensions": ["lp"]
+},{
+  "name": "Lucene",
+  "handler": "Editor",
+  "extensions": ["lucene"]
+},{
+  "name": "Makefile",
+  "handler": "Editor",
+  "extensions": [".Makefile",".GNUmakefile",".makefile",".OCamlMakefile",".make"]
+},{
+  "name": "Markdown",
+  "handler": "Editor",
+  "extensions": ["md","markdown"]
+},{
+  "name": "Mask",
+  "handler": "Editor",
+  "extensions": ["mask"]
+},{
+  "name": "MATLAB",
+  "handler": "Editor",
+  "extensions": ["matlab"]
+},{
+  "name": "Maze",
+  "handler": "Editor",
+  "extensions": ["mz"]
+},{
+  "name": "MEL",
+  "handler": "Editor",
+  "extensions": ["mel"]
+},{
+  "name": "MUSHCode",
+  "handler": "Editor",
+  "extensions": ["mc","mush"]
+},{
+  "name": "MySQL",
+  "handler": "Editor",
+  "extensions": ["mysql"]
+},{
+  "name": "Nix",
+  "handler": "Editor",
+  "extensions": ["nix"]
+},{
+  "name": "NSIS",
+  "handler": "Editor",
+  "extensions": ["nsi","nsh"]
+},{
+  "name": "ObjectiveC",
+  "handler": "Editor",
+  "extensions": ["m","mm"]
+},{
+  "name": "OCaml",
+  "handler": "Editor",
+  "extensions": ["ml","mli"]
+},{
+  "name": "Pascal",
+  "handler": "Editor",
+  "extensions": ["pas","p"]
+},{
+  "name": "Perl",
+  "handler": "Editor",
+  "extensions": ["pl","pm"]
+},{
+  "name": "pgSQL",
+  "handler": "Editor",
+  "extensions": ["pgsql"]
+},{
+  "name": "PHP",
+  "handler": "Editor",
+  "extensions": ["php","phtml","shtml","php3","php4","php5","phps","phpt","aw","ctp","module"]
+},{
+  "name": "Pig",
+  "handler": "Editor",
+  "extensions": ["pig"]
+},{
+  "name": "Powershell",
+  "handler": "Editor",
+  "extensions": ["ps1"]
+},{
+  "name": "Praat",
+  "handler": "Editor",
+  "extensions": ["praat","praatscript","psc","proc"]
+},{
+  "name": "Prolog",
+  "handler": "Editor",
+  "extensions": ["plg","prolog"]
+},{
+  "name": "Properties",
+  "handler": "Editor",
+  "extensions": ["properties"]
+},{
+  "name": "Protobuf",
+  "handler": "Editor",
+  "extensions": ["proto"]
+},{
+  "name": "Python",
+  "handler": "Editor",
+  "extensions": ["py"]
+},{
+  "name": "R",
+  "handler": "Editor",
+  "extensions": ["r"]
+},{
+  "name": "Razor",
+  "handler": "Editor",
+  "extensions": ["cshtml","asp"]
+},{
+  "name": "Rdoc",
+  "handler": "Editor",
+  "extensions": ["Rd"]
+},{
+  "name": "Red",
+  "handler": "Editor",
+  "extensions": ["red","reds"]
+},{
+  "name": "RHTML",
+  "handler": "Editor",
+  "extensions": ["Rhtml"]
+},{
+  "name": "RST",
+  "handler": "Editor",
+  "extensions": ["rst"]
+},{
+  "name": "Ruby",
+  "handler": "Editor",
+  "extensions": ["rb","ru","gemspec","rake",".Guardfile",".Rakefile",".Gemfile"]
+},{
+  "name": "Rust",
+  "handler": "Editor",
+  "extensions": ["rs"]
+},{
+  "name": "SASS",
+  "handler": "Editor",
+  "extensions": ["sass"]
+},{
+  "name": "SCAD",
+  "handler": "Editor",
+  "extensions": ["scad"]
+},{
+  "name": "Scala",
+  "handler": "Editor",
+  "extensions": ["scala"]
+},{
+  "name": "Scheme",
+  "handler": "Editor",
+  "extensions": ["scm","sm","rkt","oak","scheme"]
+},{
+  "name": "SCSS",
+  "handler": "Editor",
+  "extensions": ["scss"]
+},{
+  "name": "SH",
+  "handler": "Editor",
+  "extensions": ["sh","bash",".bashrc"]
+},{
+  "name": "SJS",
+  "handler": "Editor",
+  "extensions": ["sjs"]
+},{
+  "name": "snippets",
+  "handler": "Editor",
+  "extensions": ["snippets"]
+},{
+  "name": "Soy_Template",
+  "handler": "Editor",
+  "extensions": ["soy"]
+},{
+  "name": "Space",
+  "handler": "Editor",
+  "extensions": ["space"]
+},{
+  "name": "SQL",
+  "handler": "Editor",
+  "extensions": ["sql"]
+},{
+  "name": "SQLServer",
+  "handler": "Editor",
+  "extensions": ["sqlserver"]
+},{
+  "name": "Stylus",
+  "handler": "Editor",
+  "extensions": ["styl","stylus"]
+},{
+  "name": "SVG",
+  "handler": "Editor",
+  "extensions": ["svg"]
+},{
+  "name": "Swift",
+  "handler": "Editor",
+  "extensions": ["swift"]
+},{
+  "name": "Tcl",
+  "handler": "Editor",
+  "extensions": ["tcl"]
+},{
+  "name": "Text",
+  "handler": "Editor",
+  "extensions": ["txt"]
+},{
+  "name": "Textile",
+  "handler": "Editor",
+  "extensions": ["textile"]
+},{
+  "name": "Toml",
+  "handler": "Editor",
+  "extensions": ["toml"]
+},{
+  "name": "TSX",
+  "handler": "Editor",
+  "extensions": ["tsx"]
+},{
+  "name": "Twig",
+  "handler": "Editor",
+  "extensions": ["twig","swig"]
+},{
+  "name": "Typescript",
+  "handler": "Editor",
+  "extensions": ["ts","typescript","str"]
+},{
+  "name": "Vala",
+  "handler": "Editor",
+  "extensions": ["vala"]
+},{
+  "name": "VBScript",
+  "handler": "Editor",
+  "extensions": ["vbs","vb"]
+},{
+  "name": "Velocity",
+  "handler": "Editor",
+  "extensions": ["vm"]
+},{
+  "name": "Verilog",
+  "handler": "Editor",
+  "extensions": ["v","vh","sv","svh"]
+},{
+  "name": "VHDL",
+  "handler": "Editor",
+  "extensions": ["vhd","vhdl"]
+},{
+  "name": "Wollok",
+  "handler": "Editor",
+  "extensions": ["wlk","wpgm","wtest"]
+},{
+  "name": "XML",
+  "handler": "Editor",
+  "extensions": ["xml","rdf","rss","wsdl","xslt","atom","mathml","mml","xul","xbl","xaml"]
+},{
+  "name": "XQuery",
+  "handler": "Editor",
+  "extensions": ["xq"]
+},{
+  "name": "YAML",
+  "handler": "Editor",
+  "extensions": ["yaml","yml"]
+}
+]
