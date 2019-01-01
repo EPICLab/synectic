@@ -73,7 +73,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
   /**
    * Adds card to this stack.
    * @param child A card to be added.
-   * @return A boolean for insertion success; false indicates child already exists in stack.
+   * @return Boolean indicating insertion success; false indicates child already exists in stack.
   */
   add(child: Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
@@ -111,7 +111,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
   /**
    * Removes acard from this stack.
    * @param child A card to be removed.
-   * @return A boolean for removal success; false indicates child not found in stack.
+   * @return Boolean indicating removal success; false indicates child not found in stack.
   */
   remove(child: Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
@@ -144,7 +144,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
   /**
    * Search for a card in this stack.
    * @param uuid The unique user ID to search for within the stack.
-   * @return An array ofcards that match the given uuid; can be empty.
+   * @return An array of cards that match the given uuid; can be empty.
   */
   search(uuid: string): Card[] {
     return this.children.filter(c => c.uuid === uuid);
