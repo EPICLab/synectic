@@ -1,0 +1,16 @@
+button.close {
+  background: url('../close_dark.svg') no-repeat;
+  background-size: cover;
+  position: absolute;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  z-index: 9999;
+}
+
+button.close:hover,
+button.close:active {
+  background: url('../close_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
