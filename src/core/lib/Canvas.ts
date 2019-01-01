@@ -37,7 +37,7 @@ export class Canvas implements Base<null, (Stack | Card)> {
   /**
    * Adds stack or card to this canvas.
    * @param child A stack or card to be added.
-   * @return A boolean for insertion success; false indicates child already exists in canvas.
+   * @return Boolean indicating insertion success; false indicates child already exists in canvas.
   */
   add(child: Stack | Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
@@ -59,7 +59,7 @@ export class Canvas implements Base<null, (Stack | Card)> {
   /**
    * Removes a stack or card from this canvas.
    * @param child A stack or card to be removed.
-   * @return A boolean for removal success; false indicates child not found in canvas.
+   * @return Boolean indicating removal success; false indicates child not found in canvas.
   */
   remove(child: Stack | Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
