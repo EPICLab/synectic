@@ -31,8 +31,11 @@ div.card-header {
   height: 29px;
   background: rgba(89, 87, 90, 1.0);
   box-sizing: border-box;
-  padding: 0 0 0 7px;
-  line-height: 29px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  align-content: flex-start;
   cursor: move;
   border-radius: 5px 5px 0 0;
   transform-style: preserve-3d;
@@ -40,36 +43,18 @@ div.card-header {
   font-weight: bold;
 }
 
+div.card-header * {
+  margin-right: 5px;
+}
+
+div.card-header span {
+  flex-basis: 100%;
+  margin-left: 5px;
+}
+
 div.card-header button {
   height: 15px;
   width: 15px;
-  position: absolute;
-  top: 7px;
-  right: 10px;
-  border: 0;
-  z-index: 9999;
-}
-
-div.card-header svg.close {
-  height: 15px;
-  width: 15px;
-  position: absolute;
-  top: 7px;
-  right: 10px;
-  border: 0;
-  z-index: 9999;
-}
-
-div.card-header button.close {
-  background: rgba(89, 87, 90, 1.0) url('../close_dark.svg') center/15px auto no-repeat;
-  background-size: cover;
-}
-
-div.card-header button.close:hover,
-div.card-header button.close:active {
-  background: rgba(89, 87, 90, 1.0) url('../close_active.svg') no-repeat;
-  background-size: cover;
-  cursor: pointer;
 }
 
 div.card-content {

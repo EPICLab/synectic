@@ -11,18 +11,19 @@ import { Menu, remote } from 'electron';
 /**
  * Template definition of a card; can be extended to support specific content.
  */
-export class Card implements Base<(Canvas | Stack), null>,
+export abstract class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable {
 
   uuid: string = v4();
-  filename: string;
   created: DateTime = DateTime.local();
   modified: DateTime = DateTime.local();
   parent: Canvas | Stack;
   children: null[] = [];
+  filename: string;
   element: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
   title: HTMLSpanElement = document.createElement('span');
+  saveButton: HTMLButtonElement = document.createElement('button');
   closeButton: HTMLButtonElement = document.createElement('button');
 
   /**
@@ -37,6 +38,9 @@ export class Card implements Base<(Canvas | Stack), null>,
     this.element.setAttribute('id', this.uuid);
     this.header.setAttribute('class', 'card-header');
     this.title.innerHTML = 'My Card';
+    this.saveButton.setAttribute('class', 'save');
+    $(this.saveButton).click(() => this.save());
+    $(this.saveButton).hide();
     this.closeButton.setAttribute('class', 'close');
     $(this.closeButton).click(() => this.destructor());
 
@@ -44,6 +48,7 @@ export class Card implements Base<(Canvas | Stack), null>,
     // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
 
     this.header.appendChild(this.title);
+    this.header.appendChild(this.saveButton);
     this.header.appendChild(this.closeButton);
     this.element.appendChild(this.header);
 
@@ -70,6 +75,16 @@ export class Card implements Base<(Canvas | Stack), null>,
     // const event = new CustomEvent('destruct', { detail: this.uuid });
     // document.dispatchEvent(event);
   }
+
+  /**
+   * Abstract placeholder for loading content from local or remote sources.
+   */
+  abstract load(): void;
+
+  /**
+   * Abstract placeholder for writing content to local or remote sources.
+   */
+  abstract save(): void;
 
   /**
    * Configuration for enabling/disabling draggable from JQuery-UI library.

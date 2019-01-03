@@ -22,4 +22,12 @@ export class OCR extends Card {
     this.canvas = document.createElement('canvas');
   }
 
+  save(): void {
+    throw new Error("Method not implemented.");
+  }
+
+  load(): void {
+    throw new Error("Method not implemented.");
+  }
+
 }

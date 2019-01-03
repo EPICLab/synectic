@@ -2,25 +2,28 @@ import { Card } from '../../core/lib/Card';
 import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
 import { addClass } from '../../core/lib/helper';
+import diff from 'fast-diff';
 import ace from 'brace';
 import 'brace/mode/javascript';
 import 'brace/mode/typescript';
 import 'brace/mode/latex';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
-import { extname, readFileAsync } from '../../core/fs/io';
+import { extname, readFileAsync, writeFileAsync } from '../../core/fs/io';
 import { searchExt } from '../../core/fs/filetypes';
 import { snackbar } from '../../core/fs/notifications';
+import { DateTime } from 'luxon';
 
 export class Editor extends Card {
 
   public editorWindow: HTMLDivElement;
   public editor: ace.Editor;
+  private snapshot: string = '';
 
   /**
    * Default constructor for creating an Editor card.
    * @param parent A canvas or stack instance that will contain the new Editor card.
-   * @param filename A valid filename or path to load content into new Editor card.
+   * @param filename A valid filename or path to associate content with this Editor card.
    */
   constructor(parent: Canvas | Stack, filename: string) {
     super(parent, filename);
@@ -36,21 +39,58 @@ export class Editor extends Card {
 
     this.editor = ace.edit(this.uuid + '-editor');
     this.editor.setTheme('ace/theme/monokai');
-    if (filename !== '') this.loadContent(this.filename);
+    if (filename !== '') this.load();
+    this.editor.addEventListener('change', () => {
+      this.modified = DateTime.local();
+      this.hasUnsavedChanges();
+    });
+  }
+
+  /**
+   * Writes content from Editor window to local file.
+   */
+  save(): void {
+    if (this.filename === '') {
+      //TODO: Instead of throwing a warning when filename not set, prompt for a filename and filetype and proceed with save.
+      snackbar(global.Synectic.current, 'This card is not associated with a filename, and cannot write to file.', 'Editor Card Error: No Filename');
+      return;
+    }
+    writeFileAsync(this.filename, this.editor.getValue()).then(() => {
+      this.snapshot = this.editor.getValue();
+      this.hasUnsavedChanges();
+    });
   }
 
   /**
    * Reads local file content into this Editor card.
-   * @param filename A valid filename or path for reading content into this card.
    */
-  loadContent(filename: string): void {
-    Promise.all([readFileAsync(filename), searchExt(extname(filename))])
-    .then(result => {
-      let [content, filetype] = result;
-      this.setContent(content);
-      if (filetype !== undefined) this.setMode(filetype.name);
-    })
-    .catch(error => snackbar(global.Synectic.current, error.message, 'Editor Card Error: File Loading Failed'));
+  load(): void {
+    if (this.filename === '') return; // no associated file to load
+    Promise.all([readFileAsync(this.filename), searchExt(extname(this.filename))])
+      .then(result => {
+        let [content, filetype] = result;
+        this.setContent(content);
+        this.snapshot = content;
+        if (filetype !== undefined) this.setMode(filetype.name);
+      })
+      .catch(error => snackbar(global.Synectic.current, error.message, 'Editor Card Error: File Loading Failed'));
+  }
+
+  /**
+   * Compares the most recent snapshot with the content in the Editor window.
+   * @return Boolean indicating that differences exist between snapshot and Editor content.
+   */
+  hasUnsavedChanges(): boolean {
+    let changeset = diff(this.snapshot, this.editor.getValue());
+    let nonEqualSets = changeset.filter(d => d[0] !== diff.EQUAL);
+    if (nonEqualSets.length > 0) {
+      $(this.saveButton).show();
+      return true;
+    }
+    else {
+      $(this.saveButton).hide();
+      return false;
+    }
   }
 
   /**
