@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 /**
- * Return the extension of the path, from the last '.' to end of string in the last portion of the path.
+ * Return the extension of the path, after the last '.' to end of string in the last portion of the path.
  * If there is no '.' in the last portion of the path or the first character of it is '.', then it returns the entire string.
  * @param p The path to evaluate.
  */
@@ -42,7 +42,7 @@ export function readFileAsync(filename: string): Promise<string> {
  */
 export function writeFileAsync(filename: string, data: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    fs.writeFile(path.resolve(filename), data, path.extname(filename), (error) => {
+    fs.writeFile(path.resolve(filename), data, (error) => {
       if (error) reject(error);
       else {
         console.info('File `' + path.resolve(filename) + '` created.');
