@@ -6,7 +6,10 @@ function onReady() {
   mainWindow = new BrowserWindow({
     height: 1000,
     width: 1200,
-    show: true
+    show: true,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
   const fileName = `file://${__dirname}/index.html`;
