@@ -66,8 +66,9 @@ export class Card implements Base<(Canvas | Stack), null>,
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
     }
-    const event = new CustomEvent('destruct', { detail: this.uuid });
-    document.dispatchEvent(event);
+    this.parent.remove(this);
+    // const event = new CustomEvent('destruct', { detail: this.uuid });
+    // document.dispatchEvent(event);
   }
 
   /**
