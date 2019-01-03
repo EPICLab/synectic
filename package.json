@@ -30,9 +30,9 @@
   "author": "Nicholas Nelson <nelsonni@oregonstate.edu>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nelsonni/synectic/issues"
+    "url": "https://github.com/SarmaResearch/synectic/issues"
   },
-  "homepage": "https://github.com/nelsonni/synectic#readme",
+  "homepage": "https://github.com/SarmaResearch/synectic#readme",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/jsdom": "^12.2.1",
