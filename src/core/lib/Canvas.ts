@@ -28,7 +28,7 @@ export class Canvas implements Base<null, (Stack | Card)> {
 
   /**
    * Default destructor for detaching from HTML DOM and deleting instance.
-  */
+   */
   destructor(): void {
     document.body.removeChild(this.element);
     delete this.element;
@@ -38,7 +38,7 @@ export class Canvas implements Base<null, (Stack | Card)> {
    * Adds stack or card to this canvas.
    * @param child A stack or card to be added.
    * @return Boolean indicating insertion success; false indicates child already exists in canvas.
-  */
+   */
   add(child: Stack | Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
       return false;
@@ -60,7 +60,7 @@ export class Canvas implements Base<null, (Stack | Card)> {
    * Removes a stack or card from this canvas.
    * @param child A stack or card to be removed.
    * @return Boolean indicating removal success; false indicates child not found in canvas.
-  */
+   */
   remove(child: Stack | Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
       this.children = this.children.filter(c => c !== child);
@@ -74,7 +74,7 @@ export class Canvas implements Base<null, (Stack | Card)> {
    * Search for a stack or card on this canvas.
    * @param uuid The unique user ID to search for within the canvas.
    * @return An array of stacks and cards that match the given uuid; can be empty.
-  */
+   */
   search(uuid: string): (Stack | Card)[] {
     return this.children.filter(c => c.uuid === uuid);
   }

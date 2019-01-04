@@ -39,10 +39,10 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.header.setAttribute('class', 'card-header');
     this.title.innerHTML = 'My Card';
     this.saveButton.setAttribute('class', 'save');
-    $(this.saveButton).click(() => this.save());
+    $(this.saveButton).on('click', () => this.save());
     $(this.saveButton).hide();
     this.closeButton.setAttribute('class', 'close');
-    $(this.closeButton).click(() => this.destructor());
+    $(this.closeButton).on('click', () => this.destructor());
 
     // let clock = new Clock("Smu", 1000, 10);
     // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
@@ -66,7 +66,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
 
   /**
    * Default destructor for detaching from parent and dispatching a 'destruct' event; does not destroy instance.
-  */
+   */
   destructor(): void {
     if (this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
@@ -169,9 +169,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
         label: 'New Stack',
         click: () => {
           const canvas: Canvas = global.Synectic.current;
-          let uuids: string[] = [];
+          const uuids: string[] = [];
           $('.ui-selected').map((_, s) => uuids.push($(s).attr('id') as string));
-          let cards = uuids.map((uuid) => canvas.search(uuid).pop() as Card);
+          const cards = uuids.map((uuid) => canvas.search(uuid).pop() as Card);
           if (cards.length >= 1) {
             cards.map((card) => {
               removeClass(card.element, 'highlight');
@@ -190,7 +190,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       }
     ];
 
-    let aContextMenu: Menu = remote.Menu.buildFromTemplate(menuOptions);
+    const aContextMenu: Menu = remote.Menu.buildFromTemplate(menuOptions);
     aContextMenu.popup({});
   }
 

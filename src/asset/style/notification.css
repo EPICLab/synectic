@@ -73,6 +73,7 @@ div.snackbar span, div.banner span, div.dialog span {
 
 div.snackbar button.close, div.banner button.close {
   display: none;
+  position: absolute;
   height: 15px;
   width: 15px;
   bottom: 6px;

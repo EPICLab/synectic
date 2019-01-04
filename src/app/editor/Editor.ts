@@ -51,14 +51,17 @@ export class Editor extends Card {
    */
   save(): void {
     if (this.filename === '') {
-      //TODO: Instead of throwing a warning when filename not set, prompt for a filename and filetype and proceed with save.
-      snackbar(global.Synectic.current, 'This card is not associated with a filename, and cannot write to file.', 'Editor Card Error: No Filename');
+      // TODO: Prompt for a filename and filetype and proceed with save, instead of error.
+      const message = 'This card is not associated with a filename, and cannot write to file.';
+      snackbar(global.Synectic.current, message, 'Editor Card Error: No Filename');
       return;
     }
-    writeFileAsync(this.filename, this.editor.getValue()).then(() => {
-      this.snapshot = this.editor.getValue();
-      this.hasUnsavedChanges();
-    });
+    writeFileAsync(this.filename, this.editor.getValue())
+      .then(() => {
+        this.snapshot = this.editor.getValue();
+        this.hasUnsavedChanges();
+      })
+      .catch(error => snackbar(global.Synectic.current, error.message, 'Editor Card Error: Save Error'));
   }
 
   /**
@@ -68,7 +71,7 @@ export class Editor extends Card {
     if (this.filename === '') return; // no associated file to load
     Promise.all([readFileAsync(this.filename), searchExt(extname(this.filename))])
       .then(result => {
-        let [content, filetype] = result;
+        const [content, filetype] = result;
         this.setContent(content);
         this.snapshot = content;
         if (filetype !== undefined) this.setMode(filetype.name);
@@ -81,13 +84,12 @@ export class Editor extends Card {
    * @return Boolean indicating that differences exist between snapshot and Editor content.
    */
   hasUnsavedChanges(): boolean {
-    let changeset = diff(this.snapshot, this.editor.getValue());
-    let nonEqualSets = changeset.filter(d => d[0] !== diff.EQUAL);
+    const changeset = diff(this.snapshot, this.editor.getValue());
+    const nonEqualSets = changeset.filter(d => d[0] !== diff.EQUAL);
     if (nonEqualSets.length > 0) {
       $(this.saveButton).show();
       return true;
-    }
-    else {
+    } else {
       $(this.saveButton).hide();
       return false;
     }

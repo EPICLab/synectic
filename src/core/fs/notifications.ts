@@ -1,11 +1,12 @@
 import { Canvas } from '../lib/Canvas';
 
 /**
- * Creates a Snackbar notification that is non-interruptive, no user action required, and optionally user dismissed (eventual timeout, otherwise).
+ * Creates a Snackbar notification that is non-interruptive, no user action required,
+ * and optionally user dismissed (eventual timeout, otherwise).
  * @param context The active Canvas instance for appending the Snackbar on top.
  * @param message The supporting HTML to be displayed in the Snackbar.
  * @param title (Optional) Title to be added to the top of the Snackbar.
-*/
+ */
 export function snackbar(context: Canvas, message: string, title?: string) {
   const snackbar = document.createElement('div');
   snackbar.setAttribute('class', 'snackbar');
@@ -22,8 +23,8 @@ export function snackbar(context: Canvas, message: string, title?: string) {
 
   const closeButton = document.createElement('button');
   closeButton.setAttribute('class', 'close');
-  $(snackbar).hover(() => $(closeButton).show(), () => $(closeButton).hide());
-  $(closeButton).click(() => {
+  $(snackbar).on('mouseenter', () => $(closeButton).show()).on('mouseleave', () => $(closeButton).hide());
+  $(closeButton).on('click', () => {
     $(snackbar).toggle('fold', undefined, 500);
     setTimeout(() => $(snackbar).remove(),550);
   });
@@ -42,8 +43,9 @@ export function snackbar(context: Canvas, message: string, title?: string) {
  * @param title (Optional) Title to be added to the top of the Banner.
  * @param buttons (Optional) The list of strings for labeling buttons.
  * @param callback (Optional) Callback for handling button selection events.
-*/
-export function banner(context: Canvas, message: string, title?: string , buttons?: string[], callback?: (response: number, banner: HTMLDivElement) => any) {
+ */
+export function banner(context: Canvas, message: string,
+  title?: string , buttons?: string[], callback?: (response: number, banner: HTMLDivElement) => any) {
   const banner = document.createElement('div');
   banner.setAttribute('class', 'banner');
 
@@ -59,10 +61,10 @@ export function banner(context: Canvas, message: string, title?: string , button
 
   if (buttons) {
     buttons.map((text, index) => {
-      let button = document.createElement('button');
+      const button = document.createElement('button');
       button.innerHTML = text;
       if (callback) {
-        $(button).click(() => callback(index, banner));
+        $(button).on('click', () => callback(index, banner));
       }
       banner.appendChild(button);
     });
@@ -70,8 +72,8 @@ export function banner(context: Canvas, message: string, title?: string , button
 
   const closeButton = document.createElement('button');
   closeButton.setAttribute('class', 'close');
-  $(banner).hover(() => $(closeButton).show(), () => $(closeButton).hide());
-  $(closeButton).click(() => {
+  $(banner).on('mouseenter', () => $(closeButton).show()).on('mouseleave', () => $(closeButton).hide());
+  $(closeButton).on('click', () => {
     $(banner).toggle('fold', undefined, 500);
     setTimeout(() => $(banner).remove(),550);
   });
@@ -87,8 +89,9 @@ export function banner(context: Canvas, message: string, title?: string , button
  * @param title (Optional) Title to be added to the top of the Dialog.
  * @param buttons (Optional) The list of strings for labeling buttons.
  * @param callback (Optional) Callback for handling button selection events.
-*/
-export function dialog(context: Canvas, content: HTMLElement[], title?: string, buttons?: string[], callback?: (response: number, dialog: HTMLDivElement) => any) {
+ */
+export function dialog(context: Canvas, content: HTMLElement[],
+  title?: string, buttons?: string[], callback?: (response: number, dialog: HTMLDivElement) => any) {
   const overlay = document.createElement('div');
   overlay.setAttribute('class', 'overlay');
   const dialog = document.createElement('div');
@@ -112,10 +115,10 @@ export function dialog(context: Canvas, content: HTMLElement[], title?: string, 
   bottom.setAttribute('class', 'bottom');
   if (buttons) {
     buttons.map((text, index) => {
-      let button = document.createElement('button');
+      const button = document.createElement('button');
       button.innerHTML = text;
       if (callback) {
-        $(button).click(() => callback(index, overlay));
+        $(button).on('click', () => callback(index, overlay));
       }
       bottom.appendChild(button);
     });

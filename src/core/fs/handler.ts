@@ -9,9 +9,12 @@ import { banner } from './notifications';
  * @return Card instance corresponding to handler type or null if no handler defined.
  */
 export function handlerToCard<T extends Card>(handler: string, filename?: string): T | null {
-  if (handler in cardTypes) return new cardTypes[handler](global.Synectic.current, filename);
-  else {
-    let message: string = 'Type handler `' + handler + '` is not a configured card type. Verify card types in app/Types.ts file.';
+  if (handler in cardTypes) {
+    return new cardTypes[handler](global.Synectic.current, filename);
+  } else {
+    let message = 'Type handler `' + handler + '` is not a configured card type.';
+    message = message.concat(' Verify card type exists in app/Types.ts file and');
+    message = message.concat(' try reloading a file.');
     banner(global.Synectic.current, message, 'Typer Handler Configuration Error');
     return null;
   }

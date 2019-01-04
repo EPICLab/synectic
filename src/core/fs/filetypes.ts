@@ -16,7 +16,7 @@ export function searchName(name: string): Promise<Filetype | undefined> {
   return new Promise((resolve, reject) => {
     io.readFileAsync('src/core/fs/filetypes.json')
       .then(content => io.deserialize<Filetype[]>(content))
-      .then(filetypes => resolve(filetypes.find(f => f.name.indexOf(name) != -1)))
+      .then(filetypes => resolve(filetypes.find(f => f.name.indexOf(name) !== -1)))
       .catch(error => reject(snackbar(global.Synectic.current, error.message, 'Filetype Search Error: Names')));
   });
 }
@@ -32,5 +32,5 @@ export function searchExt(extension: string): Promise<Filetype | undefined> {
       .then(content => io.deserialize<Filetype[]>(content))
       .then(filetypes => resolve(filetypes.find(f => f.extensions.some(e => e === extension))))
       .catch(error => reject(snackbar(global.Synectic.current, error.message, 'Filetype Search Error: Extensions')));
-    });
+  });
 }

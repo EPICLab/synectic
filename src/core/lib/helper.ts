@@ -9,7 +9,7 @@ export function addClass(el: HTMLElement, className: string): void {
 }
 
 export function removeClass(el: HTMLElement, className: string): void {
-  let exp: RegExp = new RegExp('\\b' + className + '\\b', 'g');
+  const exp: RegExp = new RegExp('\\b' + className + '\\b', 'g');
   if (el.classList) el.classList.remove(className);
   else el.className = el.className.replace(exp, '');
 }

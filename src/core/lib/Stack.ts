@@ -58,7 +58,8 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
   }
 
   /**
-   * Default destructor for removing children, detaching from parent, dispatching a 'destruct' event, and deleting instance.
+   * Default destructor for removing children, detaching from parent,
+   * dispatching a 'destruct' event, and deleting instance.
    */
   destructor(): void {
     this.children.map(c => this.remove(c));
@@ -74,7 +75,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
    * Adds card to this stack.
    * @param child A card to be added.
    * @return Boolean indicating insertion success; false indicates child already exists in stack.
-  */
+   */
   add(child: Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
       return false;
@@ -112,7 +113,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
    * Removes acard from this stack.
    * @param child A card to be removed.
    * @return Boolean indicating removal success; false indicates child not found in stack.
-  */
+   */
   remove(child: Card): boolean {
     if (this.children.some(c => c.uuid === child.uuid)) {
       this.children = this.children.filter(c => c !== child);
@@ -145,7 +146,7 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
    * Search for a card in this stack.
    * @param uuid The unique user ID to search for within the stack.
    * @return An array of cards that match the given uuid; can be empty.
-  */
+   */
   search(uuid: string): Card[] {
     return this.children.filter(c => c.uuid === uuid);
   }

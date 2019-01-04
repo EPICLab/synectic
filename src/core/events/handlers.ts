@@ -25,8 +25,8 @@ export class FileTypeDispatcher implements IFileTypeDispatcher {
   }
 
   dispatchAll(event: string): void {
-    let handlers = this._eventHandlers[event];
-    for (let handler of handlers) {
+    const handlers = this._eventHandlers[event];
+    for (const handler of handlers) {
       this.dispatchEvent(event, handler);
     }
   }
