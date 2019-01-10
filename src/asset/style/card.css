@@ -102,6 +102,52 @@ div.card-header button.shrink:active {
   cursor: pointer;
 }
 
+div.card-header svg.rightSplit {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  z-index: 9999;
+}
+
+div.card-header button.rightSplit {
+  right: 50px;
+  background: rgba(89, 87, 90, 1.0) url('../right_part_dark.svg') center/15px auto no-repeat;
+  background-size: cover;
+}
+
+div.card-header button.rightSplit:hover,
+div.card-header button.rightSplit:active {
+  background: rgba(89, 87, 90, 1.0) url('../right_part_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
+div.card-header svg.leftSplit {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  z-index: 9999;
+}
+
+div.card-header button.leftSplit {
+  right: 60px;
+  background: rgba(89, 87, 90, 1.0) url('../left_part_dark.svg') center/15px auto no-repeat;
+  background-size: cover;
+}
+
+div.card-header button.leftSplit:hover,
+div.card-header button.leftSplit:active {
+  background: rgba(89, 87, 90, 1.0) url('../left_part_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
 div.card-content {
   width: 100%;
   height: 100%;
