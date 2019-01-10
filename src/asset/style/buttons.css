@@ -1,4 +1,4 @@
-button.close {
+/*button.close {
   background: url('../close_dark.svg') no-repeat;
   background-size: cover;
   border: 0;
@@ -26,3 +26,38 @@ button.save:active {
   background-size: cover;
   cursor: pointer;
 }
+
+button.expand{
+  background: url('../expand_dark.svg') no-repeat;
+  background-size: cover;
+  position: absolute;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  z-index: 9999;
+}
+
+button.expand:hover,
+button.expand:active {
+  background: url('../expand_dark_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
+button.shrink{
+  background: url('../expand_dark.svg') no-repeat;
+  background-size: cover;
+  position: absolute;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  z-index: 9999;
+}
+
+button.shrink:hover,
+button.shrink:active {
+  background: url('../expand_dark_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+*/

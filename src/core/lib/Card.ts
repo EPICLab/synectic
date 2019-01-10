@@ -3,7 +3,7 @@ import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { Draggable, Droppable, OptionState, Selectable } from './interactions';
+import { Draggable, Droppable, OptionState, Selectable } from './Interactions';
 import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
 // import { Clock } from './events/Clock';
@@ -26,6 +26,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   saveButton: HTMLButtonElement = document.createElement('button');
   closeButton: HTMLButtonElement = document.createElement('button');
 
+  expandButton: HTMLButtonElement = document.createElement('button');
+  shrinkButton: HTMLButtonElement = document.createElement('button');
+  cardX: string;
+  cardY: string;
+
   /**
    * Default constructor for creating a blank card with standard interaction controls.
    * @param parent A canvas or stack instance that will contain the new card.
@@ -44,12 +49,18 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.closeButton.setAttribute('class', 'close');
     $(this.closeButton).on('click', () => this.destructor());
 
+    this.expandButton.setAttribute('class', 'expand');
+    $(this.expandButton).click(() => this.expand());
+
+    this.shrinkButton.setAttribute('class', 'shrink');
+    $(this.shrinkButton).click(() => this.shrink());
     // let clock = new Clock("Smu", 1000, 10);
     // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
 
     this.header.appendChild(this.title);
     this.header.appendChild(this.saveButton);
     this.header.appendChild(this.closeButton);
+    this.header.appendChild(this.expandButton);
     this.element.appendChild(this.header);
 
     if (this.parent instanceof Canvas) this.parent.add(this);
@@ -59,6 +70,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       top: this.element.offsetTop - (this.element.offsetHeight / 2),
       left: this.element.offsetLeft - (this.element.offsetWidth / 2)
     });
+    this.cardX = String(this.element.style.left);
+    this.cardY = String(this.element.style.top);
+
     this.draggable(OptionState.enable);
     this.droppable(OptionState.enable);
     this.selectable(OptionState.enable);
@@ -77,6 +91,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   }
 
   /**
+
    * Abstract placeholder for loading content from local or remote sources.
    */
   abstract load(): void;
@@ -85,6 +100,37 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * Abstract placeholder for writing content to local or remote sources.
    */
   abstract save(): void;
+
+   * Used to expand card to full screen view.
+   */
+  expand(): void {
+    this.header.removeChild(this.expandButton);
+    this.header.appendChild(this.shrinkButton);
+
+    this.cardX = String(this.element.style.left);
+    this.cardY = String(this.element.style.top);
+
+    this.element.style.top = "0px";
+    this.element.style.left = "0px";
+
+    this.element.style.height = String(100+"%");
+    this.element.style.width = String(100+"%");
+    //this.expandButton.style.right = "10%";
+  }
+
+  /**
+   * Returns card to default size.
+   */
+  shrink(): void{
+    this.header.removeChild(this.shrinkButton);
+    this.header.appendChild(this.expandButton);
+
+    this.element.style.height = "280px";
+    this.element.style.width = "200px";
+
+    this.element.style.top = this.cardY;
+    this.element.style.left = this.cardX;
+  }
 
   /**
    * Configuration for enabling/disabling draggable from JQuery-UI library.

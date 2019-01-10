@@ -50,11 +50,82 @@ div.card-header * {
 div.card-header span {
   flex-basis: 100%;
   margin-left: 5px;
+
+div.card-header button {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  /*right: 10px;*/
+  border: 0;
+  z-index: 9999;
+}
+
+div.card-header svg.close {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  z-index: 9999;
+}
+
+div.card-header button.close {
+  right: 10px;
+  background: rgba(89, 87, 90, 1.0) url('../close_dark.svg') center/15px auto no-repeat;
+  background-size: cover;
 }
 
 div.card-header button {
   height: 15px;
   width: 15px;
+}
+
+div.card-header svg.expand {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  z-index: 9999;
+}
+
+div.card-header button.expand {
+  right: 30px;
+  background: rgba(89, 87, 90, 1.0) url('../expand_dark.svg') center/15px auto no-repeat;
+  background-size: cover;
+}
+
+div.card-header button.expand:hover,
+div.card-header button.expand:active {
+  background: rgba(89, 87, 90, 1.0) url('../expand_dark_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
+div.card-header svg.shrink {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  z-index: 9999;
+}
+
+div.card-header button.shrink {
+  right: 30px;
+  background: rgba(89, 87, 90, 1.0) url('../expand_dark.svg') center/15px auto no-repeat;
+  background-size: cover;
+}
+
+div.card-header button.shrink:hover,
+div.card-header button.shrink:active {
+  background: rgba(89, 87, 90, 1.0) url('../expand_dark_active.svg') no-repeat;
+  background-size: cover;
+  cursor: pointer;
 }
 
 div.card-content {
