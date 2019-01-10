@@ -59,8 +59,10 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     $(this.shrinkButton).click(() => this.shrink());
 
     this.leftSplitButton.setAttribute('class', 'leftSplit');
+    $(this.leftSplitButton).click(() => this.split_left());
 
     this.rightSplitButton.setAttribute('class', 'rightSplit');
+    $(this.rightSplitButton).click(() => this.split_right());
 
     // let clock = new Clock("Smu", 1000, 10);
     // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
@@ -124,8 +126,12 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.element.style.top = "0px";
     this.element.style.left = "0px";
 
-    this.element.style.height = String(100+"%");
-    this.element.style.width = String(100+"%");
+    this.element.style.height = "100%";
+    this.element.style.width = "100%";
+
+    this.draggable(OptionState.disable);
+    this.droppable(OptionState.disable);
+    this.selectable(OptionState.disable);
   }
 
   /**
@@ -143,6 +149,34 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
 
     this.element.style.top = this.cardY;
     this.element.style.left = this.cardX;
+
+    this.draggable(OptionState.enable);
+    this.droppable(OptionState.enable);
+    this.selectable(OptionState.enable);
+  }
+
+  /**
+   * Move card view to left half of screen.
+   */
+  split_left(): void{
+    this.element.style.right = "auto"
+    this.element.style.top = "0px";
+    this.element.style.left = "0px";
+
+    this.element.style.height = "100%";
+    this.element.style.width = "50%"; 
+  }
+
+  /**
+   * Move card view to right half of screen.
+   */
+  split_right(): void{
+    this.element.style.left = "auto";
+    this.element.style.top = "0px";
+    this.element.style.right = "0px";
+
+    this.element.style.height = "100%";
+    this.element.style.width = "50%"; 
   }
 
   /**
