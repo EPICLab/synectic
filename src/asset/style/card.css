@@ -74,7 +74,7 @@ div.card-header button.expand {
 
 div.card-header button.expand:hover,
 div.card-header button.expand:active {
-  background: rgba(89, 87, 90, 1.0) url('../expand_dark_active.svg') no-repeat;
+  background: rgba(89, 87, 90, 1.0) url('../expand_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
@@ -90,14 +90,14 @@ div.card-header svg.shrink {
 }
 
 div.card-header button.shrink {
-  right: 30px;
-  background: rgba(89, 87, 90, 1.0) url('../expand_dark.svg') center/15px auto no-repeat;
+  right: 50px;
+  background: rgba(89, 87, 90, 1.0) url('../shrink_dark.svg') center/15px auto no-repeat;
   background-size: cover;
 }
 
 div.card-header button.shrink:hover,
 div.card-header button.shrink:active {
-  background: rgba(89, 87, 90, 1.0) url('../expand_dark_active.svg') no-repeat;
+  background: rgba(89, 87, 90, 1.0) url('../shrink_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
@@ -113,7 +113,7 @@ div.card-header svg.rightSplit {
 }
 
 div.card-header button.rightSplit {
-  right: 50px;
+  right: 70px;
   background: rgba(89, 87, 90, 1.0) url('../right_part_dark.svg') center/15px auto no-repeat;
   background-size: cover;
 }
@@ -136,7 +136,7 @@ div.card-header svg.leftSplit {
 }
 
 div.card-header button.leftSplit {
-  right: 60px;
+  right: 80px;
   background: rgba(89, 87, 90, 1.0) url('../left_part_dark.svg') center/15px auto no-repeat;
   background-size: cover;
 }

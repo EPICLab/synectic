@@ -79,6 +79,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.header.appendChild(this.flipButton);
     this.header.appendChild(this.closeButton);
     this.header.appendChild(this.expandButton);
+    this.header.appendChild(this.shrinkButton);
+    this.header.appendChild(this.leftSplitButton);
+    this.header.appendChild(this.rightSplitButton);
     this.front.appendChild(this.header);
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
@@ -122,11 +125,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * Used to expand card to full screen view.
    */
   expand(): void {
-    this.header.removeChild(this.expandButton);
+    //this.header.removeChild(this.expandButton);
 
-    this.header.appendChild(this.shrinkButton);
-    this.header.appendChild(this.leftSplitButton);
-    this.header.appendChild(this.rightSplitButton);
+    //this.header.appendChild(this.shrinkButton);
+    //this.header.appendChild(this.leftSplitButton);
+    //this.header.appendChild(this.rightSplitButton);
 
     this.cardX = String(this.element.style.left);
     this.cardY = String(this.element.style.top);
@@ -146,11 +149,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * Returns card to default size.
    */
   shrink(): void{
-    this.header.removeChild(this.shrinkButton);
-    this.header.removeChild(this.leftSplitButton);
-    this.header.removeChild(this.rightSplitButton);
+    //this.header.removeChild(this.shrinkButton);
+    //this.header.removeChild(this.leftSplitButton);
+    //this.header.removeChild(this.rightSplitButton);
 
-    this.header.appendChild(this.expandButton);
+    //this.header.appendChild(this.expandButton);
 
     this.element.style.height = "280px";
     this.element.style.width = "200px";
@@ -172,7 +175,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.element.style.left = "0px";
 
     this.element.style.height = "100%";
-    this.element.style.width = "50%"; 
+    this.element.style.width = "50%";
+
+    this.draggable(OptionState.disable);
+    this.droppable(OptionState.disable);
+    this.selectable(OptionState.disable);
   }
 
   /**
@@ -184,7 +191,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.element.style.right = "0px";
 
     this.element.style.height = "100%";
-    this.element.style.width = "50%"; 
+    this.element.style.width = "50%";
+
+    this.draggable(OptionState.disable);
+    this.droppable(OptionState.disable);
+    this.selectable(OptionState.disable);
   }
 
   /**
