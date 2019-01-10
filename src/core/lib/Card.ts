@@ -130,6 +130,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     //this.header.appendChild(this.shrinkButton);
     //this.header.appendChild(this.leftSplitButton);
     //this.header.appendChild(this.rightSplitButton);
+    if(this.element.style.width == "100%") return;
 
     this.cardX = String(this.element.style.left);
     this.cardY = String(this.element.style.top);
