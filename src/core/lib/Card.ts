@@ -28,6 +28,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
 
   expandButton: HTMLButtonElement = document.createElement('button');
   shrinkButton: HTMLButtonElement = document.createElement('button');
+  leftSplitButton: HTMLButtonElement = document.createElement('button');
+  rightSplitButton: HTMLButtonElement = document.createElement('button');
+
   cardX: string;
   cardY: string;
 
@@ -54,6 +57,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
 
     this.shrinkButton.setAttribute('class', 'shrink');
     $(this.shrinkButton).click(() => this.shrink());
+
+    this.leftSplitButton.setAttribute('class', 'leftSplit');
+
+    this.rightSplitButton.setAttribute('class', 'rightSplit');
+
     // let clock = new Clock("Smu", 1000, 10);
     // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
 
@@ -105,7 +113,10 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    */
   expand(): void {
     this.header.removeChild(this.expandButton);
+
     this.header.appendChild(this.shrinkButton);
+    this.header.appendChild(this.leftSplitButton);
+    this.header.appendChild(this.rightSplitButton);
 
     this.cardX = String(this.element.style.left);
     this.cardY = String(this.element.style.top);
@@ -115,7 +126,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
 
     this.element.style.height = String(100+"%");
     this.element.style.width = String(100+"%");
-    //this.expandButton.style.right = "10%";
   }
 
   /**
@@ -123,6 +133,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    */
   shrink(): void{
     this.header.removeChild(this.shrinkButton);
+    this.header.removeChild(this.leftSplitButton);
+    this.header.removeChild(this.rightSplitButton);
+
     this.header.appendChild(this.expandButton);
 
     this.element.style.height = "280px";
