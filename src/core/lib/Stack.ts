@@ -2,7 +2,7 @@ import { Base } from './base';
 import { Canvas } from './Canvas';
 import { Card } from './Card';
 import { v4 } from 'uuid';
-import { OptionState, Draggable, Droppable } from './interactions';
+import { OptionState, Draggable, Droppable } from './Interactions';
 import { hasClass, addClass, removeClass } from './helper';
 import { DateTime } from 'luxon';
 
