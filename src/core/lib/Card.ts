@@ -34,6 +34,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   leftSplitButton: HTMLButtonElement = document.createElement('button');
   rightSplitButton: HTMLButtonElement = document.createElement('button');
 
+  //Saves the x/y coordinates of the card before going fullscreen.
   cardX: string;
   cardY: string;
   fullScreen: boolean;
@@ -82,8 +83,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.header.appendChild(this.closeButton);
     this.header.appendChild(this.expandButton);
     this.header.appendChild(this.shrinkButton);
-    //this.header.appendChild(this.leftSplitButton);
-    //this.header.appendChild(this.rightSplitButton);
     this.front.appendChild(this.header);
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
@@ -127,10 +126,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * Used to expand card to full screen view.
    */
   expand(): void {
-    //tmpCard: Card;
-    //this.header.removeChild(this.expandButton);
-
-    //this.header.appendChild(this.shrinkButton);
     this.header.appendChild(this.leftSplitButton);
     this.header.appendChild(this.rightSplitButton);
 
@@ -138,9 +133,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       this.cardX = String(this.element.style.left);
       this.cardY = String(this.element.style.top);
     }
-    //tmpCard = Card(this.parent.children.indexOf(this.uuid));
 
-    console.log(this.parent.children);
     this.element.style.top = "0px";
     this.element.style.left = "0px";
 
@@ -148,7 +141,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.element.style.width = "100%";
     this.element.style.zIndex = "9999999";
 
-    //this.element.children[1].setAttribute("style", "height:100%");
 
     this.draggable(OptionState.disable);
     this.droppable(OptionState.disable);
@@ -160,11 +152,8 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * Returns card to default size.
    */
   shrink(): void{
-    //this.header.removeChild(this.shrinkButton);
     this.header.removeChild(this.leftSplitButton);
     this.header.removeChild(this.rightSplitButton);
-
-    //this.header.appendChild(this.expandButton);
 
     this.element.style.height = "280px";
     this.element.style.width = "200px";

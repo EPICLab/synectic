@@ -46,7 +46,7 @@ button.expand{
 
 button.expand:hover,
 button.expand:active {
-  background: url('../expand_dark_active.svg') no-repeat;
+  background: url('../expand_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
@@ -63,7 +63,7 @@ button.shrink{
 
 button.shrink:hover,
 button.shrink:active {
-  background: url('../expand_dark_active.svg') no-repeat;
+  background: url('../expand_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
