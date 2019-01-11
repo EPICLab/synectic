@@ -36,6 +36,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
 
   cardX: string;
   cardY: string;
+  fullScreen: boolean;
 
   /**
    * Default constructor for creating a blank card with standard interaction controls.
@@ -45,6 +46,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   constructor(parent: Canvas | Stack, filename: string) {
     this.parent = parent;
     this.filename = filename;
+    this.fullScreen = false;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
     this.front.setAttribute('class', 'front');
@@ -80,8 +82,8 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.header.appendChild(this.closeButton);
     this.header.appendChild(this.expandButton);
     this.header.appendChild(this.shrinkButton);
-    this.header.appendChild(this.leftSplitButton);
-    this.header.appendChild(this.rightSplitButton);
+    //this.header.appendChild(this.leftSplitButton);
+    //this.header.appendChild(this.rightSplitButton);
     this.front.appendChild(this.header);
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
@@ -125,25 +127,33 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * Used to expand card to full screen view.
    */
   expand(): void {
+    //tmpCard: Card;
     //this.header.removeChild(this.expandButton);
 
     //this.header.appendChild(this.shrinkButton);
-    //this.header.appendChild(this.leftSplitButton);
-    //this.header.appendChild(this.rightSplitButton);
-    if(this.element.style.width == "100%") return;
+    this.header.appendChild(this.leftSplitButton);
+    this.header.appendChild(this.rightSplitButton);
 
-    this.cardX = String(this.element.style.left);
-    this.cardY = String(this.element.style.top);
+    if(!this.fullScreen){
+      this.cardX = String(this.element.style.left);
+      this.cardY = String(this.element.style.top);
+    }
+    //tmpCard = Card(this.parent.children.indexOf(this.uuid));
 
+    console.log(this.parent.children);
     this.element.style.top = "0px";
     this.element.style.left = "0px";
 
     this.element.style.height = "100%";
     this.element.style.width = "100%";
+    this.element.style.zIndex = "9999999";
+
+    //this.element.children[1].setAttribute("style", "height:100%");
 
     this.draggable(OptionState.disable);
     this.droppable(OptionState.disable);
     this.selectable(OptionState.disable);
+    this.fullScreen = true;
   }
 
   /**
@@ -151,13 +161,14 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    */
   shrink(): void{
     //this.header.removeChild(this.shrinkButton);
-    //this.header.removeChild(this.leftSplitButton);
-    //this.header.removeChild(this.rightSplitButton);
+    this.header.removeChild(this.leftSplitButton);
+    this.header.removeChild(this.rightSplitButton);
 
     //this.header.appendChild(this.expandButton);
 
     this.element.style.height = "280px";
     this.element.style.width = "200px";
+    this.element.style.zIndex = "auto";
 
     this.element.style.top = this.cardY;
     this.element.style.left = this.cardX;
@@ -165,6 +176,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.draggable(OptionState.enable);
     this.droppable(OptionState.enable);
     this.selectable(OptionState.enable);
+    this.fullScreen = false;
   }
 
   /**
