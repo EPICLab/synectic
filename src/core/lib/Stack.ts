@@ -100,6 +100,9 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
         left: (this.children.length * this.gap),
         zIndex: this.children.length
       });
+
+      child.expandButton.hidden = true;
+      child.shrinkButton.hidden = true;
       removeClass(child.element, 'highlight');
       removeClass(child.element, 'ui-selected');
       removeClass(child.element, 'ui-selectee');
@@ -133,6 +136,8 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
         top: this.element.offsetTop,
         left: this.element.offsetLeft
       });
+      child.expandButton.hidden = false;
+      child.shrinkButton.hidden = false;
       removeClass(child.element, 'nohover');
       const event = new CustomEvent('remove', { detail: child.uuid });
       document.dispatchEvent(event);
