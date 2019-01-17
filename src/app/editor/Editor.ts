@@ -199,4 +199,39 @@ export class Editor extends Card {
     this.selectable(OptionState.enable);
     this.fullScreen = false;
   }
+
+
+  /**
+   * Move card view to left half of screen.
+   */
+  split_left(): void{
+    this.element.style.right = "auto"
+    this.element.style.top = "0px";
+    this.element.style.left = "0px";
+
+    this.element.style.height = "100%";
+    this.element.style.width = "50%"; 
+
+    this.editor.resize();
+    this.draggable(OptionState.disable);
+    this.droppable(OptionState.disable);
+    this.selectable(OptionState.disable);
+  }
+
+  /**
+   * Move card view to right half of screen.
+   */
+  split_right(): void{
+    this.element.style.left = "auto";
+    this.element.style.top = "0px";
+    this.element.style.right = "0px";
+
+    this.element.style.height = "100%";
+    this.element.style.width = "50%"; 
+
+    this.editor.resize();
+    this.draggable(OptionState.disable);
+    this.droppable(OptionState.disable);
+    this.selectable(OptionState.disable);
+  }
 }
