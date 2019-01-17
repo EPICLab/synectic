@@ -8,6 +8,7 @@ import { extname, readFileAsync, writeFileAsync } from '../../core/fs/io';
 import { searchExt } from '../../core/fs/filetypes';
 import { snackbar } from '../../core/fs/notifications';
 import { DateTime } from 'luxon';
+import { OptionState } from '../../core/lib/Interactions';
 import * as fs from 'fs-extra';
 import * as git from 'isomorphic-git';
 git.plugins.set('fs', fs);
@@ -150,5 +151,52 @@ export class Editor extends Card {
     } else {
       return false;
     }
+  }
+
+    /**
+     * Used to expand card to full screen view.
+     */
+    expand(): void {
+      this.header.appendChild(this.leftSplitButton);
+      this.header.appendChild(this.rightSplitButton);
+
+      if(!this.fullScreen){
+        this.cardX = String(this.element.style.left);
+        this.cardY = String(this.element.style.top);
+      }
+
+      this.element.style.top = "0px";
+      this.element.style.left = "0px";
+
+      this.element.style.height = "100%";
+      this.element.style.width = "100%";
+      this.element.style.zIndex = "9999999";
+
+      this.editor.resize();
+      this.draggable(OptionState.disable);
+      this.droppable(OptionState.disable);
+      this.selectable(OptionState.disable);
+      this.fullScreen = true;
+    }
+
+  /**
+   * Returns card to default size.
+   */
+  shrink(): void{
+    this.header.removeChild(this.leftSplitButton);
+    this.header.removeChild(this.rightSplitButton);
+
+    this.element.style.height = "280px";
+    this.element.style.width = "200px";
+    this.element.style.zIndex = "auto";
+
+    this.element.style.top = this.cardY;
+    this.element.style.left = this.cardX;
+
+    this.editor.resize();
+    this.draggable(OptionState.enable);
+    this.droppable(OptionState.enable);
+    this.selectable(OptionState.enable);
+    this.fullScreen = false;
   }
 }
