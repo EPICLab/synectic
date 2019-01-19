@@ -12,6 +12,7 @@ import 'brace/theme/monokai';
 import { extname, readFileAsync, writeFileAsync } from '../../core/fs/io';
 import { searchExt } from '../../core/fs/filetypes';
 import { snackbar } from '../../core/fs/notifications';
+import { DateTime } from 'luxon';
 
 export class Editor extends Card {
 
@@ -110,35 +111,34 @@ export class Editor extends Card {
     this.editor.getSession().setMode('ace/mode/' + mode.toLowerCase());
   }
 
-    /**
-     * Used to expand card to full screen view.
-     */
-    expand(): void {
-      super.expand();
-      this.editor.resize();
-    }
+  /**
+   * Used to expand card to full screen view.
+   */
+  expand(): void {
+    super.expand();
+    this.editor.resize();
+  }
 
   /**
    * Returns card to default size.
    */
-  shrink(): void{
+  shrink(): void {
     super.shrink();
     this.editor.resize();
   }
 
-
   /**
    * Move card view to left half of screen.
    */
-  split_left(): void{
+  split_left(): void {
     super.split_left();
     this.editor.resize();
-    }
+  }
 
   /**
    * Move card view to right half of screen.
    */
-  split_right(): void{
+  split_right(): void {
     super.split_right();
     this.editor.resize();
   }
