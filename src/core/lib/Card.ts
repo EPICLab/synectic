@@ -3,7 +3,7 @@ import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { Draggable, Droppable, OptionState, Selectable } from './Interactions';
+import { Draggable, Droppable, OptionState, Selectable } from './interaction';
 import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
 // import { Clock } from './events/Clock';
