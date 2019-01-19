@@ -1,0 +1,11 @@
+div.ace_scroller {
+  border-radius: 0 0 10px 0;
+}
+
+div.editor-window {
+  width: 100%;
+  height: calc(100% - 29px);
+  border-radius: 0 0 10px 10px;
+  position: absolute;
+  bottom: 0;
+}

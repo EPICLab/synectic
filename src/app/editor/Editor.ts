@@ -1,24 +1,25 @@
 import { Card } from '../../core/lib/Card';
 import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
-import { addClass } from '../../core/lib/helper';
 import diff from 'fast-diff';
 import ace from 'brace';
-import 'brace/mode/javascript';
-import 'brace/mode/typescript';
-import 'brace/mode/latex';
-import 'brace/mode/python';
 import 'brace/theme/monokai';
 import { extname, readFileAsync, writeFileAsync } from '../../core/fs/io';
 import { searchExt } from '../../core/fs/filetypes';
 import { snackbar } from '../../core/fs/notifications';
 import { DateTime } from 'luxon';
+import * as fs from 'fs-extra';
+import * as git from 'isomorphic-git';
+git.plugins.set('fs', fs);
+import './editor.css';
+import './modes';
 
 export class Editor extends Card {
 
-  public editorWindow: HTMLDivElement;
-  public editor: ace.Editor;
+  editor: ace.Editor;
+  editorWindow: HTMLDivElement = document.createElement('div');
   private snapshot: string = '';
+  private reverseContent: Map<string, HTMLSpanElement> = new Map();
 
   /**
    * Default constructor for creating an Editor card.
@@ -28,22 +29,20 @@ export class Editor extends Card {
   constructor(parent: Canvas | Stack, filename: string) {
     super(parent, filename);
 
-    this.editorWindow = document.createElement('div');
+    this.element.classList.add('editor');
     this.editorWindow.setAttribute('id', (this.uuid + '-editor'));
-    addClass(this.element, 'editor');
-    $(this.editorWindow).css({
-      width: '100%',
-      height: '100%'
-    });
-    this.element.appendChild(this.editorWindow);
+    this.editorWindow.setAttribute('class', 'editor-window');
+    this.front.appendChild(this.editorWindow);
 
     this.editor = ace.edit(this.uuid + '-editor');
     this.editor.setTheme('ace/theme/monokai');
     if (filename !== '') this.load();
+
     this.editor.addEventListener('change', () => {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
     });
+    this.setReverseContent();
   }
 
   /**
@@ -109,5 +108,31 @@ export class Editor extends Card {
    */
   setMode(mode: string): void {
     this.editor.getSession().setMode('ace/mode/' + mode.toLowerCase());
+  }
+
+  setReverseContent(): void {
+    // TODO: Add Editor relevant information to the back of the Card.
+  }
+
+  addReverseContent(key: string, value: string): void {
+    let label = document.createElement('span');
+    let field = document.createElement('span');
+    label.setAttribute('class', 'data-label');
+    field.setAttribute('class', 'data-field');
+    label.innerText = key;
+    field.innerText = value;
+    this.back.appendChild(label);
+    this.back.appendChild(field);
+    this.reverseContent.set(key, field);
+  }
+
+  updateReverseContent(key: string, newValue: string): boolean {
+    let field: HTMLSpanElement | undefined = this.reverseContent.get(key);
+    if (field !== undefined) {
+      field.innerText = newValue;
+      return true;
+    } else {
+      return false;
+    }
   }
 }

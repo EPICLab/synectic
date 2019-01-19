@@ -15,14 +15,17 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable {
 
   uuid: string = v4();
+  filename: string;
   created: DateTime = DateTime.local();
   modified: DateTime = DateTime.local();
   parent: Canvas | Stack;
   children: null[] = [];
-  filename: string;
   element: HTMLDivElement = document.createElement('div');
+  front: HTMLDivElement = document.createElement('div');
+  back: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
   title: HTMLSpanElement = document.createElement('span');
+  flipButton: HTMLButtonElement = document.createElement('button');
   saveButton: HTMLButtonElement = document.createElement('button');
   closeButton: HTMLButtonElement = document.createElement('button');
 
@@ -36,32 +39,36 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.filename = filename;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
+    this.front.setAttribute('class', 'front');
+    this.back.setAttribute('class', 'back');
     this.header.setAttribute('class', 'card-header');
-    this.title.innerHTML = 'My Card';
+    this.title.innerHTML = 'Blank Card';
     this.saveButton.setAttribute('class', 'save');
     $(this.saveButton).on('click', () => this.save());
     $(this.saveButton).hide();
+    this.flipButton.setAttribute('class', 'flip');
+    $(this.flipButton).on('click', () => this.flip());
     this.closeButton.setAttribute('class', 'close');
     $(this.closeButton).on('click', () => this.destructor());
 
-    // let clock = new Clock("Smu", 1000, 10);
-    // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
-
     this.header.appendChild(this.title);
     this.header.appendChild(this.saveButton);
+    this.header.appendChild(this.flipButton);
     this.header.appendChild(this.closeButton);
-    this.element.appendChild(this.header);
+    this.front.appendChild(this.header);
+    this.element.appendChild(this.front);
+    this.element.appendChild(this.back);
 
     if (this.parent instanceof Canvas) this.parent.add(this);
     if (this.parent instanceof Stack) this.parent.add(this);
     $(this.element).css({
-      transform: 'none',
       top: this.element.offsetTop - (this.element.offsetHeight / 2),
       left: this.element.offsetLeft - (this.element.offsetWidth / 2)
     });
     this.draggable(OptionState.enable);
     this.droppable(OptionState.enable);
     this.selectable(OptionState.enable);
+    this.flippable(OptionState.enable);
   }
 
   /**
@@ -72,8 +79,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       this.element.parentNode.removeChild(this.element);
     }
     this.parent.remove(this);
-    // const event = new CustomEvent('destruct', { detail: this.uuid });
-    // document.dispatchEvent(event);
   }
 
   /**
@@ -87,6 +92,28 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   abstract save(): void;
 
   /**
+   * Animation for flipping the card face between front and back content.
+   * Flippable must be enabled on card prior to calls to flip.
+   */
+  private flip(): void {
+    if (this.element.classList.contains('ui-flippable')) {
+      if (this.element.classList.toggle('flipped')) {
+        if (this.back.firstChild != null) {
+          this.back.insertBefore(this.header, this.back.firstChild);
+        } else {
+          this.back.appendChild(this.header);
+        }
+      } else {
+        if (this.front.firstChild != null) {
+          this.front.insertBefore(this.header, this.front.firstChild);
+        } else {
+          this.front.appendChild(this.header);
+        }
+      }
+    }
+  }
+
+  /**
    * Configuration for enabling/disabling draggable from JQuery-UI library.
    * @param opt A OptionState to enable or disable draggable interactions for this card.
    */
@@ -98,6 +125,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
         stack: '.card, .stack',
         start: function() {
           $(this).css({ transform: 'none' });
+        },
+        stop: function() {
+          $(this).css({ transform: '' });
         }
       });
     }
@@ -158,6 +188,18 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       }
     });
     $(canvas.element).selectable(opt);
+  }
+
+  /**
+   * Configuration for enabling/disabling flippable interaction.
+   * @param opt A OptionState to enable or disable flippable interactions for this card.
+   */
+  flippable(opt: OptionState): void {
+    if (opt === OptionState.enable) {
+      this.element.classList.add('ui-flippable');
+    } else if (opt === OptionState.disable) {
+      this.element.classList.remove('ui-flippable');
+    }
   }
 
   /**
