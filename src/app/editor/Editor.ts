@@ -152,35 +152,34 @@ export class Editor extends Card {
     }
   }
 
-    /**
-     * Used to expand card to full screen view.
-     */
-    expand(): void {
-      super.expand();
-      this.editor.resize();
-    }
+  /**
+   * Used to expand card to full screen view.
+   */
+  expand(): void {
+    super.expand();
+    this.editor.resize();
+  }
 
   /**
    * Returns card to default size.
    */
-  shrink(): void{
+  shrink(): void {
     super.shrink();
     this.editor.resize();
   }
 
-
   /**
    * Move card view to left half of screen.
    */
-  split_left(): void{
+  split_left(): void {
     super.split_left();
     this.editor.resize();
-    }
+  }
 
   /**
    * Move card view to right half of screen.
    */
-  split_right(): void{
+  split_right(): void {
     super.split_right();
     this.editor.resize();
   }

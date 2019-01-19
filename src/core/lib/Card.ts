@@ -34,7 +34,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   leftSplitButton: HTMLButtonElement = document.createElement('button');
   rightSplitButton: HTMLButtonElement = document.createElement('button');
 
-  //Saves the x/y coordinates of the card before going fullscreen.
+  // Saves the x/y coordinates of the card before going fullscreen.
   cardX: string;
   cardY: string;
   fullScreen: boolean;
@@ -63,16 +63,16 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     $(this.closeButton).on('click', () => this.destructor());
 
     this.expandButton.setAttribute('class', 'expand');
-    $(this.expandButton).click(() => this.expand());
+    $(this.expandButton).on('click', () => this.expand());
 
     this.shrinkButton.setAttribute('class', 'shrink');
-    $(this.shrinkButton).click(() => this.shrink());
+    $(this.shrinkButton).on('click', () => this.shrink());
 
     this.leftSplitButton.setAttribute('class', 'leftSplit');
-    $(this.leftSplitButton).click(() => this.split_left());
+    $(this.leftSplitButton).on('click', () => this.split_left());
 
     this.rightSplitButton.setAttribute('class', 'rightSplit');
-    $(this.rightSplitButton).click(() => this.split_right());
+    $(this.rightSplitButton).on('click', () => this.split_right());
 
     // let clock = new Clock("Smu", 1000, 10);
     // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
@@ -113,7 +113,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   }
 
   /**
-
    * Abstract placeholder for loading content from local or remote sources.
    */
   abstract load(): void;
@@ -123,13 +122,14 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    */
   abstract save(): void;
 
+  /**
    * Used to expand card to full screen view.
    */
   expand(): void {
     this.header.appendChild(this.leftSplitButton);
     this.header.appendChild(this.rightSplitButton);
 
-    if(!this.fullScreen){
+    if (!this.fullScreen) {
       this.cardX = String(this.element.style.left);
       this.cardY = String(this.element.style.top);
     }
@@ -141,7 +141,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.element.style.width = "100%";
     this.element.style.zIndex = "9999999";
 
-
     this.draggable(OptionState.disable);
     this.droppable(OptionState.disable);
     this.selectable(OptionState.disable);
@@ -151,7 +150,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   /**
    * Returns card to default size.
    */
-  shrink(): void{
+  shrink(): void {
     this.header.removeChild(this.leftSplitButton);
     this.header.removeChild(this.rightSplitButton);
 
@@ -171,8 +170,8 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   /**
    * Move card view to left half of screen.
    */
-  split_left(): void{
-    this.element.style.right = "auto"
+  split_left(): void {
+    this.element.style.right = "auto";
     this.element.style.top = "0px";
     this.element.style.left = "0px";
 
@@ -187,7 +186,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   /**
    * Move card view to right half of screen.
    */
-  split_right(): void{
+  split_right(): void {
     this.element.style.left = "auto";
     this.element.style.top = "0px";
     this.element.style.right = "0px";
