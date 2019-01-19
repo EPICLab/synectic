@@ -1,5 +1,4 @@
 import { Canvas } from './Canvas';
-// import { FileTypeDispatcher } from './fs/handlers';
 
 class AppManager {
 

@@ -111,7 +111,23 @@ export class Editor extends Card {
   }
 
   setReverseContent(): void {
-    // TODO: Add Editor relevant information to the back of the Card.
+    git.findRoot({ filepath: this.filename })
+      .then(gitroot => {
+        this.addReverseContent('Root', gitroot);
+        git.listFiles({ dir: gitroot })
+          .then(files => console.log(files))
+          .catch(() => console.log('Git files not available'));
+      })
+      .catch(() => this.addReverseContent('Root', 'Unable to find git root'));
+
+    // isGitRepoAsync(path.dirname(this.filename))
+    //   .then(status => {
+    //     this.addReverse('Path', path.resolve(path.join(path.dirname(this.filename), '/.git')));
+    //     this.addReverse('VCS', status.toString());
+    //   })
+    //   .catch(() => {
+    //     this.addReverse('VCS', '[failed check]');
+    //   });
   }
 
   addReverseContent(key: string, value: string): void {

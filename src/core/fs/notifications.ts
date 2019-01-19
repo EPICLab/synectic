@@ -34,6 +34,7 @@ export function snackbar(context: Canvas, message: string, title?: string) {
   setTimeout(() => $(snackbar).remove(), 6550);
 
   context.element.appendChild(snackbar);
+  console.log(message);
 }
 
 /**
@@ -80,6 +81,7 @@ export function banner(context: Canvas, message: string,
   banner.appendChild(closeButton);
 
   context.element.appendChild(banner);
+  console.log(message);
 }
 
 /**
