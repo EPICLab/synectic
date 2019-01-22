@@ -8,6 +8,11 @@ export enum OptionState {
   disable = 'disable'
 }
 
+export enum SplitMode {
+  left = 'left',
+  right = 'right'
+}
+
 export interface Draggable {
   draggable(opt: OptionState): void;
 }

@@ -13,6 +13,7 @@ import * as git from 'isomorphic-git';
 git.plugins.set('fs', fs);
 import './editor.css';
 import './modes';
+import { SplitMode } from '../../core/lib/interaction';
 
 export class Editor extends Card {
 
@@ -152,35 +153,13 @@ export class Editor extends Card {
     }
   }
 
-  /**
-   * Used to expand card to full screen view.
-   */
-  expand(): void {
-    super.expand();
+  resize(): void {
+    super.resize();
     this.editor.resize();
   }
 
-  /**
-   * Returns card to default size.
-   */
-  shrink(): void {
-    super.shrink();
-    this.editor.resize();
-  }
-
-  /**
-   * Move card view to left half of screen.
-   */
-  split_left(): void {
-    super.split_left();
-    this.editor.resize();
-  }
-
-  /**
-   * Move card view to right half of screen.
-   */
-  split_right(): void {
-    super.split_right();
+  split(mode: SplitMode): void {
+    super.split(mode);
     this.editor.resize();
   }
 }

@@ -3,7 +3,7 @@ import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { Draggable, Droppable, OptionState, Selectable } from './interaction';
+import { Draggable, Droppable, OptionState, Selectable, SplitMode } from './interaction';
 import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
 // import { Clock } from './events/Clock';
@@ -25,14 +25,13 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   back: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
   title: HTMLSpanElement = document.createElement('span');
-  flipButton: HTMLButtonElement = document.createElement('button');
   saveButton: HTMLButtonElement = document.createElement('button');
-  closeButton: HTMLButtonElement = document.createElement('button');
-
   expandButton: HTMLButtonElement = document.createElement('button');
   shrinkButton: HTMLButtonElement = document.createElement('button');
   leftSplitButton: HTMLButtonElement = document.createElement('button');
   rightSplitButton: HTMLButtonElement = document.createElement('button');
+  flipButton: HTMLButtonElement = document.createElement('button');
+  closeButton: HTMLButtonElement = document.createElement('button');
 
   // Saves the x/y coordinates of the card before going fullscreen.
   cardX: string;
@@ -54,35 +53,40 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.back.setAttribute('class', 'back');
     this.header.setAttribute('class', 'card-header');
     this.title.innerHTML = 'Blank Card';
+
     this.saveButton.setAttribute('class', 'save');
     $(this.saveButton).on('click', () => this.save());
     $(this.saveButton).hide();
+
+    this.expandButton.setAttribute('class', 'expand');
+    $(this.expandButton).on('click', () => this.resize());
+
+    this.shrinkButton.setAttribute('class', 'shrink');
+    $(this.shrinkButton).on('click', () => this.resize());
+    $(this.shrinkButton).hide();
+
+    this.leftSplitButton.setAttribute('class', 'leftSplit');
+    $(this.leftSplitButton).on('click', () => this.split(SplitMode.left));
+    $(this.leftSplitButton).hide();
+
+    this.rightSplitButton.setAttribute('class', 'rightSplit');
+    $(this.rightSplitButton).on('click', () => this.split(SplitMode.right));
+    $(this.rightSplitButton).hide();
+
     this.flipButton.setAttribute('class', 'flip');
     $(this.flipButton).on('click', () => this.flip());
+
     this.closeButton.setAttribute('class', 'close');
     $(this.closeButton).on('click', () => this.destructor());
 
-    this.expandButton.setAttribute('class', 'expand');
-    $(this.expandButton).on('click', () => this.expand());
-
-    this.shrinkButton.setAttribute('class', 'shrink');
-    $(this.shrinkButton).on('click', () => this.shrink());
-
-    this.leftSplitButton.setAttribute('class', 'leftSplit');
-    $(this.leftSplitButton).on('click', () => this.split_left());
-
-    this.rightSplitButton.setAttribute('class', 'rightSplit');
-    $(this.rightSplitButton).on('click', () => this.split_right());
-
-    // let clock = new Clock("Smu", 1000, 10);
-    // clock.onClockTick.subscribe((c, n) => console.log(`${c.name} ticked ${n} times.`));
-
     this.header.appendChild(this.title);
     this.header.appendChild(this.saveButton);
-    this.header.appendChild(this.flipButton);
-    this.header.appendChild(this.closeButton);
     this.header.appendChild(this.expandButton);
     this.header.appendChild(this.shrinkButton);
+    this.header.appendChild(this.leftSplitButton);
+    this.header.appendChild(this.rightSplitButton);
+    this.header.appendChild(this.flipButton);
+    this.header.appendChild(this.closeButton);
     this.front.appendChild(this.header);
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
@@ -123,80 +127,76 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   abstract save(): void;
 
   /**
-   * Used to expand card to full screen view.
+   * Animation for expanding or contracting the card between fullscreen and
+   * normal mode. Fullscreen mode disables drag, drop, select, and flip
+   * functionality.
    */
-  expand(): void {
-    this.header.appendChild(this.leftSplitButton);
-    this.header.appendChild(this.rightSplitButton);
-
-    if (!this.fullScreen) {
+  resize(): void {
+    if (!this.element.classList.contains('fullscreen')) {
       this.cardX = String(this.element.style.left);
       this.cardY = String(this.element.style.top);
     }
+    this.element.classList.toggle('fullscreen');
 
-    this.element.style.top = "0px";
-    this.element.style.left = "0px";
-
-    this.element.style.height = "100%";
-    this.element.style.width = "100%";
-    this.element.style.zIndex = "9999999";
-
-    this.draggable(OptionState.disable);
-    this.droppable(OptionState.disable);
-    this.selectable(OptionState.disable);
-    this.fullScreen = true;
+    if (this.element.classList.contains('fullscreen')) {
+      $(this.element).css({
+        top: '0px',
+        left: '0px'
+      });
+      $(this.expandButton).hide();
+      $(this.shrinkButton).show();
+      $(this.leftSplitButton).show();
+      $(this.rightSplitButton).show();
+      $(this.flipButton).hide();
+      this.draggable(OptionState.disable);
+      this.droppable(OptionState.disable);
+      this.selectable(OptionState.disable);
+      this.flippable(OptionState.disable);
+    } else {
+      $(this.element).css({
+        top: this.cardY,
+        left: this.cardX
+      });
+      this.element.classList.remove('split_left');
+      this.element.classList.remove('split_right');
+      $(this.expandButton).show();
+      $(this.shrinkButton).hide();
+      $(this.leftSplitButton).hide();
+      $(this.rightSplitButton).hide();
+      $(this.flipButton).show();
+      this.draggable(OptionState.enable);
+      this.droppable(OptionState.enable);
+      this.selectable(OptionState.enable);
+      this.flippable(OptionState.enable);
+    }
   }
 
   /**
-   * Returns card to default size.
+   * Animation for switching from fullscreen mode to split-screen mode.
+   * Fullscreen mode must be enabled before split-screen mode can be enabled.
+   * @param mode A SplitMode to select left or right side of screen.
    */
-  shrink(): void {
-    this.header.removeChild(this.leftSplitButton);
-    this.header.removeChild(this.rightSplitButton);
+  split(mode: SplitMode): void {
+    if (this.element.classList.contains('fullscreen')) {
+      this.element.style.top = '';
+      this.element.style.left = '';
+      this.element.style.right = '';
 
-    this.element.style.height = "280px";
-    this.element.style.width = "200px";
-    this.element.style.zIndex = "auto";
-
-    this.element.style.top = this.cardY;
-    this.element.style.left = this.cardX;
-
-    this.draggable(OptionState.enable);
-    this.droppable(OptionState.enable);
-    this.selectable(OptionState.enable);
-    this.fullScreen = false;
-  }
-
-  /**
-   * Move card view to left half of screen.
-   */
-  split_left(): void {
-    this.element.style.right = "auto";
-    this.element.style.top = "0px";
-    this.element.style.left = "0px";
-
-    this.element.style.height = "100%";
-    this.element.style.width = "50%";
-
-    this.draggable(OptionState.disable);
-    this.droppable(OptionState.disable);
-    this.selectable(OptionState.disable);
-  }
-
-  /**
-   * Move card view to right half of screen.
-   */
-  split_right(): void {
-    this.element.style.left = "auto";
-    this.element.style.top = "0px";
-    this.element.style.right = "0px";
-
-    this.element.style.height = "100%";
-    this.element.style.width = "50%";
-
-    this.draggable(OptionState.disable);
-    this.droppable(OptionState.disable);
-    this.selectable(OptionState.disable);
+      switch (mode) {
+        case SplitMode.left:
+          this.element.classList.remove('split_right');
+          this.element.classList.add('split_left');
+          break;
+        case SplitMode.right:
+          this.element.classList.remove('split_left');
+          this.element.classList.add('split_right');
+          break;
+      }
+      this.draggable(OptionState.disable);
+      this.droppable(OptionState.disable);
+      this.selectable(OptionState.disable);
+      this.flippable(OptionState.disable);
+    }
   }
 
   /**

@@ -34,14 +34,10 @@ button.flip:active {
   cursor: pointer;
 }
 
-button.expand{
+button.expand {
   background: url('../expand_dark.svg') no-repeat;
   background-size: cover;
-  position: absolute;
-  margin: 0;
-  border: 0;
   border-radius: 50%;
-  z-index: 9999;
 }
 
 button.expand:hover,
@@ -51,14 +47,10 @@ button.expand:active {
   cursor: pointer;
 }
 
-button.shrink{
+button.shrink {
   background: url('../expand_dark.svg') no-repeat;
   background-size: cover;
-  position: absolute;
-  margin: 0;
-  border: 0;
   border-radius: 50%;
-  z-index: 9999;
 }
 
 button.shrink:hover,
