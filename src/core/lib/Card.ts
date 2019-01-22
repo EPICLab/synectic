@@ -20,6 +20,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   modified: DateTime = DateTime.local();
   parent: Canvas | Stack;
   children: null[] = [];
+  position: [string, string] = ['0','0'];
   element: HTMLDivElement = document.createElement('div');
   front: HTMLDivElement = document.createElement('div');
   back: HTMLDivElement = document.createElement('div');
@@ -33,11 +34,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   flipButton: HTMLButtonElement = document.createElement('button');
   closeButton: HTMLButtonElement = document.createElement('button');
 
-  // Saves the x/y coordinates of the card before going fullscreen.
-  cardX: string;
-  cardY: string;
-  fullScreen: boolean;
-
   /**
    * Default constructor for creating a blank card with standard interaction controls.
    * @param parent A canvas or stack instance that will contain the new card.
@@ -46,7 +42,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   constructor(parent: Canvas | Stack, filename: string) {
     this.parent = parent;
     this.filename = filename;
-    this.fullScreen = false;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
     this.front.setAttribute('class', 'front');
@@ -97,8 +92,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       top: this.element.offsetTop - (this.element.offsetHeight / 2),
       left: this.element.offsetLeft - (this.element.offsetWidth / 2)
     });
-    this.cardX = String(this.element.style.left);
-    this.cardY = String(this.element.style.top);
+    if (this.element.style.left !== null && this.element.style.top !== null) {
+      this.position = [this.element.style.left, this.element.style.top];
+    }
 
     this.draggable(OptionState.enable);
     this.droppable(OptionState.enable);
@@ -133,8 +129,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    */
   resize(): void {
     if (!this.element.classList.contains('fullscreen')) {
-      this.cardX = String(this.element.style.left);
-      this.cardY = String(this.element.style.top);
+      if (this.element.style.left !== null && this.element.style.top !== null) {
+        this.position = [this.element.style.left, this.element.style.top];
+      }
     }
     this.element.classList.toggle('fullscreen');
 
@@ -154,8 +151,8 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       this.flippable(OptionState.disable);
     } else {
       $(this.element).css({
-        top: this.cardY,
-        left: this.cardX
+        left: this.position[0],
+        top: this.position[1]
       });
       this.element.classList.remove('split_left');
       this.element.classList.remove('split_right');
