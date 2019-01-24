@@ -25,6 +25,7 @@ button.save:active {
 button.flip {
   background: url('../flip_dark.svg') no-repeat;
   background-size: cover;
+  border-radius: 50%;
 }
 
 button.flip:hover,
@@ -37,7 +38,6 @@ button.flip:active {
 button.expand {
   background: url('../expand_dark.svg') no-repeat;
   background-size: cover;
-  border-radius: 50%;
 }
 
 button.expand:hover,
@@ -48,40 +48,37 @@ button.expand:active {
 }
 
 button.shrink {
-  background: url('../expand_dark.svg') no-repeat;
+  background: url('../shrink_dark.svg') no-repeat;
   background-size: cover;
-  border-radius: 50%;
 }
 
 button.shrink:hover,
 button.shrink:active {
-  background: url('../expand_active.svg') no-repeat;
+  background: url('../shrink_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
 
 button.rightSplit {
-  right: 70px;
-  background: rgba(89, 87, 90, 1.0) url('../right_part_dark.svg') center/15px auto no-repeat;
+  background: url('../right_dark.svg') no-repeat;
   background-size: cover;
 }
 
 button.rightSplit:hover,
 button.rightSplit:active {
-  background: rgba(89, 87, 90, 1.0) url('../right_part_active.svg') no-repeat;
+  background: url('../right_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }
 
 button.leftSplit {
-  right: 80px;
-  background: rgba(89, 87, 90, 1.0) url('../left_part_dark.svg') center/15px auto no-repeat;
+  background: url('../left_dark.svg') no-repeat;
   background-size: cover;
 }
 
 button.leftSplit:hover,
 button.leftSplit:active {
-  background: rgba(89, 87, 90, 1.0) url('../left_part_active.svg') no-repeat;
+  background: url('../left_active.svg') no-repeat;
   background-size: cover;
   cursor: pointer;
 }

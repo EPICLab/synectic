@@ -94,88 +94,6 @@ div.card-header svg.expand {
   z-index: 9999;
 }
 
-div.card-header button.expand {
-  right: 30px;
-  background: rgba(89, 87, 90, 1.0) url('../expand_dark.svg') center/15px auto no-repeat;
-  background-size: cover;
-}
-
-div.card-header button.expand:hover,
-div.card-header button.expand:active {
-  background: rgba(89, 87, 90, 1.0) url('../expand_active.svg') no-repeat;
-  background-size: cover;
-  cursor: pointer;
-}
-
-div.card-header svg.shrink {
-  height: 15px;
-  width: 15px;
-  position: absolute;
-  top: 7px;
-  right: 10px;
-  border: 0;
-  z-index: 9999;
-}
-
-div.card-header button.shrink {
-  right: 50px;
-  background: rgba(89, 87, 90, 1.0) url('../shrink_dark.svg') center/15px auto no-repeat;
-  background-size: cover;
-}
-
-div.card-header button.shrink:hover,
-div.card-header button.shrink:active {
-  background: rgba(89, 87, 90, 1.0) url('../shrink_active.svg') no-repeat;
-  background-size: cover;
-  cursor: pointer;
-}
-
-div.card-header svg.rightSplit {
-  height: 15px;
-  width: 15px;
-  position: absolute;
-  top: 7px;
-  right: 10px;
-  border: 0;
-  z-index: 9999;
-}
-
-div.card-header button.rightSplit {
-  right: 70px;
-  background: rgba(89, 87, 90, 1.0) url('../right_part_dark.svg') center/15px auto no-repeat;
-  background-size: cover;
-}
-
-div.card-header button.rightSplit:hover,
-div.card-header button.rightSplit:active {
-  background: rgba(89, 87, 90, 1.0) url('../right_part_active.svg') no-repeat;
-  background-size: cover;
-  cursor: pointer;
-}
-
-div.card-header svg.leftSplit {
-  height: 15px;
-  width: 15px;
-  position: absolute;
-  top: 7px;
-  right: 10px;
-  border: 0;
-  z-index: 9999;
-}
-
-div.card-header button.leftSplit {
-  right: 80px;
-  background: rgba(89, 87, 90, 1.0) url('../left_part_dark.svg') center/15px auto no-repeat;
-  background-size: cover;
-}
-
-div.card-header button.leftSplit:hover,
-div.card-header button.leftSplit:active {
-  background: rgba(89, 87, 90, 1.0) url('../left_part_active.svg') no-repeat;
-  background-size: cover;
-  cursor: pointer;
-}
-
 div.card-content {
   width: 100%;
   height: 100%;
@@ -222,7 +140,7 @@ div.card-content {
 
 span.data-label {
   display: inline-block;
-  width: calc(25% - 6px);
+  width: calc(37% - 6px);
   margin: 2px 1px;
   padding: 2px;
   font-family: 'Lato', Georgia, Serif;
@@ -231,7 +149,20 @@ span.data-label {
 
 span.data-field {
   display: inline-block;
-  width: calc(75% - 6px);
+  width: calc(63% - 6px);
+  margin: 2px 1px;
+  padding: 2px;
+  background-color: rgba(250, 250, 250, 1.0);
+  color: rgba(10, 10, 10, 1.0);
+  border-radius: 5px;
+  font-family: 'Lato', Georgia, Serif;
+  word-wrap: break-word;
+}
+
+select.data-field {
+  display: inline-block;
+  height: 24px;
+  width: calc(63% - 2px);
   margin: 2px 1px;
   padding: 2px;
   background-color: rgba(250, 250, 250, 1.0);
