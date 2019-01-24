@@ -26,13 +26,14 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   back: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
   title: HTMLSpanElement = document.createElement('span');
-  saveButton: HTMLButtonElement = document.createElement('button');
-  expandButton: HTMLButtonElement = document.createElement('button');
-  shrinkButton: HTMLButtonElement = document.createElement('button');
-  leftSplitButton: HTMLButtonElement = document.createElement('button');
-  rightSplitButton: HTMLButtonElement = document.createElement('button');
-  flipButton: HTMLButtonElement = document.createElement('button');
-  closeButton: HTMLButtonElement = document.createElement('button');
+  buttons: Map<string, HTMLButtonElement> = new Map();
+  // saveButton: HTMLButtonElement = document.createElement('button');
+  // expandButton: HTMLButtonElement = document.createElement('button');
+  // shrinkButton: HTMLButtonElement = document.createElement('button');
+  // leftSplitButton: HTMLButtonElement = document.createElement('button');
+  // rightSplitButton: HTMLButtonElement = document.createElement('button');
+  // flipButton: HTMLButtonElement = document.createElement('button');
+  // closeButton: HTMLButtonElement = document.createElement('button');
 
   /**
    * Default constructor for creating a blank card with standard interaction controls.
@@ -47,41 +48,16 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.front.setAttribute('class', 'front');
     this.back.setAttribute('class', 'back');
     this.header.setAttribute('class', 'card-header');
+
     this.title.innerHTML = 'Blank Card';
-
-    this.saveButton.setAttribute('class', 'save');
-    $(this.saveButton).on('click', () => this.save());
-    $(this.saveButton).hide();
-
-    this.expandButton.setAttribute('class', 'expand');
-    $(this.expandButton).on('click', () => this.resize());
-
-    this.shrinkButton.setAttribute('class', 'shrink');
-    $(this.shrinkButton).on('click', () => this.resize());
-    $(this.shrinkButton).hide();
-
-    this.leftSplitButton.setAttribute('class', 'leftSplit');
-    $(this.leftSplitButton).on('click', () => this.split(SplitMode.left));
-    $(this.leftSplitButton).hide();
-
-    this.rightSplitButton.setAttribute('class', 'rightSplit');
-    $(this.rightSplitButton).on('click', () => this.split(SplitMode.right));
-    $(this.rightSplitButton).hide();
-
-    this.flipButton.setAttribute('class', 'flip');
-    $(this.flipButton).on('click', () => this.flip());
-
-    this.closeButton.setAttribute('class', 'close');
-    $(this.closeButton).on('click', () => this.destructor());
-
     this.header.appendChild(this.title);
-    this.header.appendChild(this.saveButton);
-    this.header.appendChild(this.expandButton);
-    this.header.appendChild(this.shrinkButton);
-    this.header.appendChild(this.leftSplitButton);
-    this.header.appendChild(this.rightSplitButton);
-    this.header.appendChild(this.flipButton);
-    this.header.appendChild(this.closeButton);
+    this.addButton('saveButton', () => this.save(), 'save', false);
+    this.addButton('expandButton', () => this.resize(), 'expand', true);
+    this.addButton('shrinkButton', () => this.resize(), 'shrink', false);
+    this.addButton('leftSplitButton', () => this.split(SplitMode.left), 'leftSplit', false);
+    this.addButton('rightSplitButton', () => this.split(SplitMode.right), 'rightSplit', false);
+    this.addButton('flipButton', () => this.flip(), 'flip', true);
+    this.addButton('closeButton', () => this.destructor(), 'close', true);
     this.front.appendChild(this.header);
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
@@ -140,11 +116,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
         top: '0px',
         left: '0px'
       });
-      $(this.expandButton).hide();
-      $(this.shrinkButton).show();
-      $(this.leftSplitButton).show();
-      $(this.rightSplitButton).show();
-      $(this.flipButton).hide();
+      this.toggleButton('expandButton', false);
+      this.toggleButton('shrinkButton', true);
+      this.toggleButton('leftSplitButton', true);
+      this.toggleButton('rightSplitButton', true);
+      this.toggleButton('flipButton', false);
       this.draggable(OptionState.disable);
       this.droppable(OptionState.disable);
       this.selectable(OptionState.disable);
@@ -156,11 +132,11 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       });
       this.element.classList.remove('split_left');
       this.element.classList.remove('split_right');
-      $(this.expandButton).show();
-      $(this.shrinkButton).hide();
-      $(this.leftSplitButton).hide();
-      $(this.rightSplitButton).hide();
-      $(this.flipButton).show();
+      this.toggleButton('expandButton', true);
+      this.toggleButton('shrinkButton', false);
+      this.toggleButton('leftSplitButton', false);
+      this.toggleButton('rightSplitButton', false);
+      this.toggleButton('flipButton', true);
       this.draggable(OptionState.enable);
       this.droppable(OptionState.enable);
       this.selectable(OptionState.enable);
@@ -216,6 +192,53 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
         }
       }
     }
+  }
+
+  /**
+   * Create and append new HTMLButtonElement objects to header.
+   * @param key Reference key for managing added button in buttons map.
+   * @param onClickCallback A callback function for handling button click events.
+   * @param cssClass Optional CSS class for setting button appearance.
+   * @param visibility Optional setting for hiding/showing button (default is to show the new button).
+   * @return String key for new button (provided for chaining functions).
+   */
+  protected addButton(key: string, onClickCallback: () => any, cssClass?: string, visibility: boolean = true): string {
+    let button = document.createElement('button');
+    if (cssClass) button.setAttribute('class', cssClass);
+    $(button).on('click', onClickCallback);
+    if (!visibility) $(button).hide();
+
+    this.header.appendChild(button);
+    this.buttons.set(key, button);
+    return key;
+  }
+
+  /**
+   * Toggle the show/hide visiblity state of a specific button. Explicit state may be set through optional second parameter.
+   * @param key Reference key to a previously added button in the buttons map.
+   * @param visiblity Optional setting for explicitly setting show/hide state (true is show, false is hide).
+   */
+  toggleButton(key: string, visibility?: boolean): void {
+    let button = this.buttons.get(key);
+    if (button) {
+      switch (visibility) {
+        case true:
+          $(button).show();
+          break;
+        case false:
+          $(button).hide();
+          break;
+        default:
+          $(button).toggle();
+          break;
+      }
+    }
+
+    // if (button) {
+    //   if (visibility === true) $(button).show();
+    //   if (visibility === false) $(button).hide();
+    //   if (visibility === undefined) $(button).toggle();
+    // }
   }
 
   /**

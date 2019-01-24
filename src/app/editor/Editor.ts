@@ -14,13 +14,14 @@ git.plugins.set('fs', fs);
 import './editor.css';
 import './modes';
 import { SplitMode } from '../../core/lib/interaction';
+import * as path from 'path';
 
 export class Editor extends Card {
 
   editor: ace.Editor;
   editorWindow: HTMLDivElement = document.createElement('div');
   private snapshot: string = '';
-  private reverseContent: Map<string, HTMLSpanElement> = new Map();
+  private reverseContent: Map<string, HTMLElement> = new Map();
 
   /**
    * Default constructor for creating an Editor card.
@@ -87,10 +88,10 @@ export class Editor extends Card {
     const changeset = diff(this.snapshot, this.editor.getValue());
     const nonEqualSets = changeset.filter(d => d[0] !== diff.EQUAL);
     if (nonEqualSets.length > 0) {
-      $(this.saveButton).show();
+      this.toggleButton('saveButton', true);
       return true;
     } else {
-      $(this.saveButton).hide();
+      this.toggleButton('saveButton', false);
       return false;
     }
   }
@@ -114,12 +115,38 @@ export class Editor extends Card {
   setReverseContent(): void {
     git.findRoot({ filepath: this.filename })
       .then(gitroot => {
-        this.addReverseContent('Root', gitroot);
-        git.listFiles({ dir: gitroot })
-          .then(files => console.log(files))
-          .catch(() => console.log('Git files not available'));
+        // this.addReverseContent('Root', gitroot);
+        let rel_path = path.relative(gitroot, this.filename);
+        this.addReverseContent('Path', rel_path);
+
+        // git.listFiles({ dir: gitroot })
+        //   .then(files => {
+        //     this.addReverseContent('VCS Managed', (files.indexOf(rel_path) > -1).toString());
+        //   })
+        //   .catch(() => console.log('Git files not available'));
+
+        // git.currentBranch({dir: gitroot, fullname: false})
+        //   .then(branch => {
+        //     if (branch !== undefined) {
+        //       this.addReverseContent('Branch', branch);
+        //     }
+        //   })
+        //   .catch(() => console.log('Git branch not available'));
+
+        git.listBranches({ dir: gitroot })
+          .then(branches => {
+            console.log(branches);
+            let branchList = this.addReverseContentList('Branch', branches);
+            git.currentBranch({dir: gitroot, fullname: false})
+              .then(branch => {
+                for (var i = 0; i < branchList.options.length; ++i) {
+                  if (branchList.options[i].text === branch)
+                    branchList.options[i].selected = true;
+                }
+              });
+          });
       })
-      .catch(() => this.addReverseContent('Root', 'Unable to find git root'));
+      .catch(() => console.log('Unable to execut git command'));
 
     // isGitRepoAsync(path.dirname(this.filename))
     //   .then(status => {
@@ -143,8 +170,27 @@ export class Editor extends Card {
     this.reverseContent.set(key, field);
   }
 
+  addReverseContentList(key: string, values: string[]): HTMLSelectElement {
+    let label = document.createElement('span');
+    let field = document.createElement('select');
+    label.setAttribute('class', 'data-label');
+    field.setAttribute('class', 'data-field');
+    label.innerText = key;
+    for (let value in values) {
+      console.log('list item: ' + values[value]);
+      let option = document.createElement('option');
+      option.value = values[value];
+      option.innerText = values[value];
+      field.appendChild(option);
+    }
+    this.back.appendChild(label);
+    this.back.appendChild(field);
+    this.reverseContent.set(key, field);
+    return field;
+  }
+
   updateReverseContent(key: string, newValue: string): boolean {
-    let field: HTMLSpanElement | undefined = this.reverseContent.get(key);
+    let field: HTMLElement | undefined = this.reverseContent.get(key);
     if (field !== undefined) {
       field.innerText = newValue;
       return true;
