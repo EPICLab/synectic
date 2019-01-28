@@ -27,13 +27,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   header: HTMLDivElement = document.createElement('div');
   title: HTMLSpanElement = document.createElement('span');
   buttons: Map<string, HTMLButtonElement> = new Map();
-  // saveButton: HTMLButtonElement = document.createElement('button');
-  // expandButton: HTMLButtonElement = document.createElement('button');
-  // shrinkButton: HTMLButtonElement = document.createElement('button');
-  // leftSplitButton: HTMLButtonElement = document.createElement('button');
-  // rightSplitButton: HTMLButtonElement = document.createElement('button');
-  // flipButton: HTMLButtonElement = document.createElement('button');
-  // closeButton: HTMLButtonElement = document.createElement('button');
 
   /**
    * Default constructor for creating a blank card with standard interaction controls.
