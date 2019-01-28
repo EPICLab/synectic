@@ -40,11 +40,18 @@ export class Editor extends Card {
     this.editor.setTheme('ace/theme/monokai');
     if (filename !== '') this.load();
 
+    this.setReverseContent();
     this.editor.addEventListener('change', () => {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
     });
-    this.setReverseContent();
+    fs.watch(this.filename, (_, filename) => {
+      if (filename) {
+        this.load();
+      } else {
+        console.log('filename not provided or check file access permissions');
+      }
+    });
   }
 
   /**
