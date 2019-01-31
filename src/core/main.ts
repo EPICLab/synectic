@@ -1,14 +1,18 @@
 import { app, BrowserWindow } from 'electron';
+import { setContentSecurityPolicy } from './fs/contentSecurityPolicy';
 declare var __dirname: string;
 let mainWindow: Electron.BrowserWindow;
 
 function onReady() {
+  setContentSecurityPolicy();
+
   mainWindow = new BrowserWindow({
     height: 1000,
     width: 1200,
     show: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: true
     }
   });
 
