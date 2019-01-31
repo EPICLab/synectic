@@ -1,10 +1,11 @@
 import { app, BrowserWindow } from 'electron';
-import { setContentSecurityPolicy } from './fs/contentSecurityPolicy';
+import { setContentSecurityPolicy, setContentPermissionsHandler } from './fs/contentSecurityPolicy';
 declare var __dirname: string;
 let mainWindow: Electron.BrowserWindow;
 
 function onReady() {
   setContentSecurityPolicy();
+  setContentPermissionsHandler();
 
   mainWindow = new BrowserWindow({
     height: 1000,
