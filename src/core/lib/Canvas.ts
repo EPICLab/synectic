@@ -23,6 +23,7 @@ export class Canvas implements Base<null, (Stack | Card)> {
   constructor(children: (Stack | Card)[]) {
     children.map(c => this.add(c));
     this.element.setAttribute('class', 'canvas');
+    this.element.setAttribute('id', this.uuid);
     document.body.appendChild(this.element);
   }
 
