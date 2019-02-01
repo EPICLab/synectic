@@ -18,7 +18,7 @@ class AppManager {
   }
 
   public newCanvas(): Canvas {
-    this.canvasList.push(new Canvas());
+    this.canvasList.push(new Canvas([]));
     return this.current;
   }
 

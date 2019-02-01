@@ -1,12 +1,22 @@
 import { app, BrowserWindow } from 'electron';
+import { setContentSecurityPolicy, setContentPermissionsHandler, setWebViewOptions } from './fs/contentSecurityPolicy';
 declare var __dirname: string;
 let mainWindow: Electron.BrowserWindow;
 
 function onReady() {
+  setContentSecurityPolicy();
+  setContentPermissionsHandler();
+
   mainWindow = new BrowserWindow({
-    width: 1200,
     height: 1000,
-    show: true
+    width: 1200,
+    show: true,
+    webPreferences: {
+      nodeIntegration: true,
+      webSecurity: true,
+      // see https://electronjs.org/docs/tutorial/security#3-enable-context-isolation-for-remote-content
+      // contextIsolation: true
+    }
   });
 
   const fileName = `file://${__dirname}/index.html`;
@@ -20,6 +30,7 @@ function onClose() {
   }
 }
 
+setWebViewOptions();
 app.on('ready', () => onReady());
 app.on('window-all-closed', () => onClose());
 app.on('activate', () => onReady());

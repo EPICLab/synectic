@@ -1,7 +1,7 @@
 # Synectic Integrated Development Environment
-[![Build Status](https://travis-ci.org/nelsonni/synectic.svg?branch=master)](https://travis-ci.org/nelsonni/synectic)
+[![Build Status](https://api.travis-ci.com/SarmaResearch/synectic.svg?branch=master)](https://travis-ci.org/SarmaResearch/synectic)
 
-Synectics is a problem solving methodology that stimulates thought processes of which the subject may be unaware. Synectic IDE is a fundamentally different type of IDE, focused on supporting a holistic view of problem solving in software development and allowing context-specific functionality that stimulates complex, diverse solutions to computational problems.
+Synectics is a problem solving methodology that stimulates thought processes of which the subject may be unaware. Synectic IDE is a fundamentally different type of IDE, focused on supporting a human-oriented view of problem solving in software development. Synectic promotes context-specific functionalities that allow complex, diverse solutions to be explored and developed.
 
 *NOTE: This is a research-driven project, and as such should be considered experimental.*
 
@@ -15,7 +15,7 @@ Download: http://web.engr.oregonstate.edu/~nelsonni/synectics/
 
 1. Install [Node.js](https://nodejs.org/en/).
 2. Clone this repository:
-`git clone git@github.com:nelsonni/synectic.git`
+`git clone git@github.com:SarmaResearch/synectic.git`
 3. Install dependencies (listed in `package.json`) from within the project directory:
 `npm i`
 4. Execute Synectic IDE from within the project directory:
@@ -43,4 +43,4 @@ Follow the instructions in [Install](#Install) section to install dependencies a
 * `npm run lint` - executes [TSLint](https://github.com/palantir/tslint) and applies a modified version of `tslint-config-standard` rules
 
 # Contributors
-Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)),
+Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar))
