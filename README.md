@@ -1,5 +1,5 @@
 # Synectic Integrated Development Environment
-[![Build Status](https://api.travis-ci.com/SarmaResearch/synectic.svg?branch=master)](https://travis-ci.org/SarmaResearch/synectic)
+[![Build Status](https://travis-ci.com/SarmaResearch/synectic.svg?token=tPKRniivUcjR9xcd62e5&branch=master)](https://travis-ci.com/SarmaResearch/synectic)
 
 Synectics is a problem solving methodology that stimulates thought processes of which the subject may be unaware. Synectic IDE is a fundamentally different type of IDE, focused on supporting a human-oriented view of problem solving in software development. Synectic promotes context-specific functionalities that allow complex, diverse solutions to be explored and developed.
 
