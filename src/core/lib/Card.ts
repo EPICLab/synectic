@@ -92,6 +92,18 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   abstract save(): void;
 
   /**
+   * Adds paired elements to the back of this card.
+   * @param label An HTMLElement or derived element to be added as a row label.
+   * @param field An HTMLElement or derived element to be added as a row field.
+   */
+  addBack(label: HTMLElement, field: HTMLElement): void {
+    label.setAttribute('class', 'label');
+    field.setAttribute('class', 'field');
+    this.back.appendChild(label);
+    this.back.appendChild(field);
+  }
+
+  /**
    * Animation for expanding or contracting the card between fullscreen and
    * normal mode. Fullscreen mode disables drag, drop, select, and flip
    * functionality.

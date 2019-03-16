@@ -64,6 +64,7 @@
     "tslint": "^5.12.1",
     "tslint-config-standard": "^8.0.1",
     "tslint-no-unused-expression-chai": "^0.1.4",
+    "type-fest": "^0.2.0",
     "typescript": "^3.2.4",
     "uuid": "^3.3.2",
     "webpack": "^4.29.0",
@@ -74,6 +75,7 @@
     "@types/fs-extra": "^5.0.4",
     "@types/jquery": "^3.3.29",
     "@types/jqueryui": "^1.12.6",
+    "@types/klaw": "^3.0.0",
     "fs-extra": "^7.0.1",
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1"

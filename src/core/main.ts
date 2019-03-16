@@ -1,12 +1,8 @@
 import { app, BrowserWindow } from 'electron';
-import { setContentSecurityPolicy, setContentPermissionsHandler, setWebViewOptions } from './fs/contentSecurityPolicy';
 declare var __dirname: string;
 let mainWindow: Electron.BrowserWindow;
 
 function onReady() {
-  setContentSecurityPolicy();
-  setContentPermissionsHandler();
-
   mainWindow = new BrowserWindow({
     height: 1000,
     width: 1200,
@@ -30,7 +26,6 @@ function onClose() {
   }
 }
 
-setWebViewOptions();
 app.on('ready', () => onReady());
 app.on('window-all-closed', () => onClose());
 app.on('activate', () => onReady());

@@ -137,7 +137,6 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
         left: this.element.offsetLeft
       });
       child.toggleButton('expandButton', true);
-      child.toggleButton('shrinkButton', true);
       removeClass(child.element, 'nohover');
       const event = new CustomEvent('remove', { detail: child.uuid });
       document.dispatchEvent(event);

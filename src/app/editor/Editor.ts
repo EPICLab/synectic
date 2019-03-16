@@ -6,15 +6,17 @@ import ace from 'brace';
 import 'brace/theme/monokai';
 import { extname, readFileAsync, writeFileAsync } from '../../core/fs/io';
 import { searchExt } from '../../core/fs/filetypes';
-import { snackbar } from '../../core/fs/notifications';
 import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as git from 'isomorphic-git';
-git.plugins.set('fs', fs);
+import * as sgit from '../../core/vcs/git';
+// git.plugins.set('fs', fs);
 import './editor.css';
 import './modes';
 import { SplitMode } from '../../core/lib/interaction';
-import * as path from 'path';
+import { CredentialManager, auth } from '../../core/vcs/CredentialManager';
+import { Dialog } from '../../core/lib/Dialog';
+// import * as path from 'path';
 
 export class Editor extends Card {
 
@@ -40,7 +42,9 @@ export class Editor extends Card {
     this.editor.setTheme('ace/theme/monokai');
     if (filename !== '') this.load();
 
-    this.setReverseContent();
+    this.setReverseContent().then(() => {
+      console.log('-----------------------');
+    });
     this.editor.addEventListener('change', () => {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
@@ -61,7 +65,7 @@ export class Editor extends Card {
     if (this.filename === '') {
       // TODO: Prompt for a filename and filetype and proceed with save, instead of error.
       const message = 'This card is not associated with a filename, and cannot write to file.';
-      snackbar(global.Synectic.current, message, 'Editor Card Error: No Filename');
+      new Dialog('snackbar', 'Editor Card Error: No Filename', message);
       return;
     }
     writeFileAsync(this.filename, this.editor.getValue())
@@ -69,7 +73,7 @@ export class Editor extends Card {
         this.snapshot = this.editor.getValue();
         this.hasUnsavedChanges();
       })
-      .catch(error => snackbar(global.Synectic.current, error.message, 'Editor Card Error: Save Error'));
+      .catch(error => new Dialog('snackbar', 'Editor Card Error: Save Error', error.message));
   }
 
   /**
@@ -84,7 +88,7 @@ export class Editor extends Card {
         this.snapshot = content;
         if (filetype !== undefined) this.setMode(filetype.name);
       })
-      .catch(error => snackbar(global.Synectic.current, error.message, 'Editor Card Error: File Loading Failed'));
+      .catch(error => new Dialog('snackbar', 'Editor Card Error: File Loading Failed', error.message));
   }
 
   /**
@@ -119,41 +123,108 @@ export class Editor extends Card {
     this.editor.getSession().setMode('ace/mode/' + mode.toLowerCase());
   }
 
-  setReverseContent(): void {
-    git.findRoot({ filepath: this.filename })
-      .then(gitroot => {
-        // this.addReverseContent('Root', gitroot);
-        let rel_path = path.relative(gitroot, this.filename);
-        this.addReverseContent('Path', rel_path);
+  async setReverseContent() {
+    let myHTMLObj = document.createElement('span');
+    myHTMLObj.innerHTML = '<b>' + 'stuff' + '</b>';
+    this.element.appendChild(myHTMLObj);
 
-        // git.listFiles({ dir: gitroot })
-        //   .then(files => {
-        //     this.addReverseContent('VCS Managed', (files.indexOf(rel_path) > -1).toString());
-        //   })
-        //   .catch(() => console.log('Git files not available'));
+    console.log('this.filename: ' + this.filename);
+    let repoRoot = await sgit.getRepoRoot(this.filename);
+    let repoLabel = document.createElement('span');
+    let repoField = document.createElement('span');
+    repoLabel.innerText = 'Path:';
+    repoField.innerText = repoRoot;
+    this.addBack(repoLabel, repoField);
 
-        // git.currentBranch({dir: gitroot, fullname: false})
-        //   .then(branch => {
-        //     if (branch !== undefined) {
-        //       this.addReverseContent('Branch', branch);
-        //     }
-        //   })
-        //   .catch(() => console.log('Git branch not available'));
+    const current = await git.currentBranch({dir: repoRoot, fullname: false});
+    let branches = await sgit.getAllBranches(repoRoot);
+    console.log('branches: [' + branches.length + '] ' + branches);
+    console.log('current branch: ' + current);
 
-        git.listBranches({ dir: gitroot })
-          .then(branches => {
-            console.log(branches);
-            let branchList = this.addReverseContentList('Branch', branches);
-            git.currentBranch({dir: gitroot, fullname: false})
-              .then(branch => {
-                for (var i = 0; i < branchList.options.length; ++i) {
-                  if (branchList.options[i].text === branch)
-                    branchList.options[i].selected = true;
-                }
-              });
-          });
-      })
-      .catch(() => console.log('Unable to execut git command'));
+    let remoteRefs = await sgit.getRemotes(repoRoot);
+    remoteRefs.map(ref => {
+      console.log('remote: ' + ref.remote + ', url: ' + ref.url);
+    });
+    let origin: git.RemoteDefinition = remoteRefs[0];
+    console.log('origin: ' + origin.url);
+
+    let cm: CredentialManager = global.Synectic.credentialManager;
+    let auth = await cm.fill(origin.url);
+    let xAuth = auth as auth;
+    console.log('fill:');
+    console.log('oauth2format: ' + xAuth.oauth2format);
+    console.log('username: ' + xAuth.username);
+    console.log('password: ' + xAuth.password);
+    console.log('token: ' + xAuth.token);
+
+    // let httpsURL = CredentialManager.toHTTPS(origin.url);
+    // await git.fetch({ dir: repoRoot, url: httpsURL });
+    // console.log('fetch is done');
+
+
+    await git.fetch({
+      dir: '../isomorphic-git/',
+      // corsProxy: 'https://cors.isomorphic-git.org',
+      url: 'https://github.com/isomorphic-git/isomorphic-git',
+      ref: 'master',
+      depth: 1,
+      singleBranch: true,
+      tags: false
+    })
+    console.log('fetch is done')
+    // console.log('defaultBranch: ' + fetchRes.defaultBranch);
+
+    // let branchLabel = document.createElement('span');
+    // let branchField = document.createElement('select');
+    // branchLabel.innerText = 'branch';
+    // for (let branch in localBranches) {
+    //   let option = document.createElement('option');
+    //   option.innerText = localBranches[branch];
+    //   localField.appendChild(option);
+    //   if (current === option.innerText) {
+    //     localField.options[branch].selected = true;
+    //   }
+    // }
+    // this.addBack(localLabel, localField);
+
+
+    // git.findRoot({ filepath: this.filename })
+    //   .then(gitroot => {
+    //     // global.Synectic.gitEvents.addEventListener('gitroot', () => {
+    //     //   console.log('firing gitroot event');
+    //     // });
+    //     // this.addReverseContent('Root', gitroot);
+    //     let rel_path = path.relative(gitroot, this.filename);
+    //     this.addReverseContent('Path', rel_path);
+    //
+    //     // git.listFiles({ dir: gitroot })
+    //     //   .then(files => {
+    //     //     this.addReverseContent('VCS Managed', (files.indexOf(rel_path) > -1).toString());
+    //     //   })
+    //     //   .catch(() => console.log('Git files not available'));
+    //
+    //     // git.currentBranch({dir: gitroot, fullname: false})
+    //     //   .then(branch => {
+    //     //     if (branch !== undefined) {
+    //     //       this.addReverseContent('Branch', branch);
+    //     //     }
+    //     //   })
+    //     //   .catch(() => console.log('Git branch not available'));
+    //
+    //     git.listBranches({ dir: gitroot })
+    //       .then(branches => {
+    //         console.log(branches);
+    //         let branchList = this.addReverseContentList('Branch', branches);
+    //         git.currentBranch({dir: gitroot, fullname: false})
+    //           .then(branch => {
+    //             for (var i = 0; i < branchList.options.length; ++i) {
+    //               if (branchList.options[i].text === branch)
+    //                 branchList.options[i].selected = true;
+    //             }
+    //           });
+    //       });
+    //   })
+    //   .catch(() => console.log('Unable to execute git command'));
 
     // isGitRepoAsync(path.dirname(this.filename))
     //   .then(status => {
@@ -168,8 +239,8 @@ export class Editor extends Card {
   addReverseContent(key: string, value: string): void {
     let label = document.createElement('span');
     let field = document.createElement('span');
-    label.setAttribute('class', 'data-label');
-    field.setAttribute('class', 'data-field');
+    label.setAttribute('class', 'label');
+    field.setAttribute('class', 'field');
     label.innerText = key;
     field.innerText = value;
     this.back.appendChild(label);
@@ -180,8 +251,8 @@ export class Editor extends Card {
   addReverseContentList(key: string, values: string[]): HTMLSelectElement {
     let label = document.createElement('span');
     let field = document.createElement('select');
-    label.setAttribute('class', 'data-label');
-    field.setAttribute('class', 'data-field');
+    label.setAttribute('class', 'label');
+    field.setAttribute('class', 'field');
     label.innerText = key;
     for (let value in values) {
       console.log('list item: ' + values[value]);

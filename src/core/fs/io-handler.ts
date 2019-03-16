@@ -1,6 +1,6 @@
 import { Card } from '../lib/Card';
 import { cardTypes } from '../../app/Types';
-import { banner } from './notifications';
+import { Dialog } from '../lib/Dialog';
 
 /**
  * Converts card type name to card instance on canvas.
@@ -15,7 +15,7 @@ export function handlerToCard<T extends Card>(handler: string, filename?: string
     let message = 'Type handler `' + handler + '` is not a configured card type.';
     message = message.concat(' Verify card type exists in app/Types.ts file and');
     message = message.concat(' try reloading a file.');
-    banner(global.Synectic.current, message, 'Typer Handler Configuration Error');
+    new Dialog('banner', 'Typer Handler Configuration Error', message);
     return null;
   }
 }

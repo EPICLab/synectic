@@ -1,12 +1,22 @@
 import { Canvas } from './Canvas';
+import { EventDispatcher } from '../events/events';
+import { CredentialManager } from '../vcs/CredentialManager';
+import * as git from 'isomorphic-git';
+import fs from 'fs';
+git.plugins.set('fs', fs);
 
 class AppManager {
 
   private static _instance: AppManager;
   public canvasList: Canvas[];
+  public credentialManager: CredentialManager;
+  public events: EventDispatcher;
 
   private constructor() {
     this.canvasList = new Array();
+    this.events = new EventDispatcher();
+    this.credentialManager = new CredentialManager();
+    git.plugins.set('credentialManager', this.credentialManager);
   }
 
   public static get Instance(): AppManager {

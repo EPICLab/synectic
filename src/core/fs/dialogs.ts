@@ -3,8 +3,10 @@ import * as filetypes from './filetypes';
 import { OpenDialogOptions, remote } from 'electron';
 import { basename } from 'path';
 import { Card } from '../lib/Card';
-import { snackbar } from './notifications';
-import { handlerToCard } from './handler';
+import { handlerToCard } from './io-handler';
+import '../../asset/style/dialogs.css';
+import { Dialog } from '../lib/Dialog';
+// import { CredentialManager } from '../vcs/CredentialManager';
 
 export function openCardDialog(options: OpenDialogOptions): void {
   remote.dialog.showOpenDialog(remote.getCurrentWindow(), options,
@@ -17,7 +19,7 @@ export function openCardDialog(options: OpenDialogOptions): void {
               if (card !== null) card.title.innerHTML = basename(filename);
             }
           })
-          .catch(error => snackbar(global.Synectic.current, error.message, 'Open Card Dialog Error'));
+          .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
       });
     });
 }

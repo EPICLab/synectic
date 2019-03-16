@@ -25,7 +25,6 @@ button.save:active {
 button.flip {
   background: url('../flip_dark.svg') no-repeat;
   background-size: cover;
-  border-radius: 50%;
 }
 
 button.flip:hover,
