@@ -3,16 +3,8 @@ import * as path from 'path';
 // import * as util from 'util';
 import * as git from 'isomorphic-git';
 
-// Lim requires a function that will compare a local file against the latest version on a git branch, and returns boolean for diff
-
-// TODO: Capture 'git@github.com:SarmaResearch/synectic.git' URLs and convert to 'https://github.com/SarmaResearch/synectic'
-// TODO: Create a CredentialManager for handling username/password or token/oauth2format information
-
-/*
-username: 'nelsonni',
-password: 'XanfurbCave909',
-token: '02382a038d912a9fc9fd88b7feb77d5084ff30f0'
-*/
+// Lim requires a function that will compare a local file against the latest
+// version on a git branch, and returns boolean for diff.
 
 export async function fetchRepo(directory: fs.PathLike) {
   await git.fetch({
@@ -27,7 +19,7 @@ export async function fetchRepo(directory: fs.PathLike) {
 }
 
 export async function getRepoFullname(): Promise<string> {
-  let value = await git.config({
+  const value = await git.config({
     dir: '/',
     path: 'user.name'
   });
@@ -44,7 +36,7 @@ export async function getRepoFullname(): Promise<string> {
  * @return A list of git.RemoteDefinition objects, each containing `remote` and `url` fields.
  */
 export async function getRemotes(gitdir: fs.PathLike): Promise<git.RemoteDefinition[]> {
-  return await git.listRemotes({ dir: gitdir.toString() });
+  return git.listRemotes({ dir: gitdir.toString() });
 }
 
 /**
@@ -66,7 +58,7 @@ export async function getRepoRoot(p: fs.PathLike, relative?: boolean): Promise<s
 export async function getAllBranches(gitdir: fs.PathLike): Promise<string[]> {
   const local = await getLocalBranches(gitdir);
   const remote = await getRemoteBranches(gitdir);
-  let allBranches = new Set(local.concat(remote));
+  const allBranches = new Set(local.concat(remote));
   return Array.from(allBranches.values());
 }
 
@@ -76,7 +68,7 @@ export async function getAllBranches(gitdir: fs.PathLike): Promise<string[]> {
  * @return An array of local branch names for the Git repository.
  */
 export async function getLocalBranches(gitdir: fs.PathLike): Promise<string[]> {
-  return await git.listBranches({ dir: gitdir.toString() });
+  return git.listBranches({ dir: gitdir.toString() });
 }
 
 /**
@@ -85,7 +77,7 @@ export async function getLocalBranches(gitdir: fs.PathLike): Promise<string[]> {
  * @return An array of remote branch names for the Git repository.
  */
 export async function getRemoteBranches(gitdir: fs.PathLike): Promise<string[]> {
-  return await git.listBranches({ dir: gitdir.toString(), remote: 'origin' });
+  return git.listBranches({ dir: gitdir.toString(), remote: 'origin' });
 }
 
 /**

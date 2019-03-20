@@ -9,7 +9,7 @@ function onReady() {
     show: true,
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: true,
+      webSecurity: true
       // see https://electronjs.org/docs/tutorial/security#3-enable-context-isolation-for-remote-content
       // contextIsolation: true
     }

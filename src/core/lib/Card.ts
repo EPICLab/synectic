@@ -161,14 +161,14 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       this.element.style.right = '';
 
       switch (mode) {
-        case SplitMode.left:
-          this.element.classList.remove('split_right');
-          this.element.classList.add('split_left');
-          break;
-        case SplitMode.right:
-          this.element.classList.remove('split_left');
-          this.element.classList.add('split_right');
-          break;
+      case SplitMode.left:
+        this.element.classList.remove('split_right');
+        this.element.classList.add('split_left');
+        break;
+      case SplitMode.right:
+        this.element.classList.remove('split_left');
+        this.element.classList.add('split_right');
+        break;
       }
       this.draggable(OptionState.disable);
       this.droppable(OptionState.disable);
@@ -184,13 +184,13 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   private flip(): void {
     if (this.element.classList.contains('ui-flippable')) {
       if (this.element.classList.toggle('flipped')) {
-        if (this.back.firstChild != null) {
+        if (this.back.firstChild !== null) {
           this.back.insertBefore(this.header, this.back.firstChild);
         } else {
           this.back.appendChild(this.header);
         }
       } else {
-        if (this.front.firstChild != null) {
+        if (this.front.firstChild !== null) {
           this.front.insertBefore(this.header, this.front.firstChild);
         } else {
           this.front.appendChild(this.header);
@@ -208,7 +208,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * @return String key for new button (provided for chaining functions).
    */
   protected addButton(key: string, onClickCallback: () => any, cssClass?: string, visibility: boolean = true): string {
-    let button = document.createElement('button');
+    const button = document.createElement('button');
     if (cssClass) button.setAttribute('class', cssClass);
     $(button).on('click', onClickCallback);
     if (!visibility) $(button).hide();
@@ -219,23 +219,24 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   }
 
   /**
-   * Toggle the show/hide visiblity state of a specific button. Explicit state may be set through optional second parameter.
+   * Toggle the show/hide visiblity state of a specific button. Explicit state
+   * may be set through optional second parameter.
    * @param key Reference key to a previously added button in the buttons map.
    * @param visiblity Optional setting for explicitly setting show/hide state (true is show, false is hide).
    */
   toggleButton(key: string, visibility?: boolean): void {
-    let button = this.buttons.get(key);
+    const button = this.buttons.get(key);
     if (button) {
       switch (visibility) {
-        case true:
-          $(button).show();
-          break;
-        case false:
-          $(button).hide();
-          break;
-        default:
-          $(button).toggle();
-          break;
+      case true:
+        $(button).show();
+        break;
+      case false:
+        $(button).hide();
+        break;
+      default:
+        $(button).toggle();
+        break;
       }
     }
 

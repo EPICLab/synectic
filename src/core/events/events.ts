@@ -29,5 +29,4 @@ export class EventDispatcher implements IEventDispatcher {
     handler(event);
   }
 
-
 }

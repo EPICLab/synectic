@@ -4,27 +4,27 @@ import { Dialog } from '../lib/Dialog';
 import { JsonValue, JsonObject } from 'type-fest';
 
 interface GitCredentialManagerPlugin {
-  fill ( { url }: { url: string } ): Promise<JsonValue>;
-  approved ( { url, auth }: { url: string, auth: JsonValue } ): Promise<void>;
-  rejected ( { url, auth }: { url: string, auth: JsonValue } ): Promise<void>;
+  fill ({ url }: { url: string }): Promise<JsonValue>;
+  approved ({ url, auth }: { url: string, auth: JsonValue }): Promise<void>;
+  rejected ({ url, auth }: { url: string, auth: JsonValue }): Promise<void>;
 }
 
-export interface auth extends JsonObject {
-  oauth2format: string,
-  username: string,
-  password: string,
-  token: string
+export interface Auth extends JsonObject {
+  oauth2format: string;
+  username: string;
+  password: string;
+  token: string;
 }
 
 export class CredentialManager implements GitCredentialManagerPlugin {
 
   // Note: Key can be in SSH or HTTPS formats, but will return different auth results
   // depending on which format is provided.
-  credentials: Map<string, auth> = new Map();
+  credentials: Map<string, Auth> = new Map();
 
-  credentialPrompt(url: string): Promise<auth> {
+  credentialPrompt(url: string): Promise<Auth> {
     url = CredentialManager.toHTTPS(url);
-    let auth = this.getAuth(url);
+    const auth = this.getAuth(url);
     const siteDesc = document.createElement('span');
     siteDesc.className = 'form-control';
     siteDesc.innerText = 'Site:';
@@ -88,7 +88,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
     reveal.classList.add('closed-eye', 'toggle-password');
     reveal.onclick = () => {
       $(reveal).toggleClass('closed-eye open-eye');
-      if ($(password).attr('type') == 'password') {
+      if ($(password).attr('type') === 'password') {
         password.type = 'text';
       } else {
         password.type = 'password';
@@ -125,38 +125,38 @@ export class CredentialManager implements GitCredentialManagerPlugin {
     cancel.innerText = 'Cancel';
     cancel.id = 'Cancel';
 
-    let dialog = new Dialog('dialog', 'Git Credential Manager');
+    const dialog = new Dialog('dialog', 'Git Credential Manager');
     dialog.addContents([siteDesc, site, login2FADesc, login2FA, userDesc,
       username, passDesc, password, reveal, oAuthDesc, oAuth, tokenDesc, token]);
     dialog.addButtons([login, cancel]);
 
     const loginPromise = new Promise((resolve) => {
-        const resolver = () => {
-          if (login2FA.checked) {
-            this.credentials.set(url, CredentialManager.buildAuth2FA(url, token.value));
-          } else {
-            this.credentials.set(url, {
-              oauth2format: '',
-              username: username.value,
-              password: password.value,
-              token: ''
-            });
-          }
-          resolve();
-          login.removeEventListener('click', resolver);
-          console.log('loginPromise');
-          dialog.destructor();
+      const resolver = () => {
+        if (login2FA.checked) {
+          this.credentials.set(url, CredentialManager.buildAuth2FA(url, token.value));
+        } else {
+          this.credentials.set(url, {
+            oauth2format: '',
+            username: username.value,
+            password: password.value,
+            token: ''
+          });
         }
-        login.addEventListener('click', resolver);
+        resolve();
+        login.removeEventListener('click', resolver);
+        console.log('loginPromise');
+        dialog.destructor();
+      };
+      login.addEventListener('click', resolver);
     });
     const cancelPromise = new Promise((resolve) => {
-        const resolver = () => {
-            resolve();
-            cancel.removeEventListener('click', resolver);
-            console.log('cancelPromise');
-            dialog.destructor();
-        }
-        cancel.addEventListener('click', resolver);
+      const resolver = () => {
+        resolve();
+        cancel.removeEventListener('click', resolver);
+        console.log('cancelPromise');
+        dialog.destructor();
+      };
+      cancel.addEventListener('click', resolver);
     });
 
     return Promise.race([
@@ -174,7 +174,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @param url The remote URL that auth information is being requested for.
    * @return Promise for JSON string containing Git auth information; auth can be blank if no information added.
    */
-  async fill( { url }: { url: string } ): Promise<JsonValue> {
+  async fill({ url }: { url: string }): Promise<JsonValue> {
     url = CredentialManager.toHTTPS(url);
     console.log('CredentialManager::fill called for: ' + url);
     let auth = this.credentials.get(url);
@@ -198,7 +198,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @return Promise for indicating that the approved event handling has completed.
    */
   approved({ url, auth }: { url: string, auth: JsonValue }): Promise<void> {
-    let oAuth = auth as auth;
+    const oAuth = auth as Auth;
     const message = `Authentication with \'${url}\' approved using:\n
       oauth2format: ${oAuth.oauth2format}\n
       username: ${oAuth.username}\n
@@ -218,7 +218,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @return Promise for indicating that the rejected event handling has completed.
    */
   rejected({ url, auth }: { url: string, auth: JsonValue }): Promise<void> {
-    let oAuth = auth as auth;
+    const oAuth = auth as Auth;
     const message = `Authentication with \'${url}\' failed using:\n
       oauth2format: ${oAuth.oauth2format}\n
       username: ${oAuth.username}\n
@@ -232,13 +232,15 @@ export class CredentialManager implements GitCredentialManagerPlugin {
     dialog.addButtons([reAuth]);
 
     return new Promise<void>((resolve) => {
-        const resolver = () => {
-          resolve();
-          reAuth.removeEventListener('click', resolver);
-          dialog.destructor();
-          this.credentialPrompt(url);
-        }
-        reAuth.addEventListener('click', resolver);
+      const resolver = () => {
+        resolve();
+        reAuth.removeEventListener('click', resolver);
+        dialog.destructor();
+        async () => {
+          await this.credentialPrompt(url);
+        };
+      };
+      reAuth.addEventListener('click', resolver);
     });
   }
 
@@ -262,7 +264,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    */
   static toHTTPS (remoteUrl: string): string {
     const parsedRemote = this.parseRemoteUrl(remoteUrl);
-    return `https://${parsedRemote[0]}/${parsedRemote[1]}`
+    return `https://${parsedRemote[0]}/${parsedRemote[1]}`;
   }
 
   /**
@@ -293,26 +295,26 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @param remoteUrl The remote URL; can accept SSH or HTTPS formats.
    * @return The auth credentials with relevant 2FA field populated.
    */
-  static buildAuth2FA(remoteUrl: string, token: string): auth {
-    const oauth: auth = {
+  static buildAuth2FA(remoteUrl: string, token: string): Auth {
+    const oauth: Auth = {
       oauth2format: CredentialManager.parseOAuth2Format(remoteUrl),
       username: '',
       password: '',
       token: token
-    }
+    };
     switch (oauth.oauth2format) {
-      case 'github':
-        oauth.username = token;
-        oauth.password = 'x-oauth-basic';
-        break;
-      case 'bitbucket':
-        oauth.username = 'x-token-auth';
-        oauth.password = token;
-        break;
-      case 'gitlab':
-        oauth.username = 'oauth2';
-        oauth.password = token;
-        break;
+    case 'github':
+      oauth.username = token;
+      oauth.password = 'x-oauth-basic';
+      break;
+    case 'bitbucket':
+      oauth.username = 'x-token-auth';
+      oauth.password = token;
+      break;
+    case 'gitlab':
+      oauth.username = 'oauth2';
+      oauth.password = token;
+      break;
     }
     return oauth;
   }
@@ -322,8 +324,8 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @param url The remote URL; can accept SSH or HTTPS format.
    * @return The auth credentials with relevant fields populated; blank auth if nots found.
    */
-  private getAuth(url: string): auth {
-    let auth = this.credentials.get(url);
+  private getAuth(url: string): Auth {
+    const auth = this.credentials.get(url);
     if (auth) {
       return auth;
     } else {

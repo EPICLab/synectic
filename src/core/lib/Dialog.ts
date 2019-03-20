@@ -16,18 +16,18 @@ export class Dialog {
     if (title) this.addTitle(title);
     this.closeButton.setAttribute('class', 'close');
     this.setupDefault();
-    switch(this.dialogType) {
-      case 'snackbar':
-        if (!message) throw new Error('ERROR: Snackbar dialog requires the message parameter.');
-        global.Synectic.current.element.appendChild(this.setupSnackbar(message));
-        break;
-      case 'banner':
-        if (!message) throw new Error('ERROR: Banner dialog requires the message parameter.');
-        global.Synectic.current.element.appendChild(this.setupBanner(message));
-        break;
-      case 'dialog':
-        global.Synectic.current.element.appendChild(this.setupDialog());
-        break;
+    switch (this.dialogType) {
+    case 'snackbar':
+      if (!message) throw new Error('ERROR: Snackbar dialog requires the message parameter.');
+      global.Synectic.current.element.appendChild(this.setupSnackbar(message));
+      break;
+    case 'banner':
+      if (!message) throw new Error('ERROR: Banner dialog requires the message parameter.');
+      global.Synectic.current.element.appendChild(this.setupBanner(message));
+      break;
+    case 'dialog':
+      global.Synectic.current.element.appendChild(this.setupDialog());
+      break;
     }
   }
 

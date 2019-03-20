@@ -42,7 +42,9 @@ export class Editor extends Card {
     this.editor.setTheme('ace/theme/monokai');
     if (filename !== '') this.load();
 
-    this.setReverseContent().then();
+    (async () => {
+      await this.setReverseContent();
+    });
     this.editor.addEventListener('change', () => {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
@@ -122,26 +124,26 @@ export class Editor extends Card {
   }
 
   async setReverseContent() {
-    let myHTMLObj = document.createElement('span');
+    const myHTMLObj = document.createElement('span');
     myHTMLObj.innerHTML = '<b>' + 'stuff' + '</b>';
     this.element.appendChild(myHTMLObj);
 
     console.log('this.filename: ' + this.filename);
-    let repoRoot = await sgit.getRepoRoot(this.filename);
-    let repoLabel = document.createElement('span');
-    let repoField = document.createElement('span');
+    const repoRoot = await sgit.getRepoRoot(this.filename);
+    const repoLabel = document.createElement('span');
+    const repoField = document.createElement('span');
     repoLabel.innerText = 'Path:';
     repoField.innerText = repoRoot;
     this.addBack(repoLabel, repoField);
 
-    const current = await git.currentBranch({dir: repoRoot, fullname: false});
-    let branches = await sgit.getAllBranches(repoRoot);
+    const current = await git.currentBranch({ dir: repoRoot, fullname: false });
+    const branches = await sgit.getAllBranches(repoRoot);
     const branchesLabel = document.createElement('span');
     const branchesList = document.createElement('select');
     branchesLabel.className = 'label';
     branchesLabel.innerText = 'Branches:';
     branchesList.className = 'field';
-    for (let branch in branches) {
+    for (const branch in branches) {
       const option = document.createElement('option');
       option.value = branches[branch];
       option.innerText = branches[branch];
@@ -150,11 +152,11 @@ export class Editor extends Card {
     if (current) branchesList.value = current;
     this.addBack(branchesLabel, branchesList);
 
-    let remoteRefs = await sgit.getRemotes(repoRoot);
-    let origin: git.RemoteDefinition = remoteRefs[0];
+    const remoteRefs = await sgit.getRemotes(repoRoot);
+    const origin: git.RemoteDefinition = remoteRefs[0];
 
-    let fetchLabel = document.createElement('span');
-    let fetchButton = document.createElement('button');
+    const fetchLabel = document.createElement('span');
+    const fetchButton = document.createElement('button');
     fetchLabel.innerText = 'Fetch:';
     fetchButton.innerText = 'Fetch';
     fetchButton.onclick = async () => {
@@ -166,7 +168,7 @@ export class Editor extends Card {
         depth: 1,
         singleBranch: true,
         tags: false
-      })
+      });
       console.log('fetch is done');
     };
     this.addBack(fetchLabel, fetchButton);
@@ -196,7 +198,6 @@ export class Editor extends Card {
     //   }
     // }
     // this.addBack(localLabel, localField);
-
 
     // git.findRoot({ filepath: this.filename })
     //   .then(gitroot => {
@@ -247,8 +248,8 @@ export class Editor extends Card {
   }
 
   addReverseContent(key: string, value: string): void {
-    let label = document.createElement('span');
-    let field = document.createElement('span');
+    const label = document.createElement('span');
+    const field = document.createElement('span');
     label.setAttribute('class', 'label');
     field.setAttribute('class', 'field');
     label.innerText = key;
@@ -259,14 +260,14 @@ export class Editor extends Card {
   }
 
   addReverseContentList(key: string, values: string[]): HTMLSelectElement {
-    let label = document.createElement('span');
-    let field = document.createElement('select');
+    const label = document.createElement('span');
+    const field = document.createElement('select');
     label.setAttribute('class', 'label');
     field.setAttribute('class', 'field');
     label.innerText = key;
-    for (let value in values) {
+    for (const value in values) {
       console.log('list item: ' + values[value]);
-      let option = document.createElement('option');
+      const option = document.createElement('option');
       option.value = values[value];
       option.innerText = values[value];
       field.appendChild(option);
@@ -278,7 +279,7 @@ export class Editor extends Card {
   }
 
   updateReverseContent(key: string, newValue: string): boolean {
-    let field: HTMLElement | undefined = this.reverseContent.get(key);
+    const field: HTMLElement | undefined = this.reverseContent.get(key);
     if (field !== undefined) {
       field.innerText = newValue;
       return true;
