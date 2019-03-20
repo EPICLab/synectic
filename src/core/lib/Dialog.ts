@@ -76,7 +76,7 @@ export class Dialog {
     $(this.closeButton).on('click', () => {
       console.log('Snackbar close button');
       $(this.dialog).toggle('fold', undefined, 500);
-      setTimeout(() => this.destructor, 550);
+      setTimeout(() => this.destructor(), 550);
     });
     this.bottom.appendChild(this.closeButton);
     return this.dialog;
@@ -92,9 +92,9 @@ export class Dialog {
     $(this.closeButton).on('click', () => {
       console.log('Banner close button');
       $(this.dialog).toggle('fold', undefined, 500);
-      setTimeout(() => this.destructor, 550);
+      setTimeout(() => this.destructor(), 550);
     });
-    this.top.appendChild(this.closeButton);
+    this.bottom.appendChild(this.closeButton);
     return this.dialog;
   }
 

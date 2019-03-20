@@ -2,6 +2,7 @@ button.close {
   background: url('../close_dark.svg') no-repeat;
   background-size: cover;
   border-radius: 50%;
+  border: 0;
 }
 
 button.close:hover,

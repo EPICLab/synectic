@@ -14,7 +14,7 @@ import * as sgit from '../../core/vcs/git';
 import './editor.css';
 import './modes';
 import { SplitMode } from '../../core/lib/interaction';
-import { CredentialManager, auth } from '../../core/vcs/CredentialManager';
+import { CredentialManager } from '../../core/vcs/CredentialManager';
 import { Dialog } from '../../core/lib/Dialog';
 // import * as path from 'path';
 
@@ -42,9 +42,7 @@ export class Editor extends Card {
     this.editor.setTheme('ace/theme/monokai');
     if (filename !== '') this.load();
 
-    this.setReverseContent().then(() => {
-      console.log('-----------------------');
-    });
+    this.setReverseContent().then();
     this.editor.addEventListener('change', () => {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
@@ -138,40 +136,52 @@ export class Editor extends Card {
 
     const current = await git.currentBranch({dir: repoRoot, fullname: false});
     let branches = await sgit.getAllBranches(repoRoot);
-    console.log('branches: [' + branches.length + '] ' + branches);
-    console.log('current branch: ' + current);
+    const branchesLabel = document.createElement('span');
+    const branchesList = document.createElement('select');
+    branchesLabel.className = 'label';
+    branchesLabel.innerText = 'Branches:';
+    branchesList.className = 'field';
+    for (let branch in branches) {
+      const option = document.createElement('option');
+      option.value = branches[branch];
+      option.innerText = branches[branch];
+      branchesList.appendChild(option);
+    }
+    if (current) branchesList.value = current;
+    this.addBack(branchesLabel, branchesList);
 
     let remoteRefs = await sgit.getRemotes(repoRoot);
-    remoteRefs.map(ref => {
-      console.log('remote: ' + ref.remote + ', url: ' + ref.url);
-    });
     let origin: git.RemoteDefinition = remoteRefs[0];
-    console.log('origin: ' + origin.url);
 
-    let cm: CredentialManager = global.Synectic.credentialManager;
-    let auth = await cm.fill(origin.url);
-    let xAuth = auth as auth;
-    console.log('fill:');
-    console.log('oauth2format: ' + xAuth.oauth2format);
-    console.log('username: ' + xAuth.username);
-    console.log('password: ' + xAuth.password);
-    console.log('token: ' + xAuth.token);
+    let fetchLabel = document.createElement('span');
+    let fetchButton = document.createElement('button');
+    fetchLabel.innerText = 'Fetch:';
+    fetchButton.innerText = 'Fetch';
+    fetchButton.onclick = async () => {
+      await git.fetch({
+        dir: repoRoot,
+        // corsProxy: 'https://cors.isomorphic-git.org',
+        url: CredentialManager.toHTTPS(origin.url),
+        ref: 'master',
+        depth: 1,
+        singleBranch: true,
+        tags: false
+      })
+      console.log('fetch is done');
+    };
+    this.addBack(fetchLabel, fetchButton);
 
-    // let httpsURL = CredentialManager.toHTTPS(origin.url);
-    // await git.fetch({ dir: repoRoot, url: httpsURL });
-    // console.log('fetch is done');
+    // await git.fetch({
+    //   dir: '../isomorphic-git/',
+    //   // corsProxy: 'https://cors.isomorphic-git.org',
+    //   url: 'https://github.com/isomorphic-git/isomorphic-git',
+    //   ref: 'master',
+    //   depth: 1,
+    //   singleBranch: true,
+    //   tags: false
+    // })
+    // console.log('fetch is done')
 
-
-    await git.fetch({
-      dir: '../isomorphic-git/',
-      // corsProxy: 'https://cors.isomorphic-git.org',
-      url: 'https://github.com/isomorphic-git/isomorphic-git',
-      ref: 'master',
-      depth: 1,
-      singleBranch: true,
-      tags: false
-    })
-    console.log('fetch is done')
     // console.log('defaultBranch: ' + fetchRes.defaultBranch);
 
     // let branchLabel = document.createElement('span');

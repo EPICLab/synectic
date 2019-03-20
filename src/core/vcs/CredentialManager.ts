@@ -4,9 +4,9 @@ import { Dialog } from '../lib/Dialog';
 import { JsonValue, JsonObject } from 'type-fest';
 
 interface GitCredentialManagerPlugin {
-  fill ( url: string ): Promise<JsonValue>;
-  approved ( url: string, auth: JsonValue ): Promise<void>;
-  rejected ( url: string, auth: JsonValue ): Promise<void>;
+  fill ( { url }: { url: string } ): Promise<JsonValue>;
+  approved ( { url, auth }: { url: string, auth: JsonValue } ): Promise<void>;
+  rejected ( { url, auth }: { url: string, auth: JsonValue } ): Promise<void>;
 }
 
 export interface auth extends JsonObject {
@@ -23,6 +23,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
   credentials: Map<string, auth> = new Map();
 
   credentialPrompt(url: string): Promise<auth> {
+    url = CredentialManager.toHTTPS(url);
     let auth = this.getAuth(url);
     const siteDesc = document.createElement('span');
     siteDesc.className = 'form-control';
@@ -132,12 +133,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
     const loginPromise = new Promise((resolve) => {
         const resolver = () => {
           if (login2FA.checked) {
-            this.credentials.set(url, {
-              oauth2format: oAuth.value,
-              username: '',
-              password: '',
-              token: token.value
-            });
+            this.credentials.set(url, CredentialManager.buildAuth2FA(url, token.value));
           } else {
             this.credentials.set(url, {
               oauth2format: '',
@@ -173,14 +169,14 @@ export class CredentialManager implements GitCredentialManagerPlugin {
     ]);
   }
 
-  /*
+  /**
    * Attempt to add "username", "password", "token" to auth for the specified URL.
    * @param url The remote URL that auth information is being requested for.
    * @return Promise for JSON string containing Git auth information; auth can be blank if no information added.
    */
-  async fill(url: string): Promise<JsonValue> {
+  async fill( { url }: { url: string } ): Promise<JsonValue> {
+    url = CredentialManager.toHTTPS(url);
     console.log('CredentialManager::fill called for: ' + url);
-    // url = CredentialManager.toHTTPS(url); // temporary fix since SSH URLs need additional logic to handle tokens and fallback to HTTPS and user prompts (if needed)
     let auth = this.credentials.get(url);
     if (!auth) {
       auth = await this.credentialPrompt(url);
@@ -201,9 +197,15 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @param auth The JSON string containing Git auth information.
    * @return Promise for indicating that the approved event handling has completed.
    */
-  approved(url: string, auth: JsonValue): Promise<void> {
+  approved({ url, auth }: { url: string, auth: JsonValue }): Promise<void> {
+    let oAuth = auth as auth;
+    const message = `Authentication with \'${url}\' approved using:\n
+      oauth2format: ${oAuth.oauth2format}\n
+      username: ${oAuth.username}\n
+      password: ${oAuth.passwordtoken}\n
+      token: ${oAuth.token}`;
+    new Dialog('banner', 'Git Credential Manager', message);
     return new Promise((resolve) => {
-      console.log('approved:\n\turl: ' + url + '\n\tauth: ' + auth);
       resolve();
     });
   }
@@ -215,8 +217,13 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @param auth The JSON string containing Git auth information.
    * @return Promise for indicating that the rejected event handling has completed.
    */
-  rejected(url: string, auth: JsonValue): Promise<void> {
-    const message = `Authentication with \'${url}\' failed using: ${auth}`;
+  rejected({ url, auth }: { url: string, auth: JsonValue }): Promise<void> {
+    let oAuth = auth as auth;
+    const message = `Authentication with \'${url}\' failed using:\n
+      oauth2format: ${oAuth.oauth2format}\n
+      username: ${oAuth.username}\n
+      password: ${oAuth.passwordtoken}\n
+      token: ${oAuth.token}`;
     const dialog = new Dialog('banner', 'Git Credential Manager', message);
 
     const reAuth = document.createElement('button');
@@ -233,9 +240,6 @@ export class CredentialManager implements GitCredentialManagerPlugin {
         }
         reAuth.addEventListener('click', resolver);
     });
-    // const data = { statusCode: 401, statusMessage: 'HTTP Basic: Access Denied' };
-    // const err = new Error(`HTTP Error: ${data.statusCode} ${data.statusMessage}`);
-    // throw err;
   }
 
   /**
@@ -282,6 +286,35 @@ export class CredentialManager implements GitCredentialManagerPlugin {
     if (parsedRemote[0].includes('bitbucket')) return 'bitbucket';
     if (parsedRemote[0].includes('gitlab')) return 'gitlab';
     return '';
+  }
+
+  /**
+   * Convert the remote URL and token into 2FA auth credentials.
+   * @param remoteUrl The remote URL; can accept SSH or HTTPS formats.
+   * @return The auth credentials with relevant 2FA field populated.
+   */
+  static buildAuth2FA(remoteUrl: string, token: string): auth {
+    const oauth: auth = {
+      oauth2format: CredentialManager.parseOAuth2Format(remoteUrl),
+      username: '',
+      password: '',
+      token: token
+    }
+    switch (oauth.oauth2format) {
+      case 'github':
+        oauth.username = token;
+        oauth.password = 'x-oauth-basic';
+        break;
+      case 'bitbucket':
+        oauth.username = 'x-token-auth';
+        oauth.password = token;
+        break;
+      case 'gitlab':
+        oauth.username = 'oauth2';
+        oauth.password = token;
+        break;
+    }
+    return oauth;
   }
 
   /**
