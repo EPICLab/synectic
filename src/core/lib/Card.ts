@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 import { Draggable, Droppable, OptionState, Selectable, SplitMode } from './interaction';
 import { hasClass, addClass, removeClass } from './helper';
 import { Menu, remote } from 'electron';
+import { basename } from 'path';
 // import { Clock } from './events/Clock';
 
 /**
@@ -14,14 +15,14 @@ import { Menu, remote } from 'electron';
 export abstract class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable {
 
-  uuid: string = v4();
-  filename: string;
-  created: DateTime = DateTime.local();
+  readonly uuid: string = v4();
+  readonly created: DateTime = DateTime.local();
+  element: HTMLDivElement = document.createElement('div');
   modified: DateTime = DateTime.local();
+  filename: string;
   parent: Canvas | Stack;
   children: null[] = [];
   position: [string, string] = ['0','0'];
-  element: HTMLDivElement = document.createElement('div');
   front: HTMLDivElement = document.createElement('div');
   back: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
@@ -42,7 +43,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.back.setAttribute('class', 'back');
     this.header.setAttribute('class', 'card-header');
 
-    this.title.innerHTML = 'Blank Card';
+    this.title.innerHTML = filename.length > 0 ? basename(filename) : 'Blank Card';
     this.header.appendChild(this.title);
     this.addButton('saveButton', () => this.save(), 'save', false);
     this.addButton('expandButton', () => this.resize(), 'expand', true);
@@ -90,18 +91,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * Abstract placeholder for writing content to local or remote sources.
    */
   abstract save(): void;
-
-  /**
-   * Adds paired elements to the back of this card.
-   * @param label An HTMLElement or derived element to be added as a row label.
-   * @param field An HTMLElement or derived element to be added as a row field.
-   */
-  addBack(label: HTMLElement, field: HTMLElement): void {
-    label.setAttribute('class', 'label');
-    field.setAttribute('class', 'field');
-    this.back.appendChild(label);
-    this.back.appendChild(field);
-  }
 
   /**
    * Animation for expanding or contracting the card between fullscreen and
@@ -239,12 +228,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
         break;
       }
     }
-
-    // if (button) {
-    //   if (visibility === true) $(button).show();
-    //   if (visibility === false) $(button).hide();
-    //   if (visibility === undefined) $(button).toggle();
-    // }
   }
 
   /**
