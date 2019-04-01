@@ -5,9 +5,7 @@ import '../asset/style/stack.css';
 import '../asset/style/buttons.css';
 import '../asset/style/notification.css';
 
-import { Editor } from '../app/editor/Editor';
-import { openCardDialog } from './fs/dialogs';
-// import { CredentialManager } from './vcs/CredentialManager';
+import { openCardDialog, newCardDialog } from './fs/dialogs';
 import * as git from './vcs/git';
 import { Dialog } from './lib/Dialog';
 
@@ -15,8 +13,8 @@ global.Synectic = AppManagerInstance;
 const c = global.Synectic.newCanvas();
 
 const newEditorButton = document.createElement('button');
-newEditorButton.innerText = 'New Editor';
-newEditorButton.onclick = () => new Editor(c, '');
+newEditorButton.innerText = 'New...';
+newEditorButton.onclick = () => newCardDialog({});
 c.element.appendChild(newEditorButton);
 
 const loadCardButton = document.createElement('button');
