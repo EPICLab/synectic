@@ -10,15 +10,11 @@ import { Dialog } from '../lib/Dialog';
  * @return Card instance corresponding to handler type or undefined if no handler defined.
  */
 export function handlerToCard<T extends Card>(handler: string, filename: string): T | undefined {
-  console.log(`handlerToCard => handler: ${handler}, filename: ${filename}`);
   if (handler in cardTypes) {
-    console.log(`handler (${handler}) found in cardTypes`);
     io.exists(filename).then(exist => {
       if (exist) {
-        console.log(`io.exists returned true for: '${filename}'`);
         return new cardTypes[handler](global.Synectic.current, filename);
       } else {
-        console.log(`io.exists returned false for: '${filename}'`);
         io.writeFileAsync(filename, '')
           .then(() => {
             return new cardTypes[handler](global.Synectic.current, filename);
