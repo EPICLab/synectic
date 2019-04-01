@@ -1,22 +1,19 @@
 import * as io from './io';
 import * as filetypes from './filetypes';
-import { OpenDialogOptions, remote } from 'electron';
-import { basename } from 'path';
-import { Card } from '../lib/Card';
+import { remote, OpenDialogOptions, SaveDialogOptions } from 'electron';
 import { handlerToCard } from './io-handler';
 import '../../asset/style/dialogs.css';
 import { Dialog } from '../lib/Dialog';
-// import { CredentialManager } from '../vcs/CredentialManager';
 
 export function openCardDialog(options: OpenDialogOptions): void {
   remote.dialog.showOpenDialog(remote.getCurrentWindow(), options,
     filenames => {
+      if (filenames == undefined) return;
       filenames.map(filename => {
         filetypes.searchExt(io.extname(filename))
           .then(result => {
             if (result !== undefined) {
-              const card: Card | null = handlerToCard(result.handler, filename);
-              if (card !== null) card.title.innerHTML = basename(filename);
+              handlerToCard(result.handler, filename);
             }
           })
           .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
@@ -24,6 +21,16 @@ export function openCardDialog(options: OpenDialogOptions): void {
     });
 }
 
-export function newCardDialog(): void {
-  // TODO: Implement new card dialog for selecting filename, filetype, and filepath.
+export function newCardDialog(options: SaveDialogOptions): void {
+  remote.dialog.showSaveDialog(remote.getCurrentWindow(), options,
+    filename => {
+      if (filename == undefined) return;
+      filetypes.searchExt(io.extname(filename))
+        .then(filetype => {
+          if (!filetype) return;
+          handlerToCard(filetype.handler, filename);
+        })
+        .catch(error => new Dialog('snackbar', 'New Card Dialog Error', error.message));
+    }
+  );
 }
