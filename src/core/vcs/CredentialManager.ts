@@ -176,17 +176,8 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    */
   async fill({ url }: { url: string }): Promise<JsonValue> {
     url = CredentialManager.toHTTPS(url);
-    console.log('CredentialManager::fill called for: ' + url);
     let auth = this.credentials.get(url);
-    if (!auth) {
-      auth = await this.credentialPrompt(url);
-    }
-    console.log('CredentialManager::fill returning: ');
-    console.log('oauth2format: ' + auth.oauth2format);
-    console.log('username: ' + auth.username);
-    console.log('password: ' + auth.password);
-    console.log('token: ' + auth.token);
-    // return new Promise((resolve) => resolve(JSON.stringify(auth)));
+    if (!auth) auth = await this.credentialPrompt(url);
     return new Promise((resolve) => resolve(auth));
   }
 
