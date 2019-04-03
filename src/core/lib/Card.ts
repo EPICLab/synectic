@@ -85,7 +85,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   /**
    * Abstract placeholder for loading content from local or remote sources.
    */
-  abstract load(): void;
+  abstract load(filename?: string): void;
 
   /**
    * Abstract placeholder for writing content to local or remote sources.

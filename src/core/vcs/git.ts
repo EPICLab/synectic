@@ -2,6 +2,8 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 // import * as util from 'util';
 import * as git from 'isomorphic-git';
+import * as io from '../fs/io';
+import { basename } from 'path';
 
 // Lim requires a function that will compare a local file against the latest
 // version on a git branch, and returns boolean for diff.
@@ -27,6 +29,24 @@ export async function getRepoFullname(): Promise<string> {
   return new Promise((resolve, _) => {
     resolve('test');
   });
+}
+
+export async function checkoutFile(filepath: fs.PathLike, branch: string): Promise<string> {
+  // TODO: Big optimization is possible here.
+  // The 'checkout' command from isomorphic-git currently deletes and rewrites
+  // everything in the project as part of a branch checkout, even when a pattern
+  // is supplied. This forces us to checkout the target branch, grab the file
+  // we are interested in and move it to a temporary location, switch back to
+  // the original branch and return the path to the temporary file for loading
+  // by the card.
+  const repoRoot = await getRepoRoot(filepath);
+  const currentBranch = await git.currentBranch({ dir: repoRoot, fullname: false });
+  const relativePath = path.relative(repoRoot, filepath.toString());
+  const tmpFilepath = path.join(repoRoot, '/.git/tmp/', basename(filepath.toString()));
+  await git.checkout({ dir: repoRoot, ref: branch, pattern: relativePath });
+  await fs.move(filepath.toString(), tmpFilepath, { overwrite: true });
+  await git.checkout({ dir: repoRoot, ref: currentBranch });
+  return tmpFilepath;
 }
 
 /**
@@ -105,13 +125,5 @@ export function isGitRepo(directory: fs.PathLike): boolean {
  */
 export function isGitRepoAsync(directory: fs.PathLike): Promise<boolean> {
   const p: string = path.resolve(path.join(directory.toString(), '/.git'));
-  return new Promise((resolve, _) => {
-    fs.stat(p)
-      .then(() => {
-        resolve(true);
-      })
-      .catch(() => {
-        resolve(false);
-      });
-  });
+  return io.exists(p);
 }

@@ -10,20 +10,17 @@ import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as git from 'isomorphic-git';
 import * as sgit from '../../core/vcs/git';
-// git.plugins.set('fs', fs);
 import './editor.css';
 import './modes';
 import { SplitMode } from '../../core/lib/interaction';
-import { CredentialManager } from '../../core/vcs/CredentialManager';
+// import { CredentialManager } from '../../core/vcs/CredentialManager';
 import { Dialog } from '../../core/lib/Dialog';
-// import * as path from 'path';
 
 export class Editor extends Card {
 
   editor: ace.Editor;
   editorWindow: HTMLDivElement = document.createElement('div');
   private snapshot: string = '';
-  private reverseContent: Map<string, HTMLElement> = new Map();
 
   /**
    * Default constructor for creating an Editor card.
@@ -42,9 +39,7 @@ export class Editor extends Card {
     this.editor.setTheme('ace/theme/monokai');
     if (filename !== '') this.load();
 
-    (async () => {
-      await this.setReverseContent();
-    });
+    this.setReverseContent().then(); // THIS IS A PROBLEM!!!!
     this.editor.addEventListener('change', () => {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
@@ -79,9 +74,10 @@ export class Editor extends Card {
   /**
    * Reads local file content into this Editor card.
    */
-  load(): void {
-    if (this.filename === '') return; // no associated file to load
-    Promise.all([readFileAsync(this.filename), searchExt(extname(this.filename))])
+  load(filename?: string): void {
+    const filepath = filename ? filename : this.filename;
+    if (filepath === '') return; // no associated file to load
+    Promise.all([readFileAsync(filepath), searchExt(extname(filepath))])
       .then(result => {
         const [content, filetype] = result;
         this.setContent(content);
@@ -124,17 +120,15 @@ export class Editor extends Card {
   }
 
   async setReverseContent() {
-    const myHTMLObj = document.createElement('span');
-    myHTMLObj.innerHTML = '<b>' + 'stuff' + '</b>';
-    this.element.appendChild(myHTMLObj);
-
-    console.log('this.filename: ' + this.filename);
-    const repoRoot = await sgit.getRepoRoot(this.filename);
     const repoLabel = document.createElement('span');
     const repoField = document.createElement('span');
     repoLabel.innerText = 'Path:';
+    repoLabel.className = 'label';
+    const repoRoot = await sgit.getRepoRoot(this.filename);
     repoField.innerText = repoRoot;
-    this.addBack(repoLabel, repoField);
+    repoField.className = 'field';
+    this.back.appendChild(repoLabel);
+    this.back.appendChild(repoField);
 
     const current = await git.currentBranch({ dir: repoRoot, fullname: false });
     const branches = await sgit.getAllBranches(repoRoot);
@@ -150,142 +144,36 @@ export class Editor extends Card {
       branchesList.appendChild(option);
     }
     if (current) branchesList.value = current;
-    this.addBack(branchesLabel, branchesList);
+    branchesList.onchange = async () => {
+      console.log(`changing to branch '${branchesList.value}'`);
+      this.load(await sgit.checkoutFile(this.filename, branchesList.value));
+    };
+    this.back.appendChild(branchesLabel);
+    this.back.appendChild(branchesList);
 
-    const remoteRefs = await sgit.getRemotes(repoRoot);
-    const origin: git.RemoteDefinition = remoteRefs[0];
+    // const remoteRefs = await sgit.getRemotes(repoRoot);
+    // const origin: git.RemoteDefinition = remoteRefs[0];
 
     const fetchLabel = document.createElement('span');
+    fetchLabel.className = 'label';
     const fetchButton = document.createElement('button');
+    fetchButton.className = 'field';
     fetchLabel.innerText = 'Fetch:';
     fetchButton.innerText = 'Fetch';
-    fetchButton.onclick = async () => {
-      await git.fetch({
-        dir: repoRoot,
-        // corsProxy: 'https://cors.isomorphic-git.org',
-        url: CredentialManager.toHTTPS(origin.url),
-        ref: 'master',
-        depth: 1,
-        singleBranch: true,
-        tags: false
-      });
-      console.log('fetch is done');
+    fetchButton.onclick = () => {
+      console.log('fetching...');
+      // await git.fetch({
+      //   dir: repoRoot,
+      //   url: CredentialManager.toHTTPS(origin.url),
+      //   ref: 'master',
+      //   depth: 1,
+      //   singleBranch: true,
+      //   tags: false
+      // });
+      // console.log('fetch is done');
     };
-    this.addBack(fetchLabel, fetchButton);
-
-    // await git.fetch({
-    //   dir: '../isomorphic-git/',
-    //   // corsProxy: 'https://cors.isomorphic-git.org',
-    //   url: 'https://github.com/isomorphic-git/isomorphic-git',
-    //   ref: 'master',
-    //   depth: 1,
-    //   singleBranch: true,
-    //   tags: false
-    // })
-    // console.log('fetch is done')
-
-    // console.log('defaultBranch: ' + fetchRes.defaultBranch);
-
-    // let branchLabel = document.createElement('span');
-    // let branchField = document.createElement('select');
-    // branchLabel.innerText = 'branch';
-    // for (let branch in localBranches) {
-    //   let option = document.createElement('option');
-    //   option.innerText = localBranches[branch];
-    //   localField.appendChild(option);
-    //   if (current === option.innerText) {
-    //     localField.options[branch].selected = true;
-    //   }
-    // }
-    // this.addBack(localLabel, localField);
-
-    // git.findRoot({ filepath: this.filename })
-    //   .then(gitroot => {
-    //     // global.Synectic.gitEvents.addEventListener('gitroot', () => {
-    //     //   console.log('firing gitroot event');
-    //     // });
-    //     // this.addReverseContent('Root', gitroot);
-    //     let rel_path = path.relative(gitroot, this.filename);
-    //     this.addReverseContent('Path', rel_path);
-    //
-    //     // git.listFiles({ dir: gitroot })
-    //     //   .then(files => {
-    //     //     this.addReverseContent('VCS Managed', (files.indexOf(rel_path) > -1).toString());
-    //     //   })
-    //     //   .catch(() => console.log('Git files not available'));
-    //
-    //     // git.currentBranch({dir: gitroot, fullname: false})
-    //     //   .then(branch => {
-    //     //     if (branch !== undefined) {
-    //     //       this.addReverseContent('Branch', branch);
-    //     //     }
-    //     //   })
-    //     //   .catch(() => console.log('Git branch not available'));
-    //
-    //     git.listBranches({ dir: gitroot })
-    //       .then(branches => {
-    //         console.log(branches);
-    //         let branchList = this.addReverseContentList('Branch', branches);
-    //         git.currentBranch({dir: gitroot, fullname: false})
-    //           .then(branch => {
-    //             for (var i = 0; i < branchList.options.length; ++i) {
-    //               if (branchList.options[i].text === branch)
-    //                 branchList.options[i].selected = true;
-    //             }
-    //           });
-    //       });
-    //   })
-    //   .catch(() => console.log('Unable to execute git command'));
-
-    // isGitRepoAsync(path.dirname(this.filename))
-    //   .then(status => {
-    //     this.addReverse('Path', path.resolve(path.join(path.dirname(this.filename), '/.git')));
-    //     this.addReverse('VCS', status.toString());
-    //   })
-    //   .catch(() => {
-    //     this.addReverse('VCS', '[failed check]');
-    //   });
-  }
-
-  addReverseContent(key: string, value: string): void {
-    const label = document.createElement('span');
-    const field = document.createElement('span');
-    label.setAttribute('class', 'label');
-    field.setAttribute('class', 'field');
-    label.innerText = key;
-    field.innerText = value;
-    this.back.appendChild(label);
-    this.back.appendChild(field);
-    this.reverseContent.set(key, field);
-  }
-
-  addReverseContentList(key: string, values: string[]): HTMLSelectElement {
-    const label = document.createElement('span');
-    const field = document.createElement('select');
-    label.setAttribute('class', 'label');
-    field.setAttribute('class', 'field');
-    label.innerText = key;
-    for (const value in values) {
-      console.log('list item: ' + values[value]);
-      const option = document.createElement('option');
-      option.value = values[value];
-      option.innerText = values[value];
-      field.appendChild(option);
-    }
-    this.back.appendChild(label);
-    this.back.appendChild(field);
-    this.reverseContent.set(key, field);
-    return field;
-  }
-
-  updateReverseContent(key: string, newValue: string): boolean {
-    const field: HTMLElement | undefined = this.reverseContent.get(key);
-    if (field !== undefined) {
-      field.innerText = newValue;
-      return true;
-    } else {
-      return false;
-    }
+    this.back.appendChild(fetchLabel);
+    this.back.appendChild(fetchButton);
   }
 
   resize(): void {
