@@ -18,13 +18,13 @@ div.canvas {
 }
 
 div.loading-img {
-  background: rgba(71, 0, 153, 1.0) url('../loading.gif') center/20px auto no-repeat;
-  width: 250px;
-  height: 250px;
+  background: rgba(40, 44, 52, 0.4) url('../loading.gif') center/20px auto no-repeat;
+  width: 100%;
+  height: calc(100% - 29px);
   margin: 0 auto;
-  position: relative;
-  top: 50%;
-  transform: perspective(1px) translateY(100%);
+  position: absolute;
+  border-radius: 0 0 10px 10px;
+  z-index: 1;
 }
 
 .ui-selectable-helper {

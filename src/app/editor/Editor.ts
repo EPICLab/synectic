@@ -15,6 +15,8 @@ import './modes';
 import { SplitMode } from '../../core/lib/interaction';
 // import { CredentialManager } from '../../core/vcs/CredentialManager';
 import { Dialog } from '../../core/lib/Dialog';
+import { PathLike } from 'fs-extra';
+import { basename } from 'path';
 
 export class Editor extends Card {
 
@@ -27,9 +29,8 @@ export class Editor extends Card {
    * @param parent A canvas or stack instance that will contain the new Editor card.
    * @param filename A valid filename or path to associate content with this Editor card.
    */
-  constructor(parent: Canvas | Stack, filename: string) {
-    super(parent, filename);
-
+  constructor(parent: Canvas | Stack, filepath: PathLike) {
+    super(parent, filepath);
     this.element.classList.add('editor');
     this.editorWindow.setAttribute('id', (this.uuid + '-editor'));
     this.editorWindow.setAttribute('class', 'editor-window');
@@ -37,54 +38,66 @@ export class Editor extends Card {
 
     this.editor = ace.edit(this.uuid + '-editor');
     this.editor.setTheme('ace/theme/monokai');
-    if (filename !== '') this.load();
+    this.load(this.filepath);
 
-    this.setReverseContent().then(); // THIS IS A PROBLEM!!!!
     this.editor.addEventListener('change', () => {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
     });
-    fs.watch(this.filename, (_, filename) => {
-      if (filename) {
-        this.load();
-      } else {
-        console.log('filename not provided or check file access permissions');
-      }
-    });
+    this.setReverseContent().then(); // THIS IS A PROBLEM!!!!
+    // let x = fs.watch(this.filename, (_, filename) => {
+    //   if (filename) {
+    //     this.load();
+    //   } else {
+    //     console.log('filename not provided or check file access permissions');
+    //   }
+    // });
+  }
+
+  /**
+   * Reads local file content into this Editor card.
+   * @param filepath A valid filename or path to load into this Editor.
+   */
+  load(filepath: PathLike): void {
+    this.filepath = filepath;
+    this.title.innerHTML = basename(filepath.toString());
+    const loading = document.createElement('div');
+    loading.className = 'loading-img';
+    this.front.appendChild(loading);
+    Promise.all([readFileAsync(filepath), searchExt(extname(filepath))])
+      .then(result => {
+        if (loading.parentNode) {
+          loading.parentNode.removeChild(loading);
+          $('.loading-img').remove();
+        }
+        const [content, filetype] = result;
+        this.setContent(content);
+        this.snapshot = content;
+        if (filetype !== undefined) this.setMode(filetype.name);
+      })
+      .then(() => {
+        const fpath: string = this.filepath.toString();
+        fs.watch(fpath, (_, fpath) => {
+          if (fpath) {
+            this.load(this.filepath);
+          } else {
+            throw Error('Filepath not valid or file access permissions denied.');
+          }
+        });
+      })
+      .catch(error => new Dialog('snackbar', 'Editor Card Error: File Loading Failed', error.message));
   }
 
   /**
    * Writes content from Editor window to local file.
    */
   save(): void {
-    if (this.filename === '') {
-      // TODO: Prompt for a filename and filetype and proceed with save, instead of error.
-      const message = 'This card is not associated with a filename, and cannot write to file.';
-      new Dialog('snackbar', 'Editor Card Error: No Filename', message);
-      return;
-    }
-    writeFileAsync(this.filename, this.editor.getValue())
+    writeFileAsync(this.filepath.toString(), this.editor.getValue())
       .then(() => {
         this.snapshot = this.editor.getValue();
         this.hasUnsavedChanges();
       })
       .catch(error => new Dialog('snackbar', 'Editor Card Error: Save Error', error.message));
-  }
-
-  /**
-   * Reads local file content into this Editor card.
-   */
-  load(filename?: string): void {
-    const filepath = filename ? filename : this.filename;
-    if (filepath === '') return; // no associated file to load
-    Promise.all([readFileAsync(filepath), searchExt(extname(filepath))])
-      .then(result => {
-        const [content, filetype] = result;
-        this.setContent(content);
-        this.snapshot = content;
-        if (filetype !== undefined) this.setMode(filetype.name);
-      })
-      .catch(error => new Dialog('snackbar', 'Editor Card Error: File Loading Failed', error.message));
   }
 
   /**
@@ -124,7 +137,7 @@ export class Editor extends Card {
     const repoField = document.createElement('span');
     repoLabel.innerText = 'Path:';
     repoLabel.className = 'label';
-    const repoRoot = await sgit.getRepoRoot(this.filename);
+    const repoRoot = await sgit.getRepoRoot(this.filepath);
     repoField.innerText = repoRoot;
     repoField.className = 'field';
     this.back.appendChild(repoLabel);
@@ -146,7 +159,8 @@ export class Editor extends Card {
     if (current) branchesList.value = current;
     branchesList.onchange = async () => {
       console.log(`changing to branch '${branchesList.value}'`);
-      this.load(await sgit.checkoutFile(this.filename, branchesList.value));
+      const filepath = await sgit.checkoutFile(this.filepath, branchesList.value);
+      this.load(filepath);
     };
     this.back.appendChild(branchesLabel);
     this.back.appendChild(branchesList);

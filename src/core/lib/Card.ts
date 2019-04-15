@@ -2,6 +2,7 @@ import { Base } from './base';
 import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
+import { PathLike } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { Draggable, Droppable, OptionState, Selectable, SplitMode } from './interaction';
 import { hasClass, addClass, removeClass } from './helper';
@@ -19,7 +20,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   readonly created: DateTime = DateTime.local();
   element: HTMLDivElement = document.createElement('div');
   modified: DateTime = DateTime.local();
-  filename: string;
+  filepath: PathLike;
   parent: Canvas | Stack;
   children: null[] = [];
   position: [string, string] = ['0','0'];
@@ -34,16 +35,16 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * @param parent A canvas or stack instance that will contain the new card.
    * @param filename A valid filename or path to associate with the new card.
    */
-  constructor(parent: Canvas | Stack, filename: string) {
+  constructor(parent: Canvas | Stack, filepath: PathLike) {
     this.parent = parent;
-    this.filename = filename;
+    this.filepath = filepath;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
     this.front.setAttribute('class', 'front');
     this.back.setAttribute('class', 'back');
     this.header.setAttribute('class', 'card-header');
 
-    this.title.innerHTML = filename.length > 0 ? basename(filename) : 'Blank Card';
+    this.title.innerHTML = basename(filepath.toString());
     this.header.appendChild(this.title);
     this.addButton('saveButton', () => this.save(), 'save', false);
     this.addButton('expandButton', () => this.resize(), 'expand', true);
@@ -85,7 +86,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   /**
    * Abstract placeholder for loading content from local or remote sources.
    */
-  abstract load(filename?: string): void;
+  abstract load(filepath: PathLike): void;
 
   /**
    * Abstract placeholder for writing content to local or remote sources.

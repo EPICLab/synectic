@@ -7,10 +7,10 @@ import * as path from 'path';
  * then it returns the entire string.
  * @param filepath The path to evaluate.
  */
-export function extname(filepath: string): string {
-  const ext: string | undefined = filepath.split('.').pop();
+export function extname(filepath: fs.PathLike): string {
+  const ext: string | undefined = filepath.toString().split('.').pop();
   if (ext !== undefined) return ext;
-  else return filepath;
+  else return filepath.toString();
 }
 
 /**
@@ -28,9 +28,9 @@ export function deserialize<T>(json: string): T {
  * @param filepath A valid filename or path to check.
  * @return Boolean indicating file or directory exists within filesystem.
  */
-export function exists(filepath: string): Promise<boolean> {
+export function exists(filepath: fs.PathLike): Promise<boolean> {
   return new Promise((resolve, _) => {
-    fs.stat(filepath)
+    fs.stat(filepath.toString())
       .then(() => {
         resolve(true);
       })
@@ -45,9 +45,9 @@ export function exists(filepath: string): Promise<boolean> {
  * @param filepath A valid filename or path to read from.
  * @return A string containing the file content.
  */
-export function readFileAsync(filepath: string): Promise<string> {
+export function readFileAsync(filepath: fs.PathLike): Promise<string> {
   return new Promise((resolve, reject) => {
-    fs.readFile(path.resolve(filepath), (error, result) => {
+    fs.readFile(path.resolve(filepath.toString()), (error, result) => {
       if (error) reject(error);
       else resolve(result.toString());
     });
@@ -59,13 +59,13 @@ export function readFileAsync(filepath: string): Promise<string> {
  * @param filepath A valid filename or path to write the data to.
  * @param data A string containing content.
  */
-export function writeFileAsync(filepath: string, data: string): Promise<void> {
+export function writeFileAsync(filepath: fs.PathLike, data: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    fs.writeFile(path.resolve(filepath), data, (error) => {
+    fs.writeFile(path.resolve(filepath.toString()), data, (error) => {
       if (error) {
         reject(error);
       } else {
-        console.info('File `' + path.resolve(filepath) + '` created.');
+        console.info('File `' + path.resolve(filepath.toString()) + '` created.');
         resolve();
       }
     });
