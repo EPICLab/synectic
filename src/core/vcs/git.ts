@@ -42,11 +42,16 @@ export async function checkoutFile(filepath: fs.PathLike, branch: string): Promi
   const repoRoot = await getRepoRoot(filepath);
   const currentBranch = await git.currentBranch({ dir: repoRoot, fullname: false });
   const relativePath = path.relative(repoRoot, filepath.toString());
-  const tmpFilepath = path.join(repoRoot, '/.git/tmp/', basename(filepath.toString()));
-  await git.checkout({ dir: repoRoot, ref: branch, pattern: relativePath });
-  await fs.move(filepath.toString(), tmpFilepath, { overwrite: true });
-  await git.checkout({ dir: repoRoot, ref: currentBranch });
-  return tmpFilepath;
+  let targetPath = '';
+  if (branch === currentBranch) {
+    targetPath = path.join(repoRoot, basename(filepath.toString()));
+  } else {
+    targetPath = path.join(repoRoot, '/.git/tmp/', basename(filepath.toString()));
+    await git.checkout({ dir: repoRoot, ref: branch, pattern: relativePath });
+    await fs.move(filepath.toString(), targetPath, { overwrite: true });
+    await git.checkout({ dir: repoRoot, ref: currentBranch });
+  }
+  return targetPath;
 }
 
 /**
