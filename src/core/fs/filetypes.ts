@@ -22,7 +22,7 @@ export function searchName(name: string): Promise<Filetype | undefined> {
 }
 
 /**
- * Asynchronous search for defined filetype corresponding to a file extension.
+ * Asynchronous search for filetype corresponding to a file extension.
  * @param extension The file extension to search for within filetypes.
  * @return Filetype instance corresponding to extension, or undefined if no matches found.
  */
