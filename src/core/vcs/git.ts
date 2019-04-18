@@ -5,6 +5,8 @@ import * as git from 'isomorphic-git';
 import * as io from '../fs/io';
 import { basename } from 'path';
 
+export * from 'isomorphic-git';
+
 // Lim requires a function that will compare a local file against the latest
 // version on a git branch, and returns boolean for diff.
 

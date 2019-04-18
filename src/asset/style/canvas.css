@@ -24,7 +24,7 @@ div.loading-img {
   margin: 0 auto;
   position: absolute;
   border-radius: 0 0 10px 10px;
-  z-index: 1;
+  z-index: 999;
 }
 
 .ui-selectable-helper {

@@ -1,29 +1,33 @@
 import { Base } from './base';
+import { Draggable, Droppable, Selectable, Flippable, OptionState, SplitMode } from './interaction';
 import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
 import { PathLike } from 'fs-extra';
 import { DateTime } from 'luxon';
-import { Draggable, Droppable, OptionState, Selectable, SplitMode } from './interaction';
-import { hasClass, addClass, removeClass } from './helper';
+import { hasClass, addClass, removeClass, toggleVisibility } from './helper';
 import { Menu, remote } from 'electron';
 import { basename } from 'path';
+// import { readFileAsync } from '../fs/io';
+import * as fs from 'fs-extra';
+// import * as git from '../vcs/git';
 // import { Clock } from './events/Clock';
 
 /**
  * Template definition of a card; can be extended to support specific content.
  */
 export abstract class Card implements Base<(Canvas | Stack), null>,
-  Draggable, Droppable, Selectable {
-
+  Draggable, Droppable, Selectable, Flippable {
   readonly uuid: string = v4();
   readonly created: DateTime = DateTime.local();
   element: HTMLDivElement = document.createElement('div');
   modified: DateTime = DateTime.local();
-  filepath: PathLike;
   parent: Canvas | Stack;
   children: null[] = [];
   position: [string, string] = ['0','0'];
+  filepath: PathLike;
+  loading: HTMLDivElement = document.createElement('div');
+  watcher: fs.FSWatcher | undefined;
   front: HTMLDivElement = document.createElement('div');
   back: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
@@ -57,6 +61,10 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
 
+    this.loading.setAttribute('class', 'loading-img');
+    this.front.appendChild(this.loading);
+    toggleVisibility(this.loading, false);
+
     if (this.parent instanceof Canvas) this.parent.add(this);
     if (this.parent instanceof Stack) this.parent.add(this);
     $(this.element).css({
@@ -83,8 +91,49 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.parent.remove(this);
   }
 
+  // /**
+  //  * Asynchronous read process for loading local file content. File I/O is
+  //  * delayed until the resulting Promise is consumed, to allow chaining
+  //  * additional load steps necessary for specific card types.
+  //  * @param filepath A valid filename or path to load into this card.
+  //  * @return A string containing the contents of the local file.
+  //  */
+  // load(filepath: PathLike): Promise<string> {
+  //   this.filepath = filepath;
+  //   this.title.innerText = basename(filepath.toString());
+  //   console.log('reading file...');
+  //
+  //   return new Promise((resolve, reject) => {
+  //     Card.toggleVisibility(this.loading, true);
+  //     readFileAsync(filepath).then(content => {
+  //       setTimeout(() => {
+  //         Card.toggleVisibility(this.loading, false);
+  //       }, 8000);
+  //
+  //       // const sFilepath = filepath.toString();
+  //       // this.watcher = fs.watch(sFilepath, (eventType, sFilepath) => {
+  //       //   switch(eventType) {
+  //       //     case 'change':
+  //       //       console.log(`fs.FSWatcher Event: Change on '${sFilepath}'`);
+  //       //       break;
+  //       //     case 'close':
+  //       //       console.log(`fs.FSWatcher Event: Close on '${sFilepath}'`);
+  //       //       break;
+  //       //     case 'error':
+  //       //       console.log(`fs.FSWatcher Event: Error on '${sFilepath}'`);
+  //       //       break;
+  //       //     default:
+  //       //       console.log(`fs.FSWatcher ERROR: Unknown eventType '${eventType}'`);
+  //       //   }
+  //       // });
+  //       resolve(content);
+  //     })
+  //     .catch(error => reject(error));
+  //   });
+  // }
+
   /**
-   * Abstract placeholder for loading content from local or remote sources.
+   * Abstract placeholder for reading local file content into card.
    */
   abstract load(filepath: PathLike): void;
 
@@ -216,19 +265,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    */
   toggleButton(key: string, visibility?: boolean): void {
     const button = this.buttons.get(key);
-    if (button) {
-      switch (visibility) {
-      case true:
-        $(button).show();
-        break;
-      case false:
-        $(button).hide();
-        break;
-      default:
-        $(button).toggle();
-        break;
-      }
-    }
+    if (button) toggleVisibility(button, visibility);
   }
 
   /**

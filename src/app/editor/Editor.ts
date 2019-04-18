@@ -4,12 +4,11 @@ import { Stack } from '../../core/lib/Stack';
 import diff from 'fast-diff';
 import ace from 'brace';
 import 'brace/theme/monokai';
-import { extname, readFileAsync, writeFileAsync } from '../../core/fs/io';
+import { extname, writeFileAsync, readFileAsync } from '../../core/fs/io';
 import { searchExt } from '../../core/fs/filetypes';
 import { DateTime } from 'luxon';
+import * as git from '../../core/vcs/git';
 import * as fs from 'fs-extra';
-import * as git from 'isomorphic-git';
-import * as sgit from '../../core/vcs/git';
 import './editor.css';
 import './modes';
 import { SplitMode } from '../../core/lib/interaction';
@@ -17,6 +16,7 @@ import { SplitMode } from '../../core/lib/interaction';
 import { Dialog } from '../../core/lib/Dialog';
 import { PathLike } from 'fs-extra';
 import { basename } from 'path';
+import { toggleVisibility } from '../../core/lib/helper';
 
 export class Editor extends Card {
 
@@ -27,7 +27,7 @@ export class Editor extends Card {
   /**
    * Default constructor for creating an Editor card.
    * @param parent A canvas or stack instance that will contain the new Editor card.
-   * @param filename A valid filename or path to associate content with this Editor card.
+   * @param filepath A valid filename or path to associate content with this Editor card.
    */
   constructor(parent: Canvas | Stack, filepath: PathLike) {
     super(parent, filepath);
@@ -44,14 +44,7 @@ export class Editor extends Card {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
     });
-    this.setReverseContent().then(); // THIS IS A PROBLEM!!!!
-    // let x = fs.watch(this.filename, (_, filename) => {
-    //   if (filename) {
-    //     this.load();
-    //   } else {
-    //     console.log('filename not provided or check file access permissions');
-    //   }
-    // });
+    this.setReverseContent();
   }
 
   /**
@@ -61,15 +54,10 @@ export class Editor extends Card {
   load(filepath: PathLike): void {
     this.filepath = filepath;
     this.title.innerHTML = basename(filepath.toString());
-    const loading = document.createElement('div');
-    loading.className = 'loading-img';
-    this.front.appendChild(loading);
+    toggleVisibility(this.loading, true);
     Promise.all([readFileAsync(filepath), searchExt(extname(filepath))])
       .then(result => {
-        if (loading.parentNode) {
-          loading.parentNode.removeChild(loading);
-          $('.loading-img').remove();
-        }
+        toggleVisibility(this.loading, false);
         const [content, filetype] = result;
         this.setContent(content);
         this.snapshot = content;
@@ -77,7 +65,7 @@ export class Editor extends Card {
       })
       .then(() => {
         const fpath: string = this.filepath.toString();
-        fs.watch(fpath, (_, fpath) => {
+        this.watcher = fs.watch(fpath, (_, fpath) => {
           if (fpath) {
             this.load(this.filepath);
           } else {
@@ -132,62 +120,41 @@ export class Editor extends Card {
     this.editor.getSession().setMode('ace/mode/' + mode.toLowerCase());
   }
 
-  async setReverseContent() {
+  setReverseContent() {
     const repoLabel = document.createElement('span');
     const repoField = document.createElement('span');
     repoLabel.innerText = 'Path:';
     repoLabel.className = 'label';
-    const repoRoot = await sgit.getRepoRoot(this.filepath);
-    repoField.innerText = repoRoot;
-    repoField.className = 'field';
-    this.back.appendChild(repoLabel);
-    this.back.appendChild(repoField);
+    git.getRepoRoot(this.filepath).then(async repoRoot => {
+      repoField.innerText = repoRoot;
+      repoField.className = 'field';
+      this.back.appendChild(repoLabel);
+      this.back.appendChild(repoField);
 
-    const current = await git.currentBranch({ dir: repoRoot, fullname: false });
-    const branches = await sgit.getAllBranches(repoRoot);
-    const branchesLabel = document.createElement('span');
-    const branchesList = document.createElement('select');
-    branchesLabel.className = 'label';
-    branchesLabel.innerText = 'Branches:';
-    branchesList.className = 'field';
-    for (const branch in branches) {
-      const option = document.createElement('option');
-      option.value = branches[branch];
-      option.innerText = branches[branch];
-      branchesList.appendChild(option);
-    }
-    if (current) branchesList.value = current;
-    branchesList.onchange = async () => {
-      console.log(`changing to branch '${branchesList.value}'`);
-      const filepath = await sgit.checkoutFile(this.filepath, branchesList.value);
-      this.load(filepath);
-    };
-    this.back.appendChild(branchesLabel);
-    this.back.appendChild(branchesList);
-
-    // const remoteRefs = await sgit.getRemotes(repoRoot);
-    // const origin: git.RemoteDefinition = remoteRefs[0];
-
-    const fetchLabel = document.createElement('span');
-    fetchLabel.className = 'label';
-    const fetchButton = document.createElement('button');
-    fetchButton.className = 'field';
-    fetchLabel.innerText = 'Fetch:';
-    fetchButton.innerText = 'Fetch';
-    fetchButton.onclick = () => {
-      console.log('fetching...');
-      // await git.fetch({
-      //   dir: repoRoot,
-      //   url: CredentialManager.toHTTPS(origin.url),
-      //   ref: 'master',
-      //   depth: 1,
-      //   singleBranch: true,
-      //   tags: false
-      // });
-      // console.log('fetch is done');
-    };
-    this.back.appendChild(fetchLabel);
-    this.back.appendChild(fetchButton);
+      const current = await git.currentBranch({ dir: repoRoot, fullname: false });
+      const branches = await git.getAllBranches(repoRoot);
+      const branchesLabel = document.createElement('span');
+      const branchesList = document.createElement('select');
+      branchesLabel.className = 'label';
+      branchesLabel.innerText = 'Branches:';
+      branchesList.className = 'field';
+      for (const branch in branches) {
+        const option = document.createElement('option');
+        option.value = branches[branch];
+        option.innerText = branches[branch];
+        branchesList.appendChild(option);
+      }
+      if (current) branchesList.value = current;
+      branchesList.onchange = async () => {
+        console.log(`changing to branch '${branchesList.value}'`);
+        if (this.watcher) this.watcher.close();
+        toggleVisibility(this.loading, true);
+        const filepath = await git.checkoutFile(this.filepath, branchesList.value);
+        this.load(filepath);
+      };
+      this.back.appendChild(branchesLabel);
+      this.back.appendChild(branchesList);
+    });
   }
 
   resize(): void {
