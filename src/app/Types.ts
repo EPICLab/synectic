@@ -1,5 +1,6 @@
 import { Editor } from './editor/Editor';
 import { OCR } from './ocr/OCR';
+import { FileExplorer } from './fileexplorer/FileExplorer'
 
 export interface ICardTypes {
   [key: string]: any;
@@ -7,5 +8,6 @@ export interface ICardTypes {
 
 export const cardTypes: ICardTypes = {
   Editor: Editor,
-  OCR: OCR
+  OCR: OCR,
+  FileExplorer: FileExplorer
 };
