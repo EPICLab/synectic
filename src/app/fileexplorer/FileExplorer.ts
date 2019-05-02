@@ -6,8 +6,7 @@ import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as git from 'isomorphic-git';
 git.plugins.set('fs', fs);
-import './editor.css';
-import './modes';
+import './fileexplorer.css';
 import { SplitMode } from '../../core/lib/interaction';
 import * as path from 'path';
 
