@@ -6,6 +6,7 @@ import '../asset/style/buttons.css';
 import '../asset/style/notification.css';
 
 import { Editor } from '../app/editor/Editor';
+import { FileExplorer } from '../app/fileexplorer/FileExplorer';
 import { openCardDialog } from './fs/dialogs';
 
 global.Synectic = AppManagerInstance;
@@ -20,3 +21,8 @@ const loadCardButton = document.createElement('button');
 loadCardButton.innerText = 'Open...';
 loadCardButton.onclick = () => openCardDialog({});
 c.element.appendChild(loadCardButton);
+
+const newFileExplorerButton = document.createElement('button');
+newFileExplorerButton.innerText = 'New FileExplorer';
+newFileExplorerButton.onclick = () => new FileExplorer(c, '.');
+c.element.appendChild(newFileExplorerButton);
