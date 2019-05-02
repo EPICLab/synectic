@@ -2,13 +2,13 @@ import { Card } from '../../core/lib/Card';
 import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
 
-import { DateTime } from 'luxon';
+//import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as git from 'isomorphic-git';
 git.plugins.set('fs', fs);
 import './fileexplorer.css';
 import { SplitMode } from '../../core/lib/interaction';
-import * as path from 'path';
+//import * as path from 'path';
 
 export class FileExplorer extends Card {
 
@@ -54,18 +54,10 @@ export class FileExplorer extends Card {
   }
 
   /**
-   * Reads local file content into this Editor card.
+   * Read the directory structure and populate the element.
    */
   load(): void {
-    if (this.filename == '') return; // no associated file to load
-    Promise.all([readFileAsync(this.filename), searchExt(extname(this.filename))])
-      .then(result => {
-        const [content, filetype] = result;
-        this.setContent(content);
-        this.snapshot = content;
-        if (filetype !== undefined) this.setMode(filetype.name);
-      })
-      .catch(error => snackbar(global.Synectic.current, error.message, 'Editor Card Error: File Loading Failed'));
+    // TODO
   }
 
   /**
