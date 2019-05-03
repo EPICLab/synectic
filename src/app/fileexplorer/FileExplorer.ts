@@ -14,6 +14,7 @@ export class FileExplorer extends Card {
 
   primaryContainerElement: HTMLDivElement = document.createElement('div');
   directorypath: String | null = null;
+  gitcommit_id: String | null = null;
 
   /**
    * Default constructor for creating a FileExplorer card.
