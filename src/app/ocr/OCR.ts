@@ -6,6 +6,7 @@ import { PathLike } from 'fs-extra';
 // import 'ocrad.js';
 
 export class OCR extends Card {
+
   public output: HTMLDivElement;
   public canvas: HTMLCanvasElement;
 

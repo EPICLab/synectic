@@ -3,43 +3,56 @@ import { Draggable, Droppable, Selectable, Flippable, OptionState, SplitMode } f
 import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
-import { PathLike } from 'fs-extra';
+import * as fs from 'fs-extra';
 import { DateTime } from 'luxon';
 import { hasClass, addClass, removeClass, toggleVisibility } from './helper';
 import { Menu, remote } from 'electron';
-import { basename } from 'path';
-// import { readFileAsync } from '../fs/io';
-import * as fs from 'fs-extra';
+import * as path from 'path';
+import { Repository } from '../vcs/Repository';
+import { Branch } from '../vcs/Branch';
+import { Dropdown } from './Dropdown';
+// import { Dialog } from './Dialog';
 // import * as git from '../vcs/git';
-// import { Clock } from './events/Clock';
+// import { exists } from '../fs/io';
 
 /**
  * Template definition of a card; can be extended to support specific content.
  */
 export abstract class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable, Flippable {
+
+  // Metadata regarding the Card instance
   readonly uuid: string = v4();
   readonly created: DateTime = DateTime.local();
-  element: HTMLDivElement = document.createElement('div');
   modified: DateTime = DateTime.local();
   parent: Canvas | Stack;
   children: null[] = [];
+
+  // UI elements of the Card instance
+  element: HTMLDivElement = document.createElement('div');
   position: [string, string] = ['0','0'];
-  filepath: PathLike;
-  loading: HTMLDivElement = document.createElement('div');
-  watcher: fs.FSWatcher | undefined;
   front: HTMLDivElement = document.createElement('div');
   back: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
   title: HTMLSpanElement = document.createElement('span');
   buttons: Map<string, HTMLButtonElement> = new Map();
 
+  // File elements and metadata
+  filepath: fs.PathLike;
+  loading: HTMLDivElement = document.createElement('div');
+  watcher: fs.FSWatcher | undefined;
+
+  // VCS elements and metadata
+  repository: Repository | undefined;
+  branch: Branch | undefined;
+  branchMenu: Dropdown | undefined;
+
   /**
    * Default constructor for creating a blank card with standard interaction controls.
    * @param parent A canvas or stack instance that will contain the new card.
-   * @param filename A valid filename or path to associate with the new card.
+   * @param filepath A valid filename or path to associate with the new card.
    */
-  constructor(parent: Canvas | Stack, filepath: PathLike) {
+  constructor(parent: Canvas | Stack, filepath: fs.PathLike) {
     this.parent = parent;
     this.filepath = filepath;
     this.element.setAttribute('class', 'card');
@@ -48,7 +61,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.back.setAttribute('class', 'back');
     this.header.setAttribute('class', 'card-header');
 
-    this.title.innerHTML = basename(filepath.toString());
+    this.title.innerHTML = path.basename(filepath.toString());
     this.header.appendChild(this.title);
     this.addButton('saveButton', () => this.save(), 'save', false);
     this.addButton('expandButton', () => this.resize(), 'expand', true);
@@ -60,6 +73,24 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.front.appendChild(this.header);
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
+
+    global.Synectic.GitManager.get(filepath).then(async (repository: Repository) => {
+      this.repository = repository;
+      this.branch = await repository.getBranch(filepath);
+      if (this.branch) await this.configBranchMenu();
+    });
+
+    // this.repository = global.Synectic.GitManager.get(filepath);
+    //
+    // this.repository.Ready.then(config => {
+    //   this.branch = new Branch(this, this.repository, config.currentBranch, config.repoRoot);
+    //   if (this.branch) {
+    //     this.back.appendChild(this.branch.branchMenu.menu);
+    //     this.back.appendChild(this.branch.fetchButton);
+    //     this.back.appendChild(this.branch.pullButton);
+    //     this.back.appendChild(this.branch.pushButton);
+    //   }
+    // });
 
     this.loading.setAttribute('class', 'loading-img');
     this.front.appendChild(this.loading);
@@ -91,51 +122,10 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.parent.remove(this);
   }
 
-  // /**
-  //  * Asynchronous read process for loading local file content. File I/O is
-  //  * delayed until the resulting Promise is consumed, to allow chaining
-  //  * additional load steps necessary for specific card types.
-  //  * @param filepath A valid filename or path to load into this card.
-  //  * @return A string containing the contents of the local file.
-  //  */
-  // load(filepath: PathLike): Promise<string> {
-  //   this.filepath = filepath;
-  //   this.title.innerText = basename(filepath.toString());
-  //   console.log('reading file...');
-  //
-  //   return new Promise((resolve, reject) => {
-  //     Card.toggleVisibility(this.loading, true);
-  //     readFileAsync(filepath).then(content => {
-  //       setTimeout(() => {
-  //         Card.toggleVisibility(this.loading, false);
-  //       }, 8000);
-  //
-  //       // const sFilepath = filepath.toString();
-  //       // this.watcher = fs.watch(sFilepath, (eventType, sFilepath) => {
-  //       //   switch(eventType) {
-  //       //     case 'change':
-  //       //       console.log(`fs.FSWatcher Event: Change on '${sFilepath}'`);
-  //       //       break;
-  //       //     case 'close':
-  //       //       console.log(`fs.FSWatcher Event: Close on '${sFilepath}'`);
-  //       //       break;
-  //       //     case 'error':
-  //       //       console.log(`fs.FSWatcher Event: Error on '${sFilepath}'`);
-  //       //       break;
-  //       //     default:
-  //       //       console.log(`fs.FSWatcher ERROR: Unknown eventType '${eventType}'`);
-  //       //   }
-  //       // });
-  //       resolve(content);
-  //     })
-  //     .catch(error => reject(error));
-  //   });
-  // }
-
   /**
    * Abstract placeholder for reading local file content into card.
    */
-  abstract load(filepath: PathLike): void;
+  abstract load(filepath: fs.PathLike): void;
 
   /**
    * Abstract placeholder for writing content to local or remote sources.
@@ -266,6 +256,57 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   toggleButton(key: string, visibility?: boolean): void {
     const button = this.buttons.get(key);
     if (button) toggleVisibility(button, visibility);
+  }
+
+  /**
+   * Poll the associated Repository for a list of branches and display in menu.
+   */
+  async configBranchMenu(): Promise<void> {
+    if (!this.branchMenu && this.repository) {
+      this.branchMenu = new Dropdown('branchMenu');
+      const branches = await this.repository.branches();
+      branches.remote.forEach(remote => {
+        if (branches.local.has(remote)) this.addBranchOption(remote);
+        else this.addBranchOption(remote, true);
+      });
+      branches.local.forEach(local => {
+        if (this.branchMenu && !this.branchMenu.options.has(local)) {
+          this.addBranchOption(local);
+        }
+      });
+      this.back.appendChild(this.branchMenu.menu);
+    }
+
+    if (this.branchMenu && this.branch) {
+      this.branchMenu.selected(this.branch.branch);
+    } else {
+      console.log(`supposed to be setting the selected option, but one of these is not set:\n\tbranchMenu: '${this.branchMenu}'\n\tbranch: '${this.branch}'`);
+    }
+  }
+
+  /**
+   * Add onclick functionality for a branch included in the branches menu.
+   * @param branch A valid branch name for the associated git repository.
+   * @param remoteOnly Boolean indicating whether to exclude local branches and show remote branches only.
+   */
+  private addBranchOption(branch: string, remoteOnly: boolean = false) {
+    const branchButton = document.createElement('button');
+    branchButton.innerText = branchButton.id = branch;
+    if (remoteOnly) {
+      const remoteIcon = document.createElement('img');
+      remoteIcon.setAttribute('class', 'remote');
+      remoteIcon.setAttribute('src', '../src/asset/remote_dark.svg');
+      branchButton.appendChild(remoteIcon);
+    }
+    branchButton.onclick = async () => {
+      if (this.repository && this.branch) {
+        const relativePath = path.relative(this.branch.root.toString(), this.filepath.toString());
+        this.branch = await this.repository.getBranch(this.filepath, branch);
+        this.filepath = path.resolve(this.branch.root.toString(), relativePath);
+        this.load(this.filepath);
+      }
+    }
+    if (this.branchMenu) this.branchMenu.add(branchButton);
   }
 
   /**

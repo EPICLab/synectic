@@ -7,16 +7,14 @@ import 'brace/theme/monokai';
 import { extname, writeFileAsync, readFileAsync } from '../../core/fs/io';
 import { searchExt } from '../../core/fs/filetypes';
 import { DateTime } from 'luxon';
-import * as git from '../../core/vcs/git';
 import * as fs from 'fs-extra';
 import './editor.css';
 import './modes';
 import { SplitMode } from '../../core/lib/interaction';
-// import { CredentialManager } from '../../core/vcs/CredentialManager';
 import { Dialog } from '../../core/lib/Dialog';
-import { PathLike } from 'fs-extra';
 import { basename } from 'path';
 import { toggleVisibility } from '../../core/lib/helper';
+// import { CredentialManager } from '../../core/vcs/CredentialManager';
 
 export class Editor extends Card {
 
@@ -29,7 +27,7 @@ export class Editor extends Card {
    * @param parent A canvas or stack instance that will contain the new Editor card.
    * @param filepath A valid filename or path to associate content with this Editor card.
    */
-  constructor(parent: Canvas | Stack, filepath: PathLike) {
+  constructor(parent: Canvas | Stack, filepath: fs.PathLike) {
     super(parent, filepath);
     this.element.classList.add('editor');
     this.editorWindow.setAttribute('id', (this.uuid + '-editor'));
@@ -44,14 +42,13 @@ export class Editor extends Card {
       this.modified = DateTime.local();
       this.hasUnsavedChanges();
     });
-    this.setReverseContent();
   }
 
   /**
    * Reads local file content into this Editor card.
    * @param filepath A valid filename or path to load into this Editor.
    */
-  load(filepath: PathLike): void {
+  load(filepath: fs.PathLike): void {
     this.filepath = filepath;
     this.title.innerHTML = basename(filepath.toString());
     toggleVisibility(this.loading, true);
@@ -118,43 +115,6 @@ export class Editor extends Card {
    */
   setMode(mode: string): void {
     this.editor.getSession().setMode('ace/mode/' + mode.toLowerCase());
-  }
-
-  setReverseContent() {
-    const repoLabel = document.createElement('span');
-    const repoField = document.createElement('span');
-    repoLabel.innerText = 'Path:';
-    repoLabel.className = 'label';
-    git.getRepoRoot(this.filepath).then(async repoRoot => {
-      repoField.innerText = repoRoot;
-      repoField.className = 'field';
-      this.back.appendChild(repoLabel);
-      this.back.appendChild(repoField);
-
-      const current = await git.currentBranch({ dir: repoRoot, fullname: false });
-      const branches = await git.getAllBranches(repoRoot);
-      const branchesLabel = document.createElement('span');
-      const branchesList = document.createElement('select');
-      branchesLabel.className = 'label';
-      branchesLabel.innerText = 'Branches:';
-      branchesList.className = 'field';
-      for (const branch in branches) {
-        const option = document.createElement('option');
-        option.value = branches[branch];
-        option.innerText = branches[branch];
-        branchesList.appendChild(option);
-      }
-      if (current) branchesList.value = current;
-      branchesList.onchange = async () => {
-        console.log(`changing to branch '${branchesList.value}'`);
-        if (this.watcher) this.watcher.close();
-        toggleVisibility(this.loading, true);
-        const filepath = await git.checkoutFile(this.filepath, branchesList.value);
-        this.load(filepath);
-      };
-      this.back.appendChild(branchesLabel);
-      this.back.appendChild(branchesList);
-    });
   }
 
   resize(): void {
