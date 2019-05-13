@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+// import { statSync, mkdirp } from 'fs-extra';
 
 /**
  * Return the extension of the path, after the last '.' to end of string in the last portion of the path.
@@ -55,6 +56,29 @@ export function readFileAsync(filepath: fs.PathLike): Promise<string> {
 }
 
 /**
+ * Asynchronously reads file and directory  names from a directory into an array.
+ * @param filepath A valid path for a directory to read from.
+ * @param dirsOnly An optional flag for restricting filenames to directories only.
+ * @return An array of filenames found within the directory.
+ */
+export function readDirAsync(filepath: fs.PathLike, dirsOnly?: boolean): Promise<string[]> {
+  if (dirsOnly) {
+    return new Promise((resolve, reject) => {
+      fs.readdir(path.resolve(filepath.toString())).then(files => {
+        const dirs = files.filter(f => fs.statSync(path.join(filepath.toString(), f)).isDirectory());
+        if (dirs) {
+          resolve(dirs);
+        } else {
+          reject();
+        }
+      })
+    });
+  } else {
+    return fs.readdir(path.resolve(filepath.toString()));
+  }
+}
+
+/**
  * Asynchronously writes to a file; creates a new file if none exists.
  * @param filepath A valid filename or path to write the data to.
  * @param data A string containing content.
@@ -63,11 +87,33 @@ export function writeFileAsync(filepath: fs.PathLike, data: string): Promise<voi
   return new Promise((resolve, reject) => {
     fs.writeFile(path.resolve(filepath.toString()), data, (error) => {
       if (error) {
+        console.log(`writeFileAsync: error for '${filepath}'`);
         reject(error);
       } else {
-        console.info('File `' + path.resolve(filepath.toString()) + '` created.');
+        console.info(`File '${path.resolve(filepath.toString())}' created.`);
         resolve();
       }
     });
+  });
+}
+
+/**
+ * Asynchronously creates a directory; recursively creates directory structure if necessary.
+ * @param filepath A valid directory path ending in OS-appropriate path separator character.
+ */
+export function writeDirAsync(filepath: fs.PathLike): Promise<void> {
+  return fs.mkdirp(filepath.toString());
+}
+
+/**
+ * Asynchronously copies a file or directory, including content within directories.
+ * @param orig A valid filename or path to read files/directories from.
+ * @param dest A valid filename or path to write files/directories to.
+ */
+export function copyFiles(orig: fs.PathLike, dest: fs.PathLike): Promise<string> {
+  return new Promise ((resolve, reject) => {
+    fs.copy(orig.toString(), dest.toString())
+      .then(() => resolve(`Copied: ${orig.toString()} => ${dest.toString()}`))
+      .catch(error => reject(error));
   });
 }
