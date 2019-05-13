@@ -3,35 +3,9 @@ import * as path from 'path';
 // import * as util from 'util';
 import * as git from 'isomorphic-git';
 import * as io from '../fs/io';
-import { basename } from 'path';
+import * as url from 'url';
 
 export * from 'isomorphic-git';
-
-// Lim requires a function that will compare a local file against the latest
-// version on a git branch, and returns boolean for diff.
-
-export async function fetchRepo(directory: fs.PathLike) {
-  await git.fetch({
-    dir: directory.toString(),
-    token: '02382a038d912a9fc9fd88b7feb77d5084ff30f0',
-    oauth2format: 'github',
-    depth: 1,
-    singleBranch: false,
-    tags: false
-  });
-  console.log('done');
-}
-
-export async function getRepoFullname(): Promise<string> {
-  const value = await git.config({
-    dir: '/',
-    path: 'user.name'
-  });
-  console.log('user-name: ' + value);
-  return new Promise((resolve, _) => {
-    resolve('test');
-  });
-}
 
 export async function checkoutFile(filepath: fs.PathLike, branch: string): Promise<string> {
   // TODO: Big optimization is possible here.
@@ -42,19 +16,20 @@ export async function checkoutFile(filepath: fs.PathLike, branch: string): Promi
   // the original branch and return the path to the temporary file for loading
   // by the card.
   const repoRoot = await getRepoRoot(filepath);
-  const currentBranch = await git.currentBranch({ dir: repoRoot, fullname: false });
-  const relativePath = path.relative(repoRoot, filepath.toString());
+  const currentBranch = await git.currentBranch({ dir: repoRoot.toString(), fullname: false });
+  const relativePath = path.relative(repoRoot.toString(), filepath.toString());
   let targetPath = '';
   if (branch === currentBranch) {
-    targetPath = path.join(repoRoot, basename(filepath.toString()));
+    targetPath = path.join(repoRoot.toString(), path.basename(filepath.toString()));
   } else {
-    targetPath = path.join(repoRoot, '/.git/tmp/', basename(filepath.toString()));
-    await git.checkout({ dir: repoRoot, ref: branch, pattern: relativePath });
+    targetPath = path.join(repoRoot.toString(), '/.git/tmp/', path.basename(filepath.toString()));
+    await git.checkout({ dir: repoRoot.toString(), ref: branch, pattern: relativePath });
     await fs.move(filepath.toString(), targetPath, { overwrite: true });
-    await git.checkout({ dir: repoRoot, ref: currentBranch });
+    await git.checkout({ dir: repoRoot.toString(), ref: currentBranch });
   }
   return targetPath;
 }
+
 
 /**
  * Read remote name and URL from Git directory path.
@@ -72,7 +47,7 @@ export async function getRemotes(gitdir: fs.PathLike): Promise<git.RemoteDefinit
  * @param relative (Optional) Flag for generating a relative path to the Git directory path.
  * @return The absolute (or relative) path to the Git path directory.
  */
-export async function getRepoRoot(p: fs.PathLike, relative?: boolean): Promise<string> {
+export async function getRepoRoot(p: fs.PathLike, relative?: boolean): Promise<fs.PathLike> {
   const rootPath = git.findRoot({ filepath: p.toString() });
   return relative ? path.relative(await rootPath, p.toString()) : rootPath;
 }
@@ -82,9 +57,9 @@ export async function getRepoRoot(p: fs.PathLike, relative?: boolean): Promise<s
  * @param gitdir The git directory path.
  * @return A deduplicated array of all branch names for the Git repository.
  */
-export async function getAllBranches(gitdir: fs.PathLike): Promise<string[]> {
-  const local = await getLocalBranches(gitdir);
-  const remote = await getRemoteBranches(gitdir);
+export async function getAllBranches(dir: fs.PathLike): Promise<string[]> {
+  const local = await getLocalBranches(dir);
+  const remote = await getRemoteBranches(dir);
   const allBranches = new Set(local.concat(remote));
   return Array.from(allBranches.values());
 }
@@ -94,8 +69,8 @@ export async function getAllBranches(gitdir: fs.PathLike): Promise<string[]> {
  * @param gitdir The git directory path.
  * @return An array of local branch names for the Git repository.
  */
-export async function getLocalBranches(gitdir: fs.PathLike): Promise<string[]> {
-  return git.listBranches({ dir: gitdir.toString() });
+export async function getLocalBranches(dir: fs.PathLike): Promise<string[]> {
+  return git.listBranches({ dir: dir.toString() });
 }
 
 /**
@@ -103,8 +78,17 @@ export async function getLocalBranches(gitdir: fs.PathLike): Promise<string[]> {
  * @param gitdir The git directory path.
  * @return An array of remote branch names for the Git repository.
  */
-export async function getRemoteBranches(gitdir: fs.PathLike): Promise<string[]> {
-  return git.listBranches({ dir: gitdir.toString(), remote: 'origin' });
+export async function getRemoteBranches(dir: fs.PathLike): Promise<string[]> {
+  return git.listBranches({ dir: dir.toString(), remote: 'origin' });
+}
+
+/**
+ * Asynchronously determine current branch based on Git repository.
+ * @param gitdir The git directory path.
+ * @return A branch name; or undefined if no branch was found.
+ */
+export async function getCurrentBranch(dir: fs.PathLike): Promise<string | undefined> {
+  return git.currentBranch({ dir: dir.toString(), fullname: false });
 }
 
 /**
@@ -133,4 +117,37 @@ export function isGitRepo(directory: fs.PathLike): boolean {
 export function isGitRepoAsync(directory: fs.PathLike): Promise<boolean> {
   const p: string = path.resolve(path.join(directory.toString(), '/.git'));
   return io.exists(p);
+}
+
+/**
+ * Convert remote URL from SSH to HTTPS format.
+ * @param remoteUrl The remote URL in SSH format.
+ * @return The remote URL in HTTPS format.
+ */
+export function toHTTPS (remoteUrl: string): string {
+  const parsedRemote = parseRemoteUrl(remoteUrl);
+  return `https://${parsedRemote[0]}/${parsedRemote[1]}`;
+}
+
+/**
+ * Convert remote URL from HTTPS to SSH format.
+ * @param remoteUrl The remote URL in HTTPS format.
+ * @return The remote URL in SSH format.
+ */
+export function toSSH (remoteUrl: string): string {
+  const parsedRemote = parseRemoteUrl(remoteUrl);
+  return `git@${parsedRemote[0]}:${parsedRemote[1]}`;
+}
+
+/**
+ * Split remote URL into host and path components for connection processing.
+ * @param remoteUrl The remote URL; can accept SSH or HTTPS format.
+ * @return Tuple containing the host and path values after string processing.
+ */
+export function parseRemoteUrl(remoteUrl: string): [string, string] {
+  const _remoteUrl = remoteUrl.replace(/^git@/, 'ssh:git@');
+  const parsedUrl = url.parse(_remoteUrl);
+  const host = parsedUrl.host ? parsedUrl.host : '';
+  const path = parsedUrl.path ? parsedUrl.path.replace(/^\/\:?/, '') : '';
+  return [host, path];
 }

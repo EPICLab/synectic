@@ -1,5 +1,5 @@
 // import { PathLike } from 'fs-extra';
-import * as url from 'url';
+import * as git from './git';
 import { Dialog } from '../lib/Dialog';
 import { JsonValue, JsonObject } from 'type-fest';
 
@@ -23,7 +23,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
   credentials: Map<string, Auth> = new Map();
 
   credentialPrompt(url: string): Promise<Auth> {
-    url = CredentialManager.toHTTPS(url);
+    url = git.toHTTPS(url);
     const auth = this.getAuth(url);
     const siteDesc = document.createElement('span');
     siteDesc.className = 'form-control';
@@ -175,7 +175,7 @@ export class CredentialManager implements GitCredentialManagerPlugin {
    * @return Promise for JSON string containing Git auth information; auth can be blank if no information added.
    */
   async fill({ url }: { url: string }): Promise<JsonValue> {
-    url = CredentialManager.toHTTPS(url);
+    url = git.toHTTPS(url);
     let auth = this.credentials.get(url);
     if (!auth) auth = await this.credentialPrompt(url);
     return new Promise((resolve) => resolve(auth));
@@ -236,45 +236,12 @@ export class CredentialManager implements GitCredentialManagerPlugin {
   }
 
   /**
-   * Split remote URL into host and path components for connection processing.
-   * @param remoteUrl The remote URL; can accept SSH or HTTPS format.
-   * @return Tuple containing the host and path values after string processing.
-   */
-  static parseRemoteUrl(remoteUrl: string): [string, string] {
-    const _remoteUrl = remoteUrl.replace(/^git@/, 'ssh:git@');
-    const parsedUrl = url.parse(_remoteUrl);
-    const host = parsedUrl.host ? parsedUrl.host : '';
-    const path = parsedUrl.path ? parsedUrl.path.replace(/^\/\:?/, '') : '';
-    return [host, path];
-  }
-
-  /**
-   * Convert remote URL from SSH to HTTPS format.
-   * @param remoteUrl The remote URL in SSH format.
-   * @return The remote URL in HTTPS format.
-   */
-  static toHTTPS (remoteUrl: string): string {
-    const parsedRemote = this.parseRemoteUrl(remoteUrl);
-    return `https://${parsedRemote[0]}/${parsedRemote[1]}`;
-  }
-
-  /**
-   * Convert remote URL from HTTPS to SSH format.
-   * @param remoteUrl The remote URL in HTTPS format.
-   * @return The remote URL in SSH format.
-   */
-  static toSSH (remoteUrl: string): string {
-    const parsedRemote = this.parseRemoteUrl(remoteUrl);
-    return `git@${parsedRemote[0]}:${parsedRemote[1]}`;
-  }
-
-  /**
    * Extract the OAuth2Format field for the specified URL.
    * @param remoteUrl The remote URL; can accept SSH or HTTPS format.
    * @return The oauth2format string indicating remote repository hosting site.
    */
   static parseOAuth2Format(remoteUrl: string): string {
-    const parsedRemote = this.parseRemoteUrl(remoteUrl);
+    const parsedRemote = git.parseRemoteUrl(remoteUrl);
     if (parsedRemote[0].includes('github')) return 'github';
     if (parsedRemote[0].includes('bitbucket')) return 'bitbucket';
     if (parsedRemote[0].includes('gitlab')) return 'gitlab';
