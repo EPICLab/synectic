@@ -21,7 +21,8 @@ export function handlerToCard<T extends Card>(handler: string, filename: string)
           })
           .catch(error => new Dialog('snackbar', 'New Card Loading Error', error.message));
       }
-    });
+    })
+    .catch(error => new Dialog('snackbar', 'New Card Loading Error', error.message));
   }
   return undefined;
 }

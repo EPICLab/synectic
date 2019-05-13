@@ -7,8 +7,8 @@ import { Dialog } from '../lib/Dialog';
 
 export function openCardDialog(options: OpenDialogOptions): void {
   remote.dialog.showOpenDialog(remote.getCurrentWindow(), options,
-    filenames => {
-      if (filenames == undefined) return;
+    (filenames: string[] | undefined) => {
+      if (filenames === undefined) return;
       filenames.map(filename => {
         filetypes.searchExt(io.extname(filename))
           .then(result => {
@@ -23,8 +23,8 @@ export function openCardDialog(options: OpenDialogOptions): void {
 
 export function newCardDialog(options: SaveDialogOptions): void {
   remote.dialog.showSaveDialog(remote.getCurrentWindow(), options,
-    filename => {
-      if (filename == undefined) return;
+    (filename: string | undefined) => {
+      if (filename === undefined) return;
       filetypes.searchExt(io.extname(filename))
         .then(filetype => {
           if (!filetype) return;
