@@ -103,6 +103,17 @@ div.card-content {
   color: rgba(10, 10, 10, 1.0);
 }
 
+div.loading-img {
+  background: rgba(40, 44, 52, 0.4) url('../loading.gif') center/20px auto no-repeat;
+  width: 100%;
+  height: calc(100% - 29px);
+  margin: 0 auto;
+  position: absolute;
+  bottom: 0;
+  border-radius: 0 0 10px 10px;
+  z-index: 999;
+}
+
 .ui-flippable {
   transition: transform 0.6s;
   transform-style: preserve-3d;
@@ -131,7 +142,7 @@ div.card-content {
 
 .back {
   background-color: rgba(79, 77, 80, 1.0);
-  transform: rotateY(180deg);
+  transform: rotateY(-180deg) translateZ(1px);
   z-index: 4;
   display: flex;
   flex-flow: row wrap;
@@ -139,66 +150,3 @@ div.card-content {
   align-items: flex-start;
   align-content: flex-start;
 }
-
-.back * {
-  display: inline-block;
-  margin: 2px 5px;
-  padding: 2px;
-  font-family: 'Lato', Georgia, Serif;
-  word-wrap: break-word;
-}
-
-.back .label {
-  flex: 1 0 calc(20% - 6px);
-}
-
-.back .field {
-  flex: 2 0 calc(50% - 6px);
-  width: calc(20% - 6px);
-  background-color: rgba(250, 250, 250, 1.0);
-  color: rgba(10, 10, 10, 1.0);
-  border-radius: 5px;
-}
-
-.back select.field {
-  height: 24px;
-  font-size: 15px;
-}
-
-.back .field option.remote {
-  color: rgba(51, 51, 51, 1.0);
-}
-
-/* span.data-label {
-  display: inline-block;
-  width: calc(37% - 6px);
-  margin: 2px 1px;
-  padding: 2px;
-  font-family: 'Lato', Georgia, Serif;
-  word-wrap: break-word;
-}
-
-span.data-field {
-  display: inline-block;
-  width: calc(63% - 6px);
-  margin: 2px 1px;
-  padding: 2px;
-  background-color: rgba(250, 250, 250, 1.0);
-  color: rgba(10, 10, 10, 1.0);
-  border-radius: 5px;
-  font-family: 'Lato', Georgia, Serif;
-  word-wrap: break-word;
-}
-
-select.data-field {
-  display: inline-block;
-  height: 24px;
-  width: calc(63% - 2px);
-  margin: 2px 1px;
-  padding: 2px;
-  background-color: rgba(250, 250, 250, 1.0);
-  color: rgba(10, 10, 10, 1.0);
-  border-radius: 5px;
-  font-family: 'Lato', Georgia, Serif;
-  word-wrap: break-word;
-} */

@@ -95,7 +95,8 @@ div.snackbar div.top, div.banner div.top, div.dialog div.top {
 div.snackbar div.middle, div.banner div.middle, div.dialog div.middle {
   height: auto;
   min-height: 100px;
-  width: 100%;
+  width: 95%;
+  word-wrap: break-word;
   display: flex;
   flex-flow: row wrap;
   align-items: flex-start;

@@ -1,3 +1,8 @@
+button.disabled {
+  outline: none;
+  filter: brightness(50%) saturate(50) grayscale(100%);
+}
+
 button.close {
   background: url('../close_dark.svg') no-repeat;
   background-size: cover;
@@ -23,6 +28,55 @@ button.save:active {
   background-size: cover;
   cursor: pointer;
 }
+
+button.fetch {
+  background: url('../git_fetch_dark.png') no-repeat;
+  background-size: cover;
+  border-radius: 50%;
+  border: 0;
+  width: 20px;
+  height: 20px;
+}
+
+button.fetch:hover,
+button.fetch:active {
+  background: url('../git_fetch_active.png') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
+button.pull {
+  background: url('../git_pull_dark.png') no-repeat;
+  background-size: cover;
+  border-radius: 50%;
+  border: 0;
+  width: 20px;
+  height: 20px;
+}
+
+button.pull:hover,
+button.pull:active {
+  background: url('../git_pull_active.png') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
+button.push {
+  background: url('../git_merge_dark.png') no-repeat;
+  background-size: cover;
+  border-radius: 50%;
+  border: 0;
+  width: 20px;
+  height: 20px;
+}
+
+button.push:hover,
+button.push:active {
+  background: url('../git_merge_active.png') no-repeat;
+  background-size: cover;
+  cursor: pointer;
+}
+
 button.flip {
   background: url('../flip_dark.svg') no-repeat;
   background-size: cover;
@@ -38,6 +92,10 @@ button.flip:active {
 button.expand {
   background: url('../expand_dark.svg') no-repeat;
   background-size: cover;
+}
+
+.flipped button.expand {
+  display: none;
 }
 
 button.expand:hover,
