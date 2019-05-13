@@ -17,5 +17,6 @@ script:
 branches:
   only:
     - master
+    - development
 notifications:
   email: false
