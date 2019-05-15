@@ -24,5 +24,5 @@ c.element.appendChild(loadCardButton);
 
 const newFileExplorerButton = document.createElement('button');
 newFileExplorerButton.innerText = 'New FileExplorer';
-newFileExplorerButton.onclick = () => new FileExplorer(c, '.');
+newFileExplorerButton.onclick = () => new FileExplorer(c, null);
 c.element.appendChild(newFileExplorerButton);
