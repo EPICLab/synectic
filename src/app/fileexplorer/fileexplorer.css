@@ -1,8 +1,52 @@
 
 div.fileexplorer-window {
   width: 100%;
+  background-color: black;
   height: calc(100% - 29px); /* TODO non-absolute? */
   border-radius: 0 0 10px 10px;
   position: absolute;
   bottom: 0;
+
+  overflow: scroll;
+}
+
+div.fileexplorer-window .fileexplorer-dir-header {
+  display: block;
+  width: 100%;
+  background: black;
+  border-bottom: 2px solid red;
+  margin: 4px 0;
+}
+div.fileexplorer-window ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  border-left: 5px solid red;
+  padding-left: 4px;
+}
+div.fileexplorer-window ol > li,
+div.fileexplorer-window ol > ol {
+  transition: all 0.5s ease;
+  display: block;
+  flex-grow: 1;
+  border-left: 5px solid blue;
+  padding-left: 12px;
+  margin: 2px 0;
+}
+div.fileexplorer-window ol > ol.collapsed,
+div.fileexplorer-window ol > li {
+  height: 1.2em;
+}
+div.fileexplorer-window .fileexplorer-dir-view > .fileexplorer-dir-header::before {
+  content: "➤";
+  position: relative;
+  left: -4px;
+}
+div.fileexplorer-window .fileexplorer-dir-view.expanded > .fileexplorer-dir-header::before {
+  content: "⬊";
+}
+div.fileexplorer-window .fileexplorer-dir-view.collapsed > li,
+div.fileexplorer-window .fileexplorer-dir-view.collapsed > ol {
+  height: 0;
+  display: none;
 }
