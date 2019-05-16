@@ -138,7 +138,7 @@ class FileExplorerLazyPathItem {
 
 class FileExplorerDirView extends HTMLOListElement {
   dirItem: FileExplorerLazyPathItem | undefined;
-  fe_children: Map<FileExplorerLazyPathItem, FileExplorerDirView | HTMLElement> = new Map<FileExplorerLazyPathItem, FileExplorerDirView | HTMLElement>();
+  fe_children: Map<string, FileExplorerDirView | HTMLElement> = new Map<string, FileExplorerDirView | HTMLElement>();
   fe_dropdown_name: HTMLElement;
 
   constructor() {
@@ -173,13 +173,13 @@ class FileExplorerDirView extends HTMLOListElement {
     // @ts-ignore
     this.dirItem.children.forEach((item, name, og_map) => {
       // first checking for items which we don't yet have rendered:
-      var visual_child = this.fe_children.get(item);
-      if (visual_child == undefined) {
+      var visual_child = this.fe_children.get(name);
+      if (visual_child === undefined) {
         if (item.type == filetype.directory) {
           visual_child = document.createElement('ol', {is: 'synectic-file-explorer-directory'});
           (visual_child as FileExplorerDirView).setModel(item);
           (visual_child as FileExplorerDirView).update();
-          this.fe_children.set(item, visual_child);
+          this.fe_children.set(name, visual_child);
           this.appendChild(visual_child);
         }
         else {
@@ -187,6 +187,7 @@ class FileExplorerDirView extends HTMLOListElement {
           visual_child = document.createElement('li');
           visual_child.classList.add('fileexplorer-file-item');
           visual_child.innerText = item.name;
+          this.fe_children.set(name, visual_child);
           this.appendChild(visual_child);
         }
       }
