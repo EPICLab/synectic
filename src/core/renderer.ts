@@ -5,18 +5,28 @@ import '../asset/style/stack.css';
 import '../asset/style/buttons.css';
 import '../asset/style/notification.css';
 
-import { Editor } from '../app/editor/Editor';
-import { openCardDialog } from './fs/dialogs';
+import { openCardDialog, newCardDialog } from './fs/dialogs';
+import * as git from './vcs/git';
 
 global.Synectic = AppManagerInstance;
 const c = global.Synectic.newCanvas();
 
 const newEditorButton = document.createElement('button');
-newEditorButton.innerText = 'New Editor';
-newEditorButton.onclick = () => new Editor(c, '');
+newEditorButton.innerText = 'New...';
+newEditorButton.onclick = () => newCardDialog({});
 c.element.appendChild(newEditorButton);
 
 const loadCardButton = document.createElement('button');
 loadCardButton.innerText = 'Open...';
 loadCardButton.onclick = () => openCardDialog({});
 c.element.appendChild(loadCardButton);
+
+const testCredentials = document.createElement('button');
+testCredentials.innerText = 'Test Credentials...';
+testCredentials.onclick = async () => {
+  // const cm: CredentialManager = global.Synectic.credentialManager;
+  const repoRoot = await git.getRepoRoot('.');
+  console.log('repo root: ' + repoRoot);
+  // const dialog = cm.credentialPromptDialog();
+};
+c.element.appendChild(testCredentials);

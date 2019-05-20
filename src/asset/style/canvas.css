@@ -17,16 +17,6 @@ div.canvas {
   position: fixed;
 }
 
-div.loading-img {
-  background: rgba(71, 0, 153, 1.0) url('../loading.gif') center/20px auto no-repeat;
-  width: 250px;
-  height: 250px;
-  margin: 0 auto;
-  position: relative;
-  top: 50%;
-  transform: perspective(1px) translateY(100%);
-}
-
 .ui-selectable-helper {
   position: absolute;
   z-index: 100001;

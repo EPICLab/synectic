@@ -1,0 +1,36 @@
+div.dialog div.middle span {
+  width: 30%;
+}
+
+div.dialog div.middle input {
+  width: 50%;
+}
+
+div.dialog div.middle span.toggle-password {
+  background-size: cover;
+  cursor: pointer;
+  position: relative;
+  height: 15px;
+  width: 15px;
+  margin: 7px 0 0 -30px;
+}
+
+div.dialog button.close {
+  position: absolute;
+  height: 15px;
+  width: 15px;
+  top: 12px;
+  right: 5px;
+  border: 0;
+  margin: 0 5px 0 auto;
+  padding: 1px 7px 2px;
+  z-index: 9999;
+}
+
+div.dialog span.open-eye {
+  background: url('../reveal_light.svg') top center / 15px 15px no-repeat white;
+}
+
+div.dialog span.closed-eye {
+  background: url('../hide_light.svg') top center / 15px 15px no-repeat white;
+}

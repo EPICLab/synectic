@@ -1,48 +1,65 @@
 import { Base } from './base';
+import { Draggable, Droppable, Selectable, Flippable, OptionState, SplitMode } from './interaction';
 import { Canvas } from './Canvas';
 import { Stack } from './Stack';
 import { v4 } from 'uuid';
+import * as fs from 'fs-extra';
 import { DateTime } from 'luxon';
-import { Draggable, Droppable, OptionState, Selectable, SplitMode } from './interaction';
-import { hasClass, addClass, removeClass } from './helper';
+import { hasClass, addClass, removeClass, toggleVisibility } from './helper';
 import { Menu, remote } from 'electron';
-// import { Clock } from './events/Clock';
+import * as path from 'path';
+import { Repository } from '../vcs/Repository';
+import { Branch } from '../vcs/Branch';
+import { BranchUI } from '../vcs/BranchUI';
 
 /**
  * Template definition of a card; can be extended to support specific content.
  */
 export abstract class Card implements Base<(Canvas | Stack), null>,
-  Draggable, Droppable, Selectable {
+  Draggable, Droppable, Selectable, Flippable {
 
-  uuid: string = v4();
-  filename: string;
-  created: DateTime = DateTime.local();
+  // Metadata of the Card instance
+  readonly uuid: string = v4();
+  readonly created: DateTime = DateTime.local();
   modified: DateTime = DateTime.local();
   parent: Canvas | Stack;
   children: null[] = [];
-  position: [string, string] = ['0','0'];
+
+  // UI elements of the Card instance
   element: HTMLDivElement = document.createElement('div');
+  position: [string, string] = ['0','0'];
   front: HTMLDivElement = document.createElement('div');
   back: HTMLDivElement = document.createElement('div');
   header: HTMLDivElement = document.createElement('div');
   title: HTMLSpanElement = document.createElement('span');
   buttons: Map<string, HTMLButtonElement> = new Map();
 
+  // File elements and associated metadata
+  filepath: fs.PathLike;
+  loading: HTMLDivElement = document.createElement('div');
+  watcher: fs.FSWatcher | undefined;
+
+  // VCS elements and associated metadata
+  repository: Repository | undefined;
+  branch: Branch | undefined;
+  branchUI: BranchUI | undefined;
+  fetchButton: HTMLButtonElement | undefined;
+
   /**
    * Default constructor for creating a blank card with standard interaction controls.
    * @param parent A canvas or stack instance that will contain the new card.
-   * @param filename A valid filename or path to associate with the new card.
+   * @param filepath A valid filename or path to associate with the new card.
    */
-  constructor(parent: Canvas | Stack, filename: string) {
+  constructor(parent: Canvas | Stack, filepath: fs.PathLike) {
     this.parent = parent;
-    this.filename = filename;
+    this.filepath = filepath;
     this.element.setAttribute('class', 'card');
     this.element.setAttribute('id', this.uuid);
     this.front.setAttribute('class', 'front');
     this.back.setAttribute('class', 'back');
     this.header.setAttribute('class', 'card-header');
 
-    this.title.innerHTML = 'Blank Card';
+    this.title.innerHTML = path.basename(filepath.toString());
     this.header.appendChild(this.title);
     this.addButton('saveButton', () => this.save(), 'save', false);
     this.addButton('expandButton', () => this.resize(), 'expand', true);
@@ -54,6 +71,46 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.front.appendChild(this.header);
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
+
+    document.addEventListener('fetch', e => console.log(`fetch event found: ${e}`));
+
+    global.Synectic.GitManager.get(filepath).then(async (repository: Repository) => {
+      this.repository = repository;
+      this.branch = await repository.getBranch(filepath);
+      this.branchUI = new BranchUI(this.repository, this.branch);
+      const menu = await this.branchUI.getMenu();
+      this.back.appendChild(menu.menu);
+
+      menu.optionsArray().forEach(option => {
+        option.onclick = async () => {
+          if (this.repository && this.branch && this.branchUI) {
+            const relativePath = path.relative(this.branch.root.toString(), this.filepath.toString());
+            this.branch = await this.repository.getBranch(this.filepath, option.id);
+            this.filepath = path.resolve(this.branch.root.toString(), relativePath);
+            await this.branchUI.setBranch(this.branch);
+            this.load(this.filepath);
+          }
+        };
+      });
+
+      const repoButtons = await this.branchUI.getRepoButtons();
+      this.back.appendChild(repoButtons.fetch);
+      repoButtons.fetch.onclick = async () => {
+        if (this.branch) console.info(await this.branch.fetch());
+      };
+      this.back.appendChild(repoButtons.pull);
+      repoButtons.pull.onclick = async () => {
+        if (this.branch) console.info(await this.branch.pull());
+      };
+      this.back.appendChild(repoButtons.push);
+      repoButtons.push.onclick = async () => {
+        if (this.branch) console.info(await this.branch.push());
+      };
+    });
+
+    this.loading.setAttribute('class', 'loading-img');
+    this.front.appendChild(this.loading);
+    toggleVisibility(this.loading, false);
 
     if (this.parent instanceof Canvas) this.parent.add(this);
     if (this.parent instanceof Stack) this.parent.add(this);
@@ -82,9 +139,9 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   }
 
   /**
-   * Abstract placeholder for loading content from local or remote sources.
+   * Abstract placeholder for reading local file content into card.
    */
-  abstract load(): void;
+  abstract load(filepath: fs.PathLike): void;
 
   /**
    * Abstract placeholder for writing content to local or remote sources.
@@ -149,14 +206,14 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       this.element.style.right = '';
 
       switch (mode) {
-        case SplitMode.left:
-          this.element.classList.remove('split_right');
-          this.element.classList.add('split_left');
-          break;
-        case SplitMode.right:
-          this.element.classList.remove('split_left');
-          this.element.classList.add('split_right');
-          break;
+      case SplitMode.left:
+        this.element.classList.remove('split_right');
+        this.element.classList.add('split_left');
+        break;
+      case SplitMode.right:
+        this.element.classList.remove('split_left');
+        this.element.classList.add('split_right');
+        break;
       }
       this.draggable(OptionState.disable);
       this.droppable(OptionState.disable);
@@ -172,13 +229,13 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   private flip(): void {
     if (this.element.classList.contains('ui-flippable')) {
       if (this.element.classList.toggle('flipped')) {
-        if (this.back.firstChild != null) {
+        if (this.back.firstChild !== null) {
           this.back.insertBefore(this.header, this.back.firstChild);
         } else {
           this.back.appendChild(this.header);
         }
       } else {
-        if (this.front.firstChild != null) {
+        if (this.front.firstChild !== null) {
           this.front.insertBefore(this.header, this.front.firstChild);
         } else {
           this.front.appendChild(this.header);
@@ -196,7 +253,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
    * @return String key for new button (provided for chaining functions).
    */
   protected addButton(key: string, onClickCallback: () => any, cssClass?: string, visibility: boolean = true): string {
-    let button = document.createElement('button');
+    const button = document.createElement('button');
     if (cssClass) button.setAttribute('class', cssClass);
     $(button).on('click', onClickCallback);
     if (!visibility) $(button).hide();
@@ -207,31 +264,14 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   }
 
   /**
-   * Toggle the show/hide visiblity state of a specific button. Explicit state may be set through optional second parameter.
+   * Toggle the show/hide visiblity state of a specific button. Explicit state
+   * may be set through optional second parameter.
    * @param key Reference key to a previously added button in the buttons map.
    * @param visiblity Optional setting for explicitly setting show/hide state (true is show, false is hide).
    */
   toggleButton(key: string, visibility?: boolean): void {
-    let button = this.buttons.get(key);
-    if (button) {
-      switch (visibility) {
-        case true:
-          $(button).show();
-          break;
-        case false:
-          $(button).hide();
-          break;
-        default:
-          $(button).toggle();
-          break;
-      }
-    }
-
-    // if (button) {
-    //   if (visibility === true) $(button).show();
-    //   if (visibility === false) $(button).hide();
-    //   if (visibility === undefined) $(button).toggle();
-    // }
+    const button = this.buttons.get(key);
+    if (button) toggleVisibility(button, visibility);
   }
 
   /**

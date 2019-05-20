@@ -82,7 +82,7 @@ div.snackbar button.close, div.banner button.close {
   margin: 0;
 }
 
-div.dialog div.top {
+div.snackbar div.top, div.banner div.top, div.dialog div.top {
   height: 40px;
   width: 100%;
   display: flex;
@@ -92,9 +92,11 @@ div.dialog div.top {
   margin: 0;
 }
 
-div.dialog div.middle {
+div.snackbar div.middle, div.banner div.middle, div.dialog div.middle {
   height: auto;
   min-height: 100px;
+  width: 95%;
+  word-wrap: break-word;
   display: flex;
   flex-flow: row wrap;
   align-items: flex-start;
@@ -102,7 +104,7 @@ div.dialog div.middle {
   margin: 0;
 }
 
-div.dialog div.bottom {
+div.snackbar div.bottom, div.banner div.bottom, div.dialog div.bottom {
   height: auto;
   min-height: 40px;
   width: 100%;

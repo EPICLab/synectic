@@ -25,3 +25,7 @@ export interface Selectable {
   selectable(opt: OptionState): void;
   contextMenu(): void;
 }
+
+export interface Flippable {
+  flippable(opt: OptionState): void;
+}

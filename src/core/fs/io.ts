@@ -1,16 +1,17 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+// import { statSync, mkdirp } from 'fs-extra';
 
 /**
  * Return the extension of the path, after the last '.' to end of string in the last portion of the path.
  * If there is no '.' in the last portion of the path or the first character of it is '.',
  * then it returns the entire string.
- * @param p The path to evaluate.
+ * @param filepath The path to evaluate.
  */
-export function extname(p: string): string {
-  const ext: string | undefined = p.split('.').pop();
+export function extname(filepath: fs.PathLike): string {
+  const ext: string | undefined = filepath.toString().split('.').pop();
   if (ext !== undefined) return ext;
-  else return p;
+  else return filepath.toString();
 }
 
 /**
@@ -23,13 +24,31 @@ export function deserialize<T>(json: string): T {
 }
 
 /**
+ * Asynchronously checks for the existence of a file or directory within the
+ * local filesystem.
+ * @param filepath A valid filename or path to check.
+ * @return Boolean indicating file or directory exists within filesystem.
+ */
+export function exists(filepath: fs.PathLike): Promise<boolean> {
+  return new Promise((resolve, _) => {
+    fs.stat(filepath.toString())
+      .then(() => {
+        resolve(true);
+      })
+      .catch(() => {
+        resolve(false);
+      });
+  });
+}
+
+/**
  * Asynchronously reads file content into a string.
- * @param filename A valid filename or path to read from.
+ * @param filepath A valid filename or path to read from.
  * @return A string containing the file content.
  */
-export function readFileAsync(filename: string): Promise<string> {
+export function readFileAsync(filepath: fs.PathLike): Promise<string> {
   return new Promise((resolve, reject) => {
-    fs.readFile(path.resolve(filename), (error, result) => {
+    fs.readFile(path.resolve(filepath.toString()), (error, result) => {
       if (error) reject(error);
       else resolve(result.toString());
     });
@@ -37,19 +56,64 @@ export function readFileAsync(filename: string): Promise<string> {
 }
 
 /**
+ * Asynchronously reads file and directory  names from a directory into an array.
+ * @param filepath A valid path for a directory to read from.
+ * @param dirsOnly An optional flag for restricting filenames to directories only.
+ * @return An array of filenames found within the directory.
+ */
+export function readDirAsync(filepath: fs.PathLike, dirsOnly?: boolean): Promise<string[]> {
+  if (dirsOnly) {
+    return new Promise((resolve, reject) => {
+      fs.readdir(path.resolve(filepath.toString())).then(files => {
+        const dirs = files.filter(f => fs.statSync(path.join(filepath.toString(), f)).isDirectory());
+        if (dirs) {
+          resolve(dirs);
+        } else {
+          reject();
+        }
+      })
+    });
+  } else {
+    return fs.readdir(path.resolve(filepath.toString()));
+  }
+}
+
+/**
  * Asynchronously writes to a file; creates a new file if none exists.
- * @param filename A valid filename or path to write the data to.
+ * @param filepath A valid filename or path to write the data to.
  * @param data A string containing content.
  */
-export function writeFileAsync(filename: string, data: string): Promise<void> {
+export function writeFileAsync(filepath: fs.PathLike, data: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    fs.writeFile(path.resolve(filename), data, (error) => {
+    fs.writeFile(path.resolve(filepath.toString()), data, (error) => {
       if (error) {
+        console.log(`writeFileAsync: error for '${filepath}'`);
         reject(error);
       } else {
-        console.info('File `' + path.resolve(filename) + '` created.');
+        console.info(`File '${path.resolve(filepath.toString())}' created.`);
         resolve();
       }
     });
+  });
+}
+
+/**
+ * Asynchronously creates a directory; recursively creates directory structure if necessary.
+ * @param filepath A valid directory path ending in OS-appropriate path separator character.
+ */
+export function writeDirAsync(filepath: fs.PathLike): Promise<void> {
+  return fs.mkdirp(filepath.toString());
+}
+
+/**
+ * Asynchronously copies a file or directory, including content within directories.
+ * @param orig A valid filename or path to read files/directories from.
+ * @param dest A valid filename or path to write files/directories to.
+ */
+export function copyFiles(orig: fs.PathLike, dest: fs.PathLike): Promise<string> {
+  return new Promise ((resolve, reject) => {
+    fs.copy(orig.toString(), dest.toString())
+      .then(() => resolve(`Copied: ${orig.toString()} => ${dest.toString()}`))
+      .catch(error => reject(error));
   });
 }
