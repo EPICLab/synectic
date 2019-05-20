@@ -63,7 +63,8 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
    */
   destructor(): void {
     this.children.map(c => this.remove(c));
-    const event = new CustomEvent('destruct', { detail: this.uuid });
+    // const event = new CustomEvent('destruct', { 'detail': this.uuid });
+    const event = new CustomEvent('destruct', { detail: () => console.log('test') });
     document.dispatchEvent(event);
     if (this.element && this.element.parentNode) {
       this.element.parentNode.removeChild(this.element);
@@ -138,7 +139,8 @@ export class Stack implements Base<Canvas, Card>, Draggable, Droppable {
       });
       child.toggleButton('expandButton', true);
       removeClass(child.element, 'nohover');
-      const event = new CustomEvent('remove', { detail: child.uuid });
+      // const event = new CustomEvent('remove', { detail: child.uuid });
+      const event = new CustomEvent('remove', { detail: () => console.log(child.uuid) } );
       document.dispatchEvent(event);
       return true;
     } else {
