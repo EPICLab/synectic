@@ -10,10 +10,7 @@ import { Menu, remote } from 'electron';
 import * as path from 'path';
 import { Repository } from '../vcs/Repository';
 import { Branch } from '../vcs/Branch';
-import { Dropdown } from './Dropdown';
-// import { Dialog } from './Dialog';
-// import * as git from '../vcs/git';
-// import { exists } from '../fs/io';
+import { BranchUI } from '../vcs/BranchUI';
 
 /**
  * Template definition of a card; can be extended to support specific content.
@@ -21,7 +18,7 @@ import { Dropdown } from './Dropdown';
 export abstract class Card implements Base<(Canvas | Stack), null>,
   Draggable, Droppable, Selectable, Flippable {
 
-  // Metadata regarding the Card instance
+  // Metadata of the Card instance
   readonly uuid: string = v4();
   readonly created: DateTime = DateTime.local();
   modified: DateTime = DateTime.local();
@@ -37,15 +34,16 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   title: HTMLSpanElement = document.createElement('span');
   buttons: Map<string, HTMLButtonElement> = new Map();
 
-  // File elements and metadata
+  // File elements and associated metadata
   filepath: fs.PathLike;
   loading: HTMLDivElement = document.createElement('div');
   watcher: fs.FSWatcher | undefined;
 
-  // VCS elements and metadata
+  // VCS elements and associated metadata
   repository: Repository | undefined;
   branch: Branch | undefined;
-  branchMenu: Dropdown | undefined;
+  branchUI: BranchUI | undefined;
+  fetchButton: HTMLButtonElement | undefined;
 
   /**
    * Default constructor for creating a blank card with standard interaction controls.
@@ -74,23 +72,41 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
     this.element.appendChild(this.front);
     this.element.appendChild(this.back);
 
+    document.addEventListener('fetch', e => console.log(`fetch event found: ${e}`));
+
     global.Synectic.GitManager.get(filepath).then(async (repository: Repository) => {
       this.repository = repository;
       this.branch = await repository.getBranch(filepath);
-      if (this.branch) await this.configBranchMenu();
-    });
+      this.branchUI = new BranchUI(this.repository, this.branch);
+      const menu = await this.branchUI.getMenu();
+      this.back.appendChild(menu.menu);
 
-    // this.repository = global.Synectic.GitManager.get(filepath);
-    //
-    // this.repository.Ready.then(config => {
-    //   this.branch = new Branch(this, this.repository, config.currentBranch, config.repoRoot);
-    //   if (this.branch) {
-    //     this.back.appendChild(this.branch.branchMenu.menu);
-    //     this.back.appendChild(this.branch.fetchButton);
-    //     this.back.appendChild(this.branch.pullButton);
-    //     this.back.appendChild(this.branch.pushButton);
-    //   }
-    // });
+      menu.optionsArray().forEach(option => {
+        option.onclick = async () => {
+          if (this.repository && this.branch && this.branchUI) {
+            const relativePath = path.relative(this.branch.root.toString(), this.filepath.toString());
+            this.branch = await this.repository.getBranch(this.filepath, option.id);
+            this.filepath = path.resolve(this.branch.root.toString(), relativePath);
+            await this.branchUI.setBranch(this.branch);
+            this.load(this.filepath);
+          }
+        };
+      });
+
+      const repoButtons = await this.branchUI.getRepoButtons();
+      this.back.appendChild(repoButtons.fetch);
+      repoButtons.fetch.onclick = async () => {
+        if (this.branch) console.info(await this.branch.fetch());
+      };
+      this.back.appendChild(repoButtons.pull);
+      repoButtons.pull.onclick = async () => {
+        if (this.branch) console.info(await this.branch.pull());
+      };
+      this.back.appendChild(repoButtons.push);
+      repoButtons.push.onclick = async () => {
+        if (this.branch) console.info(await this.branch.push());
+      };
+    });
 
     this.loading.setAttribute('class', 'loading-img');
     this.front.appendChild(this.loading);
@@ -256,57 +272,6 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
   toggleButton(key: string, visibility?: boolean): void {
     const button = this.buttons.get(key);
     if (button) toggleVisibility(button, visibility);
-  }
-
-  /**
-   * Poll the associated Repository for a list of branches and display in menu.
-   */
-  async configBranchMenu(): Promise<void> {
-    if (!this.branchMenu && this.repository) {
-      this.branchMenu = new Dropdown('branchMenu');
-      const branches = await this.repository.branches();
-      branches.remote.forEach(remote => {
-        if (branches.local.has(remote)) this.addBranchOption(remote);
-        else this.addBranchOption(remote, true);
-      });
-      branches.local.forEach(local => {
-        if (this.branchMenu && !this.branchMenu.options.has(local)) {
-          this.addBranchOption(local);
-        }
-      });
-      this.back.appendChild(this.branchMenu.menu);
-    }
-
-    if (this.branchMenu && this.branch) {
-      this.branchMenu.selected(this.branch.branch);
-    } else {
-      console.log(`supposed to be setting the selected option, but one of these is not set:\n\tbranchMenu: '${this.branchMenu}'\n\tbranch: '${this.branch}'`);
-    }
-  }
-
-  /**
-   * Add onclick functionality for a branch included in the branches menu.
-   * @param branch A valid branch name for the associated git repository.
-   * @param remoteOnly Boolean indicating whether to exclude local branches and show remote branches only.
-   */
-  private addBranchOption(branch: string, remoteOnly: boolean = false) {
-    const branchButton = document.createElement('button');
-    branchButton.innerText = branchButton.id = branch;
-    if (remoteOnly) {
-      const remoteIcon = document.createElement('img');
-      remoteIcon.setAttribute('class', 'remote');
-      remoteIcon.setAttribute('src', '../src/asset/remote_dark.svg');
-      branchButton.appendChild(remoteIcon);
-    }
-    branchButton.onclick = async () => {
-      if (this.repository && this.branch) {
-        const relativePath = path.relative(this.branch.root.toString(), this.filepath.toString());
-        this.branch = await this.repository.getBranch(this.filepath, branch);
-        this.filepath = path.resolve(this.branch.root.toString(), relativePath);
-        this.load(this.filepath);
-      }
-    }
-    if (this.branchMenu) this.branchMenu.add(branchButton);
   }
 
   /**

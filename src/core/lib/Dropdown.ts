@@ -23,7 +23,7 @@ export class Dropdown {
 
     this.btn.onclick = () => {
       if (!hasClass(this.content, 'show')) {
-        document.addEventListener('mousedown', (e) => this.clickEvent(e), {once: true});
+        document.addEventListener('mousedown', (e) => this.clickEvent(e), { once: true });
       }
       toggleClass(this.content, 'show');
     };
@@ -33,7 +33,7 @@ export class Dropdown {
   add(option: HTMLButtonElement): void {
     if (this.options.has(option.id)) return;
     option.addEventListener('click', () => {
-      document.addEventListener('mousedown', (e) => this.clickEvent(e), {once: true});
+      document.addEventListener('mousedown', (e) => this.clickEvent(e), { once: true });
       this.selected(option.id);
     }, false);
     this.content.appendChild(option);
@@ -73,6 +73,10 @@ export class Dropdown {
     if (X < rect.left || X > rect.right || Y < rect.top || Y > rect.bottom) {
       removeClass(this.content, 'show');
     }
+  }
+
+  optionsArray(): HTMLButtonElement[] {
+    return Array.from(this.options.values());
   }
 
 }

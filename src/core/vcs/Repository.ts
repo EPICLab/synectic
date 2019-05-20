@@ -36,7 +36,8 @@ export class Repository {
 
   /**
    * Asynchronously formats and returns an array of local and remote branch names
-   * contained within this repository.
+   * contained within this repository. Retrieves new branches discovered by Git
+   * through fetch or pull commands.
    */
   async branches(): Promise<{local: Set<string>, remote: Set<string>}> {
     await this.Ready;
@@ -44,20 +45,36 @@ export class Repository {
     let remote: Set<string> = new Set();
     if (this.rootPath) {
       local = new Set(await git.getLocalBranches(this.rootPath));
+      const cache = new Set(Array.from(this.branchCache.keys()));
+      local = new Set(function*() { yield* local; yield* cache; }());
+      local.delete('HEAD');
       remote = new Set(await git.getRemoteBranches(this.rootPath));
+      remote.delete('HEAD');
     }
-    return {local: local, remote: remote};
+    return { local: local, remote: remote };
+  }
+
+  /**
+   * Asynchronously retrieves the name of the current branch from this repository
+   */
+  async current(): Promise<string | undefined> {
+    await this.Ready;
+    if (this.rootPath) {
+      return git.getCurrentBranch(this.rootPath);
+    }
+    return new Promise((_, reject) => reject());
   }
 
   /**
    * Asynchronously reads git repository metadata and returns an array of remote definitions.
-   * @param filepath Optional filename or path contained within a valid git repository; defaults to repository root if blank.
+   * @param filepath Optional filename or path contained within a valid git repository; defaults to
+   * repository root if blank.
    */
   async getRemotes(filepath?: PathLike): Promise<git.RemoteDefinition[]> {
     await this.Ready;
     const repoRoot = filepath ? await git.getRepoRoot(filepath) : this.rootPath;
     if (repoRoot) return git.getRemotes(repoRoot);
-    else throw new Error(`Repository '${this.repoName}' misconfigured; unable to read '.git' root path for obtaining remote definitions.`);
+    else throw new Error(`Repository '${this.repoName}' misconfigured; unable to read '.git' root path.`);
   }
 
   /**
@@ -109,15 +126,19 @@ export class Repository {
       throw new Error(`Unable to execute because 'Repository::Ready' must be run first.`);
     }
     const basePath = this.cachePath;
-    io.exists(basePath).then(async exist => {
-      if (!exist) await io.writeDirAsync(basePath);
-    });
+    io.exists(basePath)
+      .then(async exist => {
+        if (!exist) await io.writeDirAsync(basePath);
+      })
+      .catch(error => { throw new Error('reloadCache Error: ' + error); });
     const branchDirs = await io.readDirAsync(basePath, true);
     branchDirs.forEach(async branchDir => {
       const branchCachePath = path.join(basePath.toString(), '/', branchDir);
-      io.exists(branchCachePath).then(versioned => {
-        if (versioned) this.branchCache.set(branchDir, branchCachePath);
-      });
+      io.exists(branchCachePath)
+        .then(versioned => {
+          if (versioned) this.branchCache.set(branchDir, branchCachePath);
+        })
+        .catch(error => { throw new Error('reloadCache Error: ' + error); });
     });
   }
 
@@ -153,22 +174,3 @@ export class Repository {
 //   //     depth: 10
 //   //   });
 //   // }
-//
-//   // clone(branch: string): Branch {
-//   //   const targetRoot = path.join(global.Synectic.syndir, branch);
-//   //   writeDirAsync(targetRoot)
-//   //     .then(async () => {
-//   //       await git.clone({
-//   //         dir: targetRoot,
-//   //         url: git.toHTTPS(this.remoteDefinitions[0].url),
-//   //         ref: branch,
-//   //         singleBranch: true,
-//   //         depth: 10
-//   //       });
-//   //       const newBranch = new Branch(this, branch, targetRoot);
-//   //       this.localBranches.set(branch, newBranch);
-//   //       return newBranch;
-//   //     })
-//   //     .catch(error => new Dialog('banner', `Repository '${this.repo}' Error`, `Unable to clone branch: ${branch}. Error: ${error}`));
-//   // }
-// }
