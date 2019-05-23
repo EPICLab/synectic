@@ -242,7 +242,7 @@ export class FileExplorer extends Card {
 
     this.element.classList.add('fileexplorer');
     this.primaryContainerElement.setAttribute('id', (this.uuid + '-fileexplorer'));
-    this.primaryContainerElement.setAttribute('class', 'fileexplorer-window');
+    this.primaryContainerElement.setAttribute('class', 'fileexplorer-window nonselectable-interior');
     this.front.appendChild(this.primaryContainerElement);
 
     this.primaryContainerElement.appendChild(this.mainView);

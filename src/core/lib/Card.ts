@@ -331,7 +331,7 @@ export abstract class Card implements Base<(Canvas | Stack), null>,
       : this.parent.parent;
     $(canvas.element).selectable({
       filter: '.card',
-      cancel: 'input, textarea, button, select, option',
+      cancel: 'input, textarea, button, select, option, .nonselectable-interior',
       selected: (_, ui) => {
         if (!(ui.selected)) throw new Error('Selected returns undefined');
         const uuid: string = ui.selected.id;
