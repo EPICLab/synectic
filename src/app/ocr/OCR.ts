@@ -2,6 +2,7 @@ import { Card } from '../../core/lib/Card';
 import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
 import { addClass } from '../../core/lib/helper';
+import { PathLike } from 'fs-extra';
 // import 'ocrad.js';
 
 export class OCR extends Card {
@@ -22,11 +23,12 @@ export class OCR extends Card {
     this.canvas = document.createElement('canvas');
   }
 
-  save(): void {
+  load(filepath: PathLike): void {
+    console.log(filepath);
     throw new Error("Method not implemented.");
   }
 
-  load(): void {
+  save(): void {
     throw new Error("Method not implemented.");
   }
 
