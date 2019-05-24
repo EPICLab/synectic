@@ -2,6 +2,8 @@ import { Card } from '../../core/lib/Card';
 import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
 
+import { Repository } from '../../core/vcs/Repository';
+
 //import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as PATH from 'path';
@@ -49,15 +51,18 @@ class FileExplorerLazyPathItem {
   children: Map<string, FileExplorerLazyPathItem> = new Map<string, FileExplorerLazyPathItem>();
   type: filetype;
   stats: fs.Stats;
+  gitrepo: Repository | undefined;
 
   constructor(
     path: fs.PathLike,
     name: string,
-    state: FileExplorerLazyPathItemMode
+    state: FileExplorerLazyPathItemMode,
+    gitrepo?: Repository | undefined
   ) {
     this.path = path;
     this.name = name;
     this.state = state;
+    this.gitrepo = gitrepo;
     this.stats = fs.statSync(path);
     this.stats.isDirectory()? this.type = filetype.directory : this.type = filetype.file;
     this.update().then((result) => {
@@ -74,6 +79,15 @@ class FileExplorerLazyPathItem {
     else {
       this.state = FileExplorerLazyPathItemMode.active;
     }
+  }
+
+  set_git_repo(repo: Repository) {
+    this.gitrepo = repo;
+    // @ts-ignore
+    this.children.forEach((value, key, map) => {
+      value.set_git_repo(repo);
+    });
+    this.update();
   }
 
   /**
@@ -105,7 +119,8 @@ class FileExplorerLazyPathItem {
               var newchild = new FileExplorerLazyPathItem(
                 PATH.join(this.path.toString(), dirItem),
                 dirItem,
-                FileExplorerLazyPathItemMode.lazy
+                FileExplorerLazyPathItemMode.lazy,
+                this.gitrepo
               );
               this.children.set(
                 dirItem,
@@ -205,6 +220,15 @@ class FileExplorerDirView extends HTMLOListElement {
       this.classList.remove("expanded");
       this.classList.add("collapsed");
     }
+    if (this.dirItem.gitrepo) {
+      // b/c typescript thinks dirItem could be undef??
+      var scope_pass_dirItem = this.dirItem;
+      this.dirItem.gitrepo.current().then((branchresult) => {
+        this.fe_dropdown_name.innerHTML = scope_pass_dirItem.name + (
+          branchresult? (" [" + branchresult + "]") : ""
+        );
+      });
+    }
   }
 }
 
@@ -246,6 +270,15 @@ export class FileExplorer extends Card {
     this.front.appendChild(this.primaryContainerElement);
 
     this.primaryContainerElement.appendChild(this.mainView);
+
+    if (global.Synectic && global.Synectic.GitManager) {
+      console.debug("Trying to use", global.Synectic.GitManager);
+      global.Synectic.GitManager.get(this.mainItem.path)
+      .then((repo: Repository) => {
+        this.mainItem.set_git_repo(repo);
+        (this.mainView as FileExplorerDirView).update();
+      });
+    }
 
     this.load();
   }

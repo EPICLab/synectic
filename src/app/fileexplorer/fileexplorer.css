@@ -14,6 +14,13 @@ div.fileexplorer-window .fileexplorer-dir-header {
   display: block;
   width: 100%;
   background: black;
+  white-space: nowrap;
+  overflow-x: hidden;
+}
+div.fileexplorer-window .fileexplorer-file-item {
+  white-space: nowrap;
+}
+div.fileexplorer-window .fileexplorer-dir-view.expanded .fileexplorer-dir-header {
   margin: 4px 0;
 }
 div.fileexplorer-window ol {
@@ -34,7 +41,7 @@ div.fileexplorer-window ol > ol {
 }
 div.fileexplorer-window ol > ol.collapsed,
 div.fileexplorer-window ol > li {
-  height: 1.2em;
+  /* height: 1.2em; */
 }
 div.fileexplorer-window .fileexplorer-dir-view > .fileexplorer-dir-header::before {
   content: "➤";
@@ -46,6 +53,7 @@ div.fileexplorer-window .fileexplorer-dir-view.expanded > .fileexplorer-dir-head
 }
 div.fileexplorer-window .fileexplorer-dir-view.expanded > .fileexplorer-dir-header {
   border-bottom: 2px solid red;
+  white-space: pre-line;
 }
 div.fileexplorer-window .fileexplorer-dir-view.collapsed > li,
 div.fileexplorer-window .fileexplorer-dir-view.collapsed > ol {
