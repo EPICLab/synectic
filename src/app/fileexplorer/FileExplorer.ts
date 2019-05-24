@@ -1,7 +1,10 @@
 import { Card } from '../../core/lib/Card';
 import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
-
+import * as io from '../../core/fs/io';
+import { handlerToCard } from '../../core/fs/io-handler';
+import * as filetypes from '../../core/fs/filetypes';
+import { Dialog } from '../../core/lib/Dialog';
 import { Repository } from '../../core/vcs/Repository';
 
 //import { DateTime } from 'luxon';
@@ -171,7 +174,7 @@ class FileExplorerDirView extends HTMLOListElement {
 
     // when we get clicked, it's active time!
     this.fe_dropdown_name.onclick = (event) => {
-      console.log(this, event);
+      console.debug(this, event);
       dirItem.toggle_active_state();
       dirItem.update().then(() => {
         this.update();
@@ -204,6 +207,18 @@ class FileExplorerDirView extends HTMLOListElement {
           visual_child.innerText = item.name;
           this.fe_children.set(name, visual_child);
           this.appendChild(visual_child);
+
+          // make it open that file when double-clicked
+          // @ts-ignore
+          visual_child.ondblclick = (e) => {
+            filetypes.searchExt(io.extname(item.path))
+            .then(result => {
+              if (result !== undefined) {
+                handlerToCard(result.handler, item.path.toString());
+              }
+            })
+            .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
+          };
         }
       }
       else {
