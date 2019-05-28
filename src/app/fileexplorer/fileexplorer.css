@@ -7,7 +7,7 @@ div.fileexplorer-window {
   position: absolute;
   bottom: 0;
 
-  overflow: scroll;
+  overflow: auto;
 }
 
 div.fileexplorer-window .fileexplorer-dir-header {

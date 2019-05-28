@@ -10,7 +10,7 @@ import { Repository } from '../../core/vcs/Repository';
 //import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as PATH from 'path';
-import * as git from 'isomorphic-git';
+import * as git from '../../core/vcs/git';
 git.plugins.set('fs', fs);
 import './fileexplorer.css';
 import { SplitMode } from '../../core/lib/interaction';
@@ -35,6 +35,30 @@ function safeReadDirSync(path: fs.PathLike): string[] | null {
     else throw ex;
   }
   return dirData;
+}
+
+var isogit_to_classes_map: { [key:string]:string[] } = {
+  "ignored": ["git-status-ignored"],
+  "unmodified": ["git-status-tracked-clean"],
+  "*modified": ["git-status-tracked-modified"],
+  "*deleted": ["git-status-deleted"],
+  "*added": ["git-status-untracked"],
+  "absent": ["git-status-unknown"],
+  "modified": ["git-status-tracked-modified"],
+  "deleted": ["git-status-deleted"],
+  "added": ["git-status-untracked"],
+  "*unmodified": ["git-status-staging-conflict"],
+  "*absent": ["git-status-staging-conflict"],
+}
+
+async function setElementGitStatusClasses(element: HTMLElement, newstatus: string | Promise<string>) {
+  newstatus = await newstatus;
+  Object.values(isogit_to_classes_map).forEach((val) => {
+    val.map((classname) => {
+      element.classList.remove(classname);
+    });
+  });
+  element.classList.add(...(isogit_to_classes_map[newstatus]));
 }
 
 const enum FileExplorerLazyPathItemMode {
@@ -186,8 +210,10 @@ class FileExplorerDirView extends HTMLOListElement {
   /**
    * rebuild the visuals!
    */
-  update(): void {
-    if (this.dirItem == undefined) return;
+  async update(): Promise<null> {
+    if (this.dirItem === undefined) {
+      return new Promise(resolve => resolve());
+    }
     // @ts-ignore
     this.dirItem.children.forEach((item, name, og_map) => {
       // first checking for items which we don't yet have rendered:
@@ -226,6 +252,20 @@ class FileExplorerDirView extends HTMLOListElement {
           (visual_child as FileExplorerDirView).update();
         }
       }
+      // update the git information on the children:
+      // @ts-ignore
+      if (
+        this.dirItem!.gitrepo !== undefined &&
+        this.dirItem!.gitrepo.path !== undefined
+      ) {
+        setElementGitStatusClasses(
+          visual_child,
+          git.status({
+            "dir": this.dirItem!.gitrepo.path.toString(),
+            "filepath": PATH.relative(this.dirItem!.gitrepo.path.toString(), item.path.toString())
+          })
+        );
+      }
     });
     if (this.dirItem.state === FileExplorerLazyPathItemMode.active) {
       this.classList.add("expanded");
@@ -244,6 +284,7 @@ class FileExplorerDirView extends HTMLOListElement {
         );
       });
     }
+    return new Promise(resolve => resolve());
   }
 }
 
