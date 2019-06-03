@@ -108,13 +108,13 @@ class FileExplorerLazyPathItem {
     }
   }
 
-  set_git_repo(repo: Repository) {
+  async set_git_repo(repo: Repository) {
     this.gitrepo = repo;
     // @ts-ignore
     this.children.forEach((value, key, map) => {
       value.set_git_repo(repo);
     });
-    this.update();
+    return this.update();
   }
 
   /**
@@ -331,8 +331,10 @@ export class FileExplorer extends Card {
       console.debug("Trying to use", global.Synectic.GitManager);
       global.Synectic.GitManager.get(this.mainItem.path)
       .then((repo: Repository) => {
-        this.mainItem.set_git_repo(repo);
-        (this.mainView as FileExplorerDirView).update();
+        this.mainItem.set_git_repo(repo)
+        .then(() => {
+          (this.mainView as FileExplorerDirView).update();
+        });
       });
     }
 
