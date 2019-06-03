@@ -10,6 +10,10 @@ div.fileexplorer-window {
   overflow: auto;
 }
 
+div.card.fileexplorer.fullscreen {
+  max-width: 30em;
+}
+
 div.fileexplorer-window .fileexplorer-dir-header {
   display: block;
   width: 100%;
