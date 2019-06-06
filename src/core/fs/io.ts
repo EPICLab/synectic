@@ -79,6 +79,26 @@ export function readDirAsync(filepath: fs.PathLike, dirsOnly?: boolean): Promise
 }
 
 /**
+ * Synchronously read a dir without worry of perms
+ * @param  path
+ * @return the result from readdirSync or a falsy value
+ */
+export function safeReadDirSync(path: fs.PathLike): string[] | null {
+  let dirData: string[];
+  try {
+    dirData = fs.readdirSync(path);
+  } catch (ex) {
+    if (ex.code == "EACCES") {
+      //User does not have permissions, ignore directory
+      return null;
+    }
+    else throw ex;
+  }
+  return dirData;
+}
+
+
+/**
  * Asynchronously writes to a file; creates a new file if none exists.
  * @param filepath A valid filename or path to write the data to.
  * @param data A string containing content.
