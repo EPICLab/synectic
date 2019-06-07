@@ -10,8 +10,8 @@ import * as path from 'path';
  */
 export function extname(filepath: fs.PathLike): string {
   const ext: string | undefined = filepath.toString().split('.').pop();
-  if (ext !== undefined) return ext;
-  else return filepath.toString();
+  if (ext !== undefined && ext !== filepath.toString()) return ext;
+  else return '';
 }
 
 /**
