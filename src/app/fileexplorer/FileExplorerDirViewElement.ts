@@ -65,6 +65,8 @@ export class FileExplorerDirView extends HTMLOListElement {
       });
       event.stopPropagation();
     }
+
+    this.update();
   }
 
   /**

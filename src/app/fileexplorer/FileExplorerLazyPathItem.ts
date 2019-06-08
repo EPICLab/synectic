@@ -58,13 +58,12 @@ export class FileExplorerLazyPathItem {
     }
   }
 
-  async set_git_repo(repo: Repository) {
+  set_git_repo(repo: Repository) {
     this.gitrepo = repo;
     // @ts-ignore
     this.children.forEach((value, key, map) => {
-      value.set_git_repo(repo);
+      return value.set_git_repo(repo);
     });
-    return this.update();
   }
 
   /**

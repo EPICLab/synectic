@@ -31,6 +31,8 @@ window.customElements.define(
 
 export class FileExplorer extends Card {
 
+  static fontlinkelement: HTMLLinkElement | undefined;
+
   primaryContainerElement: HTMLDivElement = document.createElement('div');
   mainItem: FileExplorerLazyPathItem;
   mainView: HTMLOListElement;
@@ -60,17 +62,6 @@ export class FileExplorer extends Card {
 
     this.primaryContainerElement.appendChild(this.mainView);
 
-    if (global.Synectic && global.Synectic.GitManager) {
-      console.debug("Trying to use", global.Synectic.GitManager);
-      global.Synectic.GitManager.get(this.mainItem.path)
-      .then((repo: Repository) => {
-        this.mainItem.set_git_repo(repo)
-        .then(() => {
-          (this.mainView as FileExplorerDirView).update();
-        });
-      });
-    }
-
     this.load();
   }
 
@@ -81,6 +72,18 @@ export class FileExplorer extends Card {
     console.log("Updating FileExplorer...");
     this.update().then(() => {
       console.log("Loaded:", this);
+
+      if (global.Synectic && global.Synectic.GitManager) {
+        console.debug("Trying to use", global.Synectic.GitManager);
+        global.Synectic.GitManager.get(this.mainItem.path)
+        .then((repo: Repository) => {
+          this.mainItem.set_git_repo(repo);
+          setTimeout(() => {
+            this.update();
+          }, 500);
+        });
+      }
+
     });
   }
 
@@ -92,12 +95,15 @@ export class FileExplorer extends Card {
     return new Promise((resolve, reject) => {
       this.mainItem.update().then(() => {
         try {
-          (this.mainView as FileExplorerDirView).update();
-          resolve();
+          (this.mainView as FileExplorerDirView).update()
+          .then(() => {
+            console.log("FileExplorer update complete:", this);
+            resolve();
+          });
         }
         catch (err) {
           console.error("Hmmm:", this);
-          throw err;
+          reject(err);
         }
       }).catch((err: any) => {
         reject(err);

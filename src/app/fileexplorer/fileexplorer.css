@@ -1,4 +1,11 @@
 
+@font-face {
+  font-family: 'Roboto Mono NF';
+  font-style: normal;
+  font-weight: normal;
+  src: url('./Roboto Mono Nerd Font Complete Mono Windows Compatible.ttf');
+}
+
 div.fileexplorer-window {
   width: 100%;
   background-color: rgba(10, 10, 10, 1.0);
@@ -19,12 +26,14 @@ div.fileexplorer-window .fileexplorer-dir-header {
   width: 100%;
   white-space: nowrap;
   overflow-x: hidden;
+  color: white;
 }
 div.fileexplorer-window .fileexplorer-file-item {
   white-space: nowrap;
+  color: white;
 }
 div.fileexplorer-window .fileexplorer-dir-view.expanded > .fileexplorer-dir-header {
-  margin: 4px 0;
+  /* margin: 4px 0; */
 }
 div.fileexplorer-window ol {
   list-style: none;
@@ -37,7 +46,7 @@ div.fileexplorer-window ol > ol {
   transition: all 0.5s ease;
   display: block;
   flex-grow: 1;
-  border-left: 5px solid rgba(171, 178, 191, 0.4);
+  /* border-left: 5px solid #00000000; */
   padding-left: 12px;
   margin: 2px 0;
 }
@@ -45,17 +54,25 @@ div.fileexplorer-window ol > ol.collapsed,
 div.fileexplorer-window ol > li {
   /* height: 1.2em; */
 }
-div.fileexplorer-window .fileexplorer-dir-view > .fileexplorer-dir-header::before {
-  content: "▶"; /* right chevron */
+div.fileexplorer-window .fileexplorer-file-item::before,
+div.fileexplorer-window .fileexplorer-dir-header::before {
+  font-family: "Roboto Mono NF";
   position: relative;
-  left: -3px;
+  /* left: -4px; */
+  padding-left: 12px;
+  padding-right: 6px;
+  content: "\f016";
+}
+div.fileexplorer-window .fileexplorer-dir-view > .fileexplorer-dir-header::before {
+  padding-left: 0px;
+  content: "\f44a \f74a";
 }
 div.fileexplorer-window .fileexplorer-dir-view.expanded > .fileexplorer-dir-header::before {
-  content: "▼"; /* down chevron */
+  content: "\f44b \fc6e";
 }
 div.fileexplorer-window .fileexplorer-dir-view.expanded > .fileexplorer-dir-header {
   padding-bottom: 4px;
-  border-bottom: 2px solid lightblue;
+  /* border-bottom: 2px solid lightblue; */
   white-space: pre-line;
 }
 div.fileexplorer-window .fileexplorer-dir-view.collapsed > li,
@@ -66,14 +83,19 @@ div.fileexplorer-window .fileexplorer-dir-view.collapsed > ol {
 /* GIT stuff */
 div.fileexplorer-window ol > li.git-status-tracked-clean,
 div.fileexplorer-window ol > ol.git-status-tracked-clean {
-  border-left: 5px solid green;
+  /* color: white; */
+}
+div.fileexplorer-window ol > li.git-status-ignored,
+div.fileexplorer-window ol > ol.git-status-ignored {
+  filter: brightness(60%);
 }
 div.fileexplorer-window ol > li.git-status-tracked-modified,
 div.fileexplorer-window ol > ol.git-status-tracked-modified {
-  border-left: 5px solid yellow;
+  /* border-left: 5px solid yellow; */
+  color: yellow;
 }
 div.fileexplorer-window ol > li.git-status-deleted,
 div.fileexplorer-window ol > ol.git-status-deleted {
-  border-left: 5px solid red;
+  color: red;
   filter: brightness(40%);
 }
