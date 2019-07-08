@@ -3,7 +3,7 @@ import * as io from '../../core/fs/io';
 import { handlerToCard } from '../../core/fs/io-handler';
 import * as filetypes from '../../core/fs/filetypes';
 import { Dialog } from '../../core/lib/Dialog';
-
+import * as chokidar from 'chokidar';
 import * as PATH from 'path';
 import * as git from '../../core/vcs/git';
 
@@ -42,6 +42,7 @@ export class FileExplorerDirView extends HTMLOListElement {
   dirItem: FileExplorerLazyPathItem | undefined;
   fe_children: Map<string, FileExplorerDirView | HTMLElement> = new Map<string, FileExplorerDirView | HTMLElement>();
   fe_dropdown_name: HTMLElement;
+  watcher: chokidar.FSWatcher | undefined;
 
   constructor() {
     super();
@@ -66,7 +67,92 @@ export class FileExplorerDirView extends HTMLOListElement {
       event.stopPropagation();
     }
 
+    this.dirItem.on('fe_add', (new_lpi) => {
+      this.add_item(new_lpi);
+    });
+    this.dirItem.on('fe_remove', (old_lpi) => {
+      this.remove_item(old_lpi);
+    });
+    this.dirItem.on('fe_update', (target_lpi) => {
+      this.update_item(target_lpi);
+    });
+
+    this.dirItem.children.forEach((item, name/*, og_map*/) => {
+      // first checking for items which we don't yet have rendered:
+      var visual_child = this.fe_children.get(name);
+      if (visual_child === undefined) {
+        this.add_item(item);
+      }
+      else {
+        if ((visual_child as FileExplorerDirView).update) {
+          (visual_child as FileExplorerDirView).update();
+        }
+      }
+    });
+
     this.update();
+  }
+
+  add_item (new_lpi: FileExplorerLazyPathItem) {
+    var visual_child;
+    if (new_lpi.type == filetype.directory) {
+      visual_child = document.createElement('ol', {is: 'synectic-file-explorer-directory'});
+      (visual_child as FileExplorerDirView).setModel(new_lpi);
+      (visual_child as FileExplorerDirView).update();
+      this.fe_children.set(new_lpi.name, visual_child);
+
+      // TODO sort
+      this.appendChild(visual_child);
+    }
+    else {
+      // it's a normal file
+      visual_child = document.createElement('li');
+      visual_child.classList.add('fileexplorer-file-item');
+      visual_child.innerText = new_lpi.name;
+      this.fe_children.set(name, visual_child);
+
+      // TODO sort
+      this.appendChild(visual_child);
+
+      // make it open that file when double-clicked
+      // @ts-ignore
+      visual_child.ondblclick = (e) => {
+        filetypes.searchExt(io.extname(new_lpi.path))
+        .then(result => {
+          if (result !== undefined) {
+            handlerToCard(result.handler, new_lpi.path.toString());
+          }
+        })
+        .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
+      };
+    }
+  }
+
+  remove_item (old_lpi: FileExplorerLazyPathItem) {
+    var visual_child = this.fe_children.get(old_lpi.name);
+    console.debug('Deleting Visual Child:', visual_child);
+    this.fe_children.delete(old_lpi.name);
+    this.removeChild(visual_child!);
+  }
+
+  update_item (target_lpi: FileExplorerLazyPathItem) {
+    var visual_child = this.fe_children.get(target_lpi.name);
+    if (visual_child == undefined) {
+      throw 'No such child: ' + target_lpi.name;
+    }
+    // update the git information on the child:
+    if (
+      target_lpi.gitrepo !== undefined &&
+      target_lpi.gitrepo.path !== undefined
+    ) {
+      setElementGitStatusClasses(
+        visual_child!,
+        git.status({
+          "dir": target_lpi.gitrepo.path.toString(),
+          "filepath": PATH.relative(target_lpi.gitrepo.path.toString(), target_lpi.path.toString())
+        })
+      );
+    }
   }
 
   /**
@@ -76,59 +162,6 @@ export class FileExplorerDirView extends HTMLOListElement {
     if (this.dirItem === undefined) {
       return new Promise(resolve => resolve());
     }
-    // @ts-ignore
-    this.dirItem.children.forEach((item, name, og_map) => {
-      // first checking for items which we don't yet have rendered:
-      var visual_child = this.fe_children.get(name);
-      if (visual_child === undefined) {
-        if (item.type == filetype.directory) {
-          visual_child = document.createElement('ol', {is: 'synectic-file-explorer-directory'});
-          (visual_child as FileExplorerDirView).setModel(item);
-          (visual_child as FileExplorerDirView).update();
-          this.fe_children.set(name, visual_child);
-          this.appendChild(visual_child);
-        }
-        else {
-          // it's a normal file
-          visual_child = document.createElement('li');
-          visual_child.classList.add('fileexplorer-file-item');
-          visual_child.innerText = item.name;
-          this.fe_children.set(name, visual_child);
-          this.appendChild(visual_child);
-
-          // make it open that file when double-clicked
-          // @ts-ignore
-          visual_child.ondblclick = (e) => {
-            filetypes.searchExt(io.extname(item.path))
-            .then(result => {
-              if (result !== undefined) {
-                handlerToCard(result.handler, item.path.toString());
-              }
-            })
-            .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
-          };
-        }
-      }
-      else {
-        if ((visual_child as FileExplorerDirView).update) {
-          (visual_child as FileExplorerDirView).update();
-        }
-      }
-      // update the git information on the children:
-      // @ts-ignore
-      if (
-        this.dirItem!.gitrepo !== undefined &&
-        this.dirItem!.gitrepo.path !== undefined
-      ) {
-        setElementGitStatusClasses(
-          visual_child,
-          git.status({
-            "dir": this.dirItem!.gitrepo.path.toString(),
-            "filepath": PATH.relative(this.dirItem!.gitrepo.path.toString(), item.path.toString())
-          })
-        );
-      }
-    });
     if (this.dirItem.state === FileExplorerLazyPathItemMode.active) {
       this.classList.add("expanded");
       this.classList.remove("collapsed");

@@ -86,8 +86,10 @@ div.fileexplorer-window ol > ol.git-status-tracked-clean {
   /* color: white; */
 }
 div.fileexplorer-window ol > li.git-status-ignored,
-div.fileexplorer-window ol > ol.git-status-ignored {
-  filter: brightness(60%);
+div.fileexplorer-window ol > ol.git-status-ignored,
+div.fileexplorer-window ol.git-status-ignored > .fileexplorer-dir-header {
+  color: grey;
+  /* filter: brightness(60%); */
 }
 div.fileexplorer-window ol > li.git-status-tracked-modified,
 div.fileexplorer-window ol > ol.git-status-tracked-modified {
