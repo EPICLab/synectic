@@ -126,6 +126,8 @@ export class FileExplorerDirView extends HTMLOListElement {
         .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
       };
     }
+
+    this.update_item(new_lpi);
   }
 
   remove_item (old_lpi: FileExplorerLazyPathItem) {
