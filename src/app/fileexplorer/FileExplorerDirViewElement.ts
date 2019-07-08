@@ -109,7 +109,7 @@ export class FileExplorerDirView extends HTMLOListElement {
       visual_child = document.createElement('li');
       visual_child.classList.add('fileexplorer-file-item');
       visual_child.innerText = new_lpi.name;
-      this.fe_children.set(name, visual_child);
+      this.fe_children.set(new_lpi.name, visual_child);
 
       // TODO sort
       this.appendChild(visual_child);
