@@ -41,6 +41,7 @@ async function setElementGitStatusClasses(element: HTMLElement, newstatus: strin
 export class FileExplorerDirView extends HTMLOListElement {
   dirItem: FileExplorerLazyPathItem | undefined;
   fe_children: Map<string, FileExplorerDirView | HTMLElement> = new Map<string, FileExplorerDirView | HTMLElement>();
+  fe_visual_to_model: Map<HTMLElement | Element, FileExplorerLazyPathItem> = new Map<HTMLElement | Element, FileExplorerLazyPathItem>();
   fe_dropdown_name: HTMLElement;
   watcher: chokidar.FSWatcher | undefined;
 
@@ -94,25 +95,17 @@ export class FileExplorerDirView extends HTMLOListElement {
   }
 
   add_item (new_lpi: FileExplorerLazyPathItem) {
-    var visual_child;
+    var visual_child: HTMLElement | HTMLOListElement | HTMLLIElement;
     if (new_lpi.type == filetype.directory) {
       visual_child = document.createElement('ol', {is: 'synectic-file-explorer-directory'});
       (visual_child as FileExplorerDirView).setModel(new_lpi);
       (visual_child as FileExplorerDirView).update();
-      this.fe_children.set(new_lpi.name, visual_child);
-
-      // TODO sort
-      this.appendChild(visual_child);
     }
     else {
       // it's a normal file
       visual_child = document.createElement('li');
       visual_child.classList.add('fileexplorer-file-item');
       visual_child.innerText = new_lpi.name;
-      this.fe_children.set(new_lpi.name, visual_child);
-
-      // TODO sort
-      this.appendChild(visual_child);
 
       // make it open that file when double-clicked
       // @ts-ignore
@@ -126,6 +119,27 @@ export class FileExplorerDirView extends HTMLOListElement {
         .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
       };
     }
+
+    this.fe_children.set(new_lpi.name, visual_child);
+    this.fe_visual_to_model.set(visual_child, new_lpi);
+
+    // TODO sort
+    // this.appendChild(visual_child);
+
+    var target_child;
+
+    for (let i = 0; i < this.children.length; i++) {
+      var lpi = this.fe_visual_to_model.get(this.children[i]);
+      if (! lpi) continue;
+      if (
+        lpi.name.toLowerCase().localeCompare(new_lpi.name.toLowerCase()) > 0
+      ) {
+        target_child = this.children[i];
+        break;
+      }
+    }
+
+    this.insertBefore(visual_child, target_child? target_child : null);
 
     this.update_item(new_lpi);
   }
