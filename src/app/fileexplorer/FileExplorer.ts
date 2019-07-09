@@ -11,6 +11,7 @@ git.plugins.set('fs', fs);
 import './fileexplorer.css';
 import { SplitMode } from '../../core/lib/interaction';
 //import * as path from 'path';
+import * as chokidar from 'chokidar';
 
 import {
   FileExplorerLazyPathItem,
@@ -68,7 +69,7 @@ export class FileExplorer extends Card {
   /**
    * Read the directory structure and populate the element.
    */
-  load(): void {
+  async load(): Promise<null> {
     console.log("Updating FileExplorer...");
     this.update().then(() => {
       console.log("Loaded:", this);
@@ -76,15 +77,32 @@ export class FileExplorer extends Card {
       if (global.Synectic && global.Synectic.GitManager) {
         console.debug("Trying to use", global.Synectic.GitManager);
         global.Synectic.GitManager.get(this.mainItem.path)
-        .then((repo: Repository) => {
+        .then((repo: Repository) => {repo.Ready.then(() => {
           this.mainItem.set_git_repo(repo);
+          console.debug('FileExplorer using git repo:', repo);
+          var gitpath = repo.path;
+          console.debug('path type is', gitpath, typeof(gitpath));
+          if (typeof(gitpath) == "string" ) {
+            var git_head_file = PATH.join(gitpath, '.git', 'HEAD');
+            console.debug('Trying to watch ', git_head_file);
+            chokidar.watch(
+              git_head_file,
+              {
+                usePolling: true
+              }
+            ).on('all', () => {
+              console.debug('Git HEAD changed.');
+              this.update();
+            });
+          }
           setTimeout(() => {
             this.update();
           }, 500);
-        });
+        })});
       }
 
     });
+    return new Promise((resolve) => {resolve()});
   }
 
   /**

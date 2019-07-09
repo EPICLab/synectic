@@ -146,9 +146,11 @@ export class FileExplorerDirView extends HTMLOListElement {
 
   remove_item (old_lpi: FileExplorerLazyPathItem) {
     var visual_child = this.fe_children.get(old_lpi.name);
+    if (!visual_child) return;
     console.debug('Deleting Visual Child:', visual_child);
     this.fe_children.delete(old_lpi.name);
-    this.removeChild(visual_child!);
+    this.fe_visual_to_model.delete(visual_child);
+    this.removeChild(visual_child);
   }
 
   update_item (target_lpi: FileExplorerLazyPathItem) {
@@ -178,9 +180,16 @@ export class FileExplorerDirView extends HTMLOListElement {
     if (this.dirItem === undefined) {
       return new Promise(resolve => resolve());
     }
+    this.dirItem.update();
     if (this.dirItem.state === FileExplorerLazyPathItemMode.active) {
       this.classList.add("expanded");
       this.classList.remove("collapsed");
+      this.fe_visual_to_model.forEach((lpi, key) => {
+        lpi.update().then(() => {
+          if ((key as FileExplorerDirView).update) (key as FileExplorerDirView).update();
+          this.update_item(lpi);
+        });
+      });
     }
     else {
       this.classList.remove("expanded");
