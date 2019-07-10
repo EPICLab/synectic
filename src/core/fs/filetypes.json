@@ -161,7 +161,7 @@
 },{
   "name": "Gitignore",
   "handler": "Editor",
-  "extensions": [".gitignore"]
+  "extensions": ["gitignore"]
 },{
   "name": "Glsl",
   "handler": "Editor",
@@ -505,7 +505,7 @@
 },{
   "name": "Text",
   "handler": "Editor",
-  "extensions": ["txt"]
+  "extensions": ["txt",""]
 },{
   "name": "Textile",
   "handler": "Editor",
