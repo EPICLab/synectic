@@ -13,8 +13,7 @@ import {
   FileExplorerLazyPathItemMode
 } from './FileExplorerLazyPathItem';
 
-
-export var isogit_to_classes_map: { [key:string]:string[] } = {
+export const isogit_to_classes_map: { [key: string]: string[] } = {
   "ignored": ["git-status-ignored"],
   "unmodified": ["git-status-tracked-clean"],
   "*modified": ["git-status-tracked-modified"],
@@ -25,8 +24,8 @@ export var isogit_to_classes_map: { [key:string]:string[] } = {
   "deleted": ["git-status-deleted"],
   "added": ["git-status-untracked"],
   "*unmodified": ["git-status-staging-conflict"],
-  "*absent": ["git-status-staging-conflict"],
-}
+  "*absent": ["git-status-staging-conflict"]
+};
 
 async function setElementGitStatusClasses(element: HTMLElement, newstatus: string | Promise<string>) {
   newstatus = await newstatus;
@@ -41,7 +40,9 @@ async function setElementGitStatusClasses(element: HTMLElement, newstatus: strin
 export class FileExplorerDirView extends HTMLOListElement {
   dirItem: FileExplorerLazyPathItem | undefined;
   fe_children: Map<string, FileExplorerDirView | HTMLElement> = new Map<string, FileExplorerDirView | HTMLElement>();
-  fe_visual_to_model: Map<HTMLElement | Element, FileExplorerLazyPathItem> = new Map<HTMLElement | Element, FileExplorerLazyPathItem>();
+  fe_visual_to_model:
+    Map<HTMLElement | Element, FileExplorerLazyPathItem>
+    = new Map<HTMLElement | Element, FileExplorerLazyPathItem>();
   fe_dropdown_name: HTMLElement;
   watcher: chokidar.FSWatcher | undefined;
 
@@ -66,7 +67,7 @@ export class FileExplorerDirView extends HTMLOListElement {
         this.update();
       });
       event.stopPropagation();
-    }
+    };
 
     this.dirItem.on('fe_add', (new_lpi) => {
       this.add_item(new_lpi);
@@ -80,11 +81,10 @@ export class FileExplorerDirView extends HTMLOListElement {
 
     this.dirItem.children.forEach((item, name/*, og_map*/) => {
       // first checking for items which we don't yet have rendered:
-      var visual_child = this.fe_children.get(name);
+      let visual_child = this.fe_children.get(name);
       if (visual_child === undefined) {
         this.add_item(item);
-      }
-      else {
+      } else {
         if ((visual_child as FileExplorerDirView).update) {
           (visual_child as FileExplorerDirView).update();
         }
@@ -95,13 +95,12 @@ export class FileExplorerDirView extends HTMLOListElement {
   }
 
   add_item (new_lpi: FileExplorerLazyPathItem) {
-    var visual_child: HTMLElement | HTMLOListElement | HTMLLIElement;
-    if (new_lpi.type == filetype.directory) {
-      visual_child = document.createElement('ol', {is: 'synectic-file-explorer-directory'});
+    let visual_child: HTMLElement | HTMLOListElement | HTMLLIElement;
+    if (new_lpi.type === filetype.directory) {
+      visual_child = document.createElement('ol', { is: 'synectic-file-explorer-directory' });
       (visual_child as FileExplorerDirView).setModel(new_lpi);
       (visual_child as FileExplorerDirView).update();
-    }
-    else {
+    } else {
       // it's a normal file
       visual_child = document.createElement('li');
       visual_child.classList.add('fileexplorer-file-item');
@@ -126,10 +125,10 @@ export class FileExplorerDirView extends HTMLOListElement {
     // TODO sort
     // this.appendChild(visual_child);
 
-    var target_child;
+    let target_child;
 
     for (let i = 0; i < this.children.length; i++) {
-      var lpi = this.fe_visual_to_model.get(this.children[i]);
+      let lpi = this.fe_visual_to_model.get(this.children[i]);
       if (! lpi) continue;
       if (
         lpi.name.toLowerCase().localeCompare(new_lpi.name.toLowerCase()) > 0
@@ -139,13 +138,13 @@ export class FileExplorerDirView extends HTMLOListElement {
       }
     }
 
-    this.insertBefore(visual_child, target_child? target_child : null);
+    this.insertBefore(visual_child, target_child ? target_child : null);
 
     this.update_item(new_lpi);
   }
 
   remove_item (old_lpi: FileExplorerLazyPathItem) {
-    var visual_child = this.fe_children.get(old_lpi.name);
+    let visual_child = this.fe_children.get(old_lpi.name);
     if (!visual_child) return;
     console.debug('Deleting Visual Child:', visual_child);
     this.fe_children.delete(old_lpi.name);
@@ -154,9 +153,9 @@ export class FileExplorerDirView extends HTMLOListElement {
   }
 
   update_item (target_lpi: FileExplorerLazyPathItem) {
-    var visual_child = this.fe_children.get(target_lpi.name);
-    if (visual_child == undefined) {
-      throw 'No such child: ' + target_lpi.name;
+    let visual_child = this.fe_children.get(target_lpi.name);
+    if (! visual_child) {
+      throw Error('No such child: ' + target_lpi.name);
     }
     // update the git information on the child:
     if (
@@ -164,7 +163,7 @@ export class FileExplorerDirView extends HTMLOListElement {
       target_lpi.gitrepo.path !== undefined
     ) {
       setElementGitStatusClasses(
-        visual_child!,
+        visual_child,
         git.status({
           "dir": target_lpi.gitrepo.path.toString(),
           "filepath": PATH.relative(target_lpi.gitrepo.path.toString(), target_lpi.path.toString())
@@ -190,17 +189,16 @@ export class FileExplorerDirView extends HTMLOListElement {
           this.update_item(lpi);
         });
       });
-    }
-    else {
+    } else {
       this.classList.remove("expanded");
       this.classList.add("collapsed");
     }
     if (this.dirItem.gitrepo) {
       // b/c typescript thinks dirItem could be undef??
-      var scope_pass_dirItem = this.dirItem;
+      const scope_pass_dirItem = this.dirItem;
       this.dirItem.gitrepo.current().then((branchresult) => {
         this.fe_dropdown_name.innerHTML = scope_pass_dirItem.name + (
-          branchresult? (" [" + branchresult + "]") : ""
+          branchresult ? (" [" + branchresult + "]") : ""
         );
       });
     }

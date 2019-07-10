@@ -3,14 +3,14 @@ import { Canvas } from '../../core/lib/Canvas';
 import { Stack } from '../../core/lib/Stack';
 import { Repository } from '../../core/vcs/Repository';
 
-//import { DateTime } from 'luxon';
+// import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as PATH from 'path';
 import * as git from '../../core/vcs/git';
 git.plugins.set('fs', fs);
 import './fileexplorer.css';
 import { SplitMode } from '../../core/lib/interaction';
-//import * as path from 'path';
+// import * as path from 'path';
 import * as chokidar from 'chokidar';
 
 import {
@@ -44,8 +44,8 @@ export class FileExplorer extends Card {
    * @param directory A valid directory path to associate content with this FileExplorer card.
    */
   constructor(parent: Canvas | Stack, directory: fs.PathLike | null) {
-    super(parent, directory? directory.toString() : process.cwd() );
-    if (directory === null || directory === undefined) {
+    super(parent, directory ? directory.toString() : process.cwd());
+    if (! directory) {
       directory = fs.realpathSync(process.cwd());
     }
     this.mainItem = new FileExplorerLazyPathItem(
@@ -53,7 +53,7 @@ export class FileExplorer extends Card {
       PATH.basename(directory.toString()),
       FileExplorerLazyPathItemMode.active
     );
-    this.mainView = document.createElement('ol', {is: 'synectic-file-explorer-directory'});
+    this.mainView = document.createElement('ol', { is: 'synectic-file-explorer-directory' });
     (this.mainView as FileExplorerDirView).setModel(this.mainItem);
 
     this.element.classList.add('fileexplorer');
@@ -77,32 +77,34 @@ export class FileExplorer extends Card {
       if (global.Synectic && global.Synectic.GitManager) {
         console.debug("Trying to use", global.Synectic.GitManager);
         global.Synectic.GitManager.get(this.mainItem.path)
-        .then((repo: Repository) => {repo.Ready.then(() => {
-          this.mainItem.set_git_repo(repo);
-          console.debug('FileExplorer using git repo:', repo);
-          var gitpath = repo.path;
-          console.debug('path type is', gitpath, typeof(gitpath));
-          if (typeof(gitpath) == "string" ) {
-            var git_head_file = PATH.join(gitpath, '.git', 'HEAD');
-            console.debug('Trying to watch ', git_head_file);
-            chokidar.watch(
-              git_head_file,
-              {
-                usePolling: true
-              }
-            ).on('all', () => {
-              console.debug('Git HEAD changed.');
+        .then((repo: Repository) => {
+          repo.Ready.then(() => {
+            this.mainItem.set_git_repo(repo);
+            console.debug('FileExplorer using git repo:', repo);
+            let gitpath = repo.path;
+            console.debug('path type is', gitpath, typeof(gitpath));
+            if (typeof(gitpath) === "string") {
+              let git_head_file = PATH.join(gitpath, '.git', 'HEAD');
+              console.debug('Trying to watch ', git_head_file);
+              chokidar.watch(
+                git_head_file,
+                {
+                  usePolling: true
+                }
+              ).on('all', () => {
+                console.debug('Git HEAD changed.');
+                this.update();
+              });
+            }
+            setTimeout(() => {
               this.update();
-            });
-          }
-          setTimeout(() => {
-            this.update();
-          }, 500);
-        })});
+            }, 500);
+          });
+        });
       }
 
     });
-    return new Promise((resolve) => {resolve()});
+    return new Promise((resolve) => { resolve(); });
   }
 
   /**
@@ -118,8 +120,7 @@ export class FileExplorer extends Card {
             console.log("FileExplorer update complete:", this);
             resolve();
           });
-        }
-        catch (err) {
+        } catch (err) {
           console.error("Hmmm:", this);
           reject(err);
         }
@@ -127,15 +128,6 @@ export class FileExplorer extends Card {
         reject(err);
       });
     });
-  }
-
-  /**
-   * synchronous rebuild of the visual elements
-   *
-   * no I/O should be done here
-   */
-  refresh_view(): void {
-
   }
 
   /**
@@ -155,11 +147,11 @@ export class FileExplorer extends Card {
 
   resize(): void {
     super.resize();
-    //this.editor.resize();
+    // this.editor.resize();
   }
 
   split(mode: SplitMode): void {
     super.split(mode);
-    //this.editor.resize();
+    // this.editor.resize();
   }
 }

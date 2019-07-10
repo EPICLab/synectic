@@ -1,10 +1,10 @@
 // import * as io from '../../core/fs/io';
 import { Repository } from '../../core/vcs/Repository';
 
-//import { DateTime } from 'luxon';
+// import { DateTime } from 'luxon';
 import * as fs from 'fs-extra';
 import * as PATH from 'path';
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 import * as chokidar from 'chokidar';
 
 export const enum FileExplorerLazyPathItemMode {
@@ -45,14 +45,14 @@ export class FileExplorerLazyPathItem extends EventEmitter {
     this.state = state;
     this.gitrepo = gitrepo;
     this.stats = fs.statSync(path);
-    this.stats.isDirectory()? this.type = filetype.directory : this.type = filetype.file;
+    this.stats.isDirectory() ? this.type = filetype.directory : this.type = filetype.file;
     this.update().then((result) => {
       console.debug("FileExplorerLazyPathItem constructor update done:", result);
     }).catch((err) => {
       console.error("FileExplorerLazyPathItem:", err);
     });
 
-    if (this.state == FileExplorerLazyPathItemMode.active) {
+    if (this.state === FileExplorerLazyPathItemMode.active) {
       this.start_watcher();
     }
   }
@@ -63,10 +63,10 @@ export class FileExplorerLazyPathItem extends EventEmitter {
       disableGlobbing: true,
       depth: 0
     }).on('all', (eventname, path) => {
-      if (eventname == 'add' || eventname == 'addDir') {
-        if (path == this.path.toString()) return;
+      if (eventname === 'add' || eventname === 'addDir') {
+        if (path === this.path.toString()) return;
         // new file added:
-        var newchild = new FileExplorerLazyPathItem(
+        let newchild = new FileExplorerLazyPathItem(
           path,
           PATH.basename(path),
           FileExplorerLazyPathItemMode.lazy,
@@ -74,32 +74,27 @@ export class FileExplorerLazyPathItem extends EventEmitter {
         );
         this.children.set(path, newchild);
         this.emit('fe_add', newchild);
-      }
-      else if (eventname == 'unlink' || eventname == 'unlinkDir') {
+      } else if (eventname === 'unlink' || eventname === 'unlinkDir') {
         if (this.children.has(path)) {
-          var deleted_child = this.children.get(path);
+          let deleted_child = this.children.get(path);
           this.children.delete(path);
           this.emit('fe_remove', deleted_child);
         }
-      }
-      // any other change
-      else {
-        var target_child = this.children.get(path);
+      } else { // any other change
+        let target_child = this.children.get(path);
         this.emit('fe_update', target_child);
       }
     });
   }
 
   toggle_active_state() {
-    if (this.state == FileExplorerLazyPathItemMode.active) {
+    if (this.state === FileExplorerLazyPathItemMode.active) {
       this.watcher!.unwatch(this.path.toString());
       this.state = FileExplorerLazyPathItemMode.lazy;
-    }
-    else {
-      if ( ! this.watcher ) {
+    } else {
+      if (! this.watcher) {
         this.start_watcher();
-      }
-      else {
+      } else {
         this.watcher.add(this.path.toString());
       }
       this.state = FileExplorerLazyPathItemMode.active;
