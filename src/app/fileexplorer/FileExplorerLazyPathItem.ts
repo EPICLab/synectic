@@ -119,8 +119,7 @@ export class FileExplorerLazyPathItem extends EventEmitter {
       // reject();
       try {
         this.stats = fs.statSync(this.path.toString());
-      }
-      catch (err) {
+      } catch (err) {
         if (err.code === 'ENOENT') {
           console.debug('No longer exists:', this);
           this.emit('fe_remove', this);
@@ -135,15 +134,15 @@ export class FileExplorerLazyPathItem extends EventEmitter {
       ) {
         // rescan for new children
         try {
-          var dirItems = io.safeReadDirSync(this.path);
-          if (dirItems == null) {
-            reject({"safeReadDirSync gave": dirItems});
+          let dirItems = io.safeReadDirSync(this.path);
+          if (dirItems === null) {
+            reject({ "safeReadDirSync gave": dirItems });
             return;
-          };
-          var child_promises = dirItems.map((dirItem) => {
-            var child = this.children.get(dirItem);
-            if (child == undefined) {
-              var newchild = new FileExplorerLazyPathItem(
+          }
+          let child_promises = dirItems.map((dirItem) => {
+            const child = this.children.get(dirItem);
+            if (! child) {
+              let newchild = new FileExplorerLazyPathItem(
                 PATH.join(this.path.toString(), dirItem),
                 dirItem,
                 FileExplorerLazyPathItemMode.lazy,
@@ -162,8 +161,7 @@ export class FileExplorerLazyPathItem extends EventEmitter {
                 }
               });
               return newchild.update();
-            }
-            else {
+            } else {
               return child.update();
             }
           });
@@ -172,10 +170,9 @@ export class FileExplorerLazyPathItem extends EventEmitter {
             console.debug("Resolved children:", values);
             resolve();
           }).catch((error) => {
-            reject({"child item gave:": error});
+            reject({ "child item gave:": error });
           });
-        }
-        catch (err) {
+        } catch (err) {
           reject(err);
         }
       } else {
