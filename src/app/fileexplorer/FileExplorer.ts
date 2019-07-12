@@ -11,7 +11,7 @@ git.plugins.set('fs', fs);
 import './fileexplorer.css';
 import { SplitMode } from '../../core/lib/interaction';
 // import * as path from 'path';
-import * as chokidar from 'chokidar';
+// import * as chokidar from 'chokidar';
 
 import {
   FileExplorerLazyPathItem,
@@ -86,15 +86,15 @@ export class FileExplorer extends Card {
             if (typeof(gitpath) === "string") {
               let git_head_file = PATH.join(gitpath, '.git', 'HEAD');
               console.debug('Trying to watch ', git_head_file);
-              chokidar.watch(
-                git_head_file,
-                {
-                  usePolling: true
-                }
-              ).on('all', () => {
-                console.debug('Git HEAD changed.');
-                this.update();
-              });
+              // chokidar.watch(
+              //   git_head_file,
+              //   {
+              //     usePolling: true
+              //   }
+              // ).on('all', () => {
+              //   console.debug('Git HEAD changed.');
+              //   this.update();
+              // });
             }
             setTimeout(() => {
               this.update();

@@ -3,7 +3,7 @@ import * as io from '../../core/fs/io';
 import { handlerToCard } from '../../core/fs/io-handler';
 import * as filetypes from '../../core/fs/filetypes';
 import { Dialog } from '../../core/lib/Dialog';
-import * as chokidar from 'chokidar';
+// import * as chokidar from 'chokidar';
 import * as PATH from 'path';
 import * as git from '../../core/vcs/git';
 
@@ -44,7 +44,6 @@ export class FileExplorerDirView extends HTMLOListElement {
     Map<HTMLElement | Element, FileExplorerLazyPathItem>
     = new Map<HTMLElement | Element, FileExplorerLazyPathItem>();
   fe_dropdown_name: HTMLElement;
-  watcher: chokidar.FSWatcher | undefined;
 
   constructor() {
     super();
