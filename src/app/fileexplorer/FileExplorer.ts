@@ -69,7 +69,7 @@ export class FileExplorer extends Card {
   /**
    * Read the directory structure and populate the element.
    */
-  async load(): Promise<null> {
+  load() {
     console.log("Updating FileExplorer...");
     this.update().then(() => {
       console.log("Loaded:", this);
@@ -81,11 +81,11 @@ export class FileExplorer extends Card {
           repo.Ready.then(() => {
             this.mainItem.set_git_repo(repo);
             console.debug('FileExplorer using git repo:', repo);
-            let gitpath = repo.path;
+            const gitpath = repo.path;
             console.debug('path type is', gitpath, typeof(gitpath));
             if (typeof(gitpath) === "string") {
-              let git_head_file = PATH.join(gitpath, '.git', 'HEAD');
-              console.debug('Trying to watch ', git_head_file);
+              const gitHead = PATH.join(gitpath, '.git', 'HEAD');
+              console.debug('Trying to watch ', gitHead);
               // chokidar.watch(
               //   git_head_file,
               //   {
@@ -97,14 +97,22 @@ export class FileExplorer extends Card {
               // });
             }
             setTimeout(() => {
-              this.update();
+              this.update()
+              .catch((reason) => {
+                console.error('FileExplorer initial update failed:', reason);
+              });
             }, 500);
+          })
+          .catch((reason) => {
+            console.error('FileExplorer could not get gitrepo:', reason);
           });
         });
       }
 
+    })
+    .catch((reason) => {
+      console.error('FileExplorer initial load failed:', reason);
     });
-    return new Promise((resolve) => { resolve(); });
   }
 
   /**
@@ -119,6 +127,9 @@ export class FileExplorer extends Card {
           .then(() => {
             console.log("FileExplorer update complete:", this);
             resolve();
+          })
+          .catch((reason) => {
+            reject({ 'mainViewFail': reason });
           });
         } catch (err) {
           console.error("Hmmm:", this);

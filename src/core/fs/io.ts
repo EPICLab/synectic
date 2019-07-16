@@ -88,15 +88,13 @@ export function safeReadDirSync(path: fs.PathLike): string[] | null {
   try {
     dirData = fs.readdirSync(path);
   } catch (ex) {
-    if (ex.code == "EACCES") {
-      //User does not have permissions, ignore directory
+    if (ex.code === "EACCES") {
+      // User does not have permissions, ignore directory
       return null;
-    }
-    else throw ex;
+    } else throw ex;
   }
   return dirData;
 }
-
 
 /**
  * Asynchronously writes to a file; creates a new file if none exists.

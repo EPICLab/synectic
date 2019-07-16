@@ -76,9 +76,9 @@ export class FileExplorerLazyPathItem extends EventEmitter {
   //       this.emit('fe_add', newchild);
   //     } else if (eventname === 'unlink' || eventname === 'unlinkDir') {
   //       if (this.children.has(path)) {
-  //         let deleted_child = this.children.get(path);
+  //         let deletedchild = this.children.get(path);
   //         this.children.delete(path);
-  //         this.emit('fe_remove', deleted_child);
+  //         this.emit('fe_remove', deletedchild);
   //       }
   //     } else { // any other change
   //       let target_child = this.children.get(path);
@@ -134,15 +134,15 @@ export class FileExplorerLazyPathItem extends EventEmitter {
       ) {
         // rescan for new children
         try {
-          let dirItems = io.safeReadDirSync(this.path);
+          const dirItems = io.safeReadDirSync(this.path);
           if (dirItems === null) {
             reject({ "safeReadDirSync gave": dirItems });
             return;
           }
-          let child_promises = dirItems.map((dirItem) => {
+          const childpromises = dirItems.map((dirItem) => {
             const child = this.children.get(dirItem);
             if (! child) {
-              let newchild = new FileExplorerLazyPathItem(
+              const newchild = new FileExplorerLazyPathItem(
                 PATH.join(this.path.toString(), dirItem),
                 dirItem,
                 FileExplorerLazyPathItemMode.lazy,
@@ -153,11 +153,11 @@ export class FileExplorerLazyPathItem extends EventEmitter {
                 newchild
               );
               this.emit('fe_add', newchild);
-              newchild.on('fe_remove', (deleted_child) => {
-                let deleted_child_lpi = this.children.get(deleted_child.name);
-                if (deleted_child_lpi) {
-                  this.children.delete(deleted_child.name);
-                  this.emit('fe_remove', deleted_child);
+              newchild.on('fe_remove', (deletedchild) => {
+                const deletedChildLPI = this.children.get(deletedchild.name);
+                if (deletedChildLPI) {
+                  this.children.delete(deletedchild.name);
+                  this.emit('fe_remove', deletedchild);
                 }
               });
               return newchild.update();
@@ -166,7 +166,7 @@ export class FileExplorerLazyPathItem extends EventEmitter {
             }
           });
           // now we wait for the child Items to update:
-          Promise.all(child_promises).then((values) => {
+          Promise.all(childpromises).then((values) => {
             console.debug("Resolved children:", values);
             resolve();
           }).catch((error) => {
@@ -183,8 +183,8 @@ export class FileExplorerLazyPathItem extends EventEmitter {
   }
 
   destroy () {
-    this.children.forEach((child_lpi) => {
-      child_lpi.destroy();
+    this.children.forEach((childLPI) => {
+      childLPI.destroy();
     });
     // this.watcher!.close();
     this.removeAllListeners();

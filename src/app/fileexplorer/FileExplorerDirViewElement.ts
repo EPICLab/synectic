@@ -13,7 +13,7 @@ import {
   FileExplorerLazyPathItemMode
 } from './FileExplorerLazyPathItem';
 
-export const isogit_to_classes_map: { [key: string]: string[] } = {
+export const mapIsoGitClasses: { [key: string]: string[] } = {
   "ignored": ["git-status-ignored"],
   "unmodified": ["git-status-tracked-clean"],
   "*modified": ["git-status-tracked-modified"],
@@ -29,145 +29,164 @@ export const isogit_to_classes_map: { [key: string]: string[] } = {
 
 async function setElementGitStatusClasses(element: HTMLElement, newstatus: string | Promise<string>) {
   newstatus = await newstatus;
-  Object.values(isogit_to_classes_map).forEach((val) => {
+  Object.values(mapIsoGitClasses).forEach((val) => {
     val.map((classname) => {
       element.classList.remove(classname);
     });
   });
-  element.classList.add(...(isogit_to_classes_map[newstatus]));
+  element.classList.add(...(mapIsoGitClasses[newstatus]));
 }
 
 export class FileExplorerDirView extends HTMLOListElement {
   dirItem: FileExplorerLazyPathItem | undefined;
-  fe_children: Map<string, FileExplorerDirView | HTMLElement> = new Map<string, FileExplorerDirView | HTMLElement>();
-  fe_visual_to_model:
+  feChildren: Map<string, FileExplorerDirView | HTMLElement> = new Map<string, FileExplorerDirView | HTMLElement>();
+  mapFEvisualToModel:
     Map<HTMLElement | Element, FileExplorerLazyPathItem>
     = new Map<HTMLElement | Element, FileExplorerLazyPathItem>();
-  fe_dropdown_name: HTMLElement;
+  feDropdownNameElement: HTMLElement;
 
   constructor() {
     super();
     this.classList.add("fileexplorer-dir-view");
-    this.fe_dropdown_name = document.createElement('div');
-    this.fe_dropdown_name.classList.add("fileexplorer-dir-header");
-    this.fe_dropdown_name.innerText = "...";
-    this.appendChild(this.fe_dropdown_name);
+    this.feDropdownNameElement = document.createElement('div');
+    this.feDropdownNameElement.classList.add("fileexplorer-dir-header");
+    this.feDropdownNameElement.innerText = "...";
+    this.appendChild(this.feDropdownNameElement);
   }
 
   setModel(dirItem: FileExplorerLazyPathItem) {
     this.dirItem = dirItem;
-    this.fe_dropdown_name.innerText = this.dirItem.name;
+    this.feDropdownNameElement.innerText = this.dirItem.name;
 
     // when we get clicked, it's active time!
-    this.fe_dropdown_name.onclick = (event) => {
+    this.feDropdownNameElement.onclick = (event) => {
       console.debug(this, event);
       dirItem.toggle_active_state();
-      dirItem.update().then(() => {
-        this.update();
+      dirItem.update()
+      .then(() => {
+        this.update()
+        .catch((reason) => {
+          console.error('FileExplorerDirView could not update visual model:', this, reason);
+        });
+      })
+      .catch((reason) => {
+        console.error('FileExplorerDirView.dirItem update failed in onclick:', this, reason);
       });
       event.stopPropagation();
     };
 
-    this.dirItem.on('fe_add', (new_lpi) => {
-      this.add_item(new_lpi);
+    this.dirItem.on('fe_add', (newLPI) => {
+      this.add_item(newLPI);
     });
-    this.dirItem.on('fe_remove', (old_lpi) => {
-      this.remove_item(old_lpi);
+    this.dirItem.on('fe_remove', (oldLPI) => {
+      this.remove_item(oldLPI);
     });
-    this.dirItem.on('fe_update', (target_lpi) => {
-      this.update_item(target_lpi);
+    this.dirItem.on('fe_update', (targetLPI) => {
+      this.update_item(targetLPI);
     });
 
     this.dirItem.children.forEach((item, name/*, og_map*/) => {
       // first checking for items which we don't yet have rendered:
-      let visual_child = this.fe_children.get(name);
-      if (visual_child === undefined) {
+      const visualchild = this.feChildren.get(name);
+      if (visualchild === undefined) {
         this.add_item(item);
       } else {
-        if ((visual_child as FileExplorerDirView).update) {
-          (visual_child as FileExplorerDirView).update();
+        if ((visualchild as FileExplorerDirView).update) {
+          (visualchild as FileExplorerDirView).update()
+          .catch((reason) => {
+            console.error('FileExplorerDirView child update fail:', visualchild, reason);
+          });
         }
       }
     });
 
-    this.update();
+    this.update()
+    .catch((reason) => {
+      console.error('FileExplorerDirView update failed:', this, reason);
+    });
   }
 
-  add_item (new_lpi: FileExplorerLazyPathItem) {
-    let visual_child: HTMLElement | HTMLOListElement | HTMLLIElement;
-    if (new_lpi.type === filetype.directory) {
-      visual_child = document.createElement('ol', { is: 'synectic-file-explorer-directory' });
-      (visual_child as FileExplorerDirView).setModel(new_lpi);
-      (visual_child as FileExplorerDirView).update();
+  add_item (newLPI: FileExplorerLazyPathItem) {
+    let visualchild: HTMLElement | HTMLOListElement | HTMLLIElement;
+    if (newLPI.type === filetype.directory) {
+      visualchild = document.createElement('ol', { is: 'synectic-file-explorer-directory' });
+      (visualchild as FileExplorerDirView).setModel(newLPI);
+      (visualchild as FileExplorerDirView).update()
+      .catch((reason) => {
+        console.error('FileExplorerDirView: update fail of', visualchild, reason);
+      });
     } else {
       // it's a normal file
-      visual_child = document.createElement('li');
-      visual_child.classList.add('fileexplorer-file-item');
-      visual_child.innerText = new_lpi.name;
+      visualchild = document.createElement('li');
+      visualchild.classList.add('fileexplorer-file-item');
+      visualchild.innerText = newLPI.name;
 
       // make it open that file when double-clicked
       // @ts-ignore
-      visual_child.ondblclick = (e) => {
-        filetypes.searchExt(io.extname(new_lpi.path))
+      visualchild.ondblclick = (e) => {
+        filetypes.searchExt(io.extname(newLPI.path))
         .then(result => {
           if (result !== undefined) {
-            handlerToCard(result.handler, new_lpi.path.toString());
+            handlerToCard(result.handler, newLPI.path.toString());
           }
         })
         .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
       };
     }
 
-    this.fe_children.set(new_lpi.name, visual_child);
-    this.fe_visual_to_model.set(visual_child, new_lpi);
+    this.feChildren.set(newLPI.name, visualchild);
+    this.mapFEvisualToModel.set(visualchild, newLPI);
 
     // TODO sort
-    // this.appendChild(visual_child);
+    // this.appendChild(visualchild);
 
-    let target_child;
+    let targetchild;
 
     for (let i = 0; i < this.children.length; i++) {
-      let lpi = this.fe_visual_to_model.get(this.children[i]);
+      const lpi = this.mapFEvisualToModel.get(this.children[i]);
       if (! lpi) continue;
       if (
-        lpi.name.toLowerCase().localeCompare(new_lpi.name.toLowerCase()) > 0
+        lpi.name.toLowerCase().localeCompare(newLPI.name.toLowerCase()) > 0
       ) {
-        target_child = this.children[i];
+        targetchild = this.children[i];
         break;
       }
     }
 
-    this.insertBefore(visual_child, target_child ? target_child : null);
+    this.insertBefore(visualchild, targetchild ? targetchild : null);
 
-    this.update_item(new_lpi);
+    this.update_item(newLPI);
   }
 
-  remove_item (old_lpi: FileExplorerLazyPathItem) {
-    let visual_child = this.fe_children.get(old_lpi.name);
-    if (!visual_child) return;
-    console.debug('Deleting Visual Child:', visual_child);
-    this.fe_children.delete(old_lpi.name);
-    this.fe_visual_to_model.delete(visual_child);
-    this.removeChild(visual_child);
+  remove_item (oldLPI: FileExplorerLazyPathItem) {
+    const visualchild = this.feChildren.get(oldLPI.name);
+    if (!visualchild) return;
+    console.debug('Deleting Visual Child:', visualchild);
+    this.feChildren.delete(oldLPI.name);
+    this.mapFEvisualToModel.delete(visualchild);
+    this.removeChild(visualchild);
   }
 
-  update_item (target_lpi: FileExplorerLazyPathItem) {
-    let visual_child = this.fe_children.get(target_lpi.name);
-    if (! visual_child) {
-      throw Error('No such child: ' + target_lpi.name);
+  update_item (targetLPI: FileExplorerLazyPathItem) {
+    const visualchild = this.feChildren.get(targetLPI.name);
+    if (! visualchild) {
+      throw Error('No such child: ' + targetLPI.name);
     }
     // update the git information on the child:
     if (
-      target_lpi.gitrepo !== undefined &&
-      target_lpi.gitrepo.path !== undefined
+      targetLPI.gitrepo !== undefined &&
+      targetLPI.gitrepo.path !== undefined
     ) {
       setElementGitStatusClasses(
-        visual_child,
+        visualchild,
         git.status({
-          "dir": target_lpi.gitrepo.path.toString(),
-          "filepath": PATH.relative(target_lpi.gitrepo.path.toString(), target_lpi.path.toString())
+          "dir": targetLPI.gitrepo.path.toString(),
+          "filepath": PATH.relative(targetLPI.gitrepo.path.toString(), targetLPI.path.toString())
         })
-      );
+      )
+      .catch((reason) => {
+        console.error('Could not update git status for lpi:', targetLPI, reason);
+      });
     }
   }
 
@@ -178,14 +197,25 @@ export class FileExplorerDirView extends HTMLOListElement {
     if (this.dirItem === undefined) {
       return new Promise(resolve => resolve());
     }
-    this.dirItem.update();
+    this.dirItem.update()
+    .catch((reason) => {
+      console.error('FileExplorerDirView update failed to update dirItem:', this.dirItem, reason);
+    });
     if (this.dirItem.state === FileExplorerLazyPathItemMode.active) {
       this.classList.add("expanded");
       this.classList.remove("collapsed");
-      this.fe_visual_to_model.forEach((lpi, key) => {
+      this.mapFEvisualToModel.forEach((lpi, key) => {
         lpi.update().then(() => {
-          if ((key as FileExplorerDirView).update) (key as FileExplorerDirView).update();
+          if ((key as FileExplorerDirView).update) {
+            (key as FileExplorerDirView).update()
+            .catch((reason) => {
+              console.error('Could not update', key, reason);
+            });
+          }
           this.update_item(lpi);
+        })
+        .catch((reason) => {
+          console.error('FileExplorer LPI update fail:', lpi, reason);
         });
       });
     } else {
@@ -194,11 +224,15 @@ export class FileExplorerDirView extends HTMLOListElement {
     }
     if (this.dirItem.gitrepo) {
       // b/c typescript thinks dirItem could be undef??
-      const scope_pass_dirItem = this.dirItem;
-      this.dirItem.gitrepo.current().then((branchresult) => {
-        this.fe_dropdown_name.innerHTML = scope_pass_dirItem.name + (
+      const scopePassDirItem = this.dirItem;
+      this.dirItem.gitrepo.current()
+      .then((branchresult) => {
+        this.feDropdownNameElement.innerHTML = scopePassDirItem.name + (
           branchresult ? (" [" + branchresult + "]") : ""
         );
+      })
+      .catch((reason) => {
+        console.warn('Could not get a branch name from repo:', this.dirItem!.gitrepo, reason);
       });
     }
     return new Promise(resolve => resolve());
