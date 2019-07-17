@@ -9,8 +9,9 @@ export class Repository {
 
   repoName: string;
   private branchCache: Map<string, PathLike> = new Map(); // branch => cached repo root path
-  private Ready: Promise<void>;
+  Ready: Promise<void>;
   private rootPath: PathLike | undefined;
+  get path () { return this.rootPath };
   private rootBranch: string | undefined;
   private cachePath: PathLike | undefined;
 

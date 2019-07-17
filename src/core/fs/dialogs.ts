@@ -1,4 +1,5 @@
 import * as io from './io';
+import * as fs from 'fs-extra';
 import * as filetypes from './filetypes';
 import { remote, OpenDialogOptions, SaveDialogOptions } from 'electron';
 import { handlerToCard } from './io-handler';
@@ -10,13 +11,18 @@ export function openCardDialog(options: OpenDialogOptions): void {
     (filenames: string[] | undefined) => {
       if (filenames === undefined) return;
       filenames.map(filename => {
-        filetypes.searchExt(io.extname(filename))
-          .then(result => {
-            if (result !== undefined) {
-              handlerToCard(result.handler, filename);
-            }
-          })
-          .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
+        if (fs.statSync(filename).isDirectory()) {
+          handlerToCard('FileExplorer', filename);
+        }
+        else {
+          filetypes.searchExt(io.extname(filename))
+            .then(result => {
+              if (result !== undefined) {
+                handlerToCard(result.handler, filename);
+              }
+            })
+            .catch(error => new Dialog('snackbar', 'Open Card Dialog Error', error.message));
+        }
       });
     });
 }

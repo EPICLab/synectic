@@ -46,6 +46,14 @@ const webpackConfig = {
         }
       },
       {
+        test: /\.(ttf)$/i,
+        loader: 'file-loader',
+        query: {
+          name: '[name].[ext]',
+          outputPath: 'font/'
+        }
+      },
+      {
         test: require.resolve('jquery'),
         use: [{
           loader: 'expose-loader',
