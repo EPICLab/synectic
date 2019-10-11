@@ -1,81 +1,81 @@
 {
   "name": "synectic",
-  "version": "0.8.0",
-  "full_name": "Synectic IDE",
-  "description": "Research IDE for examining context-centric, problem-solving in development tools.",
-  "main": "main.js",
+  "productName": "synectic",
+  "version": "1.0.0",
+  "description": "My Electron application description",
+  "main": ".webpack/main",
   "scripts": {
-    "check": "npm-check --no-emoji -s -u",
-    "clean": "rimraf dist/* release/*",
-    "compile": "webpack --mode production",
-    "prestart": "npm run compile",
-    "start": "electron ./dist/main.js",
-    "prelint": "npm run clean",
-    "lint": "tslint --force -c tslint.json -p tsconfig.json -t stylish",
-    "pretest": "webpack --mode development --config webpack.test.config.js",
-    "test": "electron-mocha --renderer dist/**/*.spec.js",
-    "xtest": "mocha -u bdd -r ts-node/register -r ignore-styles -r jsdom-global/register test/*.spec.ts",
-    "posttest": "rimraf 'dist/**/*.spec.{js,js.map}'"
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/SarmaResearch/synectic.git"
+  "keywords": [],
+  "author": {
+    "name": "Nicholas Nelson",
+    "email": "nelsonni@oregonstate.edu"
   },
-  "keywords": [
-    "integrated-development-environment",
-    "research-project",
-    "cognitive",
-    "cards"
-  ],
-  "author": "Nicholas Nelson <nelsonni@oregonstate.edu>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/SarmaResearch/synectic/issues"
-  },
-  "homepage": "https://github.com/SarmaResearch/synectic#readme",
-  "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/jsdom": "^12.2.1",
-    "@types/luxon": "^1.4.2",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.18",
-    "@types/uuid": "^3.4.4",
-    "brace": "^0.11.1",
-    "chai": "^4.2.0",
-    "css-loader": "^2.1.0",
-    "electron": "^4.0.1",
-    "electron-mocha": "^6.0.4",
-    "expose-loader": "^0.7.5",
-    "fast-diff": "^1.2.0",
-    "file-loader": "^3.0.1",
-    "html-loader": "^0.5.5",
-    "html-webpack-plugin": "^3.2.0",
-    "ignore-styles": "^5.0.1",
-    "isomorphic-git": "^0.51.6",
-    "jsdom": "^13.1.0",
-    "jsdom-global": "^3.0.2",
-    "luxon": "^1.10.0",
-    "mini-css-extract-plugin": "^0.5.0",
-    "npm-check": "^5.9.0",
-    "rimraf": "^2.6.3",
-    "ts-loader": "^5.3.3",
-    "ts-mockito": "^2.3.1",
-    "ts-node": "^8.0.1",
-    "tslint": "^5.12.1",
-    "tslint-config-standard": "^8.0.1",
-    "tslint-no-unused-expression-chai": "^0.1.4",
-    "typescript": "^3.2.4",
-    "uuid": "^3.3.2",
-    "webpack": "^4.29.0",
-    "webpack-command": "^0.4.2",
-    "webpack-glob-entries": "^1.0.1"
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "synectic"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/index.html",
+                  "js": "./src/renderer.js",
+                  "name": "main_window"
+                }
+              ]
+            }
+          }
+        ]
+      ]
+    }
   },
   "dependencies": {
-    "@types/fs-extra": "^5.0.4",
-    "@types/jquery": "^3.3.29",
-    "@types/jqueryui": "^1.12.6",
-    "fs-extra": "^7.0.1",
-    "jquery": "^3.3.1",
-    "jquery-ui": "^1.12.1"
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.45",
+    "@electron-forge/maker-deb": "^6.0.0-beta.45",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.45",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.45",
+    "@electron-forge/maker-zip": "^6.0.0-beta.45",
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.45",
+    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "css-loader": "^3.2.0",
+    "electron": "6.0.12",
+    "node-loader": "^0.6.0",
+    "style-loader": "^0.23.1"
   }
 }
