@@ -1,0 +1,5 @@
+# ignore all project config files
+*.config.js
+
+# ignore all webpack config files
+webpack.*.js

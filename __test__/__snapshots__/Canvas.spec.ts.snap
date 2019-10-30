@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Canvas testing snapshots match 1`] = `
+Object {
+  "foo": Object {
+    "x": 2,
+    "y": 2,
+  },
+}
+`;

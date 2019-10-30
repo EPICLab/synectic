@@ -3,20 +3,37 @@ node_js:
   - node
   - 8
 os:
-  - osx
   - linux
+  - osx
+dist: xenial
+osx_image: xcode10.1
 env:
   - TARGET_ARCH=x64
+
+cache:
+  npm: true
+  directories:
+  - $HOME/.cache/electron
+
+addons:
+  apt:
+    packages:
+    - fakeroot
+    - rpm
+
+branches:
+  only:
+  - master
+  - /^v\d+\.\d+\.\d+/
+
 before_install:
   - export DISPLAY=:99.0
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 install:
-  - npm install --no-progress
+- yarn install
+- yarn upgrade
+
 script:
-  - npm test
-branches:
-  only:
-    - master
-    - development
-notifications:
-  email: false
+- yarn lint
+- if test -z "$TRAVIS_TAG"; then yarn make; fi
+after_success: if test -n "$TRAVIS_TAG"; then yarn publish; fi

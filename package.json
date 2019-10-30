@@ -2,14 +2,16 @@
   "name": "synectic",
   "productName": "synectic",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Research prototype IDE designed for human cognition and spatial interactions.",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test": "jest",
+    "clean": "rimraf out/ .webpack/ src/**/*.css.d.ts"
   },
   "keywords": [],
   "author": {
@@ -19,12 +21,21 @@
   "license": "MIT",
   "config": {
     "forge": {
+      "electronPackagerConfig": {
+        "packageManager": "yarn"
+      },
       "packagerConfig": {},
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "synectic"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "config": {
+            "format": "ULFO"
           }
         },
         {
@@ -52,7 +63,7 @@
               "entryPoints": [
                 {
                   "html": "./src/index.html",
-                  "js": "./src/renderer.js",
+                  "js": "./src/app.tsx",
                   "name": "main_window"
                 }
               ]
@@ -63,19 +74,53 @@
     }
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
+    "@material-ui/core": "^4.5.1",
+    "@types/react": "^16.9.9",
+    "@types/react-dom": "^16.9.2",
+    "electron-squirrel-startup": "^1.0.0",
+    "react": "^16.10.2",
+    "react-dnd": "^9.4.0",
+    "react-dnd-html5-backend": "^9.4.0",
+    "react-dom": "^16.10.2",
+    "react-hot-loader": "^4.12.15"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.45",
-    "@electron-forge/maker-deb": "^6.0.0-beta.45",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.45",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.45",
-    "@electron-forge/maker-zip": "^6.0.0-beta.45",
-    "@electron-forge/plugin-webpack": "^6.0.0-beta.45",
+    "@electron-forge/cli": "6.0.0-beta.45",
+    "@electron-forge/maker-deb": "6.0.0-beta.45",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.45",
+    "@electron-forge/maker-rpm": "6.0.0-beta.45",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.45",
+    "@electron-forge/maker-zip": "6.0.0-beta.45",
+    "@electron-forge/plugin-webpack": "6.0.0-beta.45",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
-    "css-loader": "^3.2.0",
+    "@types/enzyme": "^3.10.3",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/jest": "^24.0.19",
+    "@typescript-eslint/eslint-plugin": "^2.4.0",
+    "@typescript-eslint/parser": "^2.4.0",
+    "css-loader": "^3.0.0",
+    "css-modules-typescript-loader": "^3.0.1",
     "electron": "6.0.12",
+    "electron-devtools-installer": "^2.2.4",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.15.1",
+    "enzyme-to-json": "^3.4.3",
+    "eslint": "^6.5.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^22.19.0",
+    "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-react-hooks": "^2.1.2",
+    "file-loader": "^4.2.0",
+    "fork-ts-checker-webpack-plugin": "^1.5.1",
+    "jest": "^24.9.0",
+    "jest-environment-enzyme": "^7.1.1",
+    "jest-enzyme": "^7.1.1",
     "node-loader": "^0.6.0",
-    "style-loader": "^0.23.1"
+    "rimraf": "^3.0.0",
+    "style-loader": "^0.23.1",
+    "ts-jest": "^24.1.0",
+    "ts-loader": "^6.2.0",
+    "typescript": "^3.6.4",
+    "webpack": "^4.41.2"
   }
 }

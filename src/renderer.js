@@ -28,4 +28,5 @@
 
 import './index.css';
 
+// eslint-disable-next-line no-undef
 console.log('👋 This message is being logged by "renderer.js", included via webpack');

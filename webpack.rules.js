@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = [
   // Add support for native node modules
   {
@@ -22,6 +24,17 @@ module.exports = [
       options: {
         transpileOnly: true
       }
+    }]
+  },
+  {
+    test: /\.js$/,
+    loaders: ['react-hot-loader/webpack'],
+    include: path.join(__dirname, '/src')
+  },
+  {
+    test: /\.(png|jpe?g|gif)$/i,
+    use: [{
+      loader: 'file-loader'
     }]
   }
 ];
