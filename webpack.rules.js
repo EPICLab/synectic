@@ -32,7 +32,7 @@ module.exports = [
     include: path.join(__dirname, '/src')
   },
   {
-    test: /\.(png|jpe?g|gif)$/i,
+    test: /\.(png|jpe?g|gif|svg)$/i,
     use: [{
       loader: 'file-loader'
     }]

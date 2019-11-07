@@ -14,7 +14,7 @@ describe('Welcome', () => {
   it(`testing snapshots match`, () => {
     const bar = {
       foo: {
-        x: 2,
+        x: 1,
         y: 2
       },
     };

@@ -8,6 +8,7 @@ const style: React.CSSProperties = {
   marginBottom: '0.5rem',
   backgroundColor: 'white',
   width: '20rem',
+  position: 'relative'
 }
 
 const handleStyle: React.CSSProperties = {

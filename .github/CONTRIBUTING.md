@@ -48,6 +48,7 @@ Several sections of the Synectic API include advanced TypeScript and React featu
 * [YouTube: React Today and Tomorrow and 90% Cleaner React With Hooks](https://www.youtube.com/watch?v=dpw9EHDh2bM)
 * [React: Refs and the DOM](https://reactjs.org/docs/refs-and-the-dom.html)
 * [React: Building Your Own Hooks](https://reactjs.org/docs/hooks-custom.html)
+* [React Higher-Order Components in TypeScript](https://medium.com/@jrwebdev/react-higher-order-component-patterns-in-typescript-42278f7590fb)
 * [Unit Testing using Jest with TypeScript](https://basarat.gitbooks.io/typescript/docs/testing/jest.html)
 * [Testing TypeScript with Jest](https://rjzaworski.com/2016/12/testing-typescript-with-jest)
 * [Tutorial: TypeScript, React, and Redux](https://rjzaworski.com/2016/08/typescript-redux-and-react)

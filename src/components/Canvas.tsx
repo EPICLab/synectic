@@ -1,32 +1,37 @@
 import './style.css';
 import React, { useState, ReactNode } from 'react';
 import Button from '@material-ui/core/Button';
-import Card, { CardProps } from './Card';
+import Card from './Card';
 
 export type CanvasProps = {
   children?: ReactNode;
 }
 
-const names = ['Bob', 'Sally', 'Billy', 'Jeanette', 'Ralph'];
+const names = ['Henry', 'Bob', 'Sally', 'Billy', 'Jeanette', 'Ralph'];
 
 const Canvas: React.FunctionComponent<CanvasProps> = (props: CanvasProps) => {
-  const [cards, setCards] = useState<CardProps[]>([{ id: 1, name: 'Henry', offset: 0 }]);
+  const [cards, setCards] = useState([1]);
+  // const [cards, setCards] = useState<CardProps[]>([{ id: 1, name: 'Henry', offset: 0 }]);
 
   function createNewCard() {
-    const newCards = [...cards];
-    const newCard: CardProps = { id: cards.length + 1, name: names[cards.length], offset: (cards.length + 1) * 10 };
-    newCards.push(newCard);
-    setCards(newCards);
+    setCards([...cards, cards.length + 1]);
   }
+
+  //   {
+  //     cards.map(idx => {
+  //       return (<Card key={idx} props={id: idx, name: names[idx], offset: idx * 10
+  //     } />);
+  //       })
+  // }
 
   return (
     <div className='canvas' >
       <Button variant="contained" color="primary" onClick={() => createNewCard()}>New Card...</Button>
       <Button variant="contained" color="primary" onClick={() => console.log(cards)}>Display Cards...</Button>
-      {cards.map(c => {
-        return (<Card key={c.id} id={c.id} name={c.name} offset={c.offset} />);
-      })}
       {props.children}
+      {cards.map(idx => {
+        return (<Card key={idx} name={names[idx]} offset={idx * 10} />);
+      })}
     </div>
   );
 }

@@ -3,30 +3,28 @@ import ReactDOM from 'react-dom';
 import { DndProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import Example from './components/Example';
-import Canvas from './components/Canvas';
+import Canvas from './presentational-components/Canvas';
+import UserList from './components/UserList';
+import { DateTime } from 'luxon';
+import './components/style.css';
 
-const App = (): JSX.Element => (
-  <DndProvider backend={HTML5Backend}>
-    <React.Fragment>
-      <Canvas>
-        <Example />
-      </Canvas>
-    </React.Fragment>
-  </DndProvider>
-);
+const App = (): JSX.Element => {
+  const users = [
+    { name: 'bob', modified: DateTime.local(), onClick: () => console.log('name: bob'), selected: false },
+    { name: 'sally', modified: DateTime.local(), onClick: () => console.log('name: sally'), selected: false }
+  ]
+
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <React.Fragment>
+        <Canvas>
+          <UserList users={users}></UserList>
+          <Example />
+        </Canvas>
+      </React.Fragment>
+    </DndProvider>
+  )
+};
 
 const rootElement = document.getElementById('root');
 ReactDOM.render(<App />, rootElement);
-
-/**
-import { CanvasComponent } from './components/Canvas';
-import Button from '@material-ui/core/Button';
-import { CheckboxWithLabel } from './checkboxWithLabel';
-import Draggable from './components/Draggable';
- *
- *
-<Button variant="contained" color="primary" onClick={(): void => console.log(`Clicked...`)}>
-  Select...
-</Button>
-Reactor: <CheckboxWithLabel labelOn="Enabled" labelOff="Disabled"></CheckboxWithLabel>
- */

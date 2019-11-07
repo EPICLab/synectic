@@ -58,6 +58,7 @@ module.exports = {
     /**
      * @description Rules of eslint-plugin-react
      */
+    "react/prop-types": [0], // disabled checks for PropTypes blocks: https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prop-types.md
     "react/jsx-filename-extension": ["warn", {
       "extensions": [".jsx", ".tsx"]
     }],
