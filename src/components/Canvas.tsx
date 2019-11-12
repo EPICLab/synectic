@@ -1,4 +1,4 @@
-import './style.css';
+import '../assets/style.css';
 import React, { useState, ReactNode } from 'react';
 import Button from '@material-ui/core/Button';
 import Card from './Card';

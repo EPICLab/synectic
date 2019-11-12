@@ -1,4 +1,4 @@
-import './style.css';
+import '../assets/style.css';
 import React, { ReactNode } from 'react';
 import { v4 } from 'uuid';
 // eslint-disable-next-line import/named

@@ -6,7 +6,7 @@ import Example from './components/Example';
 import Canvas from './presentational-components/Canvas';
 import UserList from './components/UserList';
 import { DateTime } from 'luxon';
-import './components/style.css';
+import './assets/style.css';
 
 const App = (): JSX.Element => {
   const users = [

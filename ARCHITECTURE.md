@@ -6,7 +6,7 @@ The configuration of the Synectic project structure is inspired by a detailed bl
 
 [Electron](https://electronjs.org/) is an open-source framework developed and maintained by GitHub. Electron combines the Chromium rendering engine and Node.js runtime in order to provide a desktop GUI application using web technologies.
 
-Synectic uses [`electron-forge`](https://www.electronforge.io/) as the scaffolding for providing a base [Node.js](https://nodejs.org/en/about/) solution and a ready-to-run Electron application.
+Synectic uses [`electron-forge`](https://www.electronforge.io/) as the scaffolding for providing a base [Node.js](https://nodejs.org/en/about/) solution and a ready-to-run Electron application. Under the hood, this project uses [`electron-rebuild`](https://github.com/electron/electron-rebuild) to automatically recompile native Node.js modules against the correct Electron version, and [`electron-packager`](https://github.com/electron/electron-packager) for customizing and bundling Electron apps to get them ready for distribution.
 
 The [`electron-devtools-installer`](https://github.com/MarshallOfSound/electron-devtools-installer) module ensures that the Chrome DevTools extension is loaded into Electron.
 
@@ -23,6 +23,10 @@ The [`electron-devtools-installer`](https://github.com/MarshallOfSound/electron-
   * `@electron-forge/plugin-webpack`
   * `@marshallofsound/webpack-asset-relocator-loader`
   * `electron-devtools-installer`
+
+**Configuration:**
+
+Synectic adheres to the configuration instructions of [Electron-Forge](https://www.electronforge.io/configuration) for the `forge.config.js` file, which specifically indicate that the `packagerConfig` options map directly to the options sent to `electron-packager` (and are documented in the [Electron Packager API docs](https://github.com/electron-userland/electron-packager/blob/master/docs/api.md)), and the `electronPackagerConfig` options map directly to the options sent to `electron-rebuild` (and are documented in the [Electron Rebuild API docs](https://github.com/electron/electron-rebuild#how-can-i-integrate-this-into-grunt--gulp--whatever)).
 
 # Webpack
 

@@ -1,10 +1,11 @@
 import React from 'react';
 // eslint-disable-next-line import/named
 import { DropTarget, ConnectDropTarget, DropTargetMonitor, XYCoord } from 'react-dnd';
-import Card from './card/Card';
+import Card from './Card';
 import update from 'immutability-helper';
 import ItemTypes from '../components/ItemTypes';
 import Button from '@material-ui/core/Button';
+import openFileDialog from '../container-components/FileOpen';
 
 type CanvasProps = {
   connectDropTarget: ConnectDropTarget;
@@ -36,7 +37,7 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
     return connectDropTarget(
       <div className='canvas'>
         <Button variant="contained" color="primary" onClick={() => this.createNewCard}>New Card...</Button>
-        <Button variant="contained" color="primary" onClick={() => console.log(this.state.cards)}>Display Cards...</Button>
+        <Button variant="contained" color="primary" onClick={() => openFileDialog({})}>Open...</Button>
         {Object.keys(cards).map(key => {
           const { left, top, title } = cards[key];
           console.log(`card: ${title}`);

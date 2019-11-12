@@ -27,14 +27,21 @@ module.exports = [
     }]
   },
   {
-    test: /\.js$/,
+    test: /\.jsx?$/,
     loaders: ['react-hot-loader/webpack'],
     include: path.join(__dirname, '/src')
   },
   {
-    test: /\.(png|jpe?g|gif|svg)$/i,
+    test: /\.(png|jpe?g|gif|svg|ico|icns)$/i,
     use: [{
-      loader: 'file-loader'
+      loader: 'file-loader',
+      options: {
+        // Electron-Forge requires these options for packaging static assets with correct paths, solution found here:
+        // https://github.com/electron-userland/electron-forge/issues/1196
+        name: '[path][name].[ext]',
+        publicPath: '..', // move up from 'main_window'
+        context: 'src' // set relative working folder to src
+      }
     }]
   }
 ];

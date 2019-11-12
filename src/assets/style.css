@@ -4,7 +4,7 @@ body {
 }
 
 .canvas {
-  background: url('../../assets/canvas.png') center/auto fixed;
+  background: url('canvas.png') center/auto fixed;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -75,14 +75,20 @@ body {
   z-index: 9999;
 }
 
+.editor {
+  border-radius: 0 0 10px 10px;
+  position: absolute;
+  bottom: 0;
+}
+
 button.close {
-  background: url('../../assets/close_dark.svg');
+  background: url('close_dark.svg');
   background-size: cover;
 }
 
 button.close:hover,
 button.close:active {
-  background: url('../../assets/close_active.svg');
+  background: url('close_active.svg');
   background-size: cover;
   cursor: pointer;
 }

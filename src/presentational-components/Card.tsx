@@ -3,9 +3,9 @@ import { v4 } from 'uuid';
 // eslint-disable-next-line import/named
 import { ConnectDragSource, DragSource } from 'react-dnd';
 
-import ItemTypes from '../../components/ItemTypes';
+import ItemTypes from '../components/ItemTypes';
 import Header from './Header';
-import { Editor } from './Editor';
+import Editor from './Editor';
 
 export type CardProps = {
   id: string;
@@ -30,9 +30,8 @@ const Card: React.FunctionComponent<CardProps> = props => {
       <Header title='test.js'>
         <button className='close' onClick={() => setHiddenState(!isHidden)} />
       </Header>
-      <Editor />
+      <Editor uuid={uuid} code={'// sample code goes here...'} />
       {props.children}
-      UUID: {uuid}
     </div>
   );
 }
