@@ -91,7 +91,7 @@ Synectic has the following `CompilerOptions` set in `tsconfig.json`:
 
 The [`react-dnd`](https://react-dnd.github.io/react-dnd/) module provides a drag and drop library that works with React components and resembles the [Redux](https://github.com/reactjs/react-redux) architecture. The [`react-dnd-html5-backend`](https://react-dnd.github.io/react-dnd/docs/backends/html5) module adds a backend to React-DnD, and uses the [HTML5 drag and drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) under the hood to provide a widely supported base and hide some of [the quirks](http://quirksmode.org/blog/archives/2009/09/the_html5_drag.html).
 
-Synectic uses React for user interface components and integrates those components into Electron using the [`react-dom`](https://reactjs.org/docs/react-dom.html) package, which provides DOM-specific methods that can be used at the top level of an app in order to execute outside of the React model. The [`react-dnd`](https://react-dnd.github.io/react-dnd/) and [`react-dnd-html5-backend`](https://react-dnd.github.io/react-dnd/docs/backends/html5) packages provide drag and drop interactions between React components within Synectic.
+Synectic uses React for user interface components and integrates those components into Electron using the [`react-dom`](https://reactjs.org/docs/react-dom.html) package, which provides DOM-specific methods that can be used at the top level of an app in order to execute outside of the React model. The [`react-dnd`](https://react-dnd.github.io/react-dnd/) and [`react-dnd-html5-backend`](https://react-dnd.github.io/react-dnd/docs/backends/html5) packages provide drag and drop interactions between React components within Synectic. The [`react-dnd-test-backend`](https://react-dnd.github.io/react-dnd/docs/backends/test) package is a mock backend for testing React DnD apps without the DOM.
 
 The [`react-hot-loader`](https://gaearon.github.io/react-hot-loader/) module is a plugin that allows React components to be live reloaded without the loss of state. It works with Webpack and other bundlers that support Hot Module Replacement (HMR) and Babel plugins. The `react-hot-loader` module is installed as a regular dependency (instead of a dev dependency) since the plugin automatically ensures it is not executed in production and the footprint is minimal.
 
@@ -104,6 +104,8 @@ The [`react-hot-loader`](https://gaearon.github.io/react-hot-loader/) module is 
   * `react-dnd-html5-backend`
   * `react-dom`
   * `react-hot-loader`
+* *`devDependencies`*
+  * `react-dnd-test-backend`
 
 # Redux
 
@@ -227,4 +229,6 @@ Synectic has the following [Jest](#Jest) and [Enzyme](#Enzyme) options set in `j
 | `preset` | `ts-jest` | All TypeScript files (`.ts` and `.tsx`) will be handled by `ts-jest`; JavaScript files are not processed |
 | `roots` | `['<rootDir>/__test__']` | Jest will only search for test files in the `__test__` directory |
 | `snapshotSerializers` | `['enzyme-to-json/serializer']` | Enables the `enzyme-to-json` for serializing all Jest snapshots |
-| `moduleNameMapper` | `{"\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": '<rootDir>/__mocks__/fileMock.js', "\\.(css|less)$": 'identity-obj-proxy'}` | Mocks all static assets (e.g. stylesheets and images), and uses a mocked CSS proxy for CSS Modules via [`identity-obj-proxy`](https://jestjs.io/docs/en/webpack#mocking-css-modules) during testing |
+| `moduleNameMapper` | `{"\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": '<rootDir>/__mocks__/fileMock.js'}` | Use a mocked CSS proxy for CSS Modules via [`identity-obj-proxy`](https://jestjs.io/docs/en/webpack#mocking-css-modules) during testing |
+| `moduleNameMapper` | `{"\\.(css|less)$": 'identity-obj-proxy'}` | Mocks all static assets (e.g. stylesheets and images) during testing |
+| `moduleNameMapper` | `{"^dnd-cores$": "dnd-core/dist/cjs", "^react-dnd$": "react-dnd/dist/cjs", "^react-dnd-html5-backend$": "react-dnd-html5-backend/dist/cjs", "^react-dnd-touch-backend$": "react-dnd-touch-backend/dist/cjs", "^react-dnd-test-backend$": "react-dnd-test-backend/dist/cjs", "^react-dnd-test-utils$": "react-dnd-test-uttils/dist/cjs"}` | Jest does not work well with ES Modules yet, but can use CommonJS builds for `react-dnd` libraries (per [React DnD testing docs](https://react-dnd.github.io/react-dnd/docs/testing)) |

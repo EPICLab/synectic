@@ -1,11 +1,14 @@
-// import React from 'react';
-// import { shallow } from 'enzyme';
-// import Card, { CardProps } from '../src/components/Card';
+import React from 'react';
+import { mount } from 'enzyme';
+import { wrapInTestContext } from './__mocks__/dndMock';
+import Card from '../src/components/Card';
 
-test('Card returns correct id number after instantiation', () => {
-  // const props: CardProps = { id: 1, name: 'test', offset: 3 };
-  // const card = shallow(<Card props={props}></Card>);
+describe('Card', () => {
+  const CardContext = wrapInTestContext(Card);
+  const ref = React.createRef();
+  const enzymeWrapper = mount(<><CardContext ref={ref} id='test' left={5} top={10} /></>);
 
-  // expect(card.hasClass('card')).toEqual(true);
-  expect(true).toEqual(true);
+  it('Card reflects props id (BAD TEST: Idiomatic unit tests focus on functionality, not implementation)', () => {
+    expect(enzymeWrapper.find('Card').prop('id')).toBe('test');
+  });
 });

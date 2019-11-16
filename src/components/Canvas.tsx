@@ -1,106 +1,90 @@
-import '../assets/style.css';
-import React, { useState, ReactNode } from 'react';
-import Button from '@material-ui/core/Button';
+import React from 'react';
+// eslint-disable-next-line import/named
+import { DropTarget, ConnectDropTarget, DropTargetMonitor, XYCoord } from 'react-dnd';
 import Card from './Card';
+import update from 'immutability-helper';
+import ItemTypes from '../old-components/ItemTypes';
+import Button from '@material-ui/core/Button';
+import openFileDialog from '../containers/openFiles';
 
 export type CanvasProps = {
-  children?: ReactNode;
+  connectDropTarget: ConnectDropTarget;
 }
 
-const names = ['Henry', 'Bob', 'Sally', 'Billy', 'Jeanette', 'Ralph'];
+export type CanvasState = {
+  cards: { [key: string]: { top: number; left: number; title: string } };
+}
 
-const Canvas: React.FunctionComponent<CanvasProps> = (props: CanvasProps) => {
-  const [cards, setCards] = useState([1]);
-  // const [cards, setCards] = useState<CardProps[]>([{ id: 1, name: 'Henry', offset: 0 }]);
+class Canvas extends React.Component<CanvasProps, CanvasState> {
 
-  function createNewCard() {
-    setCards([...cards, cards.length + 1]);
+  public state: CanvasState = {
+    cards: {
+      a: { top: 20, left: 80, title: 'Drag me around' },
+      b: { top: 180, left: 20, title: 'Drag me too' }
+    }
   }
 
-  //   {
-  //     cards.map(idx => {
-  //       return (<Card key={idx} props={id: idx, name: names[idx], offset: idx * 10
-  //     } />);
-  //       })
-  // }
+  public createNewCard() {
+    this.setState((state) => {
+      return { cards: { ...state.cards, ...{ c: { top: 300, left: 80, title: 'Extra card' } } } };
+    });
+  }
 
-  return (
-    <div className='canvas' >
-      <Button variant="contained" color="primary" onClick={() => createNewCard()}>New Card...</Button>
-      <Button variant="contained" color="primary" onClick={() => console.log(cards)}>Display Cards...</Button>
-      {props.children}
-      {cards.map(idx => {
-        return (<Card key={idx} name={names[idx]} offset={idx * 10} />);
-      })}
-    </div>
-  );
+  public render() {
+    const { connectDropTarget } = this.props;
+    const { cards } = this.state;
+
+    return connectDropTarget(
+      <div className='canvas'>
+        <Button variant="contained" color="primary" onClick={() => this.createNewCard}>New Card...</Button>
+        <Button variant="contained" color="primary" onClick={() => openFileDialog({ properties: ['openFile', 'multiSelections'] })}>Open File...</Button>
+        {Object.keys(cards).map(key => {
+          const { left, top, title } = cards[key];
+          console.log(`card: ${title}`);
+          return (
+            <Card key={key} id={key} left={left} top={top}>{title}</Card>
+          );
+        })}
+        {this.props.children}
+      </div>
+    )
+  }
+
+  public moveCard(id: string, left: number, top: number) {
+    this.setState(
+      update(this.state, {
+        cards: {
+          [id]: {
+            $merge: { left, top }
+          }
+        }
+      })
+    )
+  }
 }
 
-export default Canvas;
+export default DropTarget(
+  ItemTypes.CARD,
+  {
+    drop(
+      props: CanvasProps,
+      monitor: DropTargetMonitor,
+      component: Canvas | null
+    ) {
+      if (!component) {
+        return;
+      }
+      const item = monitor.getItem();
+      const delta = monitor.getDifferenceFromInitialOffset() as XYCoord;
+      const left = Math.round(item.left + delta.x);
+      const top = Math.round(item.top + delta.y);
 
-
-
-
-
-
-
-// // import React, { useState } from 'react';
-// import React from 'react';
-
-// interface Canvas {
-//   timerID: NodeJS.Timeout | undefined;
-//   date: Date;
-//   counter: number;
-// }
-
-
-// export class CanvasComponent extends React.Component<Canvas, {}> {
-
-//   constructor(props: Canvas) {
-//     super(props);
-//     this.state = { date: new Date(), counter: 0 };
-//   }
-
-//   componentDidMount() {
-//     this.timerID = setInterval(() => this.tick(), 1000);
-//   }
-
-//   componentWillUnmount() {
-//     if (this.timerID) clearInterval(this.timerID);
-//   }
-
-//   tick() {
-//     this.setState({ date: new Date() });
-//   }
-
-//   click() {
-//     this.setState((state: Readonly<{ date: Date; counter: number }>, props: Readonly<{ increment: number }>) => ({
-//       counter: state.counter + props.increment
-//     }));
-//   }
-
-//   render() {
-//     return (
-//       <div>
-//         <h1>Hello, world!</h1>
-//         <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
-//       </div>
-//     );
-//   }
-// }
-
-
-
-
-// // export function Canvas(): JSX.Element {
-// //   const [count, setCount] = useState(0);
-
-// //   return (
-// //     <div>
-// //       <p>You clicked {count} times</p>
-// //       <button onClick={() => setCount(count + 1)}>
-// //         Click me
-// //       </button>
-// //     </div>
-// //   )
-// // }
+      if (props.connectDropTarget !== undefined) console.log(`drop target found for: ${item.id}`);
+      component.moveCard(item.id, left, top);
+    }
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (connect: any) => ({
+    connectDropTarget: connect.dropTarget(),
+  })
+)(Canvas);

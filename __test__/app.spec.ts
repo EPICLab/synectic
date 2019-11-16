@@ -1,4 +1,4 @@
-import Welcome from '../src/components/welcome';
+import Welcome from '../src/old-components/welcome';
 
 describe('Welcome', () => {
   let instance: Welcome;

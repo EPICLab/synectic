@@ -1,71 +1,51 @@
-import '../assets/style.css';
-import React, { ReactNode } from 'react';
+import React, { useState } from 'react';
 import { v4 } from 'uuid';
 // eslint-disable-next-line import/named
-import { DragSource, ConnectDragSource, DragSourceSpec, DragSourceMonitor, DragSourceConnector } from 'react-dnd';
+import { ConnectDragSource, DragSource } from 'react-dnd';
 
-const Types = {
-  CARD: 'card',
-}
+import ItemTypes from '../old-components/ItemTypes';
+import Header from './Header';
+import Editor from './Editor';
 
-type CardSourceProps = {
-  uuid?: string;
-  name: string;
-  offset: number;
-  children?: ReactNode;
-  isDragging: boolean;
+export type CardProps = {
+  id: string;
+  left: number;
+  top: number;
+
+  // Collected Props
   connectDragSource: ConnectDragSource;
+  isDragging?: boolean;
 }
 
-export type CardSourceState = {
-  date: Date;
+const Card: React.FunctionComponent<CardProps> = props => {
+  const [uuid] = useState<string>(v4());
+  const [isHidden, setHiddenState] = useState(false);
+
+  if (props.isDragging || isHidden) {
+    return null;
+  }
+
+  return props.connectDragSource(
+    <div className='card' style={{ left: props.left, top: props.top }}>
+      <Header title='test.js'>
+        <button className='close' onClick={() => setHiddenState(!isHidden)} />
+      </Header>
+      <Editor uuid={uuid} code={'// sample code goes here...'} />
+      {props.children}
+    </div>
+  );
 }
 
-const cardSourceSpec: DragSourceSpec<CardSourceProps, { uuid: string | undefined }> = {
-  beginDrag: (props: CardSourceProps) => ({ uuid: props.uuid }),
-}
-
-const cardSourceCollector = (connect: DragSourceConnector, monitor: DragSourceMonitor) => {
-  return {
+export default DragSource(
+  ItemTypes.CARD,
+  {
+    beginDrag(props: CardProps) {
+      const { id, left, top } = props;
+      return { id, left, top };
+    }
+  },
+  (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
-  };
-};
-
-class Card extends React.Component<CardSourceProps, CardSourceState> {
-
-  uuid: string = v4();
-  timerID: NodeJS.Timeout | undefined;
-
-  constructor(props: CardSourceProps) {
-    super(props);
-    this.state = { date: new Date() };
-  }
-
-  componentDidMount() {
-    this.timerID = setInterval(() => this.tick(), 1000);
-  }
-
-  componentWillUnmount() {
-    if (this.timerID) {
-      clearInterval(this.timerID);
-    }
-  }
-
-  tick() {
-    const dt = new Date();
-    dt.setMinutes(dt.getMinutes() + this.props.offset);
-    this.setState({ date: dt });
-  }
-
-  render() {
-    return (
-      <div className='card'>{this.props.name}<br />
-        Current time:{this.state.date.toLocaleTimeString()}<br />
-        {this.props.isDragging && '[Currently dragging]'}
-        {this.props.children}
-      </div>);
-  }
-}
-
-export default DragSource(Types.CARD, cardSourceSpec, cardSourceCollector)(Card);
+  })
+)(Card);

@@ -11,7 +11,7 @@
     "publish": "electron-forge publish",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "jest",
-    "clean": "rimraf out/ .webpack/ src/**/*.css.d.ts"
+    "clean": "rimraf out/ .webpack/"
   },
   "keywords": [],
   "author": {
@@ -29,6 +29,7 @@
     "@types/react": "^16.9.9",
     "@types/react-dom": "^16.9.2",
     "electron-squirrel-startup": "^1.0.0",
+    "file-type": "^12.4.0",
     "fs-extra": "^8.1.0",
     "immutability-helper": "^3.0.1",
     "luxon": "^1.21.0",
@@ -53,6 +54,7 @@
     "@types/enzyme": "^3.10.3",
     "@types/enzyme-adapter-react-16": "^1.0.5",
     "@types/jest": "^24.0.19",
+    "@types/mock-fs": "^4.10.0",
     "@types/uuid": "^3.4.6",
     "@typescript-eslint/eslint-plugin": "^2.4.0",
     "@typescript-eslint/parser": "^2.4.0",
@@ -74,14 +76,16 @@
     "jest": "^24.9.0",
     "jest-environment-enzyme": "^7.1.1",
     "jest-enzyme": "^7.1.1",
+    "mock-fs": "^4.10.3",
     "node-loader": "^0.6.0",
+    "react-dnd-test-backend": "^9.4.0",
     "react-test-renderer": "^16.11.0",
     "redux-devtools": "^3.5.0",
     "rimraf": "^3.0.0",
     "style-loader": "^0.23.1",
     "ts-jest": "^24.1.0",
     "ts-loader": "^6.2.0",
-    "typescript": "^3.6.4",
+    "typescript": "^3.7.2",
     "uuid": "^3.3.3",
     "webpack": "^4.41.2"
   }

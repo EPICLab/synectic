@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { DndProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import Example from './components/Example';
-import Canvas from './presentational-components/Canvas';
-import UserList from './components/UserList';
+import Example from './old-components/Example';
+import Canvas from './components/Canvas';
+import UserList from './old-components/UserList';
 import { DateTime } from 'luxon';
 import './assets/style.css';
 
