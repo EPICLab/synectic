@@ -7,15 +7,18 @@ import ItemTypes from '../old-components/ItemTypes';
 import Header from './Header';
 import Editor from './Editor';
 
-export type CardProps = {
+type RequiredProps = {
   id: string;
   left: number;
   top: number;
+}
 
-  // Collected Props
+type CollectedProps = {
   connectDragSource: ConnectDragSource;
   isDragging?: boolean;
 }
+
+export type CardProps = RequiredProps & CollectedProps;
 
 const Card: React.FunctionComponent<CardProps> = props => {
   const [uuid] = useState<string>(v4());
@@ -36,7 +39,7 @@ const Card: React.FunctionComponent<CardProps> = props => {
   );
 }
 
-export default DragSource(
+export default DragSource<CardProps, CollectedProps, RequiredProps>(
   ItemTypes.CARD,
   {
     beginDrag(props: CardProps) {
