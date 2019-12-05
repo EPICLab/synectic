@@ -41,7 +41,8 @@
     "react-dom": "^16.10.2",
     "react-hot-loader": "^4.12.15",
     "react-redux": "^7.1.1",
-    "redux": "^4.0.4"
+    "redux": "^4.0.4",
+    "validator": "^12.1.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "6.0.0-beta.45",

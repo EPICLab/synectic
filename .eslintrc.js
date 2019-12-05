@@ -36,7 +36,7 @@ module.exports = {
     "import/core-modules": ["electron"], // https://github.com/benmosher/eslint-plugin-import/blob/master/README.md#importcore-modules
     "import/resolver": { // https://github.com/benmosher/eslint-plugin-import#resolvers
       node: {
-        extensions: [".js", ".jsx", ".ts", ".tsx"]
+        extensions: [".js", ".jsx", ".ts", ".d.ts", ".tsx"]
       }
     },
     "import/ignore": [".scss", ".less", ".css"], // eslint-plugin-import can't parse unprocessed CSS modules

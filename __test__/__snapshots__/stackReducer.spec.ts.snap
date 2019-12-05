@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`stackReducer stackReducer updates state of matched stack on action UPDATE_STACK 1`] = `
+Object {
+  "141": Object {
+    "cards": Array [
+      "32",
+      "14",
+    ],
+    "created": "2019-11-19T19:22:47.572-08:00",
+    "id": "141",
+    "left": 16,
+    "modified": "2019-11-19T19:22:47.572-08:00",
+    "name": "subtestStack",
+    "note": "A subset of our favorite API doc blocks.",
+    "top": 21,
+  },
+}
+`;
