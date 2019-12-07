@@ -15,6 +15,7 @@ export const CardComponent: React.FunctionComponent<Card> = props => {
       isDragging: !!monitor.isDragging()
     })
   });
+
   return <div className='card' ref={drag} style={{
     left: props.left,
     top: props.top,

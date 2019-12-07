@@ -1,20 +1,20 @@
 [
   {
-    "name": "ABAP",
+    "filetype": "ABAP",
     "handler": "Editor",
     "extensions": [
       "abap"
     ]
   },
   {
-    "name": "ActionScript",
+    "filetype": "ActionScript",
     "handler": "Editor",
     "extensions": [
       "as"
     ]
   },
   {
-    "name": "ADA",
+    "filetype": "ADA",
     "handler": "Editor",
     "extensions": [
       "ada",
@@ -22,7 +22,7 @@
     ]
   },
   {
-    "name": "Apache_Conf",
+    "filetype": "Apache_Conf",
     "handler": "Editor",
     "extensions": [
       ".htaccess",
@@ -35,7 +35,7 @@
     ]
   },
   {
-    "name": "AsciiDoc",
+    "filetype": "AsciiDoc",
     "handler": "Editor",
     "extensions": [
       "asciidoc",
@@ -43,7 +43,7 @@
     ]
   },
   {
-    "name": "Assembly_x86",
+    "filetype": "Assembly_x86",
     "handler": "Editor",
     "extensions": [
       "asm",
@@ -51,14 +51,14 @@
     ]
   },
   {
-    "name": "AutoHotKey",
+    "filetype": "AutoHotKey",
     "handler": "Editor",
     "extensions": [
       "ahk"
     ]
   },
   {
-    "name": "BatchFile",
+    "filetype": "BatchFile",
     "handler": "Editor",
     "extensions": [
       "bat",
@@ -66,14 +66,14 @@
     ]
   },
   {
-    "name": "Bro",
+    "filetype": "Bro",
     "handler": "Editor",
     "extensions": [
       "bro"
     ]
   },
   {
-    "name": "C_Cpp",
+    "filetype": "C_Cpp",
     "handler": "Editor",
     "extensions": [
       "cpp",
@@ -87,14 +87,14 @@
     ]
   },
   {
-    "name": "C9Search",
+    "filetype": "C9Search",
     "handler": "Editor",
     "extensions": [
       "c9search_results"
     ]
   },
   {
-    "name": "Cirru",
+    "filetype": "Cirru",
     "handler": "Editor",
     "extensions": [
       "cirru",
@@ -102,7 +102,7 @@
     ]
   },
   {
-    "name": "Clojure",
+    "filetype": "Clojure",
     "handler": "Editor",
     "extensions": [
       "clj",
@@ -110,7 +110,7 @@
     ]
   },
   {
-    "name": "Cobol",
+    "filetype": "Cobol",
     "handler": "Editor",
     "extensions": [
       "CBL",
@@ -118,7 +118,7 @@
     ]
   },
   {
-    "name": "coffee",
+    "filetype": "coffee",
     "handler": "Editor",
     "extensions": [
       "coffee",
@@ -128,56 +128,56 @@
     ]
   },
   {
-    "name": "ColdFusion",
+    "filetype": "ColdFusion",
     "handler": "Editor",
     "extensions": [
       "cfm"
     ]
   },
   {
-    "name": "CSharp",
+    "filetype": "CSharp",
     "handler": "Editor",
     "extensions": [
       "cs"
     ]
   },
   {
-    "name": "Csound_Document",
+    "filetype": "Csound_Document",
     "handler": "Editor",
     "extensions": [
       "csd"
     ]
   },
   {
-    "name": "Csound_Orchestra",
+    "filetype": "Csound_Orchestra",
     "handler": "Editor",
     "extensions": [
       "orc"
     ]
   },
   {
-    "name": "Csound_Score",
+    "filetype": "Csound_Score",
     "handler": "Editor",
     "extensions": [
       "sco"
     ]
   },
   {
-    "name": "CSS",
+    "filetype": "CSS",
     "handler": "Editor",
     "extensions": [
       "css"
     ]
   },
   {
-    "name": "Curly",
+    "filetype": "Curly",
     "handler": "Editor",
     "extensions": [
       "curly"
     ]
   },
   {
-    "name": "D",
+    "filetype": "D",
     "handler": "Editor",
     "extensions": [
       "d",
@@ -185,14 +185,14 @@
     ]
   },
   {
-    "name": "Dart",
+    "filetype": "Dart",
     "handler": "Editor",
     "extensions": [
       "dart"
     ]
   },
   {
-    "name": "Diff",
+    "filetype": "Diff",
     "handler": "Editor",
     "extensions": [
       "diff",
@@ -200,35 +200,35 @@
     ]
   },
   {
-    "name": "Dockerfile",
+    "filetype": "Dockerfile",
     "handler": "Editor",
     "extensions": [
       ".Dockerfile"
     ]
   },
   {
-    "name": "Dot",
+    "filetype": "Dot",
     "handler": "Editor",
     "extensions": [
       "dot"
     ]
   },
   {
-    "name": "Drools",
+    "filetype": "Drools",
     "handler": "Editor",
     "extensions": [
       "drl"
     ]
   },
   {
-    "name": "DummySyntax",
+    "filetype": "DummySyntax",
     "handler": "Editor",
     "extensions": [
       "dummy"
     ]
   },
   {
-    "name": "HTML",
+    "filetype": "HTML",
     "handler": "Editor",
     "extensions": [
       "html",
@@ -240,7 +240,7 @@
     ]
   },
   {
-    "name": "Eiffel",
+    "filetype": "Eiffel",
     "handler": "Editor",
     "extensions": [
       "e",
@@ -248,14 +248,14 @@
     ]
   },
   {
-    "name": "EJS",
+    "filetype": "EJS",
     "handler": "Editor",
     "extensions": [
       "ejs"
     ]
   },
   {
-    "name": "Elixir",
+    "filetype": "Elixir",
     "handler": "Editor",
     "extensions": [
       "ex",
@@ -263,14 +263,14 @@
     ]
   },
   {
-    "name": "Elm",
+    "filetype": "Elm",
     "handler": "Editor",
     "extensions": [
       "elm"
     ]
   },
   {
-    "name": "Erlang",
+    "filetype": "Erlang",
     "handler": "Editor",
     "extensions": [
       "erl",
@@ -278,7 +278,7 @@
     ]
   },
   {
-    "name": "Forth",
+    "filetype": "Forth",
     "handler": "Editor",
     "extensions": [
       "frt",
@@ -289,7 +289,7 @@
     ]
   },
   {
-    "name": "Fortran",
+    "filetype": "Fortran",
     "handler": "Editor",
     "extensions": [
       "f",
@@ -297,35 +297,35 @@
     ]
   },
   {
-    "name": "FTL",
+    "filetype": "FTL",
     "handler": "Editor",
     "extensions": [
       "ftl"
     ]
   },
   {
-    "name": "Gcode",
+    "filetype": "Gcode",
     "handler": "Editor",
     "extensions": [
       "gcode"
     ]
   },
   {
-    "name": "Gherkin",
+    "filetype": "Gherkin",
     "handler": "Editor",
     "extensions": [
       "feature"
     ]
   },
   {
-    "name": "Gitignore",
+    "filetype": "Gitignore",
     "handler": "Editor",
     "extensions": [
       ".gitignore"
     ]
   },
   {
-    "name": "Glsl",
+    "filetype": "Glsl",
     "handler": "Editor",
     "extensions": [
       "glsl",
@@ -334,42 +334,42 @@
     ]
   },
   {
-    "name": "Gobstones",
+    "filetype": "Gobstones",
     "handler": "Editor",
     "extensions": [
       "gbs"
     ]
   },
   {
-    "name": "go",
+    "filetype": "go",
     "handler": "Editor",
     "extensions": [
       "golang"
     ]
   },
   {
-    "name": "GraphQLSchema",
+    "filetype": "GraphQLSchema",
     "handler": "Editor",
     "extensions": [
       "gql"
     ]
   },
   {
-    "name": "Groovy",
+    "filetype": "Groovy",
     "handler": "Editor",
     "extensions": [
       "groovy"
     ]
   },
   {
-    "name": "HAML",
+    "filetype": "HAML",
     "handler": "Editor",
     "extensions": [
       "haml"
     ]
   },
   {
-    "name": "Handlebars",
+    "filetype": "Handlebars",
     "handler": "Editor",
     "extensions": [
       "hbs",
@@ -378,7 +378,7 @@
     ]
   },
   {
-    "name": "Smarty",
+    "filetype": "Smarty",
     "handler": "Editor",
     "extensions": [
       "tpl",
@@ -386,35 +386,35 @@
     ]
   },
   {
-    "name": "Haskell",
+    "filetype": "Haskell",
     "handler": "Editor",
     "extensions": [
       "hs"
     ]
   },
   {
-    "name": "Haskell_Cabal",
+    "filetype": "Haskell_Cabal",
     "handler": "Editor",
     "extensions": [
       "cabal"
     ]
   },
   {
-    "name": "haXe",
+    "filetype": "haXe",
     "handler": "Editor",
     "extensions": [
       "hx"
     ]
   },
   {
-    "name": "Hjson",
+    "filetype": "Hjson",
     "handler": "Editor",
     "extensions": [
       "hjson"
     ]
   },
   {
-    "name": "HTML_Elixir",
+    "filetype": "HTML_Elixir",
     "handler": "Editor",
     "extensions": [
       "eex",
@@ -422,7 +422,7 @@
     ]
   },
   {
-    "name": "HTML_Ruby",
+    "filetype": "HTML_Ruby",
     "handler": "Editor",
     "extensions": [
       "erb",
@@ -431,7 +431,7 @@
     ]
   },
   {
-    "name": "INI",
+    "filetype": "INI",
     "handler": "Editor",
     "extensions": [
       "ini",
@@ -441,21 +441,21 @@
     ]
   },
   {
-    "name": "Io",
+    "filetype": "Io",
     "handler": "Editor",
     "extensions": [
       "io"
     ]
   },
   {
-    "name": "Jack",
+    "filetype": "Jack",
     "handler": "Editor",
     "extensions": [
       "jack"
     ]
   },
   {
-    "name": "Jade",
+    "filetype": "Jade",
     "handler": "Editor",
     "extensions": [
       "jade",
@@ -463,14 +463,14 @@
     ]
   },
   {
-    "name": "Java",
+    "filetype": "Java",
     "handler": "Editor",
     "extensions": [
       "java"
     ]
   },
   {
-    "name": "JavaScript",
+    "filetype": "JavaScript",
     "handler": "Editor",
     "extensions": [
       "js",
@@ -478,35 +478,35 @@
     ]
   },
   {
-    "name": "JSX",
+    "filetype": "JSX",
     "handler": "Editor",
     "extensions": [
       "jsx"
     ]
   },
   {
-    "name": "JSON",
+    "filetype": "JSON",
     "handler": "Editor",
     "extensions": [
       "json"
     ]
   },
   {
-    "name": "JSONiq",
+    "filetype": "JSONiq",
     "handler": "Editor",
     "extensions": [
       "jq"
     ]
   },
   {
-    "name": "JSP",
+    "filetype": "JSP",
     "handler": "Editor",
     "extensions": [
       "jsp"
     ]
   },
   {
-    "name": "JSSM",
+    "filetype": "JSSM",
     "handler": "Editor",
     "extensions": [
       "jssm",
@@ -514,14 +514,14 @@
     ]
   },
   {
-    "name": "Julia",
+    "filetype": "Julia",
     "handler": "Editor",
     "extensions": [
       "jl"
     ]
   },
   {
-    "name": "Kotlin",
+    "filetype": "Kotlin",
     "handler": "Editor",
     "extensions": [
       "kt",
@@ -529,14 +529,14 @@
     ]
   },
   {
-    "name": "Tex",
+    "filetype": "Tex",
     "handler": "Editor",
     "extensions": [
       "tex"
     ]
   },
   {
-    "name": "LaTeX",
+    "filetype": "LaTeX",
     "handler": "Editor",
     "extensions": [
       "latex",
@@ -545,35 +545,35 @@
     ]
   },
   {
-    "name": "LESS",
+    "filetype": "LESS",
     "handler": "Editor",
     "extensions": [
       "less"
     ]
   },
   {
-    "name": "Liquid",
+    "filetype": "Liquid",
     "handler": "Editor",
     "extensions": [
       "liquid"
     ]
   },
   {
-    "name": "Lisp",
+    "filetype": "Lisp",
     "handler": "Editor",
     "extensions": [
       "lisp"
     ]
   },
   {
-    "name": "LiveScript",
+    "filetype": "LiveScript",
     "handler": "Editor",
     "extensions": [
       "ls"
     ]
   },
   {
-    "name": "LogiQL",
+    "filetype": "LogiQL",
     "handler": "Editor",
     "extensions": [
       "logic",
@@ -581,35 +581,35 @@
     ]
   },
   {
-    "name": "LSL",
+    "filetype": "LSL",
     "handler": "Editor",
     "extensions": [
       "lsl"
     ]
   },
   {
-    "name": "Lua",
+    "filetype": "Lua",
     "handler": "Editor",
     "extensions": [
       "lua"
     ]
   },
   {
-    "name": "LuaPage",
+    "filetype": "LuaPage",
     "handler": "Editor",
     "extensions": [
       "lp"
     ]
   },
   {
-    "name": "Lucene",
+    "filetype": "Lucene",
     "handler": "Editor",
     "extensions": [
       "lucene"
     ]
   },
   {
-    "name": "Makefile",
+    "filetype": "Makefile",
     "handler": "Editor",
     "extensions": [
       ".Makefile",
@@ -620,7 +620,7 @@
     ]
   },
   {
-    "name": "Markdown",
+    "filetype": "Markdown",
     "handler": "Editor",
     "extensions": [
       "md",
@@ -628,35 +628,35 @@
     ]
   },
   {
-    "name": "Mask",
+    "filetype": "Mask",
     "handler": "Editor",
     "extensions": [
       "mask"
     ]
   },
   {
-    "name": "MATLAB",
+    "filetype": "MATLAB",
     "handler": "Editor",
     "extensions": [
       "matlab"
     ]
   },
   {
-    "name": "Maze",
+    "filetype": "Maze",
     "handler": "Editor",
     "extensions": [
       "mz"
     ]
   },
   {
-    "name": "MEL",
+    "filetype": "MEL",
     "handler": "Editor",
     "extensions": [
       "mel"
     ]
   },
   {
-    "name": "MUSHCode",
+    "filetype": "MUSHCode",
     "handler": "Editor",
     "extensions": [
       "mc",
@@ -664,21 +664,21 @@
     ]
   },
   {
-    "name": "MySQL",
+    "filetype": "MySQL",
     "handler": "Editor",
     "extensions": [
       "mysql"
     ]
   },
   {
-    "name": "Nix",
+    "filetype": "Nix",
     "handler": "Editor",
     "extensions": [
       "nix"
     ]
   },
   {
-    "name": "NSIS",
+    "filetype": "NSIS",
     "handler": "Editor",
     "extensions": [
       "nsi",
@@ -686,7 +686,7 @@
     ]
   },
   {
-    "name": "ObjectiveC",
+    "filetype": "ObjectiveC",
     "handler": "Editor",
     "extensions": [
       "m",
@@ -694,7 +694,7 @@
     ]
   },
   {
-    "name": "OCaml",
+    "filetype": "OCaml",
     "handler": "Editor",
     "extensions": [
       "ml",
@@ -702,7 +702,7 @@
     ]
   },
   {
-    "name": "Pascal",
+    "filetype": "Pascal",
     "handler": "Editor",
     "extensions": [
       "pas",
@@ -710,7 +710,7 @@
     ]
   },
   {
-    "name": "Perl",
+    "filetype": "Perl",
     "handler": "Editor",
     "extensions": [
       "pl",
@@ -718,14 +718,14 @@
     ]
   },
   {
-    "name": "pgSQL",
+    "filetype": "pgSQL",
     "handler": "Editor",
     "extensions": [
       "pgsql"
     ]
   },
   {
-    "name": "PHP",
+    "filetype": "PHP",
     "handler": "Editor",
     "extensions": [
       "php",
@@ -742,21 +742,21 @@
     ]
   },
   {
-    "name": "Pig",
+    "filetype": "Pig",
     "handler": "Editor",
     "extensions": [
       "pig"
     ]
   },
   {
-    "name": "Powershell",
+    "filetype": "Powershell",
     "handler": "Editor",
     "extensions": [
       "ps1"
     ]
   },
   {
-    "name": "Praat",
+    "filetype": "Praat",
     "handler": "Editor",
     "extensions": [
       "praat",
@@ -766,7 +766,7 @@
     ]
   },
   {
-    "name": "Prolog",
+    "filetype": "Prolog",
     "handler": "Editor",
     "extensions": [
       "plg",
@@ -774,35 +774,35 @@
     ]
   },
   {
-    "name": "Properties",
+    "filetype": "Properties",
     "handler": "Editor",
     "extensions": [
       "properties"
     ]
   },
   {
-    "name": "Protobuf",
+    "filetype": "Protobuf",
     "handler": "Editor",
     "extensions": [
       "proto"
     ]
   },
   {
-    "name": "Python",
+    "filetype": "Python",
     "handler": "Editor",
     "extensions": [
       "py"
     ]
   },
   {
-    "name": "R",
+    "filetype": "R",
     "handler": "Editor",
     "extensions": [
       "r"
     ]
   },
   {
-    "name": "Razor",
+    "filetype": "Razor",
     "handler": "Editor",
     "extensions": [
       "cshtml",
@@ -810,14 +810,14 @@
     ]
   },
   {
-    "name": "Rdoc",
+    "filetype": "Rdoc",
     "handler": "Editor",
     "extensions": [
       "Rd"
     ]
   },
   {
-    "name": "Red",
+    "filetype": "Red",
     "handler": "Editor",
     "extensions": [
       "red",
@@ -825,21 +825,21 @@
     ]
   },
   {
-    "name": "RHTML",
+    "filetype": "RHTML",
     "handler": "Editor",
     "extensions": [
       "Rhtml"
     ]
   },
   {
-    "name": "RST",
+    "filetype": "RST",
     "handler": "Editor",
     "extensions": [
       "rst"
     ]
   },
   {
-    "name": "Ruby",
+    "filetype": "Ruby",
     "handler": "Editor",
     "extensions": [
       "rb",
@@ -852,35 +852,35 @@
     ]
   },
   {
-    "name": "Rust",
+    "filetype": "Rust",
     "handler": "Editor",
     "extensions": [
       "rs"
     ]
   },
   {
-    "name": "SASS",
+    "filetype": "SASS",
     "handler": "Editor",
     "extensions": [
       "sass"
     ]
   },
   {
-    "name": "SCAD",
+    "filetype": "SCAD",
     "handler": "Editor",
     "extensions": [
       "scad"
     ]
   },
   {
-    "name": "Scala",
+    "filetype": "Scala",
     "handler": "Editor",
     "extensions": [
       "scala"
     ]
   },
   {
-    "name": "Scheme",
+    "filetype": "Scheme",
     "handler": "Editor",
     "extensions": [
       "scm",
@@ -891,14 +891,14 @@
     ]
   },
   {
-    "name": "SCSS",
+    "filetype": "SCSS",
     "handler": "Editor",
     "extensions": [
       "scss"
     ]
   },
   {
-    "name": "SH",
+    "filetype": "SH",
     "handler": "Editor",
     "extensions": [
       "sh",
@@ -907,49 +907,49 @@
     ]
   },
   {
-    "name": "SJS",
+    "filetype": "SJS",
     "handler": "Editor",
     "extensions": [
       "sjs"
     ]
   },
   {
-    "name": "snippets",
+    "filetype": "snippets",
     "handler": "Editor",
     "extensions": [
       "snippets"
     ]
   },
   {
-    "name": "Soy_Template",
+    "filetype": "Soy_Template",
     "handler": "Editor",
     "extensions": [
       "soy"
     ]
   },
   {
-    "name": "Space",
+    "filetype": "Space",
     "handler": "Editor",
     "extensions": [
       "space"
     ]
   },
   {
-    "name": "SQL",
+    "filetype": "SQL",
     "handler": "Editor",
     "extensions": [
       "sql"
     ]
   },
   {
-    "name": "SQLServer",
+    "filetype": "SQLServer",
     "handler": "Editor",
     "extensions": [
       "sqlserver"
     ]
   },
   {
-    "name": "Stylus",
+    "filetype": "Stylus",
     "handler": "Editor",
     "extensions": [
       "styl",
@@ -957,56 +957,56 @@
     ]
   },
   {
-    "name": "SVG",
+    "filetype": "SVG",
     "handler": "Editor",
     "extensions": [
       "svg"
     ]
   },
   {
-    "name": "Swift",
+    "filetype": "Swift",
     "handler": "Editor",
     "extensions": [
       "swift"
     ]
   },
   {
-    "name": "Tcl",
+    "filetype": "Tcl",
     "handler": "Editor",
     "extensions": [
       "tcl"
     ]
   },
   {
-    "name": "Text",
+    "filetype": "Text",
     "handler": "Editor",
     "extensions": [
       "txt"
     ]
   },
   {
-    "name": "Textile",
+    "filetype": "Textile",
     "handler": "Editor",
     "extensions": [
       "textile"
     ]
   },
   {
-    "name": "Toml",
+    "filetype": "Toml",
     "handler": "Editor",
     "extensions": [
       "toml"
     ]
   },
   {
-    "name": "TSX",
+    "filetype": "TSX",
     "handler": "Editor",
     "extensions": [
       "tsx"
     ]
   },
   {
-    "name": "Twig",
+    "filetype": "Twig",
     "handler": "Editor",
     "extensions": [
       "twig",
@@ -1014,7 +1014,7 @@
     ]
   },
   {
-    "name": "Typescript",
+    "filetype": "Typescript",
     "handler": "Editor",
     "extensions": [
       "ts",
@@ -1023,14 +1023,14 @@
     ]
   },
   {
-    "name": "Vala",
+    "filetype": "Vala",
     "handler": "Editor",
     "extensions": [
       "vala"
     ]
   },
   {
-    "name": "VBScript",
+    "filetype": "VBScript",
     "handler": "Editor",
     "extensions": [
       "vbs",
@@ -1038,14 +1038,14 @@
     ]
   },
   {
-    "name": "Velocity",
+    "filetype": "Velocity",
     "handler": "Editor",
     "extensions": [
       "vm"
     ]
   },
   {
-    "name": "Verilog",
+    "filetype": "Verilog",
     "handler": "Editor",
     "extensions": [
       "v",
@@ -1055,7 +1055,7 @@
     ]
   },
   {
-    "name": "VHDL",
+    "filetype": "VHDL",
     "handler": "Editor",
     "extensions": [
       "vhd",
@@ -1063,7 +1063,7 @@
     ]
   },
   {
-    "name": "Wollok",
+    "filetype": "Wollok",
     "handler": "Editor",
     "extensions": [
       "wlk",
@@ -1072,7 +1072,7 @@
     ]
   },
   {
-    "name": "XML",
+    "filetype": "XML",
     "handler": "Editor",
     "extensions": [
       "xml",
@@ -1089,14 +1089,14 @@
     ]
   },
   {
-    "name": "XQuery",
+    "filetype": "XQuery",
     "handler": "Editor",
     "extensions": [
       "xq"
     ]
   },
   {
-    "name": "YAML",
+    "filetype": "YAML",
     "handler": "Editor",
     "extensions": [
       "yaml",

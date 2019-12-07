@@ -11,6 +11,16 @@ export const deserialize = <T>(json: string) => {
 }
 
 /**
+ * Exract the file basename from the path. Returns the filename, including
+ * extension, after the last platform-specific file separator.
+ * @param filepath The relative or absolute path to evaluate.
+ * @return A string containing the file basename.
+ */
+export const extractFilename = (filepath: fs.PathLike) => {
+  return path.parse(filepath.toString()).base;
+}
+
+/**
  * Extract the file extension from the path. Returns the extension after 
  * the last period character in the path, otherwise returns full path if 
  * first character is a period or no period exists.

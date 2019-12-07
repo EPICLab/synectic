@@ -1,5 +1,5 @@
 import mock from 'mock-fs';
-import * as filetypes from '../src/containers/filetypes';
+import * as filetypes from '../src/containers/filetypeHandler';
 
 describe('filetypes', () => {
   beforeEach(() => {
@@ -11,12 +11,12 @@ describe('filetypes', () => {
   });
 
   it('filetypes.findExtensionType locates supported filetype metadata', async () => {
-    const actual = await filetypes.findExtensionType('php', 'foo/config/filetypes.json');
+    const actual = await filetypes.findByExtension('php', 'foo/config/filetypes.json');
     mock.restore();
     expect(actual).toMatchSnapshot();
   });
 
   it('filetypes.findExtensionType returns undefined if no filetype matches found', async () => {
-    await expect(filetypes.findExtensionType('js', 'foo/config/filetypes.json')).resolves.toBeUndefined();
+    await expect(filetypes.findByExtension('js', 'foo/config/filetypes.json')).resolves.toBeUndefined();
   });
 });

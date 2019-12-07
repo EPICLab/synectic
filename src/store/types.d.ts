@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon';
+import { PathLike } from 'fs-extra';
 
 export type UUID = string;
 
-export interface Canvas {
+export type Canvas = {
   readonly id: UUID;
   readonly created: DateTime;
   readonly repos: UUID[];
@@ -10,7 +11,7 @@ export interface Canvas {
   readonly stacks: UUID[];
 }
 
-export interface Repository {
+export type Repository = {
   readonly id: UUID;
   readonly name: string;
   readonly corsProxy: URL;
@@ -22,7 +23,7 @@ export interface Repository {
   readonly token: string;
 }
 
-export interface Stack {
+export type Stack = {
   readonly id: UUID;
   readonly name: string;
   readonly created: DateTime;
@@ -33,7 +34,7 @@ export interface Stack {
   readonly top: number;
 }
 
-export interface Card {
+export type Card = {
   readonly id: UUID;
   readonly name: string;
   readonly created: DateTime;
@@ -43,4 +44,3 @@ export interface Card {
   readonly left: number;
   readonly top: number;
 }
-
