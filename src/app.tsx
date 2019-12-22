@@ -1,33 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
-
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-
 import { DndProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
-// import { DateTime } from 'luxon';
-
-// import Example from './old-components/Example';
-// import CardListComponent from './components/CardList';
-// import CanvasComponent from './components/Canvas';
-// import UserList from './old-components/UserList';
 import './assets/style.css';
 import { rootReducer } from './store/root';
-import { ActionKeys } from './store/actions';
-import { generateCards } from './containers/genFakedCards';
 import { CanvasComponent } from './components/CanvasComponent';
+import { importFiletypes } from './containers/handlers';
 
 export const store = createStore(rootReducer);
-const cards = generateCards(3);
-cards.map(card => store.dispatch({ type: ActionKeys.ADD_CARD, id: card.id, card: card }));
+// const cards = generateCards(3);
+// cards.map(card => store.dispatch({ type: ActionKeys.ADD_CARD, id: card.id, card: card }));
 
 const App = (): JSX.Element => {
-  // const users = [
-  //   { name: 'bob', modified: DateTime.local(), onClick: () => console.log('name: bob'), selected: false },
-  //   { name: 'sally', modified: DateTime.local(), onClick: () => console.log('name: sally'), selected: false }
-  // ]
+
+  useEffect(() => {
+    // load all supported filetype handlers into Redux store
+    async function fetchData() {
+      await importFiletypes();
+    }
+    fetchData();
+  }, []);
 
   return (
     <Provider store={store}>
@@ -41,18 +36,6 @@ const App = (): JSX.Element => {
     </Provider>
   )
 };
-
-/**
-          <CanvasComp {...store.getState().canvas}>
-            <div>...End of Cards...</div>
-          </CanvasComp>
-
-<CanvasComponent>
-  <UserList users={users}></UserList>
-  <Example />
-  <CardListComponent />
-</CanvasComponent>
- */
 
 const rootElement = document.getElementById('root');
 ReactDOM.render(<App />, rootElement);

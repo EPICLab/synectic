@@ -1,14 +1,13 @@
-import { Card } from "../store/types";
+import { Card } from "../types";
 import { v4 } from "uuid";
 import { DateTime } from "luxon";
 
 export const generateCard = (seriesNum: number): Card => ({
   id: v4(),
   name: 'test' + seriesNum.toString(),
+  metafile: '',
   created: DateTime.local(),
   modified: DateTime.local(),
-  repo: null,
-  ref: null,
   left: 10 * seriesNum,
   top: 25 + (5 * seriesNum)
 });

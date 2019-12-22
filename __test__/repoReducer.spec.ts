@@ -1,4 +1,4 @@
-import { Repository } from '../src/store/types';
+import { Repository } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { reposReducer } from '../src/store/reducers/repos';
 
@@ -37,7 +37,7 @@ describe('repoReducer', () => {
 
   it('repoReducer appends a new repo to state on action ADD_REPO', () => {
     const addedRepos = reposReducer(repos, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo });
-    expect(Object.keys(repos)).toHaveLength(1);
+    expect(Object.keys(addedRepos)).toHaveLength(2);
     expect(addedRepos).toMatchSnapshot();
   });
 

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 
-import { Canvas } from '../types';
+import { Canvas } from '../../types';
 import { Actions, ActionKeys } from '../actions';
 import { addItemInArray, removeItemInArray } from '../immutables';
 

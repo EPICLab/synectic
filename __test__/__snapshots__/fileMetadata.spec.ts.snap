@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`fileMetadata batchPathsToFileMetadata resolves array of all supported filetype handlers 1`] = `
+Array [
+  Object {
+    "filetype": "PHP",
+    "handler": "Editor",
+    "path": "../examples/sample.php",
+  },
+  Object {
+    "filetype": "JavaScript",
+    "handler": "Editor",
+    "path": "../examples/test.js",
+  },
+]
+`;
+
+exports[`fileMetadata batchPathsToFileMetadata resolves array of partially supported filetype handlers 1`] = `
+Array [
+  Object {
+    "filetype": "PHP",
+    "handler": "Editor",
+    "path": "../examples/sample.php",
+  },
+  Object {
+    "filetype": null,
+    "handler": null,
+    "path": "../examples/.config.jswt",
+  },
+]
+`;
+
+exports[`fileMetadata pathToFileMetadata resolves file metadata for a supported filetype handler 1`] = `
+Object {
+  "filetype": "PHP",
+  "handler": "Editor",
+  "path": "../examples/sample.php",
+}
+`;
+
+exports[`fileMetadata pathToFileMetadata returns null metadata for an unsupported filetype 1`] = `
+Object {
+  "filetype": null,
+  "handler": null,
+  "path": "../examples/data.jswt",
+}
+`;

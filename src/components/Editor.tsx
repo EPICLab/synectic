@@ -1,25 +1,20 @@
 import React from 'react';
-import AceEditor from 'react-ace';
-
-import 'ace-builds/src-noconflict/mode-javascript';
-import 'ace-builds/src-noconflict/theme-monokai';
-import 'ace-builds/src-noconflict/ext-searchbox';
+import JavascriptEditor from './LoadableEditors/javascriptEditor';
+import PythonEditor from './LoadableEditors/pythonEditor';
 
 type EditorProps = {
   uuid: string;
   code: string;
-}
-
-function onChange(newValue: string) {
-  console.log('change', newValue);
+  mode: string;
 }
 
 const Editor: React.FunctionComponent<EditorProps> = props => {
-
   return (
-    <AceEditor mode='javascript' theme='monokai' onChange={onChange} name={props.uuid} value={props.code}
-      className='editor' height='calc(100% - 29px)' width='100%' showGutter={false} setOptions={{ useWorker: false }} />
-  );
+    <div>
+      {props.mode === 'javascript' && <JavascriptEditor {...props} />}
+      {props.mode === 'python' && <PythonEditor {...props} />}
+    </div>
+  )
 }
 
 export default Editor;

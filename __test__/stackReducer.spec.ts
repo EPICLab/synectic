@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { Stack } from '../src/store/types';
+import { Stack } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { stackReducer } from '../src/store/reducers/stacks';
 
@@ -16,7 +16,7 @@ describe('stackReducer', () => {
       left: 16,
       top: 21
     }
-  }
+  };
 
   const newStack: Stack = {
     id: '2',
@@ -25,7 +25,7 @@ describe('stackReducer', () => {
     modified: DateTime.fromISO('2016-01-27T19:05:09.845-08:00'),
     note: 'This stack contains very important cards for Project X',
     cards: [], left: 78, top: 13
-  }
+  };
 
   it('stackReducer appends a new stack to state on action ADD_STACK', () => {
     const addedStacks = stackReducer(stacks, { type: ActionKeys.ADD_STACK, id: newStack.id, stack: newStack });

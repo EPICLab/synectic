@@ -58,22 +58,35 @@ export const removeItemInMap = <T extends { id: string }>(map: { [id: string]: T
 }
 
 /**
- * Immutably update a specific item in a key-value map based on item item id 
- * and applying a callback function to that item.
+ * Immutably filters items from map using specified filter function and applies a 
+ * callback function to update each matching item.
  * @param map The initial source key-value map object.
- * @param itemId An id associated with an item contained in the map.
- * @param updateItemCallback Callback function to apply towards item with matching id.
- * @returns New map containing all items from map including updated item.
+ * @param filterFn Filter function that returns true for each item in map that 
+ * meets conditions specified in function.
+ * @param updateItemCallback Callback function to apply towards items that meet 
+ * filter function predicates.
  */
-export const updateItemInMap = <T extends { id: string }>(map: { [id: string]: T }, itemId: string, updateItemCallback: (item: T) => T) => {
+export const updateMatchesInMap = <T>(map: { [id: string]: T }, filterFn: (item: T) => boolean, updateItemCallback: (item: T) => T) => {
   const updatedItems: { [id: string]: T } = {};
   for (const k in map) {
-    if (map[k].id === itemId) {
+    if (filterFn(map[k])) {
       updatedItems[k] = updateItemCallback(map[k]);
     } else {
       updatedItems[k] = map[k];
     }
   }
   return updatedItems;
+};
+
+/**
+ * Immutably update a specific item in a key-value map based on item id 
+ * and applying a callback function to that item.
+ * @param map The initial source key-value map object.
+ * @param itemId An id associated with an item contained in the map.
+ * @param updateItemCallback Callback function to apply towards item with matching id.
+ * @returns New map containing all items from map including updated item.
+ */
+export const updateItemInMapById = <T extends { id: string }>(map: { [id: string]: T }, itemId: string, updateItemCallback: (item: T) => T) => {
+  return updateMatchesInMap(map, (item => item.id === itemId), updateItemCallback);
 };
 
