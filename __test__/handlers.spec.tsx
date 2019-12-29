@@ -1,40 +1,76 @@
-// import mock from 'mock-fs';
-import React from 'react';
-import configureStore from 'redux-mock-store';
-import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import * as handlers from '../src/containers/handlers';
+import mock from 'mock-fs';
+import isUUID from 'validator/lib/isUUID';
+import { DateTime } from 'luxon';
+
+import { importFiletypes, extractMetafile, loadCard } from '../src/containers/handlers';
+import { ActionKeys } from '../src/store/actions';
+import { Filetype, Metafile } from '../src/types';
+
+const mockedFiletypes: Filetype[] = [{ id: '3', type: 'PHP', handler: 'Editor', extensions: ['php', 'phpt'] }];
+
+const mockedMetafile: Metafile = {
+  id: '8',
+  name: 'data.php',
+  path: 'foo/data.php',
+  filetype: 'PHP',
+  handler: 'Editor',
+  modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
+  repo: null,
+  ref: null,
+  content: 'sample data for supported filetype'
+};
+
+beforeEach(() => {
+  mock({
+    'foo/config/filetypes.json': '[{"filetype": "PHP", "handler": "Editor", "extensions": ["php", "phpt"]}]',
+    'foo/data.php': 'sample data for supported filetype',
+    'foo/data.azi': 'sample data for unsupported filetype'
+  });
+});
+
+afterEach(mock.restore);
 
 describe('handlers.importFiletypes', () => {
-  // const falseFiletypesPath = 'bar/config/filetypes.json';
-  const mockStore = configureStore([]);
+  const trueFiletypesPath = 'foo/config/filetypes.json';
+  const falseFiletypesPath = 'bar/config/filetypes.json';
 
-  it('importFiletypes updates state on valid filetypes.json file', () => {
-    const initialState: unknown = [];
-    const store = mockStore(initialState);
-    const wrapper = mount(<Provider store={store} > <button id='test-button' onClick={async () => { await handlers.importFiletypes() }} /></Provider >);
-    wrapper.find('#test-button').first().simulate('click');
-    expect(store.getState()).toBe(true);
+  it('importFiletypes returns Redux actions on valid filetypes.json file', async () => {
+    const filetypes = await importFiletypes(trueFiletypesPath);
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
+    expect(filetypes).toHaveLength(1);
+    expect(filetypes[0].type).toBe(ActionKeys.ADD_FILETYPE);
   });
 
-  it('importFiletypes throws error on missing filetypes.json file', () => {
-    expect(true).toBe(false);
-    // return expect(handlers.importFiletypes(falseFiletypesPath)).toThrow(Error);
+  it('importFiletypes throws error on missing filetypes.json file', async () => {
+    return expect(importFiletypes(falseFiletypesPath)).rejects.toThrow(Error);
   });
 });
 
 describe('handlers.extractMetafile', () => {
-  it('extractMetafile updates state with new metafile on supported filetype', () => {
-    expect(true).toBe(false);
+  it('extractMetafile returns Redux action with new metafile on supported filetype', async () => {
+    const metafile = await extractMetafile('foo/data.php', mockedFiletypes)
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
+    expect(metafile.type).toBe(ActionKeys.ADD_METAFILE);
+    expect(metafile.metafile.filetype).toBe('PHP');
   });
 
-  it('extractMetafile updates state with new metafile on unsupported filetype', () => {
-    expect(true).toBe(false);
+  it('extractMetafile returns Redux action with new metafile on unsupported filetype', async () => {
+    const metafile = await extractMetafile('foo/data.azi', mockedFiletypes)
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
+    expect(metafile.type).toBe(ActionKeys.ADD_METAFILE);
+    expect(metafile.metafile.filetype).toBe('Unknown');
+    expect(metafile.metafile.handler).toBe('Unsupported');
+  });
+
+  it('extractMetafile throws error on missing file', async () => {
+    return expect(extractMetafile('foo/nonexist.php', mockedFiletypes)).rejects.toThrow(Error);
   });
 });
 
 describe('handlers.loadCard', () => {
-  it('loadCard updates state and resolves new card', () => {
-    expect(true).toBe(false);
+  it('loadCard returns Redux action with new Card based on metafile', () => {
+    const card = loadCard(mockedMetafile);
+    expect(card.type).toBe(ActionKeys.ADD_CARD);
+    expect(isUUID(card.id, 4)).toBe(true);
   });
 });

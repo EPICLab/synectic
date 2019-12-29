@@ -2,19 +2,19 @@ import React from 'react';
 // eslint-disable-next-line import/named
 import { useDrop, XYCoord } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
-import Button from '@material-ui/core/Button';
 
 import { RootState } from '../store/root';
 import { Canvas } from '../types';
 import { ActionKeys } from '../store/actions';
 import { CardComponent } from './CardComponent';
 import Editor from './Editor';
-import FilePicker from './FilePicker';
+import NewCardComponent from './NewCardDialog';
+// import FilePicker from './FilePicker';
 
 export const CanvasComponent: React.FunctionComponent<Canvas> = props => {
-  const cardsMap = useSelector((state: RootState) => state.cards);
-  const metafilesMap = useSelector((state: RootState) => state.metafiles);
-  const cards = useSelector((state: RootState) => Object.values(state.cards));
+  const cards = useSelector((state: RootState) => state.cards);
+  const cardsList = Object.values(cards);
+  const metafiles = useSelector((state: RootState) => state.metafiles);
   const dispatch = useDispatch();
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -24,7 +24,7 @@ export const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       canDrop: !!monitor.canDrop()
     }),
     drop: (item, monitor) => {
-      const card = cardsMap[monitor.getItem().id];
+      const card = cards[monitor.getItem().id];
       const delta = monitor.getDifferenceFromInitialOffset() as XYCoord;
       dispatch({
         type: ActionKeys.UPDATE_CARD,
@@ -43,10 +43,10 @@ export const CanvasComponent: React.FunctionComponent<Canvas> = props => {
 
   return (
     <div className='canvas' ref={drop}>
-      <FilePicker />
-      <Button variant="contained" color="primary" onClick={() => console.log('generate a new card...')}>New Card...</Button>
-      {cards.map(card => {
-        const metafile = metafilesMap[card.metafile];
+      <NewCardComponent />
+      {/* <FilePicker /> */}
+      {cardsList.map(card => {
+        const metafile = metafiles[card.metafile];
         return (
           <CardComponent key={card.id} {...card}>
             <div>Card: {card.name}</div>

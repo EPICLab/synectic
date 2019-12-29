@@ -17,9 +17,11 @@ export const store = createStore(rootReducer);
 const App = (): JSX.Element => {
 
   useEffect(() => {
+    console.log(store);
     // load all supported filetype handlers into Redux store
     async function fetchData() {
-      await importFiletypes();
+      const actions = await importFiletypes();
+      actions.map(action => store.dispatch(action));
     }
     fetchData();
   }, []);
@@ -29,12 +31,11 @@ const App = (): JSX.Element => {
       <DndProvider backend={HTML5Backend}>
         <React.Fragment>
           <CanvasComponent {...store.getState().canvas}>
-            <div>...End of Cards...</div>
           </CanvasComponent>
         </React.Fragment>
       </DndProvider>
     </Provider>
-  )
+  );
 };
 
 const rootElement = document.getElementById('root');

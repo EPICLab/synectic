@@ -10,9 +10,10 @@ export const deserialize = <T>(json: string) => JSON.parse(json) as T;
 
 /**
  * Extracts the file stat details from the path. Returns all fields provided by
- * the fs.Stats class in the Node.js API (see @link https://nodejs.org/api/fs.html#fs_class_fs_stats).
+ * the fs.Stats class (see the Node.js API docs @link https://nodejs.org/api/fs.html#fs_class_fs_stats).
  * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object for a fs.Stats object containing the file details.
+ * @return A Promise object for a fs.Stats object containing the file details or throws Error if
+ * filepath does not exist or is permissions-restricted.
  */
 export const extractStats = (filepath: fs.PathLike) => fs.stat(filepath.toString());
 
