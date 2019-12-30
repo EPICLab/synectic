@@ -81,6 +81,16 @@ body {
   bottom: 0;
 }
 
+/* removes scrollbars from Ace Editor panes until hovered */
+.ace_scrollbar {
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.ace_editor:hover .ace_scrollbar {
+  opacity: 1;
+}
+
 button.close {
   background: url('close_dark.svg');
   background-size: cover;

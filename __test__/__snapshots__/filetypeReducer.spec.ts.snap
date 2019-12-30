@@ -7,17 +7,17 @@ Object {
       "js",
       "jsm",
     ],
+    "filetype": "JavaScript",
     "handler": "Editor",
     "id": "55",
-    "type": "JavaScript",
   },
   "67": Object {
     "extensions": Array [
       "py",
     ],
+    "filetype": "Python",
     "handler": "Editor",
     "id": "67",
-    "type": "Python",
   },
 }
 `;
@@ -29,9 +29,9 @@ Object {
       "js",
       "jsm",
     ],
+    "filetype": "JavaScript",
     "handler": "Editor",
     "id": "55",
-    "type": "JavaScript",
   },
 }
 `;
@@ -43,9 +43,9 @@ Object {
       "py",
       "pym",
     ],
+    "filetype": "Python",
     "handler": "Editor",
     "id": "67",
-    "type": "Python",
   },
 }
 `;

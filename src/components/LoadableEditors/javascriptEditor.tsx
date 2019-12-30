@@ -19,7 +19,7 @@ const JavaScriptEditor: React.FunctionComponent<EditorProps> = props => {
 
   return (
     <AceEditor mode='javascript' theme='monokai' onChange={onChange} name={props.uuid} value={props.code}
-      className='editor' height='calc(100% - 29px)' width='100%' showGutter={false} setOptions={{ useWorker: false }} />
+      className='editor' height='calc(100% - 29px)' width='100%' showGutter={false} setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
 }
 

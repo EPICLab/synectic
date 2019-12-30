@@ -46,7 +46,7 @@ export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[])
         id: v4(),
         name: io.extractFilename(filepath),
         path: filepath,
-        filetype: handler ? handler.type : 'Unknown',
+        filetype: handler ? handler.filetype : 'Unknown',
         handler: handler ? handler.handler : 'Unsupported',
         modified: DateTime.fromJSDate(stats.mtime),
         repo: null, // TODO: Resolve the Git repository to a Repository in the store and update the metafile with UUID.

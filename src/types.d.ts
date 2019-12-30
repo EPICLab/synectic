@@ -34,7 +34,7 @@ export type Card = {
 
 export type Filetype = {
   readonly id: UUID;
-  readonly type: string;
+  readonly filetype: string;
   readonly handler: string;
   readonly extensions: string[];
 }

@@ -9,7 +9,7 @@ import { ActionKeys } from '../store/actions';
 import { CardComponent } from './CardComponent';
 import Editor from './Editor';
 import NewCardComponent from './NewCardDialog';
-// import FilePicker from './FilePicker';
+import FilePicker from './FilePicker';
 
 export const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -44,7 +44,7 @@ export const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   return (
     <div className='canvas' ref={drop}>
       <NewCardComponent />
-      {/* <FilePicker /> */}
+      <FilePicker />
       {cardsList.map(card => {
         const metafile = metafiles[card.metafile];
         return (

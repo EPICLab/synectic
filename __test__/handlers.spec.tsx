@@ -6,7 +6,7 @@ import { importFiletypes, extractMetafile, loadCard } from '../src/containers/ha
 import { ActionKeys } from '../src/store/actions';
 import { Filetype, Metafile } from '../src/types';
 
-const mockedFiletypes: Filetype[] = [{ id: '3', type: 'PHP', handler: 'Editor', extensions: ['php', 'phpt'] }];
+const mockedFiletypes: Filetype[] = [{ id: '3', filetype: 'PHP', handler: 'Editor', extensions: ['php', 'phpt'] }];
 
 const mockedMetafile: Metafile = {
   id: '8',
@@ -48,14 +48,15 @@ describe('handlers.importFiletypes', () => {
 
 describe('handlers.extractMetafile', () => {
   it('extractMetafile returns Redux action with new metafile on supported filetype', async () => {
-    const metafile = await extractMetafile('foo/data.php', mockedFiletypes)
+    const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
     expect(metafile.type).toBe(ActionKeys.ADD_METAFILE);
     expect(metafile.metafile.filetype).toBe('PHP');
+    expect(metafile.metafile.handler).toBe('Editor');
   });
 
   it('extractMetafile returns Redux action with new metafile on unsupported filetype', async () => {
-    const metafile = await extractMetafile('foo/data.azi', mockedFiletypes)
+    const metafile = await extractMetafile('foo/data.azi', mockedFiletypes);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
     expect(metafile.type).toBe(ActionKeys.ADD_METAFILE);
     expect(metafile.metafile.filetype).toBe('Unknown');

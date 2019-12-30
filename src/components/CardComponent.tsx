@@ -4,10 +4,14 @@ import { useDrag } from 'react-dnd';
 
 import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
-import Header from './Header';
+
+const Header: React.FunctionComponent<{ title: string }> = props => {
+  return (<div className='card-header'><span>{props.title}</span>{props.children}</div>);
+}
 
 export const CardComponent: React.FunctionComponent<Card> = props => {
   const dispatch = useDispatch();
+
   const [{ isDragging }, drag] = useDrag({
     item: { type: 'CARD', id: props.id },
     collect: monitor => ({
@@ -27,3 +31,5 @@ export const CardComponent: React.FunctionComponent<Card> = props => {
     {props.children}
   </div>;
 };
+
+export default CardComponent;

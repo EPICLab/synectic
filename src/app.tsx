@@ -22,6 +22,10 @@ const App = (): JSX.Element => {
     async function fetchData() {
       const actions = await importFiletypes();
       actions.map(action => store.dispatch(action));
+      // const action = await extractMetafile('/Users/nelsonni/Workspace/synectic/src/containers/filetypes.json', Object.values(store.getState().filetypes));
+      // store.dispatch(action);
+      // const metafiles = Object.values(store.getState().metafiles);
+      // metafiles.map(metafile => loadCard(metafile));
     }
     fetchData();
   }, []);

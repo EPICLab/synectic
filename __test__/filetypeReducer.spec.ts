@@ -6,7 +6,7 @@ describe('filetypeReducer', () => {
   const filetypes: { [id: string]: Filetype } = {
     '67': {
       id: '67',
-      type: 'Python',
+      filetype: 'Python',
       handler: 'Editor',
       extensions: ['py']
     }
@@ -14,7 +14,7 @@ describe('filetypeReducer', () => {
 
   const newFiletype: Filetype = {
     id: '55',
-    type: 'JavaScript',
+    filetype: 'JavaScript',
     handler: 'Editor',
     extensions: ['js', 'jsm']
   }
