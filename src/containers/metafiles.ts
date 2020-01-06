@@ -75,26 +75,4 @@ export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[])
       return action;
     })
     .catch(error => { throw new Error(error.message) });
-
-
-  // return io.extractStats(filepath)
-  //   .then(async stats => {
-  //     if (!stats) return {};
-  //     const metafile: Metafile = {
-  //       id: v4(),
-  //       name: io.extractFilename(filepath),
-  //       path: filepath,
-  //       filetype: handler ? handler.filetype : 'Unknown',
-  //       handler: handler ? handler.handler : 'Unsupported',
-  //       modified: DateTime.fromJSDate(stats.mtime),
-  //       repo: null, // TODO: Resolve the Git repository to a Repository in the store and update the metafile with UUID.
-  //       ref: null, // TODO: Resolve the Git branch and update the metafile with the branch name.
-  //       content: null
-  //     };
-  //     const contentfulMetafile = await contentDecorator(metafile);
-  //     const gitMetafile = await gitDecorator(contentfulMetafile);
-  //     const action: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: gitMetafile };
-  //     return action;
-  //   })
-  //   .catch(error => { throw new Error(error.message) });
 }
