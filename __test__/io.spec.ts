@@ -19,6 +19,28 @@ describe('io.deserialize', () => {
   });
 });
 
+describe('io.extractStats', () => {
+  beforeAll(() => {
+    mock({
+      foo: {
+        bar: mock.file({
+          content: 'file contents',
+          ctime: new Date(1),
+          mtime: new Date(1)
+        })
+      }
+    });
+  });
+
+  it('extractStats to extract relevant file information from valid path', async () => {
+    return expect(io.extractStats('foo/bar')).resolves.toHaveProperty('ctime', new Date(1));
+  });
+
+  it('extractStats to return undefined from nonexistent path', async () => {
+    return expect(io.extractStats('foo/baz')).resolves.toBeUndefined();
+  });
+});
+
 describe('io.extractFilename', () => {
   it('extractFilename to extract filename from Linux/MacOS paths', () => {
     expect(io.extractFilename('/Users/foo/bar/module.d.ts')).toBe('module.d.ts');
@@ -65,9 +87,7 @@ describe('io.readFileAsync', () => {
     });
   });
 
-  afterAll(() => {
-    mock.restore();
-  });
+  afterAll(mock.restore);
 
   it('readFileAsync to resolve to file contents', async () => {
     await expect(io.readFileAsync('foo/bar/some-file.txt')).resolves.toBe('file contents');

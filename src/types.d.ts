@@ -42,13 +42,13 @@ export type Filetype = {
 export type Metafile = {
   readonly id: UUID;
   readonly name: string;
-  readonly path: PathLike | null;
   readonly filetype: string;
   readonly handler: string;
   readonly modified: DateTime;
+  readonly path: PathLike | null;
   readonly repo: UUID | null;
   readonly ref: string | null;
-  readonly content: string;
+  readonly content: string | null;
 }
 
 export type Repository = {

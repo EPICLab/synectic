@@ -50,7 +50,7 @@ export const CanvasComponent: React.FunctionComponent<Canvas> = props => {
         return (
           <CardComponent key={card.id} {...card}>
             <div>Card: {card.name}</div>
-            {metafile && <Editor uuid={card.id + '-editor'} mode={'javascript'} code={metafile.content} />}
+            {metafile && <Editor uuid={card.id + '-editor'} mode={'javascript'} code={metafile.content ? metafile.content : ''} />}
           </CardComponent>
         );
       })}

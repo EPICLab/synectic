@@ -29,37 +29,6 @@ export const importFiletypes = async (filetypesPath: PathLike = DEFAULT_PATH) =>
 };
 
 /**
- * Read and extract metafile information for a specific filepath into Redux store. 
- * Metafile object is required for loading files into Cards.
- * @param filepath The relative or absolute path to evaluate.
- * @param filetypes Array of supported filetype information; preferrably derived from Redux store.
- * @return A Promise object for a Redux action that updates state with metafile of target filepath.
- */
-export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[]) => {
-  const extension = io.extractExtension(filepath);
-  const handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
-  const statsPromise = io.extractStats(filepath);
-  const contentPromise = io.readFileAsync(filepath);
-  return Promise.all([statsPromise, contentPromise])
-    .then(([stats, content]) => {
-      const metafile: Metafile = {
-        id: v4(),
-        name: io.extractFilename(filepath),
-        path: filepath,
-        filetype: handler ? handler.filetype : 'Unknown',
-        handler: handler ? handler.handler : 'Unsupported',
-        modified: DateTime.fromJSDate(stats.mtime),
-        repo: null, // TODO: Resolve the Git repository to a Repository in the store and update the metafile with UUID.
-        ref: null, // TODO: Resolve the Git branch and update the metafile with the branch name.
-        content: content
-      };
-      const action: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
-      return action;
-    })
-    .catch(error => { throw new Error(error.message) });
-}
-
-/**
  * Creates Redux action for adding new Card with content to Redux store; which materializes a new Card on the Canvas.
  * @param metafile A Metafile object containing file specific information for loading.
  * @return A Redux action that updates state with a new Card.

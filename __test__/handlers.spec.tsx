@@ -2,11 +2,9 @@ import mock from 'mock-fs';
 import isUUID from 'validator/lib/isUUID';
 import { DateTime } from 'luxon';
 
-import { importFiletypes, extractMetafile, loadCard } from '../src/containers/handlers';
+import { importFiletypes, loadCard } from '../src/containers/handlers';
 import { ActionKeys } from '../src/store/actions';
-import { Filetype, Metafile } from '../src/types';
-
-const mockedFiletypes: Filetype[] = [{ id: '3', filetype: 'PHP', handler: 'Editor', extensions: ['php', 'phpt'] }];
+import { Metafile } from '../src/types';
 
 const mockedMetafile: Metafile = {
   id: '8',
@@ -36,35 +34,13 @@ describe('handlers.importFiletypes', () => {
 
   it('importFiletypes returns Redux actions on valid filetypes.json file', async () => {
     const filetypes = await importFiletypes(trueFiletypesPath);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(filetypes).toHaveLength(1);
     expect(filetypes[0].type).toBe(ActionKeys.ADD_FILETYPE);
   });
 
   it('importFiletypes throws error on missing filetypes.json file', async () => {
     return expect(importFiletypes(falseFiletypesPath)).rejects.toThrow(Error);
-  });
-});
-
-describe('handlers.extractMetafile', () => {
-  it('extractMetafile returns Redux action with new metafile on supported filetype', async () => {
-    const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
-    expect(metafile.type).toBe(ActionKeys.ADD_METAFILE);
-    expect(metafile.metafile.filetype).toBe('PHP');
-    expect(metafile.metafile.handler).toBe('Editor');
-  });
-
-  it('extractMetafile returns Redux action with new metafile on unsupported filetype', async () => {
-    const metafile = await extractMetafile('foo/data.azi', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Node
-    expect(metafile.type).toBe(ActionKeys.ADD_METAFILE);
-    expect(metafile.metafile.filetype).toBe('Unknown');
-    expect(metafile.metafile.handler).toBe('Unsupported');
-  });
-
-  it('extractMetafile throws error on missing file', async () => {
-    return expect(extractMetafile('foo/nonexist.php', mockedFiletypes)).rejects.toThrow(Error);
   });
 });
 

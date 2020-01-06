@@ -4,7 +4,8 @@ import Button from '@material-ui/core/Button';
 import { remote } from 'electron';
 
 import { RootState } from '../store/root';
-import { extractMetafile, loadCard } from '../containers/handlers';
+import { loadCard } from '../containers/handlers';
+import { extractMetafile } from '../containers/metafiles';
 
 const FilePicker: React.FunctionComponent = () => {
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
@@ -14,11 +15,19 @@ const FilePicker: React.FunctionComponent = () => {
     e.preventDefault();
     const paths = await remote.dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'] });
 
+    /**
+     * The Redux useSelector hook is synchronous with the React component lifecycle, therefore the value of the 
+     * filetypes useSelector hook has already been set before the handleClick function executes (since this function 
+     * is linked to the asynchronous onClick event). This poses a problem since the Redux useDispatch hook updates
+     * the Redux store, but the useSelector hook does not pick up on that state change until the next re-render cycle.
+     * 
+     * The metafile information needs to be present for loading a new Card component into the UI, therefore, we must
+     * update the metafile information in the React store on the same render cycle as the card state update.
+     * Therefore, to handle updating metafile information and loading a card in one render, we cheat and take the 
+     * metafile from the Redux metafile update action directly.
+     */
     if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => {
-      // Redux useDispatch hook is synchronous, however, Redux useSelector hooks have already set their values.
       const addMetafileAction = dispatch(await extractMetafile(filePath, filetypes));
-      // Because of the timing of these hooks, we cannot get the updated metafile from the Redux store until next re-render.
-      // Therefore, to handle loading a card in one render, we cheat and take the metafile from the Redux action directly.
       dispatch(loadCard(addMetafileAction.metafile));
     });
   };
