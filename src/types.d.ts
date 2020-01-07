@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
+import parsePath from 'parse-path';
 
 export type UUID = string;
 
@@ -55,7 +56,7 @@ export type Repository = {
   readonly id: UUID;
   readonly name: string;
   readonly corsProxy: URL;
-  readonly url: URL;
+  readonly url: parsePath.ParsedPath;
   readonly refs: string[];
   readonly oauth: 'github' | 'bitbucket' | 'gitlab';
   readonly username: string;

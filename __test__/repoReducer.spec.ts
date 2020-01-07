@@ -1,3 +1,5 @@
+import parsePath from 'parse-path';
+
 import { Repository } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { reposReducer } from '../src/store/reducers/repos';
@@ -8,7 +10,7 @@ describe('repoReducer', () => {
       id: '23',
       name: 'sampleUser/myRepo',
       corsProxy: new URL('http://www.oregonstate.edu'),
-      url: new URL('https://github.com/sampleUser/myRepo'),
+      url: parsePath('https://github.com/sampleUser/myRepo'),
       refs: ['942043', '234412', '194724'],
       oauth: 'github',
       username: 'sampleUser',
@@ -21,7 +23,7 @@ describe('repoReducer', () => {
     id: '17',
     name: 'sampleUser/forkedRepo',
     corsProxy: new URL('http://www.oregonstate.edu'),
-    url: new URL('https://github.com/sampleUser/forkedRepo'),
+    url: parsePath('https://github.com/sampleUser/forkedRepo'),
     refs: ['601421', '843449'],
     oauth: 'github',
     username: 'sampleUser',

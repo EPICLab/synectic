@@ -67,7 +67,7 @@ describe('metafiles.extractMetafile', () => {
   it('extractMetafile returns Redux action with Git information on tracked file', async () => {
     const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.metafile.repo).toBe('managed');
+    expect(metafile.metafile.repo).toBe('unchecked');
     expect(metafile.metafile.ref).toBe('master');
   });
 

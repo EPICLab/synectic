@@ -1,3 +1,4 @@
+import parsePath from 'parse-path';
 import { DateTime } from 'luxon';
 
 import { Repository, Canvas, Card, Stack } from '../src/types';
@@ -17,7 +18,7 @@ describe('canvasReducer', () => {
     id: '17',
     name: 'sampleUser/forkedRepo',
     corsProxy: new URL('http://www.oregonstate.edu'),
-    url: new URL('https://github.com/sampleUser/forkedRepo'),
+    url: parsePath('https://github.com/sampleUser/forkedRepo'),
     refs: ['601421', '843449'],
     oauth: 'github',
     username: 'sampleUser',
