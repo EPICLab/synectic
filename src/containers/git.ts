@@ -1,12 +1,15 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import parsePath from 'parse-path';
 import * as isogit from 'isomorphic-git';
 isogit.plugins.set('fs', fs);
+import { v4 } from 'uuid';
+import parsePath from 'parse-path';
 
 import * as io from './io';
 import { Repository } from '../types';
-// import { ActionKeys, Actions } from '../store/actions';
+import { ActionKeys, Actions, NarrowAction } from '../store/actions';
+
+type ExistingRepoActions = NarrowAction<Actions, ActionKeys.ADD_REPO | ActionKeys.UPDATE_REPO>;
 
 export * from 'isomorphic-git';
 
@@ -29,7 +32,7 @@ export const getRepoRoot = async (filepath: fs.PathLike) => {
 
 /**
  * Asynchronous check for presence of .git within directory to validate Git version control.
- * @param filepath The relative or absolute path to evaluate.
+ * @param filepath The relative or absolute path to evaluate. 
  * @return A Promise object containing true if filepath contains a .git subdirectory (or points 
  * directly to the .git directory), and false otherwise.
  */
@@ -41,12 +44,22 @@ export const isGitRepo = async (filepath: fs.PathLike) => {
   const gitStats = await io.extractStats(gitPath);
   if (gitStats === undefined) return false;
   else return true;
-}
+};
 
 /**
- * Parses a URL to extract components and protocols, along with the OAuth resource authority 
+ * Parse a URL to extract Git repository name, typically based on the remote origin URL.
+ * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
+ * @returns The repository name (e.g. 'username/repo').
+ */
+export const extractRepoName = (url: URL | string) => {
+  const parsedPath = (typeof url === 'string') ? parsePath(url) : parsePath(url.href);
+  return parsedPath.pathname.replace(/^(\/*)(?:snippets\/)?/, '').replace(/\.git$/, '');
+};
+
+/**
+ * Parse a URL to extract components and protocols, along with the OAuth resource authority 
  * (GitHub, BitBucket, or GitLab) for processing with the isomorphic-git library module.
- * @param url The URL to evaluate; can use http, https, ssh, file, or git protocols.
+ * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
  * @returns A tuple containing the parsePath.ParsedPath object and OAuth resource name.
  */
 export const extractFromURL = (url: URL | string): [parsePath.ParsedPath, Repository['oauth']] => {
@@ -76,75 +89,46 @@ export const isGitTracked = async (filepath: fs.PathLike) => {
 }
 
 /**
- * Checks whether a Git repository associated with a repository name and branch ref exists in the Redux state, 
- * and if not provides a Redux action to add the repository to the Redux state.
- * @param name The Git repository name (e.g. 'EPICLab/synectic'); for GitHub repos the name is 
- * composed of GitHub account name and repository name (others only use the repository name).
- * @param ref The Git branch name (e.g. 'master').
- * @param repos The list of currently known Git repositories found in the Redux state.
- * @returns A Promise object containing a 
- * 
- * Redux action for adding the new Repository object, 
- * @return A Promise that either returns a Repository object known to the Redux state, or a Redux action
- * to update the Redux state with a new Repository and returns that Repository object afterwards.
+ * Extract all necessary Git repository metadata from the root Git directory associated with the filepath,
+ * either by locating an existing repository and branch ref in the Redux state or creating Redux actions
+ * to add and update the state as needed.
+ * @param filepath The relative or absolute path to evaluate; must be resolvable to a root Git directory.
+ * @param repos The list of currently known Git repositories found in the Redux store.
+ * @param ref (Optional) Git branch name; defaults to 'HEAD'.
+ * @return A Promise object containing a tuple which contains the new or existing Repository object
+ * related to the root Git directory of the filepath, and any Redux actions that update state for either
+ * a new repository or an updated repository with a new branch ref. If the first element is undefined, 
+ * either no root Git directory exists or no remote origin URL has been set for the repo. If the second
+ * element is undefined, no updates to the Redux store are necessary.
  */
-export const extractRepo = async (rootDir: fs.PathLike, repos: Repository[], ref = 'HEAD') => {
+export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], ref = 'HEAD'): Promise<[(Repository | undefined), (ExistingRepoActions | undefined)]> => {
+  const rootDir = await getRepoRoot(filepath);
+  if (!rootDir) return [undefined, undefined];
+  const remoteOriginUrls: string[] = await isogit.config({ dir: rootDir.toString(), path: 'remote.origin.url', all: true });
+  if (remoteOriginUrls.length <= 0) return [undefined, undefined];
+  const [url, oauth] = extractFromURL(remoteOriginUrls[0]);
   const currentBranch = await isogit.currentBranch({ dir: rootDir.toString() });
-  const configs = await isogit.config({ dir: rootDir.toString(), path: 'user.name', all: true });
-  console.log(`currentBranch: '${currentBranch}'`);
-  console.log(`configs:`);
-  console.log(configs);
-  console.log(`repos:`);
-  console.log(repos);
-  console.log(`ref: '${ref}'`);
-  /**
-   * State 1: Repository exists and ref is known
-   * Return a tuple containing a Repository object, and no Redux action.
-   * 
-   * State 2: Repository exists and ref is unknown
-   * Return a tuple containing a Repository object, and a Redux action to update the refs for it.
-   * 
-   * State 3: No repository exists
-   * Return a tuple containing a Repository object, and a Redux action to add a new repo.
-   */
-  // const existingRepo = repos.find(repo => repo.name === name);
-  // const existingRef = existingRepo ? existingRepo.refs.some(ref => ref === ref) : false;
+  const username = await isogit.config({ dir: rootDir.toString(), path: 'user.name' });
+  const password = await isogit.config({ dir: rootDir.toString(), path: 'credential.helper' });
 
-  // if (existingRepo && existingRef) {
-  //   return [existingRepo, null];
-  // }
+  const newRepo: Repository = {
+    id: v4(),
+    name: extractRepoName(url.href),
+    corsProxy: new URL('https://cors-anywhere.herokuapp.com/'),
+    url: url,
+    refs: currentBranch ? [currentBranch] : [],
+    oauth: oauth,
+    username: username ? username : '',
+    password: password ? password : '',
+    token: ''
+  };
 
-  // if (existingRepo && !existingRef) {
-  //   const action: Actions = { type: ActionKeys.UPDATE_REPO, id: existingRepo.id, repo: { refs: [...existingRepo.refs, ref] } };
-  //   return [existingRepo, action];
-  // }
+  const existingRepo = repos.find(r => r.name === newRepo.name);
+  const existingRef = existingRepo ? existingRepo.refs.find(r => r === ref) : undefined;
 
-  // const remotes = await isogit.listRemotes({ dir: root.toString() });
-  // const url = remotes.length > 0 ? remotes[0].url : '';
-
-  // const newRepo: Repository = {
-  //   id: v4(),
-  //   name: name,
-  //   corsProxy: ?,
-  //   url: ?,
-  //   refs: ?,
-  //   oauth: ?,
-  //   username: ?,
-  //   password: ?,
-  //   token: ?
-  // }
-
-  // *****************************************************
-
-  // const repo = repos.find(repo => (repo.url url && repo.refs[0] === ref))
-  // repos.map(repo => console.log(repo.url.href));
-
-
-  // const config = await isogit.config({ dir: root.toString(), path: 'user.name', all: true });
-  // console.log(`config:`);
-  // console.log(config);
-  // // TODO: Figure out the correct way of matching metafile information (such as root path?) to Git repository
-  // const repo = repos.find(repo => ( repo. ));
-  // if (repo) console.log(repo);
-  // else console.log(`repo could not be found for: '${config}'`);
+  if (existingRepo && existingRef) return [existingRepo, undefined];
+  else if (existingRepo && !existingRef) {
+    const updatedRepo = { ...existingRepo, refs: [...existingRepo.refs, ref] };
+    return [updatedRepo, { type: ActionKeys.UPDATE_REPO, id: existingRepo.id, repo: updatedRepo }];
+  } else return [newRepo, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo }];
 }

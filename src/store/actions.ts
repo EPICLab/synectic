@@ -9,6 +9,12 @@ export enum ActionKeys {
   ADD_REPO, REMOVE_REPO, UPDATE_REPO
 }
 
+/**
+ * Utility type for type narrowing Actions union type to specific sub-types based on 
+ * type values (e.g. NarrowAction<Actions, ActionKeys.ADD_CARD> results in AddCardAction type).
+ */
+export type NarrowAction<T, N> = T extends { type: N } ? T : never;
+
 export type Actions =
   | InitializeCanvasAction
   | AddCardAction

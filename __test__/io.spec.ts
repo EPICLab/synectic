@@ -20,6 +20,7 @@ describe('io.deserialize', () => {
 });
 
 describe('io.extractStats', () => {
+
   beforeAll(() => {
     mock({
       foo: {
@@ -31,6 +32,8 @@ describe('io.extractStats', () => {
       }
     });
   });
+
+  afterAll(mock.restore);
 
   it('extractStats to extract relevant file information from valid path', async () => {
     return expect(io.extractStats('foo/bar')).resolves.toHaveProperty('ctime', new Date(1));
@@ -108,9 +111,7 @@ describe('io.writeFileAsync', () => {
     });
   });
 
-  afterAll(() => {
-    mock.restore();
-  });
+  afterAll(mock.restore);
 
   it('writeFileAsync to resolve and write a new file with content', async () => {
     const testPath = 'foo/bar/fileA.txt';

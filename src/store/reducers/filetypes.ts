@@ -9,7 +9,7 @@ export const filetypeReducer = (state: { [id: string]: Filetype } = {}, action: 
     case ActionKeys.REMOVE_FILETYPE:
       return removeItemInMap(state, action.id);
     case ActionKeys.UPDATE_FILETYPE:
-      return updateItemInMapById(state, action.id, (filetype => updateObject(filetype, action.filetype)));
+      return updateItemInMapById(state, action.id, (filetype => updateObject<Filetype>(filetype, action.filetype)));
     default:
       return state;
   }

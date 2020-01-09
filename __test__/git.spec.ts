@@ -3,8 +3,9 @@ import mock from 'mock-fs';
 import * as git from '../src/containers/git';
 import parsePath from 'parse-path';
 import { Repository } from '../src/types';
+import { ActionKeys } from '../src/store/actions';
 
-beforeAll(() => {
+beforeEach(() => {
   mock({
     'foo/bar': {
       'no-tracked-file.js': 'file contents',
@@ -20,7 +21,7 @@ beforeAll(() => {
   });
 });
 
-afterAll(mock.restore);
+afterEach(mock.restore);
 
 describe('git.getRepoRoot', () => {
   it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
@@ -51,6 +52,40 @@ describe('git.isGitRepo', () => {
 
   it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
     return expect(git.isGitRepo('foo/bar/.git')).resolves.toBe(false);
+  });
+});
+
+describe('git.extractRepoName', () => {
+  it('extractRepoName resolves git://*', () => {
+    expect(git.extractRepoName('git://github.com/octo-org/octo-repo')).toBe('octo-org/octo-repo');
+  });
+
+  it('extractRepoName resolves git://*.git', () => {
+    expect(git.extractRepoName('git://github.com/octo-org/octo-repo.git')).toBe('octo-org/octo-repo');
+  });
+
+  it('extractRepoName resolves https://*', () => {
+    expect(git.extractRepoName('https://treygriffith@bitbucket.org/bucket-org/cellar.git')).toBe('bucket-org/cellar');
+  });
+
+  it('extractRepoName resolves https://*.git', () => {
+    expect(git.extractRepoName('https://gitlab.com/gitlab-org/omnibus-gitlab.git')).toBe('gitlab-org/omnibus-gitlab');
+  });
+
+  it('extractRepoName resolves ssh://*.git', () => {
+    expect(git.extractRepoName('ssh://git@gitlab.com:labuser/lab-repo.git')).toBe('labuser/lab-repo');
+  });
+
+  it('extractRepoName resolves https://gist', () => {
+    expect(git.extractRepoName('https://bitbucket.org/snippets/vmaric/oed9AM/hello-json-message')).toBe('vmaric/oed9AM/hello-json-message');
+  });
+
+  it('extractRepoName resolves git@gist', () => {
+    expect(git.extractRepoName('git@gist.github.com:3135914.git')).toBe('3135914');
+  });
+
+  it('extractRepoName resolves git+https://*.git#tag', () => {
+    expect(git.extractRepoName('git+https://github.com/octo-org/octo-repo.git#2.7.0')).toBe('octo-org/octo-repo');
   });
 });
 
@@ -148,11 +183,50 @@ describe('git.extractFromURL', () => {
     expect(httpsURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...httpsURL[0], protocol: 'https' }, 'gitlab']);
     expect(sshURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...sshURL[0], protocol: 'ssh' }, 'gitlab']);
   });
-
 });
 
 describe('git.isGitTracked', () => {
   it('isGitTracked resolves tracked file to true', async () => {
     return expect(git.isGitTracked('baz/qux/tracked-file.js')).resolves.toBe('absent');
+  });
+});
+
+describe('git.extractRepo', () => {
+  const existingRepo: Repository = {
+    id: '34',
+    name: 'test/test',
+    corsProxy: new URL('https://cors.github.com/example'),
+    url: parsePath('git@github.com:test/test.git'),
+    refs: ['sampleBranch'],
+    oauth: 'github',
+    username: '',
+    password: '',
+    token: ''
+  };
+
+  it('extractRepo resolves untracked Git directory to [undefined, undefined]', async () => {
+    return expect(git.extractRepo('foo/bar/', [])).resolves.toStrictEqual([undefined, undefined]);
+  });
+
+  it('extractRepo resolves a new Git repository to [new repo, AddRepoAction action]', async () => {
+    const [repo, action] = await git.extractRepo('baz/', []);
+    expect(action?.type).toBe(ActionKeys.ADD_REPO);
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect({ ...repo, id: undefined }).toMatchSnapshot();
+    expect({ type: action?.type, id: undefined, repo: { ...action?.repo, id: undefined } }).toMatchSnapshot();
+  });
+
+  it('extractRepo resolves an existing Git repository with unknown branch ref to [existing repo, UpdateRepoAction action]', async () => {
+    const [repo, action] = await git.extractRepo('baz/', [existingRepo]);
+    const updatedRepo = { ...existingRepo, refs: [...existingRepo.refs, 'HEAD'] };
+    expect(repo).toMatchObject(updatedRepo);
+    expect(action?.type).toBe(ActionKeys.UPDATE_REPO);
+    expect(action?.repo).toMatchObject(updatedRepo);
+  });
+
+  it('extractRepo resolves an existing Git repository and known branch ref to [existing repo, undefined]', async () => {
+    const [repo, action] = await git.extractRepo('baz/', [existingRepo], 'sampleBranch');
+    expect(repo).toMatchObject(existingRepo);
+    expect(action).toBeUndefined();
   });
 });

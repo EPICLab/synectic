@@ -6,7 +6,7 @@ import { remote } from 'electron';
 import { RootState } from '../store/root';
 import { loadCard } from '../containers/handlers';
 import { extractMetafile } from '../containers/metafiles';
-import { extractRepo, getRepoRoot } from '../containers/git';
+import { extractRepo } from '../containers/git';
 
 const FilePicker: React.FunctionComponent = () => {
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
@@ -31,9 +31,8 @@ const FilePicker: React.FunctionComponent = () => {
     if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => {
       const addMetafileAction = dispatch(await extractMetafile(filePath, filetypes));
 
-      const root = await getRepoRoot(filePath);
       const ref = addMetafileAction.metafile.ref ? addMetafileAction.metafile.ref : '';
-      if (root) await extractRepo(root, repos, ref);
+      await extractRepo(filePath, repos, ref);
 
       dispatch(loadCard(addMetafileAction.metafile));
     });

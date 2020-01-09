@@ -9,7 +9,7 @@ export const cardReducer = (state: { [id: string]: Card } = {}, action: Actions)
     case ActionKeys.REMOVE_CARD:
       return removeItemInMap(state, action.id);
     case ActionKeys.UPDATE_CARD:
-      return updateItemInMapById(state, action.id, (card => updateObject(card, action.card)));
+      return updateItemInMapById(state, action.id, (card => updateObject<Card>(card, action.card)));
     default:
       return state;
   }

@@ -9,7 +9,7 @@ export const reposReducer = (state: { [id: string]: Repository } = {}, action: A
     case ActionKeys.REMOVE_REPO:
       return removeItemInMap(state, action.id);
     case ActionKeys.UPDATE_REPO:
-      return updateItemInMapById(state, action.id, (repo => updateObject(repo, action.repo)));
+      return updateItemInMapById(state, action.id, (repo => updateObject<Repository>(repo, action.repo)));
     default:
       return state;
   }
