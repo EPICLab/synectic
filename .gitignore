@@ -41,3 +41,6 @@ out/
 
 # CSS-Modules-Typescript-Loader
 *.css.d.ts
+
+# Jest code coverage
+coverage/

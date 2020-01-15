@@ -1,43 +1,40 @@
-import { UUID, Repository, Card, Stack } from './types';
+import { UUID, Repository, Card, Stack, Metafile, Filetype } from '../types';
 
 export enum ActionKeys {
   INITIALIZE_CANVAS,
-  ADD_REPO, REMOVE_REPO, UPDATE_REPO,
   ADD_CARD, REMOVE_CARD, UPDATE_CARD,
-  ADD_STACK, REMOVE_STACK, UPDATE_STACK
+  ADD_STACK, REMOVE_STACK, UPDATE_STACK,
+  ADD_FILETYPE, REMOVE_FILETYPE, UPDATE_FILETYPE,
+  ADD_METAFILE, REMOVE_METAFILE, UPDATE_METAFILE,
+  ADD_REPO, REMOVE_REPO, UPDATE_REPO
 }
+
+/**
+ * Utility type for type narrowing Actions union type to specific sub-types based on 
+ * type values (e.g. NarrowAction<Actions, ActionKeys.ADD_CARD> results in AddCardAction type).
+ */
+export type NarrowAction<T, N> = T extends { type: N } ? T : never;
 
 export type Actions =
   | InitializeCanvasAction
-  | AddRepoAction
-  | RemoveRepoAction
-  | UpdateRepoAction
   | AddCardAction
   | RemoveCardAction
   | UpdateCardAction
   | AddStackAction
   | RemoveStackAction
-  | UpdateStackAction;
+  | UpdateStackAction
+  | AddFiletypeAction
+  | RemoveFiletypeAction
+  | UpdateFiletypeAction
+  | AddMetafileAction
+  | RemoveMetafileAction
+  | UpdateMetafileAction
+  | AddRepoAction
+  | RemoveRepoAction
+  | UpdateRepoAction;
 
 type InitializeCanvasAction = {
   type: ActionKeys.INITIALIZE_CANVAS;
-};
-
-type AddRepoAction = {
-  type: ActionKeys.ADD_REPO;
-  id: UUID;
-  repo: Repository;
-};
-
-type RemoveRepoAction = {
-  type: ActionKeys.REMOVE_REPO;
-  id: UUID;
-}
-
-type UpdateRepoAction = {
-  type: ActionKeys.UPDATE_REPO;
-  id: UUID;
-  repo: Partial<Repository>;
 };
 
 type AddCardAction = {
@@ -72,4 +69,55 @@ type UpdateStackAction = {
   type: ActionKeys.UPDATE_STACK;
   id: UUID;
   stack: Partial<Stack>;
+};
+
+type AddFiletypeAction = {
+  type: ActionKeys.ADD_FILETYPE;
+  id: UUID;
+  filetype: Filetype;
+};
+
+type RemoveFiletypeAction = {
+  type: ActionKeys.REMOVE_FILETYPE;
+  id: UUID;
+};
+
+type UpdateFiletypeAction = {
+  type: ActionKeys.UPDATE_FILETYPE;
+  id: UUID;
+  filetype: Partial<Filetype>;
+};
+
+type AddMetafileAction = {
+  type: ActionKeys.ADD_METAFILE;
+  id: UUID;
+  metafile: Metafile;
+};
+
+type RemoveMetafileAction = {
+  type: ActionKeys.REMOVE_METAFILE;
+  id: UUID;
+};
+
+type UpdateMetafileAction = {
+  type: ActionKeys.UPDATE_METAFILE;
+  id: UUID;
+  metafile: Partial<Metafile>;
+};
+
+type AddRepoAction = {
+  type: ActionKeys.ADD_REPO;
+  id: UUID;
+  repo: Repository;
+};
+
+type RemoveRepoAction = {
+  type: ActionKeys.REMOVE_REPO;
+  id: UUID;
+}
+
+type UpdateRepoAction = {
+  type: ActionKeys.UPDATE_REPO;
+  id: UUID;
+  repo: Partial<Repository>;
 };

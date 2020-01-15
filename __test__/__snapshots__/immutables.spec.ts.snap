@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`storeUtils utils.removeItemInArray immutably removes object from array 1`] = `
+exports[`immutables.removeItemInArray removeItemInArray immutably removes object from array 1`] = `
 Array [
   "red",
   "blue",
 ]
 `;
 
-exports[`storeUtils utils.updateItemInMap immutably updates only specified properties of matching item 1`] = `
+exports[`immutables.updateItemInMapById updateItemInMapById immutably updates only specified properties of matching item 1`] = `
 Object {
   "mittens": Object {
     "age": 11,
@@ -21,6 +21,26 @@ Object {
   },
   "scruffy": Object {
     "age": 7,
+    "color": "yellow",
+    "id": "scruffy",
+  },
+}
+`;
+
+exports[`immutables.updateMatchesInMap updateMatchesInMap immutably filters and updates only specified properties of matching items 1`] = `
+Object {
+  "mittens": Object {
+    "age": 11,
+    "color": "white",
+    "id": "old mittens",
+  },
+  "pearl": Object {
+    "age": 3,
+    "color": "brown",
+    "id": "pearl",
+  },
+  "scruffy": Object {
+    "age": 6,
     "color": "yellow",
     "id": "scruffy",
   },

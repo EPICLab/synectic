@@ -1,6 +1,7 @@
+import parsePath from 'parse-path';
 import { DateTime } from 'luxon';
 
-import { Repository, Canvas, Card, Stack } from '../src/store/types';
+import { Repository, Canvas, Card, Stack } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { canvasReducer } from '../src/store/reducers/canvas';
 
@@ -17,7 +18,7 @@ describe('canvasReducer', () => {
     id: '17',
     name: 'sampleUser/forkedRepo',
     corsProxy: new URL('http://www.oregonstate.edu'),
-    url: new URL('https://github.com/sampleUser/forkedRepo'),
+    url: parsePath('https://github.com/sampleUser/forkedRepo'),
     refs: ['601421', '843449'],
     oauth: 'github',
     username: 'sampleUser',
@@ -28,9 +29,10 @@ describe('canvasReducer', () => {
   const newCard: Card = {
     id: 't829w0351',
     name: 'card2',
+    metafile: '29334943',
     created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00'),
     modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00'),
-    repo: '123456789', ref: '09876543', left: 100, top: 50
+    left: 100, top: 50
   }
 
   const newStack: Stack = {

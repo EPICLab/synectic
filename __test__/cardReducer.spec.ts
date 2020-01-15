@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { Card } from '../src/store/types';
+import { Card } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { cardReducer } from '../src/store/reducers/cards';
 
@@ -9,18 +9,20 @@ describe('cardReducer', () => {
     '40d14391c': {
       id: '40d14391c',
       name: 'card1',
+      metafile: '29334943',
       created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
       modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-      repo: null, ref: null, left: 0, top: 0
+      left: 0, top: 0
     }
   }
 
   const newCard: Card = {
     id: 't829w0351',
     name: 'card2',
+    metafile: '84354571',
     created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00'),
     modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00'),
-    repo: '123456789', ref: '09876543', left: 100, top: 50
+    left: 100, top: 50
   }
 
   it('cardReducer appends a new card to state on action ADD_CARD', () => {

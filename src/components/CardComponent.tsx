@@ -1,13 +1,17 @@
 import React from 'react';
-import { useDrag } from 'react-dnd';
-import { Card } from '../store/types';
 import { useDispatch } from 'react-redux';
-import Header from './Header';
+import { useDrag } from 'react-dnd';
+
+import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
-import Editor from './Editor';
+
+const Header: React.FunctionComponent<{ title: string }> = props => {
+  return (<div className='card-header'><span>{props.title}</span>{props.children}</div>);
+}
 
 export const CardComponent: React.FunctionComponent<Card> = props => {
   const dispatch = useDispatch();
+
   const [{ isDragging }, drag] = useDrag({
     item: { type: 'CARD', id: props.id },
     collect: monitor => ({
@@ -24,7 +28,8 @@ export const CardComponent: React.FunctionComponent<Card> = props => {
     <Header title={props.name}>
       <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
     </Header>
-    <Editor uuid={props.id} code={'// sample code goes here...'} />
     {props.children}
   </div>;
 };
+
+export default CardComponent;
