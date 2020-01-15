@@ -1,119 +1,46 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
+// import * as io from '../containers/io';
+import { generateTreeNodeObject } from '../containers/explorer';
+import { PathLike } from 'fs-extra';
 
-//Tree Node type definition:
-type tNode = {
-  path: string;
-  type: string;
-  isRoot: boolean;
-  content: string;
-  children: string[];
+interface FileTreeProps {
+  path: PathLike;
 }
 
-//Dummy data:
-const root: tNode = {
-  path: '/root',
-  type: 'folder',
-  isRoot: true,
-  content: '',
-  children: ['/root/boop.txt', '/root/beep.txt', '/root/foo'],
-}
+export const FileTreeComponent: React.FunctionComponent<FileTreeProps> = (props: FileTreeProps) => {
+  const [files, setFiles] = useState<string[]>([]);
 
-const file1: tNode = {
-  path: '/root/boop.txt',
-  type: 'file',
-  isRoot: false,
-  content: 'ABC',
-  children: [],
-}
+  useEffect(() => {
+    async function fetchData() {
+      generateTreeNodeObject(props.path)
+        .then(result => process.stdout.write(`RESULT: ${result}` + '\n'))
+        .catch(error => process.stdout.write(`ERROR: ${error}` + '\n'));
+      setFiles(['res']);
+    }
 
-const file2: tNode = {
-  path: '/root/boop.txt',
-  type: 'file',
-  isRoot: false,
-  content: 'DEF',
-  children: [],
-}
-
-const folder1: tNode = {
-  path: '/root/foo',
-  type: 'folder',
-  isRoot: false,
-  content: '',
-  children: [],
-}
-
-//Put the data into an array
-const data = [
-  root,
-  file1,
-  file2,
-  folder1,
-]
-
-const getNodeLabel = (node: tNode) => node.path.split('/').slice(-1)[0]; // returns last segment of the path
-
-//Individual file/folder component:
-const TreeNode = (props: { node: tNode; getChildNodes: any /*level: number;*/ }) => {
-  const { node, getChildNodes, /*level*/ } = props;
+    fetchData();
+  }, [props.path]);
 
   return (
-    <React.Fragment>
-      <div>
-        <div>
-          {node.type === 'folder'}
-        </div>
-
-        <div>
-          {node.type === 'file'}
-          {node.type === 'folder'}
-          {node.type === 'folder'}
-        </div>
-
-        <span role="button">
-          {getNodeLabel(node)}
-        </span>
-      </div>
-      {getChildNodes(node).map((childNode: any, index: number) => (
-        <TreeNode
-          key={index}
-          {...props}
-          node={childNode}
-        //level={level + 1}
-        />
-      ))}
-    </React.Fragment>
+    <>
+      <ul>
+        {files.map((f, i) => <li key={i}>{f}</li>)}
+        Path: {props.path}
+      </ul>
+    </>
   );
 }
 
-//File/folder tree component:
-export default class Tree extends Component {
-
-  state = {
-    nodes: data,
-  };
-
-  getRootNodes = () => {
-    const { nodes } = this.state;
-    return Object.values(nodes).filter((node: any) => node.isRoot === true);
-  }
-
-  getChildNodes = (node: tNode) => {
-    if (!node.children) return [];
-    return node.children.map(() => node.path);
-  }
-
-  render = () => {
-    const rootNodes = this.getRootNodes();
-    return (
-      <div>
-        {rootNodes.map((node: tNode, index: number) => (
-          <TreeNode
-            key={index}
-            node={node}
-            getChildNodes={this.getChildNodes}
-          />
-        ))}
-      </div>
-    )
-  }
-}
+/**
+ *       {files.map((file: TreeNode) => {
+        {
+          file.isFileBool ?
+            <li key={file.filePath + ' Directory'}>{`${io.extractFilename(file.filePath)}`}
+              <Component<TreeNode> filePath={file.filePath} files={file.files} isFileBool={file.isFileBool} />}
+           </li>
+            :
+            <li key={file.filePath}>{`${io.extractFilename(file.filePath)}`}</li>;
+        }
+      })
+      }
+ */

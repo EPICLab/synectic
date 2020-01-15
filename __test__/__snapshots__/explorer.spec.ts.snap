@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`explorer.generateTreeNodeObject generateTreeNodeObject parses directory with one file 1`] = `
+Array [
+  Object {
+    "filePath": "bar/zap.js",
+    "files": Array [],
+    "isFileBool": true,
+  },
+]
+`;

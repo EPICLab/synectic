@@ -18,7 +18,7 @@ import { rootReducer } from './store/root';
 import { ActionKeys } from './store/actions';
 import { generateCards } from './containers/genFakedCards';
 import { CanvasComponent } from './components/CanvasComponent';
-import Tree from './components/FileExplorer';
+import { FileTreeComponent } from './components/FileExplorer';
 
 export const store = createStore(rootReducer);
 const cards = generateCards(3);
@@ -36,7 +36,7 @@ const App = (): JSX.Element => {
         <React.Fragment>
           <CanvasComponent {...store.getState().canvas}>
             <div>...End of Cards...</div>
-            <Tree />
+            <FileTreeComponent {...'directory goes here?'} />
           </CanvasComponent>
         </React.Fragment>
       </DndProvider>
