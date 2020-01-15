@@ -2,11 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { wrapInTestContext } from './__mocks__/dndMock';
 import { createStore } from 'redux';
-import { rootReducer } from '../src/store/root';
 import { Provider } from 'react-redux';
 // import configureStore from 'redux-mock-store';
 // import { remote } from 'electron';
 
+import { rootReducer } from '../src/store/root';
 import FilePicker from '../src/components/FilePicker';
 
 describe('FilePicker', () => {
