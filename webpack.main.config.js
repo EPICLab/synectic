@@ -4,8 +4,9 @@ module.exports = {
    * that runs in the main process.
    */
   entry: './src/main.js',
+  devtool: 'source-map',
   resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css']
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json']
   },
   module: {
     rules: require('./webpack.rules'),
