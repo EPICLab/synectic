@@ -10,6 +10,17 @@ body {
   position: fixed;
 }
 
+.stack {
+  background-color: rgba(102, 204, 117, 0.6);
+  height: calc((280px * 1.25) + 28px); /* scaled from card height */
+  width: calc((200px * 1.25) + 28px); /* scaled from card width */
+  position: absolute;
+  cursor: move;
+  border: 0.5px solid rgb(125, 125, 125);
+  border-radius: 5px;
+  user-select: none;
+}
+
 .card {
   background: rgba(90,125,86,1.0);
   color: rgba(171,178,191,1.0);
@@ -114,4 +125,10 @@ button.close:active {
     "header header header"
     "left center right"
     "footer footer footer";
+}
+
+img.diff_icon {
+  content:url('diff.png');
+  height: auto;
+  width: 20px;
 }
