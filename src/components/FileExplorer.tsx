@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
-// import * as io from '../containers/io';
-import { generateTreeNodeObject } from '../containers/explorer';
-import { PathLike } from 'fs-extra';
+import { generateFileTreeObject, TreeNode } from '../containers/explorer';
 
 interface FileTreeProps {
-  path: PathLike;
+  path: string;
 }
 
 export const FileTreeComponent: React.FunctionComponent<FileTreeProps> = (props: FileTreeProps) => {
-  const [files, setFiles] = useState<string[]>([]);
+  const [files, setFiles] = useState<string[]>([props.path]);
+  const [nodes, setNodes] = useState<TreeNode[]>([]);
 
   useEffect(() => {
     async function fetchData() {
-      generateTreeNodeObject(props.path)
-        .then(result => process.stdout.write(`RESULT: ${result}` + '\n'))
-        .catch(error => process.stdout.write(`ERROR: ${error}` + '\n'));
-      setFiles(['res']);
+      generateFileTreeObject(props.path)
+        .then((result) => {
+          setNodes(result);
+        });
     }
 
     fetchData();
@@ -23,9 +22,11 @@ export const FileTreeComponent: React.FunctionComponent<FileTreeProps> = (props:
 
   return (
     <>
+      <button onClick={() => setFiles(["You clicked the button", "How neat is that?"])}></button>
       <ul>
         {files.map((f, i) => <li key={i}>{f}</li>)}
-        Path: {props.path}
+        Path: {files}
+        Nodes: {nodes.map((node, i) => <li key={i}>{node.filePath}</li>)}
       </ul>
     </>
   );
