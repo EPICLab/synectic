@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 // import { remote } from 'electron';
 
 import { rootReducer } from '../src/store/root';
-import FilePicker from '../src/components/FilePicker';
+import FilePickerDialog from '../src/components/FilePickerDialog';
 
 describe('FilePicker', () => {
   // const mockStore = configureStore([]);
@@ -19,10 +19,10 @@ describe('FilePicker', () => {
 
   it('FilePicker allows users to pick a file for opening', () => {
     const store = createStore(rootReducer);
-    const FilePickerContext = wrapInTestContext(FilePicker);
+    const FilePickerContext = wrapInTestContext(FilePickerDialog);
     const ref = React.createRef();
     const enzymeWrapper = mount(<Provider store={store}><FilePickerContext ref={ref} /></Provider>);
-    expect(enzymeWrapper.find(FilePicker)).toHaveLength(1);
+    expect(enzymeWrapper.find(FilePickerDialog)).toHaveLength(1);
 
 
     // const initialState: unknown = [];
