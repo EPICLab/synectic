@@ -7,6 +7,6 @@ module.exports = [
     async: false
   }),
   new CopyWebpackPlugin([
-    { from: path.join('src', 'assets'), to: 'assets' }
+    { from: 'src/assets', to: 'assets' }
   ])
 ];

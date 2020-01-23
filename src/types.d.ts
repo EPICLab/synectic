@@ -29,6 +29,7 @@ export type Card = {
   readonly metafile: UUID;
   readonly created: DateTime;
   readonly modified: DateTime;
+  readonly captured: boolean;
   readonly left: number;
   readonly top: number;
 }
@@ -38,6 +39,15 @@ export type Filetype = {
   readonly filetype: string;
   readonly handler: string;
   readonly extensions: string[];
+}
+
+export type Metadir = {
+  readonly id: UUID;
+  readonly name: string;
+  readonly path: PathLike;
+  readonly expanded: boolean;
+  readonly containsDir: UUID[];
+  readonly containsFile: UUID[];
 }
 
 export type Metafile = {

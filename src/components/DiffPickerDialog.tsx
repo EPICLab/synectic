@@ -10,14 +10,13 @@ const MenuProps = {
   PaperProps: {
     style: {
       maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
     },
   }
 };
 
 export interface CardSelectProps {
   name: string;
-  gridArea: string;
+  area: string;
 }
 
 const CardSelect = (props: CardSelectProps) => {
@@ -29,9 +28,9 @@ const CardSelect = (props: CardSelectProps) => {
   };
 
   return (
-    <FormControl style={{ gridArea: props.gridArea, width: 100 }}>
+    <FormControl style={{ gridArea: props.area, width: 100 }}>
       <InputLabel id='diff-card-selection-name-label'>{props.name}</InputLabel>
-      <Select labelId='diff-card-selection-name-label' id='diff-card-name' value={selectedCard} onChange={handleChange} input={<Input />} MenuProps={MenuProps}>
+      <Select labelId='diff-card-selection-name-label' id='diff-card-name' value={selectedCard} autoWidth={true} onChange={handleChange} input={<Input />} MenuProps={MenuProps}>
         {cards.map(card => (
           <MenuItem key={card.id} value={card.id}>
             {card.name} (modified {card.modified.toRelative()})
@@ -56,12 +55,12 @@ export const DiffDialog = (props: DiffDialogProps) => {
   };
 
   return (
-    <Dialog onClose={handleClose} aria-labelledby="diff-dialog-title" open={open}>
+    <Dialog onClose={handleClose} id='diffpicker-dialog' aria-labelledby='diff-dialog-title' open={open}>
       <div className='container'>
         <DialogTitle id="diff-dialog-title" style={{ gridArea: 'header' }}>Select cards to diff</DialogTitle>
-        <CardSelect name='Version A' gridArea='left' />
-        <img src='../assets/diff.png' style={{ height: 'auto', width: 20 }} />
-        <CardSelect name='Version B' gridArea='right' />
+        <CardSelect name='Version A' area='left' />
+        <img className='diff_icon' />
+        <CardSelect name='Version B' area='right' />
         <Button style={{ gridArea: 'footer' }} id='diffpicker-button' variant='contained' color='primary' onClick={handleClose}>Run Diff</Button>
       </div>
     </Dialog>

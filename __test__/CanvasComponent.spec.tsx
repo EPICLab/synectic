@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 
-import { CanvasComponent } from '../src/components/CanvasComponent';
+import CanvasComponent from '../src/components/CanvasComponent';
 import { Canvas } from '../src/types';
 
 describe('CanvasComponent', () => {
@@ -37,4 +37,4 @@ describe('CanvasComponent', () => {
     const uuid = canvas.props().id ? canvas.props().id : '';
     expect(isUUID((uuid ? uuid : ''), 4)).toBe(true);
   });
-});
+}); 

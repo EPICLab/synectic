@@ -6,7 +6,7 @@ import * as io from './io';
 import { ActionKeys, Actions } from '../store/actions';
 import { Filetype, Metafile, Card } from '../types';
 
-const DEFAULT_PATH = './src/containers/filetypes.json';
+import filetypesJson from './filetypes.json';
 
 /**
  * Read and extract all supported filetype information from config file into Redux store.
@@ -14,18 +14,30 @@ const DEFAULT_PATH = './src/containers/filetypes.json';
  * default path if left blank.
  * @return A Promise object for an array of Redux actions that update the state with supported filetypes.
  */
-export const importFiletypes = async (filetypesPath: PathLike = DEFAULT_PATH) => {
-  return io.readFileAsync(filetypesPath)
-    .then(content => io.deserialize<Omit<Filetype, 'id'>[]>(content))
-    .then(filetypes => {
+export const importFiletypes = async (filetypesPath?: PathLike) => {
+  if (!filetypesPath) {
+    return new Promise<Actions[]>(resolve => {
+      const filetypes = filetypesJson as Omit<Filetype, 'id'>[];
       const actions: Actions[] = [];
       filetypes.map(filetype => {
         const filetypeId = v4();
         actions.push({ type: ActionKeys.ADD_FILETYPE, id: filetypeId, filetype: { id: filetypeId, ...filetype } });
       });
-      return actions;
-    })
-    .catch(error => { throw new Error(error.message) });
+      resolve(actions);
+    });
+  } else {
+    return io.readFileAsync(filetypesPath)
+      .then(content => io.deserialize<Omit<Filetype, 'id'>[]>(content))
+      .then(filetypes => {
+        const actions: Actions[] = [];
+        filetypes.map(filetype => {
+          const filetypeId = v4();
+          actions.push({ type: ActionKeys.ADD_FILETYPE, id: filetypeId, filetype: { id: filetypeId, ...filetype } });
+        });
+        return actions;
+      })
+      .catch(error => { throw new Error(error.message) });
+  }
 };
 
 /**
@@ -40,6 +52,7 @@ export const loadCard = (metafile: Metafile) => {
     metafile: metafile.id,
     created: DateTime.local(),
     modified: metafile.modified,
+    isCaptured: false,
     left: 10,
     top: 25
   };

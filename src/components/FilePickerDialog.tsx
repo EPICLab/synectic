@@ -8,7 +8,7 @@ import { loadCard } from '../containers/handlers';
 import { extractMetafile } from '../containers/metafiles';
 import { extractRepo } from '../containers/git';
 
-const FilePicker: React.FunctionComponent = () => {
+const FilePickerDialog: React.FunctionComponent = () => {
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const repos = useSelector((state: RootState) => Object.values(state.repos));
   const dispatch = useDispatch();
@@ -25,8 +25,8 @@ const FilePicker: React.FunctionComponent = () => {
      * 
      * The metafile information needs to be present for loading a new Card component into the UI, therefore, we must
      * update the metafile information in the React store on the same render cycle as the card state update.
-     * Therefore, to handle updating metafile information and loading a card in one render, we cheat and take the 
-     * metafile from the Redux metafile update action directly.
+     * To handle updating metafile information and loading a card in one render, we cheat and take the metafile from 
+     * the Redux metafile update action directly.
      */
     if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => {
       const addMetafileAction = dispatch(await extractMetafile(filePath, filetypes));
@@ -43,4 +43,4 @@ const FilePicker: React.FunctionComponent = () => {
   );
 };
 
-export default FilePicker;
+export default FilePickerDialog;

@@ -9,7 +9,7 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
   return (<div className='card-header'><span>{props.title}</span>{props.children}</div>);
 }
 
-export const CardComponent: React.FunctionComponent<Card> = props => {
+const CardComponent: React.FunctionComponent<Card> = props => {
   const dispatch = useDispatch();
 
   const [{ isDragging }, drag] = useDrag({
@@ -17,14 +17,11 @@ export const CardComponent: React.FunctionComponent<Card> = props => {
     collect: monitor => ({
       item: monitor.getItem(),
       isDragging: !!monitor.isDragging()
-    })
+    }),
+    canDrag: !props.isCaptured
   });
 
-  return <div className='card' ref={drag} style={{
-    left: props.left,
-    top: props.top,
-    opacity: isDragging ? 0 : 1
-  }}>
+  return <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
     <Header title={props.name}>
       <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
     </Header>

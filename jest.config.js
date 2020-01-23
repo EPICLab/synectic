@@ -7,7 +7,7 @@ module.exports = {
   preset: 'ts-jest',
   roots: ['<rootDir>/__test__'],
   snapshotSerializers: ['enzyme-to-json/serializer'],
-  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     "electron": "<rootDir>/__test__/__mocks__/electronMock.ts",
     "^dnd-core$": "dnd-core/dist/cjs",
