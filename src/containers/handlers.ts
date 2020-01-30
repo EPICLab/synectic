@@ -1,7 +1,5 @@
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-// import * as io from './io';
-// import { PathLike } from 'fs-extra';
 
 import filetypesJson from './filetypes.json';
 import { ActionKeys, Actions } from '../store/actions';

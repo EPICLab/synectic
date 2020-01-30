@@ -23,8 +23,8 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   }
 
   return (
-    <AceEditor mode={metafile.filetype} theme='monokai' onChange={onChange} name={metafile.id + '-editor'} value={code}
-      ref={editorRef} className='editor' height='calc(100% - 29px)' width='100%s' showGutter={false}
+    <AceEditor mode={metafile.filetype?.toLowerCase()} theme='monokai' onChange={onChange} name={metafile.id + '-editor'} value={code}
+      ref={editorRef} className='editor' height='calc(100% - 29px)' width='100%' showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
 }

@@ -38,7 +38,7 @@ const gitDecorator = async (metafile: Metafile) => {
   if (root) {
     // eslint-disable-next-line import/namespace
     const ref = await git.currentBranch({ dir: root, fullname: false });
-    return { ...metafile, repo: 'unchecked', ref: (ref ? ref : undefined) };
+    return { ...metafile, repo: 'unchecked', ref: ref };
     // TODO: Need to update the repo to be a valid UUID entry from Redux store
   } else return metafile;
 }

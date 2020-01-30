@@ -12,12 +12,12 @@ import { ActionKeys, Actions } from '../store/actions';
 type PickerDialogProps = {
   open: boolean;
   options: Card[];
-  onClose: (canceled: boolean, selected: [UUID, UUID]) => void;
+  onClose: (canceled: boolean, selected: [UUID | undefined, UUID | undefined]) => void;
 }
 
 const PickerDialog: React.FunctionComponent<PickerDialogProps> = props => {
-  const [selectedLeft, setSelectedLeft] = useState(props.options[0].id);
-  const [selectedRight, setSelectedRight] = useState(props.options[0].id);
+  const [selectedLeft, setSelectedLeft] = useState('');
+  const [selectedRight, setSelectedRight] = useState('');
 
   // const handleChange = (e: React.ChangeEvent<{ value: UUID }>) => {
   //   console.log(JSON.stringify(e));
@@ -27,12 +27,13 @@ const PickerDialog: React.FunctionComponent<PickerDialogProps> = props => {
 
   // TODO: Update handleChange to discern whether the update comes from left or right, and update values accordingly
   const handleChange = (value: UUID) => {
+    // console.log(`name: ${name}`);
     setSelectedLeft(value);
     setSelectedRight(value);
   }
 
   return (
-    <Dialog id='picker-dialog' open={props.open} onClose={() => props.onClose(false, ['', ''])}>
+    <Dialog id='picker-dialog' open={props.open} onClose={() => props.onClose(false, [undefined, undefined])}>
       <div className='container'>
         <DialogTitle id='picker-dialog-title' style={{ gridArea: 'header' }}>Select cards to diff</DialogTitle>
         <FormControl style={{ gridArea: 'left', width: 100 }}>
@@ -64,9 +65,7 @@ const PickerDialog: React.FunctionComponent<PickerDialogProps> = props => {
 
 const DiffPickerDialog: React.FunctionComponent = () => {
   const [open, setOpen] = useState(false);
-  // const [selected, setSelected] = useState<[UUID, UUID]>(['', '']);
   const cards = useSelector((state: RootState) => state.cards);
-  const cardsList = Object.values(cards);
   const metafiles = useSelector((state: RootState) => state.metafiles);
   const dispatch = useDispatch();
 
@@ -75,8 +74,11 @@ const DiffPickerDialog: React.FunctionComponent = () => {
     setOpen(!open);
   };
 
-  const handleClose = (canceled: boolean, selected: [UUID, UUID]) => {
-    if (!canceled) {
+  const handleClose = (canceled: boolean, selected: [UUID | undefined, UUID | undefined]) => {
+    console.log(`handleClose: ${JSON.stringify(selected)}`);
+    console.log(`# of cards: ${Object.values(cards).length}`);
+
+    if (!canceled && selected[0] && selected[1]) {
       const left = cards[selected[0]];
       const right = cards[selected[1]];
       const filetype = metafiles[left.related[0]].filetype;
@@ -107,12 +109,13 @@ const DiffPickerDialog: React.FunctionComponent = () => {
         dispatch(addCardAction);
       }
     }
+    setOpen(!open);
   };
 
   return (
     <>
       <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Diff Cards...</Button>
-      <PickerDialog open={open} options={cardsList} onClose={handleClose} />
+      <PickerDialog open={open} options={Object.values(cards)} onClose={handleClose} />
     </>
   );
 }
