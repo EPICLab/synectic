@@ -53,8 +53,8 @@ describe('metafiles.extractMetafile', () => {
   it('extractMetafile returns Redux action with default filetype information on unsupported filetype', async () => {
     const metafile = await extractMetafile('foo/data.azi', mockedFiletypes);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.metafile.filetype).toBe('Unknown');
-    expect(metafile.metafile.handler).toBe('Unsupported');
+    expect(metafile.metafile.filetype).toBeUndefined();
+    expect(metafile.metafile.handler).toBeUndefined();
   });
 
   it('extractMetafile returns Redux action with file stats on existing file', async () => {
@@ -71,11 +71,11 @@ describe('metafiles.extractMetafile', () => {
     expect(metafile.metafile.ref).toBe('master');
   });
 
-  it('extractMetafile returns Redux action with null Git information on untracked file', async () => {
+  it('extractMetafile returns Redux action without Git information on untracked file', async () => {
     const metafile = await extractMetafile('baz/raz.js', mockedFiletypes);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.metafile.repo).toBeNull();
-    expect(metafile.metafile.ref).toBeNull();
+    expect(metafile.metafile.repo).toBeUndefined();
+    expect(metafile.metafile.ref).toBeUndefined();
   });
 
   it('extractMetafile throws error on filepath of nonexistent file', async () => {

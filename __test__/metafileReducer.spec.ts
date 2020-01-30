@@ -13,8 +13,6 @@ describe('metafileReducer', () => {
       filetype: 'JavaScript',
       handler: 'Editor',
       modified: DateTime.fromISO('2019-12-01T11:14:08.572-08:00'),
-      repo: null,
-      ref: null,
       content: 'sample content from test.js'
     }
   };
@@ -26,8 +24,6 @@ describe('metafileReducer', () => {
     filetype: 'TypeScript',
     handler: 'Editor',
     modified: DateTime.fromISO('2019-12-20T01:01:01.572-08:00'),
-    repo: null,
-    ref: null,
     content: 'sample content from addition.ts'
   }
 

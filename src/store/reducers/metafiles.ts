@@ -12,7 +12,7 @@ export const metafileReducer = (state: { [id: string]: Metafile } = {}, action: 
       return updateItemInMapById(state, action.id, (metafile => updateObject<Metafile>(metafile, action.metafile)));
     case ActionKeys.REMOVE_REPO:
       return updateMatchesInMap(state, (metafile => metafile.repo === action.id),
-        (metafile => updateObject<Metafile>(metafile, { ...metafile, repo: null })));
+        (metafile => updateObject<Metafile>(metafile, { ...metafile, repo: undefined })));
     default:
       return state;
   }

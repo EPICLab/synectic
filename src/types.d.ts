@@ -2,7 +2,25 @@ import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 
+// Utility type to allow the TypeScript compiler to narrow union types based on discriminated
+// typing (e.g. NarrowType<Actions, ActionKeys.ADD_REPO> narrows to type AddRepoAction).
+export type NarrowType<T, N> = T extends { type: N } ? T : never;
+
 export type UUID = string;
+
+export type CardType = 'Editor' | 'Diff' | 'Explorer';
+
+export type Card = {
+  readonly id: UUID;
+  readonly name: string;
+  readonly type: CardType;
+  readonly related: UUID[];
+  readonly created: DateTime;
+  readonly modified: DateTime;
+  readonly captured: boolean;
+  readonly left: number;
+  readonly top: number;
+};
 
 export type Canvas = {
   readonly id: UUID;
@@ -23,21 +41,10 @@ export type Stack = {
   readonly top: number;
 }
 
-export type Card = {
-  readonly id: UUID;
-  readonly name: string;
-  readonly metafile: UUID;
-  readonly created: DateTime;
-  readonly modified: DateTime;
-  readonly captured: boolean;
-  readonly left: number;
-  readonly top: number;
-}
-
 export type Filetype = {
   readonly id: UUID;
   readonly filetype: string;
-  readonly handler: string;
+  readonly handler: CardType;
   readonly extensions: string[];
 }
 
@@ -53,20 +60,20 @@ export type Metadir = {
 export type Metafile = {
   readonly id: UUID;
   readonly name: string;
-  readonly filetype: string;
-  readonly handler: string;
   readonly modified: DateTime;
-  readonly path: PathLike | null;
-  readonly repo: UUID | null;
-  readonly ref: string | null;
-  readonly content: string | null;
+  readonly filetype?: string;
+  readonly handler?: CardType;
+  readonly path?: PathLike;
+  readonly repo?: UUID;
+  readonly ref?: string;
+  readonly content?: string;
 }
 
 export type Repository = {
   readonly id: UUID;
   readonly name: string;
   readonly corsProxy: URL;
-  readonly url: parsePath.ParsedPath;
+  readonly url: parsePath.ParsedPath; // allows for local URLs
   readonly refs: string[];
   readonly oauth: 'github' | 'bitbucket' | 'gitlab';
   readonly username: string;

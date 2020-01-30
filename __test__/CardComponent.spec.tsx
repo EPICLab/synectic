@@ -17,10 +17,11 @@ describe('CardComponent', () => {
   const cardProp: Card = {
     id: v4(),
     name: 'test.js',
-    metafile: '324e359f324hf523',
+    type: 'Editor',
+    related: ['324e359f324hf523'],
     created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
     modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-    isCaptured: false,
+    captured: false,
     left: 0,
     top: 0
   };

@@ -10,8 +10,6 @@ Object {
     "modified": "2019-12-21T20:45:13.131-08:00",
     "name": "test.js",
     "path": "./sample/test.js",
-    "ref": null,
-    "repo": null,
   },
 }
 `;

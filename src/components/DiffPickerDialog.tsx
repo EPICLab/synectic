@@ -1,92 +1,120 @@
 import React, { useState } from 'react';
+import { DateTime } from 'luxon';
+import { v4 } from 'uuid';
+import { useSelector, useDispatch } from 'react-redux';
 import { InputLabel, FormControl, Button, Dialog, Select, Input, MenuItem, DialogTitle } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+
 import { RootState } from '../store/root';
-import { UUID } from '../types';
+import { UUID, Metafile, Card } from '../types';
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-    },
-  }
-};
+import { ActionKeys, Actions } from '../store/actions';
 
-export interface CardSelectProps {
-  name: string;
-  area: string;
-}
-
-const CardSelect = (props: CardSelectProps) => {
-  const cards = useSelector((state: RootState) => Object.values(state.cards));
-  const [selectedCard, setSelectedCard] = useState('');
-
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedCard(event.target.value as UUID);
-  };
-
-  return (
-    <FormControl style={{ gridArea: props.area, width: 100 }}>
-      <InputLabel id='diff-card-selection-name-label'>{props.name}</InputLabel>
-      <Select labelId='diff-card-selection-name-label' id='diff-card-name' value={selectedCard} autoWidth={true} onChange={handleChange} input={<Input />} MenuProps={MenuProps}>
-        {cards.map(card => (
-          <MenuItem key={card.id} value={card.id}>
-            {card.name} (modified {card.modified.toRelative()})
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl >
-  );
-}
-
-export interface DiffDialogProps {
+type PickerDialogProps = {
   open: boolean;
-  selectedValue: string;
-  onClose: (value: string) => void;
+  options: Card[];
+  onClose: (canceled: boolean, selected: [UUID, UUID]) => void;
 }
 
-export const DiffDialog = (props: DiffDialogProps) => {
-  const { onClose, selectedValue, open } = props;
+const PickerDialog: React.FunctionComponent<PickerDialogProps> = props => {
+  const [selectedLeft, setSelectedLeft] = useState(props.options[0].id);
+  const [selectedRight, setSelectedRight] = useState(props.options[0].id);
 
-  const handleClose = () => {
-    onClose(selectedValue);
-  };
+  // const handleChange = (e: React.ChangeEvent<{ value: UUID }>) => {
+  //   console.log(JSON.stringify(e));
+  //   setSelectedLeft(e.target.value);
+  //   setSelectedRight(e.target.value);
+  // }
+
+  // TODO: Update handleChange to discern whether the update comes from left or right, and update values accordingly
+  const handleChange = (value: UUID) => {
+    setSelectedLeft(value);
+    setSelectedRight(value);
+  }
 
   return (
-    <Dialog onClose={handleClose} id='diffpicker-dialog' aria-labelledby='diff-dialog-title' open={open}>
+    <Dialog id='picker-dialog' open={props.open} onClose={() => props.onClose(false, ['', ''])}>
       <div className='container'>
-        <DialogTitle id="diff-dialog-title" style={{ gridArea: 'header' }}>Select cards to diff</DialogTitle>
-        <CardSelect name='Version A' area='left' />
+        <DialogTitle id='picker-dialog-title' style={{ gridArea: 'header' }}>Select cards to diff</DialogTitle>
+        <FormControl style={{ gridArea: 'left', width: 100 }}>
+          <InputLabel id='diff-card-selection-name-label'>Left</InputLabel>
+          <Select labelId='diff-card-selection-name-label' id='diff-card-name' value={selectedLeft} autoWidth={true} onChange={(e) => handleChange(e.target.value as UUID)} input={<Input />}>
+            {props.options.map(card => (
+              <MenuItem key={card.id} value={card.id}>
+                {card.name} (modified {card.modified.toRelative()})
+          </MenuItem>
+            ))}
+          </Select>
+        </FormControl >
         <img className='diff_icon' />
-        <CardSelect name='Version B' area='right' />
-        <Button style={{ gridArea: 'footer' }} id='diffpicker-button' variant='contained' color='primary' onClick={handleClose}>Run Diff</Button>
+        <FormControl style={{ gridArea: 'right', width: 100 }}>
+          <InputLabel id='diff-card-selection-name-label'>Right</InputLabel>
+          <Select labelId='diff-card-selection-name-label' id='diff-card-name' value={selectedRight} autoWidth={true} onChange={(e) => handleChange(e.target.value as UUID)} input={<Input />}>
+            {props.options.map(card => (
+              <MenuItem key={card.id} value={card.id}>
+                {card.name} (modified {card.modified.toRelative()})
+          </MenuItem>
+            ))}
+          </Select>
+        </FormControl >
+        <Button style={{ gridArea: 'footer' }} id='diffpicker-button' variant='contained' color='primary' onClick={() => props.onClose(false, [selectedLeft, selectedRight])}>Run Diff</Button>
       </div>
-    </Dialog>
+    </Dialog >
   );
 }
 
-const DiffPicker: React.FunctionComponent = () => {
+const DiffPickerDialog: React.FunctionComponent = () => {
   const [open, setOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<[UUID, UUID]>(['', '']);
+  // const [selected, setSelected] = useState<[UUID, UUID]>(['', '']);
+  const cards = useSelector((state: RootState) => state.cards);
+  const cardsList = Object.values(cards);
+  const metafiles = useSelector((state: RootState) => state.metafiles);
+  const dispatch = useDispatch();
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    setOpen(true);
-  }
+    setOpen(!open);
+  };
 
-  const handleClose = (value: string) => {
-    setOpen(false);
-    setSelectedValue([value, '']);
+  const handleClose = (canceled: boolean, selected: [UUID, UUID]) => {
+    if (!canceled) {
+      const left = cards[selected[0]];
+      const right = cards[selected[1]];
+      const filetype = metafiles[left.related[0]].filetype;
+      const metafile: Metafile = {
+        id: v4(),
+        name: `diff:${left.name}<>${right.name}`,
+        path: '',
+        filetype: filetype,
+        handler: 'Diff',
+        modified: DateTime.local()
+      };
+      const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+      dispatch(addMetafileAction);
+
+      if (metafile.handler) {
+        const card: Card = {
+          id: v4(),
+          name: metafile.name,
+          type: metafile.handler,
+          related: [metafile.id],
+          created: DateTime.local(),
+          modified: metafile.modified,
+          captured: false,
+          left: 10,
+          top: 25
+        };
+        const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
+        dispatch(addCardAction);
+      }
+    }
   };
 
   return (
     <>
-      <Button id='diffpicker-button' variant='contained' color='primary' onClick={async (e) => { await handleClick(e) }}>Diff Cards...</Button>
-      <DiffDialog selectedValue={selectedValue[0]} open={open} onClose={handleClose} />
+      <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Diff Cards...</Button>
+      <PickerDialog open={open} options={cardsList} onClose={handleClose} />
     </>
-  )
+  );
 }
 
-export default DiffPicker;
+export default DiffPickerDialog;

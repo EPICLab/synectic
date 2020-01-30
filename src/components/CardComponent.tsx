@@ -18,15 +18,17 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       item: monitor.getItem(),
       isDragging: !!monitor.isDragging()
     }),
-    canDrag: !props.isCaptured
+    canDrag: !props.captured
   });
 
-  return <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
-    <Header title={props.name}>
-      <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
-    </Header>
-    {props.children}
-  </div>;
+  return (
+    <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
+      <Header title={props.name}>
+        <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
+      </Header>
+      {props.children}
+    </div>
+  );
 };
 
 export default CardComponent;
