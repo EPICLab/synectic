@@ -4,24 +4,20 @@ import { useDrop, XYCoord } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { RootState } from '../store/root';
-import { Canvas, Stack } from '../types';
-import { ActionKeys, Actions } from '../store/actions';
+import { Canvas } from '../types';
+import { ActionKeys } from '../store/actions';
 import CardComponent from './CardComponent';
-import Editor from './Editor';
 import NewCardComponent from './NewCardDialog';
 import FilePickerDialog from './FilePickerDialog';
-import DiffPicker from './DiffPickerDialog';
+import DiffPicker from './DiffPicker';
 import { Button } from '@material-ui/core';
-import { DateTime } from 'luxon';
-import { v4 } from 'uuid';
 import StackComponent from './StackComponent';
+import { loadStack } from '../containers/handlers';
+import DiffPickerDialog from './DiffPickerDialog';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
-  const cardsList = Object.values(cards);
   const stacks = useSelector((state: RootState) => state.stacks);
-  const stacksList = Object.values(stacks);
-  const metafiles = useSelector((state: RootState) => state.metafiles);
   const dispatch = useDispatch();
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -65,46 +61,25 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   });
 
   const createStack = () => {
-    const stack: Stack = {
-      id: v4(),
-      name: 'test',
-      created: DateTime.local(),
-      modified: DateTime.local(),
-      note: 'go get some tests!',
-      cards: [cardsList[0].id, cardsList[1].id],
-      left: 250,
-      top: 250
-    };
-
-    const actions: Actions[] = [
-      { type: ActionKeys.ADD_STACK, id: stack.id, stack: stack },
-      { type: ActionKeys.UPDATE_CARD, id: cardsList[0].id, card: { ...cardsList[0], isCaptured: true, top: 50, left: 10 } },
-      { type: ActionKeys.UPDATE_CARD, id: cardsList[1].id, card: { ...cardsList[1], isCaptured: true, top: 60, left: 20 } }
-    ];
+    const cardsList = Object.values(cards);
+    const actions = loadStack('test', [cardsList[0], cardsList[1]], 'go get some testing');
     actions.map(action => dispatch(action));
+  }
+
+  const exposeCards = () => {
+    Object.values(cards).map((card, index) => console.log(`CARD ${index}: ${JSON.stringify(card)}`));
   }
 
   return (
     <div className='canvas' ref={drop}>
+      <Button id='stack-button' variant='contained' color='primary' onClick={exposeCards}>Expose Cards</Button>
       <NewCardComponent />
       <FilePickerDialog />
       <DiffPicker />
+      <DiffPickerDialog />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
-      <Button id='stack-button' variant='contained' color='primary' onClick={testJsonRead}>Test JSON</Button>
-      {stacksList.map(stack => {
-        return (
-          <StackComponent key={stack.id} {...stack} />
-        );
-      })}
-      {cardsList.map(card => {
-        if (card.isCaptured) return null;
-        const metafile = metafiles[card.metafile];
-        return (
-          <CardComponent key={card.id} {...card}>
-            {metafile && <Editor uuid={card.id + '-editor'} mode={'javascript'} code={metafile.content ? metafile.content : ''} />}
-          </CardComponent>
-        );
-      })}
+      {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
+      {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {props.children}
     </div>
   );

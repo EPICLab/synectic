@@ -4,10 +4,26 @@ import { useDrag } from 'react-dnd';
 
 import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
+import Editor from './Editor';
+import Diff from './Diff';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
-  return (<div className='card-header'><span>{props.title}</span>{props.children}</div>);
-}
+  return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
+};
+
+const Content: React.FunctionComponent<Card> = props => {
+  switch (props.type) {
+    case 'Editor':
+      return (<Editor metafileId={props.related[0]} />);
+    case 'Diff':
+      return (<Diff left={props.related[0]} right={props.related[1]} />);
+    case 'Explorer':
+      // TODO: Pull in FileExplorer component from Jett's branch
+      return (<div>File Explorer card will be instantiated here...</div>);
+    default:
+      return null;
+  }
+};
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const dispatch = useDispatch();
@@ -18,15 +34,17 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       item: monitor.getItem(),
       isDragging: !!monitor.isDragging()
     }),
-    canDrag: !props.isCaptured
+    canDrag: !props.captured
   });
 
-  return <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
-    <Header title={props.name}>
-      <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
-    </Header>
-    {props.children}
-  </div>;
+  return (
+    <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
+      <Header title={props.name}>
+        <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
+      </Header>
+      <Content {...props} />
+    </div>
+  );
 };
 
 export default CardComponent;

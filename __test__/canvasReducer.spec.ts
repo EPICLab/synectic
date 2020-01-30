@@ -29,10 +29,11 @@ describe('canvasReducer', () => {
   const newCard: Card = {
     id: 't829w0351',
     name: 'card2',
-    metafile: '29334943',
+    type: 'Editor',
+    related: ['29334943'],
     created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00'),
     modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00'),
-    isCaptured: false,
+    captured: false,
     left: 100, top: 50
   }
 

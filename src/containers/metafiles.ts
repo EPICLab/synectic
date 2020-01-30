@@ -38,7 +38,7 @@ const gitDecorator = async (metafile: Metafile) => {
   if (root) {
     // eslint-disable-next-line import/namespace
     const ref = await git.currentBranch({ dir: root, fullname: false });
-    return { ...metafile, repo: 'unchecked', ref: (ref ? ref : null) };
+    return { ...metafile, repo: 'unchecked', ref: ref };
     // TODO: Need to update the repo to be a valid UUID entry from Redux store
   } else return metafile;
 }
@@ -59,12 +59,9 @@ export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[])
     id: v4(),
     name: filename,
     path: filepath,
-    filetype: handler ? handler.filetype : 'Unknown',
-    handler: handler ? handler.handler : 'Unsupported',
     modified: DateTime.local(),
-    repo: null,
-    ref: null,
-    content: null
+    filetype: handler ? handler.filetype : undefined,
+    handler: handler ? handler.handler : undefined
   };
 
   return statsDecorator(metafile)

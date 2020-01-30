@@ -6,10 +6,10 @@ import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
 import * as io from './io';
-import { Repository } from '../types';
-import { ActionKeys, Actions, NarrowAction } from '../store/actions';
+import { Repository, NarrowType } from '../types';
+import { ActionKeys, Actions } from '../store/actions';
 
-type ExistingRepoActions = NarrowAction<Actions, ActionKeys.ADD_REPO | ActionKeys.UPDATE_REPO>;
+type ExistingRepoActions = NarrowType<Actions, ActionKeys.ADD_REPO | ActionKeys.UPDATE_REPO>;
 
 export * from 'isomorphic-git';
 

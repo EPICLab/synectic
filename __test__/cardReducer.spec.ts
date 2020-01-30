@@ -1,18 +1,20 @@
 import { DateTime } from 'luxon';
 
-import { Card } from '../src/types';
+// import { Card, CardType } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { cardReducer } from '../src/store/reducers/cards';
+import { Card } from '../src/types';
 
 describe('cardReducer', () => {
   const cards: { [id: string]: Card } = {
     '40d14391c': {
       id: '40d14391c',
       name: 'card1',
-      metafile: '29334943',
+      type: 'Editor',
+      related: ['29334943'],
       created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
       modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-      isCaptured: false,
+      captured: false,
       left: 0, top: 0
     }
   }
@@ -20,10 +22,11 @@ describe('cardReducer', () => {
   const newCard: Card = {
     id: 't829w0351',
     name: 'card2',
-    metafile: '84354571',
+    type: 'Editor',
+    related: ['84354571'],
     created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00'),
     modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00'),
-    isCaptured: false,
+    captured: false,
     left: 100, top: 50
   }
 

@@ -34,7 +34,7 @@ const FilePickerDialog: React.FunctionComponent = () => {
       const ref = addMetafileAction.metafile.ref ? addMetafileAction.metafile.ref : '';
       await extractRepo(filePath, repos, ref);
 
-      dispatch(loadCard(addMetafileAction.metafile));
+      if (addMetafileAction.metafile.handler) dispatch(loadCard(addMetafileAction.metafile));
     });
   };
 

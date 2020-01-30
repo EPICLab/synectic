@@ -23,6 +23,7 @@ const App = (): JSX.Element => {
     fetchData();
   }, []);
 
+
   return (
     <Provider store={store}>
       <DndProvider backend={HTML5Backend}>
