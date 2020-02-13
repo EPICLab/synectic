@@ -9,6 +9,21 @@ import * as path from 'path';
 export const deserialize = <T>(json: string) => JSON.parse(json) as T;
 
 /**
+ * Asynchronously extracts the contents of the path directory. Returns the 
+ * filenames of all immediate child directories and files; does not descend
+ * into sub-directories.
+ * @param filepath The relative or absolute path to evaluate.
+ * @return A Promise object for an array containing file basenames.
+ */
+export const extractReaddir = (filepath: fs.PathLike) => {
+  return new Promise<string[] | undefined>(resolve => {
+    fs.readdir(filepath.toString())
+      .then(children => resolve(children))
+      .catch(() => resolve(undefined));
+  });
+}
+
+/**
  * Extracts the file stat details from the path. Returns all fields provided by
  * the fs.Stats class (see the Node.js API docs @link https://nodejs.org/api/fs.html#fs_class_fs_stats).
  * @param filepath The relative or absolute path to evaluate.
