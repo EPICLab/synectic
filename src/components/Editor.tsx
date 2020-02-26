@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/root';
 import { UUID } from '../types';
 import 'ace-builds';
@@ -11,16 +11,22 @@ import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
+import { ActionKeys } from '../store/actions';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
   const [code, setCode] = useState<string>(metafile.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
+  const dispatch = useDispatch();
 
   const onChange = (newCode: string) => {
     setCode(newCode);
-    // console.log('change', newValue);
-  }
+    dispatch({
+      type: ActionKeys.UPDATE_METAFILE,
+      id: metafile.id,
+      metafile: { ...metafile, content: newCode }
+    });
+  };
 
   return (
     <AceEditor mode={metafile.filetype?.toLowerCase()} theme='monokai' onChange={onChange} name={metafile.id + '-editor'} value={code}

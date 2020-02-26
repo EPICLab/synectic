@@ -102,6 +102,18 @@ body {
   opacity: 1;
 }
 
+.ace_highlight_green {
+  position: absolute;
+  background: rgba(147,200,54,0.8);
+  z-index: 20;
+}
+
+.ace_highlight_red {
+  position: absolute;
+  background: rgba(221,88,115,0.8);
+  z-index: 20;
+}
+
 button.close {
   background: url('close_dark.svg');
   background-size: cover;

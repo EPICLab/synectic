@@ -9,7 +9,6 @@ import { ActionKeys } from '../store/actions';
 import CardComponent from './CardComponent';
 import NewCardComponent from './NewCardDialog';
 import FilePickerDialog from './FilePickerDialog';
-import DiffPicker from './DiffPicker';
 import { Button } from '@material-ui/core';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
@@ -75,7 +74,6 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <Button id='stack-button' variant='contained' color='primary' onClick={exposeCards}>Expose Cards</Button>
       <NewCardComponent />
       <FilePickerDialog />
-      <DiffPicker />
       <DiffPickerDialog />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
