@@ -2,7 +2,6 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import { remote } from 'electron';
-
 import { RootState } from '../store/root';
 import { loadCard } from '../containers/handlers';
 import { extractMetafile } from '../containers/metafiles';

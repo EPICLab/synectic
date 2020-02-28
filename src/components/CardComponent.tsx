@@ -6,6 +6,7 @@ import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
 import Editor from './Editor';
 import Diff from './Diff';
+import FileExplorerComponent from './FileExplorer';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -19,7 +20,8 @@ const Content: React.FunctionComponent<Card> = props => {
       return (<Diff left={props.related[0]} right={props.related[1]} />);
     case 'Explorer':
       // TODO: Pull in FileExplorer component from Jett's branch
-      return (<div>File Explorer card will be instantiated here...</div>);
+      // return (<div>File Explorer card will be instantiated here...</div>);
+      return (<FileExplorerComponent metaDirId={props.related[0]} />);
     default:
       return null;
   }

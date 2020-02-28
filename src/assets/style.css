@@ -132,3 +132,25 @@ img.diff_icon {
   height: auto;
   width: 20px;
 }
+
+.file-explorer {
+  color: rgb(30, 30, 30);
+  background: rgb(235, 235, 235);
+  max-width: 200px;
+  height: 248px;
+  flex-grow: 1;
+  text-indent: 20px;
+  border: 2px solid rgb(65, 65, 65);
+  border-radius: 0px 0px 10px 10px;
+  overflow: auto;
+  text-overflow: clip;
+}
+
+.file-icon {
+  margin-left: 20px;
+}
+
+::-webkit-scrollbar {
+  visibility: hidden;
+  width: 0px;
+}

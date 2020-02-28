@@ -8,7 +8,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import './assets/style.css';
 import { rootReducer } from './store/root';
 import CanvasComponent from './components/CanvasComponent';
-import { FileTreeComponent } from './components/FileExplorer';
+//import { FileTreeComponent } from './components/FileExplorer';
 import { importFiletypes } from './containers/handlers';
 
 export const store = createStore(rootReducer);
@@ -28,13 +28,7 @@ const App = (): JSX.Element => {
     <Provider store={store}>
       <DndProvider backend={HTML5Backend}>
         <React.Fragment>
-<<<<<<< HEAD
-          <CanvasComponent {...store.getState().canvas}>
-            <FileTreeComponent path='' />
-          </CanvasComponent>
-=======
           <CanvasComponent {...store.getState().canvas} />
->>>>>>> ede6d4e88dcfa8bdb77e876e22791672609e1055
         </React.Fragment>
       </DndProvider>
     </Provider >

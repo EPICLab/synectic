@@ -1,24 +1,43 @@
-import React from 'react';
-import mock from 'mock-fs';
-import { FileTreeComponent } from '../src/components/FileExplorer';
-import { mount } from 'enzyme';
-import { wrapInTestContext } from './__mocks__/dndMock';
+// import configureStore from 'redux-mock-store';
+import { Metadir } from '../src/types';
+import { v4 } from 'uuid';
+import { Actions, ActionKeys } from '../src/store/actions';
+// import renderer from 'react-test-renderer';
+// import { Provider } from 'react-redux';
+// import React from 'react';
 
-describe('FileExplorer', () => {
+// const mockStore = configureStore([]);
 
-    beforeEach(() => {
-        mock({
-            foo: {
-                bar: 'content sample'
-            }
-        });
-    });
+describe('FileExplorerComponent', () => {
+    // let store;
+    // let component;
 
-    afterEach(mock.restore);
+    const metadir: Metadir = {
+        id: v4(),
+        name: 'foo',
+        path: '/foo',
+        expanded: true,
+        containsDir: [],
+        containsFile: [],
+    };
 
-    it('FileExplorer has one folder', () => {
-        const FileTreeContext = wrapInTestContext(FileTreeComponent);
-        const enzymeWrapper = mount(<FileTreeContext path='foo' />);
-        return expect(enzymeWrapper.find('ul')).toHaveLength(1);
-    });
+    const action: Actions = {
+        type: ActionKeys.ADD_FE,
+        id: metadir.id,
+        metadir: metadir,
+    };
+
+    console.log(action);
+
+    // beforeEach(() => {
+    //     store = mockStore({
+    //         myState: action,
+    //     });
+    // });
+
+    // component = renderer.create(
+    //     <Provider store={store}>
+
+    //     </Provider>
+    // );
 });
