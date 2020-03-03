@@ -1,8 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { wrapInTestContext } from './__mocks__/dndMock';
+import { wrapInTestContext } from './__mocks__/dndReduxMock';
 import { createStore } from 'redux';
-import { Provider } from 'react-redux';
 // import configureStore from 'redux-mock-store';
 // import { remote } from 'electron';
 
@@ -19,9 +18,9 @@ describe('FilePicker', () => {
 
   it('FilePicker allows users to pick a file for opening', () => {
     const store = createStore(rootReducer);
-    const FilePickerContext = wrapInTestContext(FilePickerDialog);
+    const FilePickerContext = wrapInTestContext(FilePickerDialog, store);
     const ref = React.createRef();
-    const enzymeWrapper = mount(<Provider store={store}><FilePickerContext ref={ref} /></Provider>);
+    const enzymeWrapper = mount(<FilePickerContext ref={ref} />);
     expect(enzymeWrapper.find(FilePickerDialog)).toHaveLength(1);
 
 

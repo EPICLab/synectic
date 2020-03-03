@@ -1,8 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { wrapInTestContext } from './__mocks__/dndMock';
+import { wrapInTestContext } from './__mocks__/dndReduxMock';
 import { createStore } from 'redux';
-import { Provider } from 'react-redux';
 
 import { rootReducer } from '../src/store/root';
 import PickerDialog from '../src/components/DiffPickerDialog';
@@ -12,15 +11,15 @@ import PickerDialog from '../src/components/DiffPickerDialog';
 describe('DiffPicker', () => {
   it('DiffPicker component renders', () => {
     const store = createStore(rootReducer);
-    const DiffPickerContext = wrapInTestContext(PickerDialog);
-    const enzymeWrapper = mount(<Provider store={store}><DiffPickerContext /></Provider>);
+    const DiffPickerContext = wrapInTestContext(PickerDialog, store);
+    const enzymeWrapper = mount(<DiffPickerContext />);
     expect(enzymeWrapper.exists()).toBe(true);
   });
 
   it('DiffDialog component is rendered when DiffPicker is clicked', () => {
     const store = createStore(rootReducer);
-    const DiffPickerContext = wrapInTestContext(PickerDialog);
-    const enzymeWrapper = mount(<Provider store={store}><DiffPickerContext /></Provider>);
+    const DiffPickerContext = wrapInTestContext(PickerDialog, store);
+    const enzymeWrapper = mount(<DiffPickerContext />);
     enzymeWrapper.find('#diffpicker-button').first().simulate('click');
     // const diffPicker = enzymeWrapper.find(DiffPicker);
     // expect(diffPicker.state('open')).toBeTruthy();
@@ -29,9 +28,9 @@ describe('DiffPicker', () => {
 
   it('DiffPicker allows selecting different active cards', () => {
     const store = createStore(rootReducer);
-    const DiffPickerContext = wrapInTestContext(PickerDialog);
+    const DiffPickerContext = wrapInTestContext(PickerDialog, store);
     const ref = React.createRef();
-    const enzymeWrapper = mount(<Provider store={store}><DiffPickerContext ref={ref} /></Provider>);
+    const enzymeWrapper = mount(<DiffPickerContext ref={ref} />);
     const picker = enzymeWrapper.find('#diffpicker-button').first();
     picker.simulate('click');
     expect(picker.props().onClick).toBeDefined();

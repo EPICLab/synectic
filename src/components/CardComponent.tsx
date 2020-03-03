@@ -4,8 +4,8 @@ import { useDrag } from 'react-dnd';
 
 import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
-import Editor from './Editor';
-import Diff from './Diff';
+// import Editor from './Editor';
+// import Diff from './Diff';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -13,10 +13,16 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
 
 const Content: React.FunctionComponent<Card> = props => {
   switch (props.type) {
-    case 'Editor':
-      return (<Editor metafileId={props.related[0]} />);
-    case 'Diff':
-      return (<Diff left={props.related[0]} right={props.related[1]} />);
+    case 'Editor': {
+      console.log(`Editor card`);
+      return null;
+    }
+    //   return (<Editor metafileId={props.related[0]} />);
+    case 'Diff': {
+      console.log(`Editor card`);
+      return null;
+    }
+    // return (<Diff left={props.related[0]} right={props.related[1]} />);
     case 'Explorer':
       // TODO: Pull in FileExplorer component from Jett's branch
       return (<div>File Explorer card will be instantiated here...</div>);
