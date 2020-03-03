@@ -6,12 +6,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/root';
 import { Canvas } from '../types';
 import { ActionKeys } from '../store/actions';
-import CardComponent from './CardComponent';
+// import CardComponent from './CardComponent';
 import NewCardComponent from './NewCardDialog';
 import FilePickerDialog from './FilePickerDialog';
-import DiffPicker from './DiffPicker';
 import { Button } from '@material-ui/core';
-import StackComponent from './StackComponent';
+// import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import DiffPickerDialog from './DiffPickerDialog';
 import FolderPicker from './FolderPicker'
@@ -77,11 +76,12 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <NewCardComponent />
       <FilePickerDialog />
       <FolderPicker />
-      <DiffPicker />
       <DiffPickerDialog />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
-      {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
-      {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
+      {Object.values(cards).filter(card => !card.captured).map(card => <div key={card.id}>{card.id}</div>)}
+      {Object.values(stacks).map(stack => <div key={stack.id}>{stack.id}</div>)}
+      {/* {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
+      {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)} */}
       {props.children}
     </div>
   );

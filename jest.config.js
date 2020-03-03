@@ -9,6 +9,7 @@ module.exports = {
   snapshotSerializers: ['enzyme-to-json/serializer'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
+    "ace-builds": "<rootDir>/node_modules/ace-builds",
     "electron": "<rootDir>/__test__/__mocks__/electronMock.ts",
     "^dnd-core$": "dnd-core/dist/cjs",
     "^react-dnd$": "react-dnd/dist/cjs",

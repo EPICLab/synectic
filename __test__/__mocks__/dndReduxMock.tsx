@@ -12,12 +12,14 @@ import React from 'react';
 import TestBackendImpl from 'react-dnd-test-backend';
 import { DndProvider, DndContext } from 'react-dnd';
 import { DragDropManager } from 'dnd-core';
+import { Store, AnyAction } from 'redux';
+import { Provider } from 'react-redux';
 
 interface RefType {
   getManager: () => DragDropManager | undefined;
 }
 
-export function wrapInTestContext(DecoratedComponent: any): any {
+export function wrapInTestContext(DecoratedComponent: any, store: Store<any, AnyAction>): any {
   const forwardRefFunc = (props: any, ref: React.Ref<RefType>) => {
     const dragDropManager = React.useRef<any>(undefined);
 
@@ -26,15 +28,17 @@ export function wrapInTestContext(DecoratedComponent: any): any {
     }));
 
     return (
-      <DndProvider backend={TestBackendImpl}>
-        <DndContext.Consumer>
-          {ctx => {
-            dragDropManager.current = ctx.dragDropManager;
-            return null;
-          }}
-        </DndContext.Consumer>
-        <DecoratedComponent {...props} />
-      </DndProvider>
+      <Provider store={store}>
+        <DndProvider backend={TestBackendImpl}>
+          <DndContext.Consumer>
+            {ctx => {
+              dragDropManager.current = ctx.dragDropManager;
+              return null;
+            }}
+          </DndContext.Consumer>
+          <DecoratedComponent {...props} />
+        </DndProvider>
+      </Provider>
     );
   };
   forwardRefFunc.displayName = 'TestContextWrapper';
