@@ -89,7 +89,7 @@ describe('git.extractRepoName', () => {
   });
 });
 
-// process.stdout.write(`directory: ${directory}` + '\n');
+// process.stdout.write(`directory: ${directory}\n`);
 
 describe('git.extractFromURL', () => {
   it('extractFromURL resolves git://*', () => {
