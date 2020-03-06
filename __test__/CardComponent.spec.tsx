@@ -1,15 +1,12 @@
 import React from 'react';
-// import isUUID from 'validator/lib/isUUID';
+import isUUID from 'validator/lib/isUUID';
 import { mount } from 'enzyme';
-import { wrapInTestContext } from './__mocks__/dndReduxMock';
-import { createStore } from 'redux';
-import { rootReducer } from '../src/store/root';
-import { DateTime } from 'luxon';
-import { v4 } from 'uuid';
 
+import { wrapInTestContext } from './__mocks__/dndReduxMock';
+import { getMockStore, getCardProps } from './__mocks__/reduxStoreMock';
 // eslint-disable-next-line import/no-named-as-default
 import CardComponent from '../src/components/CardComponent';
-import { Card } from '../src/types';
+import Editor from '../src/components/Editor';
 
 describe('CardComponent', () => {
 
@@ -17,37 +14,20 @@ describe('CardComponent', () => {
   const mountOptions = {
     attachTo: domElement,
   };
-  const store = createStore(rootReducer);
+  const store = getMockStore();
+  const cardProps = getCardProps(0);
 
-  const cardProp: Card = {
-    id: v4(),
-    name: 'test.js',
-    type: 'Editor',
-    related: ['324e359f324hf523'],
-    created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-    modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-    captured: false,
-    left: 0,
-    top: 0
-  };
-
-  it('CardComponent should work', () => {
+  it('Card resolves props into React Component for Editor handler', () => {
     const CardContext = wrapInTestContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...cardProp} />, mountOptions);
-    const component = wrapper.find(CardComponent).first();
-    expect(component).toBeDefined();
+    const wrapper = mount(<CardContext {...cardProps} />, mountOptions);
+    expect(wrapper.find(Editor)).toHaveLength(1);
   });
 
-  // it('CardComponent has a valid UUID when props contain valid UUID', () => {
-  //   const store = createStore(rootReducer);
-  //   const CardContext = wrapInTestContext(CardComponent, store);
-  //   const ref = React.createRef();
-  //   const enzymeWrapper = mount(<CardContext ref={ref} {...cardProp} />);
-  //   expect(enzymeWrapper.find(CardComponent)).toHaveLength(1);
-
-  //   const card = enzymeWrapper.find(CardComponent).first();
-  //   const uuid = card.props().id ? card.props().id : '';
-  //   expect(isUUID((uuid ? uuid : ''), 4)).toBe(true);
-  // });
+  it('Card has a valid UUID when props contain a valid UUID', () => {
+    const CardContext = wrapInTestContext(CardComponent, store);
+    const wrapper = mount(<CardContext {...getCardProps(1)} />, mountOptions);
+    const component = wrapper.find(CardComponent).first();
+    expect(isUUID(component.props().id, 4)).toBe(true);
+  });
 
 });
