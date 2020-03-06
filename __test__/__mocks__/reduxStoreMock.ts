@@ -71,12 +71,14 @@ export const getMockStore = () => {
       199: {
         id: '199',
         name: 'test.js',
-        modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00')
+        modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00'),
+        content: 'const rand: number = Math.floor(Math.random() * 6) + 1;'
       },
       243: {
         id: '243',
         name: 'example.ts',
-        modified: DateTime.fromISO('2015-06-19T19:10:47.572-08:00')
+        modified: DateTime.fromISO('2015-06-19T19:10:47.572-08:00'),
+        content: 'var rand = Math.floor(Math.random() * 6) + 1;'
       }
     },
     repos: {

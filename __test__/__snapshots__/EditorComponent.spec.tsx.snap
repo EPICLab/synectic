@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Editor Editor component should render AceEditor markers 1`] = `
+Object {
+  "1": Object {
+    "clazz": "ace_active-line",
+    "id": 1,
+    "inFront": false,
+    "range": Range {
+      "end": Object {
+        "column": Infinity,
+        "row": 0,
+      },
+      "id": 1,
+      "start": Object {
+        "column": 55,
+        "row": 0,
+      },
+    },
+    "renderer": null,
+    "type": "screenLine",
+  },
+  "2": SearchHighlight {
+    "cache": Array [],
+    "clazz": "ace_selected-word",
+    "id": 2,
+    "inFront": false,
+    "regExp": undefined,
+    "type": "text",
+  },
+  "3": Object {
+    "clazz": undefined,
+    "id": 3,
+    "inFront": false,
+    "range": Object {
+      "className": "test-marker",
+      "endCol": 10,
+      "endRow": 3,
+      "startCol": 0,
+      "startRow": 3,
+      "type": "text",
+    },
+    "renderer": null,
+    "type": "line",
+  },
+}
+`;

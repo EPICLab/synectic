@@ -3,8 +3,8 @@ import isUUID from 'validator/lib/isUUID';
 import { mount } from 'enzyme';
 
 import { wrapInTestContext } from './__mocks__/dndReduxMock';
-import CanvasComponent from '../src/components/CanvasComponent';
 import { getMockStore, getCanvasProps } from './__mocks__/reduxStoreMock';
+import CanvasComponent from '../src/components/CanvasComponent';
 import CardComponent from '../src/components/CardComponent';
 import StackComponent from '../src/components/StackComponent';
 
