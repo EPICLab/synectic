@@ -1,12 +1,11 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useDrag } from 'react-dnd';
-
 import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
 import FileExplorerComponent from './FileExplorer';
-// import Editor from './Editor';
-// import Diff from './Diff';
+import Editor from './Editor';
+import Diff from './Diff';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -15,18 +14,12 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
 const Content: React.FunctionComponent<Card> = props => {
   switch (props.type) {
     case 'Editor': {
-      // console.log(`Editor card`);
-      return null;
+      return (<Editor metafileId={props.related[0]} />);
     }
-    //   return (<Editor metafileId={props.related[0]} />);
     case 'Diff': {
-      // console.log(`Editor card`);
-      return null;
+      return (<Diff left={props.related[0]} right={props.related[1]} />);
     }
-    // return (<Diff left={props.related[0]} right={props.related[1]} />);
     case 'Explorer':
-      // TODO: Pull in FileExplorer component from Jett's branch
-      // return (<div>File Explorer card will be instantiated here...</div>);
       return (<FileExplorerComponent metaDirId={props.related[0]} />);
     default:
       return null;

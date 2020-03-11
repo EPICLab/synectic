@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
-import { Canvas, Stack, Card, Filetype, Metafile, Repository } from '../../src/types';
+import { Canvas, Stack, Card, Filetype, Metafile, Repository, Metadir } from '../../src/types';
 import { createStore } from 'redux';
 import { rootReducer } from '../../src/store/root';
 
@@ -14,6 +14,7 @@ export const getMockStore = () => {
     filetypes: { [id: string]: Filetype };
     metafiles: { [id: string]: Metafile };
     repos: { [id: string]: Repository };
+    metadirs: { [id: string]: Metadir };
   }
   const initialState: initStateT = {
     canvas: {},
@@ -71,6 +72,7 @@ export const getMockStore = () => {
       199: {
         id: '199',
         name: 'test.js',
+        path: 'withchildren/test.js',
         modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00')
       },
       243: {
@@ -90,6 +92,24 @@ export const getMockStore = () => {
         username: 'sam',
         password: 'pass123',
         token: '934394304234231'
+      }
+    },
+    metadirs: {
+      99: {
+        id: '99',
+        name: 'testdir',
+        path: 'withchildren/testdir',
+        expanded: false,
+        containsDir: [],
+        containsFile: []
+      },
+      24: {
+        id: '24',
+        name: 'withchildren',
+        path: 'withchildren',
+        expanded: false,
+        containsDir: ["withchildren/testdir"],
+        containsFile: ['withchildren/test']
       }
     }
   };

@@ -6,6 +6,13 @@ import { Metadir } from '../types';
 import { extractMetafile } from './metafiles';
 import * as fileTree from './filetree';
 
+/**
+ * Generates an array of all child metafile and metadirectory actions given 
+ * a root directory provided by the function extract file tree names.
+ * @param root The root directory path.
+ * @return An array of actions for every file and folder within the root
+ * directory, including the root directory itself.
+ */
 export const generateFileTreeActions = async (root: fs.PathLike) => {
     const paths = await fileTree.extractFileTreeNames(root);
     const actionPromises = paths.map(async (path) => {

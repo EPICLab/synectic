@@ -36,6 +36,7 @@ describe('Editor', () => {
   };
 
   const store = createStore(rootReducer, initialState);
+  process.stdout.write(`Store: ${JSON.stringify(store)}\n`);
 
   // it('Editor component should render AceEditor markers', () => {
   //   const markers = [{

@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.5.1",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.45",
     "@types/diff": "^4.0.2",
     "@types/fs-extra": "^8.0.1",
     "@types/klaw": "^3.0.0",

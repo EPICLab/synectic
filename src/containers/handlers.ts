@@ -42,6 +42,11 @@ export const loadCard = (metafile: Metafile) => {
   return action;
 }
 
+/**
+ * Creates Redux action for adding new File Explorer with content to Redux store; which materializes a new File Explorer Card on the Canvas.
+ * @param newMetaDir A Metadir object containing folder specific information for loading.
+ * @return A Redux action that updates state with a new File Explorer Card.
+ */
 export const loadFE = (newMetaDir: Metadir) => {
   const card: Card = {
     id: v4(),
