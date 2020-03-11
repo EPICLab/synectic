@@ -12,7 +12,7 @@ import FilePickerDialog from './FilePickerDialog';
 import { Button } from '@material-ui/core';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
-import DiffPickerDialog from './DiffPickerDialog';
+import DiffPickerButton from './DiffPickerDialog';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -74,7 +74,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <Button id='stack-button' variant='contained' color='primary' onClick={exposeCards}>Expose Cards</Button>
       <NewCardComponent />
       <FilePickerDialog />
-      <DiffPickerDialog />
+      <DiffPickerButton />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
