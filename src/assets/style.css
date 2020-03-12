@@ -162,7 +162,7 @@ img.diff_icon {
   margin-left: 20px;
 }
 
-::-webkit-scrollbar {
+.file-explorer::-webkit-scrollbar {
   visibility: hidden;
   width: 0px;
 }

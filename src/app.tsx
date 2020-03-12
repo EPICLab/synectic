@@ -8,7 +8,6 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import './assets/style.css';
 import { rootReducer } from './store/root';
 import CanvasComponent from './components/CanvasComponent';
-//import { FileTreeComponent } from './components/FileExplorer';
 import { importFiletypes } from './containers/handlers';
 
 export const store = createStore(rootReducer);
@@ -31,7 +30,7 @@ const App = (): JSX.Element => {
           <CanvasComponent {...store.getState().canvas} />
         </React.Fragment>
       </DndProvider>
-    </Provider >
+    </Provider>
   );
 };
 

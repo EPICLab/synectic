@@ -27,7 +27,6 @@ export const generateFileTreeActions = async (root: fs.PathLike) => {
                 id: v4(),
                 name: io.extractFilename(path),
                 path: path,
-                expanded: false,
                 containsDir: childDirs,
                 containsFile: childFiles
             };

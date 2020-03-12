@@ -52,7 +52,6 @@ export type Metadir = {
   readonly id: UUID;
   readonly name: string;
   readonly path: PathLike;
-  expanded: boolean;
   readonly containsDir: UUID[];
   readonly containsFile: UUID[];
 }

@@ -80,7 +80,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {props.children}
-    </div >
+    </div>
   );
 }
 

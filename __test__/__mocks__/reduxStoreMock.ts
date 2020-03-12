@@ -100,7 +100,6 @@ const initialState: initStateT = {
       id: '99',
       name: 'testdir',
       path: 'withchildren/testdir',
-      expanded: false,
       containsDir: [],
       containsFile: []
     },
@@ -108,7 +107,6 @@ const initialState: initStateT = {
       id: '24',
       name: 'withchildren',
       path: 'withchildren',
-      expanded: false,
       containsDir: ["withchildren/testdir"],
       containsFile: ['withchildren/test']
     }

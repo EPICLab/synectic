@@ -11,7 +11,6 @@ describe('RenderTree', () => {
         id: "24",
         name: "withchildren",
         path: "withchildren",
-        expanded: true,
         containsDir: ["withchildren/testdir"],
         containsFile: ["withchildren/test"]
     };
@@ -19,7 +18,6 @@ describe('RenderTree', () => {
         id: "99",
         name: "testdir",
         path: "withchildren/testdir",
-        expanded: false,
         containsDir: [],
         containsFile: []
     };
@@ -27,7 +25,6 @@ describe('RenderTree', () => {
         id: "63",
         name: "withOneFile",
         path: "noFoneD/withOneFile",
-        expanded: true,
         containsDir: [],
         containsFile: ["withOneFile/foo"]
     }
@@ -35,7 +32,6 @@ describe('RenderTree', () => {
         id: "2",
         name: "withOneDir",
         path: "withOneDir",
-        expanded: true,
         containsDir: ["noFoneD/withOneFile"],
         containsFile: []
     }
