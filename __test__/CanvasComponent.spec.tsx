@@ -1,7 +1,6 @@
 import React from 'react';
 import isUUID from 'validator/lib/isUUID';
 import { mount } from 'enzyme';
-
 import { wrapInTestContext } from './__mocks__/dndReduxMock';
 import { getMockStore, getCanvasProps } from './__mocks__/reduxStoreMock';
 import CanvasComponent from '../src/components/CanvasComponent';

@@ -79,6 +79,20 @@ export const readFileAsync = (filepath: fs.PathLike): Promise<string> => {
 }
 
 /**
+ * Asynchronously read filenames contained within a target directory.
+ * @param filepath A valid directory path to read from.
+ * @return A Promise object for an array of strings containing filenames.
+ */
+export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
+  return new Promise((resolve, reject) => {
+    fs.readdir(path.resolve(filepath.toString()), (error, files) => {
+      if (error) reject(error);
+      else resolve(files);
+    })
+  });
+};
+
+/**
  * Asynchronously write data to a file. Creates a new file if none exists; will 
  * destructively rewrite existing files.
  * @param filepath A valid filename or path to write data to.

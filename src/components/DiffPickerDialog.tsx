@@ -29,7 +29,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
             {props.options.map(card => (
               <MenuItem key={card.id} value={card.id}>
                 {card.name} (modified {card.modified.toRelative()})
-          </MenuItem>
+              </MenuItem>
             ))}
           </Select>
         </FormControl >
@@ -41,7 +41,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
             {props.options.map(card => (
               <MenuItem key={card.id} value={card.id}>
                 {card.name} (modified {card.modified.toRelative()})
-          </MenuItem>
+              </MenuItem>
             ))}
           </Select>
         </FormControl >

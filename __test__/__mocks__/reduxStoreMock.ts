@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
-import { Canvas, Stack, Card, Filetype, Metafile, Repository } from '../../src/types';
+import { Canvas, Stack, Card, Filetype, Metafile, Repository, Metadir } from '../../src/types';
 import { createStore } from 'redux';
 import { rootReducer } from '../../src/store/root';
 
@@ -13,6 +13,7 @@ type initStateT = {
   filetypes: { [id: string]: Filetype };
   metafiles: { [id: string]: Metafile };
   repos: { [id: string]: Repository };
+  metadirs: { [id: string]: Metadir };
 }
 const validCardUUID = v4();
 const initialState: initStateT = {
@@ -92,6 +93,22 @@ const initialState: initStateT = {
       username: 'sam',
       password: 'pass123',
       token: '934394304234231'
+    }
+  },
+  metadirs: {
+    99: {
+      id: '99',
+      name: 'testdir',
+      path: 'withchildren/testdir',
+      containsDir: [],
+      containsFile: []
+    },
+    24: {
+      id: '24',
+      name: 'withchildren',
+      path: 'withchildren',
+      containsDir: ["withchildren/testdir"],
+      containsFile: ['withchildren/test']
     }
   }
 };

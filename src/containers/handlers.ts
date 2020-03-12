@@ -1,9 +1,8 @@
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-
 import filetypesJson from './filetypes.json';
 import { ActionKeys, Actions } from '../store/actions';
-import { Filetype, Metafile, Card, Stack } from '../types';
+import { Filetype, Metafile, Card, Stack, Metadir } from '../types';
 
 /**
  * Extracts and updates list of supported filetypes in Redux store.
@@ -38,6 +37,27 @@ export const loadCard = (metafile: Metafile) => {
     top: 25,
     type: metafile.handler,
     related: [metafile.id]
+  };
+  const action: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
+  return action;
+}
+
+/**
+ * Creates Redux action for adding new File Explorer with content to Redux store; which materializes a new File Explorer Card on the Canvas.
+ * @param newMetaDir A Metadir object containing folder specific information for loading.
+ * @return A Redux action that updates state with a new File Explorer Card.
+ */
+export const loadFE = (newMetaDir: Metadir) => {
+  const card: Card = {
+    id: v4(),
+    name: newMetaDir.name,
+    created: DateTime.local(),
+    modified: DateTime.local(), //will have to change?
+    captured: false,
+    left: 10,
+    top: 25,
+    type: 'Explorer', //will have to change?
+    related: [newMetaDir.id]
   };
   const action: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
   return action;
