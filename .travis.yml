@@ -21,10 +21,11 @@ addons:
     - fakeroot
     - rpm
 
-branches:
-  only:
-  - master
-  - /^v\d+\.\d+\.\d+/
+# restrict Travis-CI builds to specific branches only
+# branches:
+#   only:
+#   - master
+#   - /^v\d+\.\d+\.\d+/
 
 before_install:
   - export DISPLAY=:99.0
