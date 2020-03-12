@@ -67,9 +67,6 @@ const DiffPickerButton: React.FunctionComponent = () => {
 
   const handleClose = (canceled: boolean, selected: [UUID, UUID]) => {
     if (canceled || !selected[0] || !selected[1]) {
-      if (canceled) console.log(`DiffPickerDialog: Canceled`);
-      if (!selected[0]) console.log(`DiffPickerDialog: Nothing selected for left`);
-      if (!selected[1]) console.log(`DiffPickerDialog: Nothing selected for right`);
       setOpen(!open);
       return;
     }
@@ -102,10 +99,6 @@ const DiffPickerButton: React.FunctionComponent = () => {
     }
     const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
     dispatch(addCardAction);
-
-    console.log(`DiffPickerDialog: addMetafileAction => ${JSON.stringify(addMetafileAction)}`);
-    console.log(`DiffPickerDialog: addCardAction => ${JSON.stringify(addCardAction)}`);
-    console.log(`DiffPickerDialog: addMetafileAction and addCardAction should be dispatched...`);
     setOpen(!open);
   };
 

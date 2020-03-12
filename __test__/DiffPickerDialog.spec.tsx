@@ -32,13 +32,6 @@ describe('DiffPickerButton', () => {
     expect(wrapper.find(FormControl)).toHaveLength(2);
   });
 
-  it('DiffPickerButton closes dialog when onClose event is triggered', async () => {
-    wrapper.find('#diffpicker-button').first().simulate('click');
-    wrapper.find(DiffPickerDialog).invoke('onClose')(true, ['', '']);
-    expect(wrapper.find(DiffPickerDialog).props().open).toBe(false);
-    expect(wrapper.find(Dialog).props().open).toBe(false);
-  });
-
   it('DiffPickerButton closes dialog when backdrop is clicked', async () => {
     wrapper.find('#diffpicker-button').first().simulate('click');
     wrapper.find(Backdrop).simulate('click');
@@ -51,6 +44,45 @@ describe('DiffPickerButton', () => {
     wrapper.find(Backdrop).simulate('keyDown', { key: 'Escape', keyCode: 27, which: 27 });
     expect(wrapper.find(DiffPickerDialog).props().open).toBe(false);
     expect(wrapper.find(Dialog).props().open).toBe(false);
+  });
+
+  it('DiffPickerButton closes dialog when onClose event is triggered', async () => {
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(DiffPickerDialog).invoke('onClose')(true, ['', '']);
+    expect(wrapper.find(DiffPickerDialog).props().open).toBe(false);
+    expect(wrapper.find(Dialog).props().open).toBe(false);
+  });
+
+  it('DiffPickerButton does not update Redux store when canceled', () => {
+    const before = JSON.stringify(store.getState());
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(DiffPickerDialog).invoke('onClose')(true, ['', '']);
+    const after = JSON.stringify(store.getState());
+    expect(before).toBe(after);
+  });
+
+  it('DiffPickerButton does not update Redux store when no left card is selected', () => {
+    const before = JSON.stringify(store.getState());
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(DiffPickerDialog).invoke('onClose')(false, ['', '14']);
+    const after = JSON.stringify(store.getState());
+    expect(before).toBe(after);
+  });
+
+  it('DiffPickerButton does not update Redux store when no right card is selected', () => {
+    const before = JSON.stringify(store.getState());
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(DiffPickerDialog).invoke('onClose')(false, ['14', '']);
+    const after = JSON.stringify(store.getState());
+    expect(before).toBe(after);
+  });
+
+  it('DiffPickerButton updates Redux store when both cards are selected', async () => {
+    const before = JSON.stringify(store.getState());
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(DiffPickerDialog).invoke('onClose')(false, ['14', '33']);
+    const after = JSON.stringify(store.getState());
+    return expect(before).not.toBe(after);
   });
 
 });

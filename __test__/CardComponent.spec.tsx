@@ -25,7 +25,7 @@ describe('CardComponent', () => {
 
   it('Card has a valid UUID when props contain a valid UUID', () => {
     const CardContext = wrapInTestContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...getCardProps(1)} />, mountOptions);
+    const wrapper = mount(<CardContext {...getCardProps(2)} />, mountOptions);
     const component = wrapper.find(CardComponent).first();
     expect(isUUID(component.props().id, 4)).toBe(true);
   });
