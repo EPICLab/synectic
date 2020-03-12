@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { getMockStore } from './__mocks__/baseReduxMock';
+import { getMockStore } from './__mocks__/reduxStoreMock';
 import FileExplorerComponent from '../src/components/FileExplorer';
 import { wrapInTestContext } from './__mocks__/dndReduxMock';
 import TreeView from '@material-ui/lab/TreeView';

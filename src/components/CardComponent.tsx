@@ -13,12 +13,10 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
 
 const Content: React.FunctionComponent<Card> = props => {
   switch (props.type) {
-    case 'Editor': {
+    case 'Editor':
       return (<Editor metafileId={props.related[0]} />);
-    }
-    case 'Diff': {
+    case 'Diff':
       return (<Diff left={props.related[0]} right={props.related[1]} />);
-    }
     case 'Explorer':
       return (<FileExplorerComponent metaDirId={props.related[0]} />);
     default:

@@ -1,43 +1,56 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { mount, ReactWrapper } from 'enzyme';
+import { Dialog, FormControl, Backdrop } from '@material-ui/core';
+
 import { wrapInTestContext } from './__mocks__/dndReduxMock';
-import { createStore } from 'redux';
+import { getMockStore } from './__mocks__/reduxStoreMock';
+import DiffPickerButton, { DiffPickerDialog } from '../src/components/DiffPickerDialog';
 
-import { rootReducer } from '../src/store/root';
-import PickerDialog from '../src/components/DiffPickerDialog';
+const domElement = document.getElementById('app');
+const mountOptions = {
+  attachTo: domElement,
+};
+const store = getMockStore();
 
+describe('DiffPickerButton', () => {
+  const DiffPickerContext = wrapInTestContext(DiffPickerButton, store);
+  let wrapper: ReactWrapper<unknown, Readonly<{}>, React.Component<{}, {}, unknown>>;
 
+  beforeEach(() => wrapper = mount(<DiffPickerContext />, mountOptions));
+  afterEach(() => wrapper.unmount());
 
-describe('DiffPicker', () => {
-  it('DiffPicker component renders', () => {
-    const store = createStore(rootReducer);
-    const DiffPickerContext = wrapInTestContext(PickerDialog, store);
-    const enzymeWrapper = mount(<DiffPickerContext />);
-    expect(enzymeWrapper.exists()).toBe(true);
+  it('DiffPickerButton does not render dialog components on initial state', () => {
+    expect(wrapper.find(DiffPickerDialog).props().open).toBe(false);
+    expect(wrapper.find(Dialog).props().open).toBe(false);
+    expect(wrapper.find(FormControl)).toHaveLength(0);
   });
 
-  it('DiffDialog component is rendered when DiffPicker is clicked', () => {
-    const store = createStore(rootReducer);
-    const DiffPickerContext = wrapInTestContext(PickerDialog, store);
-    const enzymeWrapper = mount(<DiffPickerContext />);
-    enzymeWrapper.find('#diffpicker-button').first().simulate('click');
-    // const diffPicker = enzymeWrapper.find(DiffPicker);
-    // expect(diffPicker.state('open')).toBeTruthy();
-    expect(enzymeWrapper.find('#diffpicker-dialog').exists()).toBe(true);
+  it('DiffPickerButton renders dialog components when button is clicked', () => {
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    expect(wrapper.find(DiffPickerDialog).props().open).toBe(true);
+    expect(wrapper.find(Dialog).props().open).toBe(true);
+    expect(wrapper.find(FormControl)).toHaveLength(2);
   });
 
-  it('DiffPicker allows selecting different active cards', () => {
-    const store = createStore(rootReducer);
-    const DiffPickerContext = wrapInTestContext(PickerDialog, store);
-    const ref = React.createRef();
-    const enzymeWrapper = mount(<DiffPickerContext ref={ref} />);
-    const picker = enzymeWrapper.find('#diffpicker-button').first();
-    picker.simulate('click');
-    expect(picker.props().onClick).toBeDefined();
-    // TODO: Fix this test, it currently does nothing beyond testing that an onClick function exists for the Button.
-
-    // expect(ref.current).toBe(true);
-    // expect(ref).toHaveBeenCalledTimes(1);
-    // expect(picker.state().open);
+  it('DiffPickerButton closes dialog when onClose event is triggered', async () => {
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(DiffPickerDialog).invoke('onClose')(true, ['', '']);
+    expect(wrapper.find(DiffPickerDialog).props().open).toBe(false);
+    expect(wrapper.find(Dialog).props().open).toBe(false);
   });
+
+  it('DiffPickerButton closes dialog when backdrop is clicked', async () => {
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(Backdrop).simulate('click');
+    expect(wrapper.find(DiffPickerDialog).props().open).toBe(false);
+    expect(wrapper.find(Dialog).props().open).toBe(false);
+  });
+
+  it('DiffPickerButton closes dialog when escape key is pressed', async () => {
+    wrapper.find('#diffpicker-button').first().simulate('click');
+    wrapper.find(Backdrop).simulate('keyDown', { key: 'Escape', keyCode: 27, which: 27 });
+    expect(wrapper.find(DiffPickerDialog).props().open).toBe(false);
+    expect(wrapper.find(Dialog).props().open).toBe(false);
+  });
+
 });

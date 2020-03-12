@@ -4,18 +4,13 @@ import * as ace from 'ace-builds'; // ace module
 ace.config.set('basePath', '');
 ace.config.set('modePath', '');
 ace.config.set('themePath', '');
+import AceEditor, { IMarker } from 'react-ace';
+import { AceEditorClass } from 'react-ace/lib/AceEditorClass';
+import ReactAce from 'react-ace/lib/ace';
 
-// import 'ace-builds';
-// import AceEditor from 'react-ace';
-// import { AceEditorClass } from 'react-ace/lib/AceEditorClass';
-// import ReactAce from 'react-ace/lib/ace';
-// import 'ace-builds/src-noconflict/mode-javascript';
-// import 'ace-builds/src-noconflict/theme-github'
 import { wrapInTestContext } from './__mocks__/dndReduxMock';
-import { createStore, combineReducers } from 'redux';
-import { DateTime } from 'luxon';
+import { getMockStore } from './__mocks__/reduxStoreMock';
 import Editor from '../src/components/Editor';
-import { metafileReducer } from '../src/store/reducers/metafiles';
 
 describe('Editor', () => {
 
@@ -24,41 +19,26 @@ describe('Editor', () => {
   const mountOptions = {
     attachTo: domElement,
   };
-  const rootReducer = combineReducers({ metafiles: metafileReducer });
-  const initialState = {
-    metafiles: {
-      '13': {
-        id: '13',
-        name: 'test.js',
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00')
-      }
-    }
-  };
-
-  const store = createStore(rootReducer, initialState);
-  process.stdout.write(`Store: ${JSON.stringify(store)}\n`);
-
-  // it('Editor component should render AceEditor markers', () => {
-  //   const markers = [{
-  //     startRow: 3,
-  //     startCol: 0,
-  //     endRow: 3,
-  //     endCol: 10,
-  //     type: 'text',
-  //     className: 'test-marker'
-  //   }];
-  //   const wrapper = mount(<AceEditor markers={markers} mode='javascript' theme='github' />, mountOptions);
-
-  //   // Read the markers
-  //   const editor: AceEditorClass = (wrapper.instance() as ReactAce).editor;
-  //   expect(editor.getSession().getMarkers()['3'].clazz).toBe('test-marker');
-  //   expect(editor.getSession().getMarkers()['3'].type).toBe('text');
-  // });
+  const store = getMockStore();
 
   it('Editor component should work', () => {
     const EditorContext = wrapInTestContext(Editor, store);
-    const wrapper = mount(<EditorContext metafileId='13' />, mountOptions);
+    const wrapper = mount(<EditorContext metafileId='199' />, mountOptions);
     const component = wrapper.find(Editor).first();
     expect(component).toBeDefined();
+  });
+
+  it('Editor component should render AceEditor markers', () => {
+    const EditorContext = wrapInTestContext(Editor, store);
+    const wrapper = mount(<EditorContext metafileId='199' />, mountOptions);
+    const editor: AceEditorClass = (wrapper.find(AceEditor).first().instance() as ReactAce).editor;
+    const marker: IMarker = {
+      startRow: 3, startCol: 0, endRow: 3, endCol: 10, type: 'text', className: 'test-marker'
+    };
+    editor.getSession().addMarker(marker);
+
+    expect(editor.getSession().getMarkers()['3'].range.className).toBe('test-marker');
+    expect(editor.getSession().getMarkers()['3'].range.type).toBe('text');
+    expect(editor.getSession().getMarkers()).toMatchSnapshot();
   });
 });
