@@ -32,15 +32,15 @@ const contentDecorator = async (metafile: Metafile) => {
  * Injects Git repo and ref information into metafile using 'isomorphic-git' module.
  * @param metafile Metafile object created in extractMetafile function.
  */
-const gitDecorator = async (metafile: Metafile) => {
+const gitDecorator = async (metafile: Metafile): Promise<Metafile> => {
   if (!metafile.path) return metafile;
   const root = await git.getRepoRoot(metafile.path.toString());
-  if (root) {
-    // eslint-disable-next-line import/namespace
-    const ref = await git.currentBranch({ dir: root, fullname: false });
-    return { ...metafile, repo: 'unchecked', ref: ref };
-    // TODO: Need to update the repo to be a valid UUID entry from Redux store
-  } else return metafile;
+  if (!root) return metafile;
+
+  const ref = await git.currentBranch({ dir: root, fullname: false });
+  if (ref) return { ...metafile, repo: 'unchecked', ref: ref };
+  else return { ...metafile, repo: 'unchecked' };
+  // TODO: Need to update the repo to be a valid UUID entry from Redux store 
 }
 
 /**

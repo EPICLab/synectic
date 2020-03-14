@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
-isogit.plugins.set('fs', fs);
+// isogit.plugins.set('fs', fs);
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
@@ -14,6 +14,24 @@ type ExistingRepoActions = NarrowType<Actions, ActionKeys.ADD_REPO | ActionKeys.
 export * from 'isomorphic-git';
 
 /**
+ * Get the name of the branch currently pointed to by .git/HEAD; this function is a wrapper to inject the 
+ * fs parameter in to isomorphic-git/currentBranch.
+ * @param args
+ * @param args.dir The working tree directory path.
+ * @param args.gitdir The git directory path.
+ * @param args.fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the 
+ * abbreviated form.
+ * @param args.test Boolean option to return 'undefined' if the current branch doesn't actually exist 
+ * (such as 'master' right after git init).
+ */
+export const currentBranch = ({ dir, gitdir, fullname, test, }: {
+  dir?: string;
+  gitdir?: string;
+  fullname?: boolean;
+  test?: boolean;
+}): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
+
+/**
  * Find the root Git directory. Starting at filepath, walks upward until it finds a directory that 
  * contains a subdirectory called '.git'.
  * @param filepath The relative or absolute path to evaluate.
@@ -22,7 +40,7 @@ export * from 'isomorphic-git';
  */
 export const getRepoRoot = async (filepath: fs.PathLike) => {
   try {
-    const root = await isogit.findRoot({ filepath: filepath.toString() });
+    const root = await isogit.findRoot({ fs: fs, filepath: filepath.toString() });
     return root;
   }
   catch (e) {
@@ -85,7 +103,7 @@ export const extractFromURL = (url: URL | string): [parsePath.ParsedPath, Reposi
  */
 export const isGitTracked = async (filepath: fs.PathLike) => {
   const repoRoot = await getRepoRoot(filepath);
-  return isogit.status({ dir: '/', gitdir: repoRoot, filepath: filepath.toString() });
+  return isogit.status({ fs: fs, dir: '/', gitdir: repoRoot, filepath: filepath.toString() });
 }
 
 /**
@@ -104,12 +122,12 @@ export const isGitTracked = async (filepath: fs.PathLike) => {
 export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], ref = 'HEAD'): Promise<[(Repository | undefined), (ExistingRepoActions | undefined)]> => {
   const rootDir = await getRepoRoot(filepath);
   if (!rootDir) return [undefined, undefined];
-  const remoteOriginUrls: string[] = await isogit.config({ dir: rootDir.toString(), path: 'remote.origin.url', all: true });
+  const remoteOriginUrls: string[] = await isogit.getConfigAll({ fs: fs, dir: rootDir.toString(), path: 'remote.origin.url' });
   if (remoteOriginUrls.length <= 0) return [undefined, undefined];
   const [url, oauth] = extractFromURL(remoteOriginUrls[0]);
-  const currentBranch = await isogit.currentBranch({ dir: rootDir.toString() });
-  const username = await isogit.config({ dir: rootDir.toString(), path: 'user.name' });
-  const password = await isogit.config({ dir: rootDir.toString(), path: 'credential.helper' });
+  const currentBranch = await isogit.currentBranch({ fs: fs, dir: rootDir.toString() });
+  const username = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'user.name' });
+  const password = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'credential.helper' });
 
   const newRepo: Repository = {
     id: v4(),
