@@ -2,17 +2,14 @@ const path = require('path')
 
 module.exports = {
   packagerConfig: {
-    icon: 'src/assets/icon/icon'
-  },
-  electronPackagerConfig: {
     asar: true,
     packageManager: 'yarn',
-    icon: 'src/assets/icon/icon',
-    executableName: 'Synectic'
+    icon: 'src/assets/icon/icon'
   },
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
+      platforms: ['win32'],
       config: {
         name: 'Synectic',
         iconUrl: 'src/assets/icon/icon.ico',
