@@ -1,4 +1,4 @@
-const sampleFilePaths = ['./__test__/__mocks__/fileMock.js', './__test__/__mocks__/dndMock.tsx'];
+const sampleFilePaths = ['./__test__/__mocks__/fileMock.js', './__test__/__mocks__/dndReduxMock.tsx'];
 
 export const remote = {
   dialog: {

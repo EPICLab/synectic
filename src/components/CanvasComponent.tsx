@@ -7,7 +7,7 @@ import { Canvas } from '../types';
 import { ActionKeys } from '../store/actions';
 import CardComponent from './CardComponent';
 import NewCardComponent from './NewCardDialog';
-import FilePickerDialog from './FilePickerDialog';
+import FilePickerButton from './FilePickerDialog';
 import { Button } from '@material-ui/core';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
@@ -73,7 +73,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     <div className='canvas' ref={drop}>
       <Button id='stack-button' variant='contained' color='primary' onClick={exposeCards}>Expose Cards</Button>
       <NewCardComponent />
-      <FilePickerDialog />
+      <FilePickerButton />
       <FolderPicker />
       <DiffPickerButton />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>

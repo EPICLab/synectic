@@ -7,7 +7,7 @@ import { loadCard } from '../containers/handlers';
 import { extractMetafile } from '../containers/metafiles';
 import { extractRepo } from '../containers/git';
 
-const FilePickerDialog: React.FunctionComponent = () => {
+const FilePickerButton: React.FunctionComponent = () => {
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const repos = useSelector((state: RootState) => Object.values(state.repos));
   const dispatch = useDispatch();
@@ -42,4 +42,4 @@ const FilePickerDialog: React.FunctionComponent = () => {
   );
 };
 
-export default FilePickerDialog;
+export default FilePickerButton;

@@ -1,34 +1,30 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import { wrapInTestContext } from './__mocks__/dndReduxMock';
-import { createStore } from 'redux';
-// import configureStore from 'redux-mock-store';
-// import { remote } from 'electron';
+import { mount, ReactWrapper } from 'enzyme';
 
-import { rootReducer } from '../src/store/root';
-import FilePickerDialog from '../src/components/FilePickerDialog';
+import { remote } from 'electron'; // imports the mocked dependency to allow access to the spies
+import { wrapInTestContext } from './__mocks__/dndReduxMock';
+import { getMockStore } from './__mocks__/reduxStoreMock';
+import FilePickerButton from '../src/components/FilePickerDialog';
+
+const domElement = document.getElementById('app');
+const mountOptions = {
+  attachTo: domElement,
+};
+const store = getMockStore();
 
 describe('FilePicker', () => {
-  // const mockStore = configureStore([]);
+  const FilePickerContext = wrapInTestContext(FilePickerButton, store);
+  let wrapper: ReactWrapper<unknown, Readonly<{}>, React.Component<{}, {}, unknown>>;
 
-  // it('handleOpenFilePaths', async () => {
-  //   const x = await handleOpenFilePaths(['../examples/sample.php', '../examples/.config.jswt']);
-  //   expect(x).toHaveLength(2);
-  // });
+  beforeEach(() => wrapper = mount(<FilePickerContext />, mountOptions));
+  afterEach(() => wrapper.unmount());
 
-  it('FilePicker allows users to pick a file for opening', () => {
-    const store = createStore(rootReducer);
-    const FilePickerContext = wrapInTestContext(FilePickerDialog, store);
-    const ref = React.createRef();
-    const enzymeWrapper = mount(<FilePickerContext ref={ref} />);
-    expect(enzymeWrapper.find(FilePickerDialog)).toHaveLength(1);
+  it('FilePicker does not render dialog on initial state', () => {
+    expect(remote.dialog.showOpenDialog).not.toHaveBeenCalled();
+  });
 
-
-    // const initialState: unknown = [];
-    // const store = mockStore(initialState);
-    // const wrapper = mount(<Provider store={store}><FilePicker /></Provider>);
-    // wrapper.find('#filepicker-button').first().simulate('click');
-    // // expect().toMatchSnapshot();
-    // expect(remote.dialog.showOpenDialog).toHaveBeenCalledTimes(1);
+  it('FilePicker allows users to pick a file for opening', async () => {
+    wrapper.find('#filepicker-button').first().simulate('click');
+    return expect(remote.dialog.showOpenDialog).toHaveBeenCalled();
   });
 });

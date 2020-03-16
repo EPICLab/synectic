@@ -73,5 +73,6 @@ module.exports = {
      * @description Rules of eslint-plugin-jest
      */
     "jest/no-disabled-tests": "warn",
+    "jest/no-mocks-import": "off"
   }
 }
