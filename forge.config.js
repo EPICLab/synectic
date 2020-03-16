@@ -7,7 +7,8 @@ module.exports = {
   electronPackagerConfig: {
     asar: true,
     packageManager: 'yarn',
-    icon: 'src/assets/icon/icon'
+    icon: 'src/assets/icon/icon',
+    executableName: 'Synectic'
   },
   makers: [
     {
@@ -38,7 +39,7 @@ module.exports = {
       config: {
         options: {
           maintainer: 'Nicholas Nelson',
-          homepage: 'https://github.com/SarmaResearch/synectic',
+          homepage: 'https://github.com/EPICLab/synectic',
           categories: ['Development'],
           description: 'Research prototype IDE designed for human cognition and spatial interactions'
         }
@@ -49,7 +50,7 @@ module.exports = {
       config: {
         options: {
           maintainer: 'Nicholas Nelson',
-          homepage: 'https://github.com/SarmaResearch/synectic',
+          homepage: 'https://github.com/EPICLab/synectic',
           categories: ['Development'],
           description: 'Research prototype IDE designed for human cognition and spatial interactions'
         }
