@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`filetypeReducer filetypeReducer appends a new filetype to state on action ADD_FILETYPE 1`] = `
+Object {
+  "55": Object {
+    "extensions": Array [
+      "js",
+      "jsm",
+    ],
+    "filetype": "JavaScript",
+    "handler": "Editor",
+    "id": "55",
+  },
+  "67": Object {
+    "extensions": Array [
+      "py",
+    ],
+    "filetype": "Python",
+    "handler": "Editor",
+    "id": "67",
+  },
+}
+`;
+
+exports[`filetypeReducer filetypeReducer returns default state when current state is blank 1`] = `
+Object {
+  "55": Object {
+    "extensions": Array [
+      "js",
+      "jsm",
+    ],
+    "filetype": "JavaScript",
+    "handler": "Editor",
+    "id": "55",
+  },
+}
+`;
+
+exports[`filetypeReducer filetypeReducer updates state of matched filetype on action UPDATE_FILETYPE 1`] = `
+Object {
+  "67": Object {
+    "extensions": Array [
+      "py",
+      "pym",
+    ],
+    "filetype": "Python",
+    "handler": "Editor",
+    "id": "67",
+  },
+}
+`;

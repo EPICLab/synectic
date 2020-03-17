@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`metafileReducer metafileReducer updates state of matched metafile on action UPDATE_METAFILE 1`] = `
+Object {
+  "541": Object {
+    "content": "updated sample of content from test.js",
+    "filetype": "JavaScript",
+    "handler": "Editor",
+    "id": "541",
+    "modified": "2019-12-21T20:45:13.131-08:00",
+    "name": "test.js",
+    "path": "./sample/test.js",
+  },
+}
+`;

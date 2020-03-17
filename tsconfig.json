@@ -1,23 +1,29 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "lib": ["es5", "es6", "dom"],
-    "target": "es6",
-    "moduleResolution": "node",
-    "pretty": true,
-    "newLine": "LF",
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "noImplicitAny": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "sourceMap": true,
-    "allowJs": true
+    "jsx": "react"
   },
   "include": [
-    "node_modules/@types/**/*.d.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts"
+    "src",
+    "__test__"
   ],
   "exclude": [
     "node_modules"

@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cardReducer cardReducer appends a new card to state on action ADD_CARD 1`] = `
+Object {
+  "40d14391c": Object {
+    "captured": false,
+    "created": "2019-11-19T19:22:47.572-08:00",
+    "id": "40d14391c",
+    "left": 0,
+    "modified": "2019-11-19T19:22:47.572-08:00",
+    "name": "card1",
+    "related": Array [
+      "29334943",
+    ],
+    "top": 0,
+    "type": "Editor",
+  },
+  "t829w0351": Object {
+    "captured": false,
+    "created": "2014-04-09T09:14:02.371-07:00",
+    "id": "t829w0351",
+    "left": 100,
+    "modified": "2014-06-23T22:58:44.507-07:00",
+    "name": "card2",
+    "related": Array [
+      "84354571",
+    ],
+    "top": 50,
+    "type": "Editor",
+  },
+}
+`;
+
+exports[`cardReducer cardReducer updates state of matched card on action UPDATE_CARD 1`] = `
+Object {
+  "40d14391c": Object {
+    "captured": false,
+    "created": "2019-11-19T19:22:47.572-08:00",
+    "id": "40d14391c",
+    "left": 178,
+    "modified": "2019-11-22T12:54:11.374-08:00",
+    "name": "card1",
+    "related": Array [
+      "29334943",
+    ],
+    "top": 540,
+    "type": "Editor",
+  },
+}
+`;

@@ -1,0 +1,168 @@
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+.canvas {
+  background: url('canvas.png') center/auto fixed;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+.stack {
+  background-color: rgba(102, 204, 117, 0.6);
+  height: calc((280px * 1.25) + 28px); /* scaled from card height */
+  width: calc((200px * 1.25) + 28px); /* scaled from card width */
+  position: absolute;
+  cursor: move;
+  border: 0.5px solid rgb(125, 125, 125);
+  border-radius: 5px;
+  user-select: none;
+}
+
+.card {
+  background: rgba(90,125,86,1.0);
+  color: rgba(171,178,191,1.0);
+  width: 200px; /* 7:5 aspect ratio */
+  height: 280px; /* 7:5 aspect ratio */
+  position: absolute;
+  perspective: 1000px;
+  border: 1px solid rgba(89,87,90,1.0);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+  border-radius: 10px;
+  user-select: none;
+}
+
+.card:hover {
+  box-shadow: 0 0 3pt 1pt rgba(102,204,117,0.75);
+}
+
+.card.nohover:hover {
+  box-shadow: 0 0 5pt 3pt rgba(218,46,46,1.0) !important;
+}
+
+.card.highlight {
+  box-shadow: 0 0 5pt 3pt rgba(218,46,46,1.0);
+}
+
+.card-header {
+  height: 29px;
+  width: 100%;
+  background: rgba(89,87,90,1.0);
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  align-content: flex-start;
+  cursor: move;
+  border-radius: 5px 5px 0 0;
+  transform-style: preserve-3d;
+  font-family: 'Lato', Georgia, Serif;
+  font-weight: bold;
+}
+
+.card-header button {
+  height: 15px;
+  width: 15px;
+  top: 7px;
+  border: 0;
+  margin-right: 5px;
+  z-index: 9999;
+}
+
+.card-header span {
+  flex-basis: 100%;
+}
+
+.card-header svg.expand {
+  height: 15px;
+  width: 15px;
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  border: 0;
+  z-index: 9999;
+}
+
+.editor {
+  border-radius: 0 0 10px 10px;
+  position: absolute;
+  bottom: 0;
+}
+
+/* removes scrollbars from Ace Editor panes until hovered */
+.ace_scrollbar {
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.ace_editor:hover .ace_scrollbar {
+  opacity: 1;
+}
+
+.ace_highlight_green {
+  position: absolute;
+  background: rgba(147,200,54,0.8);
+  z-index: 20;
+}
+
+.ace_highlight_red {
+  position: absolute;
+  background: rgba(221,88,115,0.8);
+  z-index: 20;
+}
+
+button.close {
+  background: url('close_dark.svg');
+  background-size: cover;
+}
+
+button.close:hover,
+button.close:active {
+  background: url('close_active.svg');
+  background-size: cover;
+  cursor: pointer;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 150px 20px 150px;
+  grid-template-rows: 50px 70px 50px;
+  column-gap: 5px;
+  row-gap: 5px;
+  place-items: center;
+  grid-template-areas: 
+    "header header header"
+    "left center right"
+    "footer footer footer";
+}
+
+img.diff_icon {
+  content:url('diff.png');
+  height: auto;
+  width: 20px;
+}
+
+.file-explorer {
+  color: rgb(30, 30, 30);
+  background: rgb(235, 235, 235);
+  max-width: 200px;
+  height: 248px;
+  flex-grow: 1;
+  text-indent: 20px;
+  border: 2px solid rgb(65, 65, 65);
+  border-radius: 0px 0px 10px 10px;
+  overflow: auto;
+  text-overflow: clip;
+}
+
+.file-icon {
+  margin-left: 20px;
+}
+
+.file-explorer::-webkit-scrollbar {
+  visibility: hidden;
+  width: 0px;
+}
