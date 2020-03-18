@@ -18,7 +18,7 @@
 
 # 0.6.0 (2017.08.23)
 
-- Migrate and rename project from [`bonsai`](https://github.com/nelsonni/bonsai) to [`synectic`](https://github.com/SarmaResearch/synectic).
+- Migrate and rename project from [`bonsai`](https://github.com/nelsonni/bonsai) to [`synectic`](https://github.com/EPICLab/synectic).
 - Configured default [Electron](https://electronjs.org/) app.
 - Defined `Canvas` element for base context layer of all interactive elements.
 - Defined `Card` element for base interactive content container.

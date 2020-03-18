@@ -1,9 +1,9 @@
 # Synectic Integrated Development Environment
-[![Build Status](https://travis-ci.com/SarmaResearch/synectic.svg?token=tPKRniivUcjR9xcd62e5&branch=master)](https://travis-ci.com/SarmaResearch/synectic)
+[![Build Status](https://travis-ci.com/EPICLab/synectic.svg?token=tPKRniivUcjR9xcd62e5&branch=master)](https://travis-ci.com/EPICLab/synectic)
 
 Synectics is a problem solving methodology that stimulates thought processes of which the subject may be unaware ([Wikipedia](https://en.wikipedia.org/wiki/Synectics)). Synectic IDE is a fundamentally different type of IDE, focused on supporting a human-oriented view of problem solving in software development. Synectic promotes context-specific functionalities that allow complex, diverse solutions to be explored and developed. As a research prototype, this software has no expressed warranty or guarantees and should be treated as experimental software.
 
-The rationale and principles that guide the design of Synectic can be found in [DESIGN.md](https://github.com/SarmaResearch/synectic/blob/master/DESIGN.md). The complete set of programming languages, tools, bundlers, packagers, frameworks, and plugins included in Synectic, along with the configuration requirements, can be found in [ARCHITECTURE.md](https://github.com/SarmaResearch/synectic/blob/master/ARCHITECTURE.md). Synectic is released under an MIT license, which can be found in [LICENSE](https://github.com/SarmaResearch/synectic/blob/master/LICENSE), and major version releases are described in [CHANGELOG.md](https://github.com/SarmaResearch/synectic/blob/master/CHANGELOG.md).
+The rationale and principles that guide the design of Synectic can be found in [DESIGN.md](https://github.com/EPICLab/synectic/blob/master/DESIGN.md). The complete set of programming languages, tools, bundlers, packagers, frameworks, and plugins included in Synectic, along with the configuration requirements, can be found in [ARCHITECTURE.md](https://github.com/EPICLab/synectic/blob/master/ARCHITECTURE.md). Synectic is released under an MIT license, which can be found in [LICENSE](https://github.com/EPICLab/synectic/blob/master/LICENSE), and major version releases are described in [CHANGELOG.md](https://github.com/EPICLab/synectic/blob/master/CHANGELOG.md).
 
 Versioning within this project adheres to the rules of [Semantic Versioning 2.0.0](https://semver.org/).
 
@@ -14,7 +14,7 @@ Pre-built releases are available for MacOS, Linux, and Windows. The following fo
 * Linux - `deb` (Debian-based, e.g. Ubuntu), `rpm` (RedHat-based, e.g. Fedora)
 * Windows - `exe`, `nupkg` ([Squirrel.Windows](https://www.electronforge.io/config/makers/squirrel.windows) target)
 
-Downloads: [http://web.engr.oregonstate.edu/~nelsonni/synectics/](http://web.engr.oregonstate.edu/~nelsonni/synectics/)
+Downloads: [https://nomatic.dev/synectic/](https://nomatic.dev/synectic/)
 
 # Install
 
@@ -22,7 +22,7 @@ Downloads: [http://web.engr.oregonstate.edu/~nelsonni/synectics/](http://web.eng
 2. Install [Yarn](https://yarnpkg.com/lang/en/) Package Manager (or use `npm` which is installed with `Node.js`).
 3. Clone this repository:
     ```bash
-    git clone git@github.com:SarmaResearch/synectic.git
+    git clone git@github.com:EPICLab/synectic.git
     ```
 4. Move into the project root directory:
     ```bash
@@ -61,4 +61,4 @@ Follow the instructions in [Install](#Install) section to install dependencies. 
 
 We welcome contributions to this open source project on Github. When contributing, please follow the [Contributing Code Guide](https://github.com/EPICLab/synectic/blob/master/CONTRIBUTING.md). Also, any new contributors should include a commit that updates this `README.md` document to include your name and a link to your GitHub profile page (unless you wish to be anonymous).
 
-Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar))
+Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Jett Seale ([@jettseale](https://github.com/jettseale)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar))

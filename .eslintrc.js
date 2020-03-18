@@ -51,6 +51,16 @@ module.exports = {
   },
   rules: {
     /**
+     * @description Rules of @eslint
+     */
+    // "max-len": ["error", {
+    //   "code": 120,
+    //   "tabWidth": 2,
+    //   "comments": 120,
+    //   "ignoreTrailingComments": true
+    // }],
+
+    /**
      * @description Rules of @typescript-eslint
      */
     "@typescript-eslint/explicit-function-return-type": "off",
