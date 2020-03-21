@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { flatten } from './flatten';
 
 /**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.
@@ -9,26 +10,20 @@ import * as path from 'path';
 export const deserialize = <T>(json: string) => JSON.parse(json) as T;
 
 /**
- * Asynchronously extracts the contents of the path directory. Returns the 
- * filenames of all immediate child directories and files; does not descend
- * into sub-directories.
- * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object for an array containing file basenames.
+ * Filters an array and removes any undefined elements contained within it.
+ * @param array The given array of elements that should be filtered for undefined.
+ * @return The resulting array devoid of any undefined elements.
  */
-export const extractReaddir = (filepath: fs.PathLike) => {
-  return new Promise<string[] | undefined>(resolve => {
-    fs.readdir(filepath.toString())
-      .then(children => resolve(children))
-      .catch(() => resolve(undefined));
-  });
+export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
+  return array.filter((item): item is T => typeof item !== 'undefined');
 }
 
 /**
- * Extracts the file stat details from the path. Returns all fields provided by
- * the fs.Stats class (see the Node.js API docs @link https://nodejs.org/api/fs.html#fs_class_fs_stats).
+ * Extracts the file stats information from the filepath. Returns an fs.Stats class 
+ * object as defined in the Node.js File System API (@link https://nodejs.org/api/fs.html#fs_class_fs_stats).
  * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object for a fs.Stats object containing information about a file, or undefined if
- * filepath refers to a nonexistent file or directory (or read permissions are missing).
+ * @return A Promise object for a fs.Stats object containing information about a file, or undefined 
+ * if filepath refers to a nonexistent file or directory (or read permissions are missing).
  */
 export const extractStats = (filepath: fs.PathLike) => {
   return new Promise<fs.Stats | undefined>(resolve => {
@@ -81,7 +76,7 @@ export const readFileAsync = (filepath: fs.PathLike): Promise<string> => {
 /**
  * Asynchronously read filenames contained within a target directory.
  * @param filepath A valid directory path to read from.
- * @return A Promise object for an array of strings containing filenames.
+ * @return A Promise object for an array of filenames.
  */
 export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
   return new Promise((resolve, reject) => {
@@ -91,6 +86,23 @@ export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
     })
   });
 };
+
+const isDirectory = async (f: fs.PathLike) => (await fs.stat(f.toString())).isDirectory();
+
+/**
+ * Asynchronously and recursively descends from a root path directory to extract the contents of each
+ * child directory. Returns filepaths of all child directories and files, including root path.
+ * @param filepath The relative or absolute path of the root directory to evaluate.
+ * @param inclusive Optional flag for including root directory and intermediate directories in output; default is true.
+ * @return A Promise object for an array containing filepaths for all child directories and files.
+ */
+export const readDirAsyncDeep = async (filepath: fs.PathLike, inclusive = true): Promise<string[]> => {
+  const files = await Promise.all((await fs.readdir(filepath.toString())).map(async f => {
+    const fullPath = path.join(filepath.toString(), f);
+    return (await isDirectory(fullPath)) ? await readDirAsyncDeep(fullPath) : fullPath;
+  }));
+  return inclusive ? [...flatten(files), filepath.toString()] : flatten(files);
+}
 
 /**
  * Asynchronously write data to a file. Creates a new file if none exists; will 

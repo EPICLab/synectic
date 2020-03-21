@@ -101,6 +101,78 @@ describe('io.readFileAsync', () => {
   });
 });
 
+describe('io.readDirAsync', () => {
+  beforeAll(() => {
+    mock({
+      'foo/bar': {
+        'some-file.txt': 'file contents',
+        'empty-dir': {/** empty directory */ }
+      },
+      'baz/qux': {
+        'nup/tul/some.png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+        'vex/bol/wiz': {/** another empty directory */ }
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('readDirAsync to resolve to array of child filepaths', async () => {
+    await expect(io.readDirAsync('foo/bar')).resolves.toHaveLength(2);
+  });
+
+  it('readDirAsync fails with an error', async () => {
+    await expect(io.readDirAsync('foo/dep/')).rejects.toThrow(/ENOENT/);
+  });
+});
+
+describe('io.readDirAsyncDeep', () => {
+  beforeAll(() => {
+    mock({
+      foo: {
+        bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        baz: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        zap: {
+          zed: {
+            beq: mock.file({ content: 'file contents', ctime: new Date(1) }),
+            bup: mock.file({ content: 'file contents', ctime: new Date(1) })
+          },
+          zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        }
+      },
+      zonk: {
+        zork: mock.file({ content: 'file contents', ctime: new Date(1) }),
+      },
+      imp: {
+        bamp: {},
+      },
+      empty: {},
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('readDirAsyncDeep resolves an empty directory', () => {
+    return expect(io.readDirAsyncDeep('empty')).resolves.toHaveLength(1);
+  });
+
+  it('readDirAsyncDeep resolves a directory with sub-files', () => {
+    return expect(io.readDirAsyncDeep('zonk')).resolves.toHaveLength(2);
+  });
+
+  it('readDirAsyncDeep resolves a directory with sub-directories', () => {
+    return expect(io.readDirAsyncDeep('imp')).resolves.toHaveLength(2);
+  });
+
+  it('readDirAsyncDeep resolves a directory with multiple layers of directories and files', () => {
+    return expect(io.readDirAsyncDeep('foo')).resolves.toHaveLength(8);
+  });
+
+  it('readDirAsyncDeep fails with an error on non-existent paths', () => {
+    return expect(io.readDirAsyncDeep('foo/dep/')).rejects.toThrow(/ENOENT/);
+  });
+});
+
 describe('io.writeFileAsync', () => {
   beforeAll(() => {
     mock({
