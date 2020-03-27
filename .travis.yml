@@ -9,14 +9,14 @@ os:
 jobs:
   allow_failures:
     - os: linux
-    - os: windows
 dist: xenial
 osx_image: xcode11.3
 env:
-  - TARGET_ARCH=x64
+  - YARN_GPG=no
 
 cache:
   npm: true
+  yarn: true
   directories:
   - $HOME/.cache/electron
 
@@ -35,11 +35,14 @@ addons:
 before_install:
   - export DISPLAY=:99.0
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+
 install:
-- yarn install
-- yarn upgrade
+  - yarn install
+  - yarn upgrade
 
 script:
-- yarn lint
-- if test -z "$TRAVIS_TAG"; then yarn make; fi
-after_success: if test -n "$TRAVIS_TAG"; then yarn publish; fi
+  - yarn lint
+  - if test -z "$TRAVIS_TAG"; then yarn make; fi
+
+after_success:
+  - if test -n "$TRAVIS_TAG"; then yarn publish; fi
