@@ -57,6 +57,23 @@ describe('io.extractFilename', () => {
   });
 });
 
+describe('io.extractDirname', () => {
+  it('extractDirname to extract dirname from Linux/MacOS paths', () => {
+    expect(io.extractDirname('/Users/foo/bar/module.d.ts')).toBe('bar');
+    expect(io.extractDirname('./baz/webpack.config.js')).toBe('baz');
+    expect(io.extractDirname('../../baz/sample.c9search_results')).toBe('baz');
+    expect(io.extractDirname('/Users/foo/bar/')).toBe('bar');
+    expect(io.extractDirname('bar/')).toBe('bar');
+    expect(io.extractDirname('module.d.ts')).toBe('');
+  });
+
+  it('extractDirname to extract dirname from Windows paths', () => {
+    expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\file.js')).toBe('Baz');
+    expect(io.extractDirname('2018\\January.xlsx')).toBe('2018');
+    expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\')).toBe('Baz');
+  });
+});
+
 describe('io.extractExtension', () => {
   it('extractExtension to extract extension from filename', () => {
     expect(io.extractExtension('foo.js')).toBe('js');
@@ -126,6 +143,34 @@ describe('io.readDirAsync', () => {
   });
 });
 
+describe('io.isDirectory', () => {
+  beforeAll(() => {
+    mock({
+      foo: {
+        bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        zap: {
+          zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        }
+      },
+      empty: {},
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('isDirectory resolves to true for empty directories', () => {
+    return expect(io.isDirectory('empty')).resolves.toBe(true);
+  });
+
+  it('isDirectory resolves to true for non-empty directories', () => {
+    return expect(io.isDirectory('foo/zap')).resolves.toBe(true);
+  });
+
+  it('isDirectory resolves to false for file', () => {
+    return expect(io.isDirectory('foo/bar')).resolves.toBe(false);
+  });
+});
+
 describe('io.readDirAsyncDeep', () => {
   beforeAll(() => {
     mock({
@@ -164,8 +209,12 @@ describe('io.readDirAsyncDeep', () => {
     return expect(io.readDirAsyncDeep('imp')).resolves.toHaveLength(2);
   });
 
-  it('readDirAsyncDeep resolves a directory with multiple layers of directories and files', () => {
-    return expect(io.readDirAsyncDeep('foo')).resolves.toHaveLength(8);
+  it('readDirAsyncDeep inclusively resolves a directory with multiple layers of directories and files', () => {
+    return expect(io.readDirAsyncDeep('foo', true)).resolves.toHaveLength(8);
+  });
+
+  it('readDirAsyncDeep exclusively resolves a directory with multiple layers of directories and files', () => {
+    return expect(io.readDirAsyncDeep('foo', false)).resolves.toHaveLength(7);
   });
 
   it('readDirAsyncDeep fails with an error on non-existent paths', () => {
