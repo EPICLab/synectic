@@ -94,70 +94,69 @@ describe('git.extractRepoName', () => {
 describe('git.extractFromURL', () => {
   it('extractFromURL resolves git://*', () => {
     const parsedURL = git.extractFromURL('git://github.com/octo-org/octo-repo');
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'git' }, 'github']);
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'git' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves git://*.git', () => {
     const githubURL = git.extractFromURL('git://github.com/octo-org/octo-repo.git');
-    expect(githubURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...githubURL[0], protocol: 'git' }, 'github']);
+    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'git' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves https://*', () => {
     const githubURL = git.extractFromURL('https://github.com/octo-org/octo-repo');
-    expect(githubURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...githubURL[0], protocol: 'https' }, 'github']);
+    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'https' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves https://*.git', () => {
     const parsedURL = git.extractFromURL('https://github.com/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'https' }, 'github']);
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'https' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves ssh://*.git', () => {
-    const url = 'ssh://git@github.com:octo-org/octo-repo.git';
-    const parsedURL = git.extractFromURL(url);
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'ssh' }, 'github']);
+    const parsedURL = git.extractFromURL('ssh://git@github.com:octo-org/octo-repo.git');
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves git@github.com:octo-org/octo-repo.git', () => {
     const parsedURL = git.extractFromURL('git@github.com:octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'ssh' }, 'github']);
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves git@github.com:/octo-org/octo-repo.git', () => {
     const parsedURL = git.extractFromURL('git@github.com:/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'ssh' }, 'github']);
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves git@github.com:octo-org/octo-repo.git#2.7.0', () => {
     const parsedURL = git.extractFromURL('git@github.com:octo-org/octo-repo.git#2.7.0');
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'ssh' }, 'github']);
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves git+https://github.com/octo-org/octo-repo.git', () => {
     const parsedURL = git.extractFromURL('git+https://github.com/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'git', protocols: ['git', 'https'] }, 'github']);
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'git', protocols: ['git', 'https'] }, oauth: 'github' });
   });
 
   it('extractFromURL resolves git+ssh://github.com/octo-org/octo-repo.git', () => {
     const parsedURL = git.extractFromURL('git+ssh://github.com/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...parsedURL[0], protocol: 'git', protocols: ['git', 'ssh'] }, 'github']);
+    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'git', protocols: ['git', 'ssh'] }, oauth: 'github' });
   });
 
   it('extractFromURL resolves git@gist URLs', () => {
     const githubURL = git.extractFromURL('git@gist.github.com:3135914.git');
-    expect(githubURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...githubURL[0], protocol: 'ssh' }, 'github']);
+    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'ssh' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves https://gist URLs', () => {
     const bitbucketURL = git.extractFromURL('https://bitbucket.org/snippets/vmaric/oed9AM/hello-json-message');
     const gitlabURL = git.extractFromURL('https://gitlab.com/snippets/1927595');
-    expect(bitbucketURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...bitbucketURL[0], protocol: 'https', protocols: ['https'] }, 'bitbucket']);
-    expect(gitlabURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...gitlabURL[0], protocol: 'https', protocols: ['https'] }, 'gitlab']);
+    expect(bitbucketURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...bitbucketURL.url, protocol: 'https', protocols: ['https'] }, oauth: 'bitbucket' });
+    expect(gitlabURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitlabURL.url, protocol: 'https', protocols: ['https'] }, oauth: 'gitlab' });
   });
 
   it('extractFromURL resolves GitHub Enterprise GHE URLs', () => {
     const githubURL = git.extractFromURL('git://github.example.com/treygriffith/cellar.git');
-    expect(githubURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...githubURL[0], protocol: 'git' }, 'github']);
+    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'git' }, oauth: 'github' });
   });
 
   it('extractFromURL resolves BitBucket URLs', () => {
@@ -166,11 +165,11 @@ describe('git.extractFromURL', () => {
     const httpsURL = git.extractFromURL('https://treygriffith@bitbucket.org/bucket-org/cellar.git');
     const sshURL = git.extractFromURL('ssh://git@bitbucket.org/bucket-org/cellar.git');
     const mercurialURL = git.extractFromURL('ssh://hp@bitbucket.org/bucket-org/cellar.git');
-    expect(gitURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...gitURL[0], protocol: 'git' }, 'bitbucket']);
-    expect(gitFullURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...gitFullURL[0], protocol: 'git' }, 'bitbucket']);
-    expect(httpsURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...httpsURL[0], protocol: 'https' }, 'bitbucket']);
-    expect(sshURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...sshURL[0], protocol: 'ssh' }, 'bitbucket']);
-    expect(mercurialURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...mercurialURL[0], protocol: 'ssh' }, 'bitbucket']);
+    expect(gitURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitURL.url, protocol: 'git' }, oauth: 'bitbucket' });
+    expect(gitFullURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitFullURL.url, protocol: 'git' }, oauth: 'bitbucket' });
+    expect(httpsURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...httpsURL.url, protocol: 'https' }, oauth: 'bitbucket' });
+    expect(sshURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...sshURL.url, protocol: 'ssh' }, oauth: 'bitbucket' });
+    expect(mercurialURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...mercurialURL.url, protocol: 'ssh' }, oauth: 'bitbucket' });
   });
 
   it('extractFromURL resolves GitLab URLs', () => {
@@ -178,16 +177,16 @@ describe('git.extractFromURL', () => {
     const gitFullURL = git.extractFromURL('git://gitlab.example.com/gitlab-org/lab-repo.git');
     const httpsURL = git.extractFromURL('https://gitlab.com/gitlab-org/omnibus-gitlab');
     const sshURL = git.extractFromURL('ssh://git@gitlab.com:labuser/lab-repo.git');
-    expect(gitURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...gitURL[0], protocol: 'git' }, 'gitlab']);
-    expect(gitFullURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...gitFullURL[0], protocol: 'git' }, 'gitlab']);
-    expect(httpsURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...httpsURL[0], protocol: 'https' }, 'gitlab']);
-    expect(sshURL).toMatchObject<[parsePath.ParsedPath, Repository['oauth']]>([{ ...sshURL[0], protocol: 'ssh' }, 'gitlab']);
+    expect(gitURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitURL.url, protocol: 'git' }, oauth: 'gitlab' });
+    expect(gitFullURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitFullURL.url, protocol: 'git' }, oauth: 'gitlab' });
+    expect(httpsURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...httpsURL.url, protocol: 'https' }, oauth: 'gitlab' });
+    expect(sshURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...sshURL.url, protocol: 'ssh' }, oauth: 'gitlab' });
   });
 });
 
-describe('git.isGitTracked', () => {
+describe('git.getStatus', () => {
   it('isGitTracked resolves tracked file to true', async () => {
-    return expect(git.isGitTracked('baz/qux/tracked-file.js')).resolves.toBe('absent');
+    return expect(git.getStatus('baz/qux/tracked-file.js')).resolves.toBe('absent');
   });
 });
 
@@ -204,28 +203,28 @@ describe('git.extractRepo', () => {
     token: ''
   };
 
-  it('extractRepo resolves untracked Git directory to [undefined, undefined]', async () => {
-    return expect(git.extractRepo('foo/bar/', [])).resolves.toStrictEqual([undefined, undefined]);
+  it('extractRepo resolves untracked Git directory to { undefined repo, undefined action }', async () => {
+    return expect(git.extractRepo('foo/bar/', [])).resolves.toStrictEqual({ repo: undefined, action: undefined });
   });
 
-  it('extractRepo resolves a new Git repository to [new repo, AddRepoAction action]', async () => {
-    const [repo, action] = await git.extractRepo('baz/', []);
+  it('extractRepo resolves a new Git repository to { new repo, AddRepoAction action }', async () => {
+    const { repo, action } = await git.extractRepo('baz/', []);
     expect(action?.type).toBe(ActionKeys.ADD_REPO);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect({ ...repo, id: undefined }).toMatchSnapshot();
     expect({ type: action?.type, id: undefined, repo: { ...action?.repo, id: undefined } }).toMatchSnapshot();
   });
 
-  it('extractRepo resolves an existing Git repository with unknown branch ref to [existing repo, UpdateRepoAction action]', async () => {
-    const [repo, action] = await git.extractRepo('baz/', [existingRepo]);
+  it('extractRepo resolves an existing Git repository with unknown branch ref to { existing repo, UpdateRepoAction action }', async () => {
+    const { repo, action } = await git.extractRepo('baz/', [existingRepo]);
     const updatedRepo = { ...existingRepo, refs: [...existingRepo.refs, 'HEAD'] };
     expect(repo).toMatchObject(updatedRepo);
     expect(action?.type).toBe(ActionKeys.UPDATE_REPO);
     expect(action?.repo).toMatchObject(updatedRepo);
   });
 
-  it('extractRepo resolves an existing Git repository and known branch ref to [existing repo, undefined]', async () => {
-    const [repo, action] = await git.extractRepo('baz/', [existingRepo], 'sampleBranch');
+  it('extractRepo resolves an existing Git repository and known branch ref to { existing repo, undefined action }', async () => {
+    const { repo, action } = await git.extractRepo('baz/', [existingRepo], 'sampleBranch');
     expect(repo).toMatchObject(existingRepo);
     expect(action).toBeUndefined();
   });
