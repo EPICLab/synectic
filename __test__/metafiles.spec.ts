@@ -1,84 +1,85 @@
 import mock from 'mock-fs';
-import isUUID from 'validator/lib/isUUID';
-
-import { extractMetafile } from '../src/containers/metafiles';
-import { Filetype } from '../src/types';
-import { ActionKeys } from '../src/store/actions';
 import { DateTime } from 'luxon';
 
-const mockedFiletypes: Filetype[] = [{ id: '3', filetype: 'PHP', handler: 'Editor', extensions: ['php', 'phpt'] }];
-
-beforeEach(() => {
-  mock({
-    foo: {
-      '.git': {
-        'HEAD': 'ref: refs/heads/master',
-        'config': '[core]\nrepositoryformatversion = 0\nfilemode = true\nbare = false\nlogallrefupdates = true\nignorecase = true\nprecomposeunicode = true\n[remote "origin"]\nurl = git@github.com:test/test.git\nfetch = +refs / heads/*:refs/remotes/origin/*\n[branch "master"]\nremote = origin\nmerge = refs/heads/master'
-      },
-      'data.php': mock.file({
-        content: 'sample data for supported filetype',
-        ctime: new Date(1),
-        mtime: new Date(1)
-      }),
-      'data.azi': 'sample data for unsupported filetype'
-    },
-    'baz/raz.js': 'untracked file'
-  });
-});
-
-afterEach(mock.restore);
+import { extractMetafile } from '../src/containers/metafiles';
+import { Filetype, Repository } from '../src/types';
 
 describe('metafiles.extractMetafile', () => {
-  it('extractMetafile returns ADD_METAFILE Redux action on existing file', async () => {
-    const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.type).toBe(ActionKeys.ADD_METAFILE);
+  const staticTimestamp: Date = new Date('December 17, 1995 03:24:00');
+  const mockedFiletypes: Filetype[] = [
+    { id: '3', filetype: 'PHP', handler: 'Editor', extensions: ['php', 'phpt'] },
+    { id: '89', filetype: 'Directory', handler: 'Explorer', extensions: [] }
+  ];
+  const mockedRepositories: Repository[] = [];
+
+  beforeAll(() => {
+    mock({
+      foo: {
+        '.git': {
+          'HEAD': 'ref: refs/heads/master',
+          'config': '[core]\nrepositoryformatversion = 0\nfilemode = true\nbare = false\nlogallrefupdates = true\nignorecase = true\nprecomposeunicode = true\n[remote "origin"]\nurl = git@github.com:test/test.git\nfetch = +refs / heads/*:refs/remotes/origin/*\n[branch "master"]\nremote = origin\nmerge = refs/heads/master'
+        },
+        bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        baz: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        zap: {
+          zed: {
+            beq: mock.file({ content: 'file contents', ctime: new Date(1) }),
+            'bup.azi': mock.file({ content: 'file contents', ctime: new Date(1) })
+          },
+          zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        }
+      },
+      baz: {
+        'raz.js': mock.file({ content: 'untracked file', ctime: new Date(1), mtime: new Date(1) })
+      },
+      empty: mock.directory({
+        mtime: staticTimestamp,
+        items: undefined
+      }),
+    });
   });
 
-  it('extractMetafile returns Redux action with baseline metafile information', async () => {
-    const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(isUUID(metafile.metafile.id, 4)).toBe(true);
-    expect(metafile.metafile.name).toBe('data.php');
-    expect(metafile.metafile.path).toBe('foo/data.php');
+  afterAll(mock.restore);
+
+  it('extractMetafile resolves an empty directory with required fields in metafile', () => {
+    return expect(extractMetafile('empty/', mockedFiletypes, mockedRepositories)).resolves.toEqual(
+      expect.objectContaining({
+        metafile: expect.objectContaining({
+          name: 'empty',
+          modified: DateTime.fromJSDate(staticTimestamp),
+          filetype: 'Directory',
+          handler: 'Explorer'
+        })
+      })
+    );
   });
 
-  it('extractMetafile returns Redux action with filetype information on supported filetype', async () => {
-    const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.metafile.filetype).toBe('PHP');
-    expect(metafile.metafile.handler).toBe('Editor');
+  it('extractMetafile resolves a non-empty directory with Redux actions', async () => {
+    const metafilePayload = await extractMetafile('foo/zap', mockedFiletypes, mockedRepositories);
+    expect(metafilePayload.actions).toHaveLength(6);
   });
 
-  it('extractMetafile returns Redux action with default filetype information on unsupported filetype', async () => {
-    const metafile = await extractMetafile('foo/data.azi', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.metafile.filetype).toBeUndefined();
-    expect(metafile.metafile.handler).toBeUndefined();
+
+  it('extractMetafile resolves to metafile without file information on unsupported filetype', async () => {
+    const metafilePayload = await extractMetafile('foo/zap/zed/bup.azi', mockedFiletypes, mockedRepositories);
+    expect(metafilePayload.metafile.filetype).toBeUndefined();
+    expect(metafilePayload.metafile.handler).toBeUndefined();
   });
 
-  it('extractMetafile returns Redux action with file stats on existing file', async () => {
-    const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    const mtime = DateTime.fromJSDate(new Date(1));
-    expect(metafile.metafile.modified).toMatchObject(mtime);
+  it('extractMetafile resolves tracked directories with Git repository information', async () => {
+    const metafilePayload = await extractMetafile('foo/zap', mockedFiletypes, mockedRepositories);
+    expect(metafilePayload.metafile.repo).toBeDefined();
+    expect(metafilePayload.metafile.ref).toBeDefined();
   });
 
-  it('extractMetafile returns Redux action with Git information on tracked file', async () => {
-    const metafile = await extractMetafile('foo/data.php', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.metafile.repo).toBe('unchecked');
-    expect(metafile.metafile.ref).toBe('master');
+  it('extractMetafile resolves untracked directories without Git repository information', async () => {
+    const metafilePayload = await extractMetafile('baz/raz.js', mockedFiletypes, mockedRepositories);
+    expect(metafilePayload.metafile.repo).toBeUndefined();
+    expect(metafilePayload.metafile.ref).toBeUndefined();
   });
 
-  it('extractMetafile returns Redux action without Git information on untracked file', async () => {
-    const metafile = await extractMetafile('baz/raz.js', mockedFiletypes);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(metafile.metafile.repo).toBeUndefined();
-    expect(metafile.metafile.ref).toBeUndefined();
+  it('extractMetafile throws error on filepath of nonexistent file or directory', () => {
+    return expect(extractMetafile('foo/nonexist.php', mockedFiletypes, mockedRepositories)).rejects.toThrow(Error);
   });
 
-  it('extractMetafile throws error on filepath of nonexistent file', async () => {
-    return expect(extractMetafile('foo/nonexist.php', mockedFiletypes)).rejects.toThrow(Error);
-  });
 });

@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
-import { Canvas, Stack, Card, Filetype, Metafile, Repository, Metadir } from '../../src/types';
+import { Canvas, Stack, Card, Filetype, Metafile, Repository } from '../../src/types';
 import { createStore } from 'redux';
 import { rootReducer } from '../../src/store/root';
 
@@ -13,7 +13,6 @@ type initStateT = {
   filetypes: { [id: string]: Filetype };
   metafiles: { [id: string]: Metafile };
   repos: { [id: string]: Repository };
-  metadirs: { [id: string]: Metadir };
 }
 
 const validCanvasUUID = v4();
@@ -111,6 +110,24 @@ const initialState: initStateT = {
       name: 'turtle.asp',
       modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
       content: 'Response.Write("Hello World!")'
+    },
+    99: {
+      id: '99',
+      name: 'testdir',
+      path: 'withchildren/testdir',
+      filetype: 'Directory',
+      handler: 'Explorer',
+      modified: DateTime.fromISO('2000-02-02T20:20:20.222-08:00'),
+      contains: []
+    },
+    24: {
+      id: '24',
+      name: 'withchildren',
+      path: 'withchildren',
+      filetype: 'Directory',
+      handler: 'Explorer',
+      modified: DateTime.fromISO('2001-01-01T01:01:01.111-08:00'),
+      contains: ['99', '199']
     }
   },
   repos: {
@@ -124,22 +141,6 @@ const initialState: initStateT = {
       username: 'sam',
       password: 'pass123',
       token: '934394304234231'
-    }
-  },
-  metadirs: {
-    99: {
-      id: '99',
-      name: 'testdir',
-      path: 'withchildren/testdir',
-      containsDir: [],
-      containsFile: []
-    },
-    24: {
-      id: '24',
-      name: 'withchildren',
-      path: 'withchildren',
-      containsDir: ["withchildren/testdir"],
-      containsFile: ['withchildren/test']
     }
   }
 };
