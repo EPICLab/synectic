@@ -18,7 +18,7 @@ const Content: React.FunctionComponent<Card> = props => {
     case 'Diff':
       return (<Diff left={props.related[0]} right={props.related[1]} />);
     case 'Explorer':
-      return (<FileExplorerComponent metaDirId={props.related[0]} />);
+      return (<FileExplorerComponent rootId={props.related[0]} />);
     default:
       return null;
   }

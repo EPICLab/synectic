@@ -12,7 +12,6 @@ import { Button } from '@material-ui/core';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import DiffPickerButton from './DiffPickerDialog';
-import FolderPicker from './FolderPicker'
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -74,7 +73,6 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <Button id='stack-button' variant='contained' color='primary' onClick={exposeCards}>Expose Cards</Button>
       <NewCardComponent />
       <FilePickerButton />
-      <FolderPicker />
       <DiffPickerButton />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}

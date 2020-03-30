@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FileExplorerComponent FileExplorer renders child components for each child file/directory 1`] = `
+Array [
+  Array [
+    <DirectoryComponent
+      metafileId="99"
+      onClick={[Function]}
+    />,
+  ],
+  Array [
+    <WithStyles(ForwardRef(TreeItem))
+      label="test.js"
+      nodeId="199"
+      onClick={[Function]}
+    />,
+  ],
+]
+`;
