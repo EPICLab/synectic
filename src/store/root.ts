@@ -5,7 +5,6 @@ import { cardReducer } from './reducers/cards';
 import { filetypeReducer } from './reducers/filetypes';
 import { metafileReducer } from './reducers/metafiles';
 import { reposReducer } from './reducers/repos';
-import { metaDirReducer } from './reducers/metadirs';
 
 export const rootReducer = combineReducers({
   canvas: canvasReducer,
@@ -13,7 +12,6 @@ export const rootReducer = combineReducers({
   cards: cardReducer,
   filetypes: filetypeReducer,
   metafiles: metafileReducer,
-  metadirs: metaDirReducer,
   repos: reposReducer
 });
 

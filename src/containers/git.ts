@@ -9,7 +9,8 @@ import * as io from './io';
 import { Repository, NarrowType } from '../types';
 import { ActionKeys, Actions } from '../store/actions';
 
-type ExistingRepoActions = NarrowType<Actions, ActionKeys.ADD_REPO | ActionKeys.UPDATE_REPO>;
+type AddOrUpdateRepoActions = NarrowType<Actions, ActionKeys.ADD_REPO | ActionKeys.UPDATE_REPO>;
+type RepoPayload = { repo: (Repository | undefined); action: (AddOrUpdateRepoActions | undefined) };
 
 export * from 'isomorphic-git';
 
@@ -78,9 +79,9 @@ export const extractRepoName = (url: URL | string) => {
  * Parse a URL to extract components and protocols, along with the OAuth resource authority 
  * (GitHub, BitBucket, or GitLab) for processing with the isomorphic-git library module.
  * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
- * @returns A tuple containing the parsePath.ParsedPath object and OAuth resource name.
+ * @returns A JavaScript object (key-value) with the parsePath.ParsedPath object and OAuth resource name.
  */
-export const extractFromURL = (url: URL | string): [parsePath.ParsedPath, Repository['oauth']] => {
+export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; oauth: Repository['oauth'] } => {
   const parsedPath = (typeof url === 'string') ? parsePath(url) : parsePath(url.href);
   let oauth: Repository['oauth'] = 'github';
   switch (parsedPath.resource) {
@@ -94,37 +95,54 @@ export const extractFromURL = (url: URL | string): [parsePath.ParsedPath, Reposi
       oauth = 'gitlab';
       break;
   }
-  return [parsedPath, oauth];
+  return { url: parsedPath, oauth: oauth };
 }
 
 /**
  * Determines whether a specific file is currently tracked by Git version control.
  * @param filepath The relative or absolute path to evaluate.
+ * @return A Promise object containing a status indicator for whether a file has been changed; the possible 
+ * resolve values are:
+ *
+ * | status                | description                                                                           |
+ * | --------------------- | ------------------------------------------------------------------------------------- |
+ * | `"ignored"`           | file ignored by a .gitignore rule                                                     |
+ * | `"unmodified"`        | file unchanged from HEAD commit                                                       |
+ * | `"*modified"`         | file has modifications, not yet staged                                                |
+ * | `"*deleted"`          | file has been removed, but the removal is not yet staged                              |
+ * | `"*added"`            | file is untracked, not yet staged                                                     |
+ * | `"absent"`            | file not present in HEAD commit, staging area, or working dir                         |
+ * | `"modified"`          | file has modifications, staged                                                        |
+ * | `"deleted"`           | file has been removed, staged                                                         |
+ * | `"added"`             | previously untracked file, staged                                                     |
+ * | `"*unmodified"`       | working dir and HEAD commit match, but index differs                                  |
+ * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index              |
+ * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
+ * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
  */
-export const isGitTracked = async (filepath: fs.PathLike) => {
+export const getStatus = async (filepath: fs.PathLike) => {
   const repoRoot = await getRepoRoot(filepath);
   return isogit.status({ fs: fs, dir: '/', gitdir: repoRoot, filepath: filepath.toString() });
 }
 
 /**
- * Extract all necessary Git repository metadata from the root Git directory associated with the filepath,
- * either by locating an existing repository and branch ref in the Redux state or creating Redux actions
- * to add and update the state as needed.
+ * Extract all necessary Git repository metadata from the root Git directory associated with the filepath, either 
+ * by locating an existing repository and branch ref in the Redux state or creating Redux actions to add and 
+ * update the state as needed.
  * @param filepath The relative or absolute path to evaluate; must be resolvable to a root Git directory.
  * @param repos The list of currently known Git repositories found in the Redux store.
  * @param ref (Optional) Git branch name; defaults to 'HEAD'.
- * @return A Promise object containing a tuple which contains the new or existing Repository object
- * related to the root Git directory of the filepath, and any Redux actions that update state for either
- * a new repository or an updated repository with a new branch ref. If the first element is undefined, 
- * either no root Git directory exists or no remote origin URL has been set for the repo. If the second
- * element is undefined, no updates to the Redux store are necessary.
+ * @return A Promise object for a new or existing `Repository` object related to the root Git directory of the 
+ * filepath, and any Redux actions that update state for either a new repository or an updated repository with a new 
+ * branch ref. If the `repo` field is undefined, either no root Git directory exists or no remote origin URL has been 
+ * set for the repo. If the `action` field is undefined, no updates to the Redux store are necessary.
  */
-export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], ref = 'HEAD'): Promise<[(Repository | undefined), (ExistingRepoActions | undefined)]> => {
+export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], ref = 'HEAD'): Promise<RepoPayload> => {
   const rootDir = await getRepoRoot(filepath);
-  if (!rootDir) return [undefined, undefined];
+  if (!rootDir) return { repo: undefined, action: undefined };
   const remoteOriginUrls: string[] = await isogit.getConfigAll({ fs: fs, dir: rootDir.toString(), path: 'remote.origin.url' });
-  if (remoteOriginUrls.length <= 0) return [undefined, undefined];
-  const [url, oauth] = extractFromURL(remoteOriginUrls[0]);
+  if (remoteOriginUrls.length <= 0) return { repo: undefined, action: undefined };
+  const { url, oauth } = extractFromURL(remoteOriginUrls[0]);
   const currentBranch = await isogit.currentBranch({ fs: fs, dir: rootDir.toString() });
   const username = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'user.name' });
   const password = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'credential.helper' });
@@ -144,9 +162,9 @@ export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], re
   const existingRepo = repos.find(r => r.name === newRepo.name);
   const existingRef = existingRepo ? existingRepo.refs.find(r => r === ref) : undefined;
 
-  if (existingRepo && existingRef) return [existingRepo, undefined];
+  if (existingRepo && existingRef) return { repo: existingRepo, action: undefined };
   else if (existingRepo && !existingRef) {
     const updatedRepo = { ...existingRepo, refs: [...existingRepo.refs, ref] };
-    return [updatedRepo, { type: ActionKeys.UPDATE_REPO, id: existingRepo.id, repo: updatedRepo }];
-  } else return [newRepo, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo }];
+    return { repo: updatedRepo, action: { type: ActionKeys.UPDATE_REPO, id: existingRepo.id, repo: updatedRepo } };
+  } else return { repo: newRepo, action: { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo } };
 }

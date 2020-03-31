@@ -5,7 +5,6 @@ import { remote } from 'electron';
 import { RootState } from '../store/root';
 import { loadCard } from '../containers/handlers';
 import { extractMetafile } from '../containers/metafiles';
-import { extractRepo } from '../containers/git';
 
 const FilePickerButton: React.FunctionComponent = () => {
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
@@ -14,7 +13,7 @@ const FilePickerButton: React.FunctionComponent = () => {
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    const paths = await remote.dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'] });
+    const paths = await remote.dialog.showOpenDialog({ properties: ['openFile', 'openDirectory', 'multiSelections'] });
 
     /**
      * The Redux useSelector hook is synchronous with the React component lifecycle, therefore the value of the 
@@ -28,12 +27,9 @@ const FilePickerButton: React.FunctionComponent = () => {
      * the Redux metafile update action directly.
      */
     if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => {
-      const addMetafileAction = dispatch(await extractMetafile(filePath, filetypes));
-
-      const ref = addMetafileAction.metafile.ref ? addMetafileAction.metafile.ref : '';
-      await extractRepo(filePath, repos, ref);
-
-      if (addMetafileAction.metafile.handler) dispatch(loadCard(addMetafileAction.metafile));
+      const metafilePayload = await extractMetafile(filePath, filetypes, repos);
+      metafilePayload.actions.map(action => dispatch(action));
+      if (metafilePayload.metafile.handler) dispatch(loadCard(metafilePayload.metafile));
     });
   };
 

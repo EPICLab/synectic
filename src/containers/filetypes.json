@@ -200,6 +200,11 @@
     ]
   },
   {
+    "filetype": "Directory",
+    "handler": "Explorer",
+    "extensions": []
+  },
+  {
     "filetype": "Dockerfile",
     "handler": "Editor",
     "extensions": [

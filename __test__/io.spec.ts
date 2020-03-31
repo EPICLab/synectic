@@ -57,6 +57,23 @@ describe('io.extractFilename', () => {
   });
 });
 
+describe('io.extractDirname', () => {
+  it('extractDirname to extract dirname from Linux/MacOS paths', () => {
+    expect(io.extractDirname('/Users/foo/bar/module.d.ts')).toBe('bar');
+    expect(io.extractDirname('./baz/webpack.config.js')).toBe('baz');
+    expect(io.extractDirname('../../baz/sample.c9search_results')).toBe('baz');
+    expect(io.extractDirname('/Users/foo/bar/')).toBe('bar');
+    expect(io.extractDirname('bar/')).toBe('bar');
+    expect(io.extractDirname('module.d.ts')).toBe('');
+  });
+
+  it('extractDirname to extract dirname from Windows paths', () => {
+    expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\file.js')).toBe('Baz');
+    expect(io.extractDirname('2018\\January.xlsx')).toBe('2018');
+    expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\')).toBe('Baz');
+  });
+});
+
 describe('io.extractExtension', () => {
   it('extractExtension to extract extension from filename', () => {
     expect(io.extractExtension('foo.js')).toBe('js');
@@ -98,6 +115,110 @@ describe('io.readFileAsync', () => {
 
   it('readFileAsync fails with an error', async () => {
     await expect(io.readFileAsync('foo/bar/empty-dir/nonexist.js')).rejects.toThrow(/ENOENT/);
+  });
+});
+
+describe('io.readDirAsync', () => {
+  beforeAll(() => {
+    mock({
+      'foo/bar': {
+        'some-file.txt': 'file contents',
+        'empty-dir': {/** empty directory */ }
+      },
+      'baz/qux': {
+        'nup/tul/some.png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+        'vex/bol/wiz': {/** another empty directory */ }
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('readDirAsync to resolve to array of child filepaths', async () => {
+    await expect(io.readDirAsync('foo/bar')).resolves.toHaveLength(2);
+  });
+
+  it('readDirAsync fails with an error', async () => {
+    await expect(io.readDirAsync('foo/dep/')).rejects.toThrow(/ENOENT/);
+  });
+});
+
+describe('io.isDirectory', () => {
+  beforeAll(() => {
+    mock({
+      foo: {
+        bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        zap: {
+          zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        }
+      },
+      empty: {},
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('isDirectory resolves to true for empty directories', () => {
+    return expect(io.isDirectory('empty')).resolves.toBe(true);
+  });
+
+  it('isDirectory resolves to true for non-empty directories', () => {
+    return expect(io.isDirectory('foo/zap')).resolves.toBe(true);
+  });
+
+  it('isDirectory resolves to false for file', () => {
+    return expect(io.isDirectory('foo/bar')).resolves.toBe(false);
+  });
+});
+
+describe('io.readDirAsyncDeep', () => {
+  beforeAll(() => {
+    mock({
+      foo: {
+        bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        baz: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        zap: {
+          zed: {
+            beq: mock.file({ content: 'file contents', ctime: new Date(1) }),
+            bup: mock.file({ content: 'file contents', ctime: new Date(1) })
+          },
+          zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        }
+      },
+      zonk: {
+        zork: mock.file({ content: 'file contents', ctime: new Date(1) }),
+      },
+      imp: {
+        bamp: {},
+      },
+      empty: {},
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('readDirAsyncDeep resolves an empty directory', () => {
+    return expect(io.readDirAsyncDeep('empty')).resolves.toHaveLength(1);
+  });
+
+  it('readDirAsyncDeep resolves a directory with sub-files', () => {
+    return expect(io.readDirAsyncDeep('zonk')).resolves.toHaveLength(2);
+  });
+
+  it('readDirAsyncDeep resolves a directory with sub-directories', () => {
+    return expect(io.readDirAsyncDeep('imp')).resolves.toHaveLength(2);
+  });
+
+  it('readDirAsyncDeep inclusively resolves a directory with multiple layers of directories and files', () => {
+    return expect(io.readDirAsyncDeep('foo', true)).resolves.toHaveLength(8);
+  });
+
+  it('readDirAsyncDeep exclusively resolves a directory with multiple layers of directories and files', () => {
+    return expect(io.readDirAsyncDeep('foo', false)).resolves.toHaveLength(7);
+  });
+
+  it('readDirAsyncDeep fails with an error on non-existent paths', () => {
+    return expect(io.readDirAsyncDeep('foo/dep/')).rejects.toThrow(/ENOENT/);
   });
 });
 

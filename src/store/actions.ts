@@ -1,4 +1,4 @@
-import { UUID, Repository, Card, Stack, Metafile, Filetype, Metadir } from '../types';
+import { UUID, Repository, Card, Stack, Metafile, Filetype } from '../types';
 
 export enum ActionKeys {
   INITIALIZE_CANVAS,
@@ -7,7 +7,6 @@ export enum ActionKeys {
   ADD_FILETYPE, REMOVE_FILETYPE, UPDATE_FILETYPE,
   ADD_METAFILE, REMOVE_METAFILE, UPDATE_METAFILE,
   ADD_REPO, REMOVE_REPO, UPDATE_REPO,
-  ADD_FE, REMOVE_FE, UPDATE_FE,
 }
 
 export type Actions =
@@ -26,10 +25,7 @@ export type Actions =
   | UpdateMetafileAction
   | AddRepoAction
   | RemoveRepoAction
-  | UpdateRepoAction
-  | AddMetaDirAction
-  | RemoveMetaDirAction
-  | UpdateMetaDirAction;
+  | UpdateRepoAction;
 
 type InitializeCanvasAction = {
   type: ActionKeys.INITIALIZE_CANVAS;
@@ -118,21 +114,4 @@ type UpdateRepoAction = {
   type: ActionKeys.UPDATE_REPO;
   id: UUID;
   repo: Partial<Repository>;
-};
-
-type AddMetaDirAction = {
-  type: ActionKeys.ADD_FE;
-  id: UUID;
-  metadir: Metadir;
-};
-
-type RemoveMetaDirAction = {
-  type: ActionKeys.REMOVE_FE;
-  id: UUID;
-};
-
-type UpdateMetaDirAction = {
-  type: ActionKeys.UPDATE_FE;
-  id: UUID;
-  metadir: Metadir;
 };

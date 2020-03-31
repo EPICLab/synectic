@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`git.extractRepo extractRepo resolves a new Git repository to [new repo, AddRepoAction action] 1`] = `
+exports[`git.extractRepo extractRepo resolves a new Git repository to { new repo, AddRepoAction action } 1`] = `
 Object {
   "corsProxy": "https://cors-anywhere.herokuapp.com/",
   "id": undefined,
@@ -27,7 +27,7 @@ Object {
 }
 `;
 
-exports[`git.extractRepo extractRepo resolves a new Git repository to [new repo, AddRepoAction action] 2`] = `
+exports[`git.extractRepo extractRepo resolves a new Git repository to { new repo, AddRepoAction action } 2`] = `
 Object {
   "id": undefined,
   "repo": Object {
