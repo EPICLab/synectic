@@ -166,3 +166,11 @@ img.diff_icon {
   visibility: hidden;
   width: 0px;
 }
+
+.branch-ribbon {
+  color: rgb(235, 235, 235);
+  background-color: rgb(72, 74, 212);
+  font-family: Arial, Helvetica, sans-serif;
+  text-shadow: 1px 1px rgb(39, 41, 119);
+  text-indent: 1px;
+}

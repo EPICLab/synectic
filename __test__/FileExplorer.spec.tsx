@@ -54,4 +54,10 @@ describe('FileExplorerComponent', () => {
     expect(wrapper.find(TreeItem).first().props().children).toMatchSnapshot();
   });
 
+  it('FileExplorer renders the correct current branch name for untracked directory', () => {
+    const FileExplorerContext = wrapInTestContext(FileExplorerComponent, store);
+    const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
+    expect(wrapper.find(FileExplorerComponent).first().html()).toContain('<div class="branch-ribbon">Branch: Untracked</div>');
+  });
+
 });
