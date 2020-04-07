@@ -156,6 +156,7 @@ img.diff_icon {
   border-radius: 0px 0px 10px 10px;
   overflow: auto;
   text-overflow: clip;
+  width: fit-content;
 }
 
 .file-icon {
@@ -171,6 +172,14 @@ img.diff_icon {
   color: rgb(235, 235, 235);
   background-color: rgb(72, 74, 212);
   font-family: Arial, Helvetica, sans-serif;
-  text-shadow: 1px 1px rgb(39, 41, 119);
   text-indent: 1px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  width: fit-content;
+  direction: rtl;
+}
+
+.branch-ribbon::-webkit-scrollbar {
+  visibility: hidden;
+  width: 0px;
 }
