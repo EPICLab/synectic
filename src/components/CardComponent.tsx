@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useDrag } from 'react-dnd';
+import { CSSTransition } from 'react-transition-group';
 import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
 import FileExplorerComponent from './FileExplorer';
@@ -11,7 +12,7 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
 };
 
-const Content: React.FunctionComponent<Card> = props => {
+const ContentFront: React.FunctionComponent<Card> = props => {
   switch (props.type) {
     case 'Editor':
       return (<Editor metafileId={props.related[0]} />);
@@ -24,7 +25,12 @@ const Content: React.FunctionComponent<Card> = props => {
   }
 };
 
+const ContentBack: React.FunctionComponent<Card> = props => {
+  return (<span>ID: {props.id}</span>);
+};
+
 const CardComponent: React.FunctionComponent<Card> = props => {
+  const [flipped, setFlipped] = useState(false);
   const dispatch = useDispatch();
 
   const [{ isDragging }, drag] = useDrag({
@@ -36,12 +42,22 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     canDrag: !props.captured
   });
 
+  const flip = () => {
+    console.log(`flip: ${flipped} => ${!flipped}`);
+    setFlipped(!flipped);
+  };
+
   return (
     <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
       <Header title={props.name}>
+        <button className='flip' onClick={() => flip()} />
         <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
       </Header>
-      <Content {...props} />
+      <CSSTransition in={flipped} timeout={600} classNames='flip'>
+        <>
+          {flipped ? <div className='card-back'><ContentBack {...props} /></div> : <div className='card-front'><ContentFront {...props} /></div>}
+        </>
+      </CSSTransition>
     </div>
   );
 };

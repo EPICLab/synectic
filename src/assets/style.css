@@ -22,7 +22,7 @@ body {
 }
 
 .card {
-  background: rgba(90,125,86,1.0);
+  background: rgba(89,87,90,1.0);
   color: rgba(171,178,191,1.0);
   width: 200px; /* 7:5 aspect ratio */
   height: 280px; /* 7:5 aspect ratio */
@@ -86,10 +86,50 @@ body {
   z-index: 9999;
 }
 
-.editor {
+.card-front, .card-back {
+  width: 100%;
+  height: calc(100% - 29px);
   border-radius: 0 0 10px 10px;
   position: absolute;
   bottom: 0;
+  font-family: 'Lato', Georgia, Serif;
+}
+
+.card-front {
+  background-color: rgba(40, 44, 52, 1.0);
+}
+
+.card-back {
+  background-color: rgba(255, 255, 255, 1.0);
+  
+}
+
+/* CSSTransition from react-transition-group uses *-enter, *-enter-active,
+   *-exit, and *-exit-active (in that order) for animation effects */
+.flip-enter {
+  transform-style: preserve-3d; 
+}
+
+.flip-enter-active {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  transform: rotateY(180deg);
+  position: relative;
+}
+
+.flip-exit {
+  transform-style: preserve-3d;
+}
+
+.flip-exit-active {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  transform: rotateY(-180deg);
+  position: relative;
+}
+
+.editor {
+  border-radius: 0 0 10px 10px;
 }
 
 /* removes scrollbars from Ace Editor panes until hovered */
@@ -122,6 +162,18 @@ button.close {
 button.close:hover,
 button.close:active {
   background: url('close_active.svg');
+  background-size: cover;
+  cursor: pointer;
+}
+
+button.flip {
+  background: url('flip_dark.svg');
+  background-size: cover;
+}
+
+button.flip:hover,
+button.flip:active {
+  background: url('flip_active.svg');
   background-size: cover;
   cursor: pointer;
 }
