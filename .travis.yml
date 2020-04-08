@@ -12,8 +12,7 @@ jobs:
 dist: xenial
 osx_image: xcode11.3
 env:
-  - YARN_GPG=no
-
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then YARN_GPG=no; fi
 cache:
   npm: true
   yarn: true
