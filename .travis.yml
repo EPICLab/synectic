@@ -1,18 +1,32 @@
 language: node_js
-node_js:
-  - node
-  - 10
-os:
-  - linux
-  - osx
-  - windows
+
 jobs:
   allow_failures:
     - os: linux
+  include:
+    - os: linux
+      node_js: 10
+      env: TARGET_ARCH=x64
+    - os: linux
+      node_js: node
+      env: TARGET_ARCH=x64
+    - os: osx
+      node_js: 10
+      env: TARGET_ARCH=x64
+    - os: osx
+      node_js: node
+      env: TARGET_ARCH=x64
+    - os: windows
+      node_js: 10
+      env: YARN_GPG=no
+    - os: windows
+      node_js: node
+      env: YARN_GPG=no
+
+
 dist: xenial
 osx_image: xcode11.3
-env:
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then YARN_GPG=no; fi
+
 cache:
   npm: true
   yarn: true
