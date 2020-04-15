@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useDrag } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { Card } from '../types';
@@ -7,6 +7,7 @@ import { ActionKeys } from '../store/actions';
 import FileExplorerComponent from './FileExplorer';
 import Editor from './Editor';
 import Diff from './Diff';
+import { RootState } from '../store/root';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -26,7 +27,15 @@ const ContentFront: React.FunctionComponent<Card> = props => {
 };
 
 const ContentBack: React.FunctionComponent<Card> = props => {
-  return (<span>ID: {props.id}</span>);
+  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
+  const repos = useSelector((state: RootState) => state.repos);
+  return (
+    <>
+      <div className='git' /><span>{metafile.repo ? repos[metafile.repo].name : 'Untracked'}</span>
+      <span className='field'>ID:</span><span>{props.id}</span>
+      <span className='field'>Name:</span><span>{props.name}</span>
+    </>
+  );
 };
 
 const CardComponent: React.FunctionComponent<Card> = props => {

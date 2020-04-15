@@ -104,6 +104,25 @@ body {
   
 }
 
+/* grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); */
+.card-back {
+  display: grid;
+  grid-template-columns: minmax(2rem, 1fr) minmax(5rem, 3fr);
+  column-gap: 0.1rem;
+  grid-template-rows: repeat(auto-fill, minmax(1.7rem, 1fr));
+}
+
+.card-back span {
+  padding: 0.2rem;
+  margin: 0.1rem;
+  border: 0.5px solid rgba(40, 44, 52, 1.0);
+  overflow: hidden;
+}
+
+.card-back span.field {
+  border: none;
+}
+
 /* CSSTransition from react-transition-group uses *-enter, *-enter-active,
    *-exit, and *-exit-active (in that order) for animation effects */
 .flip-enter {
@@ -154,6 +173,28 @@ body {
   z-index: 20;
 }
 
+.file-explorer {
+  color: rgb(30, 30, 30);
+  background: rgb(235, 235, 235);
+  max-width: 200px;
+  height: 248px;
+  flex-grow: 1;
+  text-indent: 20px;
+  border: 2px solid rgb(65, 65, 65);
+  border-radius: 0px 0px 10px 10px;
+  overflow: auto;
+  text-overflow: clip;
+}
+
+.file-icon {
+  margin-left: 20px;
+}
+
+.file-explorer::-webkit-scrollbar {
+  visibility: hidden;
+  width: 0px;
+}
+
 button.close {
   background: url('close_dark.svg');
   background-size: cover;
@@ -178,7 +219,11 @@ button.flip:active {
   cursor: pointer;
 }
 
-.container {
+div.git {
+  background: url('git_light.png') no-repeat center top/contain;
+}
+
+.diff-container {
   display: grid;
   grid-template-columns: 150px 20px 150px;
   grid-template-rows: 50px 70px 50px;
@@ -195,26 +240,4 @@ img.diff_icon {
   content:url('diff.png');
   height: auto;
   width: 20px;
-}
-
-.file-explorer {
-  color: rgb(30, 30, 30);
-  background: rgb(235, 235, 235);
-  max-width: 200px;
-  height: 248px;
-  flex-grow: 1;
-  text-indent: 20px;
-  border: 2px solid rgb(65, 65, 65);
-  border-radius: 0px 0px 10px 10px;
-  overflow: auto;
-  text-overflow: clip;
-}
-
-.file-icon {
-  margin-left: 20px;
-}
-
-.file-explorer::-webkit-scrollbar {
-  visibility: hidden;
-  width: 0px;
 }
