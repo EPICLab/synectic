@@ -57,6 +57,7 @@ describe('metafiles.extractMetafile', () => {
   it('extractMetafile resolves a non-empty directory with Redux actions', async () => {
     const metafilePayload = await extractMetafile('foo/zap', mockedFiletypes, mockedRepositories);
     expect(metafilePayload.actions).toHaveLength(6);
+    expect(metafilePayload.metafile.contains).toHaveLength(2);
   });
 
 
