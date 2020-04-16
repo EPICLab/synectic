@@ -17,15 +17,15 @@ export * from 'isomorphic-git';
 /**
  * Get the name of the branch currently pointed to by .git/HEAD; this function is a wrapper to inject the 
  * fs parameter in to isomorphic-git/currentBranch.
- * @param args
- * @param args.dir The working tree directory path.
- * @param args.gitdir The git directory path.
- * @param args.fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the 
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path.
+ * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the 
  * abbreviated form.
- * @param args.test Boolean option to return 'undefined' if the current branch doesn't actually exist 
+ * @param test Boolean option to return 'undefined' if the current branch doesn't actually exist 
  * (such as 'master' right after git init).
+ * @return A Promise object containing the current branch name, or undefined if the HEAD is detached.
  */
-export const currentBranch = ({ dir, gitdir, fullname, test, }: {
+export const currentBranch = ({ dir, gitdir, fullname, test }: {
   dir?: string;
   gitdir?: string;
   fullname?: boolean;
@@ -143,7 +143,7 @@ export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], re
   const remoteOriginUrls: string[] = await isogit.getConfigAll({ fs: fs, dir: rootDir.toString(), path: 'remote.origin.url' });
   if (remoteOriginUrls.length <= 0) return { repo: undefined, action: undefined };
   const { url, oauth } = extractFromURL(remoteOriginUrls[0]);
-  const currentBranch = await isogit.currentBranch({ fs: fs, dir: rootDir.toString() });
+  const branches = await isogit.listBranches({ fs: fs, dir: rootDir.toString() });
   const username = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'user.name' });
   const password = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'credential.helper' });
 
@@ -152,7 +152,7 @@ export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], re
     name: extractRepoName(url.href),
     corsProxy: new URL('https://cors-anywhere.herokuapp.com/'),
     url: url,
-    refs: currentBranch ? [currentBranch] : [],
+    refs: branches,
     oauth: oauth,
     username: username ? username : '',
     password: password ? password : '',
