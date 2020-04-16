@@ -9,6 +9,7 @@ import Editor from './Editor';
 import Diff from './Diff';
 import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
+import { FormControl, Select, MenuItem, Input } from '@material-ui/core';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -30,16 +31,36 @@ const ContentFront: React.FunctionComponent<Card> = props => {
 };
 
 const ContentBack: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
-  const repos = useSelector((state: RootState) => state.repos);
   return (
     <>
-      <div className='git' /><span>{metafile.repo ? repos[metafile.repo].name : 'Untracked'}</span>
+      <div className='git' /><BranchList {...props} />
       <span className='field'>ID:</span><span>{props.id}</span>
       <span className='field'>Name:</span><span>{props.name}</span>
     </>
   );
 };
+
+const BranchList: React.FunctionComponent<Card> = props => {
+  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
+  const repos = useSelector((state: RootState) => state.repos);
+  const [current] = useState(metafile.repo ? repos[metafile.repo] : { id: 'untracked', name: 'Untracked' });
+  // return (<span>{current.name}</span>);
+  return (
+    <FormControl id='branch-control'>
+      <Select labelId='branch-selection-name-label' id='branch-name' value={current.id}
+        autoWidth={true} input={<Input />}>
+        {Object.values(repos).map(repo => (
+          <MenuItem selected key={repo.id} value={repo.id}>
+            {repo.name}
+          </MenuItem>
+        ))}
+        {current.name == 'untracked' &&
+          <MenuItem key={'untracked'} value={'untracked'}>{'Untracked'}</MenuItem>
+        }
+      </Select>
+    </FormControl>
+  );
+}
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);

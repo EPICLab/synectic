@@ -110,6 +110,7 @@ body {
   grid-template-columns: minmax(2rem, 1fr) minmax(5rem, 3fr);
   column-gap: 0.1rem;
   grid-template-rows: repeat(auto-fill, minmax(1.7rem, 1fr));
+  row-gap: 0.1rem;
 }
 
 .card-back span {
@@ -122,6 +123,13 @@ body {
 .card-back span.field {
   border: none;
 }
+
+div.git {
+  background: url('git_light.png') no-repeat center center / 47%;
+  padding: 0.2rem;
+  margin: 0.1rem;
+}
+
 
 /* CSSTransition from react-transition-group uses *-enter, *-enter-active,
    *-exit, and *-exit-active (in that order) for animation effects */
@@ -217,10 +225,6 @@ button.flip:active {
   background: url('flip_active.svg');
   background-size: cover;
   cursor: pointer;
-}
-
-div.git {
-  background: url('git_light.png') no-repeat center top/contain;
 }
 
 .diff-container {
