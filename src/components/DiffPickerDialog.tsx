@@ -32,7 +32,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl >
+        </FormControl>
         <img className='diff_icon' />
         <FormControl id='right-form-control' style={{ gridArea: 'right', width: 100 }}>
           <InputLabel id='diff-card-selection-name-label'>Right</InputLabel>
@@ -44,7 +44,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl >
+        </FormControl>
         <Button style={{ gridArea: 'footer' }} id='diffpicker-button' variant='contained' color='primary' onClick={() => {
           console.log(`PickerDialog (Button.onClick): selectedLeft: ${selectedLeft}, selectedRight: ${selectedRight}`); // PickerDialog (Button.onClick): selectedLeft: 1e5fe65f-2661-4271-8035-1dd3be7bdaf3, selectedRight: 5178999f-b1f2-464c-b51c-c35046f39e2f
           props.onClose(false, [selectedLeft, selectedRight]);
