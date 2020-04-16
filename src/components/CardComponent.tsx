@@ -10,6 +10,7 @@ import Diff from './Diff';
 import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
 import { FormControl, Select, MenuItem, Input } from '@material-ui/core';
+import { DateTime } from 'luxon';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -43,20 +44,29 @@ const ContentBack: React.FunctionComponent<Card> = props => {
 const BranchList: React.FunctionComponent<Card> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
   const repos = useSelector((state: RootState) => state.repos);
-  const [current] = useState(metafile.repo ? repos[metafile.repo] : { id: 'untracked', name: 'Untracked' });
-  // return (<span>{current.name}</span>);
+  const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
+  const [ref] = useState(metafile.ref ? metafile.ref : 'untracked');
+  const dispatch = useDispatch();
+
+  const checkout = (ref: string) => {
+    // not really checking out a new branch, since isomorphic-git is not being called (yet)
+    console.log(`checkout: ${ref}`);
+    dispatch({
+      type: ActionKeys.UPDATE_METAFILE, id: metafile.id, metafile: {
+        modified: DateTime.fromISO('2019-12-21T20:45:13.131-08:00'),
+        ref: ref
+      }
+    })
+  }
+
   return (
     <FormControl id='branch-control'>
-      <Select labelId='branch-selection-name-label' id='branch-name' value={current.id}
-        autoWidth={true} input={<Input />}>
-        {Object.values(repos).map(repo => (
-          <MenuItem selected key={repo.id} value={repo.id}>
-            {repo.name}
-          </MenuItem>
-        ))}
-        {current.name == 'untracked' &&
-          <MenuItem key={'untracked'} value={'untracked'}>{'Untracked'}</MenuItem>
-        }
+      <Select labelId='branch-selection-name-label' id='branch-name' value={ref}
+        autoWidth={true} input={<Input />} onChange={(e) => checkout(e.target.value as string)} >
+        {repo && Object.values(repo.refs).map(branch =>
+          (<MenuItem selected key={branch} value={branch}>{branch}</MenuItem>)
+        )}
+        {ref == 'untracked' && <MenuItem key={ref} value={ref}>{ref}</MenuItem>}
       </Select>
     </FormControl>
   );
