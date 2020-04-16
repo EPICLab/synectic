@@ -22,7 +22,7 @@ body {
 }
 
 .card {
-  background: rgba(90,125,86,1.0);
+  background: rgba(89,87,90,1.0);
   color: rgba(171,178,191,1.0);
   width: 200px; /* 7:5 aspect ratio */
   height: 280px; /* 7:5 aspect ratio */
@@ -86,10 +86,69 @@ body {
   z-index: 9999;
 }
 
-.editor {
+.card-front, .card-back {
+  width: 100%;
+  height: calc(100% - 29px);
   border-radius: 0 0 10px 10px;
   position: absolute;
   bottom: 0;
+  font-family: 'Lato', Georgia, Serif;
+}
+
+.card-front {
+  background-color: rgba(40, 44, 52, 1.0);
+}
+
+.card-back {
+  background-color: rgba(255, 255, 255, 1.0);
+  
+}
+
+/* grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); */
+.card-back {
+  display: grid;
+  grid-template-columns: minmax(2rem, 1fr) minmax(5rem, 3fr);
+  column-gap: 0.1rem;
+  grid-template-rows: repeat(auto-fill, minmax(1.7rem, 1fr));
+}
+
+.card-back span {
+  padding: 0.2rem;
+  margin: 0.1rem;
+  border: 0.5px solid rgba(40, 44, 52, 1.0);
+  overflow: hidden;
+}
+
+.card-back span.field {
+  border: none;
+}
+
+/* CSSTransition from react-transition-group uses *-enter, *-enter-active,
+   *-exit, and *-exit-active (in that order) for animation effects */
+.flip-enter {
+  transform-style: preserve-3d; 
+}
+
+.flip-enter-active {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  transform: rotateY(180deg);
+  position: relative;
+}
+
+.flip-exit {
+  transform-style: preserve-3d;
+}
+
+.flip-exit-active {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  transform: rotateY(-180deg);
+  position: relative;
+}
+
+.editor {
+  border-radius: 0 0 10px 10px;
 }
 
 /* removes scrollbars from Ace Editor panes until hovered */
@@ -114,37 +173,6 @@ body {
   z-index: 20;
 }
 
-button.close {
-  background: url('close_dark.svg');
-  background-size: cover;
-}
-
-button.close:hover,
-button.close:active {
-  background: url('close_active.svg');
-  background-size: cover;
-  cursor: pointer;
-}
-
-.container {
-  display: grid;
-  grid-template-columns: 150px 20px 150px;
-  grid-template-rows: 50px 70px 50px;
-  column-gap: 5px;
-  row-gap: 5px;
-  place-items: center;
-  grid-template-areas: 
-    "header header header"
-    "left center right"
-    "footer footer footer";
-}
-
-img.diff_icon {
-  content:url('diff.png');
-  height: auto;
-  width: 20px;
-}
-
 .file-explorer {
   color: rgb(30, 30, 30);
   background: rgb(235, 235, 235);
@@ -165,4 +193,51 @@ img.diff_icon {
 .file-explorer::-webkit-scrollbar {
   visibility: hidden;
   width: 0px;
+}
+
+button.close {
+  background: url('close_dark.svg');
+  background-size: cover;
+}
+
+button.close:hover,
+button.close:active {
+  background: url('close_active.svg');
+  background-size: cover;
+  cursor: pointer;
+}
+
+button.flip {
+  background: url('flip_dark.svg');
+  background-size: cover;
+}
+
+button.flip:hover,
+button.flip:active {
+  background: url('flip_active.svg');
+  background-size: cover;
+  cursor: pointer;
+}
+
+div.git {
+  background: url('git_light.png') no-repeat center top/contain;
+}
+
+.diff-container {
+  display: grid;
+  grid-template-columns: 150px 20px 150px;
+  grid-template-rows: 50px 70px 50px;
+  column-gap: 5px;
+  row-gap: 5px;
+  place-items: center;
+  grid-template-areas: 
+    "header header header"
+    "left center right"
+    "footer footer footer";
+}
+
+img.diff_icon {
+  content:url('diff.png');
+  height: auto;
+  width: 20px;
 }

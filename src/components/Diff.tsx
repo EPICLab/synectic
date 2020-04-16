@@ -39,7 +39,7 @@ const Diff: React.FunctionComponent<{ left: UUID; right: UUID }> = props => {
 
   return (
     <AceEditor mode={original.filetype?.toLowerCase()} theme='github' name={original.id + '-diff'} value={diffOutput}
-      className='editor' height='calc(100% - 29px)' width='100%' readOnly={true} markers={markers} showGutter={false}
+      className='editor' height='100%' width='100%' readOnly={true} markers={markers} showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
 }
