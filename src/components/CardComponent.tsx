@@ -9,8 +9,16 @@ import Editor from './Editor';
 import Diff from './Diff';
 import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
-import { FormControl, Select, MenuItem, Input } from '@material-ui/core';
+import { FormControl, Select, MenuItem, Input, makeStyles } from '@material-ui/core';
 import { DateTime } from 'luxon';
+
+const useStyles = makeStyles({
+  root: {
+    color: 'rgba(171, 178, 191, 1.0)',
+    fontSize: 'small',
+    fontFamily: `'Lato', Georgia, Serif`
+  }
+});
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -32,11 +40,16 @@ const ContentFront: React.FunctionComponent<Card> = props => {
 };
 
 const ContentBack: React.FunctionComponent<Card> = props => {
+  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
+  const repos = useSelector((state: RootState) => state.repos);
+  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
   return (
     <>
-      <div className='git' /><BranchList {...props} />
-      <span className='field'>ID:</span><span>{props.id}</span>
-      <span className='field'>Name:</span><span>{props.name}</span>
+      <div className='git_icon' /><span />
+      <span>Repo:</span><span className='field'>{repo.name}</span>
+      <span>Branch:</span><BranchList {...props} />
+      <span>ID:</span><span className='field'>{props.id}</span>
+      <span>Name:</span><span className='field'>{props.name}</span>
     </>
   );
 };
@@ -45,26 +58,29 @@ const BranchList: React.FunctionComponent<Card> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
-  const [ref] = useState(metafile.ref ? metafile.ref : 'untracked');
+  const [ref, updateRef] = useState(metafile.ref ? metafile.ref : 'untracked');
   const dispatch = useDispatch();
+  const cssClasses = useStyles();
 
-  const checkout = (ref: string) => {
+  const checkout = (newRef: string) => {
     // not really checking out a new branch, since isomorphic-git is not being called (yet)
-    console.log(`checkout: ${ref}`);
+    console.log(`checkout: ${newRef}`);
     dispatch({
       type: ActionKeys.UPDATE_METAFILE, id: metafile.id, metafile: {
         modified: DateTime.fromISO('2019-12-21T20:45:13.131-08:00'),
-        ref: ref
+        ref: newRef
       }
-    })
+    });
+    updateRef(newRef);
   }
 
   return (
-    <FormControl id='branch-control'>
+    <FormControl id='branch-control' className={cssClasses.root}>
       <Select labelId='branch-selection-name-label' id='branch-name' value={ref}
-        autoWidth={true} input={<Input />} onChange={(e) => checkout(e.target.value as string)} >
+        className={cssClasses.root} autoWidth={true} input={<Input className={cssClasses.root} />}
+        onChange={(e) => checkout(e.target.value as string)} >
         {repo && Object.values(repo.refs).map(branch =>
-          (<MenuItem selected key={branch} value={branch}>{branch}</MenuItem>)
+          (<MenuItem key={branch} value={branch}>{branch}</MenuItem>)
         )}
         {ref == 'untracked' && <MenuItem key={ref} value={ref}>{ref}</MenuItem>}
       </Select>

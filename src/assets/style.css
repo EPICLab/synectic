@@ -101,30 +101,26 @@ body {
 
 .card-back {
   background-color: rgba(255, 255, 255, 1.0);
-  
-}
-
-/* grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); */
-.card-back {
   display: grid;
-  grid-template-columns: minmax(2rem, 1fr) minmax(5rem, 3fr);
+  grid-template-columns: minmax(2rem, 1.2fr) minmax(5rem, 3fr);
   column-gap: 0.1rem;
   grid-template-rows: repeat(auto-fill, minmax(1.7rem, 1fr));
-  row-gap: 0.1rem;
+  row-gap: 0.25rem;
 }
 
-.card-back span {
+.card-back * {
+  font-size: small;
   padding: 0.2rem;
   margin: 0.1rem;
-  border: 0.5px solid rgba(40, 44, 52, 1.0);
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.card-back span.field {
-  border: none;
+.card-back .field {
+  border-bottom: 0.5px solid rgba(40, 44, 52, 1.0);
 }
 
-div.git {
+.git_icon {
   background: url('git_light.png') no-repeat center center / 47%;
   padding: 0.2rem;
   margin: 0.1rem;
