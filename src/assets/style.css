@@ -16,7 +16,7 @@ body {
   width: calc((200px * 1.25) + 28px); /* scaled from card width */
   position: absolute;
   cursor: move;
-  border: 0.5px solid rgb(125, 125, 125);
+  border: 0.5px solid rgba(125, 125, 125, 1.0);
   border-radius: 5px;
   user-select: none;
 }
@@ -174,13 +174,13 @@ body {
 }
 
 .file-explorer {
-  color: rgb(30, 30, 30);
-  background: rgb(235, 235, 235);
+  color: rgba(30, 30, 30, 1.0);
+  background: rgba(235, 235, 235, 1.0);
   max-width: 200px;
   height: 248px;
   flex-grow: 1;
   text-indent: 20px;
-  border: 2px solid rgb(65, 65, 65);
+  border: 2px solid rgba(65, 65, 65, 1.0);
   border-radius: 0px 0px 10px 10px;
   overflow: auto;
   text-overflow: clip;
@@ -240,4 +240,88 @@ img.diff_icon {
   content:url('diff.png');
   height: auto;
   width: 20px;
+}
+
+.file-explorer {
+  color: rgba(30, 30, 30, 1.0);
+  background: rgba(235, 235, 235, 1.0);
+  width: 200px;
+  height: 248px;
+  flex-grow: 1;
+  text-indent: 20px;
+  border: 2px solid rgba(65, 65, 65, 1.0);
+  border-radius: 0px 0px 10px 10px;
+  overflow: auto;
+  text-overflow: clip;
+  transform: translateX(-2px);
+}
+
+.file-icon {
+  margin-left: 20px;
+}
+
+.file-explorer::-webkit-scrollbar {
+  visibility: hidden;
+  width: 0px;
+}
+
+.branch-ribbon-container {
+  background-color: rgba(72, 74, 212, 1.0);
+  height: 20px;
+  transform: translateY(-16px);
+  padding-bottom: -10px;
+}
+
+.branch-ribbon-text {
+  color: rgba(235, 235, 235, 1.0);
+  font-family: Arial, Helvetica, sans-serif;
+  text-indent: 1px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  width: fit-content;
+  margin-bottom: 0px;
+}
+
+.branch-ribbon-container:hover > .branch-ribbon-text {
+  animation: scroll-text 10s linear infinite;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.branch-ribbon-container:not(:hover) > .branch-ribbon-text {
+  animation: fade-text 1s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fade-text {
+  0% { 
+    opacity: 0;
+  }
+
+  50% {
+    transform: translateX(0%);
+  }
+
+  100% { 
+    opacity: 1;
+  }
+}
+
+@keyframes scroll-text {
+  0% { 
+    transform: translateX(0%) 
+  }
+
+  50% {
+    transform: translateX(-96%); 
+  }
+
+  100% { 
+    transform: translateX(0%); 
+  }
+}
+
+.MuiTreeView-root {
+  transform: translateY(-12px);
 }

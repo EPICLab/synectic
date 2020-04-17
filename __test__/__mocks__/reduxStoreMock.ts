@@ -128,6 +128,16 @@ const initialState: initStateT = {
       handler: 'Explorer',
       modified: DateTime.fromISO('2001-01-01T01:01:01.111-08:00'),
       contains: ['99', '199']
+    },
+    75: {
+      id: '75',
+      name: 'trackedDir',
+      path: 'trackedDir',
+      filetype: 'Directory',
+      handler: 'Explorer',
+      modified: DateTime.fromISO('2001-01-01T01:01:01.111-08:00'),
+      ref: 'master',
+      contains: []
     }
   },
   repos: {
