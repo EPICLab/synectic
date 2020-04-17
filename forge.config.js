@@ -12,7 +12,6 @@ module.exports = {
       platforms: ['win32'],
       config: {
         name: 'Synectic',
-        iconUrl: 'src/assets/icon/icon.ico',
         setupIcon: 'src/assets/icon/icon.ico'
       }
     },
