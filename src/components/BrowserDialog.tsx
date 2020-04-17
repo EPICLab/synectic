@@ -1,51 +1,155 @@
-import React from 'react';
-// import { Browser } from '../types';
-// import { ActionKeys } from '../store/actions';
-// import { UUID } from '../types';
-import Button from '@material-ui/core/Button';
-import { Metafile } from '../types';
+import React, { useState } from 'react';
 import { DateTime } from 'luxon';
-import { useDispatch } from 'react-redux';
-import { loadCard } from '../containers/handlers';
+import { v4 } from 'uuid';
+import { useSelector, useDispatch } from 'react-redux';
+import { Button } from '@material-ui/core';
 
+import { RootState } from '../store/root';
+import { UUID, Card, Metafile } from '../types';
+import { ActionKeys, Actions } from '../store/actions';
 
-const myMetafile: Metafile = {
-    id: "hello",
-    name: "Website Title",
-    modified: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-    handler: "Browser"
+type DialogProps = {
+    open: boolean;
+    onClose: (canceled: boolean, selected: UUID) => void;
 }
 
+export const BrowserDialog: React.FunctionComponent<DialogProps> = props => {
 
-// const OpenBrowser: React.FunctionComponent = () => {
-//     const WebView = require('react-electron-web-view');
+    if (props.open) {
+        return (
+            <>
+                <form>
+                    <label>Enter URL:</label>
+                    <input></input>
+                </form>
+            </>
+        )
+    }
+    return <></>;
+}
 
-//     return (
-//         <WebView src="https://www.google.com" />
-//     )
-// }
-
-const BrowserComponent: React.FunctionComponent = () => {
-    // const openBrowser = async (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    //     e.preventDefault();
-    //     window.open('https://www.github.com', '_blank');
-    //     alert('I have been clicked!');
-    // }
-
+const BrowserButton: React.FunctionComponent = () => {
+    const [open, setOpen] = useState(false);
+    const metafiles = useSelector((state: RootState) => state.metafiles);
     const dispatch = useDispatch();
 
     const handleClick = async (e: React.MouseEvent) => {
         e.preventDefault();
-        // const stuff = loadCard(myMetafile);
-        // alert(`${stuff}`);
-        dispatch(loadCard(myMetafile));
-    }
+        setOpen(!open);
+    };
+
+    const handleClose = (canceled: boolean, selected: UUID) => {
+        if (canceled || !selected) {
+            setOpen(!open);
+            return;
+        }
+
+        const metafile: Metafile = {
+            id: v4(),
+            name: `${metafiles[0].name}`,
+            modified: DateTime.local(),
+            handler: 'Browser'
+        }
+        const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+        dispatch(addMetafileAction);
+
+        const card: Card = {
+            id: v4(),
+            name: metafile.name,
+            type: 'Browser',
+            related: [],
+            created: DateTime.local(),
+            modified: DateTime.local(),
+            captured: false,
+            left: 50,
+            top: 50
+        }
+        const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
+        dispatch(addCardAction);
+        setOpen(!open);
+    };
 
     return (
-        <div>
-            <Button id='filepicker-button' variant='contained' color='primary' onClick={async (e) => { await handleClick(e) }}>Browser</Button>
-            {/* <OpenBrowser /> */}
-        </div>
-    )
+        <>
+            <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Open Browser...</Button>
+            <BrowserDialog open={open} onClose={handleClose} />
+        </>
+    );
 }
-export default BrowserComponent;
+
+export default BrowserButton;
+
+
+
+
+
+
+
+
+
+
+
+
+// import React from 'react';
+// import Button from '@material-ui/core/Button';
+// import { useDispatch } from 'react-redux';
+// import { Metafile, Card } from '../types';
+// import { v4 } from 'uuid';
+// import { DateTime } from 'luxon';
+// import { Actions, ActionKeys } from '../store/actions';
+
+// type browserDialogProps = {
+//     thisIsDumb: () => void;
+// }
+
+// const BrowserDialog: React.FunctionComponent<browserDialogProps> = props => {
+//     const text = "Hello world";
+//     props.thisIsDumb();
+
+//     return (
+//         <div>{text}</div>
+//     )
+// }
+
+// const BrowserButton: React.FunctionComponent = () => {
+//     const dispatch = useDispatch();
+
+//     const handleClick = async (e: React.MouseEvent) => {
+//         e.preventDefault();
+//     }
+
+//     const metafile: Metafile = {
+//         id: v4(),
+//         name: "Something?",
+//         modified: DateTime.local(),
+//         handler: "Browser"
+//     }
+
+//     const thisIsDumb = () => {
+//         const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+//         dispatch(addMetafileAction);
+
+//         const card: Card = {
+//             id: v4(),
+//             name: metafile.name,
+//             type: 'Browser',
+//             related: [],
+//             created: DateTime.local(),
+//             modified: DateTime.local(),
+//             captured: false,
+//             left: 50,
+//             top: 50
+//         }
+
+//         const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
+//         dispatch(addCardAction);
+//     };
+
+//     return (
+//         <>
+//             <Button id='filepicker-button' variant='contained' color='primary' onClick={async (e) => { await handleClick(e) }}>Open Browser...</Button>
+//             <BrowserDialog thisIsDumb={thisIsDumb} />
+//         </>
+//     )
+// }
+// export default BrowserButton;
