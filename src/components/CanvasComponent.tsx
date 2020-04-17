@@ -12,6 +12,7 @@ import { Button } from '@material-ui/core';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import DiffPickerButton from './DiffPickerDialog';
+import BrowserComponent from './BrowserDialog';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -74,6 +75,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <NewCardComponent />
       <FilePickerButton />
       <DiffPickerButton />
+      <BrowserComponent />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
