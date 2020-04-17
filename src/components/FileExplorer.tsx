@@ -31,8 +31,8 @@ const FileExplorerComponent: React.FunctionComponent<{ rootId: UUID }> = props =
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const repos = useSelector((state: RootState) => Object.values(state.repos));
   const metafiles = useSelector((state: RootState) => state.metafiles);
-  const root = useState(metafiles[props.rootId]);
-  const branch = (String(root[0].ref) === "undefined") ? "Untracked" : root[0].ref;
+  const [root] = useState(metafiles[props.rootId]);
+  const [branch] = useState(root.ref ? root.ref : "Untracked")
   const dispatch = useDispatch();
 
   const handleClick = async (e: React.MouseEvent, path: string) => {
