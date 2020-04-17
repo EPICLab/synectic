@@ -45,7 +45,7 @@ const FileExplorerComponent: React.FunctionComponent<{ rootId: UUID }> = props =
 
   return (
     <div className='file-explorer'>
-      <div className='branch-ribbon'>{`Branch: ${branch}`}</div>
+      <div className='branch-ribbon-container'><p className='branch-ribbon-text'>{`Branch: ${branch}`}</p></div>
       <TreeView
         defaultParentIcon={<img width="20px" src="../assets/folder.svg" alt="Folder" />}
         defaultEndIcon={<div className="file-icon"><img width="20px" src="../assets/file.svg" alt="File" /></div>}

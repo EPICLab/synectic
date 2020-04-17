@@ -148,7 +148,7 @@ img.diff_icon {
 .file-explorer {
   color: rgb(30, 30, 30);
   background: rgb(235, 235, 235);
-  max-width: 200px;
+  width: 200px;
   height: 248px;
   flex-grow: 1;
   text-indent: 20px;
@@ -156,7 +156,7 @@ img.diff_icon {
   border-radius: 0px 0px 10px 10px;
   overflow: auto;
   text-overflow: clip;
-  width: fit-content;
+  transform: translateX(-2px);
 }
 
 .file-icon {
@@ -168,18 +168,63 @@ img.diff_icon {
   width: 0px;
 }
 
-.branch-ribbon {
-  color: rgb(235, 235, 235);
+.branch-ribbon-container {
   background-color: rgb(72, 74, 212);
+  height: 20px;
+  transform: translateY(-16px);
+  padding-bottom: -10px;
+}
+
+.branch-ribbon-text {
+  color: rgb(235, 235, 235);
   font-family: Arial, Helvetica, sans-serif;
   text-indent: 1px;
   overflow-x: hidden;
   white-space: nowrap;
   width: fit-content;
-  direction: rtl;
+  margin-bottom: 0px;
 }
 
-.branch-ribbon::-webkit-scrollbar {
-  visibility: hidden;
-  width: 0px;
+.branch-ribbon-container:hover > .branch-ribbon-text {
+  animation: scroll-text 10s linear infinite;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.branch-ribbon-container:not(:hover) > .branch-ribbon-text {
+  animation: fade-text 1s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fade-text {
+  0% { 
+    opacity: 0;
+  }
+
+  50% {
+    transform: translateX(0%);
+  }
+
+  100% { 
+    opacity: 1;
+  }
+}
+
+@keyframes scroll-text {
+  0% { 
+    transform: translateX(0%) 
+  }
+
+  50% {
+    transform: translateX(-96%); 
+  }
+
+  100% { 
+    transform: translateX(0%); 
+  }
+}
+
+.MuiTreeView-root {
+  transform: translateY(-12px);
 }
