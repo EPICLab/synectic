@@ -15,13 +15,55 @@ type DialogProps = {
 
 export const BrowserDialog: React.FunctionComponent<DialogProps> = props => {
 
+    const [open, setOpen] = useState(false);
+    const metafiles = useSelector((state: RootState) => state.metafiles);
+    const dispatch = useDispatch();
+    const [selectedValue/*, setSelectedValue*/] = useState('website.com');
+
+    const handleClick = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        setOpen(!open);
+
+        const metafile: Metafile = {
+            id: v4(),
+            name: `${metafiles[0]?.name}`,
+            modified: DateTime.local(),
+            handler: 'Browser'
+        }
+        const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+        dispatch(addMetafileAction);
+
+        const card: Card = {
+            id: v4(),
+            name: `${selectedValue}`,
+            // name: metafile.name,
+            type: 'Browser',
+            related: [],
+            created: DateTime.local(),
+            modified: DateTime.local(),
+            captured: false,
+            left: 50,
+            top: 50
+        }
+        const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
+        dispatch(addCardAction);
+        setOpen(!open);
+        // alert(`${selectedValue}`)
+    };
+
     if (props.open) {
         return (
             <>
-                <form>
+                <div>
                     <label>Enter URL:</label>
-                    <input></input>
-                </form>
+                    <input type="text" /*defaultValue={selectedValue}*/></input>
+                    <input type="submit" value="Go" onClick={handleClick} />
+                </div>
+                {/* <form onClick={handleClick}>
+                    <label>Enter URL:</label>
+                    <input type="text" value={selectedValue}></input>
+                    <input type="submit" value="Go" />
+                </form> */}
             </>
         )
     }
