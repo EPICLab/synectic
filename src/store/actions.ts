@@ -1,11 +1,10 @@
-import { UUID, Repository, Card, Stack, Browser, Metafile, Filetype } from '../types';
+import { UUID, Repository, Card, Stack, Metafile, Filetype } from '../types';
 // import { Action } from 'redux';
 
 export enum ActionKeys {
   INITIALIZE_CANVAS,
   ADD_CARD, REMOVE_CARD, UPDATE_CARD,
   ADD_STACK, REMOVE_STACK, UPDATE_STACK,
-  ADD_BROWSER, REMOVE_BROWSER, UPDATE_BROWSER,
   ADD_FILETYPE, REMOVE_FILETYPE, UPDATE_FILETYPE,
   ADD_METAFILE, REMOVE_METAFILE, UPDATE_METAFILE,
   ADD_REPO, REMOVE_REPO, UPDATE_REPO,
@@ -19,9 +18,6 @@ export type Actions =
   | AddStackAction
   | RemoveStackAction
   | UpdateStackAction
-  | AddBrowserAction
-  | RemoveBrowserAction
-  | UpdateBrowserAction
   | AddFiletypeAction
   | RemoveFiletypeAction
   | UpdateFiletypeAction
@@ -68,23 +64,6 @@ type UpdateStackAction = {
   type: ActionKeys.UPDATE_STACK;
   id: UUID;
   stack: Partial<Stack>;
-};
-
-type AddBrowserAction = {
-  type: ActionKeys.ADD_BROWSER;
-  id: UUID;
-  browser: Browser;
-};
-
-type RemoveBrowserAction = {
-  type: ActionKeys.REMOVE_BROWSER;
-  id: UUID;
-};
-
-type UpdateBrowserAction = {
-  type: ActionKeys.UPDATE_BROWSER;
-  id: UUID;
-  browser: Partial<Browser>;
 };
 
 type AddFiletypeAction = {

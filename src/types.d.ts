@@ -44,12 +44,6 @@ export type Stack = {
   readonly top: number;
 }
 
-export type Browser = {
-  readonly id: UUID;
-  // readonly url: URL;
-  // readonly history: URL[];
-}
-
 export type Filetype = {
   readonly id: UUID;
   readonly filetype: string;
