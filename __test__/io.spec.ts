@@ -101,7 +101,7 @@ describe('io.readFileAsync', () => {
         'empty-dir': {/** empty directory */ }
       },
       'baz/qux': {
-        'nup/tul/some.png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+        'some.png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
         'vex/bol/wiz': {/** another empty directory */ }
       }
     });
@@ -109,11 +109,15 @@ describe('io.readFileAsync', () => {
 
   afterAll(mock.restore);
 
-  it('readFileAsync to resolve to file contents', async () => {
+  it('readFileAsync resolves to string for text file content', async () => {
     await expect(io.readFileAsync('foo/bar/some-file.txt')).resolves.toBe('file contents');
   });
 
-  it('readFileAsync fails with an error', async () => {
+  it('readFileAsync resolves to Buffer for bytestring file content', async () => {
+    await expect(io.readFileAsync('baz/qux/some.png', true)).resolves.toEqual(Buffer.from([8, 6, 7, 5, 3, 0, 9]));
+  });
+
+  it('readFileAsync fails with error on non-existing file', async () => {
     await expect(io.readFileAsync('foo/bar/empty-dir/nonexist.js')).rejects.toThrow(/ENOENT/);
   });
 });

@@ -80,13 +80,16 @@ export const extractExtension = (filepath: fs.PathLike) => {
 /**
  * Asynchronously read file contents into a string.
  * @param filepath A valid filename or path to read from.
- * @return A Promise object for a string containing the file contents.
+ * @param (Optional) Flag for handling binary bytecode files by returning a Buffer; defaults to false.
+ * @return A Promise object for a string, or a Buffer, containing the file contents.
  */
-export const readFileAsync = (filepath: fs.PathLike): Promise<string> => {
-  return new Promise((resolve, reject) => {
+//Promise < string | Buffer >
+export const readFileAsync = (filepath: fs.PathLike, buffer = false) => {
+  return new Promise<string | Buffer>((resolve, reject) => {
     fs.readFile(path.resolve(filepath.toString()), (error, result) => {
-      if (error) reject(error);
-      else resolve(result.toString());
+      if (error) return reject(error);
+      if (buffer) return resolve(result);
+      else return resolve(result.toString());
     });
   });
 }
@@ -96,8 +99,8 @@ export const readFileAsync = (filepath: fs.PathLike): Promise<string> => {
  * @param filepath A valid directory path to read from.
  * @return A Promise object for an array of filenames.
  */
-export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
-  return new Promise((resolve, reject) => {
+export const readDirAsync = (filepath: fs.PathLike) => {
+  return new Promise<string[]>((resolve, reject) => {
     fs.readdir(path.resolve(filepath.toString()), (error, files) => {
       if (error) reject(error);
       else resolve(files);
