@@ -8,6 +8,10 @@ import { RootState } from '../store/root';
 import { UUID, Card, Metafile } from '../types';
 import { ActionKeys, Actions } from '../store/actions';
 
+// const { BrowserView, BrowserWindow } = require('electron').remote
+
+// const { app, screen } = require('electron').remote
+
 const WebView = require('react-electron-web-view');
 
 type DialogProps = {
@@ -56,13 +60,32 @@ export const BrowserDialog: React.FunctionComponent<DialogProps> = () => {
         const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
         dispatch(addCardAction);
         window.open(frmdetails.URL, '_blank');
+
+        // let win: Electron.BrowserWindow = new BrowserWindow({ width: 800, height: 600 });
+        // let view = new BrowserView()
+        // win.setBrowserView(view)
+        // view.setBounds({ x: 0, y: 0, width: 300, height: 300 })
+        // view.webContents.loadURL(frmdetails.URL)
+
+        // let win = new BrowserWindow({ width: 800, height: 1500 })
+        // win.loadURL('http://github.com')
+        // let contents = win.webContents
+        // console.log(contents)
+
+        // let win
+        // app.on('ready', () => {
+        //     const { width, height } = screen.getPrimaryDisplay().workAreaSize
+        //     win = new BrowserWindow({ width, height })
+        //     win.loadURL('https://github.com')
+        // })
     }
 
     return (
         <>
             <input type="text" placeholder="URL" onChange={e => setUrl(e.target.value)} />
             <button onClick={submitValue}>Submit</button>
-            {open ? <WebView src={frmdetails.URL} /> : null}
+            {/* {open ? <BrowserView src={frmdetails.URL} /> : null} */}
+            {open ? <WebView src={frmdetails.URL} width={300} height={300} /> : null}
         </>
     )
 }
