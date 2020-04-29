@@ -7,7 +7,9 @@ Object {
   "name": "test/test",
   "oauth": "github",
   "password": "",
-  "refs": Array [],
+  "refs": Array [
+    "HEAD",
+  ],
   "token": "",
   "url": Object {
     "hash": "",
@@ -34,7 +36,9 @@ Object {
     "name": "test/test",
     "oauth": "github",
     "password": "",
-    "refs": Array [],
+    "refs": Array [
+      "HEAD",
+    ],
     "token": "",
     "url": Object {
       "hash": "",

@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
-// isogit.plugins.set('fs', fs);
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
@@ -16,7 +15,7 @@ export * from 'isomorphic-git';
 
 /**
  * Get the name of the branch currently pointed to by .git/HEAD; this function is a wrapper to inject the 
- * fs parameter in to isomorphic-git/currentBranch.
+ * fs parameter in to the isomorphic-git/currentBranch function.
  * @param dir The working tree directory path.
  * @param gitdir The git directory path.
  * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the 
@@ -143,7 +142,7 @@ export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], re
   const remoteOriginUrls: string[] = await isogit.getConfigAll({ fs: fs, dir: rootDir.toString(), path: 'remote.origin.url' });
   if (remoteOriginUrls.length <= 0) return { repo: undefined, action: undefined };
   const { url, oauth } = extractFromURL(remoteOriginUrls[0]);
-  const branches = await isogit.listBranches({ fs: fs, dir: rootDir.toString() });
+  const branches = await isogit.listBranches({ fs: fs, dir: rootDir.toString(), remote: 'origin' });
   const username = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'user.name' });
   const password = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'credential.helper' });
 
@@ -162,9 +161,13 @@ export const extractRepo = async (filepath: fs.PathLike, repos: Repository[], re
   const existingRepo = repos.find(r => r.name === newRepo.name);
   const existingRef = existingRepo ? existingRepo.refs.find(r => r === ref) : undefined;
 
-  if (existingRepo && existingRef) return { repo: existingRepo, action: undefined };
-  else if (existingRepo && !existingRef) {
+  if (existingRepo && existingRef) {
+    return { repo: existingRepo, action: undefined };
+  } else if (existingRepo && !existingRef) {
     const updatedRepo = { ...existingRepo, refs: [...existingRepo.refs, ref] };
     return { repo: updatedRepo, action: { type: ActionKeys.UPDATE_REPO, id: existingRepo.id, repo: updatedRepo } };
-  } else return { repo: newRepo, action: { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo } };
+  } else {
+    const updatedRepo = { ...newRepo, refs: [ref] };
+    return { repo: updatedRepo, action: { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: updatedRepo } };
+  }
 }

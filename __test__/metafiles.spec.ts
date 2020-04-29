@@ -60,7 +60,6 @@ describe('metafiles.extractMetafile', () => {
     expect(metafilePayload.metafile.contains).toHaveLength(2);
   });
 
-
   it('extractMetafile resolves to metafile without file information on unsupported filetype', async () => {
     const metafilePayload = await extractMetafile('foo/zap/zed/bup.azi', mockedFiletypes, mockedRepositories);
     expect(metafilePayload.metafile.filetype).toBeUndefined();

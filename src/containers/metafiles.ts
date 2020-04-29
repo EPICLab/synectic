@@ -59,7 +59,7 @@ const statsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filet
  */
 const contentDecorator = async (metafilePayload: MetafilePayload): Promise<MetafilePayload> => {
   if (!metafilePayload.metafile.path || metafilePayload.metafile.filetype === 'Directory') return metafilePayload;
-  const content = await io.readFileAsync(metafilePayload.metafile.path);
+  const content = await io.readFileAsync(metafilePayload.metafile.path, { encoding: 'utf8' });
   return { metafile: { ...metafilePayload.metafile, content: content }, actions: metafilePayload.actions };
 };
 
@@ -89,7 +89,7 @@ const gitDecorator = async (metafilePayload: MetafilePayload, repos: Repository[
       metafile: { ...metafilePayload.metafile, repo: repoPayload.repo?.id, ref: branchRef ? branchRef : undefined },
       actions: actions
     },
-    updatedRepos: (repoPayload.repo ? [...repos, repoPayload.repo] : repos)
+    updatedRepos: ((repoPayload.action && repoPayload.repo) ? [...repos, repoPayload.repo] : repos)
   };
 }
 
@@ -105,7 +105,6 @@ const gitDecorator = async (metafilePayload: MetafilePayload, repos: Repository[
  */
 const containsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filetype[], repos: Repository[]): Promise<MetafilePayload> => {
   if (!metafilePayload.metafile.path || metafilePayload.metafile.filetype !== 'Directory') return metafilePayload;
-
   const parentPath = metafilePayload.metafile.path;
   const childPaths = (await io.readDirAsync(metafilePayload.metafile.path)).map(childPath => path.join(parentPath.toString(), childPath));
 
@@ -113,7 +112,6 @@ const containsDecorator = async (metafilePayload: MetafilePayload, filetypes: Fi
   const childPayloads = await Promise.all(childPaths.map(childPath => extractMetafile(childPath, filetypes, repos)));
   const childActions: IdentifiableActions[] = flatten(childPayloads.map(childPayload => childPayload.actions));
   const childMetafileIds = childPayloads.map(childPayload => childPayload.metafile.id);
-
   return {
     metafile: { ...metafilePayload.metafile, contains: childMetafileIds },
     actions: [...metafilePayload.actions, ...childActions]

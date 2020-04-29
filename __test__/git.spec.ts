@@ -23,6 +23,20 @@ beforeEach(() => {
 
 afterEach(mock.restore);
 
+describe('git.currentBranch', () => {
+  it('currentBranch resolves to Git branch name on a tracked directory', async () => {
+    return expect(git.currentBranch({ dir: 'baz/' })).resolves.toBe('feature/test');
+  });
+
+  it('currentBranch resolves to undefined on a tracked directory with detached HEAD', async () => {
+    return expect(git.currentBranch({ dir: 'zap/' })).resolves.toBeUndefined();
+  });
+
+  it('currentBranch fails with an error on an untracked directory', async () => {
+    return expect(git.currentBranch({ dir: 'foo/bar/' })).rejects.toThrow(/Could not find HEAD/);
+  });
+});
+
 describe('git.getRepoRoot', () => {
   it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
     return expect(git.getRepoRoot('baz/qux/tracked-file.js')).resolves.toBe('baz');
