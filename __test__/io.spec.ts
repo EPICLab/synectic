@@ -1,6 +1,6 @@
 import mock from 'mock-fs';
-import * as fs from 'fs-extra';
 import * as io from '../src/containers/io';
+import * as fs from 'fs-extra';
 
 describe('io.deserialize', () => {
   it('deserialize to parse a JSON string into a TypeScript object', () => {
@@ -110,11 +110,11 @@ describe('io.readFileAsync', () => {
   afterAll(mock.restore);
 
   it('readFileAsync resolves to string for text file content', async () => {
-    await expect(io.readFileAsync('foo/bar/some-file.txt')).resolves.toBe('file contents');
+    await expect(io.readFileAsync('foo/bar/some-file.txt', { encoding: 'utf8' })).resolves.toBe('file contents');
   });
 
   it('readFileAsync resolves to Buffer for bytestring file content', async () => {
-    await expect(io.readFileAsync('baz/qux/some.png', true)).resolves.toEqual(Buffer.from([8, 6, 7, 5, 3, 0, 9]));
+    await expect(io.readFileAsync('baz/qux/some.png')).resolves.toEqual(Buffer.from([8, 6, 7, 5, 3, 0, 9]));
   });
 
   it('readFileAsync fails with error on non-existing file', async () => {
@@ -242,13 +242,13 @@ describe('io.writeFileAsync', () => {
     const testPath = 'foo/bar/fileA.txt';
     await io.writeFileAsync(testPath, 'sample data');
     await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
-    await expect(io.readFileAsync(testPath)).resolves.toBe('sample data');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('sample data');
   });
 
   it('writeFileAsync to resolve and overwrite an existing file with content', async () => {
     const testPath = 'foo/bar/fileB.txt';
-    await expect(io.readFileAsync(testPath)).resolves.toBe('version 1');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('version 1');
     await io.writeFileAsync(testPath, 'version 2');
-    await expect(io.readFileAsync(testPath)).resolves.toBe('version 2');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('version 2');
   });
 });
