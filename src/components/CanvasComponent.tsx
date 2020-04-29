@@ -12,7 +12,7 @@ import { Button } from '@material-ui/core';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import DiffPickerButton from './DiffPickerDialog';
-import BrowserButton from './BrowserDialog';
+import { BrowserButton } from './BrowserDialog';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
