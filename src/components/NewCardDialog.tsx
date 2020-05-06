@@ -14,7 +14,7 @@ type NewCardDialogProps = {
   onClose: () => void;
 }
 
-const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = (props) => {
+export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = (props) => {
   const dispatch = useDispatch();
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const [fileName, setFileName] = React.useState('');
@@ -30,21 +30,50 @@ const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = (props) => {
 
   const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
-    if (event.target.value === '') {
+    // eslint-disable-next-line no-control-regex
+    if (event.target.value === '' || (/[<>:"\\/\\|?*\x00-\x1F]/g).test(event.target.value) || event.target.value.slice(-1) === ' ' || event.target.value.slice(-1) === '.') {
       setIsFileNameValid(false);
     } else {
       setIsFileNameValid(true);
     }
+
+    const ext = event.target.value.indexOf('.') !== -1 ? event.target.value.substring(event.target.value.lastIndexOf('.') + 1) : "";
+    let found = false;
+    filetypes.map(filetype => {
+      filetype.extensions.map(extension => {
+        if (ext === extension) {
+          setFiletype(filetype.filetype);
+          found = true;
+        }
+      });
+    });
+
+    found ? setIsFileNameValid(true) : setIsFileNameValid(false);
   };
 
   const handleFiletypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setFiletype(event.target.value as string);
+
+    filetypes.map(filetype => {
+      if (filetype.filetype === event.target.value as string) {
+        const ext = fileName.indexOf('.') !== -1 ? fileName.substring(fileName.lastIndexOf('.') + 1) : "";
+        // ext === "" ? setFileName(fileName + '.' + filetype.extensions[0]) : setFileName(fileName.slice(0, -ext.length) + filetype.extensions[0]);
+        if (ext === "" && fileName.slice(-1) !== ".") {
+          setFileName(fileName + '.' + filetype.extensions[0]);
+        } else if (ext === "" && fileName.slice(-1) === ".") {
+          setFileName(fileName + filetype.extensions[0]);
+        } else {
+          setFileName(fileName.slice(0, -ext.length) + filetype.extensions[0]);
+        }
+        setIsFileNameValid(true);
+      }
+    });
   };
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (isFileNameValid && filetype !== '') {
+    if (isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1) {
       const metafile: Metafile = {
         id: v4(),
         name: fileName,
@@ -64,18 +93,19 @@ const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = (props) => {
   return (
     <>
       <Dialog open={props.open} onClose={handleClose} aria-labelledby="new-card-dialog">
+        <InputLabel id="select-filetype-label">Enter File Name:</InputLabel>
+        <TextField error={isFileNameValid ? false : true} id="standard-basic" helperText={isFileNameValid ? "" : "Invalid File Name"} value={fileName} onChange={handleFileNameChange} />
         <InputLabel id="select-filetype-label">Select Filetype:</InputLabel>
         <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange} labelId="demo-simple-select-label" id="demo-simple-select">
           {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
         </Select>
-        <TextField error={isFileNameValid ? false : true} id="standard-basic" label="Enter File Name" helperText={isFileNameValid ? "" : "Invalid File Name"} value={fileName} onChange={handleFileNameChange} />
-        <Button id='create-card-button' variant='contained' color={isFileNameValid && filetype !== '' ? 'primary' : 'default'} onClick={(e) => { handleClick(e) }}>Create New Card</Button>
+        <Button id='create-card-button' variant='contained' color={isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={(e) => { handleClick(e) }}>Create New Card</Button>
       </Dialog>
     </>
   );
 };
 
-const NewCardComponent: React.FunctionComponent = () => {
+export const NewCardComponent: React.FunctionComponent = () => {
   const [open, setOpen] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -94,5 +124,3 @@ const NewCardComponent: React.FunctionComponent = () => {
     </>
   );
 };
-
-export default NewCardComponent;
