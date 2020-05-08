@@ -221,7 +221,7 @@ describe('io.writeFileAsync', () => {
   beforeAll(() => {
     mock({
       'foo/bar': {
-        'fileB.txt': 'version 1'
+        'fileD.txt': 'version 1'
       },
       'baz': {/** empty directory */ }
     });
@@ -229,15 +229,29 @@ describe('io.writeFileAsync', () => {
 
   afterAll(mock.restore);
 
-  it('writeFileAsync to resolve and write a new file with content', async () => {
+  it('writeFileAsync to resolve and write a new file with string content', async () => {
     const testPath = 'foo/bar/fileA.txt';
     await io.writeFileAsync(testPath, 'sample data');
     await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
     await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('sample data');
   });
 
-  it('writeFileAsync to resolve and overwrite an existing file with content', async () => {
+  it('writeFileAsync to resolve and write a new file with binary content', async () => {
     const testPath = 'foo/bar/fileB.txt';
+    await io.writeFileAsync(testPath, Buffer.from([1, 2, 3]));
+    await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
+    await expect(io.readFileAsync(testPath)).resolves.toStrictEqual(Buffer.from([1, 2, 3]));
+  });
+
+  it('writeFileAsync to resolve and write a new file with base16 content', async () => {
+    const testPath = 'foo/bar/fileC.txt';
+    await io.writeFileAsync(testPath, Buffer.from([1, 2, 3]), { encoding: 'hex' });
+    await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
+    await expect(io.readFileAsync(testPath, { encoding: 'hex' })).resolves.toBe("010203");
+  });
+
+  it('writeFileAsync to resolve and overwrite an existing file with content', async () => {
+    const testPath = 'foo/bar/fileD.txt';
     await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('version 1');
     await io.writeFileAsync(testPath, 'version 2');
     await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('version 2');
