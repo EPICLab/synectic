@@ -1,9 +1,9 @@
-import { getMockStore } from './__mocks__/reduxStoreMock';
-import { ReactWrapper, mount } from 'enzyme';
-import { wrapInTestContext } from './__mocks__/dndReduxMock';
-import { NewCardComponent } from '../src/components/NewCardDialog';
 import React from 'react';
-import { remote } from 'electron'; // imports the mocked dependency to allow access to the spies
+import { ReactWrapper, mount } from 'enzyme';
+
+import { getMockStore } from './__mocks__/reduxStoreMock';
+import { wrapInTestContext } from './__mocks__/dndReduxMock';
+import { NewCardDialog } from '../src/components/NewCardDialog';
 
 const domElement = document.getElementById('app');
 const mountOptions = {
@@ -12,19 +12,16 @@ const mountOptions = {
 const store = getMockStore();
 
 describe('NewCardDialog', () => {
-    const NewCardContext = wrapInTestContext(NewCardComponent, store);
+    const NewCardContext = wrapInTestContext(NewCardDialog, store);
     let wrapper: ReactWrapper<unknown, Readonly<{}>, React.Component<{}, {}, unknown>>;
 
-    beforeEach(() => wrapper = mount(<NewCardContext />, mountOptions));
+    beforeEach(() => wrapper = mount(<NewCardContext open={true} />, mountOptions));
     afterEach(() => wrapper.unmount());
 
-    it('NewCardDialog does not render dialog on initial state', () => {
-        expect(remote.dialog.showOpenDialog).not.toHaveBeenCalled();
-    });
-
-    it('NewCardDialog opens dialog on click', async () => {
-        process.stdout.write("html:" + wrapper.html());
-        wrapper.find('#newcard-button').first().simulate('click');
-        return expect(remote.dialog.showOpenDialog).toHaveBeenCalled();
+    it('NewCardDialog does not change Redux state when invalid information is entered', () => {
+        const before = JSON.stringify(store.getState());
+        wrapper.find('#create-card-button').first().simulate('click');
+        const after = JSON.stringify(store.getState());
+        expect(before).toEqual(after);
     });
 });

@@ -14,7 +14,7 @@ type NewCardDialogProps = {
   onClose: () => void;
 }
 
-export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = (props) => {
+export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props => {
   const dispatch = useDispatch();
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const [fileName, setFileName] = React.useState('');
@@ -57,7 +57,6 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = (props
     filetypes.map(filetype => {
       if (filetype.filetype === event.target.value as string) {
         const ext = fileName.indexOf('.') !== -1 ? fileName.substring(fileName.lastIndexOf('.') + 1) : "";
-        // ext === "" ? setFileName(fileName + '.' + filetype.extensions[0]) : setFileName(fileName.slice(0, -ext.length) + filetype.extensions[0]);
         if (ext === "" && fileName.slice(-1) !== ".") {
           setFileName(fileName + '.' + filetype.extensions[0]);
         } else if (ext === "" && fileName.slice(-1) === ".") {
@@ -105,7 +104,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = (props
   );
 };
 
-export const NewCardComponent: React.FunctionComponent = () => {
+const NewCardButton: React.FunctionComponent = () => {
   const [open, setOpen] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -124,3 +123,5 @@ export const NewCardComponent: React.FunctionComponent = () => {
     </>
   );
 };
+
+export default NewCardButton;
