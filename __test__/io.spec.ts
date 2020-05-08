@@ -64,6 +64,7 @@ describe('io.extractDirname', () => {
     expect(io.extractDirname('../../baz/sample.c9search_results')).toBe('baz');
     expect(io.extractDirname('/Users/foo/bar/')).toBe('bar');
     expect(io.extractDirname('bar/')).toBe('bar');
+    expect(io.extractDirname('/setup.cfg')).toBe('');
     expect(io.extractDirname('module.d.ts')).toBe('');
   });
 
@@ -71,6 +72,13 @@ describe('io.extractDirname', () => {
     expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\file.js')).toBe('Baz');
     expect(io.extractDirname('2018\\January.xlsx')).toBe('2018');
     expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\')).toBe('Baz');
+  });
+
+  it('extractDirname resolves malformed paths', () => {
+    expect(io.extractDirname('')).toBe('');
+    expect(io.extractDirname('/')).toBe('');
+    expect(io.extractDirname(' /')).toBe(' ');
+    expect(io.extractDirname('/ ')).toBe('');
   });
 });
 
