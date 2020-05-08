@@ -43,9 +43,10 @@ export const extractStats = (filepath: fs.PathLike) => {
  * @return A string containing the file basename.
  */
 export const extractFilename = (filepath: fs.PathLike) => {
-  const filename = filepath.toString().split(/[\\/]/).pop();
-  if (filename === undefined) return filepath.toString();
-  else return filename;
+  const filename = filepath.toString().split(/[\\/]/).pop() as string;
+  // filename can safely be cast as string because although pop() has a return type of string | undefined, it
+  // cannot actually return undefined because split() returns string[] that is at worst empty
+  return filename;
 }
 
 /**
@@ -72,9 +73,10 @@ export const extractDirname = (filepath: fs.PathLike) => {
  * @return A string containing the file extension.
  */
 export const extractExtension = (filepath: fs.PathLike) => {
-  const ext = filepath.toString().split('.').pop();
-  if (ext === undefined) return filepath.toString();
-  else return ext;
+  const ext = filepath.toString().split('.').pop() as string;
+  // ext can safely be cast as string because although pop() has a return type of string | undefined, it
+  // cannot actually return undefined because split() returns string[] that is at worst empty
+  return ext;
 }
 
 /**
