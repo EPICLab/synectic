@@ -3,22 +3,6 @@ import * as path from 'path';
 import { flatten } from './flatten';
 
 /**
- * Converts a JavaScript Object Notation (JSON) string into a typed object.
- * @param json A valid JSON string.
- * @return A typed object (or nested array of objects).
- */
-export const deserialize = <T>(json: string) => JSON.parse(json) as T;
-
-/**
- * Filters an array and removes any undefined elements contained within it.
- * @param array The given array of elements that should be filtered for undefined.
- * @return The resulting array devoid of any undefined elements.
- */
-export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
-  return array.filter((item): item is T => typeof item !== 'undefined');
-}
-
-/**
  * Extracts the file stats information from the filepath. Returns an `fs.Stats` class 
  * object as defined in the Node.js File System API (@link https://nodejs.org/api/fs.html#fs_class_fs_stats).
  * @param filepath The relative or absolute path to evaluate.
@@ -82,7 +66,7 @@ export const extractExtension = (filepath: fs.PathLike) => {
 /**
  * Asynchronously read file contents into a Buffer or string.
  * @param filepath A valid filename or path to read from.
- * @param options Options object for setting either file encoding (default: `null`) or file system flags (default: `r`). 
+ * @param options Options object for setting either file encoding (default: `null`) or file system flags (default: `"r"`).
  * The possible option values are:
  * 
  * | encoding                 | description                                                                                                                                                   |
@@ -93,7 +77,7 @@ export const extractExtension = (filepath: fs.PathLike) => {
  * | `"ucs2"`/`"ucs-2"`       | UCS-2 (also ISO-10646) is a 2-byte character set for encoding Unicode characters under the Universal Character Set standard. Superseded by UTF-8 and UTF-16.  |
  * | `"utf16le"`/`"utf-16le"` | UTF-16 (also ISO-10646) is a variable-length (either one or tow 16-bit code units) for representing any Unicode character.                                    |
  * | `"utf8"`/`"utf-8"`       | UTF-8 (also ISO-10646) can represent any character in the Unicode standard using 1 to 4 bytes (8-bit) code units. UTF-8 is backwards compatible with ASCII.   |
- * | `"binary"`/`"latin1"`    | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages. |
+ * | `"binary"`/`"latin1"`    | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages.                                                                  |
  *
  * | flags   | description                                                                                                                  |
  * | ------- | ---------------------------------------------------------------------------------------------------------------------------- |

@@ -2,23 +2,6 @@ import mock from 'mock-fs';
 import * as io from '../src/containers/io';
 import * as fs from 'fs-extra';
 
-describe('io.deserialize', () => {
-  it('deserialize to parse a JSON string into a TypeScript object', () => {
-    const json = '{"result":true, "count":42}';
-    type typedJson = { result: boolean; count: number };
-    const deserializedJson = io.deserialize<typedJson>(json);
-    expect(typeof deserializedJson.result).toBe('boolean');
-    expect(deserializedJson.result).toBe(true);
-    expect(deserializedJson).toMatchSnapshot();
-  });
-
-  it('deserialize fails with an error on malformed JSON', () => {
-    // eslint-disable-next-line no-useless-escape
-    const malformedJson = '{ "key": "Something \\\\"Name\\\\" something\", "anotherkey": "value" }';
-    expect(() => io.deserialize(malformedJson)).toThrow(SyntaxError);
-  });
-});
-
 describe('io.extractStats', () => {
 
   beforeAll(() => {
