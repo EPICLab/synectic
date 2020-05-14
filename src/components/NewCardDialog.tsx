@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Dialog, TextField, Button, Select, MenuItem, InputLabel } from '@material-ui/core';
+import { Dialog, TextField, Button, Select, MenuItem, InputLabel, DialogTitle } from '@material-ui/core';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -8,6 +8,16 @@ import { RootState } from '../store/root';
 import { Metafile } from '../types';
 import { Actions, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
+import * as io from '../containers/io';
+
+export const checkFileName = (fileName: string) => {
+  return fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== '.' &&
+    fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== ' ' &&
+    // eslint-disable-next-line no-control-regex
+    !(/[<>:"\\/\\|?*\x00-\x1F]/g).test(fileName) && fileName !== '' &&
+    fileName.slice(0, fileName.lastIndexOf('.')) !== '' ?
+    true : false;
+}
 
 type NewCardDialogProps = {
   open: boolean;
@@ -30,14 +40,8 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
 
   const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
-    // eslint-disable-next-line no-control-regex
-    if (event.target.value === '' || (/[<>:"\\/\\|?*\x00-\x1F]/g).test(event.target.value) || event.target.value.slice(-1) === ' ' || event.target.value.slice(-1) === '.') {
-      setIsFileNameValid(false);
-    } else {
-      setIsFileNameValid(true);
-    }
 
-    const ext = event.target.value.indexOf('.') !== -1 ? event.target.value.substring(event.target.value.lastIndexOf('.') + 1) : "";
+    const ext = event.target.value.indexOf('.') !== -1 ? io.extractExtension(event.target.value) : "";
     let found = false;
     filetypes.map(filetype => {
       filetype.extensions.map(extension => {
@@ -48,7 +52,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
       });
     });
 
-    found ? setIsFileNameValid(true) : setIsFileNameValid(false);
+    found && checkFileName(event.target.value) ? setIsFileNameValid(true) : setIsFileNameValid(false);
   };
 
   const handleFiletypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -56,7 +60,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
 
     filetypes.map(filetype => {
       if (filetype.filetype === event.target.value as string) {
-        const ext = fileName.indexOf('.') !== -1 ? fileName.substring(fileName.lastIndexOf('.') + 1) : "";
+        const ext = fileName.indexOf('.') !== -1 ? io.extractExtension(fileName) : "";
         if (ext === "" && fileName.slice(-1) !== ".") {
           setFileName(fileName + '.' + filetype.extensions[0]);
         } else if (ext === "" && fileName.slice(-1) === ".") {
@@ -64,7 +68,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
         } else {
           setFileName(fileName.slice(0, -ext.length) + filetype.extensions[0]);
         }
-        setIsFileNameValid(true);
+        checkFileName(fileName) ? setIsFileNameValid(true) : setIsFileNameValid(false);
       }
     });
   };
@@ -91,14 +95,17 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
 
   return (
     <>
-      <Dialog open={props.open} onClose={handleClose} aria-labelledby="new-card-dialog">
-        <InputLabel id="select-filetype-label">Enter File Name:</InputLabel>
-        <TextField error={isFileNameValid ? false : true} id="standard-basic" helperText={isFileNameValid ? "" : "Invalid File Name"} value={fileName} onChange={handleFileNameChange} />
-        <InputLabel id="select-filetype-label">Select Filetype:</InputLabel>
-        <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange} labelId="demo-simple-select-label" id="demo-simple-select">
-          {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
-        </Select>
-        <Button id='create-card-button' variant='contained' color={isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={(e) => { handleClick(e) }}>Create New Card</Button>
+      <Dialog id="new-card-dialog" open={props.open} onClose={handleClose} aria-labelledby="new-card-dialog">
+        <div className="new-card-dialog-container">
+          <DialogTitle id='new-card-dialog-title' style={{ gridArea: 'header' }}>{"Create New Card"}</DialogTitle>
+          <InputLabel id="select-filetype-label" style={{ gridArea: 'upper-left' }}>Enter File Name:</InputLabel>
+          <TextField error={isFileNameValid ? false : true} id="new-card-dialog-file-name" helperText={isFileNameValid ? "" : "Invalid File Name"} value={fileName} onChange={handleFileNameChange} style={{ gridArea: 'middle' }} />
+          <InputLabel id="select-filetype-label" style={{ gridArea: 'lower-left' }}>Select Filetype:</InputLabel>
+          <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange} labelId="new-card-dialog-filetype-label" id="new-card-dialog-filetype" style={{ gridArea: 'lower-right' }}>
+            {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
+          </Select>
+          <Button id='create-card-button' variant='contained' color={isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={(e) => { handleClick(e) }} style={{ gridArea: 'footer' }}>Create New Card</Button>
+        </div>
       </Dialog>
     </>
   );

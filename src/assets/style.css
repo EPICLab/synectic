@@ -325,3 +325,20 @@ img.diff_icon {
 .MuiTreeView-root {
   transform: translateY(-12px);
 }
+
+.new-card-dialog-container {
+  width: 250px;
+  height: 270px;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  column-gap: 5px;
+  row-gap: 5px;
+  place-items: center;
+  grid-template-areas: 
+  "header header"
+  "upper-left upper-right"
+  "middle middle"
+  "lower-left lower-right"
+  "footer footer";
+}
