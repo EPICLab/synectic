@@ -6,9 +6,13 @@ import { Button } from '@material-ui/core';
 import { Card } from '../types';
 import { Actions, ActionKeys } from '../store/actions';
 import { WebviewTag } from 'electron';
-// import { ActionKeys, Actions } from '../store/actions';
+import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import StarIcon from '@material-ui/icons/Star';
+import ReplayIcon from '@material-ui/icons/Replay';
 
 
+// keeping track of previous sites
 const usePrevious = <T extends {}>(value: T): T | undefined => {
     const ref = useRef<T>();
     useEffect(() => {
@@ -22,6 +26,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
     const [urlBar, setUrlBar] = useState('');
     const [url, setUrl] = useState('');
     const [urlList, setUrlHistory] = useState<any[]>([]);
+    const [bookmarkList, setBookmark] = useState<any[]>([]);
 
     const addUrl = (url: string) => {
         setUrlHistory([
@@ -32,36 +37,44 @@ export const BrowserComponent: React.FunctionComponent = () => {
         ]);
     };
 
+    const addBookmark = (url: string) => {
+        setBookmark([
+            ...bookmarkList, {
+                id: bookmarkList.length,
+                value: url
+            }
+        ]);
+    }
+
     const prevSite: any = usePrevious(urlList);
-    console.log(urlList); // keeps track of all sites that have been added
-    console.log(prevSite); // keeps track of previous sites (before current site)
+    console.log(urlList);               // keeps track of all sites that have been added
+    console.log(prevSite);              // keeps track of previous sites (before current site)
+    console.log(bookmarkList);          // keeps track of bookmarks
+    console.log(history.length);
 
     let webview = document.querySelector('webview') as WebviewTag;
 
     const backwards = () => {
         webview.goBack();
-        history.back();
     }
 
     const forwards = () => {
         webview.goForward();
-        history.forward();
     }
 
     const reloadSite = () => {
         webview.reload();
     }
 
-
-    console.log(history.length);
-
     return (
         <>
+            <KeyboardArrowLeftIcon onClick={backwards} fontSize="small" color="action" />
+            <KeyboardArrowRightIcon onClick={forwards} fontSize="small" color="action" />
+            <ReplayIcon onClick={reloadSite} fontSize="small" />
+            <StarIcon onClick={() => { addBookmark(urlBar); }} fontSize="small" />
             <input type="text" placeholder="URL" onChange={e => setUrlBar(e.target.value)} />
-            <button onClick={() => { setUrl(urlBar); addUrl(urlBar); }}>Submit</button>
-            <button onClick={backwards}>Back</button>
-            <button onClick={forwards}>Forward</button>
-            <button onClick={reloadSite}>Reload</button>
+            <button onClick={() => { setUrl(urlBar); addUrl(urlBar); }}>Go</button>
+
             <div>
                 <webview src={url} style={{ height: '100%', width: '100%' }} ></webview>
             </div>
@@ -83,8 +96,8 @@ export const BrowserButton: React.FunctionComponent = () => {
             created: DateTime.local(),
             modified: DateTime.local(),
             captured: false,
-            left: 10,
-            top: 25,
+            left: 50,
+            top: 70,
             type: 'Browser',
             related: []
         };
