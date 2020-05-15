@@ -340,5 +340,14 @@ img.diff_icon {
   "upper-left upper-right"
   "middle middle"
   "lower-left lower-right"
-  "footer footer";
+  "footer footer"
+  "subfooter subfooter";
+}
+
+#new-card-dialog-filetype {
+  width: 140px;
+}
+
+#new-card-dialog-title {
+  margin-top: -10px;
 }
