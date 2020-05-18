@@ -27,24 +27,34 @@ export const BrowserComponent: React.FunctionComponent = () => {
     const [url, setUrl] = useState('');
     const [urlList, setUrlHistory] = useState<any[]>([]);
     const [bookmarkList, setBookmark] = useState<any[]>([]);
+    // const [selected, setSelected] = useState(false);
 
     const addUrl = (url: string) => {
         setUrlHistory([
             ...urlList, {
                 id: urlList.length,
-                value: url
+                value: url,
+                // selectStatus: selected
             }
         ]);
     };
 
     const addBookmark = (url: string) => {
+        // isSelected(true);
         setBookmark([
             ...bookmarkList, {
                 id: bookmarkList.length,
-                value: url
+                value: url,
+                // selectStatus: selected
             }
         ]);
+
     }
+
+    // let isSelected = (sel: boolean) => {
+    //     setSelected(sel);
+    // }
+
 
     const prevSite: any = usePrevious(urlList);
     console.log(urlList);               // keeps track of all sites that have been added
@@ -66,18 +76,26 @@ export const BrowserComponent: React.FunctionComponent = () => {
         webview.reload();
     }
 
+    const myRef = useRef(null);
+    const scrollClick = () => {
+        webview.scrollTop = 20;
+        console.log(webview.scrollTop);
+    }
+
     return (
         <>
-            <KeyboardArrowLeftIcon onClick={backwards} fontSize="small" color="action" />
-            <KeyboardArrowRightIcon onClick={forwards} fontSize="small" color="action" />
-            <ReplayIcon onClick={reloadSite} fontSize="small" />
-            <StarIcon onClick={() => { addBookmark(urlBar); }} fontSize="small" />
+            <KeyboardArrowLeftIcon onClick={backwards} fontSize="default" color="primary" />
+            <KeyboardArrowRightIcon onClick={forwards} fontSize="default" color="primary" />
+            <ReplayIcon onClick={reloadSite} fontSize="small" color="primary" />
+            <StarIcon onClick={() => { addBookmark(urlBar); /*isSelected(true);*/ }} fontSize="small" /*color={selected ? "error" : "primary"}*/ />
             <input type="text" placeholder="URL" onChange={e => setUrlBar(e.target.value)} />
             <button onClick={() => { setUrl(urlBar); addUrl(urlBar); }}>Go</button>
 
-            <div>
+            <div ref={myRef}>
                 <webview src={url} style={{ height: '100%', width: '100%' }} ></webview>
             </div>
+
+            <button onClick={scrollClick}>Top</button>
         </>
     )
 }
