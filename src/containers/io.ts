@@ -31,7 +31,7 @@ export const extractFilename = (filepath: fs.PathLike) => {
   // filename can safely be cast as string because although pop() has a return type of string | undefined, it
   // cannot actually return undefined because split() returns string[] that is at worst empty
   return filename;
-}
+};
 
 /**
  * Extract the directory name from the path. Returns the nearest directory name, excluding file separators 
@@ -47,7 +47,7 @@ export const extractDirname = (filepath: fs.PathLike) => {
   if (expandedPath.length > 1) return expandedPath[expandedPath.length - 2];
   if (trailingSeparator) return expandedPath[expandedPath.length - 1];
   else return '';
-}
+};
 
 /**
  * Extract the file extension from the path. Returns the extension after the last period character in the path, 
@@ -61,7 +61,7 @@ export const extractExtension = (filepath: fs.PathLike) => {
   // ext can safely be cast as string because although pop() has a return type of string | undefined, it
   // cannot actually return undefined because split() returns string[] that is at worst empty
   return ext;
-}
+};
 
 /**
  * Asynchronously read file contents into a Buffer or string.
@@ -127,7 +127,7 @@ export const isDirectory = async (filepath: fs.PathLike) => (await fs.stat(filep
 
 /**
  * Asynchronously and recursively descends from a root path directory to extract the contents of each
- * child directory. Returns filepaths of all child directories and files, including root path if inclusive
+ * child directory. Returns filepaths of all child directories and files, including root path if `inclusive`
  * option is enabled (default).
  * @param filepath The relative or absolute path of the root directory to evaluate.
  * @param inclusive (Optional) Flag for including root directory and intermediate directories in output; defaults to true.
@@ -139,7 +139,24 @@ export const readDirAsyncDeep = async (filepath: fs.PathLike, inclusive = true):
     return (await isDirectory(fullPath)) ? await readDirAsyncDeep(fullPath) : fullPath;
   }));
   return inclusive ? [...flatten(files), filepath.toString()] : flatten(files);
-}
+};
+
+/**
+ * Asynchronously filter for either directories or files from an array of both. Returns filepaths
+ * of all child directories (default), or all child files if `fileOnly` option is enabled.
+ * @param filepaths Array containing filepaths for directories and files.
+ * @param fileOnly (Optional) Flag for returning only filepaths for files; defaults to false.
+ * @Return A Promise object for an array containing filepaths for either all child directories or all child files.
+ */
+export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false) => {
+  return await filepaths.reduce(async (previousPromise: Promise<fs.PathLike[]>, filepath: fs.PathLike) => {
+    const collection = await previousPromise;
+    const directory = await isDirectory(filepath);
+    if (fileOnly && !directory) collection.push(filepath);
+    if (!fileOnly && directory) collection.push(filepath);
+    return collection;
+  }, Promise.resolve([]));
+};
 
 /**
  * Asynchronously write data to a file. Creates a new file if none exists; will destructively rewrite existing files.
@@ -195,4 +212,4 @@ export const writeFileAsync = (filepath: fs.PathLike, data: string | Buffer, opt
   const fullPath = path.resolve(filepath.toString());
   if (options) return fs.writeFile(fullPath, data, options);
   else return fs.writeFile(fullPath, data);
-}
+};

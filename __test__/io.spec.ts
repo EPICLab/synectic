@@ -217,6 +217,36 @@ describe('io.readDirAsyncDeep', () => {
   });
 });
 
+describe('io.filterReadArray', () => {
+  beforeAll(() => {
+    mock({
+      foo: {
+        bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        baz: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        zap: {
+          zed: {
+            beq: mock.file({ content: 'file contents', ctime: new Date(1) }),
+            bup: mock.file({ content: 'file contents', ctime: new Date(1) })
+          },
+          zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        }
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('filterReadArray returns only child directories', () => {
+    const paths: fs.PathLike[] = ["foo/bar", "foo/baz", "foo/zap/zed/beq", "foo/zap/zed/bup", "foo/zap/zed", "foo/zap/zip", "foo/zap", "foo"];
+    return expect(io.filterReadArray(paths)).resolves.toHaveLength(3);
+  });
+
+  it('filterReadArray returns only child files', () => {
+    const paths: fs.PathLike[] = ["foo/bar", "foo/baz", "foo/zap/zed/beq", "foo/zap/zed/bup", "foo/zap/zed", "foo/zap/zip", "foo/zap", "foo"];
+    return expect(io.filterReadArray(paths, true)).resolves.toHaveLength(5);
+  });
+});
+
 describe('io.writeFileAsync', () => {
   beforeAll(() => {
     mock({
