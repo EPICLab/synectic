@@ -6,7 +6,7 @@ import { ActionKeys } from '../store/actions';
 import FileExplorerComponent from './FileExplorer';
 import Editor from './Editor';
 import Diff from './Diff';
-import { BrowserComponent } from './BrowserDialog';
+import { BrowserComponent } from './Browser';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
