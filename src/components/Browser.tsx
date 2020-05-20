@@ -19,29 +19,28 @@ export const BrowserComponent: React.FunctionComponent = () => {
     const [currentUrl, setCurrentUrl] = useState('');
     const [historyUrls, setHistoryUrls] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState<number>(0);
-    const [bookmarkList, setBookmark] = useState<any[]>([]);
-    // const [selected, setSelected] = useState(false);
+    const [bookmarkList, setBookmark] = useState<string[]>([]);
 
+
+    // adds url as a bookmark
     const addBookmark = (url: string) => {
-        // isSelected(true);
-        setBookmark([
-            ...bookmarkList, {
-                id: bookmarkList.length,
-                value: url,
-                // selectStatus: selected
-            }
-        ]);
-
+        setBookmark([url, ...bookmarkList]);
     }
 
-    // let isSelected = (sel: boolean) => {
-    //     setSelected(sel);
-    // }
+    // selects the bookmark star
+    let isSelected = (curUrl: string) => {
+        if (bookmarkList.length > 0) {
+            if (bookmarkList.includes(curUrl)) {
+                return true;
+            }
+        }
 
+        return false;
+    }
 
-    // console.log(historyUrls);               // keeps track of all sites that have been added
-    // console.log(bookmarkList);          // keeps track of bookmarks
-    // console.log(history.length);
+    const getBookmarkList = () => {
+        console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
+    }
 
     const go = () => {
         let history = historyUrls;
@@ -78,11 +77,12 @@ export const BrowserComponent: React.FunctionComponent = () => {
     }
 
     const myRef = useRef(null);
-    const scrollClick = () => {
+    const getUrlHistory = () => {
         console.log(`historyUrls: ${JSON.stringify(historyUrls)}`);
         console.log(`historyIndex: ${historyIndex}`);
         // webview.scrollTop = 20;
         // console.log(webview.scrollTop);
+        console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
     }
 
     return (
@@ -90,7 +90,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
             <KeyboardArrowLeftIcon onClick={() => backwards()} fontSize="default" color="primary" />
             <KeyboardArrowRightIcon onClick={() => forwards()} fontSize="default" color="primary" />
             <ReplayIcon onClick={reloadSite} fontSize="small" color="primary" />
-            <StarIcon onClick={() => { addBookmark(urlInput); /*isSelected(true);*/ }} fontSize="small" /*color={selected ? "error" : "primary"}*/ />
+            <StarIcon onClick={() => { addBookmark(urlInput); }} fontSize="small" color={isSelected(currentUrl) ? "error" : "primary"} />
             <input type="text" placeholder="URL" value={urlInput} onChange={e => setUrlInput(e.target.value)} />
             <button onClick={() => go()}>Go</button>
 
@@ -98,7 +98,8 @@ export const BrowserComponent: React.FunctionComponent = () => {
                 <webview src={currentUrl} style={{ height: '100%', width: '100%' }} ></webview>
             </div>
 
-            <button onClick={scrollClick}>Top</button>
+            <button onClick={getUrlHistory}>URL History</button>
+            <button onClick={getBookmarkList}>Bookmarks</button>
         </>
     )
 }
