@@ -14,7 +14,7 @@ const store = getMockStore();
 
 describe('NewCardDialog', () => {
     const NewCardContext = wrapInTestContext(NewCardDialog, store);
-    let wrapper: ReactWrapper<unknown, Readonly<{}>, React.Component<{}, {}, unknown>>;
+    let wrapper: ReactWrapper<{}, Readonly<{}>, React.Component<{}, {}, {}>>;
 
     beforeEach(() => wrapper = mount(<NewCardContext open={true} />, mountOptions));
     afterEach(() => wrapper.unmount());

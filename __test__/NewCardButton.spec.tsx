@@ -14,7 +14,7 @@ const store = getMockStore();
 
 describe('NewCardButton', () => {
     const NewCardContext = wrapInTestContext(NewCardButton, store);
-    let wrapper: ReactWrapper<unknown, Readonly<{}>, React.Component<{}, {}, unknown>>;
+    let wrapper: ReactWrapper<{}, Readonly<{}>, React.Component<{}, {}, {}>>;
 
     beforeEach(() => wrapper = mount(<NewCardContext />, mountOptions));
     afterEach(() => wrapper.unmount());
