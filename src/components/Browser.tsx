@@ -20,21 +20,36 @@ export const BrowserComponent: React.FunctionComponent = () => {
     const [historyUrls, setHistoryUrls] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState<number>(0);
     const [bookmarkList, setBookmark] = useState<string[]>([]);
+    // const [selectedStatus, setSelected] = useState(false);
 
 
     // adds url as a bookmark
     const addBookmark = (url: string) => {
-        setBookmark([url, ...bookmarkList]);
+        if (bookmarkList.includes(url) == false) {
+            setBookmark([url, ...bookmarkList]);
+        }
     }
+
+    // const removeBookmark = () => {
+    //     let bmarks = bookmarkList;
+
+    //     if (bookmarkList.length > 0) {
+    //         bmarks.slice(historyIndex);
+    //         // const newBookmarkList = bmarks.slice(historyIndex);
+    //         // bmarks = newBookmarkList;
+    //     }
+    // }
 
     // selects the bookmark star
     let isSelected = (curUrl: string) => {
         if (bookmarkList.length > 0) {
             if (bookmarkList.includes(curUrl)) {
+                // setSelected(true);
                 return true;
             }
         }
 
+        // setSelected(false);
         return false;
     }
 
