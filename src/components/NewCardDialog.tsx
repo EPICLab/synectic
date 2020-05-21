@@ -13,7 +13,7 @@ import * as io from '../containers/io';
 export const checkFileName = (fileName: string) => {
   return fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== '.' &&
     fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== ' ' &&
-    /*Regex below matches all occurances of invalid file name characters in the set: <, >, \, /, |, ?, *, 
+    /*Regex below matches all occurences of invalid file name characters in the set: <, >, \, /, |, ?, *, 
       and characters NULL to US (ASCII values 0 to 31)*/
     // eslint-disable-next-line no-control-regex
     !(/[<>:"\\/|?*\x00-\x1F]/g).test(fileName) && fileName !== '' &&
