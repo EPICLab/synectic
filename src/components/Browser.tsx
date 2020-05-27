@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
 import { Card } from '../types';
 import { Actions, ActionKeys } from '../store/actions';
+import { WebviewTag } from 'electron';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import StarIcon from '@material-ui/icons/Star';
@@ -19,8 +20,6 @@ export const BrowserComponent: React.FunctionComponent = () => {
     const [historyUrls, setHistoryUrls] = useState<string[]>([]);
     const [historyIndex, setHistoryIndex] = useState<number>(0);
     const [bookmarkList, setBookmark] = useState<string[]>([]);
-    // const [selectedStatus, setSelected] = useState(false);
-
 
     // adds url as a bookmark
     const addBookmark = (url: string) => {
@@ -32,11 +31,6 @@ export const BrowserComponent: React.FunctionComponent = () => {
             let bmarks = bookmarkList;
             bmarks.splice(historyIndex);
             setBookmark([...bmarks]);
-
-            // let bmarks = bookmarkList;
-            // const newBookmarkList = bmarks.splice(historyIndex);
-            // bmarks = newBookmarkList;
-            // setBookmark([...bmarks]);
         }
     }
 
@@ -44,12 +38,9 @@ export const BrowserComponent: React.FunctionComponent = () => {
     let isSelected = (curUrl: string) => {
         if (bookmarkList.length > 0) {
             if (bookmarkList.includes(curUrl)) {
-                // setSelected(true);
                 return true;
             }
         }
-
-        // setSelected(false);
         return false;
     }
 
@@ -88,7 +79,9 @@ export const BrowserComponent: React.FunctionComponent = () => {
     }
 
     const reloadSite = () => {
-        // webview.reload();
+        let webview = document.querySelector('webview') as WebviewTag;
+        webview.reload();
+
     }
 
     const myRef = useRef(null);
@@ -110,7 +103,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
             <button onClick={() => go()}>Go</button>
 
             <div ref={myRef}>
-                <webview src={currentUrl} style={{ height: '212px', width: '200px' }} ></webview>
+                <webview src={currentUrl} style={{ height: '205px', width: '200px' }} ></webview>
             </div>
 
             {/* <button onClick={getUrlHistory}>URL History</button>
