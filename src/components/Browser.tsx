@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
 import { Card } from '../types';
 import { Actions, ActionKeys } from '../store/actions';
-// import { WebviewTag } from 'electron';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import StarIcon from '@material-ui/icons/Star';
@@ -28,17 +27,18 @@ export const BrowserComponent: React.FunctionComponent = () => {
         if (bookmarkList.includes(url) == false) {
             setBookmark([url, ...bookmarkList]);
         }
+
+        if (bookmarkList.includes(url) == true) {
+            let bmarks = bookmarkList;
+            bmarks.splice(historyIndex);
+            setBookmark([...bmarks]);
+
+            // let bmarks = bookmarkList;
+            // const newBookmarkList = bmarks.splice(historyIndex);
+            // bmarks = newBookmarkList;
+            // setBookmark([...bmarks]);
+        }
     }
-
-    // const removeBookmark = () => {
-    //     let bmarks = bookmarkList;
-
-    //     if (bookmarkList.length > 0) {
-    //         bmarks.slice(historyIndex);
-    //         // const newBookmarkList = bmarks.slice(historyIndex);
-    //         // bmarks = newBookmarkList;
-    //     }
-    // }
 
     // selects the bookmark star
     let isSelected = (curUrl: string) => {
@@ -53,9 +53,9 @@ export const BrowserComponent: React.FunctionComponent = () => {
         return false;
     }
 
-    const getBookmarkList = () => {
-        console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
-    }
+    // const getBookmarkList = () => {
+    //     console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
+    // }
 
     const go = () => {
         let history = historyUrls;
@@ -92,13 +92,13 @@ export const BrowserComponent: React.FunctionComponent = () => {
     }
 
     const myRef = useRef(null);
-    const getUrlHistory = () => {
-        console.log(`historyUrls: ${JSON.stringify(historyUrls)}`);
-        console.log(`historyIndex: ${historyIndex}`);
-        // webview.scrollTop = 20;
-        // console.log(webview.scrollTop);
-        console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
-    }
+    // const getUrlHistory = () => {
+    //     console.log(`historyUrls: ${JSON.stringify(historyUrls)}`);
+    //     console.log(`historyIndex: ${historyIndex}`);
+    //     // webview.scrollTop = 20;
+    //     // console.log(webview.scrollTop);
+    //     console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
+    // }
 
     return (
         <>
@@ -110,11 +110,11 @@ export const BrowserComponent: React.FunctionComponent = () => {
             <button onClick={() => go()}>Go</button>
 
             <div ref={myRef}>
-                <webview src={currentUrl} style={{ height: '100%', width: '100%' }} ></webview>
+                <webview src={currentUrl} style={{ height: '212px', width: '200px' }} ></webview>
             </div>
 
-            <button onClick={getUrlHistory}>URL History</button>
-            <button onClick={getBookmarkList}>Bookmarks</button>
+            {/* <button onClick={getUrlHistory}>URL History</button>
+            <button onClick={getBookmarkList}>Bookmarks</button> */}
         </>
     )
 }
@@ -146,38 +146,3 @@ export const BrowserButton: React.FunctionComponent = () => {
         <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Open Browser...</Button>
     );
 }
-
-
-
-   // const dispatch = useDispatch();
-    // const metafiles = useSelector((state: RootState) => state.metafiles);
-
-    // let frmdetails = {
-    //     'URL': url
-    // }
-
-    // const submitValue = (e: React.MouseEvent) => {
-    //     e.preventDefault();
-
-    //     // const metafile: Metafile = {
-    //     //     id: v4(),
-    //     //     name: metafiles[0]?.name,
-    //     //     modified: DateTime.local(),
-    //     //     handler: 'Browser'
-    //     // }
-    //     // const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
-    //     // dispatch(addMetafileAction);
-
-    //     // const card: Card = {
-    //     //     id: v4(),
-    //     //     name: frmdetails.URL,
-    //     //     type: 'Browser',
-    //     //     related: [],
-    //     //     created: DateTime.local(),
-    //     //     modified: DateTime.local(),
-    //     //     captured: false,
-    //     //     left: 50,
-    //     //     top: 50
-    //     // }
-    //     // const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
-    //     // dispatch(addCardAction);
