@@ -65,13 +65,8 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     actions.map(action => dispatch(action));
   }
 
-  const exposeCards = () => {
-    Object.values(cards).map((card, index) => console.log(`CARD ${index}: ${JSON.stringify(card)}`));
-  }
-
   return (
     <div className='canvas' ref={drop}>
-      <Button id='stack-button' variant='contained' color='primary' onClick={exposeCards}>Expose Cards</Button>
       <NewCardComponent />
       <FilePickerButton />
       <DiffPickerButton />
@@ -80,7 +75,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {props.children}
-    </div>
+    </div >
   );
 }
 

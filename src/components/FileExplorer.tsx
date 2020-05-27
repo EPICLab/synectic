@@ -30,6 +30,9 @@ const DirectoryComponent: React.FunctionComponent<{ metafileId: UUID; onClick: C
 const FileExplorerComponent: React.FunctionComponent<{ rootId: UUID }> = props => {
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const repos = useSelector((state: RootState) => Object.values(state.repos));
+  const metafiles = useSelector((state: RootState) => state.metafiles);
+  const [root] = useState(metafiles[props.rootId]);
+  const [branch] = useState(root.ref ? root.ref : "Untracked")
   const dispatch = useDispatch();
 
   const handleClick = async (e: React.MouseEvent, path: string) => {
@@ -42,6 +45,7 @@ const FileExplorerComponent: React.FunctionComponent<{ rootId: UUID }> = props =
 
   return (
     <div className='file-explorer'>
+      <div className='branch-ribbon-container'><p className='branch-ribbon-text'>{`Branch: ${branch}`}</p></div>
       <TreeView
         defaultParentIcon={<img width="20px" src="../assets/folder.svg" alt="Folder" />}
         defaultEndIcon={<div className="file-icon"><img width="20px" src="../assets/file.svg" alt="File" /></div>}
@@ -49,8 +53,8 @@ const FileExplorerComponent: React.FunctionComponent<{ rootId: UUID }> = props =
         defaultExpandIcon={<><div className="folder-icon"><ChevronRightIcon /></div> <img width="20px" src="../assets/alt_folder.svg" alt="Folder" /></>}
       >
         <DirectoryComponent metafileId={props.rootId} onClick={handleClick} />
-      </TreeView >
-    </div >
+      </TreeView>
+    </div>
   );
 }
 

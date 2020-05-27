@@ -20,7 +20,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
 
   return (
     <Dialog id='picker-dialog' open={props.open} onClose={() => props.onClose(false, ['', ''])}>
-      <div className='container'>
+      <div className='diff-container'>
         <DialogTitle id='picker-dialog-title' style={{ gridArea: 'header' }}>Select cards to diff</DialogTitle>
         <FormControl id='left-form-control' style={{ gridArea: 'left', width: 100 }}>
           <InputLabel id='diff-card-selection-name-label'>Left</InputLabel>

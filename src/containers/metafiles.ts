@@ -112,7 +112,7 @@ const containsDecorator = async (metafilePayload: MetafilePayload, filetypes: Fi
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const childPayloads = await Promise.all(childPaths.map(childPath => extractMetafile(childPath, filetypes, repos)));
   const childActions: IdentifiableActions[] = flatten(childPayloads.map(childPayload => childPayload.actions));
-  const childMetafileIds = childActions.map(childAction => childAction.id);
+  const childMetafileIds = childPayloads.map(childPayload => childPayload.metafile.id);
 
   return {
     metafile: { ...metafilePayload.metafile, contains: childMetafileIds },
