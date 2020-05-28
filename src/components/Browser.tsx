@@ -28,14 +28,14 @@ export const BrowserComponent: React.FunctionComponent = () => {
         }
 
         if (bookmarkList.includes(url) == true) {
-            let bmarks = bookmarkList;
+            const bmarks = bookmarkList;
             bmarks.splice(historyIndex);
             setBookmark([...bmarks]);
         }
     }
 
     // selects the bookmark star
-    let isSelected = (curUrl: string) => {
+    const isSelected = (curUrl: string) => {
         if (bookmarkList.length > 0) {
             if (bookmarkList.includes(curUrl)) {
                 return true;
@@ -79,7 +79,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
     }
 
     const reloadSite = () => {
-        let webview = document.querySelector('webview') as WebviewTag;
+        const webview = document.querySelector('webview') as WebviewTag;
         webview.reload();
 
     }
