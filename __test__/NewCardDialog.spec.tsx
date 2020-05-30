@@ -36,21 +36,23 @@ describe('NewCardDialog', () => {
     });
 
     it('checkFileName returns false for an invalid file name and true for a valid file name', () => {
-        expect(checkFileName('<.ts')).toEqual(false);
-        expect(checkFileName('>.ts')).toEqual(false);
-        expect(checkFileName(':.ts')).toEqual(false);
-        expect(checkFileName('".ts')).toEqual(false);
-        expect(checkFileName('/.ts')).toEqual(false);
-        expect(checkFileName('\\.ts')).toEqual(false);
-        expect(checkFileName('|.ts')).toEqual(false);
-        expect(checkFileName('?.ts')).toEqual(false);
-        expect(checkFileName('*.ts')).toEqual(false);
-        expect(checkFileName(' .ts')).toEqual(false);
-        expect(checkFileName('..ts')).toEqual(false);
-        expect(checkFileName('foo .ts')).toEqual(false);
-        expect(checkFileName('bar..ts')).toEqual(false);
+        expect(checkFileName('<.ts', 'ts')).toEqual(false);
+        expect(checkFileName('>.ts', 'ts')).toEqual(false);
+        expect(checkFileName(':.ts', 'ts')).toEqual(false);
+        expect(checkFileName('".ts', 'ts')).toEqual(false);
+        expect(checkFileName('/.ts', 'ts')).toEqual(false);
+        expect(checkFileName('\\.ts', 'ts')).toEqual(false);
+        expect(checkFileName('|.ts', 'ts')).toEqual(false);
+        expect(checkFileName('?.ts', 'ts')).toEqual(false);
+        expect(checkFileName('*.ts', 'ts')).toEqual(false);
+        expect(checkFileName(' .ts', 'ts')).toEqual(false);
+        expect(checkFileName('..ts', 'ts')).toEqual(false);
+        expect(checkFileName('foo .ts', 'ts')).toEqual(false);
+        expect(checkFileName('bar..ts', 'ts')).toEqual(false);
+        expect(checkFileName('', 'ts')).toEqual(false);
 
-        expect(checkFileName('foo.ts')).toEqual(true);
-        expect(checkFileName('bar.html')).toEqual(true);
+        expect(checkFileName('foo.ts', 'ts')).toEqual(true);
+        expect(checkFileName('bar.html', 'html')).toEqual(true);
+        expect(checkFileName('', '.htaccess')).toEqual(true);
     });
 });

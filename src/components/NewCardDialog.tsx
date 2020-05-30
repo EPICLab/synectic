@@ -10,15 +10,18 @@ import { Actions, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
 
-export const checkFileName = (fileName: string) => {
-  return fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== '.' &&
-    fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== ' ' &&
-    /*Regex below matches all occurances of invalid file name characters in the set: <, >, \, /, |, ?, *, 
-      and characters NULL to US (ASCII values 0 to 31)*/
-    // eslint-disable-next-line no-control-regex
-    !(/[<>:"\\/|?*\x00-\x1F]/g).test(fileName) && fileName !== '' &&
-    fileName.slice(0, fileName.lastIndexOf('.')) !== '' ?
-    true : false;
+export const checkFileName = (fileName: string, extension: string) => {
+  const ext = fileName.indexOf('.') !== -1 ? io.extractExtension(fileName) : "";
+  const isValid =
+    fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== '.' &&
+      fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== ' ' &&
+      /*Regex below matches all occurances of invalid file name characters in the set: <, >, \, /, |, ?, *, 
+          and characters NULL to US (ASCII values 0 to 31)*/
+      // eslint-disable-next-line no-control-regex
+      !(/[<>:"\\/|?*\x00-\x1F]/g).test(fileName) ?
+      true : false;
+
+  return extension && extension.includes('.') ? isValid : isValid && fileName !== '' && fileName.slice(0, -ext.length - 1) !== "";
 }
 
 type NewCardDialogProps = {
@@ -44,35 +47,36 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
     setFileName(event.target.value);
 
     const ext = event.target.value.indexOf('.') !== -1 ? io.extractExtension(event.target.value) : "";
-    let found = false;
-    filetypes.map(filetype => {
-      filetype.extensions.map(extension => {
-        if (ext === extension) {
-          setFiletype(filetype.filetype);
-          found = true;
-        }
-      });
-    });
+    const newExt = filetypes.find(filetype => filetype.extensions.find(extension => ext === extension));
 
-    found && checkFileName(event.target.value) ? setIsFileNameValid(true) : setIsFileNameValid(false);
+    if (typeof newExt !== 'undefined' && checkFileName(event.target.value, newExt.extensions[0])) {
+      setFiletype(newExt.filetype);
+      setIsFileNameValid(true);
+    } else {
+      setIsFileNameValid(false);
+    }
   };
 
   const handleFiletypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setFiletype(event.target.value as string);
 
-    filetypes.map(filetype => {
-      if (filetype.filetype === event.target.value as string) {
-        const ext = fileName.indexOf('.') !== -1 ? io.extractExtension(fileName) : "";
-        if (ext === "" && fileName.slice(-1) !== ".") {
-          setFileName(fileName + '.' + filetype.extensions[0]);
-        } else if (ext === "" && fileName.slice(-1) === ".") {
-          setFileName(fileName + filetype.extensions[0]);
-        } else {
-          setFileName(fileName.slice(0, -ext.length) + filetype.extensions[0]);
-        }
-        checkFileName(fileName) ? setIsFileNameValid(true) : setIsFileNameValid(false);
+    const newFiletype = filetypes.find(filetype => filetype.filetype === event.target.value as string);
+    if (typeof newFiletype === 'undefined') return;
+    const ext = fileName.indexOf('.') !== -1 ? io.extractExtension(fileName) : "";
+
+    if (typeof newFiletype.extensions.find(extension => extension.includes('.')) !== 'undefined') {
+      ext === "" ? setFileName(fileName + newFiletype.extensions[0]) : setFileName(fileName.slice(0, -ext.length - 1) + newFiletype.extensions[0]);
+      checkFileName(fileName, newFiletype.extensions[0]) || fileName === '' ? setIsFileNameValid(true) : setIsFileNameValid(false);
+    } else {
+      if (ext === "" && fileName.slice(-1) !== ".") {
+        setFileName(fileName + '.' + newFiletype.extensions[0]);
+      } else if (ext === "" && fileName.slice(-1) === ".") {
+        setFileName(fileName + newFiletype.extensions[0]);
+      } else {
+        setFileName(fileName.slice(0, -ext.length) + newFiletype.extensions[0]);
       }
-    });
+      checkFileName(fileName, newFiletype.extensions[0]) ? setIsFileNameValid(true) : setIsFileNameValid(false);
+    }
   };
 
   const handleClick = (e: React.MouseEvent) => {
