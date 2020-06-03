@@ -8,74 +8,55 @@ import { Actions, ActionKeys } from '../store/actions';
 import { WebviewTag } from 'electron';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import StarIcon from '@material-ui/icons/Star';
 import ReplayIcon from '@material-ui/icons/Replay';
 
+
+type BrowserState = {
+    history: URL[];
+    current: URL;
+    index: number;
+}
 
 export const BrowserComponent: React.FunctionComponent = () => {
     // this is related to the URL bar
     const [urlInput, setUrlInput] = useState('');
     // everything below this is related to the webview
-    const [currentUrl, setCurrentUrl] = useState('');
-    const [historyUrls, setHistoryUrls] = useState<string[]>([]);
-    const [historyIndex, setHistoryIndex] = useState<number>(0);
-    const [bookmarkList, setBookmark] = useState<string[]>([]);
+    // const [currentUrl, setCurrentUrl] = useState('');
+    // const [historyUrls, setHistoryUrls] = useState<string[]>([]);
+    // const [historyIndex, setHistoryIndex] = useState<number>(0);
+    const [browserState, setBrowserState] = useState<BrowserState>({ history: [], current: new URL(''), index: 0 });
 
-    // adds url as a bookmark
-    const addBookmark = (url: string) => {
-        if (bookmarkList.includes(url) == false) {
-            setBookmark([url, ...bookmarkList]);
-        }
-
-        if (bookmarkList.includes(url) == true) {
-            const bmarks = bookmarkList;
-            bmarks.splice(historyIndex);
-            setBookmark([...bmarks]);
-        }
-    }
-
-    // selects the bookmark star
-    const isSelected = (curUrl: string) => {
-        if (bookmarkList.length > 0) {
-            if (bookmarkList.includes(curUrl)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // const getBookmarkList = () => {
-    //     console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
-    // }
 
     const go = () => {
-        let history = historyUrls;
+        // let history = historyUrls;
 
-        if (historyIndex > 0) {
-            const newHistory = history.slice(historyIndex);
-            history = newHistory;
-            setHistoryIndex(0);
-        }
-        setCurrentUrl(urlInput);
-        setHistoryUrls([urlInput, ...history]);
+        // if (historyIndex > 0) {
+        //     const newHistory = history.slice(historyIndex);
+        //     history = newHistory;
+        //     setHistoryIndex(0);
+        // }
+        // setCurrentUrl(urlInput);
+        // setHistoryUrls([urlInput, ...history]);
+
+        setBrowserState()
     }
 
     const backwards = () => {
-        if (historyIndex < historyUrls.length - 1) {
-            setHistoryIndex(historyIndex + 1);
-            const previousUrl = historyUrls[historyIndex + 1];
-            setCurrentUrl(previousUrl);
-            setUrlInput(previousUrl);
-        }
+        // if (historyIndex < historyUrls.length - 1) {
+        //     setHistoryIndex(historyIndex + 1);
+        //     const previousUrl = historyUrls[historyIndex + 1];
+        //     setCurrentUrl(previousUrl);
+        //     setUrlInput(previousUrl);
+        // }
     }
 
     const forwards = () => {
-        if (historyIndex > 0) {
-            setHistoryIndex(historyIndex - 1);
-            const nextUrl = historyUrls[historyIndex - 1];
-            setCurrentUrl(nextUrl);
-            setUrlInput(nextUrl);
-        }
+        // if (historyIndex > 0) {
+        //     setHistoryIndex(historyIndex - 1);
+        //     const nextUrl = historyUrls[historyIndex - 1];
+        //     setCurrentUrl(nextUrl);
+        //     setUrlInput(nextUrl);
+        // }
     }
 
     const reloadSite = () => {
@@ -85,29 +66,18 @@ export const BrowserComponent: React.FunctionComponent = () => {
     }
 
     const myRef = useRef(null);
-    // const getUrlHistory = () => {
-    //     console.log(`historyUrls: ${JSON.stringify(historyUrls)}`);
-    //     console.log(`historyIndex: ${historyIndex}`);
-    //     // webview.scrollTop = 20;
-    //     // console.log(webview.scrollTop);
-    //     console.log(`bookmark list: ${JSON.stringify(bookmarkList)}`);
-    // }
 
     return (
         <>
             <KeyboardArrowLeftIcon onClick={() => backwards()} fontSize="default" color="primary" />
             <KeyboardArrowRightIcon onClick={() => forwards()} fontSize="default" color="primary" />
             <ReplayIcon onClick={reloadSite} fontSize="small" color="primary" />
-            <StarIcon onClick={() => { addBookmark(urlInput); }} fontSize="small" color={isSelected(currentUrl) ? "error" : "primary"} />
             <input type="text" placeholder="URL" value={urlInput} onChange={e => setUrlInput(e.target.value)} />
             <button onClick={() => go()}>Go</button>
 
             <div ref={myRef}>
                 <webview src={currentUrl} style={{ height: '205px', width: '200px' }} ></webview>
             </div>
-
-            {/* <button onClick={getUrlHistory}>URL History</button>
-            <button onClick={getBookmarkList}>Bookmarks</button> */}
         </>
     )
 }

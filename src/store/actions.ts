@@ -1,5 +1,4 @@
 import { UUID, Repository, Card, Stack, Metafile, Filetype } from '../types';
-// import { Action } from 'redux';
 
 export enum ActionKeys {
   INITIALIZE_CANVAS,
