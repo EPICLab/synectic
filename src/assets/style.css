@@ -353,9 +353,39 @@ img.diff_icon {
 }
 
 div.browser-topbar {
-
+  display: flex;
+  justify-content: space-evenly;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
-div.browser-content {
-
+button.arrow-left {
+  background: url('arrow-left-bold.svg') no-repeat center top/contain;
+  background-size: cover;
+  border-style: none;
+  outline: 0px;
 }
+
+button.arrow-right {
+  background: url('arrow-right-bold.svg') no-repeat center top/contain;
+  background-size: cover;
+  border-style: none;
+  outline: 0px;
+}
+
+button.refresh {
+  background: url('refresh.svg') no-repeat center top/contain;
+  background-size: cover;
+  border-style: none;
+  outline: 0px;
+}
+
+.url-bar-style {
+  height: 17px;
+  border-radius: 2px;
+  border: none;
+}
+
+/* div.browser-content {
+
+} */
