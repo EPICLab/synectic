@@ -56,7 +56,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
                 <input className="url-bar-style" type="text" placeholder="URL" value={urlInput} onKeyDown={go} onChange={e => setUrlInput(e.target.value)} />
             </div>
             <div className='browser-content'>
-                <webview src={browserState.current.toString()} style={{ height: '228px', width: '200px' }}></webview>
+                <webview src={browserState.current.toString()} style={{ height: '226px', width: '200px' }}></webview>
             </div>
         </>
     )

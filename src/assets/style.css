@@ -386,6 +386,6 @@ button.refresh {
   border: none;
 }
 
-/* div.browser-content {
-
-} */
+div.browser-content {
+  border-radius: 0px 0px 10px 10px;
+}
