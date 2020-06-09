@@ -3,8 +3,9 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import { useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
-import { Card } from '../types';
+import { Metafile } from '../types';
 import { Actions, ActionKeys } from '../store/actions';
+import { loadCard } from '../containers/handlers';
 
 
 type BrowserState = {
@@ -68,20 +69,15 @@ export const BrowserButton: React.FunctionComponent = () => {
 
     const handleClick = async (e: React.MouseEvent) => {
         e.preventDefault();
-
-        const card: Card = {
+        const metafile: Metafile = {
             id: v4(),
-            name: 'browser',
-            created: DateTime.local(),
+            name: 'Browser',
             modified: DateTime.local(),
-            captured: false,
-            left: 50,
-            top: 70,
-            type: 'Browser',
-            related: []
+            handler: 'Browser'
         };
-        const action: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
-        dispatch(action);
+        const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+        dispatch(addMetafileAction);
+        dispatch(loadCard(metafile));
     };
 
     return (
