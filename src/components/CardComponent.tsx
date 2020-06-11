@@ -7,6 +7,7 @@ import { ActionKeys } from '../store/actions';
 import FileExplorerComponent from './FileExplorer';
 import Editor from './Editor';
 import Diff from './Diff';
+import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
@@ -21,6 +22,8 @@ const ContentFront: React.FunctionComponent<Card> = props => {
       return (<Diff left={props.related[0]} right={props.related[1]} />);
     case 'Explorer':
       return (<FileExplorerComponent rootId={props.related[0]} />);
+    case 'Browser':
+      return (<BrowserComponent />);
     default:
       return null;
   }
