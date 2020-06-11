@@ -7,7 +7,6 @@ import { Metafile } from '../types';
 import { Actions, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 
-
 type BrowserState = {
     history: URL[];
     current: URL;
@@ -15,9 +14,9 @@ type BrowserState = {
 }
 
 export const BrowserComponent: React.FunctionComponent = () => {
-    // this is related to the URL bar
+    const [webviewKey, setWebviewKey] = useState(0);
     const [urlInput, setUrlInput] = useState('');
-    const [browserState, setBrowserState] = useState<BrowserState>({ history: [], current: new URL('https://epiclab.github.io/'), index: 0 })
+    const [browserState, setBrowserState] = useState<BrowserState>({ history: [new URL('https://epiclab.github.io/')], current: new URL('https://epiclab.github.io/'), index: 0 });
 
     const go = (e: React.KeyboardEvent) => {
         if (e.keyCode != 13) return;
@@ -31,20 +30,18 @@ export const BrowserComponent: React.FunctionComponent = () => {
 
     const backwards = () => {
         if (browserState.index < browserState.history.length - 1) {
-            setBrowserState({ ...browserState, current: browserState.history[browserState.index + 1], index: browserState.index + 1 });
-            setUrlInput(browserState.current.toString());
+            const newCurrent = browserState.history[browserState.index + 1];
+            setBrowserState({ ...browserState, current: newCurrent, index: browserState.index + 1 });
+            setUrlInput(newCurrent.toString());
         }
     }
 
     const forwards = () => {
         if (browserState.index > 0) {
-            setBrowserState({ ...browserState, current: browserState.history[browserState.index - 1], index: browserState.index - 1 });
-            setUrlInput(browserState.current.toString());
+            const newCurrent = browserState.history[browserState.index - 1];
+            setBrowserState({ ...browserState, current: newCurrent, index: browserState.index - 1 });
+            setUrlInput(newCurrent.toString());
         }
-    }
-
-    const reloadSite = () => {
-        setBrowserState({ ...browserState, current: browserState.current });
     }
 
     return (
@@ -52,11 +49,11 @@ export const BrowserComponent: React.FunctionComponent = () => {
             <div className='browser-topbar'>
                 <button className="arrow-left" onClick={() => backwards()} />
                 <button className="arrow-right" onClick={() => forwards()} />
-                <button className="refresh" onClick={reloadSite} />
+                <button className="refresh" onClick={() => setWebviewKey(webviewKey + 1)} />
                 <input className="url-bar-style" type="text" placeholder="URL" value={urlInput} onKeyDown={go} onChange={e => setUrlInput(e.target.value)} />
             </div>
             <div className='browser-content'>
-                <webview src={browserState.current.toString()} style={{ height: '226px', width: '200px' }}></webview>
+                <webview key={webviewKey} src={browserState.current.toString()} style={{ height: '226px', width: '200px', borderRadius: '10px!important' }}></webview>
             </div>
         </>
     )
