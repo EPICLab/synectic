@@ -13,10 +13,14 @@ import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import DiffPickerButton from './DiffPickerDialog';
 import { BrowserButton } from './Browser';
+import ErrorDialog from './ErrorDialog';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
   const stacks = useSelector((state: RootState) => state.stacks);
+  const metafiles = useSelector((state: RootState) => Object.values(state.metafiles));
+  const repos = useSelector((state: RootState) => Object.values(state.repos));
+  const errors = useSelector((state: RootState) => Object.values(state.errors));
   const dispatch = useDispatch();
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -65,6 +69,13 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     actions.map(action => dispatch(action));
   }
 
+  const showState = () => {
+    console.log(`METAFILES:`);
+    metafiles.map(m => console.log(`name: ${m.name}, branch: ${m.ref}`));
+    console.log(`REPOS:`);
+    repos.map(r => console.log(`name: ${r.name}, path: ${r.url.href}, refs: ${JSON.stringify(r.refs)}`));
+  }
+
   return (
     <div className='canvas' ref={drop}>
       <NewCardComponent />
@@ -72,8 +83,10 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <DiffPickerButton />
       <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
       <BrowserButton />
+      <Button id='button' variant='contained' color='primary' onClick={showState}>Show State</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
+      {errors.map(error => <ErrorDialog key={error.id} {...error} />)}
       {props.children}
     </div >
   );
