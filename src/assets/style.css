@@ -126,7 +126,6 @@ body {
   margin: 0.1rem;
 }
 
-
 /* CSSTransition from react-transition-group uses *-enter, *-enter-active,
    *-exit, and *-exit-active (in that order) for animation effects */
 .flip-enter {

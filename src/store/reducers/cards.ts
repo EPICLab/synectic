@@ -1,8 +1,8 @@
-import { Actions, ActionKeys } from '../actions';
+import { Action, ActionKeys } from '../actions';
 import { Card } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
-export const cardReducer = (state: { [id: string]: Card } = {}, action: Actions) => {
+export const cardReducer = (state: { [id: string]: Card } = {}, action: Action) => {
   switch (action.type) {
     case ActionKeys.ADD_CARD:
       return addItemInMap(state, action.card);
