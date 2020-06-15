@@ -17,6 +17,7 @@ describe('canvasReducer', () => {
   const newRepo: Repository = {
     id: '17',
     name: 'sampleUser/forkedRepo',
+    root: '/',
     corsProxy: new URL('http://www.oregonstate.edu'),
     url: parsePath('https://github.com/sampleUser/forkedRepo'),
     refs: ['601421', '843449'],

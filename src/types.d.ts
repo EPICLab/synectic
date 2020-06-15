@@ -67,6 +67,7 @@ export type Metafile = {
 export type Repository = {
   readonly id: UUID;
   readonly name: string; // either remote qualified repo name (e.g. EPICLab/synectic) or root directory (e.g. synectic)
+  readonly root: PathLike; // relative or absolute path to the git root directory
   readonly corsProxy: URL;
   readonly url: parsePath.ParsedPath; // allows for local URLs
   readonly refs: string[];
@@ -74,4 +75,11 @@ export type Repository = {
   readonly username: string;
   readonly password: string;
   readonly token: string;
+}
+
+export type Error = {
+  readonly id: UUID; // instance ID
+  readonly type: string; // example: LoadError
+  readonly target: UUID; // related Redux object ID
+  readonly message: string;
 }
