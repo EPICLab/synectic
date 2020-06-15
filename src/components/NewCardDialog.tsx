@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 
 import { RootState } from '../store/root';
 import { Metafile } from '../types';
-import { Actions, ActionKeys } from '../store/actions';
+import { Action, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
 
@@ -87,9 +87,9 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
         modified: DateTime.local(),
         handler: 'Editor'
       };
-      const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+      const addMetafileAction: Action = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
       dispatch(addMetafileAction);
-      dispatch(loadCard(metafile));
+      dispatch(loadCard({ metafile: metafile }));
 
       handleClose();
     }

@@ -6,7 +6,7 @@ import { InputLabel, FormControl, Button, Dialog, Select, Input, MenuItem, Dialo
 
 import { RootState } from '../store/root';
 import { UUID, Card, Metafile } from '../types';
-import { ActionKeys, Actions } from '../store/actions';
+import { ActionKeys, Action } from '../store/actions';
 
 type DialogProps = {
   open: boolean;
@@ -83,7 +83,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
       filetype: metafiles[left.related[0]].filetype,
       handler: 'Diff'
     }
-    const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+    const addMetafileAction: Action = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
     dispatch(addMetafileAction);
 
     const card: Card = {
@@ -97,7 +97,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
       left: 50,
       top: 50
     }
-    const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
+    const addCardAction: Action = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
     dispatch(addCardAction);
     setOpen(!open);
   };

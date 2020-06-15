@@ -6,11 +6,11 @@ import * as path from 'path';
 import * as io from './io';
 import * as git from './git';
 import { Metafile, Filetype, Repository, RemoveType } from '../types';
-import { Actions, ActionKeys } from '../store/actions';
+import { Action, ActionKeys } from '../store/actions';
 import { flatten } from './flatten';
 
-type IdentifiableActions = RemoveType<Actions, ActionKeys.INITIALIZE_CANVAS>;
-type MetafilePayload = { metafile: Metafile; actions: Actions[] };
+type IdentifiableActions = RemoveType<Action, ActionKeys.INITIALIZE_CANVAS>;
+type MetafilePayload = { metafile: Metafile; actions: Action[] };
 
 /**
  * Decorator for injecting fs.stat information into the metafile, and propogating any existing Redux actions into 
@@ -25,20 +25,13 @@ const statsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filet
   if (!metafilePayload.metafile.path) return metafilePayload;
   const stats = await io.extractStats(metafilePayload.metafile.path);
   if (!stats) return metafilePayload;
+  let handler: Filetype | undefined;
   if (stats.isDirectory()) {
-    const handler = filetypes.find(filetype => filetype.filetype === 'Directory');
-    return {
-      metafile: {
-        ...metafilePayload.metafile,
-        modified: DateTime.fromJSDate(stats.mtime),
-        filetype: handler?.filetype,
-        handler: handler?.handler
-      },
-      actions: metafilePayload.actions
-    };
+    handler = filetypes.find(filetype => filetype.filetype === 'Directory');
+  } else {
+    const extension = io.extractExtension(metafilePayload.metafile.path);
+    handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
   }
-  const extension = io.extractExtension(metafilePayload.metafile.path);
-  const handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
   return {
     metafile: {
       ...metafilePayload.metafile,
@@ -59,7 +52,7 @@ const statsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filet
  */
 const contentDecorator = async (metafilePayload: MetafilePayload): Promise<MetafilePayload> => {
   if (!metafilePayload.metafile.path || metafilePayload.metafile.filetype === 'Directory') return metafilePayload;
-  const content = await io.readFileAsync(metafilePayload.metafile.path, { encoding: 'utf8' });
+  const content = await io.readFileAsync(metafilePayload.metafile.path, { encoding: 'utf-8' });
   return { metafile: { ...metafilePayload.metafile, content: content }, actions: metafilePayload.actions };
 };
 
@@ -78,15 +71,11 @@ const contentDecorator = async (metafilePayload: MetafilePayload): Promise<Metaf
  */
 const gitDecorator = async (metafilePayload: MetafilePayload, repos: Repository[]): Promise<{ payload: MetafilePayload; updatedRepos: Repository[] }> => {
   if (!metafilePayload.metafile.path) return { payload: metafilePayload, updatedRepos: repos };
-  const root = await git.getRepoRoot(metafilePayload.metafile.path.toString());
-  if (!root) return { payload: metafilePayload, updatedRepos: repos };
-  const branchRef = await git.currentBranch({ dir: root, fullname: false });
-  const repoPayload = branchRef ? await git.extractRepo(metafilePayload.metafile.path, repos, branchRef) :
-    await git.extractRepo(metafilePayload.metafile.path, repos);
+  const repoPayload = await git.extractRepo(metafilePayload.metafile.path, repos);
   const actions = repoPayload.action ? [...metafilePayload.actions, repoPayload.action] : metafilePayload.actions;
   return {
     payload: {
-      metafile: { ...metafilePayload.metafile, repo: repoPayload.repo?.id, ref: branchRef ? branchRef : undefined },
+      metafile: { ...metafilePayload.metafile, repo: repoPayload.repo?.id, ref: repoPayload.branchRef },
       actions: actions
     },
     updatedRepos: ((repoPayload.action && repoPayload.repo) ? [...repos, repoPayload.repo] : repos)
@@ -99,17 +88,18 @@ const gitDecorator = async (metafilePayload: MetafilePayload, repos: Repository[
  * those sub-child and sub-directory metafiles.
  * @param metafilePayload JavaScript object containing a root metafile, and queued Redux actions for updating state.
  * @param filetypes Array of supported filetype information; preferrably derived from Redux store.
+ * @param metafiles Array of existing metafiles; preferrably derived from Redux store.
  * @param repos Array of existing Git repositories; preferrably derived from Redux store.
  * @return A Promise object for the updated Metafile that includes all child file/directory UUIDs in `contains` field, 
  * and updated queue of Redux actions for updating the store with those child file/directory metafiles.
  */
-const containsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filetype[], repos: Repository[]): Promise<MetafilePayload> => {
+const containsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filetype[], metafiles: Metafile[], repos: Repository[]): Promise<MetafilePayload> => {
   if (!metafilePayload.metafile.path || metafilePayload.metafile.filetype !== 'Directory') return metafilePayload;
   const parentPath = metafilePayload.metafile.path;
   const childPaths = (await io.readDirAsync(metafilePayload.metafile.path)).map(childPath => path.join(parentPath.toString(), childPath));
 
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  const childPayloads = await Promise.all(childPaths.map(childPath => extractMetafile(childPath, filetypes, repos)));
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define  
+  const childPayloads = await Promise.all(childPaths.map(childPath => extractMetafile(childPath, filetypes, metafiles, repos)));
   const childActions: IdentifiableActions[] = flatten(childPayloads.map(childPayload => childPayload.actions));
   const childMetafileIds = childPayloads.map(childPayload => childPayload.metafile.id);
   return {
@@ -124,13 +114,18 @@ const containsDecorator = async (metafilePayload: MetafilePayload, filetypes: Fi
  * in order to load resources into a `Card`.
  * @param filepath The relative or absolute path to evaluate.
  * @param filetypes Array of supported filetype information; preferrably derived from Redux store.
+ * @param metafiles Array of existing metafiles; preferrably derived from Redux store.
  * @param repos Array of existing Git repositories; preferrably derived from Redux store.
  * @return A Promise object for series of subsequent asynchronous calls to decorator functions that iteratively
  * append additional information into a `MetafilePayload` object containing the root metafile and all Redux
  * actions required in order to update the Redux store to hold the latest version of state.
  */
-export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[], repos: Repository[]): Promise<MetafilePayload> => {
+export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[], metafiles: Metafile[], repos: Repository[]): Promise<MetafilePayload> => {
   const name = io.extractFilename(filepath);
+  // TODO: Do something with this `existing` variable
+  const existing = metafiles.find(m => m.name === name && m.path?.toString() === filepath.toString());
+  if (existing) console.log(`IT EXISTS!`);
+
   const metafile: Metafile = {
     id: v4(),
     name: name.length === 0 ? io.extractDirname(filepath) : name,
@@ -141,9 +136,9 @@ export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[],
   return statsDecorator({ metafile: metafile, actions: [] }, filetypes)
     .then(payload => contentDecorator(payload))
     .then(payload => gitDecorator(payload, repos))
-    .then(payloadAndRepos => containsDecorator(payloadAndRepos.payload, filetypes, payloadAndRepos.updatedRepos))
+    .then(payloadAndRepos => containsDecorator(payloadAndRepos.payload, filetypes, metafiles, payloadAndRepos.updatedRepos))
     .then(payload => {
-      const addRootMetafile: Actions = {
+      const addRootMetafile: Action = {
         type: ActionKeys.ADD_METAFILE,
         id: payload.metafile.id,
         metafile: payload.metafile
@@ -152,3 +147,11 @@ export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[],
     })
     .catch(error => { throw new Error(error.message) });
 }
+
+// export const checkExistingMetafiles = (filepath: PathLike, repo: UUID, ref: string): ThunkAction<Promise<void>, {}, {}, AnyAction> => {
+//   return async (dispatch: ThunkDispatch<{}, {}, AnyAction>): Promise<void> => {
+//     return new Promise<void>((resolve) => {
+
+//     });
+//   };
+// }

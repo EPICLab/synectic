@@ -1,17 +1,25 @@
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import filetypesJson from './filetypes.json';
-import { ActionKeys, Actions } from '../store/actions';
-import { Filetype, Metafile, Card, Stack } from '../types';
+import { ActionKeys, Action } from '../store/actions';
+import { Filetype, Metafile, Card, Stack, Error, NarrowType } from '../types';
+import { ThunkAction } from 'redux-thunk';
+import { RootState } from '../store/root';
+import { AnyAction } from 'redux';
+import { PathLike } from 'fs-extra';
+import { getMetafile } from './metafile2';
+
+type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
+type HandlerMissingMetafile = Omit<Metafile, 'handler'>;
 
 /**
  * Extracts and updates list of supported filetypes in Redux store.
  * @return A Promise object for an array of Redux actions that update the store with supported filetypes.
  */
 export const importFiletypes = async () => {
-  return new Promise<Actions[]>(resolve => {
+  return new Promise<Action[]>(resolve => {
     const filetypes = filetypesJson as Omit<Filetype, 'id'>[];
-    const actions: Actions[] = [];
+    const actions: Action[] = [];
     filetypes.map(filetype => {
       const filetypeId = v4();
       actions.push({ type: ActionKeys.ADD_FILETYPE, id: filetypeId, filetype: { id: filetypeId, ...filetype } });
@@ -21,12 +29,11 @@ export const importFiletypes = async () => {
 };
 
 /**
- * Creates Redux action for adding new Card with content to Redux store; which materializes a new Card on the Canvas.
- * @param metafile A Metafile object containing file specific information for loading (i.e. must contain a defined handler).
- * @return A Redux action that updates state with a new Card, or undefined if unsupported filetype.
+ * Action Creator for composing a valid ADD_CARD Redux Action.
+ * @param metafile A `Metafile` object that includes a valid `handler` field.
+ * @return An `AddCardAction` object that can be dispatched via Redux, or undefined if no handler is defined.
  */
-export const loadCard = (metafile: Metafile) => {
-  if (metafile.handler === undefined) return undefined;
+const addCard = (metafile: HandlerRequiredMetafile): NarrowType<Action, ActionKeys.ADD_CARD> => {
   const card: Card = {
     id: v4(),
     name: metafile.name,
@@ -38,8 +45,52 @@ export const loadCard = (metafile: Metafile) => {
     type: metafile.handler,
     related: [metafile.id]
   };
-  const action: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
-  return action;
+  return {
+    type: ActionKeys.ADD_CARD,
+    id: card.id,
+    card: card
+  };
+}
+
+/**
+ * Action Creator for composing a valid ADD_ERROR Redux Action.
+ * @param metafile A `Metafile` object that does not contain a valid `handler` field.
+ * @return An `AddErrorAction` object that can be dispatched via Redux.
+ */
+const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowType<Action, ActionKeys.ADD_ERROR> => {
+  const error: Error = {
+    id: v4(),
+    type: 'HandlerMissingError',
+    target: metafile.id,
+    message: `Metafile ${metafile.name} missing handler to resolve filetype: '${metafile.filetype}'`
+  };
+  return {
+    type: ActionKeys.ADD_ERROR,
+    id: error.id,
+    error: error
+  };
+}
+
+/**
+ * Thunk Action Creator for processing and updati
+ * @param metafile A `Metafile` object previously created or retrieved from the Redux state.
+ * @param filepath The relative or absolute path to evaluate.
+ */
+export const loadCard = ({ metafile, filepath }: { metafile?: Metafile; filepath?: PathLike }): ThunkAction<Promise<Card | undefined>, RootState, undefined, AnyAction> => {
+  return async (dispatch) => {
+    if (metafile) {
+      if (!metafile.handler) dispatch(handlerMissingError(metafile));
+      const addCardAction = addCard(metafile as HandlerRequiredMetafile);
+      if (addCardAction) return dispatch(addCardAction).card;
+    }
+    if (filepath) {
+      const metafile = await dispatch(getMetafile(filepath));
+      if (!metafile.handler) dispatch(handlerMissingError(metafile));
+      const addCardAction = addCard(metafile as HandlerRequiredMetafile);
+      if (addCardAction) return dispatch(addCardAction).card;
+    }
+    return undefined;
+  };
 }
 
 /**
@@ -60,7 +111,7 @@ export const loadStack = (name: string, cards: Card[], note?: string) => {
     left: 250,
     top: 250
   };
-  const actions: Actions[] = [{ type: ActionKeys.ADD_STACK, id: stack.id, stack: stack }];
+  const actions: Action[] = [{ type: ActionKeys.ADD_STACK, id: stack.id, stack: stack }];
   cards.map((card, index) => actions.push({
     type: ActionKeys.UPDATE_CARD, id: card.id,
     card: { ...card, captured: true, top: (10 * index + 50), left: (10 * index + 10) }

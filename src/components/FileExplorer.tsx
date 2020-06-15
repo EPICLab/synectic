@@ -38,9 +38,9 @@ const FileExplorerComponent: React.FunctionComponent<{ rootId: UUID }> = props =
   const handleClick = async (e: React.MouseEvent, path: string) => {
     e.preventDefault();
     process.stdout.write(`handleClick => path:${path}\n`);
-    const metafilePayload = await extractMetafile(path, filetypes, repos);
+    const metafilePayload = await extractMetafile(path, filetypes, Object.values(metafiles), repos);
     metafilePayload.actions.map(action => dispatch(action));
-    if (metafilePayload.metafile.handler) dispatch(loadCard(metafilePayload.metafile));
+    if (metafilePayload.metafile.handler) dispatch(loadCard({ metafile: metafilePayload.metafile }));
   }
 
   return (

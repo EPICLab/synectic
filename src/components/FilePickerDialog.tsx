@@ -1,14 +1,10 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import { remote } from 'electron';
-import { RootState } from '../store/root';
 import { loadCard } from '../containers/handlers';
-import { extractMetafile } from '../containers/metafiles';
 
 const FilePickerButton: React.FunctionComponent = () => {
-  const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
-  const repos = useSelector((state: RootState) => Object.values(state.repos));
   const dispatch = useDispatch();
 
   const handleClick = async (e: React.MouseEvent) => {
@@ -27,9 +23,7 @@ const FilePickerButton: React.FunctionComponent = () => {
      * the Redux metafile update action directly.
      */
     if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => {
-      const metafilePayload = await extractMetafile(filePath, filetypes, repos);
-      metafilePayload.actions.map(action => dispatch(action));
-      if (metafilePayload.metafile.handler) dispatch(loadCard(metafilePayload.metafile));
+      dispatch(loadCard({ filepath: filePath }));
     });
   };
 
