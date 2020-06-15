@@ -101,7 +101,7 @@ describe('io.readFileAsync', () => {
   afterAll(mock.restore);
 
   it('readFileAsync resolves to string for text file content', async () => {
-    await expect(io.readFileAsync('foo/bar/some-file.txt', { encoding: 'utf8' })).resolves.toBe('file contents');
+    await expect(io.readFileAsync('foo/bar/some-file.txt', { encoding: 'utf-8' })).resolves.toBe('file contents');
   });
 
   it('readFileAsync resolves to Buffer for bytestring file content', async () => {
@@ -112,6 +112,31 @@ describe('io.readFileAsync', () => {
     await expect(io.readFileAsync('foo/bar/empty-dir/nonexist.js')).rejects.toThrow(/ENOENT/);
   });
 });
+
+describe('io.decompressBinaryObject', () => {
+  beforeAll(() => {
+    mock({
+      'plainfile.txt': 'no compression was used',
+      'e2': {
+        '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('decompressBinaryObject to decompress binary to UTF-8 string', async () => {
+    const compressed = await io.readFileAsync('e2/7bb34b0807ebf1b91bb66a4c147430cde4f08f');
+    return expect(io.decompressBinaryObject(compressed, 'utf-8')).toStrictEqual('blob 25\u0000My data fits on one line\n');
+  });
+
+  it('decompressBinaryObject to decompress string buffer to UTF-8 string', async () => {
+    const compressed = await io.readFileAsync('plainfile.txt');
+    return expect(io.decompressBinaryObject(compressed, 'utf-8')).toBe('no compression was used');
+  });
+});
+
+
 
 describe('io.readDirAsync', () => {
   beforeAll(() => {
@@ -263,7 +288,7 @@ describe('io.writeFileAsync', () => {
     const testPath = 'foo/bar/fileA.txt';
     await io.writeFileAsync(testPath, 'sample data');
     await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
-    await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('sample data');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('sample data');
   });
 
   it('writeFileAsync to resolve and write a new file with binary content', async () => {
@@ -282,8 +307,8 @@ describe('io.writeFileAsync', () => {
 
   it('writeFileAsync to resolve and overwrite an existing file with content', async () => {
     const testPath = 'foo/bar/fileD.txt';
-    await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('version 1');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('version 1');
     await io.writeFileAsync(testPath, 'version 2');
-    await expect(io.readFileAsync(testPath, { encoding: 'utf8' })).resolves.toBe('version 2');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('version 2');
   });
 });

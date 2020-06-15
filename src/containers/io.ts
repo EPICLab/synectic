@@ -1,6 +1,26 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import pako from 'pako';
+import { TextDecoder } from 'util';
 import { flatten } from './flatten';
+
+/**
+ * Encoding formats that adhere to the name of [Node.js-supported encodings](https://stackoverflow.com/questions/14551608/list-of-encodings-that-node-js-supports#14551669).
+ */
+export type nodeEncoding = 'ascii' | 'base64' | 'hex' | 'ucs-2' | 'utf-16le' | 'utf-8' | 'binary' | 'latin1';
+
+/**
+ * Encoding formats that adhere to the name of decoding algorithms available for 
+ * [TextDecoder.prototype.encoding](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder/encoding).
+ * Except for `bytes`, which directly maps to the notion of a `byte-array` in other languages. This format
+ * requires encoding in a `Uint8Array` within JavaScript/TypeScript.
+ */
+export type decoderEncoding = 'utf-8' | 'ibm866' | 'iso-8859-2' | 'iso-8859-3' | 'iso-8859-4' | 'iso-8859-5' |
+  'iso-8859-6' | 'iso-8859-7' | 'iso-8859-8' | 'iso-8859-8i' | 'iso-8859-10' | 'iso-8859-13' | 'iso-8859-14' |
+  'iso-8859-15' | 'iso-8859-16' | 'koi8-r' | 'koi8-u' | 'macintosh' | 'windows-874' | 'windows-1250' |
+  'windows-1251' | 'windows-1252' | 'windows-1253' | 'windows-1254' | 'windows-1255' | 'windows-1256' |
+  'windows-1257' | 'windows-1258' | 'x-mac-cyrillic' | 'gbk' | 'gb18030' | 'hz-gb-2312' | 'big5' | 'euc-jp' |
+  'iso-2022-jp' | 'shift-jis' | 'euc-kr' | 'iso-2022-kr' | 'utf-16be' | 'utf-16le' | 'bytes';
 
 /**
  * Extracts the file stats information from the filepath. Returns an `fs.Stats` class 
@@ -69,15 +89,15 @@ export const extractExtension = (filepath: fs.PathLike) => {
  * @param options Options object for setting either file encoding (default: `null`) or file system flags (default: `"r"`).
  * The possible option values are:
  * 
- * | encoding                 | description                                                                                                                                                   |
- * | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
- * | `"ascii"`                | ASCII (also ISO-IR-006) is a character encoding standard used as the base for most modern character-encoding schemes, typical defaults to US-ASCII variant.   |
- * | `"base64"`               | Base64 is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-64 representation.                        |
- * | `"hex"`                  | Hexidecimal (base16) is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-16 representation.          |
- * | `"ucs2"`/`"ucs-2"`       | UCS-2 (also ISO-10646) is a 2-byte character set for encoding Unicode characters under the Universal Character Set standard. Superseded by UTF-8 and UTF-16.  |
- * | `"utf16le"`/`"utf-16le"` | UTF-16 (also ISO-10646) is a variable-length (either one or tow 16-bit code units) for representing any Unicode character.                                    |
- * | `"utf8"`/`"utf-8"`       | UTF-8 (also ISO-10646) can represent any character in the Unicode standard using 1 to 4 bytes (8-bit) code units. UTF-8 is backwards compatible with ASCII.   |
- * | `"binary"`/`"latin1"`    | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages.                                                                  |
+ * | encoding              | description                                                                                                                                                   |
+ * | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ * | `"ascii"`             | ASCII (also ISO-IR-006) is a character encoding standard used as the base for most modern character-encoding schemes, typical defaults to US-ASCII variant.   |
+ * | `"base64"`            | Base64 is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-64 representation.                        |
+ * | `"hex"`               | Hexidecimal (base16) is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-16 representation.          |
+ * | `"ucs-2"`             | UCS-2 (also ISO-10646) is a 2-byte character set for encoding Unicode characters under the Universal Character Set standard. Superseded by UTF-8 and UTF-16.  |
+ * | `"utf-16le"`          | UTF-16 (also ISO-10646) is a variable-length (either one or tow 16-bit code units) for representing any Unicode character.                                    |
+ * | `"utf-8"`             | UTF-8 (also ISO-10646) can represent any character in the Unicode standard using 1 to 4 bytes (8-bit) code units. UTF-8 is backwards compatible with ASCII.   |
+ * | `"binary"`/`"latin1"` | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages.                                                                  |
  *
  * | flags   | description                                                                                                                  |
  * | ------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -96,12 +116,35 @@ export const extractExtension = (filepath: fs.PathLike) => {
  * | `"wx+"` | Like `"w+"` but fails if the path exists.                                                                                    |
  * @return A Promise object containing a Buffer, if no flag or encoding was provided, or a string of the file contents.
  */
-export function readFileAsync(filepath: fs.PathLike, options: { flag: string } | { encoding: string; flag?: string }): Promise<string>;
+export function readFileAsync(filepath: fs.PathLike, options: { flag: string } | { encoding: nodeEncoding; flag?: string }): Promise<string>;
 export function readFileAsync(filepath: fs.PathLike): Promise<Buffer>;
-export function readFileAsync(filepath: fs.PathLike, options?: { flag: string } | { encoding: string; flag?: string }): Promise<string> | Promise<Buffer> {
+export function readFileAsync(filepath: fs.PathLike, options?: { flag: string } | { encoding: nodeEncoding; flag?: string }): Promise<string> | Promise<Buffer> {
   const fullPath = path.resolve(filepath.toString());
   if (options) return fs.readFile(fullPath, options);
   else return fs.readFile(fullPath);
+}
+
+/**
+ * Decompress binary encoded content and return in the specified encoding; default is a `Utf8Array` for `bytes` binary data.
+ * This method is particularly useful for reading *Git Object* files. Git stores *Git Object* files in the *.git/objects* 
+ * directory, in a binary format that has been compressed using the `zlib` library. To read these files we use the `pako` 
+ * package, which is a performant JavaScript port of the `zlib` library packaged as a Node.js module.
+ * @param filepath A valid *Git Object* filename or path to read from.
+ * @return A Promise object containing the decoded file contents in the specified encoding; binary bytes are stored in
+ * a `Uint8Array`, and all others are returned as `string` types.
+ */
+export function decompressBinaryObject(filecontent: Buffer, format: 'bytes'): Uint8Array;
+export function decompressBinaryObject(filecontent: Buffer, format?: Exclude<decoderEncoding, 'bytes'>): string;
+export function decompressBinaryObject(filecontent: Buffer, format?: decoderEncoding) {
+  let decompressed: Uint8Array;
+  try {
+    decompressed = pako.inflate(filecontent);
+  } catch (error) {
+    decompressed = pako.inflate(pako.deflate(filecontent, { level: 1 }));
+  }
+  if (!format || format == 'bytes') return decompressed;
+  const decoder = new TextDecoder(format);
+  return decoder.decode(decompressed);
 }
 
 /**

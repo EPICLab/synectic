@@ -15,7 +15,7 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
 }
 
 /**
- * Compares two `ArrayBufferLike` objects for equility; compatible objects include `TypedArray`, `DataView`, 
+ * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 
  * and `Buffer`. However, `Buffer` has `.equals()` and `.compare()` functions for comparisons and these should 
  * be used in lieu of this function. `TypedArray` is a class of objects, which includes all of the following: 
  * `Int8Array`, `Uint8Array`, `Uint8ClampedArray`, `Int16Array` ,`Int32Array`, `Uint32Array`, `Float32Array`, 
