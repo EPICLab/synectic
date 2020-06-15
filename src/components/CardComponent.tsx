@@ -11,6 +11,7 @@ import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
 import { FormControl, Select, MenuItem, Input, makeStyles } from '@material-ui/core';
 import { DateTime } from 'luxon';
+import { checkoutFile } from '../containers/git';
 
 const useStyles = makeStyles({
   root: {
@@ -50,6 +51,7 @@ const ContentBack: React.FunctionComponent<Card> = props => {
       <span>Branch:</span><BranchList {...props} />
       <span>ID:</span><span className='field'>{props.id}</span>
       <span>Name:</span><span className='field'>{props.name}</span>
+      <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
     </>
   );
 };
@@ -65,9 +67,10 @@ const BranchList: React.FunctionComponent<Card> = props => {
   const checkout = (newRef: string) => {
     // not really checking out a new branch, since isomorphic-git is not being called (yet)
     console.log(`checkout: ${newRef}`);
+    if (metafile.path) checkoutFile(metafile.path, newRef);
     dispatch({
       type: ActionKeys.UPDATE_METAFILE, id: metafile.id, metafile: {
-        modified: DateTime.fromISO('2019-12-21T20:45:13.131-08:00'),
+        modified: DateTime.fromISO('1990-12-21T20:45:13.131-08:00'),
         ref: newRef
       }
     });
@@ -101,10 +104,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     canDrag: !props.captured
   });
 
-  const flip = () => {
-    console.log(`flip: ${flipped} => ${!flipped}`);
-    setFlipped(!flipped);
-  };
+  const flip = () => setFlipped(!flipped);
 
   return (
     <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
