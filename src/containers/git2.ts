@@ -10,7 +10,7 @@ import isUUID from 'validator/lib/isUUID';
 import { isWebUri } from 'valid-url';
 
 import * as io from './io';
-import { Repository, NarrowType } from '../types';
+import { Repository, NarrowType, Metafile, Error, UUID, Card } from '../types';
 import { RootState } from '../store/root';
 import { extractFromURL } from './git';
 import { Action, ActionKeys } from '../store/actions';
@@ -116,6 +116,25 @@ const updateRepository = (repo: Repository): NarrowType<Action, ActionKeys.UPDAT
     id: repo.id,
     repo: repo
   }
+}
+
+/**
+ * Action Creator for composing a valid ADD_ERROR Redux Action.
+ * @param metafile A `Metafile` object that does not contain a valid `handler` field.
+ * @return An `AddErrorAction` object that can be dispatched via Redux.
+ */
+const repositoryMissingError = (metafile: Metafile): NarrowType<Action, ActionKeys.ADD_ERROR> => {
+  const error: Error = {
+    id: v4(),
+    type: 'RepositoryMissingError',
+    target: metafile.id,
+    message: `Repository missing for metafile '${metafile.name}'`
+  };
+  return {
+    type: ActionKeys.ADD_ERROR,
+    id: error.id,
+    error: error
+  };
 }
 
 /**
