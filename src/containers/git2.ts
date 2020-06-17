@@ -157,10 +157,9 @@ export const updateBranches = (root: PathLike, repo: Repository): ThunkAction<Pr
   };
 
 /**
-* Action Creator for composing a valid UPDATE_CARD Redux Action. If the current Redux store does not contain a
-* matching card (based on UUID) for the passed parameter, then dispatching this action will not result in any
-* changes in the Redux state.
+* Action Creator for composing a valid UPDATE_CARD Redux Action which updates the associated Metafile information.
 * @param card A `Card` object containing new field values to be updated.
+* @param metafile: A `Metafile` object that represents the new metafile information for the card.
 * @return An `UpdateCardAction` object that can be dispatched via Redux.
 */
 const switchCardMetafile = (card: Card, metafile: Metafile): NarrowType<Action, ActionKeys.UPDATE_CARD> => {
@@ -176,6 +175,15 @@ const switchCardMetafile = (card: Card, metafile: Metafile): NarrowType<Action, 
   }
 }
 
+/**
+ * Thunk Action Creator for switching Git branches (or commit hash) and updating the associated metafile and card. Multiple cards
+ * can be associated with a single metafile, therefore switching branches requires a new (or at least different) metafile that
+ * refers to a new combination of `Repository` and `ref`.
+ * @param metafile A `Metafile` object containing information necessary for switching Git branches.
+ * @param ref Git branch name or commit hash; defaults to 'master'.
+ * @param cardId The UUID associated with the original metafile, and updated to refer to the updated metafile.
+ * @return An updated `Metafile` after all Redux Actions have been dispatched.
+ */
 export const checkoutRef = (metafile: Metafile, ref: string, cardId: UUID): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
   async (dispatch, getState) => {
     const repo = metafile.repo ? getState().repos[metafile.repo] : undefined;
