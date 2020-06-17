@@ -81,6 +81,9 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   }
 
   const showState = () => {
+    const allCards = Object.values(cards);
+    console.log(`CARDS: ${allCards.length}`)
+    allCards.map(c => console.log(`name: ${c.name}, type: ${c.type}`));
     console.log(`METAFILES: ${metafiles.length}`);
     metafiles.map(m => console.log(`name: ${m.name}, branch: ${m.ref}`));
     console.log(`REPOS: ${repos.length}`);
