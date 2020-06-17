@@ -156,9 +156,7 @@ export const getMetafile = (filepath: PathLike): ThunkAction<Promise<Metafile>, 
     const currentRef = currentBranch ? currentBranch : undefined; // type narrowing to convert void types to undefined
 
     const existing = currentRef ? metafiles.find(m => m.path == filepath && m.ref == currentRef) : metafiles.find(m => m.path == filepath);
-    if (existing) return dispatch(updateFileStats(existing as PathRequiredMetafile));
-
-    let metafile = dispatch(addMetafile(filepath, currentRef)).metafile;
+    let metafile = existing ? existing : dispatch(addMetafile(filepath, currentRef)).metafile;
     metafile = await dispatch(updateFileStats(metafile as PathRequiredMetafile));
     metafile = await dispatch(updateGitInfo(metafile as PathRequiredMetafile));
     metafile = await dispatch(updateFileContents(metafile as PathRequiredMetafile));

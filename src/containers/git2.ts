@@ -14,6 +14,7 @@ import { Repository, NarrowType, Metafile, Error, UUID, Card } from '../types';
 import { RootState } from '../store/root';
 import { extractFromURL } from './git';
 import { Action, ActionKeys } from '../store/actions';
+import { getMetafile } from './metafile2';
 
 /**
  * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to inject the 
@@ -154,6 +155,42 @@ export const updateBranches = (root: PathLike, repo: Repository): ThunkAction<Pr
     dispatch(updateRepository({ ...repo, refs: branches }));
     return getState().repos[repo.id];
   };
+
+/**
+* Action Creator for composing a valid UPDATE_CARD Redux Action. If the current Redux store does not contain a
+* matching card (based on UUID) for the passed parameter, then dispatching this action will not result in any
+* changes in the Redux state.
+* @param card A `Card` object containing new field values to be updated.
+* @return An `UpdateCardAction` object that can be dispatched via Redux.
+*/
+const switchCardMetafile = (card: Card, metafile: Metafile): NarrowType<Action, ActionKeys.UPDATE_CARD> => {
+  return {
+    type: ActionKeys.UPDATE_CARD,
+    id: card.id,
+    card: {
+      ...card,
+      name: metafile.name,
+      modified: metafile.modified,
+      related: [metafile.id]
+    }
+  }
+}
+
+export const checkoutRef = (metafile: Metafile, ref: string, cardId: UUID): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
+  async (dispatch, getState) => {
+    const repo = metafile.repo ? getState().repos[metafile.repo] : undefined;
+    if (!repo) dispatch(repositoryMissingError(metafile));
+    if (repo && metafile.path) {
+      console.log(`isomorphic-git.checkout(dir: ${repo.root.toString()})`);
+      // await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, remote: 'refs/heads', filepaths: [metafile.path.toString()] });
+      await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref });
+      console.log(`checkout complete...`);
+      const updatedMetafile = await dispatch(getMetafile(metafile.path));
+      dispatch(switchCardMetafile(getState().cards[cardId], updatedMetafile));
+    }
+    return getState().metafiles[metafile.id];
+  };
+
 
 /**
  * Thunk Action Creator for retrieving a `Repository` object associated with the given filepath. If the filepath is not under version

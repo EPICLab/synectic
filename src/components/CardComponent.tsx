@@ -10,8 +10,7 @@ import Diff from './Diff';
 import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
 import { FormControl, Select, MenuItem, Input, makeStyles } from '@material-ui/core';
-import { DateTime } from 'luxon';
-import { checkoutFile } from '../containers/git';
+import { checkoutRef } from '../containers/git2';
 
 const useStyles = makeStyles({
   root: {
@@ -44,20 +43,20 @@ const ContentBack: React.FunctionComponent<Card> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
+
   return (
     <>
       <div className='git_icon' /><span />
-      <span>Repo:</span><span className='field'>{repo.name}</span>
-      <span>Branch:</span><BranchList {...props} />
-      <span>ID:</span><span className='field'>{props.id}</span>
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
+      <span>Repo:</span><span className='field'>{repo.name}</span>
+      <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} />
     </>
   );
 };
 
-const BranchList: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
+const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string }> = props => {
+  const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
   const [ref, updateRef] = useState(metafile.ref ? metafile.ref : 'untracked');
@@ -67,14 +66,8 @@ const BranchList: React.FunctionComponent<Card> = props => {
   const checkout = (newRef: string) => {
     // not really checking out a new branch, since isomorphic-git is not being called (yet)
     console.log(`checkout: ${newRef}`);
-    if (metafile.path) checkoutFile(metafile.path, newRef);
-    dispatch({
-      type: ActionKeys.UPDATE_METAFILE, id: metafile.id, metafile: {
-        modified: DateTime.fromISO('1990-12-21T20:45:13.131-08:00'),
-        ref: newRef
-      }
-    });
     updateRef(newRef);
+    dispatch(checkoutRef(metafile, newRef, props.cardId));
   }
 
   return (
