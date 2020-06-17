@@ -191,7 +191,7 @@ export const checkoutRef = (metafile: Metafile, ref: string, cardId: UUID): Thun
     if (repo && metafile.path) {
       console.log(`isomorphic-git.checkout(dir: ${repo.root.toString()})`);
       // await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, remote: 'refs/heads', filepaths: [metafile.path.toString()] });
-      await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref });
+      await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, onProgress: (e) => console.log(e.phase) });
       console.log(`checkout complete...`);
       const updatedMetafile = await dispatch(getMetafile(metafile.path));
       dispatch(switchCardMetafile(getState().cards[cardId], updatedMetafile));
