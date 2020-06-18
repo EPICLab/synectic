@@ -72,9 +72,13 @@ const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowType<Actio
 }
 
 /**
- * Thunk Action Creator for processing and updati
+ * Thunk Action Creator for adding a new Card, either by providing a metafile with an appropriate handler
+ * field or by providing a filepath in order to read the filesystem and dispatch any necessary Redux
+ * store updates before loading a new Card. This function will load an error if the metafile does not
+ * contain a valid filetype handler.
  * @param metafile A `Metafile` object previously created or retrieved from the Redux state.
  * @param filepath The relative or absolute path to evaluate.
+ * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve a `Card` object.
  */
 export const loadCard = ({ metafile, filepath }: { metafile?: Metafile; filepath?: PathLike }): ThunkAction<Promise<Card | undefined>, RootState, undefined, AnyAction> => {
   return async (dispatch) => {
