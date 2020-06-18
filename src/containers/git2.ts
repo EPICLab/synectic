@@ -182,19 +182,26 @@ const switchCardMetafile = (card: Card, metafile: Metafile): NarrowType<Action, 
  * @param metafile A `Metafile` object containing information necessary for switching Git branches.
  * @param ref Git branch name or commit hash; defaults to 'master'.
  * @param cardId The UUID associated with the original metafile, and updated to refer to the updated metafile.
+ * @param progress Boolean switch to print phase progress information from `isomorphic-git.checkout()` to console
  * @return An updated `Metafile` after all Redux Actions have been dispatched.
  */
-export const checkoutRef = (metafile: Metafile, ref: string, cardId: UUID): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
+export const checkoutRef = (metafile: Metafile, ref: string, cardId: UUID, progress?: boolean): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
   async (dispatch, getState) => {
     const repo = metafile.repo ? getState().repos[metafile.repo] : undefined;
     if (!repo) dispatch(repositoryMissingError(metafile));
     if (repo && metafile.path) {
+      const baseRef = metafile.ref;
       console.log(`isomorphic-git.checkout(dir: ${repo.root.toString()})`);
       // await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, remote: 'refs/heads', filepaths: [metafile.path.toString()] });
-      await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, onProgress: (e) => console.log(e.phase) });
-      console.log(`checkout complete...`);
+      if (progress) await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, onProgress: (e) => console.log(e.phase) });
+      else await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref });
+
       const updatedMetafile = await dispatch(getMetafile(metafile.path));
       dispatch(switchCardMetafile(getState().cards[cardId], updatedMetafile));
+
+      // after updating the metafile, we need to switch the branch back
+      await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: baseRef });
+      console.log(`checkout complete...`);
     }
     return getState().metafiles[metafile.id];
   };
