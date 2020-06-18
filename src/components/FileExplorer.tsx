@@ -7,7 +7,6 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import { RootState } from '../store/root';
 import { UUID } from '../types';
-import { extractMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 
 type ClickEventHandler = (e: React.MouseEvent<Element, MouseEvent>, path: string) => Promise<void>;
@@ -28,24 +27,17 @@ const DirectoryComponent: React.FunctionComponent<{ metafileId: UUID; onClick: C
 };
 
 const FileExplorerComponent: React.FunctionComponent<{ rootId: UUID }> = props => {
-  const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
-  const repos = useSelector((state: RootState) => Object.values(state.repos));
-  const metafiles = useSelector((state: RootState) => state.metafiles);
-  const [root] = useState(metafiles[props.rootId]);
-  const [branch] = useState(root.ref ? root.ref : "Untracked")
+  const root = useSelector((state: RootState) => state.metafiles[props.rootId]);
   const dispatch = useDispatch();
 
   const handleClick = async (e: React.MouseEvent, path: string) => {
     e.preventDefault();
-    process.stdout.write(`handleClick => path:${path}\n`);
-    const metafilePayload = await extractMetafile(path, filetypes, Object.values(metafiles), repos);
-    metafilePayload.actions.map(action => dispatch(action));
-    if (metafilePayload.metafile.handler) dispatch(loadCard({ metafile: metafilePayload.metafile }));
+    dispatch(loadCard({ filepath: path }));
   }
 
   return (
     <div className='file-explorer'>
-      <div className='branch-ribbon-container'><p className='branch-ribbon-text'>{`Branch: ${branch}`}</p></div>
+      <div className='branch-ribbon-container'><p className='branch-ribbon-text'>{`Branch: ${root.ref}`}</p></div>
       <TreeView
         defaultParentIcon={<img width="20px" src="../assets/folder.svg" alt="Folder" />}
         defaultEndIcon={<div className="file-icon"><img width="20px" src="../assets/file.svg" alt="File" /></div>}
