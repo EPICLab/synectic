@@ -96,7 +96,7 @@
     "jest": "^26.0.1",
     "jest-environment-enzyme": "^7.1.1",
     "jest-enzyme": "^7.1.1",
-    "mock-fs": "^4.11.0",
+    "mock-fs": "^4.12.0",
     "node-loader": "^0.6.0",
     "react-dnd-test-backend": "^10.0.2",
     "react-test-renderer": "^16.13.0",
