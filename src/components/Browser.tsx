@@ -72,8 +72,6 @@ export const BrowserButton: React.FunctionComponent = () => {
       modified: DateTime.local(),
       handler: 'Browser'
     };
-    const addMetafileAction: Action = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
-    dispatch(addMetafileAction);
     dispatch(loadCard({ metafile: metafile }));
   };
 
