@@ -9,6 +9,7 @@ import sha1 from 'sha1';
 import * as io from './io';
 import { Repository, NarrowType } from '../types';
 import { ActionKeys, Action } from '../store/actions';
+import { getRepoRoot, currentBranch } from './git2';
 
 type AddOrUpdateRepoActions = NarrowType<Action, ActionKeys.ADD_REPO | ActionKeys.UPDATE_REPO>;
 type RepoPayload = { repo: (Repository | undefined); action: (AddOrUpdateRepoActions | undefined); branchRef: (string | undefined) };
@@ -16,114 +17,7 @@ type RepoPayload = { repo: (Repository | undefined); action: (AddOrUpdateRepoAct
 export * from 'isomorphic-git';
 
 /**
- * Get the name of the branch currently pointed to by .git/HEAD; this function is a wrapper to inject the 
- * fs parameter in to the isomorphic-git/currentBranch function.
- * @param dir The working tree directory path.
- * @param gitdir The git directory path.
- * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the 
- * abbreviated form.
- * @param test Boolean option to return 'undefined' if the current branch doesn't actually exist 
- * (such as 'master' right after git init).
- * @return A Promise object containing the current branch name, or undefined if the HEAD is detached.
- */
-export const currentBranch = ({ dir, gitdir, fullname, test }: {
-  dir?: string;
-  gitdir?: string;
-  fullname?: boolean;
-  test?: boolean;
-}): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
-
-/**
- * Find the root Git directory. Starting at filepath, walks upward until it finds a directory that 
- * contains a subdirectory called '.git'.
- * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing the root Git directory path, or undefined if no root Git
- * directory exists for the filepath (i.e. the filepath is not part of a Git repo).
- */
-export const getRepoRoot = async (filepath: fs.PathLike) => {
-  try {
-    const root = await isogit.findRoot({ fs: fs, filepath: filepath.toString() });
-    return root;
-  }
-  catch (e) {
-    return undefined;
-  }
-};
-
-/**
- * Asynchronous check for presence of .git within directory to validate Git version control.
- * @param filepath The relative or absolute path to evaluate. 
- * @return A Promise object containing true if filepath contains a .git subdirectory (or points 
- * directly to the .git directory), and false otherwise.
- */
-export const isGitRepo = async (filepath: fs.PathLike) => {
-  const stats = await io.extractStats(filepath);
-  const directory = stats?.isDirectory() ? filepath.toString() : path.dirname(filepath.toString());
-  if (directory === undefined) return false;
-  const gitPath = (path.basename(directory) === '.git') ? directory : path.join(directory, '/.git');
-  const gitStats = await io.extractStats(gitPath);
-  if (gitStats === undefined) return false;
-  else return true;
-};
-
-export const checkout = ({ dir, gitdir, remote, ref, filepaths, noCheckout, noUpdateHead, dryRun, force }: {
-  dir: string;
-  gitdir?: string;
-  ref?: string;
-  filepaths?: string[];
-  remote?: string;
-  noCheckout?: boolean;
-  noUpdateHead?: boolean;
-  dryRun?: boolean;
-  force?: boolean;
-}): Promise<void> => isogit.checkout({ fs: fs, dir: dir, gitdir: gitdir, ref: ref, filepaths: filepaths, remote: remote, noCheckout: noCheckout, noUpdateHead: noUpdateHead, dryRun: dryRun, force: force })
-
-/**
- * Checkout a branch or commit; this function is a wrapper to simplify the parameter list and inject the
- * fs parameter into the isomorphic-git/checkout function. If the branch already exists it will check out 
- * that branch. Otherwise, it will create a new remote tracking branch set to track the remote branch of 
- * that name. If a commit hash is provided it will revert to that commit and the HEAD will be detached.
- * @param filepath The relative or absolute path of a file or directory to checkout.
- * @param ref (Optional) Git branch name or commit hash; defaults to 'master'.
- * @param test Boolean option to simulate a checkout in order to test whether it will succeed.
- * @return A Promise object that must resolved.
- */
-export const checkoutFile = async (filepath: fs.PathLike, ref = 'master') => {
-  const root = await getRepoRoot(filepath);
-  if (!root) return;
-  const current = await currentBranch({ dir: root, fullname: false });
-  const relativePath = path.relative(root, filepath.toString());
-  const headRefDir = await io.extractStats(`${root}/.git/refs/heads/${ref}`);
-  // const headRefDir = await io.extractStats(`${root}/.git/refs/heads/remote-only`);
-  process.stdout.write(`${root}/.git/refs/heads/${ref}: ${headRefDir ? 'defined' : 'undefined'}\n`);
-  process.stdout.write(`root: ${root}\ncurrent: ${current}\nrelativePath: ${relativePath}\n`);
-  process.stdout.write(`checkout({\nfs: fs,\ndir: ${root},\nref: ${ref},\ndryRun: true\n })\n`);
-
-  return checkout({ dir: root, ref: ref, remote: 'refs/heads', filepaths: ['testcheck'] });
-
-  // if (test) return isogit.checkout({ fs: fs, dir: root, ref: ref, remote: 'refs/heads', dryRun: true });
-  // else return isogit.checkout({ fs: fs, dir: root, ref: ref });
-};
-
-// export const checkoutF = ({ dir, gitdir, fullname, test }: {
-//   dir?: string;
-//   gitdir?: string;
-//   fullname?: boolean;
-//   test?: boolean;
-// }): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
-
-// export const checkoutF = ({ fs, onProgress, dir, gitdir, remote, ref: _ref, filepaths, noCheckout, noUpdateHead, dryRun, force, }: {
-//   fs: isogit.CallbackFsClient | isogit.PromiseFsClient;
-//   onProgress ?: isogit.ProgressCallback | undefined;
-//   dir: string;
-//   gitdir ?: string | undefined;
-//   ref ?: string | undefined;
-//     ... 5 more ...;
-//   force ?: boolean | undefined;
-// }): Promise <...>
-
-/**
- * 
+ * @deprecated
  * @param filepath The relative or absolute path of a file compressed and prepended with git head and tail.
  */
 export const extractGitCompressed = async (filepath: fs.PathLike) => {
@@ -133,6 +27,10 @@ export const extractGitCompressed = async (filepath: fs.PathLike) => {
   return decompressed;
 };
 
+/**
+ * @deprecated
+ * @param input 
+ */
 export const base64ToUint8Array = (input: string): Uint8Array => {
   const raw = atob(input);
   const array = new Uint8Array(new ArrayBuffer(raw.length));
@@ -142,21 +40,8 @@ export const base64ToUint8Array = (input: string): Uint8Array => {
   return array;
 }
 
-// export const readGitObject = async (filepath: fs.PathLike, format: io.decoderEncoding = 'utf-8') => {
-//   const compressed = await io.readFileAsync(filepath);
-//   let decompressed: Uint8Array;
-//   try {
-//     decompressed = pako.inflate(compressed);
-//   } catch (error) {
-//     decompressed = pako.inflate(pako.deflate(compressed, { level: 1 }));
-//   }
-//   if (format == 'binary') return decompressed;
-//   const decodedContents = new TextDecoder(format).decode(decompressed);
-//   return decodedContents
-// };
-
-// TODO: Evaluate whether to remove this function
 /**
+ * @deprecated
  * Read and return the Uint8Array representation of the file contents, which translates into an array of numbers representing
  * the binary content of the file. Good for inserting into Buffer.from() in order to mock up these *Git Object* files.
  * @deprecated Will remove in the future, since this is just syntactic sugar for constructing a mock Git-tracked project.
@@ -174,14 +59,20 @@ export const readGitObjectToUint8Array = async (filepath: fs.PathLike) => {
   return decompressed;
 }
 
-// TODO: Probably another temporary function
+/**
+ * @deprecated
+ * @param filepath 
+ */
 export const explodeHash = async (filepath: fs.PathLike) => {
   const decoded = io.decompressBinaryObject(await io.readFileAsync(filepath))
   const hash = sha1(decoded);
   return hash;
 }
 
-// TODO: Probably another temporary function
+/**
+ * @deprecated
+ * @param filepath 
+ */
 export const explodeGitFile = async (filepath: fs.PathLike) => {
   const targetHash = io.extractDirname(filepath) + io.extractFilename(filepath);
   const binary = await readGitObjectToUint8Array(filepath);
@@ -190,11 +81,18 @@ export const explodeGitFile = async (filepath: fs.PathLike) => {
   return { file: filepath.toString(), targetHash: targetHash, binary: binary, decoded: decoded, hash: hash };
 }
 
-// TODO: Another temporary function.
+/**
+ * @deprecated
+ * @param files 
+ */
 export const explodeGitFiles = async (files: fs.PathLike[]) => {
   return await Promise.all(files.map(file => explodeGitFile(file)));
 };
 
+/**
+ * @deprecated
+ * @param dirPath 
+ */
 export const pipelinePathToExploded = async (dirPath: fs.PathLike) => {
   const fsObjects = await io.readDirAsyncDeep(dirPath, false);
   const files = await io.filterReadArray(fsObjects, true);
@@ -263,6 +161,7 @@ export const getStatus = async (filepath: fs.PathLike) => {
 }
 
 /**
+ * @deprecated
  * Extract all necessary Git repository metadata from the root Git directory associated with the filepath, either 
  * by locating an existing repository and branch ref in the Redux state or creating Redux actions to add and 
  * update the state as needed.
