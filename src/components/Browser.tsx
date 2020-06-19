@@ -4,7 +4,6 @@ import { v4 } from 'uuid';
 import { useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
 import { Metafile } from '../types';
-import { Action, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 
 type BrowserState = {
