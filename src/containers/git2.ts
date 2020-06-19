@@ -191,7 +191,6 @@ export const checkoutRef = (metafile: Metafile, ref: string, cardId: UUID, progr
     if (!repo) dispatch(repositoryMissingError(metafile));
     if (repo && metafile.path) {
       const baseRef = metafile.ref;
-      // await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, remote: 'refs/heads', filepaths: [metafile.path.toString()] });
       if (progress) await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref, onProgress: (e) => console.log(e.phase) });
       else await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: ref });
 
