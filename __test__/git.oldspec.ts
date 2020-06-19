@@ -92,18 +92,6 @@ beforeEach(() => {
 
 afterEach(mock.restore);
 
-// describe('git.checkoutFile', () => {
-//   it('checkoutFile updates to master branch', async () => {
-//     return expect(git.checkoutFile('baz/some-file.js', 'master', true)).resolves.toBeDefined();
-//   });
-
-//   it('checkoutFile fails with a CommitNotFetchedError on non-local branches', async () => {
-//     // CommitNotFetchedError is thrown when a the latest commit for a branch is not available locally 
-//     // (i.e. the branch needs to be updated via git fetch)
-//     return expect(git.checkoutFile('baz/some-file.js', 'remote-only', true)).rejects.toThrow(/Failed to checkout .* because commit .* is not available locally/);
-//   });
-// });
-
 describe('git.currentBranch', () => {
   it('currentBranch resolves to Git branch name on a tracked directory', async () => {
     return expect(git.currentBranch({ dir: 'baz/' })).resolves.toBe('feature/test');
