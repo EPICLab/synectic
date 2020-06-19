@@ -4,9 +4,9 @@ import * as ace from 'ace-builds'; // ace module
 ace.config.set('basePath', '');
 ace.config.set('modePath', '');
 ace.config.set('themePath', '');
-import AceEditor, { IMarker } from 'react-ace';
-import { AceEditorClass } from 'react-ace/lib/AceEditorClass';
+import AceEditor from 'react-ace';
 import ReactAce from 'react-ace/lib/ace';
+import { IAceEditor } from 'react-ace/lib/types';
 
 import { wrapInTestContext } from './__mocks__/dndReduxMock';
 import { getMockStore } from './__mocks__/reduxStoreMock';
@@ -31,14 +31,13 @@ describe('Editor', () => {
   it('Editor component should render AceEditor markers', () => {
     const EditorContext = wrapInTestContext(Editor, store);
     const wrapper = mount(<EditorContext metafileId='199' />, mountOptions);
-    const editor: AceEditorClass = (wrapper.find(AceEditor).first().instance() as ReactAce).editor;
-    const marker: IMarker = {
-      startRow: 3, startCol: 0, endRow: 3, endCol: 10, type: 'text', className: 'test-marker'
-    };
-    editor.getSession().addMarker(marker);
+    const editor: IAceEditor = (wrapper.find(AceEditor).first().instance() as ReactAce).editor;
+    const range: ace.Ace.Range = new ace.Range(3, 0, 3, 10);
+    editor.getSession().addMarker(range, 'test-marker', 'text');
+    const markers = editor.getSession().getMarkers();
 
-    expect(editor.getSession().getMarkers()['3'].range.className).toBe('test-marker');
-    expect(editor.getSession().getMarkers()['3'].range.type).toBe('text');
+    expect(markers[3].clazz).toBe('test-marker');
+    expect(markers[3].type).toBe('text');
     expect(editor.getSession().getMarkers()).toMatchSnapshot();
   });
 });
