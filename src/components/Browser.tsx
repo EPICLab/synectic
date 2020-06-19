@@ -64,7 +64,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
 export const BrowserButton: React.FunctionComponent = () => {
   const dispatch = useDispatch();
 
-  const handleClick = async (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     const metafile: Metafile = {
       id: v4(),
