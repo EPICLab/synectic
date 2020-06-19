@@ -39,7 +39,7 @@
     "@types/sha1": "^1.1.2",
     "diff": "^4.0.2",
     "electron-squirrel-startup": "^1.0.0",
-    "file-type": "^14.1.4",
+    "file-type": "^14.6.2",
     "fs-extra": "^8.1.0",
     "immutability-helper": "^3.0.1",
     "isomorphic-git": "^1.5.0",
