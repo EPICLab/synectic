@@ -1,22 +1,26 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import pako from 'pako';
+import { TextDecoder } from 'util';
 import { flatten } from './flatten';
 
 /**
- * Converts a JavaScript Object Notation (JSON) string into a typed object.
- * @param json A valid JSON string.
- * @return A typed object (or nested array of objects).
+ * Encoding formats that adhere to the name of [Node.js-supported encodings](https://stackoverflow.com/questions/14551608/list-of-encodings-that-node-js-supports#14551669).
  */
-export const deserialize = <T>(json: string) => JSON.parse(json) as T;
+export type nodeEncoding = 'ascii' | 'base64' | 'hex' | 'ucs-2' | 'utf-16le' | 'utf-8' | 'binary' | 'latin1';
 
 /**
- * Filters an array and removes any undefined elements contained within it.
- * @param array The given array of elements that should be filtered for undefined.
- * @return The resulting array devoid of any undefined elements.
+ * Encoding formats that adhere to the name of decoding algorithms available for 
+ * [TextDecoder.prototype.encoding](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder/encoding).
+ * Except for `bytes`, which directly maps to the notion of a `byte-array` in other languages. This format
+ * requires encoding in a `Uint8Array` within JavaScript/TypeScript.
  */
-export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
-  return array.filter((item): item is T => typeof item !== 'undefined');
-}
+export type decoderEncoding = 'utf-8' | 'ibm866' | 'iso-8859-2' | 'iso-8859-3' | 'iso-8859-4' | 'iso-8859-5' |
+  'iso-8859-6' | 'iso-8859-7' | 'iso-8859-8' | 'iso-8859-8i' | 'iso-8859-10' | 'iso-8859-13' | 'iso-8859-14' |
+  'iso-8859-15' | 'iso-8859-16' | 'koi8-r' | 'koi8-u' | 'macintosh' | 'windows-874' | 'windows-1250' |
+  'windows-1251' | 'windows-1252' | 'windows-1253' | 'windows-1254' | 'windows-1255' | 'windows-1256' |
+  'windows-1257' | 'windows-1258' | 'x-mac-cyrillic' | 'gbk' | 'gb18030' | 'hz-gb-2312' | 'big5' | 'euc-jp' |
+  'iso-2022-jp' | 'shift-jis' | 'euc-kr' | 'iso-2022-kr' | 'utf-16be' | 'utf-16le' | 'bytes';
 
 /**
  * Extracts the file stats information from the filepath. Returns an `fs.Stats` class 
@@ -43,10 +47,11 @@ export const extractStats = (filepath: fs.PathLike) => {
  * @return A string containing the file basename.
  */
 export const extractFilename = (filepath: fs.PathLike) => {
-  const filename = filepath.toString().split(/[\\/]/).pop();
-  if (filename === undefined) return filepath.toString();
-  else return filename;
-}
+  const filename = filepath.toString().split(/[\\/]/).pop() as string;
+  // filename can safely be cast as string because although pop() has a return type of string | undefined, it
+  // cannot actually return undefined because split() returns string[] that is at worst empty
+  return filename;
+};
 
 /**
  * Extract the directory name from the path. Returns the nearest directory name, excluding file separators 
@@ -57,12 +62,12 @@ export const extractFilename = (filepath: fs.PathLike) => {
  * @return A string containing the directory name.
  */
 export const extractDirname = (filepath: fs.PathLike) => {
-  const trailingSeparator = (filepath.toString().slice(-1)[0].match(/[\\/]/) !== null);
+  const trailingSeparator = filepath.toString().slice(-1)[0]?.match(/[\\/]/) !== null;
   const expandedPath = filepath.toString().split(/[\\/]/);
   if (expandedPath.length > 1) return expandedPath[expandedPath.length - 2];
   if (trailingSeparator) return expandedPath[expandedPath.length - 1];
   else return '';
-}
+};
 
 /**
  * Extract the file extension from the path. Returns the extension after the last period character in the path, 
@@ -72,23 +77,74 @@ export const extractDirname = (filepath: fs.PathLike) => {
  * @return A string containing the file extension.
  */
 export const extractExtension = (filepath: fs.PathLike) => {
-  const ext = filepath.toString().split('.').pop();
-  if (ext === undefined) return filepath.toString();
-  else return ext;
+  const ext = filepath.toString().split('.').pop() as string;
+  // ext can safely be cast as string because although pop() has a return type of string | undefined, it
+  // cannot actually return undefined because split() returns string[] that is at worst empty
+  return ext;
+};
+
+/**
+ * Asynchronously read file contents into a Buffer or string.
+ * @param filepath A valid filename or path to read from.
+ * @param options Options object for setting either file encoding (default: `null`) or file system flags (default: `"r"`).
+ * The possible option values are:
+ * 
+ * | encoding              | description                                                                                                                                                   |
+ * | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ * | `"ascii"`             | ASCII (also ISO-IR-006) is a character encoding standard used as the base for most modern character-encoding schemes, typical defaults to US-ASCII variant.   |
+ * | `"base64"`            | Base64 is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-64 representation.                        |
+ * | `"hex"`               | Hexidecimal (base16) is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-16 representation.          |
+ * | `"ucs-2"`             | UCS-2 (also ISO-10646) is a 2-byte character set for encoding Unicode characters under the Universal Character Set standard. Superseded by UTF-8 and UTF-16.  |
+ * | `"utf-16le"`          | UTF-16 (also ISO-10646) is a variable-length (either one or tow 16-bit code units) for representing any Unicode character.                                    |
+ * | `"utf-8"`             | UTF-8 (also ISO-10646) can represent any character in the Unicode standard using 1 to 4 bytes (8-bit) code units. UTF-8 is backwards compatible with ASCII.   |
+ * | `"binary"`/`"latin1"` | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages.                                                                  |
+ *
+ * | flags   | description                                                                                                                  |
+ * | ------- | ---------------------------------------------------------------------------------------------------------------------------- |
+ * | `"a"`   | Open file for appending. The file is created if it does not exist.                                                           |
+ * | `"ax"`  | Like `"a"` but fails if the path exists.                                                                                     |
+ * | `"a+"`  | Open file for reading and appending. The file is created if it does not exist.                                               |
+ * | `"ax+"` | Like `"a+"` but fails if the path exists.                                                                                    |
+ * | `"as"`  | Open file for appending in synchronous mode. The file is created if it does not exist.                                       |
+ * | `"as+"` | Open file for reading and appending in synchronous mode. The file is created if it does not exist.                           |
+ * | `"r"`   | Open file for reading. An exception occurs if the file does not exist.                                                       |
+ * | `"r+"`  | Open file for reading and writing. An exception occurs if the file does not exist.                                           |
+ * | `"rs+"` | Open file for reading and writing in synchronous mode. Instructs the operating system to bypass the local file system cache. |
+ * | `"w"`   | Open file for writing. The file is created (if it does not exist) or truncated (if it exists).                               |
+ * | `"wx"`  | Like `"w"` but fails if the path exists.                                                                                     |
+ * | `"w+"`  | Open file for reading and writing. The file is created (if it does not exist) or truncated (if it exists).                   |
+ * | `"wx+"` | Like `"w+"` but fails if the path exists.                                                                                    |
+ * @return A Promise object containing a Buffer, if no flag or encoding was provided, or a string of the file contents.
+ */
+export function readFileAsync(filepath: fs.PathLike, options: { flag: string } | { encoding: nodeEncoding; flag?: string }): Promise<string>;
+export function readFileAsync(filepath: fs.PathLike): Promise<Buffer>;
+export function readFileAsync(filepath: fs.PathLike, options?: { flag: string } | { encoding: nodeEncoding; flag?: string }): Promise<string> | Promise<Buffer> {
+  const fullPath = path.resolve(filepath.toString());
+  if (options) return fs.readFile(fullPath, options);
+  else return fs.readFile(fullPath);
 }
 
 /**
- * Asynchronously read file contents into a string.
- * @param filepath A valid filename or path to read from.
- * @return A Promise object for a string containing the file contents.
+ * Decompress binary encoded content and return in the specified encoding; default is a `Utf8Array` for `bytes` binary data.
+ * This method is particularly useful for reading *Git Object* files. Git stores *Git Object* files in the *.git/objects* 
+ * directory, in a binary format that has been compressed using the `zlib` library. To read these files we use the `pako` 
+ * package, which is a performant JavaScript port of the `zlib` library packaged as a Node.js module.
+ * @param filepath A valid *Git Object* filename or path to read from.
+ * @return A Promise object containing the decoded file contents in the specified encoding; binary bytes are stored in
+ * a `Uint8Array`, and all others are returned as `string` types.
  */
-export const readFileAsync = (filepath: fs.PathLike): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path.resolve(filepath.toString()), (error, result) => {
-      if (error) reject(error);
-      else resolve(result.toString());
-    });
-  });
+export function decompressBinaryObject(filecontent: Buffer, format: 'bytes'): Uint8Array;
+export function decompressBinaryObject(filecontent: Buffer, format?: Exclude<decoderEncoding, 'bytes'>): string;
+export function decompressBinaryObject(filecontent: Buffer, format?: decoderEncoding) {
+  let decompressed: Uint8Array;
+  try {
+    decompressed = pako.inflate(filecontent);
+  } catch (error) {
+    decompressed = pako.inflate(pako.deflate(filecontent, { level: 1 }));
+  }
+  if (!format || format == 'bytes') return decompressed;
+  const decoder = new TextDecoder(format);
+  return decoder.decode(decompressed);
 }
 
 /**
@@ -96,8 +152,8 @@ export const readFileAsync = (filepath: fs.PathLike): Promise<string> => {
  * @param filepath A valid directory path to read from.
  * @return A Promise object for an array of filenames.
  */
-export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
-  return new Promise((resolve, reject) => {
+export const readDirAsync = (filepath: fs.PathLike) => {
+  return new Promise<string[]>((resolve, reject) => {
     fs.readdir(path.resolve(filepath.toString()), (error, files) => {
       if (error) reject(error);
       else resolve(files);
@@ -114,7 +170,7 @@ export const isDirectory = async (filepath: fs.PathLike) => (await fs.stat(filep
 
 /**
  * Asynchronously and recursively descends from a root path directory to extract the contents of each
- * child directory. Returns filepaths of all child directories and files, including root path if inclusive
+ * child directory. Returns filepaths of all child directories and files, including root path if `inclusive`
  * option is enabled (default).
  * @param filepath The relative or absolute path of the root directory to evaluate.
  * @param inclusive (Optional) Flag for including root directory and intermediate directories in output; defaults to true.
@@ -126,22 +182,77 @@ export const readDirAsyncDeep = async (filepath: fs.PathLike, inclusive = true):
     return (await isDirectory(fullPath)) ? await readDirAsyncDeep(fullPath) : fullPath;
   }));
   return inclusive ? [...flatten(files), filepath.toString()] : flatten(files);
-}
+};
 
 /**
- * Asynchronously write data to a file. Creates a new file if none exists; will 
- * destructively rewrite existing files.
- * @param filepath A valid filename or path to write data to.
- * @param data A Promise object for the file write operation; where errors cause a rejection.
+ * Asynchronously filter for either directories or files from an array of both. Returns filepaths
+ * of all child directories (default), or all child files if `fileOnly` option is enabled.
+ * @param filepaths Array containing filepaths for directories and files.
+ * @param fileOnly (Optional) Flag for returning only filepaths for files; defaults to false.
+ * @Return A Promise object for an array containing filepaths for either all child directories or all child files.
  */
-export const writeFileAsync = (filepath: fs.PathLike, data: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(path.resolve(filepath.toString()), data, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
+export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false) => {
+  return await filepaths.reduce(async (previousPromise: Promise<fs.PathLike[]>, filepath: fs.PathLike) => {
+    const collection = await previousPromise;
+    const directory = await isDirectory(filepath);
+    if (fileOnly && !directory) collection.push(filepath);
+    if (!fileOnly && directory) collection.push(filepath);
+    return collection;
+  }, Promise.resolve([]));
+};
+
+/**
+ * Asynchronously write data to a file. Creates a new file if none exists; will destructively rewrite existing files.
+ * @param filepath A valid filename or path to write data to.
+ * @param data A string or buffer containing data to be written.
+ * @param options Options object for setting file encoding (default: `"utf8"`), file mode (default: `0o666`), and file system flags (default: `"w"`).
+ * The possible option values are:
+ *
+ * | encoding                 | description                                                                                                                                                   |
+ * | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ * | `"ascii"`                | ASCII (also ISO-IR-006) is a character encoding standard used as the base for most modern character-encoding schemes, typical defaults to US-ASCII variant.   |
+ * | `"base64"`               | Base64 is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-64 representation.                        |
+ * | `"hex"`                  | Hexidecimal (base16) is a binary-to-text coding scheme that represents data in an ASCII string format by translating into a radix-16 representation.          |
+ * | `"ucs2"`/`"ucs-2"`       | UCS-2 (also ISO-10646) is a 2-byte character set for encoding Unicode characters under the Universal Character Set standard. Superseded by UTF-8 and UTF-16.  |
+ * | `"utf16le"`/`"utf-16le"` | UTF-16 (also ISO-10646) is a variable-length (either one or tow 16-bit code units) for representing any Unicode character.                                    |
+ * | `"utf8"`/`"utf-8"`       | UTF-8 (also ISO-10646) can represent any character in the Unicode standard using 1 to 4 bytes (8-bit) code units. UTF-8 is backwards compatible with ASCII.   |
+ * | `"binary"`/`"latin1"`    | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages.                                                                  |
+ *
+ * Mode adheres to the Unix/Linux permissions model. This model contain Read, Write, and Execute permissions that are combined into an octal value
+ * representing the combined permissions for each of the Owner, Group, and Other (world) attributes. For embedding purposes the permissions are
+ * stored with a umask; e.g. `0o753` represents the permission octal `7` for Owner, `5` for Group, and `3` for Other (world).
+ * The absolute octal permissions are:
+ *
+ * | octal | description                    |
+ * | ----- | ------------------------------ |
+ * | `0`   | No permission                  |
+ * | `1`   | Execute permission             |
+ * | `2`   | Write permission               |
+ * | `3`   | Execute and write permission   |
+ * | `4`   | Read permission                |
+ * | `5`   | Read and execute permission    |
+ * | `6`   | Read and write permission      |
+ * | `7`   | All permissions                |
+ *
+ * | flags   | description                                                                                                                  |
+ * | ------- | ---------------------------------------------------------------------------------------------------------------------------- |
+ * | `"a"`   | Open file for appending. The file is created if it does not exist.                                                           |
+ * | `"ax"`  | Like `"a"` but fails if the path exists.                                                                                     |
+ * | `"a+"`  | Open file for reading and appending. The file is created if it does not exist.                                               |
+ * | `"ax+"` | Like `"a+"` but fails if the path exists.                                                                                    |
+ * | `"as"`  | Open file for appending in synchronous mode. The file is created if it does not exist.                                       |
+ * | `"as+"` | Open file for reading and appending in synchronous mode. The file is created if it does not exist.                           |
+ * | `"r"`   | Open file for reading. An exception occurs if the file does not exist.                                                       |
+ * | `"r+"`  | Open file for reading and writing. An exception occurs if the file does not exist.                                           |
+ * | `"rs+"` | Open file for reading and writing in synchronous mode. Instructs the operating system to bypass the local file system cache. |
+ * | `"w"`   | Open file for writing. The file is created (if it does not exist) or truncated (if it exists).                               |
+ * | `"wx"`  | Like `"w"` but fails if the path exists.                                                                                     |
+ * | `"w+"`  | Open file for reading and writing. The file is created (if it does not exist) or truncated (if it exists).                   |
+ * | `"wx+"` | Like `"w+"` but fails if the path exists.                                                                                    |
+ * @return A Promise object for the file write operation; where errors cause a rejection.
+ */
+export const writeFileAsync = (filepath: fs.PathLike, data: string | Buffer, options?: { encoding?: string; flag?: string; mode?: number }): Promise<void> => {
+  const fullPath = path.resolve(filepath.toString());
+  if (options) return fs.writeFile(fullPath, data, options);
+  else return fs.writeFile(fullPath, data);
+};

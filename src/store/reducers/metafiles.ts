@@ -1,8 +1,8 @@
-import { Actions, ActionKeys } from '../actions';
+import { Action, ActionKeys } from '../actions';
 import { Metafile } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject, updateMatchesInMap } from '../immutables';
 
-export const metafileReducer = (state: { [id: string]: Metafile } = {}, action: Actions) => {
+export const metafileReducer = (state: { [id: string]: Metafile } = {}, action: Action) => {
   switch (action.type) {
     case ActionKeys.ADD_METAFILE:
       return addItemInMap(state, action.metafile);

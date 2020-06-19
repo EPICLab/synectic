@@ -9,6 +9,7 @@ describe('repoReducer', () => {
     '23': {
       id: '23',
       name: 'sampleUser/myRepo',
+      root: 'sampleUser/',
       corsProxy: new URL('http://www.oregonstate.edu'),
       url: parsePath('https://github.com/sampleUser/myRepo'),
       refs: ['942043', '234412', '194724'],
@@ -22,6 +23,7 @@ describe('repoReducer', () => {
   const newRepo: Repository = {
     id: '17',
     name: 'sampleUser/forkedRepo',
+    root: '/',
     corsProxy: new URL('http://www.oregonstate.edu'),
     url: parsePath('https://github.com/sampleUser/forkedRepo'),
     refs: ['601421', '843449'],

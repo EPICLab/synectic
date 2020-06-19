@@ -1,8 +1,8 @@
-import { Actions, ActionKeys } from '../actions';
+import { Action, ActionKeys } from '../actions';
 import { Stack } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
-export const stackReducer = (state: { [id: string]: Stack } = {}, action: Actions) => {
+export const stackReducer = (state: { [id: string]: Stack } = {}, action: Action) => {
   switch (action.type) {
     case ActionKeys.ADD_STACK:
       return addItemInMap(state, action.stack);

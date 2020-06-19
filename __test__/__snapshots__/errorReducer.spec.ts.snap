@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`errorReducer errorReducer appends a new error to state on action ADD_ERROR 1`] = `
+Object {
+  "92": Object {
+    "id": "92",
+    "message": "Repository missing for metafile 'sampleUser/myRepo'",
+    "target": "23",
+    "type": "RepositoryMissingError",
+  },
+  "94": Object {
+    "id": "94",
+    "message": "Metafile 'sampleUser/myRepo' missing handler to resolve filetype: 'TypeScript'",
+    "target": "19",
+    "type": "HandlerMissingError",
+  },
+}
+`;
+
+exports[`errorReducer errorReducer returns default state when current state is blank 1`] = `
+Object {
+  "94": Object {
+    "id": "94",
+    "message": "Metafile 'sampleUser/myRepo' missing handler to resolve filetype: 'TypeScript'",
+    "target": "19",
+    "type": "HandlerMissingError",
+  },
+}
+`;

@@ -144,6 +144,7 @@ const initialState: initStateT = {
     13: {
       id: '13',
       name: 'test/repo',
+      root: '/',
       corsProxy: new URL('http://www.random_proxy.edu'),
       url: parsePath('http://www.random_proxy.edu'),
       refs: ['master'],

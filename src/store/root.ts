@@ -5,6 +5,7 @@ import { cardReducer } from './reducers/cards';
 import { filetypeReducer } from './reducers/filetypes';
 import { metafileReducer } from './reducers/metafiles';
 import { reposReducer } from './reducers/repos';
+import { errorReducer } from './reducers/errors';
 
 export const rootReducer = combineReducers({
   canvas: canvasReducer,
@@ -12,7 +13,8 @@ export const rootReducer = combineReducers({
   cards: cardReducer,
   filetypes: filetypeReducer,
   metafiles: metafileReducer,
-  repos: reposReducer
+  repos: reposReducer,
+  errors: errorReducer
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

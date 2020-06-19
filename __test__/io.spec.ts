@@ -1,23 +1,6 @@
 import mock from 'mock-fs';
-import * as fs from 'fs-extra';
 import * as io from '../src/containers/io';
-
-describe('io.deserialize', () => {
-  it('deserialize to parse a JSON string into a TypeScript object', () => {
-    const json = '{"result":true, "count":42}';
-    type typedJson = { result: boolean; count: number };
-    const deserializedJson = io.deserialize<typedJson>(json);
-    expect(typeof deserializedJson.result).toBe('boolean');
-    expect(deserializedJson.result).toBe(true);
-    expect(deserializedJson).toMatchSnapshot();
-  });
-
-  it('deserialize fails with an error on malformed JSON', () => {
-    // eslint-disable-next-line no-useless-escape
-    const malformedJson = '{ "key": "Something \\\\"Name\\\\" something\", "anotherkey": "value" }';
-    expect(() => io.deserialize(malformedJson)).toThrow(SyntaxError);
-  });
-});
+import * as fs from 'fs-extra';
 
 describe('io.extractStats', () => {
 
@@ -64,6 +47,7 @@ describe('io.extractDirname', () => {
     expect(io.extractDirname('../../baz/sample.c9search_results')).toBe('baz');
     expect(io.extractDirname('/Users/foo/bar/')).toBe('bar');
     expect(io.extractDirname('bar/')).toBe('bar');
+    expect(io.extractDirname('/setup.cfg')).toBe('');
     expect(io.extractDirname('module.d.ts')).toBe('');
   });
 
@@ -71,6 +55,13 @@ describe('io.extractDirname', () => {
     expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\file.js')).toBe('Baz');
     expect(io.extractDirname('2018\\January.xlsx')).toBe('2018');
     expect(io.extractDirname('C:\\Foo\\Bar\\Baz\\')).toBe('Baz');
+  });
+
+  it('extractDirname resolves malformed paths', () => {
+    expect(io.extractDirname('')).toBe('');
+    expect(io.extractDirname('/')).toBe('');
+    expect(io.extractDirname(' /')).toBe(' ');
+    expect(io.extractDirname('/ ')).toBe('');
   });
 });
 
@@ -101,7 +92,7 @@ describe('io.readFileAsync', () => {
         'empty-dir': {/** empty directory */ }
       },
       'baz/qux': {
-        'nup/tul/some.png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+        'some.png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
         'vex/bol/wiz': {/** another empty directory */ }
       }
     });
@@ -109,14 +100,43 @@ describe('io.readFileAsync', () => {
 
   afterAll(mock.restore);
 
-  it('readFileAsync to resolve to file contents', async () => {
-    await expect(io.readFileAsync('foo/bar/some-file.txt')).resolves.toBe('file contents');
+  it('readFileAsync resolves to string for text file content', async () => {
+    await expect(io.readFileAsync('foo/bar/some-file.txt', { encoding: 'utf-8' })).resolves.toBe('file contents');
   });
 
-  it('readFileAsync fails with an error', async () => {
+  it('readFileAsync resolves to Buffer for bytestring file content', async () => {
+    await expect(io.readFileAsync('baz/qux/some.png')).resolves.toEqual(Buffer.from([8, 6, 7, 5, 3, 0, 9]));
+  });
+
+  it('readFileAsync fails with error on non-existing file', async () => {
     await expect(io.readFileAsync('foo/bar/empty-dir/nonexist.js')).rejects.toThrow(/ENOENT/);
   });
 });
+
+describe('io.decompressBinaryObject', () => {
+  beforeAll(() => {
+    mock({
+      'plainfile.txt': 'no compression was used',
+      'e2': {
+        '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('decompressBinaryObject to decompress binary to UTF-8 string', async () => {
+    const compressed = await io.readFileAsync('e2/7bb34b0807ebf1b91bb66a4c147430cde4f08f');
+    return expect(io.decompressBinaryObject(compressed, 'utf-8')).toStrictEqual('blob 25\u0000My data fits on one line\n');
+  });
+
+  it('decompressBinaryObject to decompress string buffer to UTF-8 string', async () => {
+    const compressed = await io.readFileAsync('plainfile.txt');
+    return expect(io.decompressBinaryObject(compressed, 'utf-8')).toBe('no compression was used');
+  });
+});
+
+
 
 describe('io.readDirAsync', () => {
   beforeAll(() => {
@@ -222,11 +242,41 @@ describe('io.readDirAsyncDeep', () => {
   });
 });
 
+describe('io.filterReadArray', () => {
+  beforeAll(() => {
+    mock({
+      foo: {
+        bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        baz: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        zap: {
+          zed: {
+            beq: mock.file({ content: 'file contents', ctime: new Date(1) }),
+            bup: mock.file({ content: 'file contents', ctime: new Date(1) })
+          },
+          zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
+        }
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('filterReadArray returns only child directories', () => {
+    const paths: fs.PathLike[] = ["foo/bar", "foo/baz", "foo/zap/zed/beq", "foo/zap/zed/bup", "foo/zap/zed", "foo/zap/zip", "foo/zap", "foo"];
+    return expect(io.filterReadArray(paths)).resolves.toHaveLength(3);
+  });
+
+  it('filterReadArray returns only child files', () => {
+    const paths: fs.PathLike[] = ["foo/bar", "foo/baz", "foo/zap/zed/beq", "foo/zap/zed/bup", "foo/zap/zed", "foo/zap/zip", "foo/zap", "foo"];
+    return expect(io.filterReadArray(paths, true)).resolves.toHaveLength(5);
+  });
+});
+
 describe('io.writeFileAsync', () => {
   beforeAll(() => {
     mock({
       'foo/bar': {
-        'fileB.txt': 'version 1'
+        'fileD.txt': 'version 1'
       },
       'baz': {/** empty directory */ }
     });
@@ -234,17 +284,31 @@ describe('io.writeFileAsync', () => {
 
   afterAll(mock.restore);
 
-  it('writeFileAsync to resolve and write a new file with content', async () => {
+  it('writeFileAsync to resolve and write a new file with string content', async () => {
     const testPath = 'foo/bar/fileA.txt';
     await io.writeFileAsync(testPath, 'sample data');
     await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
-    await expect(io.readFileAsync(testPath)).resolves.toBe('sample data');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('sample data');
+  });
+
+  it('writeFileAsync to resolve and write a new file with binary content', async () => {
+    const testPath = 'foo/bar/fileB.txt';
+    await io.writeFileAsync(testPath, Buffer.from([1, 2, 3]));
+    await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
+    await expect(io.readFileAsync(testPath)).resolves.toStrictEqual(Buffer.from([1, 2, 3]));
+  });
+
+  it('writeFileAsync to resolve and write a new file with base16 content', async () => {
+    const testPath = 'foo/bar/fileC.txt';
+    await io.writeFileAsync(testPath, Buffer.from([1, 2, 3]), { encoding: 'hex' });
+    await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
+    await expect(io.readFileAsync(testPath, { encoding: 'hex' })).resolves.toBe("010203");
   });
 
   it('writeFileAsync to resolve and overwrite an existing file with content', async () => {
-    const testPath = 'foo/bar/fileB.txt';
-    await expect(io.readFileAsync(testPath)).resolves.toBe('version 1');
+    const testPath = 'foo/bar/fileD.txt';
+    await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('version 1');
     await io.writeFileAsync(testPath, 'version 2');
-    await expect(io.readFileAsync(testPath)).resolves.toBe('version 2');
+    await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('version 2');
   });
 });
