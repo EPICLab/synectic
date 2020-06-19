@@ -4,7 +4,6 @@ import { v4 } from 'uuid';
 import { useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
 import { Metafile } from '../types';
-import { Action, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 
 type BrowserState = {
@@ -64,7 +63,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
 export const BrowserButton: React.FunctionComponent = () => {
   const dispatch = useDispatch();
 
-  const handleClick = async (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     const metafile: Metafile = {
       id: v4(),
@@ -72,8 +71,6 @@ export const BrowserButton: React.FunctionComponent = () => {
       modified: DateTime.local(),
       handler: 'Browser'
     };
-    const addMetafileAction: Action = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
-    dispatch(addMetafileAction);
     dispatch(loadCard({ metafile: metafile }));
   };
 

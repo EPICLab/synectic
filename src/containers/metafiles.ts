@@ -147,11 +147,3 @@ export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[],
     })
     .catch(error => { throw new Error(error.message) });
 }
-
-// export const checkExistingMetafiles = (filepath: PathLike, repo: UUID, ref: string): ThunkAction<Promise<void>, {}, {}, AnyAction> => {
-//   return async (dispatch: ThunkDispatch<{}, {}, AnyAction>): Promise<void> => {
-//     return new Promise<void>((resolve) => {
-
-//     });
-//   };
-// }

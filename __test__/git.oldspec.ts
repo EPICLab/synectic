@@ -92,64 +92,6 @@ beforeEach(() => {
 
 afterEach(mock.restore);
 
-// describe('git.checkoutFile', () => {
-//   it('checkoutFile updates to master branch', async () => {
-//     return expect(git.checkoutFile('baz/some-file.js', 'master', true)).resolves.toBeDefined();
-//   });
-
-//   it('checkoutFile fails with a CommitNotFetchedError on non-local branches', async () => {
-//     // CommitNotFetchedError is thrown when a the latest commit for a branch is not available locally 
-//     // (i.e. the branch needs to be updated via git fetch)
-//     return expect(git.checkoutFile('baz/some-file.js', 'remote-only', true)).rejects.toThrow(/Failed to checkout .* because commit .* is not available locally/);
-//   });
-// });
-
-describe('git.currentBranch', () => {
-  it('currentBranch resolves to Git branch name on a tracked directory', async () => {
-    return expect(git.currentBranch({ dir: 'baz/' })).resolves.toBe('feature/test');
-  });
-
-  it('currentBranch resolves to undefined on a tracked directory with detached HEAD', async () => {
-    return expect(git.currentBranch({ dir: 'zap/' })).resolves.toBeUndefined();
-  });
-
-  it('currentBranch fails with an error on an untracked directory', async () => {
-    return expect(git.currentBranch({ dir: 'foo/bar/' })).rejects.toThrow(/Could not find HEAD/);
-  });
-});
-
-describe('git.getRepoRoot', () => {
-  it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
-    return expect(git.getRepoRoot('baz/qux/tracked-file.js')).resolves.toBe('baz');
-  });
-
-  it('getRepoRoot resolves to undefined on file in untracked directory', async () => {
-    return expect(git.getRepoRoot('foo/bar/no-tracked-file.js')).resolves.toBeUndefined();
-  });
-});
-
-describe('git.isGitRepo', () => {
-  it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
-    return expect(git.isGitRepo('baz/')).resolves.toBe(true);
-  });
-
-  it('isGitRepo resolves directory path ending in .git directory to true', async () => {
-    return expect(git.isGitRepo('baz/.git')).resolves.toBe(true);
-  });
-
-  it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
-    return expect(git.isGitRepo('baz/some-file.js')).resolves.toBe(true);
-  });
-
-  it('isGitRepo resolves directory path without a .git directory to false', async () => {
-    return expect(git.isGitRepo('foo/bar')).resolves.toBe(false);
-  });
-
-  it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
-    return expect(git.isGitRepo('foo/bar/.git')).resolves.toBe(false);
-  });
-});
-
 describe('git.extractGitCompressed', () => {
   it('extractGitCompressed resolves git object file to string', async () => {
     return expect(git.extractGitCompressed('zap/.git/objects/e2/7bb34b0807ebf1b91bb66a4c147430cde4f08f')).resolves.toStrictEqual('blob 25\u0000My data fits on one line\n');
