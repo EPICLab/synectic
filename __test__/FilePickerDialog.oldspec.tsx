@@ -2,7 +2,7 @@ import React from 'react';
 import { mount, ReactWrapper } from 'enzyme';
 
 import { remote } from 'electron'; // imports the mocked dependency to allow access to the spies
-import { wrapInTestContext } from './__mocks__/dndReduxMock';
+import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { getMockStore } from './__mocks__/reduxStoreMock';
 import FilePickerButton from '../src/components/FilePickerDialog';
 
@@ -13,7 +13,7 @@ const mountOptions = {
 const store = getMockStore();
 
 describe('FilePicker', () => {
-  const FilePickerContext = wrapInTestContext(FilePickerButton, store);
+  const FilePickerContext = wrapInReduxContext(FilePickerButton, store);
   let wrapper: ReactWrapper<unknown, Readonly<{}>, React.Component<{}, {}, unknown>>;
 
   beforeEach(() => wrapper = mount(<FilePickerContext />, mountOptions));

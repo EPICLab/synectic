@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 
 import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
-import { wrapInTestContext } from './__mocks__/dndReduxMock';
+import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { getMockStore } from './__mocks__/reduxStoreMock';
 import FileExplorerComponent from '../src/components/FileExplorer';
 
@@ -28,7 +28,7 @@ describe('FileExplorerComponent', () => {
   const store = getMockStore();
 
   it('FileExplorer defaults to rendering only the root directory', () => {
-    const FileExplorerContext = wrapInTestContext(FileExplorerComponent, store);
+    const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
     const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
     expect(wrapper.find(FileExplorerComponent)).toHaveLength(1);
     expect(wrapper.find(FileExplorerComponent).prop('rootId')).toBe('99');
@@ -38,7 +38,7 @@ describe('FileExplorerComponent', () => {
   });
 
   it('FileExplorer renders without child components when no child files/directories exist', () => {
-    const FileExplorerContext = wrapInTestContext(FileExplorerComponent, store);
+    const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
     const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
     expect(wrapper.find(TreeItem)).toHaveLength(1);
     expect(wrapper.find(TreeItem).first().props().nodeId).toBe('99');
@@ -46,7 +46,7 @@ describe('FileExplorerComponent', () => {
   });
 
   it('FileExplorer renders child components for each child file/directory', () => {
-    const FileExplorerContext = wrapInTestContext(FileExplorerComponent, store);
+    const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
     const wrapper = mount(<FileExplorerContext rootId={'24'} />, mountOptions);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(wrapper.find(TreeItem)).toHaveLength(1);
@@ -55,13 +55,13 @@ describe('FileExplorerComponent', () => {
   });
 
   it('FileExplorer renders the correct current branch name for untracked directory', () => {
-    const FileExplorerContext = wrapInTestContext(FileExplorerComponent, store);
+    const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
     const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
     expect(wrapper.find(FileExplorerComponent).first().html()).toContain('<div class="branch-ribbon-container"><p class="branch-ribbon-text">Branch: Untracked</p></div>');
   });
 
   it('FileExplorer renders the correct current branch name for tracked directory', () => {
-    const FileExplorerContext = wrapInTestContext(FileExplorerComponent, store);
+    const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
     const wrapper = mount(<FileExplorerContext rootId={'75'} />, mountOptions);
     expect(wrapper.find(FileExplorerComponent).first().html()).toContain('<div class="branch-ribbon-container"><p class="branch-ribbon-text">Branch: master</p></div>');
   });

@@ -8,7 +8,7 @@ import AceEditor from 'react-ace';
 import ReactAce from 'react-ace/lib/ace';
 import { IAceEditor } from 'react-ace/lib/types';
 
-import { wrapInTestContext } from './__mocks__/dndReduxMock';
+import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { getMockStore } from './__mocks__/reduxStoreMock';
 import Editor from '../src/components/Editor';
 
@@ -22,14 +22,14 @@ describe('Editor', () => {
   const store = getMockStore();
 
   it('Editor component should work', () => {
-    const EditorContext = wrapInTestContext(Editor, store);
+    const EditorContext = wrapInReduxContext(Editor, store);
     const wrapper = mount(<EditorContext metafileId='199' />, mountOptions);
     const component = wrapper.find(Editor).first();
     expect(component).toBeDefined();
   });
 
   it('Editor component should render AceEditor markers', () => {
-    const EditorContext = wrapInTestContext(Editor, store);
+    const EditorContext = wrapInReduxContext(Editor, store);
     const wrapper = mount(<EditorContext metafileId='199' />, mountOptions);
     const editor: IAceEditor = (wrapper.find(AceEditor).first().instance() as ReactAce).editor;
     const range: ace.Ace.Range = new ace.Range(3, 0, 3, 10);
