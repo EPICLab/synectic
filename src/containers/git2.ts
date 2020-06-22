@@ -41,7 +41,7 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
  * @return A Promise object containing the root Git directory path, or undefined if no root Git
  * directory exists for the filepath (i.e. the filepath is not part of a Git repo).
  */
-export const getRepoRoot = async (filepath: fs.PathLike) => {
+export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
   try {
     const root = await isogit.findRoot({ fs: fs, filepath: filepath.toString() });
     return root;
@@ -56,7 +56,7 @@ export const getRepoRoot = async (filepath: fs.PathLike) => {
  * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
  * @returns The repository name (e.g. 'username/repo').
  */
-export const extractRepoName = (url: URL | string) => {
+export const extractRepoName = (url: URL | string): string => {
   const parsedPath = (typeof url === 'string') ? parsePath(url) : parsePath(url.href);
   return parsedPath.pathname.replace(/^(\/*)(?:snippets\/)?/, '').replace(/\.git$/, '');
 };
@@ -67,7 +67,7 @@ export const extractRepoName = (url: URL | string) => {
  * @return A Promise object containing true if filepath contains a .git subdirectory (or points 
  * directly to the .git directory), and false otherwise.
  */
-export const isGitRepo = async (filepath: fs.PathLike) => {
+export const isGitRepo = async (filepath: fs.PathLike): Promise<boolean> => {
   const stats = await io.extractStats(filepath);
   const directory = stats?.isDirectory() ? filepath.toString() : path.dirname(filepath.toString());
   if (directory === undefined) return false;

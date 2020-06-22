@@ -6,6 +6,8 @@ import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import NewCardButton, { NewCardDialog } from '../src/components/NewCardDialog';
 import { Backdrop } from '@material-ui/core';
 
+type EmptyObject = Record<string, unknown>;
+
 const domElement = document.getElementById('app');
 const mountOptions = {
   attachTo: domElement,
@@ -14,7 +16,7 @@ const store = getMockStore();
 
 describe('NewCardButton', () => {
   const NewCardContext = wrapInReduxContext(NewCardButton, store);
-  let wrapper: ReactWrapper<{}, Readonly<{}>, React.Component<{}, {}, {}>>;
+  let wrapper: ReactWrapper<EmptyObject, Readonly<EmptyObject>, React.Component<EmptyObject, EmptyObject, EmptyObject>>;
 
   beforeEach(() => wrapper = mount(<NewCardContext />, mountOptions));
   afterEach(() => wrapper.unmount());

@@ -15,7 +15,7 @@
  * @param arr Array containing primitive values, objects, and other arrays.
  * @return Array of depth 1, containing all sub-array elements.
  */
-export const flatten = <T = any>(arr: T[]) => {
+export const flatten = <T = any>(arr: T[]): any[] => {
   const reducer = <T = any>(prev: T[], curr: T | T[]): any => {
     if (!Array.isArray(curr)) {
       return [...prev, curr];

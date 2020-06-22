@@ -16,7 +16,7 @@ type HandlerMissingMetafile = Omit<Metafile, 'handler'>;
  * Extracts and updates list of supported filetypes in Redux store.
  * @return A Promise object for an array of Redux actions that update the store with supported filetypes.
  */
-export const importFiletypes = async () => {
+export const importFiletypes = async (): Promise<Action[]> => {
   return new Promise<Action[]>(resolve => {
     const filetypes = filetypesJson as Omit<Filetype, 'id'>[];
     const actions: Action[] = [];
@@ -104,7 +104,7 @@ export const loadCard = ({ metafile, filepath }: { metafile?: Metafile; filepath
  * @param note Optional note field related to the new Stack.
  * @return An array of Redux actions that updates state with a new Stack, and updates state of child Cards.
  */
-export const loadStack = (name: string, cards: Card[], note?: string) => {
+export const loadStack = (name: string, cards: Card[], note?: string): Action[] => {
   const stack: Stack = {
     id: v4(),
     name: name,

@@ -6,6 +6,8 @@ import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { getMockStore } from './__mocks__/reduxStoreMock';
 import DiffPickerButton, { DiffPickerDialog } from '../src/components/DiffPickerDialog';
 
+type EmptyObject = Record<string, unknown>;
+
 const domElement = document.getElementById('app');
 const mountOptions = {
   attachTo: domElement,
@@ -14,7 +16,7 @@ const store = getMockStore();
 
 describe('DiffPickerButton', () => {
   const DiffPickerContext = wrapInReduxContext(DiffPickerButton, store);
-  let wrapper: ReactWrapper<unknown, Readonly<{}>, React.Component<{}, {}, unknown>>;
+  let wrapper: ReactWrapper<EmptyObject, Readonly<EmptyObject>, React.Component<EmptyObject, EmptyObject, unknown>>;
 
   beforeEach(() => wrapper = mount(<DiffPickerContext />, mountOptions));
   afterEach(() => wrapper.unmount());

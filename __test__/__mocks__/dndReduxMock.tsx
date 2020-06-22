@@ -11,18 +11,26 @@
  * is documented in https://github.com/react-dnd/react-dnd/issues/1506, and partially resolved in
  * https://github.com/react-dnd/react-dnd/pull/1570.
  * 
- * However, we also require a Redux Store context provider and therefore replicate the 
- * `react-dnd-test-utils/wrapInTestContext()` from source and inject the necessary `react-redux.Provider`,
- * see https://github.com/react-dnd/react-dnd/blob/main/packages/testing/test-utils/src/utils.tsx. This
- * also introduces errors when used in conjunction with React Function Components, as documented in
- * https://github.com/react-dnd/react-dnd/issues/904.
+ * However, we also require a Redux Store context provider and therefore wrap the component with a 
+ * `react-redux.Provider` before also wrapping the `DndProvider` by using the 
+ * `react-dnd-test-utils/wrapInTestContext` method. However, this introduces errors when used in 
+ * conjunction with React Function Components, since `decoratedComponentRef` is injected into the wrapped
+ * component when calling `wrapInTestContext()` (as documented in 
+ * https://github.com/react-dnd/react-dnd/issues/904).
  */
 import React from 'react';
 import { wrapInTestContext } from 'react-dnd-test-utils';
 import { Store, AnyAction } from 'redux';
 import { Provider } from 'react-redux';
+import { DragDropManager } from 'dnd-core';
 
-export const wrapInReduxContext = (WrappedComponent: React.ComponentType<any>, store: Store<any, AnyAction>) => {
+interface RefType {
+  getManager: () => DragDropManager | undefined,
+  getDecoratedComponent<T>(): T
+}
+
+export const wrapInReduxContext = <T,>(WrappedComponent: React.ComponentType<T>, store: Store<any, AnyAction>):
+  React.ForwardRefExoticComponent<Pick<any, string | number | symbol> & React.RefAttributes<RefType>> => {
   const TestContextWrapper: React.ComponentType<any> = props => (
     <Provider store={store}>
       <WrappedComponent {...props} />

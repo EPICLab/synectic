@@ -20,7 +20,7 @@ export * from 'isomorphic-git';
  * @deprecated
  * @param filepath The relative or absolute path of a file compressed and prepended with git head and tail.
  */
-export const extractGitCompressed = async (filepath: fs.PathLike) => {
+export const extractGitCompressed = async (filepath: fs.PathLike): Promise<string> => {
   const rawBuffer = await io.readFileAsync(path.resolve(filepath.toString()));
   const compressed = pako.deflate(rawBuffer, { level: 1 });
   const decompressed = pako.inflate(compressed, { to: 'string' });
@@ -48,7 +48,7 @@ export const base64ToUint8Array = (input: string): Uint8Array => {
  * @param filepath A valid *Git Object* filename or path to read from.
  * @return A Promise object containing a Uint8Array of the binary file content.
  */
-export const readGitObjectToUint8Array = async (filepath: fs.PathLike) => {
+export const readGitObjectToUint8Array = async (filepath: fs.PathLike): Promise<Uint8Array> => {
   const compressed = await io.readFileAsync(filepath);
   let decompressed: Uint8Array;
   try {
@@ -63,7 +63,7 @@ export const readGitObjectToUint8Array = async (filepath: fs.PathLike) => {
  * @deprecated
  * @param filepath 
  */
-export const explodeHash = async (filepath: fs.PathLike) => {
+export const explodeHash = async (filepath: fs.PathLike): Promise<string> => {
   const decoded = io.decompressBinaryObject(await io.readFileAsync(filepath))
   const hash = sha1(decoded);
   return hash;
@@ -73,7 +73,13 @@ export const explodeHash = async (filepath: fs.PathLike) => {
  * @deprecated
  * @param filepath 
  */
-export const explodeGitFile = async (filepath: fs.PathLike) => {
+export const explodeGitFile = async (filepath: fs.PathLike): Promise<{
+  file: string;
+  targetHash: string;
+  binary: Uint8Array;
+  decoded: string;
+  hash: string;
+}> => {
   const targetHash = io.extractDirname(filepath) + io.extractFilename(filepath);
   const binary = await readGitObjectToUint8Array(filepath);
   const decoded = io.decompressBinaryObject(await io.readFileAsync(filepath))
@@ -85,7 +91,13 @@ export const explodeGitFile = async (filepath: fs.PathLike) => {
  * @deprecated
  * @param files 
  */
-export const explodeGitFiles = async (files: fs.PathLike[]) => {
+export const explodeGitFiles = async (files: fs.PathLike[]): Promise<{
+  file: string;
+  targetHash: string;
+  binary: Uint8Array;
+  decoded: string;
+  hash: string;
+}[]> => {
   return await Promise.all(files.map(file => explodeGitFile(file)));
 };
 
@@ -93,7 +105,13 @@ export const explodeGitFiles = async (files: fs.PathLike[]) => {
  * @deprecated
  * @param dirPath 
  */
-export const pipelinePathToExploded = async (dirPath: fs.PathLike) => {
+export const pipelinePathToExploded = async (dirPath: fs.PathLike): Promise<{
+  file: string;
+  targetHash: string;
+  binary: Uint8Array;
+  decoded: string;
+  hash: string;
+}[]> => {
   const fsObjects = await io.readDirAsyncDeep(dirPath, false);
   const files = await io.filterReadArray(fsObjects, true);
   const gitFiles = await explodeGitFiles(files);
@@ -105,7 +123,7 @@ export const pipelinePathToExploded = async (dirPath: fs.PathLike) => {
  * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
  * @returns The repository name (e.g. 'username/repo').
  */
-export const extractRepoName = (url: URL | string) => {
+export const extractRepoName = (url: URL | string): string => {
   const parsedPath = (typeof url === 'string') ? parsePath(url) : parsePath(url.href);
   return parsedPath.pathname.replace(/^(\/*)(?:snippets\/)?/, '').replace(/\.git$/, '');
 };
@@ -155,7 +173,7 @@ export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; 
  * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
  * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
  */
-export const getStatus = async (filepath: fs.PathLike) => {
+export const getStatus = async (filepath: fs.PathLike): Promise<"modified" | "ignored" | "unmodified" | "*modified" | "*deleted" | "*added" | "absent" | "deleted" | "added" | "*unmodified" | "*absent" | "*undeleted" | "*undeletemodified"> => {
   const repoRoot = await getRepoRoot(filepath);
   return isogit.status({ fs: fs, dir: '/', gitdir: repoRoot, filepath: filepath.toString() });
 }

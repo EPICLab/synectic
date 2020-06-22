@@ -29,7 +29,7 @@ export type decoderEncoding = 'utf-8' | 'ibm866' | 'iso-8859-2' | 'iso-8859-3' |
  * @return A Promise object for a fs.Stats object containing information about a file, or undefined 
  * if filepath refers to a nonexistent file or directory (or read permissions are missing).
  */
-export const extractStats = (filepath: fs.PathLike) => {
+export const extractStats = (filepath: fs.PathLike): Promise<fs.Stats | undefined> => {
   return new Promise<fs.Stats | undefined>(resolve => {
     fs.stat(filepath.toString())
       .then((stat) => resolve(stat))
@@ -46,7 +46,7 @@ export const extractStats = (filepath: fs.PathLike) => {
  * @param filepath The relative or absolute path to evaluate.
  * @return A string containing the file basename.
  */
-export const extractFilename = (filepath: fs.PathLike) => {
+export const extractFilename = (filepath: fs.PathLike): string => {
   const filename = filepath.toString().split(/[\\/]/).pop() as string;
   // filename can safely be cast as string because although pop() has a return type of string | undefined, it
   // cannot actually return undefined because split() returns string[] that is at worst empty
@@ -61,7 +61,7 @@ export const extractFilename = (filepath: fs.PathLike) => {
  * @param filepath The relative or absolute path to evaluate.
  * @return A string containing the directory name.
  */
-export const extractDirname = (filepath: fs.PathLike) => {
+export const extractDirname = (filepath: fs.PathLike): string => {
   const trailingSeparator = filepath.toString().slice(-1)[0]?.match(/[\\/]/) !== null;
   const expandedPath = filepath.toString().split(/[\\/]/);
   if (expandedPath.length > 1) return expandedPath[expandedPath.length - 2];
@@ -76,7 +76,7 @@ export const extractDirname = (filepath: fs.PathLike) => {
  * @param filepath The relative or absolute path to evaluate.
  * @return A string containing the file extension.
  */
-export const extractExtension = (filepath: fs.PathLike) => {
+export const extractExtension = (filepath: fs.PathLike): string => {
   const ext = filepath.toString().split('.').pop() as string;
   // ext can safely be cast as string because although pop() has a return type of string | undefined, it
   // cannot actually return undefined because split() returns string[] that is at worst empty
@@ -135,7 +135,7 @@ export function readFileAsync(filepath: fs.PathLike, options?: { flag: string } 
  */
 export function decompressBinaryObject(filecontent: Buffer, format: 'bytes'): Uint8Array;
 export function decompressBinaryObject(filecontent: Buffer, format?: Exclude<decoderEncoding, 'bytes'>): string;
-export function decompressBinaryObject(filecontent: Buffer, format?: decoderEncoding) {
+export function decompressBinaryObject(filecontent: Buffer, format?: decoderEncoding): Uint8Array | string {
   let decompressed: Uint8Array;
   try {
     decompressed = pako.inflate(filecontent);
@@ -152,7 +152,7 @@ export function decompressBinaryObject(filecontent: Buffer, format?: decoderEnco
  * @param filepath A valid directory path to read from.
  * @return A Promise object for an array of filenames.
  */
-export const readDirAsync = (filepath: fs.PathLike) => {
+export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
   return new Promise<string[]>((resolve, reject) => {
     fs.readdir(path.resolve(filepath.toString()), (error, files) => {
       if (error) reject(error);
@@ -166,7 +166,7 @@ export const readDirAsync = (filepath: fs.PathLike) => {
  * @param filepath The relative or absolute path to evaluate.
  * @return A boolean indicating true if the filepath is a directory, or false otherwise.
  */
-export const isDirectory = async (filepath: fs.PathLike) => (await fs.stat(filepath.toString())).isDirectory();
+export const isDirectory = async (filepath: fs.PathLike): Promise<boolean> => (await fs.stat(filepath.toString())).isDirectory();
 
 /**
  * Asynchronously and recursively descends from a root path directory to extract the contents of each
@@ -191,7 +191,7 @@ export const readDirAsyncDeep = async (filepath: fs.PathLike, inclusive = true):
  * @param fileOnly (Optional) Flag for returning only filepaths for files; defaults to false.
  * @Return A Promise object for an array containing filepaths for either all child directories or all child files.
  */
-export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false) => {
+export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false): Promise<fs.PathLike[]> => {
   return await filepaths.reduce(async (previousPromise: Promise<fs.PathLike[]>, filepath: fs.PathLike) => {
     const collection = await previousPromise;
     const directory = await isDirectory(filepath);

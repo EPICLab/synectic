@@ -3,8 +3,9 @@ import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
 import { Canvas, Stack, Card, Filetype, Metafile, Repository } from '../../src/types';
-import { createStore } from 'redux';
+import { createStore, CombinedState, Store } from 'redux';
 import { rootReducer } from '../../src/store/root';
+import { Action } from '../../src/store/actions';
 
 type initStateT = {
   canvas: Canvas;
@@ -156,11 +157,11 @@ const initialState: initStateT = {
   }
 };
 
-export const getMockStore = () => createStore(rootReducer, initialState);
+export const getMockStore = (): Store<CombinedState<initStateT>, Action> => createStore(rootReducer, initialState);
 
-export const getCanvasProps = () => initialState.canvas;
+export const getCanvasProps = (): Canvas => initialState.canvas;
 
-export const getCardProps = (index?: number) => {
+export const getCardProps = (index?: number): Card => {
   const initialCards = Object.values(initialState.cards);
   if (index && index >= 0 && index < initialCards.length) {
     return initialCards[index];

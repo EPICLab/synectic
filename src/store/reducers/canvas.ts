@@ -13,7 +13,7 @@ const initialState: Canvas = {
   stacks: []
 }
 
-export const canvasReducer = (state: Canvas = initialState, action: Action) => {
+export const canvasReducer = (state: Canvas = initialState, action: Action): Canvas => {
   switch (action.type) {
     case (ActionKeys.ADD_REPO):
       return {
