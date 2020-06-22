@@ -25,7 +25,7 @@ describe('NewCardDialog', () => {
     const newCardDialog = wrapper.find(NewCardDialog);
     expect(newCardDialog.prop('fileName')).toBeUndefined();
     expect(newCardDialog.prop('filetype')).toBeUndefined();
-    expect(newCardDialog.html()).toContain('<input type="hidden" value="">');
+    expect(newCardDialog.html()).toContain('<input aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput" value="">');
     expect(wrapper.find(TextField).props().value).toEqual("");
   });
 

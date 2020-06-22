@@ -57,7 +57,7 @@ describe('FileExplorerComponent', () => {
   it('FileExplorer renders the correct current branch name for untracked directory', () => {
     const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
     const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
-    expect(wrapper.find(FileExplorerComponent).first().html()).toContain('<div class="branch-ribbon-container"><p class="branch-ribbon-text">Branch: Untracked</p></div>');
+    expect(wrapper.find(FileExplorerComponent).first().html()).toContain('<div class="branch-ribbon-container"><p class="branch-ribbon-text">Branch: undefined</p></div>');
   });
 
   it('FileExplorer renders the correct current branch name for tracked directory', () => {
