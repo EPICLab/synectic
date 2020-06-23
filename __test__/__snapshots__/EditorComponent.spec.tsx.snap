@@ -29,19 +29,21 @@ Object {
     "type": "text",
   },
   "3": Object {
-    "clazz": undefined,
+    "clazz": "test-marker",
     "id": 3,
     "inFront": false,
-    "range": Object {
-      "className": "test-marker",
-      "endCol": 10,
-      "endRow": 3,
-      "startCol": 0,
-      "startRow": 3,
-      "type": "text",
+    "range": Range {
+      "end": Object {
+        "column": 10,
+        "row": 3,
+      },
+      "start": Object {
+        "column": 0,
+        "row": 3,
+      },
     },
     "renderer": null,
-    "type": "line",
+    "type": "text",
   },
 }
 `;

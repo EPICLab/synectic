@@ -9,7 +9,7 @@ import { diffLines } from 'diff';
  * @param updated The updated version of code or text to compare against original.
  * @return A diff patch that conforms to the unified diff patch format.
  */
-export const diff = (original: string, updated: string) => {
+export const diff = (original: string, updated: string): string => {
   const diffLineChanges = diffLines(original, updated);
   let readableDiff = '';
 

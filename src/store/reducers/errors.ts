@@ -2,7 +2,7 @@ import { Action, ActionKeys } from '../actions';
 import { Error } from '../../types';
 import { addItemInMap, removeItemInMap } from '../immutables';
 
-export const errorReducer = (state: { [id: string]: Error } = {}, action: Action) => {
+export const errorReducer = (state: { [id: string]: Error } = {}, action: Action): { [id: string]: Error } => {
   switch (action.type) {
     case ActionKeys.ADD_ERROR: {
       return addItemInMap(state, action.error);

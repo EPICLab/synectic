@@ -10,7 +10,7 @@ import { Action, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
 
-export const checkFileName = (fileName: string) => {
+export const checkFileName = (fileName: string): boolean => {
   return fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== '.' &&
     fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== ' ' &&
     /*Regex below matches all occurences of invalid file name characters in the set: <, >, \, /, |, ?, *, 

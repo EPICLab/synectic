@@ -6,7 +6,9 @@ module.exports = [
   new ForkTsCheckerWebpackPlugin({
     async: false
   }),
-  new CopyWebpackPlugin([
-    { from: 'src/assets', to: 'assets' }
-  ])
+  new CopyWebpackPlugin({
+    patterns: [
+      { from: 'src/assets', to: 'assets' }
+    ]
+  })
 ];

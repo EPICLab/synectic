@@ -3,7 +3,7 @@
  * @param json A valid JSON string.
  * @return A typed object (or nested array of objects).
  */
-export const deserialize = <T>(json: string) => JSON.parse(json) as T;
+export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
 
 /**
  * Filters an array and removes any undefined elements contained within it.
@@ -24,7 +24,7 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
  * @param buf2 An `ArrayBufferLike` object.
  * @return A boolean indicating true if the `ArrayBufferLike` objects are equal, or false otherwise.
  */
-export const equalArrayBuffers = (buf1: ArrayBufferLike, buf2: ArrayBufferLike) => {
+export const equalArrayBuffers = (buf1: ArrayBufferLike, buf2: ArrayBufferLike): boolean => {
   if (buf1.byteLength != buf2.byteLength) return false;
   const dv1 = new Int8Array(buf1);
   const dv2 = new Int8Array(buf2);

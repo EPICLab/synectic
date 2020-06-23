@@ -3,45 +3,38 @@
 /* eslint-disable import/named */
 
 /**
- * The react-dnd library has an issue with Enzyme tests that interact with the DragDropManager on
- * context-aware components, per https://github.com/react-dnd/react-dnd/issues/1506. This solution
- * was created by JKillian (https://github.com/JKillian) and published here: 
- * https://github.com/react-dnd/react-dnd/pull/1570
+ * The `react-dnd` library requires all draggable components to be wrapped by a `DndProvider` higher-order
+ * component (HOC) in order to manage the drag-and-drop interactions, which causes issues when testing in
+ * conjunction with Enzyme (per bug: https://github.com/enzymejs/enzyme/issues/1852). Enzyme currently
+ * handles forwardRefs by returning the Enzyme `WrapperComponent` via ref.current (when mounted within an
+ * Enzyme test environment), instead of the internal component wrapped by `WrapperComponent`. This issue
+ * is documented in https://github.com/react-dnd/react-dnd/issues/1506, and partially resolved in
+ * https://github.com/react-dnd/react-dnd/pull/1570.
+ * 
+ * However, we also require a Redux Store context provider and therefore wrap the component with a 
+ * `react-redux.Provider` before also wrapping the `DndProvider` by using the 
+ * `react-dnd-test-utils/wrapInTestContext` method. However, this introduces errors when used in 
+ * conjunction with React Function Components, since `decoratedComponentRef` is injected into the wrapped
+ * component when calling `wrapInTestContext()` (as documented in 
+ * https://github.com/react-dnd/react-dnd/issues/904).
  */
 import React from 'react';
-import TestBackendImpl from 'react-dnd-test-backend';
-import { DndProvider, DndContext } from 'react-dnd';
-import { DragDropManager } from 'dnd-core';
+import { wrapInTestContext } from 'react-dnd-test-utils';
 import { Store, AnyAction } from 'redux';
 import { Provider } from 'react-redux';
+import { DragDropManager } from 'dnd-core';
 
 interface RefType {
-  getManager: () => DragDropManager | undefined;
+  getManager: () => DragDropManager | undefined,
+  getDecoratedComponent<T>(): T
 }
 
-export function wrapInTestContext(DecoratedComponent: any, store: Store<any, AnyAction>): any {
-  const forwardRefFunc = (props: any, ref: React.Ref<RefType>) => {
-    const dragDropManager = React.useRef<any>(undefined);
-
-    React.useImperativeHandle(ref, () => ({
-      getManager: () => dragDropManager.current,
-    }));
-
-    return (
-      <Provider store={store}>
-        <DndProvider backend={TestBackendImpl}>
-          <DndContext.Consumer>
-            {ctx => {
-              dragDropManager.current = ctx.dragDropManager;
-              return null;
-            }}
-          </DndContext.Consumer>
-          <DecoratedComponent {...props} />
-        </DndProvider>
-      </Provider>
-    );
-  };
-  forwardRefFunc.displayName = 'TestContextWrapper';
-
-  return React.forwardRef(forwardRefFunc);
-}
+export const wrapInReduxContext = <T,>(WrappedComponent: React.ComponentType<T>, store: Store<any, AnyAction>):
+  React.ForwardRefExoticComponent<Pick<any, string | number | symbol> & React.RefAttributes<RefType>> => {
+  const TestContextWrapper: React.ComponentType<any> = props => (
+    <Provider store={store}>
+      <WrappedComponent {...props} />
+    </Provider>
+  );
+  return wrapInTestContext(TestContextWrapper);
+};
