@@ -17,6 +17,43 @@ describe('format.deserialize', () => {
   });
 });
 
+describe('format.removeUndefined', () => {
+  it('removeUndefined removes undefined from array of Primitive types', () => {
+    const arr = [3, 'a', undefined, true];
+    expect(format.removeUndefined(arr)).toStrictEqual([3, 'a', true]);
+  });
+
+  it('removeUndefined removes undefined from array of Object types', () => {
+    const arr = [undefined, { a: 3 }, undefined, { b: 7 }];
+    expect(format.removeUndefined(arr)).toStrictEqual([{ a: 3 }, { b: 7 }]);
+  });
+
+  it('removeUndefined returns original array when no undefined are present', () => {
+    const arr = [{ a: 3 }, 'a', { b: 7 }, true];
+    expect(format.removeUndefined(arr)).toStrictEqual(arr);
+  });
+});
+
+describe('format.removeDuplicates', () => {
+  it('removeDuplicates removes duplicates from array of Primitive types', () => {
+    const arr = [3, 4, 1, 0, 3, 3];
+    const comparator = (a: number, b: number) => (a === b);
+    expect(format.removeDuplicates(arr, comparator)).toStrictEqual([3, 4, 1, 0]);
+  });
+
+  it('removeDuplicates removes duplicates from array of Object types', () => {
+    const arr = [{ id: 3 }, { id: 10 }, { id: 3 }];
+    const comparator = (a: { id: number }, b: { id: number }) => (a.id === b.id);
+    expect(format.removeDuplicates(arr, comparator)).toStrictEqual([{ id: 3 }, { id: 10 }]);
+  });
+
+  it('removeDuplicates returns original array on empty array', () => {
+    const arr: number[] = [];
+    const comparator = (a: number, b: number) => (a === b);
+    expect(format.removeDuplicates(arr, comparator)).toStrictEqual(arr);
+  });
+});
+
 describe('format.equalArrayBuffers', () => {
   it('equalArrayBuffers identifies equal and non-equal Buffers containing UTF-8 string data', () => {
     const buf1 = Buffer.from('test content');

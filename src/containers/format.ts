@@ -15,6 +15,21 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
 }
 
 /**
+ * Generic for deduplicating array of elements given a comparator function that
+ * indicates whether a pair of elements should be considered duplicates.
+ * @param arr An array of elements.
+ * @param comparator A comparator function that indicates true if elements a
+ * and b are duplicate, and false otherwise.
+ * @return The resulting array devoid of duplicate elements.
+ */
+export const removeDuplicates = <T>(arr: T[], comparator: (a: T, b: T) => boolean): T[] => {
+  return arr.reduce((accumulator: T[], current) => {
+    if (!accumulator.some(item => comparator(item, current))) accumulator.push(current);
+    return accumulator;
+  }, []);
+}
+
+/**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 
  * and `Buffer`. However, `Buffer` has `.equals()` and `.compare()` functions for comparisons and these should 
  * be used in lieu of this function. `TypedArray` is a class of objects, which includes all of the following: 
