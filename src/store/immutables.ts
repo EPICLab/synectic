@@ -58,6 +58,21 @@ export const removeItemInMap = <T extends { id: string }>(map: { [id: string]: T
 }
 
 /**
+ * Immutably remove items from map using specified filter function.
+ * @param map The initial source key-value map object.
+ * @param filterFn Filter function that returns true for each item in map that 
+ * meets conditions specified in function.
+ */
+export const removeMatchesInMap = <T>(map: { [id: string]: T }, filterFn: (item: T) => boolean): { [id: string]: T } => {
+  return Object.keys(map).reduce((items: { [id: string]: T }, id) => {
+    if (!filterFn(map[id])) {
+      items[id] = map[id];
+    }
+    return items;
+  }, {});
+};
+
+/**
  * Immutably filters items from map using specified filter function and applies a 
  * callback function to update each matching item.
  * @param map The initial source key-value map object.
