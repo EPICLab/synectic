@@ -1,10 +1,11 @@
 import parsePath from 'parse-path';
+import { DateTime } from 'luxon';
 
 import { Repository } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { reposReducer } from '../src/store/reducers/repos';
 
-describe('repoReducer', () => {
+describe('reposReducer', () => {
   const repos: { [id: string]: Repository } = {
     '23': {
       id: '23',
@@ -33,35 +34,56 @@ describe('repoReducer', () => {
     token: 'a78bw2591q592s0996q1498c1284'
   }
 
-  it('repoReducer returns default state when current state is blank', () => {
+  it('reposReducer returns default state when current state is blank', () => {
     const newRepos = reposReducer(undefined, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo });
     expect(Object.keys(newRepos)).toHaveLength(1);
     expect(newRepos).toMatchSnapshot();
   });
 
-  it('repoReducer appends a new repo to state on action ADD_REPO', () => {
+  it('reposReducer appends a new repo to state on action ADD_REPO', () => {
     const addedRepos = reposReducer(repos, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo });
     expect(Object.keys(addedRepos)).toHaveLength(2);
     expect(addedRepos).toMatchSnapshot();
   });
 
-  it('repoReducer removes a repo from state on action REMOVE_REPO', () => {
+  it('reposReducer removes a repo from state on action REMOVE_REPO', () => {
     const matchedRepos = reposReducer(repos, { type: ActionKeys.REMOVE_REPO, id: '23' });
     expect(Object.keys(matchedRepos)).toHaveLength(0);
   });
 
-  it('repoReducer resolves non-matching repo in state on action REMOVE_REPO', () => {
+  it('reposReducer resolves non-matching repo in state on action REMOVE_REPO', () => {
     const nonMatchedRepos = reposReducer(repos, { type: ActionKeys.REMOVE_REPO, id: newRepo.id });
     expect(Object.keys(nonMatchedRepos)).toHaveLength(Object.keys(repos).length);
   });
 
-  it('repoReducer updates state of matched repo on action UPDATE_REPO', () => {
+  it('reposReducer updates state of matched repo on action UPDATE_REPO', () => {
     const updatedRepos = reposReducer(repos, {
       type: ActionKeys.UPDATE_REPO, id: '23', repo: {
         oauth: 'bitbucket'
       }
     });
     expect(updatedRepos).not.toMatchObject(repos);
+    expect(updatedRepos).toMatchSnapshot();
+  });
+
+  it('reposReducer updates refs of matched repo on action ADD_BRANCH', () => {
+    const updatedRepos = reposReducer(repos, {
+      type: ActionKeys.ADD_BRANCH, id: '150034', branch: {
+        id: '1',
+        name: 'testBranch',
+        repo: '23',
+        location: 'remote',
+        status: 'unmodified',
+        updated: DateTime.local()
+      }
+    });
+    expect(updatedRepos).not.toMatchObject(repos);
+    expect(updatedRepos).toMatchSnapshot();
+  });
+
+  it('reposReducer updates refs of matched repo on action REMOVE_BRANCH', () => {
+    const updatedRepos = reposReducer(repos, { type: ActionKeys.REMOVE_BRANCH, id: '194724' });
+    expect(updatedRepos[23].refs).toHaveLength(2);
     expect(updatedRepos).toMatchSnapshot();
   });
 });

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`repoReducer repoReducer appends a new repo to state on action ADD_REPO 1`] = `
+exports[`reposReducer reposReducer appends a new repo to state on action ADD_REPO 1`] = `
 Object {
   "17": Object {
     "corsProxy": "http://www.oregonstate.edu/",
@@ -62,7 +62,7 @@ Object {
 }
 `;
 
-exports[`repoReducer repoReducer returns default state when current state is blank 1`] = `
+exports[`reposReducer reposReducer returns default state when current state is blank 1`] = `
 Object {
   "17": Object {
     "corsProxy": "http://www.oregonstate.edu/",
@@ -95,7 +95,75 @@ Object {
 }
 `;
 
-exports[`repoReducer repoReducer updates state of matched repo on action UPDATE_REPO 1`] = `
+exports[`reposReducer reposReducer updates refs of matched repo on action ADD_BRANCH 1`] = `
+Object {
+  "23": Object {
+    "corsProxy": "http://www.oregonstate.edu/",
+    "id": "23",
+    "name": "sampleUser/myRepo",
+    "oauth": "github",
+    "password": "12345",
+    "refs": Array [
+      "942043",
+      "234412",
+      "194724",
+      "150034",
+    ],
+    "root": "sampleUser/",
+    "token": "584n29dkj1683a67f302x009q164",
+    "url": Object {
+      "hash": "",
+      "href": "https://github.com/sampleUser/myRepo",
+      "pathname": "/sampleUser/myRepo",
+      "port": null,
+      "protocol": "https",
+      "protocols": Array [
+        "https",
+      ],
+      "query": Object {},
+      "resource": "github.com",
+      "search": "",
+      "user": "",
+    },
+    "username": "sampleUser",
+  },
+}
+`;
+
+exports[`reposReducer reposReducer updates refs of matched repo on action REMOVE_BRANCH 1`] = `
+Object {
+  "23": Object {
+    "corsProxy": "http://www.oregonstate.edu/",
+    "id": "23",
+    "name": "sampleUser/myRepo",
+    "oauth": "github",
+    "password": "12345",
+    "refs": Array [
+      "942043",
+      "234412",
+    ],
+    "root": "sampleUser/",
+    "token": "584n29dkj1683a67f302x009q164",
+    "url": Object {
+      "hash": "",
+      "href": "https://github.com/sampleUser/myRepo",
+      "pathname": "/sampleUser/myRepo",
+      "port": null,
+      "protocol": "https",
+      "protocols": Array [
+        "https",
+      ],
+      "query": Object {},
+      "resource": "github.com",
+      "search": "",
+      "user": "",
+    },
+    "username": "sampleUser",
+  },
+}
+`;
+
+exports[`reposReducer reposReducer updates state of matched repo on action UPDATE_REPO 1`] = `
 Object {
   "23": Object {
     "corsProxy": "http://www.oregonstate.edu/",

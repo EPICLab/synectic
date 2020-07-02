@@ -11,7 +11,8 @@ export type RemoveType<T, N> = T extends { type: N } ? never : T;
 
 export type UUID = string;
 
-export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser';
+export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
+export type GitStatus = "modified" | "ignored" | "unmodified" | "*modified" | "*deleted" | "*added" | "absent" | "deleted" | "added" | "*unmodified" | "*absent" | "*undeleted" | "*undeletemodified";
 
 export type Card = {
   readonly id: UUID;
@@ -70,11 +71,20 @@ export type Repository = {
   readonly root: PathLike; // relative or absolute path to the git root directory
   readonly corsProxy: URL;
   readonly url: parsePath.ParsedPath; // allows for local URLs
-  readonly refs: string[];
+  readonly refs: UUID[]; // UUID to Branch objects
   readonly oauth: 'github' | 'bitbucket' | 'gitlab';
   readonly username: string;
   readonly password: string;
   readonly token: string;
+}
+
+export type Branch = {
+  readonly id: UUID;
+  readonly name: string;
+  readonly repo: UUID; // UUID to Repository object
+  readonly location: 'remote' | 'local' | 'remote-only' | 'local-only';
+  readonly status: GitStatus;
+  readonly updated: DateTime; // timestamp for the last status check
 }
 
 export type Error = {
