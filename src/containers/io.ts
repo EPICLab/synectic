@@ -169,20 +169,19 @@ export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
 export const isDirectory = async (filepath: fs.PathLike): Promise<boolean> => (await fs.stat(filepath.toString())).isDirectory();
 
 /**
- * Asynchronously and recursively descends from a root path directory to extract the contents of each
- * child directory. Returns filepaths of all child directories and files, including root path if `inclusive`
- * option is enabled (default).
- * @param filepath The relative or absolute path of the root directory to evaluate.
- * @param inclusive (Optional) Flag for including root directory and intermediate directories in output; defaults to true.
- * @return A Promise object for an array containing filepaths for all child directories and files.
+ * Asynchronously and recursively descends from a root directory to read filenames and child  directories. 
+ * Descends to `depth` level, if specified, otherwise defaults to recursively visiting all sub-directories. 
+ * @param filepath A valid directory path to read from.
+ * @param depth Number of sub-directories to descend; default to infinity.
+ * @return A Promise object for an array of filenames.
  */
-export const readDirAsyncDeep = async (filepath: fs.PathLike, inclusive = true): Promise<string[]> => {
+export const readDirAsyncDepth = async (filepath: fs.PathLike, depth = Infinity): Promise<string[]> => {
   const files = await Promise.all((await fs.readdir(filepath.toString())).map(async f => {
     const fullPath = path.join(filepath.toString(), f);
-    return (await isDirectory(fullPath)) ? await readDirAsyncDeep(fullPath) : fullPath;
+    return depth > 1 && (await isDirectory(fullPath)) ? await readDirAsyncDepth(fullPath, depth - 1) : fullPath;
   }));
-  return inclusive ? [...flatten(files), filepath.toString()] : flatten(files);
-};
+  return [...flatten(files), filepath.toString()];
+}
 
 /**
  * Asynchronously filter for either directories or files from an array of both. Returns filepaths

@@ -136,8 +136,6 @@ describe('io.decompressBinaryObject', () => {
   });
 });
 
-
-
 describe('io.readDirAsync', () => {
   beforeAll(() => {
     mock({
@@ -191,8 +189,8 @@ describe('io.isDirectory', () => {
   });
 });
 
-describe('io.readDirAsyncDeep', () => {
-  beforeAll(() => {
+describe('io.readDirAsyncDepth', () => {
+  beforeEach(() => {
     mock({
       foo: {
         bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
@@ -217,28 +215,43 @@ describe('io.readDirAsyncDeep', () => {
 
   afterAll(mock.restore);
 
-  it('readDirAsyncDeep resolves an empty directory', () => {
-    return expect(io.readDirAsyncDeep('empty')).resolves.toHaveLength(1);
+  it('readDirAsyncDepth resolves an empty directory', async () => {
+    const files = await io.readDirAsyncDepth('empty');
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(files).toHaveLength(1);
+    expect(files).toMatchSnapshot();
   });
 
-  it('readDirAsyncDeep resolves a directory with sub-files', () => {
-    return expect(io.readDirAsyncDeep('zonk')).resolves.toHaveLength(2);
+  it('readDirAsyncDepth resolves a directory with sub-files', async () => {
+    const files = await io.readDirAsyncDepth('zonk');
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(files).toHaveLength(2);
+    expect(files).toMatchSnapshot();
   });
 
-  it('readDirAsyncDeep resolves a directory with sub-directories', () => {
-    return expect(io.readDirAsyncDeep('imp')).resolves.toHaveLength(2);
+  it('readDirAsyncDepth resolves a directory with sub-directories', async () => {
+    const files = await io.readDirAsyncDepth('imp');
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(files).toHaveLength(2);
+    expect(files).toMatchSnapshot();
   });
 
-  it('readDirAsyncDeep inclusively resolves a directory with multiple layers of directories and files', () => {
-    return expect(io.readDirAsyncDeep('foo', true)).resolves.toHaveLength(8);
+  it('readDirAsyncDepth resolves a directory with multiple layers of directories and files', async () => {
+    const files = await io.readDirAsyncDepth('foo');
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(files).toHaveLength(8);
+    expect(files).toMatchSnapshot();
   });
 
-  it('readDirAsyncDeep exclusively resolves a directory with multiple layers of directories and files', () => {
-    return expect(io.readDirAsyncDeep('foo', false)).resolves.toHaveLength(7);
+  it('readDirAsyncDepth resolves a directory with multiple layers of directories and files to specified depth', async () => {
+    const files = await io.readDirAsyncDepth('foo', 2);
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(files).toHaveLength(6);
+    expect(files).toMatchSnapshot();
   });
 
-  it('readDirAsyncDeep fails with an error on non-existent paths', () => {
-    return expect(io.readDirAsyncDeep('foo/dep/')).rejects.toThrow(/ENOENT/);
+  it('readDirAsyncDepth fails with an error on non-existent paths', () => {
+    return expect(io.readDirAsyncDepth('foo/dep/')).rejects.toThrow(/ENOENT/);
   });
 });
 
