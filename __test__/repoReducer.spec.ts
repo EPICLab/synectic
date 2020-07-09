@@ -1,6 +1,4 @@
 import parsePath from 'parse-path';
-import { DateTime } from 'luxon';
-
 import { Repository } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { reposReducer } from '../src/store/reducers/repos';
@@ -13,7 +11,8 @@ describe('reposReducer', () => {
       root: 'sampleUser/',
       corsProxy: new URL('http://www.oregonstate.edu'),
       url: parsePath('https://github.com/sampleUser/myRepo'),
-      refs: ['942043', '234412', '194724'],
+      local: ['942043', '234412', '194724'],
+      remote: [],
       oauth: 'github',
       username: 'sampleUser',
       password: '12345',
@@ -27,7 +26,8 @@ describe('reposReducer', () => {
     root: '/',
     corsProxy: new URL('http://www.oregonstate.edu'),
     url: parsePath('https://github.com/sampleUser/forkedRepo'),
-    refs: ['601421', '843449'],
+    local: ['601421', '843449'],
+    remote: [],
     oauth: 'github',
     username: 'sampleUser',
     password: '12345',
@@ -63,27 +63,6 @@ describe('reposReducer', () => {
       }
     });
     expect(updatedRepos).not.toMatchObject(repos);
-    expect(updatedRepos).toMatchSnapshot();
-  });
-
-  it('reposReducer updates refs of matched repo on action ADD_BRANCH', () => {
-    const updatedRepos = reposReducer(repos, {
-      type: ActionKeys.ADD_BRANCH, id: '150034', branch: {
-        id: '1',
-        name: 'testBranch',
-        repo: '23',
-        location: 'remote',
-        status: 'unmodified',
-        updated: DateTime.local()
-      }
-    });
-    expect(updatedRepos).not.toMatchObject(repos);
-    expect(updatedRepos).toMatchSnapshot();
-  });
-
-  it('reposReducer updates refs of matched repo on action REMOVE_BRANCH', () => {
-    const updatedRepos = reposReducer(repos, { type: ActionKeys.REMOVE_BRANCH, id: '194724' });
-    expect(updatedRepos[23].refs).toHaveLength(2);
     expect(updatedRepos).toMatchSnapshot();
   });
 });

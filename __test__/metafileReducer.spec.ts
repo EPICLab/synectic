@@ -13,7 +13,9 @@ describe('metafileReducer', () => {
       filetype: 'JavaScript',
       handler: 'Editor',
       modified: DateTime.fromISO('2019-12-01T11:14:08.572-08:00'),
-      content: 'sample content from test.js'
+      content: 'sample content from test.js',
+      repo: '13',
+      branch: '9'
     }
   };
 
@@ -52,5 +54,10 @@ describe('metafileReducer', () => {
     });
     expect(updatedMetafiles).not.toMatchObject(metafiles);
     expect(updatedMetafiles).toMatchSnapshot();
+  });
+
+  it('metafileReducer updates state of matched metafile on action REOMVE_REPO', () => {
+    const updatedMetafiles = metafileReducer(metafiles, { type: ActionKeys.REMOVE_REPO, id: '13' });
+    expect(updatedMetafiles[541].repo).toBeUndefined();
   });
 });
