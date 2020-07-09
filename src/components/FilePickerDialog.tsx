@@ -14,7 +14,7 @@ const FilePickerButton: React.FunctionComponent = () => {
   };
 
   return (
-    <Button id='filepicker-button' variant='contained' color='primary' onClick={async (e) => { await handleClick(e) }}>Open File...</Button>
+    <Button id='filepicker-button' variant='contained' color='primary' onClick={async (e) => { await handleClick(e) }}>Open...</Button>
   );
 };
 

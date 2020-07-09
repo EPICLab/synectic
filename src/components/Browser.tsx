@@ -75,6 +75,6 @@ export const BrowserButton: React.FunctionComponent = () => {
   };
 
   return (
-    <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Open Browser...</Button>
+    <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Browser...</Button>
   );
 }

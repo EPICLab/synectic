@@ -127,7 +127,7 @@ const NewCardButton: React.FunctionComponent = () => {
 
   return (
     <>
-      <Button id='newcard-button' variant='contained' color='primary' onClick={(e) => { handleClick(e) }}>New Card...</Button>
+      <Button id='newcard-button' variant='contained' color='primary' onClick={(e) => { handleClick(e) }}>New...</Button>
       <NewCardDialog open={open} onClose={handleClose} />
     </>
   );
