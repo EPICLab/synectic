@@ -12,7 +12,7 @@ export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
  */
 export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
   return array.filter((item): item is T => typeof item !== 'undefined');
-}
+};
 
 /**
  * Generic for deduplicating array of elements given a comparator function that
@@ -27,7 +27,22 @@ export const removeDuplicates = <T>(arr: T[], comparator: (a: T, b: T) => boolea
     if (!accumulator.some(item => comparator(item, current))) accumulator.push(current);
     return accumulator;
   }, []);
-}
+};
+
+/**
+ * Generic for asynchronously filtering an array of elements given an async predicate
+ * function that resolves to indicate whether an element should be considered for
+ * inclusion in the resutling array.
+ * @param arr An array of elements.
+ * @param predicate A predicate function that resolves to true if element e meets
+ * the filter inclusion requirements, and false otherwise.
+ * @return The resulting array devoid of elements that did not meet the predicate.
+ */
+export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<boolean>): Promise<T[]> => {
+  const results = await Promise.all(arr.map(predicate));
+  return arr.filter((_v, index) => results[index]);
+};
+
 
 /**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 

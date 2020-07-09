@@ -54,6 +54,24 @@ describe('format.removeDuplicates', () => {
   });
 });
 
+describe('format.asyncFilter', () => {
+  it('asyncFilter evaluates and returns array of Primitive types', async () => {
+    const arr = [3, 4, 1, 0, 2, 3];
+    const predicate = async (e: number) => (e % 2 == 0);
+    return expect(format.asyncFilter(arr, predicate)).resolves.toStrictEqual([4, 0, 2]);
+  });
+
+  it('asyncFilter evaluates and returns array of  types', async () => {
+    const arr = [3, 4, 1, 0, 2, 3];
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const predicate = async (e: number) => {
+      await delay(2);
+      return e % 2 === 0;
+    };
+    return expect(format.asyncFilter(arr, predicate)).resolves.toStrictEqual([4, 0, 2]);
+  });
+});
+
 describe('format.equalArrayBuffers', () => {
   it('equalArrayBuffers identifies equal and non-equal Buffers containing UTF-8 string data', () => {
     const buf1 = Buffer.from('test content');
