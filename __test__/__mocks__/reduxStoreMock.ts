@@ -137,7 +137,7 @@ const initialState: initStateT = {
       filetype: 'Directory',
       handler: 'Explorer',
       modified: DateTime.fromISO('2001-01-01T01:01:01.111-08:00'),
-      ref: 'master',
+      branch: 'master',
       contains: []
     }
   },
@@ -148,7 +148,8 @@ const initialState: initStateT = {
       root: '/',
       corsProxy: new URL('http://www.random_proxy.edu'),
       url: parsePath('http://www.random_proxy.edu'),
-      refs: ['master'],
+      local: ['master'],
+      remote: [],
       oauth: 'github',
       username: 'sam',
       password: 'pass123',

@@ -46,7 +46,6 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
           </Select>
         </FormControl>
         <Button style={{ gridArea: 'footer' }} id='diffpicker-button' variant='contained' color='primary' onClick={() => {
-          console.log(`PickerDialog (Button.onClick): selectedLeft: ${selectedLeft}, selectedRight: ${selectedRight}`); // PickerDialog (Button.onClick): selectedLeft: 1e5fe65f-2661-4271-8035-1dd3be7bdaf3, selectedRight: 5178999f-b1f2-464c-b51c-c35046f39e2f
           props.onClose(false, [selectedLeft, selectedRight]);
         }}>Run Diff</Button>
       </div>
@@ -59,6 +58,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
   const cards = useSelector((state: RootState) => state.cards);
   const metafiles = useSelector((state: RootState) => state.metafiles);
   const dispatch = useDispatch();
+
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -104,7 +104,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
 
   return (
     <>
-      <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Diff Cards...</Button>
+      <Button id='diffpicker-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={e => handleClick(e)}>Diff...</Button>
       <DiffPickerDialog open={open} options={Object.values(cards)} onClose={handleClose} />
     </>
   );

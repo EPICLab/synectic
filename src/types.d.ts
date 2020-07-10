@@ -11,7 +11,8 @@ export type RemoveType<T, N> = T extends { type: N } ? never : T;
 
 export type UUID = string;
 
-export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser';
+export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
+export type GitStatus = "modified" | "ignored" | "unmodified" | "*modified" | "*deleted" | "*added" | "absent" | "deleted" | "added" | "*unmodified" | "*absent" | "*undeleted" | "*undeletemodified";
 
 export type Card = {
   readonly id: UUID;
@@ -59,9 +60,10 @@ export type Metafile = {
   readonly handler?: CardType; // example: Editor
   readonly path?: PathLike; // relative or absolute path to the file/directory
   readonly repo?: UUID; // UUID to Repository object
-  readonly ref?: string; // Git branch name
+  readonly branch?: string; // Git branch name or ref
+  readonly status?: GitStatus; // Git version control status
   readonly content?: string; // for non-Directory filetype, contents of the file
-  readonly contains?: UUID[]; // for Directory filetype, UUID to Metafile objects (sub-files/sub-directories)
+  readonly contains?: string[]; // for Directory filetype, UUID to Metafile objects (sub-files/sub-directories)
 }
 
 export type Repository = {
@@ -70,7 +72,8 @@ export type Repository = {
   readonly root: PathLike; // relative or absolute path to the git root directory
   readonly corsProxy: URL;
   readonly url: parsePath.ParsedPath; // allows for local URLs
-  readonly refs: string[];
+  readonly local: string[]; // local branch refs
+  readonly remote: string[]; // remote branch refs
   readonly oauth: 'github' | 'bitbucket' | 'gitlab';
   readonly username: string;
   readonly password: string;

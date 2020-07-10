@@ -7,7 +7,7 @@ import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store/root';
 import { AnyAction } from 'redux';
 import { PathLike } from 'fs-extra';
-import { getMetafile } from './metafile2';
+import { getMetafile } from './metafiles';
 
 type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 type HandlerMissingMetafile = Omit<Metafile, 'handler'>;

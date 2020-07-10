@@ -1,122 +1,90 @@
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import * as isogit from 'isomorphic-git';
-import { v4 } from 'uuid';
+import * as path from 'path';
 import parsePath from 'parse-path';
-import pako from 'pako';
-import sha1 from 'sha1';
+import isUUID from 'validator/lib/isUUID';
+import { isWebUri } from 'valid-url';
 
 import * as io from './io';
-import { Repository, NarrowType } from '../types';
-import { ActionKeys, Action } from '../store/actions';
-import { getRepoRoot, currentBranch } from './git2';
-
-type AddOrUpdateRepoActions = NarrowType<Action, ActionKeys.ADD_REPO | ActionKeys.UPDATE_REPO>;
-type RepoPayload = { repo: (Repository | undefined); action: (AddOrUpdateRepoActions | undefined); branchRef: (string | undefined) };
-
-export * from 'isomorphic-git';
+import { Repository, GitStatus } from '../types';
 
 /**
- * @deprecated
- * @param filepath The relative or absolute path of a file compressed and prepended with git head and tail.
+ * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to inject the 
+ * fs parameter in to the *isomorphic-git/currentBranch* function.
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path.
+ * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the 
+ * abbreviated form.
+ * @param test Boolean option to return 'undefined' if the current branch doesn't actually exist 
+ * (such as 'master' right after git init).
+ * @return A Promise object containing the current branch name, or undefined if the HEAD is detached.
  */
-export const extractGitCompressed = async (filepath: fs.PathLike): Promise<string> => {
-  const rawBuffer = await io.readFileAsync(path.resolve(filepath.toString()));
-  const compressed = pako.deflate(rawBuffer, { level: 1 });
-  const decompressed = pako.inflate(compressed, { to: 'string' });
-  return decompressed;
-};
+export const currentBranch = ({ dir, gitdir, fullname, test }: {
+  dir?: string;
+  gitdir?: string;
+  fullname?: boolean;
+  test?: boolean;
+}): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
 
 /**
- * @deprecated
- * @param input 
+ * Determines the Git tracking status of a specific file.
+ * @param filepath The relative or absolute path to evaluate.
+ * @return A Promise object containing a status indicator for whether a file has been changed; the possible 
+ * resolve values are:
+ *
+ * | status                | description                                                                           |
+ * | --------------------- | ------------------------------------------------------------------------------------- |
+ * | `"ignored"`           | file ignored by a .gitignore rule                                                     |
+ * | `"unmodified"`        | file unchanged from HEAD commit                                                       |
+ * | `"*modified"`         | file has modifications, not yet staged                                                |
+ * | `"*deleted"`          | file has been removed, but the removal is not yet staged                              |
+ * | `"*added"`            | file is untracked, not yet staged                                                     |
+ * | `"absent"`            | file not present in HEAD commit, staging area, or working dir                         |
+ * | `"modified"`          | file has modifications, staged                                                        |
+ * | `"deleted"`           | file has been removed, staged                                                         |
+ * | `"added"`             | previously untracked file, staged                                                     |
+ * | `"*unmodified"`       | working dir and HEAD commit match, but index differs                                  |
+ * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index              |
+ * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
+ * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
  */
-export const base64ToUint8Array = (input: string): Uint8Array => {
-  const raw = atob(input);
-  const array = new Uint8Array(new ArrayBuffer(raw.length));
-  for (let i = 0; i < raw.length; i += 1) {
-    array[i] = raw.charCodeAt(i);
-  }
-  return array;
+export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus> => {
+  const repoRoot = await getRepoRoot(filepath);
+  return isogit.status({ fs: fs, dir: repoRoot ? repoRoot : '/', filepath: path.relative(repoRoot ? repoRoot : '/', filepath.toString()) });
 }
 
 /**
- * @deprecated
- * Read and return the Uint8Array representation of the file contents, which translates into an array of numbers representing
- * the binary content of the file. Good for inserting into Buffer.from() in order to mock up these *Git Object* files.
- * @deprecated Will remove in the future, since this is just syntactic sugar for constructing a mock Git-tracked project.
- * @param filepath A valid *Git Object* filename or path to read from.
- * @return A Promise object containing a Uint8Array of the binary file content.
+ * Find the root Git directory. Starting at filepath, walks upward until it finds a directory that 
+ * contains a *.git* subdirectory.
+ * @param filepath The relative or absolute path to evaluate.
+ * @return A Promise object containing the root Git directory path, or undefined if no root Git
+ * directory exists for the filepath (i.e. the filepath is not part of a Git repo).
  */
-export const readGitObjectToUint8Array = async (filepath: fs.PathLike): Promise<Uint8Array> => {
-  const compressed = await io.readFileAsync(filepath);
-  let decompressed: Uint8Array;
+export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
   try {
-    decompressed = pako.inflate(compressed);
-  } catch (error) {
-    decompressed = pako.inflate(pako.deflate(compressed, { level: 1 }));
+    const root = await isogit.findRoot({ fs: fs, filepath: filepath.toString() });
+    return root;
   }
-  return decompressed;
-}
-
-/**
- * @deprecated
- * @param filepath 
- */
-export const explodeHash = async (filepath: fs.PathLike): Promise<string> => {
-  const decoded = io.decompressBinaryObject(await io.readFileAsync(filepath))
-  const hash = sha1(decoded);
-  return hash;
-}
-
-/**
- * @deprecated
- * @param filepath 
- */
-export const explodeGitFile = async (filepath: fs.PathLike): Promise<{
-  file: string;
-  targetHash: string;
-  binary: Uint8Array;
-  decoded: string;
-  hash: string;
-}> => {
-  const targetHash = io.extractDirname(filepath) + io.extractFilename(filepath);
-  const binary = await readGitObjectToUint8Array(filepath);
-  const decoded = io.decompressBinaryObject(await io.readFileAsync(filepath))
-  const hash = sha1(decoded);
-  return { file: filepath.toString(), targetHash: targetHash, binary: binary, decoded: decoded, hash: hash };
-}
-
-/**
- * @deprecated
- * @param files 
- */
-export const explodeGitFiles = async (files: fs.PathLike[]): Promise<{
-  file: string;
-  targetHash: string;
-  binary: Uint8Array;
-  decoded: string;
-  hash: string;
-}[]> => {
-  return await Promise.all(files.map(file => explodeGitFile(file)));
+  catch (e) {
+    return undefined;
+  }
 };
 
 /**
- * @deprecated
- * @param dirPath 
+ * Asynchronous check for presence of .git within directory to validate Git version control.
+ * @param filepath The relative or absolute path to evaluate. 
+ * @return A Promise object containing true if filepath contains a .git subdirectory (or points 
+ * directly to the .git directory), and false otherwise.
  */
-export const pipelinePathToExploded = async (dirPath: fs.PathLike): Promise<{
-  file: string;
-  targetHash: string;
-  binary: Uint8Array;
-  decoded: string;
-  hash: string;
-}[]> => {
-  const fsObjects = await io.readDirAsyncDeep(dirPath, false);
-  const files = await io.filterReadArray(fsObjects, true);
-  const gitFiles = await explodeGitFiles(files);
-  return gitFiles;
-}
+export const isGitRepo = async (filepath: fs.PathLike): Promise<boolean> => {
+  const stats = await io.extractStats(filepath);
+  const directory = stats?.isDirectory() ? filepath.toString() : path.dirname(filepath.toString());
+  if (directory === undefined) return false;
+  const gitPath = (path.basename(directory) === '.git') ? directory : path.join(directory, '/.git');
+  const gitStats = await io.extractStats(gitPath);
+  if (gitStats === undefined) return false;
+  else return true;
+};
 
 /**
  * Parse a URL to extract Git repository name, typically based on the remote origin URL.
@@ -152,84 +120,15 @@ export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; 
 }
 
 /**
- * Determines the Git tracking status of a specific file.
- * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing a status indicator for whether a file has been changed; the possible 
- * resolve values are:
- *
- * | status                | description                                                                           |
- * | --------------------- | ------------------------------------------------------------------------------------- |
- * | `"ignored"`           | file ignored by a .gitignore rule                                                     |
- * | `"unmodified"`        | file unchanged from HEAD commit                                                       |
- * | `"*modified"`         | file has modifications, not yet staged                                                |
- * | `"*deleted"`          | file has been removed, but the removal is not yet staged                              |
- * | `"*added"`            | file is untracked, not yet staged                                                     |
- * | `"absent"`            | file not present in HEAD commit, staging area, or working dir                         |
- * | `"modified"`          | file has modifications, staged                                                        |
- * | `"deleted"`           | file has been removed, staged                                                         |
- * | `"added"`             | previously untracked file, staged                                                     |
- * | `"*unmodified"`       | working dir and HEAD commit match, but index differs                                  |
- * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index              |
- * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
- * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
+ * Examines a Repository object to determine if it is well-formed. The `id` field is validated to be compliant 
+ * with UUID version 4 (RFC4122), the `corsProxy` and `url` fields are validated to be well-formed HTTP or 
+ * HTTPS URI (RFC3986), or valid SSH URI (Provisional IANA format standard) in the case of the `url` field.
+ * @param repo A Repository object
+ * @return A boolean indicating a well-formed Repository on true, and false otherwise.
  */
-export const getStatus = async (filepath: fs.PathLike): Promise<"modified" | "ignored" | "unmodified" | "*modified" | "*deleted" | "*added" | "absent" | "deleted" | "added" | "*unmodified" | "*absent" | "*undeleted" | "*undeletemodified"> => {
-  const repoRoot = await getRepoRoot(filepath);
-  return isogit.status({ fs: fs, dir: '/', gitdir: repoRoot, filepath: filepath.toString() });
-}
-
-/**
- * @deprecated
- * Extract all necessary Git repository metadata from the root Git directory associated with the filepath, either 
- * by locating an existing repository and branch ref in the Redux state or creating Redux actions to add and 
- * update the state as needed.
- * @param filepath The relative or absolute path to evaluate; must be resolvable to a root Git directory.
- * @param repos The list of currently known Git repositories found in the Redux store.
- * @return A Promise object for a new or existing `Repository` object related to the root Git directory of the 
- * filepath, any Redux actions that update state for either a new repository or an updated repository with a new 
- * branch ref, and the current branch ref. If the `repo` field is undefined, either no root Git directory exists 
- * or no remote origin URL has been set for the repo. If the `action` field is undefined, no updates to the Redux 
- * store are necessary.
- */
-export const extractRepo = async (filepath: fs.PathLike, repos: Repository[]): Promise<RepoPayload> => {
-  const rootDir = await getRepoRoot(filepath);
-  if (!rootDir) return { repo: undefined, action: undefined, branchRef: undefined };
-  const branchRef = await currentBranch({ dir: rootDir, fullname: false });
-  const ref = branchRef ? branchRef : 'HEAD';
-
-  const remoteOriginUrls: string[] = await isogit.getConfigAll({ fs: fs, dir: rootDir.toString(), path: 'remote.origin.url' });
-  if (remoteOriginUrls.length <= 0) return { repo: undefined, action: undefined, branchRef: undefined };
-  const { url, oauth } = extractFromURL(remoteOriginUrls[0]);
-  const remoteBranches = await isogit.listBranches({ fs: fs, dir: rootDir.toString(), remote: 'origin' });
-  const localBranches = await isogit.listBranches({ fs: fs, dir: rootDir.toString() });
-  const branches = localBranches.concat(remoteBranches.filter(remote => localBranches.indexOf(remote) < 0));
-  const username = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'user.name' });
-  const password = await isogit.getConfig({ fs: fs, dir: rootDir.toString(), path: 'credential.helper' });
-
-  const newRepo: Repository = {
-    id: v4(),
-    name: extractRepoName(url.href),
-    root: rootDir,
-    corsProxy: new URL('https://cors-anywhere.herokuapp.com/'),
-    url: url,
-    refs: branches,
-    oauth: oauth,
-    username: username ? username : '',
-    password: password ? password : '',
-    token: ''
-  };
-
-  const existingRepo = repos.find(r => r.name === newRepo.name);
-  const existingRef = existingRepo ? existingRepo.refs.find(r => r === ref) : undefined;
-
-  if (existingRepo && existingRef) {
-    return { repo: existingRepo, action: undefined, branchRef: ref };
-  } else if (existingRepo && !existingRef) {
-    const updatedRepo = { ...existingRepo, refs: [...existingRepo.refs, ref], branchRef: ref };
-    return { repo: updatedRepo, action: { type: ActionKeys.UPDATE_REPO, id: existingRepo.id, repo: updatedRepo }, branchRef: ref };
-  } else {
-    const updatedBranches = branches.find(branch => branch === ref) ? branches : [...branches, ref];
-    const updatedRepo = { ...newRepo, refs: updatedBranches };
-    return { repo: updatedRepo, action: { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: updatedRepo }, branchRef: ref };
-  }
-}
+export const isValidRepository = (repo: Repository): boolean => (
+  isUUID(repo.id, 4)
+  && repo.name.length > 0
+  && (isWebUri(repo.corsProxy.href) ? true : false)
+  && ((isWebUri(repo.url.href) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url.href)))
+);

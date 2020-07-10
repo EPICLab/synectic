@@ -9,10 +9,11 @@ import Editor from './Editor';
 import Diff from './Diff';
 import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
-import { FormControl, Select, MenuItem, Input, makeStyles } from '@material-ui/core';
-import { checkoutRef } from '../containers/git2';
+import { makeStyles } from '@material-ui/core';
+// import { VersionTrackerComponent } from './VersionTracker';
+// import { BranchList } from './BranchList';
 
-const useStyles = makeStyles({
+export const useStyles = makeStyles({
   root: {
     color: 'rgba(171, 178, 191, 1.0)',
     fontSize: 'small',
@@ -34,6 +35,8 @@ const ContentFront: React.FunctionComponent<Card> = props => {
       return (<FileExplorerComponent rootId={props.related[0]} />);
     case 'Browser':
       return (<BrowserComponent />);
+    // case 'Tracker':
+    //   return (<VersionTrackerComponent />);
     default:
       return null;
   }
@@ -50,39 +53,10 @@ const ContentBack: React.FunctionComponent<Card> = props => {
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo.name}</span>
-      <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} />
+      {/* <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} /> */}
     </>
   );
 };
-
-const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string }> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
-  const [ref, updateRef] = useState(metafile.ref ? metafile.ref : 'untracked');
-  const dispatch = useDispatch();
-  const cssClasses = useStyles();
-
-  const checkout = (newRef: string) => {
-    // not really checking out a new branch, since isomorphic-git is not being called (yet)
-    console.log(`checkout: ${newRef}`);
-    updateRef(newRef);
-    dispatch(checkoutRef(metafile, newRef, props.cardId));
-  }
-
-  return (
-    <FormControl id='branch-control' className={cssClasses.root}>
-      <Select labelId='branch-selection-name-label' id='branch-name' value={ref}
-        className={cssClasses.root} autoWidth={true} input={<Input className={cssClasses.root} />}
-        onChange={(e) => checkout(e.target.value as string)} >
-        {repo && Object.values(repo.refs).map(branch =>
-          (<MenuItem key={branch} value={branch}>{branch}</MenuItem>)
-        )}
-        {ref == 'untracked' && <MenuItem key={ref} value={ref}>{ref}</MenuItem>}
-      </Select>
-    </FormControl>
-  );
-}
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);

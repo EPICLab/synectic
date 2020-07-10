@@ -12,7 +12,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "jest",
     "test:coverage": "jest --verbose --coverage",
-    "clean": "rimraf out/ .webpack/ coverage/ yarn-error.log"
+    "clean": "rimraf out/ .webpack/ coverage/ yarn-error.log",
+    "clean:tests": "jest --clearCache"
   },
   "keywords": [],
   "author": {

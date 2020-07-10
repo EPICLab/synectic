@@ -2,7 +2,7 @@ import mock from 'mock-fs';
 // import sha1 from 'sha1';
 // import pako from 'pako';
 // import * as io from '../src/containers/io';
-import * as git from '../src/containers/git';
+import * as git from '../src/containers/git-experimental';
 // import { PathLike } from 'fs-extra';
 
 beforeAll(() => {

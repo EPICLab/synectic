@@ -2,19 +2,21 @@ import React from 'react';
 // eslint-disable-next-line import/named
 import { useDrop, XYCoord } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store/root';
-import { Canvas, Error } from '../types';
-import { ActionKeys } from '../store/actions';
-import CardComponent from './CardComponent';
-import NewCardComponent from './NewCardDialog';
-import FilePickerButton from './FilePickerDialog';
 import { Button } from '@material-ui/core';
+
+import { RootState } from '../store/root';
+import { Canvas } from '../types';
+import { ActionKeys } from '../store/actions';
+
+import NewCardButton from './NewCardDialog';
+import FilePickerButton from './FilePickerDialog';
+import { BrowserButton } from './Browser';
+import DiffPickerButton from './DiffPickerDialog';
+import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
-import DiffPickerButton from './DiffPickerDialog';
-import { BrowserButton } from './Browser';
 import ErrorDialog from './ErrorDialog';
-import { v4 } from 'uuid';
+// import { VersionTrackerButton } from './VersionTracker';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -65,42 +67,27 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     actions.map(action => dispatch(action));
   }
 
-  const addError = () => {
-    console.log(`adding Error...`);
-    const error: Error = {
-      id: v4(),
-      type: 'TestError',
-      target: v4(),
-      message: `Test Error from button trigger`
-    };
-    dispatch({
-      type: ActionKeys.ADD_ERROR,
-      id: error.id,
-      error: error
-    });
-  }
-
   const showState = () => {
     const allCards = Object.values(cards);
     console.log(`CARDS: ${allCards.length}`)
     allCards.map(c => console.log(`name: ${c.name}, type: ${c.type}`));
     console.log(`METAFILES: ${metafiles.length}`);
-    metafiles.map(m => console.log(`name: ${m.name}, branch: ${m.ref}`));
+    metafiles.map(m => console.log(`name: ${m.name}, path: ${m.path}, branch: ${m.branch}, contains: ${m.contains ? JSON.stringify(m.contains) : ''}`));
     console.log(`REPOS: ${repos.length}`);
-    repos.map(r => console.log(`name: ${r.name}, path: ${r.url.href}, refs: ${JSON.stringify(r.refs)}`));
+    repos.map(r => console.log(`name: ${r.name}, path: ${r.url.href}, local refs: ${JSON.stringify(r.local)}, remote refs: ${JSON.stringify(r.remote)}`));
     console.log(`ERRORS: ${errors.length}`);
     console.log(JSON.stringify(errors));
   }
 
   return (
     <div className='canvas' ref={drop}>
-      <NewCardComponent />
+      <NewCardButton />
       <FilePickerButton />
-      <DiffPickerButton />
-      <Button id='stack-button' variant='contained' color='primary' onClick={createStack}>Create Stack</Button>
       <BrowserButton />
-      <Button id='button' variant='contained' color='primary' onClick={showState}>Show State</Button>
-      <Button id='button' variant='contained' color='primary' onClick={addError}>Add Error</Button>
+      {/* <VersionTrackerButton /> */}
+      <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
+      <DiffPickerButton />
+      <Button id='stack-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={createStack}>Stack...</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {errors.map(error => <ErrorDialog key={error.id} {...error} />)}

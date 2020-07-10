@@ -1,6 +1,6 @@
 import mock from 'mock-fs';
 
-import * as git from '../src/containers/git2';
+import * as git from '../src/containers/git';
 
 beforeEach(() => {
   mock({
