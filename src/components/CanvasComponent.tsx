@@ -16,7 +16,7 @@ import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import ErrorDialog from './ErrorDialog';
-import { VersionTrackerButton } from './VersionTracker';
+// import { VersionTrackerButton } from './VersionTracker';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -84,7 +84,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <NewCardButton />
       <FilePickerButton />
       <BrowserButton />
-      <VersionTrackerButton />
+      {/* <VersionTrackerButton /> */}
       <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
       <DiffPickerButton />
       <Button id='stack-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={createStack}>Stack...</Button>

@@ -10,8 +10,8 @@ import Diff from './Diff';
 import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
 import { makeStyles } from '@material-ui/core';
-import { VersionTrackerComponent } from './VersionTracker';
-import { BranchList } from './BranchList';
+// import { VersionTrackerComponent } from './VersionTracker';
+// import { BranchList } from './BranchList';
 
 export const useStyles = makeStyles({
   root: {
@@ -35,8 +35,8 @@ const ContentFront: React.FunctionComponent<Card> = props => {
       return (<FileExplorerComponent rootId={props.related[0]} />);
     case 'Browser':
       return (<BrowserComponent />);
-    case 'Tracker':
-      return (<VersionTrackerComponent />);
+    // case 'Tracker':
+    //   return (<VersionTrackerComponent />);
     default:
       return null;
   }
@@ -53,7 +53,7 @@ const ContentBack: React.FunctionComponent<Card> = props => {
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo.name}</span>
-      <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} />
+      {/* <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} /> */}
     </>
   );
 };
