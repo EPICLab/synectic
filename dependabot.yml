@@ -1,0 +1,11 @@
+# dependabot.yml file with
+# customized schedule for version updates
+
+version: 2
+updates:
+  - package-ecosystem: "yarn"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+    target-branch: "develop"
