@@ -101,7 +101,7 @@ export const loadCard = ({ metafile, filepath }: { metafile?: Metafile; filepath
  * Creates Redux actions for adding a new Stack, along with updating all child cards to be captured within that Stack.
  * @param name Name of the new Stack object.
  * @param cards Array of Card objects contained within the new Stack.
- * @param note Optional note field related to the new Stack.
+ * @param note (Optional) Note field related to the new Stack.
  * @return An array of Redux actions that updates state with a new Stack, and updates state of child Cards.
  */
 export const loadStack = (name: string, cards: Card[], note?: string): Action[] => {

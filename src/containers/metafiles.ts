@@ -10,8 +10,10 @@ import { RootState } from '../store/root';
 import * as io from './io';
 import * as git from './git';
 import { getRepository } from './repos';
+import { asyncFilter } from './format';
 
-type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
+export type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
+export type ContainsRequiredMetafile = Metafile & Required<Pick<Metafile, 'contains'>>;
 
 /**
  * Action Creator for composing a valid ADD_METAFILE Redux Action.
@@ -48,6 +50,21 @@ const updateMetafile = (metafile: Metafile): NarrowType<Action, ActionKeys.UPDAT
     metafile: metafile
   }
 }
+
+/**
+ * Filter the paths within the `contains` field of a `Metafile` and return an anonymous JavaScript object containing
+ * the differentiated `directories` and `files` paths. Filtering requires examining the file system properties associated
+ * with each contained path, and is therefore asynchronous and computationally expensive.
+ * @param metafile A `Metafile` object that includes a valid `contains` field.
+ * @param includeHidden (Optional) Flag for returning MacOS hidden files (in the format `.<filename>`); defaults to true.
+ * @return An anonymous JavaScript object with directories and files lists containing the filtered paths.
+ */
+export const filterDirectoryContainsTypes = async (metafile: ContainsRequiredMetafile, includeHidden = true): Promise<{ directories: string[], files: string[] }> => {
+  const directories: string[] = await asyncFilter(metafile.contains, async (e: string) => io.isDirectory(e));
+  let files: string[] = metafile.contains.filter(childPath => !directories.includes(childPath));
+  if (includeHidden == false) files = files.filter(childPath => !io.extractFilename(childPath).startsWith('.'));
+  return { directories: directories, files: files };
+};
 
 /**
  * Thunk Action Creator for examining and updating the file system properties associated with a Metafile in the Redux store.
@@ -129,13 +146,7 @@ export const updateDirectoryContains = (metafile: PathRequiredMetafile): ThunkAc
     if (metafile.filetype !== 'Directory') return metafile;
     const parentPath = metafile.path;
     const childPaths = (await io.readDirAsyncDepth(parentPath, 1)).filter(p => p !== parentPath);
-    // const childPaths = (await io.readDirAsync(metafile.path)).map(childPath => path.join(parentPath.toString(), childPath));
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    // const childMetafiles = await Promise.all(childPaths.map(childPath => dispatch(getMetafile(childPath))));
-    // const updated: Metafile = {
-    //   ...metafile,
-    //   contains: childMetafiles.map(m => m.id)
-    // }
+    if (JSON.stringify(childPaths) === JSON.stringify(metafile.contains)) return metafile; // escape hatch if no updates
     const updated: Metafile = {
       ...metafile,
       contains: childPaths
