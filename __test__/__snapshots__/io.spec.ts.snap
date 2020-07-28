@@ -1,8 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`io.deserialize deserialize to parse a JSON string into a TypeScript object 1`] = `
-Object {
-  "count": 42,
-  "result": true,
-}
+exports[`io.readDirAsyncDepth readDirAsyncDepth resolves a directory with multiple layers of directories and files 1`] = `
+Array [
+  "foo/bar",
+  "foo/baz",
+  "foo/zap/zed/beq",
+  "foo/zap/zed/bup",
+  "foo/zap/zed",
+  "foo/zap/zip",
+  "foo/zap",
+  "foo",
+]
+`;
+
+exports[`io.readDirAsyncDepth readDirAsyncDepth resolves a directory with multiple layers of directories and files to specified depth 1`] = `
+Array [
+  "foo/bar",
+  "foo/baz",
+  "foo/zap/zed",
+  "foo/zap/zip",
+  "foo/zap",
+  "foo",
+]
+`;
+
+exports[`io.readDirAsyncDepth readDirAsyncDepth resolves a directory with sub-directories 1`] = `
+Array [
+  "imp/bamp",
+  "imp",
+]
+`;
+
+exports[`io.readDirAsyncDepth readDirAsyncDepth resolves a directory with sub-files 1`] = `
+Array [
+  "zonk/zork",
+  "zonk",
+]
+`;
+
+exports[`io.readDirAsyncDepth readDirAsyncDepth resolves an empty directory 1`] = `
+Array [
+  "empty",
+]
 `;

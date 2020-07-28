@@ -101,26 +101,29 @@ body {
 
 .card-back {
   background-color: rgba(255, 255, 255, 1.0);
-  
-}
-
-/* grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr)); */
-.card-back {
   display: grid;
-  grid-template-columns: minmax(2rem, 1fr) minmax(5rem, 3fr);
+  grid-template-columns: minmax(2rem, 1.2fr) minmax(5rem, 3fr);
   column-gap: 0.1rem;
   grid-template-rows: repeat(auto-fill, minmax(1.7rem, 1fr));
+  row-gap: 0.25rem;
 }
 
-.card-back span {
+.card-back * {
+  font-size: small;
   padding: 0.2rem;
   margin: 0.1rem;
-  border: 0.5px solid rgba(40, 44, 52, 1.0);
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.card-back span.field {
-  border: none;
+.card-back .field {
+  border-bottom: 0.5px solid rgba(40, 44, 52, 1.0);
+}
+
+.git_icon {
+  background: url('git_light.png') no-repeat center center / 47%;
+  padding: 0.2rem;
+  margin: 0.1rem;
 }
 
 /* CSSTransition from react-transition-group uses *-enter, *-enter-active,
@@ -217,10 +220,6 @@ button.flip:active {
   background: url('flip_active.svg');
   background-size: cover;
   cursor: pointer;
-}
-
-div.git {
-  background: url('git_light.png') no-repeat center top/contain;
 }
 
 .diff-container {
@@ -350,4 +349,42 @@ img.diff_icon {
 
 #new-card-dialog-title {
   margin-top: -10px;
+}
+
+div.browser-topbar {
+  display: flex;
+  justify-content: space-evenly;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+button.arrow-left {
+  background: url('arrow-left-bold.svg') no-repeat center top/contain;
+  background-size: cover;
+  border-style: none;
+  outline: 0px;
+}
+
+button.arrow-right {
+  background: url('arrow-right-bold.svg') no-repeat center top/contain;
+  background-size: cover;
+  border-style: none;
+  outline: 0px;
+}
+
+button.refresh {
+  background: url('refresh.svg') no-repeat center top/contain;
+  background-size: cover;
+  border-style: none;
+  outline: 0px;
+}
+
+.url-bar-style {
+  height: 17px;
+  border-radius: 2px;
+  border: none;
+}
+
+div.browser-content {
+  border-radius: 0px 0px 10px 10px;
 }

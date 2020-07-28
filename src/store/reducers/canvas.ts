@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 
 import { Canvas } from '../../types';
-import { Actions, ActionKeys } from '../actions';
+import { Action, ActionKeys } from '../actions';
 import { addItemInArray, removeItemInArray } from '../immutables';
 
 const initialState: Canvas = {
@@ -13,7 +13,7 @@ const initialState: Canvas = {
   stacks: []
 }
 
-export const canvasReducer = (state: Canvas = initialState, action: Actions) => {
+export const canvasReducer = (state: Canvas = initialState, action: Action): Canvas => {
   switch (action.type) {
     case (ActionKeys.ADD_REPO):
       return {

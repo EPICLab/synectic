@@ -1,8 +1,8 @@
-import { Actions, ActionKeys } from '../actions';
+import { Action, ActionKeys } from '../actions';
 import { Filetype } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
-export const filetypeReducer = (state: { [id: string]: Filetype } = {}, action: Actions) => {
+export const filetypeReducer = (state: { [id: string]: Filetype } = {}, action: Action): { [id: string]: Filetype } => {
   switch (action.type) {
     case ActionKeys.ADD_FILETYPE:
       return addItemInMap(state, action.filetype);

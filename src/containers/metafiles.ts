@@ -1,156 +1,182 @@
-import { v4 } from 'uuid';
+import { Action, ActionKeys } from '../store/actions';
+import { ThunkAction } from 'redux-thunk';
+import { AnyAction } from 'redux';
 import { PathLike } from 'fs-extra';
+import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import * as path from 'path';
 
+import { NarrowType, Metafile, Filetype, UUID } from '../types';
+import { RootState } from '../store/root';
 import * as io from './io';
 import * as git from './git';
-import { Metafile, Filetype, Repository, RemoveType } from '../types';
-import { Actions, ActionKeys } from '../store/actions';
-import { flatten } from './flatten';
+import { getRepository } from './repos';
+import { asyncFilter } from './format';
 
-type IdentifiableActions = RemoveType<Actions, ActionKeys.INITIALIZE_CANVAS>;
-type MetafilePayload = { metafile: Metafile; actions: Actions[] };
-
-/**
- * Decorator for injecting fs.stat information into the metafile, and propogating any existing Redux actions into 
- * subsequent decorators or returns. Supported filetypes are matched to the metafile using the path and filetype 
- * extensions (if a file), or manual filetype search (if a directory). 
- * @param metafilePayload JavaScript object containing a root metafile, and queued Redux actions for updating state.
- * @param filetypes Array of supported filetype information; preferrably derived from Redux store.
- * @return A Promise object for the updated Metafile that includes populated `modified`, `filetype`, and `handler` 
- * fields, and any Redux actions previously enqueued for updating the Redux store.
- */
-const statsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filetype[]): Promise<MetafilePayload> => {
-  if (!metafilePayload.metafile.path) return metafilePayload;
-  const stats = await io.extractStats(metafilePayload.metafile.path);
-  if (!stats) return metafilePayload;
-  if (stats.isDirectory()) {
-    const handler = filetypes.find(filetype => filetype.filetype === 'Directory');
-    return {
-      metafile: {
-        ...metafilePayload.metafile,
-        modified: DateTime.fromJSDate(stats.mtime),
-        filetype: handler?.filetype,
-        handler: handler?.handler
-      },
-      actions: metafilePayload.actions
-    };
-  }
-  const extension = io.extractExtension(metafilePayload.metafile.path);
-  const handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
-  return {
-    metafile: {
-      ...metafilePayload.metafile,
-      modified: DateTime.fromJSDate(stats.mtime),
-      filetype: handler?.filetype,
-      handler: handler?.handler
-    },
-    actions: metafilePayload.actions
-  };
-};
+export type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
+export type ContainsRequiredMetafile = Metafile & Required<Pick<Metafile, 'contains'>>;
 
 /**
- * Decorator for handling the root metafile when it is a file; by injecting fs.readFile results into the metafile,
- * and propogating any existing Redux actions into subsequent decorators or returns.
- * @param metafilePayload JavaScript object containing a root metafile, and queued Redux actions for updating state.
- * @return A Promise object for the updated Metafile that includes a populated `content` field, and any Redux actions
- * previously enqueued for updating the Redux store.
- */
-const contentDecorator = async (metafilePayload: MetafilePayload): Promise<MetafilePayload> => {
-  if (!metafilePayload.metafile.path || metafilePayload.metafile.filetype === 'Directory') return metafilePayload;
-  const content = await io.readFileAsync(metafilePayload.metafile.path);
-  return { metafile: { ...metafilePayload.metafile, content: content }, actions: metafilePayload.actions };
-};
-
-/**
- * Decorator for injecting Git repository information (using `isomorphic-git`) into the metafile, and appending new 
- * Redux actions as needed for properly adding and updating repositories tracked in the Redux store. Includes updated
- * version of list of `Repository` objects, originally from Redux state, to include intermediate `Repository` objects
- * that will eventually be updated into the Redux store as part of the queued Redux actions.
- * @param metafilePayload JavaScript object containing a root metafile, and queued Redux actions for updating state.
- * @param repos Array of existing Git repositories; preferrably derived from Redux store.
- * @return A Promise object for a tuple containing a paylod of the updated Metafile that includes populated `repo` 
- * and `ref` fields, and updated queue of Redux actions for updating the store with those repositories. If the root 
- * metafile is not part of a Git repository file tree (either tracked or untracked), then the `repo` and `ref` 
- * fields are undefined. The second field of the tuple contains an updated version of repositories in the Redux store
- * combined with any intermediate repositories resolved during iterations of the extractMetafile function.
- */
-const gitDecorator = async (metafilePayload: MetafilePayload, repos: Repository[]): Promise<{ payload: MetafilePayload; updatedRepos: Repository[] }> => {
-  if (!metafilePayload.metafile.path) return { payload: metafilePayload, updatedRepos: repos };
-  const root = await git.getRepoRoot(metafilePayload.metafile.path.toString());
-  if (!root) return { payload: metafilePayload, updatedRepos: repos };
-  const branchRef = await git.currentBranch({ dir: root, fullname: false });
-  const repoPayload = branchRef ? await git.extractRepo(metafilePayload.metafile.path, repos, branchRef) :
-    await git.extractRepo(metafilePayload.metafile.path, repos);
-  const actions = repoPayload.action ? [...metafilePayload.actions, repoPayload.action] : metafilePayload.actions;
-  return {
-    payload: {
-      metafile: { ...metafilePayload.metafile, repo: repoPayload.repo?.id, ref: branchRef ? branchRef : undefined },
-      actions: actions
-    },
-    updatedRepos: (repoPayload.repo ? [...repos, repoPayload.repo] : repos)
-  };
-}
-
-/**
- * Decorator for handling the root metafile when it is a directory; by injecting metafile UUIDs for sub-child and 
- * sub-directories into the metafile, and appending new Redux actions as needed for properly adding and updating 
- * those sub-child and sub-directory metafiles.
- * @param metafilePayload JavaScript object containing a root metafile, and queued Redux actions for updating state.
- * @param filetypes Array of supported filetype information; preferrably derived from Redux store.
- * @param repos Array of existing Git repositories; preferrably derived from Redux store.
- * @return A Promise object for the updated Metafile that includes all child file/directory UUIDs in `contains` field, 
- * and updated queue of Redux actions for updating the store with those child file/directory metafiles.
- */
-const containsDecorator = async (metafilePayload: MetafilePayload, filetypes: Filetype[], repos: Repository[]): Promise<MetafilePayload> => {
-  if (!metafilePayload.metafile.path || metafilePayload.metafile.filetype !== 'Directory') return metafilePayload;
-
-  const parentPath = metafilePayload.metafile.path;
-  const childPaths = (await io.readDirAsync(metafilePayload.metafile.path)).map(childPath => path.join(parentPath.toString(), childPath));
-
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  const childPayloads = await Promise.all(childPaths.map(childPath => extractMetafile(childPath, filetypes, repos)));
-  const childActions: IdentifiableActions[] = flatten(childPayloads.map(childPayload => childPayload.actions));
-  const childMetafileIds = childPayloads.map(childPayload => childPayload.metafile.id);
-
-  return {
-    metafile: { ...metafilePayload.metafile, contains: childMetafileIds },
-    actions: [...metafilePayload.actions, ...childActions]
-  };
-};
-
-/**
- * Extract all necessary file/directory information, including sub-file and sub-directory children, Git version
- * control information, and file content in order to create a `Metafile` object. This information is required
- * in order to load resources into a `Card`.
+ * Action Creator for composing a valid ADD_METAFILE Redux Action.
  * @param filepath The relative or absolute path to evaluate.
- * @param filetypes Array of supported filetype information; preferrably derived from Redux store.
- * @param repos Array of existing Git repositories; preferrably derived from Redux store.
- * @return A Promise object for series of subsequent asynchronous calls to decorator functions that iteratively
- * append additional information into a `MetafilePayload` object containing the root metafile and all Redux
- * actions required in order to update the Redux store to hold the latest version of state.
+ * @param branch Git branch name or commit hash; defaults to 'master'.
+ * @return An `AddMetafileAction` object that can be dispatched via Redux.
  */
-export const extractMetafile = async (filepath: PathLike, filetypes: Filetype[], repos: Repository[]): Promise<MetafilePayload> => {
-  const name = io.extractFilename(filepath);
+const addMetafile = (filepath: PathLike, branch?: UUID): NarrowType<Action, ActionKeys.ADD_METAFILE> => {
   const metafile: Metafile = {
     id: v4(),
-    name: name.length === 0 ? io.extractDirname(filepath) : name,
+    name: io.extractFilename(filepath),
     path: filepath,
-    modified: DateTime.local()
+    modified: DateTime.local(),
+    branch: branch
+  };
+  return {
+    type: ActionKeys.ADD_METAFILE,
+    id: metafile.id,
+    metafile: metafile
+  };
+}
+
+/**
+ * Action Creator for composing a valid UPDATE_METAFILE Redux Action. If the current Redux store does not contain a 
+ * matching metafile (based on UUID) for the passed parameter, then dispatching this action will not result in any
+ * changes in the Redux store state.
+ * @param metafile A `Metafile` object containing new field values to be updated.
+ * @return An `UpdateMetafileAction` object that can be dispatched via Redux.
+ */
+const updateMetafile = (metafile: Metafile): NarrowType<Action, ActionKeys.UPDATE_METAFILE> => {
+  return {
+    type: ActionKeys.UPDATE_METAFILE,
+    id: metafile.id,
+    metafile: metafile
+  }
+}
+
+/**
+ * Filter the paths within the `contains` field of a `Metafile` and return an anonymous JavaScript object containing
+ * the differentiated `directories` and `files` paths. Filtering requires examining the file system properties associated
+ * with each contained path, and is therefore asynchronous and computationally expensive.
+ * @param metafile A `Metafile` object that includes a valid `contains` field.
+ * @param includeHidden (Optional) Flag for returning MacOS hidden files (in the format `.<filename>`); defaults to true.
+ * @return An anonymous JavaScript object with directories and files lists containing the filtered paths.
+ */
+export const filterDirectoryContainsTypes = async (metafile: ContainsRequiredMetafile, includeHidden = true): Promise<{ directories: string[], files: string[] }> => {
+  const directories: string[] = await asyncFilter(metafile.contains, async (e: string) => io.isDirectory(e));
+  let files: string[] = metafile.contains.filter(childPath => !directories.includes(childPath));
+  if (includeHidden == false) files = files.filter(childPath => !io.extractFilename(childPath).startsWith('.'));
+  return { directories: directories, files: files };
+};
+
+/**
+ * Thunk Action Creator for examining and updating the file system properties associated with a Metafile in the Redux store.
+ * Any previous known file system properties for the given Metafile will be updated, and the Reux store is updated as well.
+ * @param metafile A `Metafile` object that includes a valid `path` field.
+ * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve the updated `Metafile` object.
+ */
+export const updateFileStats = (metafile: PathRequiredMetafile): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
+  async (dispatch, getState) => {
+    const filetypes = Object.values(getState().filetypes);
+    const stats = await io.extractStats(metafile.path);
+    let handler: Filetype | undefined;
+    if (stats?.isDirectory()) {
+      handler = filetypes.find(filetype => filetype.filetype === 'Directory');
+    } else {
+      const extension = io.extractExtension(metafile.path);
+      handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
+    }
+    const updated: Metafile = {
+      ...metafile,
+      modified: stats ? DateTime.fromJSDate(stats.mtime) : DateTime.local(),
+      filetype: handler?.filetype,
+      handler: handler?.handler
+    }
+    dispatch(updateMetafile(updated));
+    return getState().metafiles[metafile.id];
   };
 
-  return statsDecorator({ metafile: metafile, actions: [] }, filetypes)
-    .then(payload => contentDecorator(payload))
-    .then(payload => gitDecorator(payload, repos))
-    .then(payloadAndRepos => containsDecorator(payloadAndRepos.payload, filetypes, payloadAndRepos.updatedRepos))
-    .then(payload => {
-      const addRootMetafile: Actions = {
-        type: ActionKeys.ADD_METAFILE,
-        id: payload.metafile.id,
-        metafile: payload.metafile
-      };
-      return { metafile: payload.metafile, actions: [...payload.actions, addRootMetafile] };
-    })
-    .catch(error => { throw new Error(error.message) });
-}
+/**
+* Thunk Action Creator for examining and updating file contents into the associated Metafile in the Redux store. If the metafile
+* is associated with a directory, then no valid content can be extracted and the metafile is returned unchanged. If the contents 
+* have previously been updated from within Synectic (e.g. through an Editor card), then this method is destructive to those 
+* changes. The file contents will be forcefully updated to reflect the version according to the file system.
+* @param metafile A `Metafile` object that includes a valid `path` field.
+* @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve the updated `Metafile` object.
+*/
+export const updateFileContents = (metafile: PathRequiredMetafile): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
+  async (dispatch, getState) => {
+    if (metafile.filetype === 'Directory') return metafile;
+    const content = await io.readFileAsync(metafile.path, { encoding: 'utf-8' });
+    dispatch(updateMetafile({ ...metafile, content: content }));
+    return getState().metafiles[metafile.id];
+  };
+
+/**
+* Thunk Action Creator for examining and updating git information for the associated Metafile in the Redux store. If the
+* metafile is not associated with a git repository, then no valid git information can be extracted adn the metafile is 
+* returned unchanged. If the branch has previously been updated from within Synectic (e.g. through switching the branch
+* from the back of a card), then this method is destructive to those changes and will trigger a file content update that
+* might also be destructive (see @getFileContents). 
+* @param metafile A `Metafile` object that includes a valid `path` field.
+* @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve the updated `Metafile` object.
+*/
+export const updateGitInfo = (metafile: PathRequiredMetafile): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
+  async (dispatch, getState) => {
+    const repo = await dispatch(getRepository(metafile.path));
+    if (!repo) return metafile;
+    const branch = await git.currentBranch({ dir: repo.root.toString(), fullname: false });
+    const updated: Metafile = {
+      ...metafile,
+      repo: repo.id,
+      branch: branch ? branch : 'HEAD'
+    }
+    dispatch(updateMetafile(updated));
+    return getState().metafiles[metafile.id];
+  };
+
+/**
+ * Thunk Action Creator for examining and updating directory contents into the associated Metafile in the Redux store. If the
+ * metafile is not associated with a directory, then no valid contains files and/or directories can be extracted and the 
+ * metafile is returned unchanged. If the directory has previously been updated from within Synectic (e.g. through creating 
+ * a new card, or renaming files in the File Explorer card), then this method is destructive to those changes. The directory 
+ * contains will be forcefully updated to reflect the version according to the file system.
+ * @param metafile A `Metafile` object that includes a valid `path` field.
+ * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve the updated `Metafile` object.
+ */
+export const updateDirectoryContains = (metafile: PathRequiredMetafile): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
+  async (dispatch, getState) => {
+    if (metafile.filetype !== 'Directory') return metafile;
+    const parentPath = metafile.path;
+    const childPaths = (await io.readDirAsyncDepth(parentPath, 1)).filter(p => p !== parentPath);
+    if (JSON.stringify(childPaths) === JSON.stringify(metafile.contains)) return metafile; // escape hatch if no updates
+    const updated: Metafile = {
+      ...metafile,
+      contains: childPaths
+    }
+    dispatch(updateMetafile(updated));
+    return getState().metafiles[metafile.id];
+  };
+
+/**
+ * Thunk Action Creator for retrieving a `Metafile` object associated associated with the given filepath. If there is no
+ * previous metafile for the given filepath, then a new metafile is created and the Redux store is updated to include this
+ * previously unknown metafile. If there is a previous metafile, then the file system properties associated with the
+ * metafile are updated and the Redux store is updated to include these updates. Git information, file contents, and 
+ * directory contains fields are updated (as needed or determined by filetype) in the Redux store.
+ * @param filepath The relative or absolute path to evaluate.
+ * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve a `Metafile` object.
+ */
+export const getMetafile = (filepath: PathLike): ThunkAction<Promise<Metafile>, RootState, undefined, AnyAction> =>
+  async (dispatch, getState) => {
+    const metafiles = Object.values(getState().metafiles);
+    const root = await git.getRepoRoot(filepath);
+    const currentRef = await git.currentBranch({ dir: root, fullname: false });
+    const currentBranch = currentRef ? currentRef : undefined; // type narrowing to convert void types to undefined
+
+    const existing = currentBranch ? metafiles.find(m => m.path == filepath && m.branch == currentBranch) : metafiles.find(m => m.path == filepath);
+    let metafile = existing ? existing : dispatch(addMetafile(filepath, currentBranch)).metafile;
+    metafile = await dispatch(updateFileStats(metafile as PathRequiredMetafile));
+    metafile = await dispatch(updateGitInfo(metafile as PathRequiredMetafile));
+    metafile = await dispatch(updateFileContents(metafile as PathRequiredMetafile));
+    metafile = await dispatch(updateDirectoryContains(metafile as PathRequiredMetafile));
+
+    return metafile;
+  };

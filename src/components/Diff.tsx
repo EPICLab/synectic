@@ -42,6 +42,6 @@ const Diff: React.FunctionComponent<{ left: UUID; right: UUID }> = props => {
       className='editor' height='100%' width='100%' readOnly={true} markers={markers} showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
-}
+};
 
 export default Diff;

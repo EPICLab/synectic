@@ -1,8 +1,8 @@
-import { Actions, ActionKeys } from '../actions';
+import { Action, ActionKeys } from '../actions';
 import { Repository } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
-export const reposReducer = (state: { [id: string]: Repository } = {}, action: Actions) => {
+export const reposReducer = (state: { [id: string]: Repository } = {}, action: Action): { [id: string]: Repository } => {
   switch (action.type) {
     case ActionKeys.ADD_REPO:
       return addItemInMap(state, action.repo);

@@ -6,7 +6,7 @@ import { InputLabel, FormControl, Button, Dialog, Select, Input, MenuItem, Dialo
 
 import { RootState } from '../store/root';
 import { UUID, Card, Metafile } from '../types';
-import { ActionKeys, Actions } from '../store/actions';
+import { ActionKeys, Action } from '../store/actions';
 
 type DialogProps = {
   open: boolean;
@@ -32,7 +32,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl >
+        </FormControl>
         <img className='diff_icon' />
         <FormControl id='right-form-control' style={{ gridArea: 'right', width: 100 }}>
           <InputLabel id='diff-card-selection-name-label'>Right</InputLabel>
@@ -44,9 +44,8 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl >
+        </FormControl>
         <Button style={{ gridArea: 'footer' }} id='diffpicker-button' variant='contained' color='primary' onClick={() => {
-          console.log(`PickerDialog (Button.onClick): selectedLeft: ${selectedLeft}, selectedRight: ${selectedRight}`); // PickerDialog (Button.onClick): selectedLeft: 1e5fe65f-2661-4271-8035-1dd3be7bdaf3, selectedRight: 5178999f-b1f2-464c-b51c-c35046f39e2f
           props.onClose(false, [selectedLeft, selectedRight]);
         }}>Run Diff</Button>
       </div>
@@ -59,6 +58,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
   const cards = useSelector((state: RootState) => state.cards);
   const metafiles = useSelector((state: RootState) => state.metafiles);
   const dispatch = useDispatch();
+
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -83,7 +83,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
       filetype: metafiles[left.related[0]].filetype,
       handler: 'Diff'
     }
-    const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+    const addMetafileAction: Action = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
     dispatch(addMetafileAction);
 
     const card: Card = {
@@ -97,14 +97,14 @@ const DiffPickerButton: React.FunctionComponent = () => {
       left: 50,
       top: 50
     }
-    const addCardAction: Actions = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
+    const addCardAction: Action = { type: ActionKeys.ADD_CARD, id: card.id, card: card };
     dispatch(addCardAction);
     setOpen(!open);
   };
 
   return (
     <>
-      <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Diff Cards...</Button>
+      <Button id='diffpicker-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={e => handleClick(e)}>Diff...</Button>
       <DiffPickerDialog open={open} options={Object.values(cards)} onClose={handleClose} />
     </>
   );

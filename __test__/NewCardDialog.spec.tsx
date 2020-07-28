@@ -2,57 +2,61 @@ import React from 'react';
 import { ReactWrapper, mount } from 'enzyme';
 
 import { getMockStore } from './__mocks__/reduxStoreMock';
-import { wrapInTestContext } from './__mocks__/dndReduxMock';
-import { NewCardDialog, checkFileName } from '../src/components/NewCardDialog';
+import { wrapInReduxContext } from './__mocks__/dndReduxMock';
+import { NewCardDialog } from '../src/components/NewCardDialog';
+import { validateFileName } from '../src/containers/io';
 import { TextField } from '@material-ui/core';
+
+type EmptyObject = Record<string, unknown>;
 
 const domElement = document.getElementById('app');
 const mountOptions = {
-    attachTo: domElement,
+  attachTo: domElement,
 };
 const store = getMockStore();
 
 describe('NewCardDialog', () => {
-    const NewCardContext = wrapInTestContext(NewCardDialog, store);
-    let wrapper: ReactWrapper<{}, Readonly<{}>, React.Component<{}, {}, {}>>;
+  const NewCardContext = wrapInReduxContext(NewCardDialog, store);
+  let wrapper: ReactWrapper<EmptyObject, Readonly<EmptyObject>, React.Component<EmptyObject, EmptyObject, EmptyObject>>;
 
-    beforeEach(() => wrapper = mount(<NewCardContext open={true} />, mountOptions));
-    afterEach(() => wrapper.unmount());
+  beforeEach(() => wrapper = mount(<NewCardContext open={true} />, mountOptions));
+  afterEach(() => wrapper.unmount());
 
-    it('NewCardDialog starts with empty values for file name and filetype', () => {
-        const newCardDialog = wrapper.find(NewCardDialog);
-        expect(newCardDialog.prop('fileName')).toBeUndefined();
-        expect(newCardDialog.prop('filetype')).toBeUndefined();
-        expect(newCardDialog.html()).toContain('<input type="hidden" value="">');
-        expect(wrapper.find(TextField).props().value).toEqual("");
-    });
+  const exts = ["ts", "html"];
+  const configExts = [".gitignore", ".htaccess"];
 
-    it('NewCardDialog does not change Redux state when invalid information is entered', () => {
-        const before = JSON.stringify(store.getState());
-        expect(wrapper.find(NewCardDialog).prop('isFileNameValid')).toBeFalsy();
-        wrapper.find('#create-card-button').first().simulate('click');
-        const after = JSON.stringify(store.getState());
-        expect(before).toEqual(after);
-    });
+  it('NewCardDialog starts with empty values for file name and filetype', () => {
+    const newCardDialog = wrapper.find(NewCardDialog);
+    expect(newCardDialog.prop('fileName')).toBeUndefined();
+    expect(newCardDialog.prop('filetype')).toBeUndefined();
+    expect(newCardDialog.html()).toContain('<input aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput" value="">');
+    expect(wrapper.find(TextField).props().value).toEqual("");
+  });
 
-    it('checkFileName returns false for an invalid file name and true for a valid file name', () => {
-        expect(checkFileName('<.ts', 'ts')).toEqual(false);
-        expect(checkFileName('>.ts', 'ts')).toEqual(false);
-        expect(checkFileName(':.ts', 'ts')).toEqual(false);
-        expect(checkFileName('".ts', 'ts')).toEqual(false);
-        expect(checkFileName('/.ts', 'ts')).toEqual(false);
-        expect(checkFileName('\\.ts', 'ts')).toEqual(false);
-        expect(checkFileName('|.ts', 'ts')).toEqual(false);
-        expect(checkFileName('?.ts', 'ts')).toEqual(false);
-        expect(checkFileName('*.ts', 'ts')).toEqual(false);
-        expect(checkFileName(' .ts', 'ts')).toEqual(false);
-        expect(checkFileName('..ts', 'ts')).toEqual(false);
-        expect(checkFileName('foo .ts', 'ts')).toEqual(false);
-        expect(checkFileName('bar..ts', 'ts')).toEqual(false);
-        expect(checkFileName('', 'ts')).toEqual(false);
+  it('NewCardDialog does not change Redux state when invalid information is entered', () => {
+    const before = JSON.stringify(store.getState());
+    expect(wrapper.find(NewCardDialog).prop('isFileNameValid')).toBeFalsy();
+    wrapper.find('#create-card-button').first().simulate('click');
+    const after = JSON.stringify(store.getState());
+    expect(before).toEqual(after);
+  });
 
-        expect(checkFileName('foo.ts', 'ts')).toEqual(true);
-        expect(checkFileName('bar.html', 'html')).toEqual(true);
-        expect(checkFileName('', '.htaccess')).toEqual(true);
-    });
+  it('validateFileName returns false for an invalid file name and true for a valid file name', () => {
+    expect(validateFileName('<.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('>.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName(':.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('".ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('/.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('\\.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('|.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('?.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('*.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName(' .ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('..ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('foo .ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('bar..ts', configExts, exts)).toEqual(false);
+
+    expect(validateFileName('foo.ts', configExts, exts)).toEqual(true);
+    expect(validateFileName('bar.html', configExts, exts)).toEqual(true);
+  });
 });

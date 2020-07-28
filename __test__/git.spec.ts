@@ -1,53 +1,90 @@
 import mock from 'mock-fs';
 
 import * as git from '../src/containers/git';
-import parsePath from 'parse-path';
-import { Repository } from '../src/types';
-import { ActionKeys } from '../src/store/actions';
 
 beforeEach(() => {
   mock({
-    'foo/bar': {
-      'no-tracked-file.js': 'file contents',
-    },
-    baz: {
-      '.git': {
-        'HEAD': 'ref: refs/heads/feature/test',
-        'config': '[core]\nrepositoryformatversion = 0\nfilemode = true\nbare = false\nlogallrefupdates = true\nignorecase = true\nprecomposeunicode = true\n[remote "origin"]\nurl = git@github.com:test/test.git\nfetch = +refs / heads/*:refs/remotes/origin/*\n[branch "master"]\nremote = origin\nmerge = refs/heads/master'
+    foo: {
+      bar: {
+        'untracked-file.js': 'directory is untracked by git',
       },
-      'some-file.js': 'random content',
-      'qux/tracked-file.js': 'other content',
+      baz: {
+        '.git': {
+          'HEAD': 'ref: refs/heads/feature/test',
+          'config': '[core]\nrepositoryformatversion = 0\nfilemode = true\nbare = false\nlogallrefupdates = true\nignorecase = true\nprecomposeunicode = true\n[remote "origin"]\nurl = git@github.com:test/test.git\nfetch = +refs / heads/*:refs/remotes/origin/*\n[branch "master"]\nremote = origin\nmerge = refs/heads/master',
+          objects: {
+            'e2': {
+              '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
+            },
+            '42': {
+              '2a8a27eebd3798c661f2c0788dc8d6dfe597a1': `blob 26\x00My data fits on line line\n`
+            }
+          },
+          refs: {
+            heads: {
+              feature: {
+                'test': '4c40253aace4ffa46c943311d77232cb5d4ffe93'
+              },
+              'master': '4c40253aace4ffa46c943311d77232cb5d4ffe93',
+              'remote-only': 'a81c46a181052b4bbb0037b7ab192540c4234054'
+            },
+          }
+        },
+        'tracked-file.js': 'directory is tracked by git',
+        'another-file.ts': 'directory is tracked by git, but the git repo is currently in a detached HEAD state'
+      },
+      qux: {
+        '.git': {
+          'HEAD': '5862ad5c2f677a657b09fe5651693df60fb64227',
+          'config': '[core]\nrepositoryformatversion = 0\nfilemode = true\nbare = false\nlogallrefupdates = true\nignorecase = true\nprecomposeunicode = true\n[remote "origin"]\nurl = git@github.com:test/test.git\nfetch = +refs / heads/*:refs/remotes/origin/*\n[branch "master"]\nremote = origin\nmerge = refs/heads/master',
+          objects: {}
+        }
+      }
     }
   });
 });
 
 afterEach(mock.restore);
 
+describe('git.currentBranch', () => {
+  it('currentBranch resolves to Git branch name on a tracked directory', async () => {
+    return expect(git.currentBranch({ dir: 'foo/baz/' })).resolves.toBe('feature/test');
+  });
+
+  it('currentBranch resolves to undefined on a tracked directory with detached HEAD', async () => {
+    return expect(git.currentBranch({ dir: 'foo/qux/' })).resolves.toBeUndefined();
+  });
+
+  it('currentBranch fails with an error on an untracked directory', async () => {
+    return expect(git.currentBranch({ dir: 'foo/bar/' })).rejects.toThrow(/Could not find HEAD/);
+  });
+});
+
 describe('git.getRepoRoot', () => {
   it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
-    return expect(git.getRepoRoot('baz/qux/tracked-file.js')).resolves.toBe('baz');
+    return expect(git.getRepoRoot('foo/baz/tracked-file.js')).resolves.toBe('foo/baz');
   });
 
   it('getRepoRoot resolves to undefined on file in untracked directory', async () => {
-    return expect(git.getRepoRoot('foo/bar/no-tracked-file.js')).resolves.toBeUndefined();
+    return expect(git.getRepoRoot('foo/bar/untracked-file.js')).resolves.toBeUndefined();
   });
 });
 
 describe('git.isGitRepo', () => {
   it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
-    return expect(git.isGitRepo('baz/')).resolves.toBe(true);
+    return expect(git.isGitRepo('foo/baz/')).resolves.toBe(true);
   });
 
   it('isGitRepo resolves directory path ending in .git directory to true', async () => {
-    return expect(git.isGitRepo('baz/.git')).resolves.toBe(true);
+    return expect(git.isGitRepo('foo/baz/.git')).resolves.toBe(true);
   });
 
   it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
-    return expect(git.isGitRepo('baz/some-file.js')).resolves.toBe(true);
+    return expect(git.isGitRepo('foo/baz/another-file.ts')).resolves.toBe(true);
   });
 
   it('isGitRepo resolves directory path without a .git directory to false', async () => {
-    return expect(git.isGitRepo('foo/bar')).resolves.toBe(false);
+    return expect(git.isGitRepo('foo/bar/')).resolves.toBe(false);
   });
 
   it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
@@ -86,146 +123,5 @@ describe('git.extractRepoName', () => {
 
   it('extractRepoName resolves git+https://*.git#tag', () => {
     expect(git.extractRepoName('git+https://github.com/octo-org/octo-repo.git#2.7.0')).toBe('octo-org/octo-repo');
-  });
-});
-
-// process.stdout.write(`directory: ${directory}\n`);
-
-describe('git.extractFromURL', () => {
-  it('extractFromURL resolves git://*', () => {
-    const parsedURL = git.extractFromURL('git://github.com/octo-org/octo-repo');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'git' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves git://*.git', () => {
-    const githubURL = git.extractFromURL('git://github.com/octo-org/octo-repo.git');
-    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'git' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves https://*', () => {
-    const githubURL = git.extractFromURL('https://github.com/octo-org/octo-repo');
-    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'https' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves https://*.git', () => {
-    const parsedURL = git.extractFromURL('https://github.com/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'https' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves ssh://*.git', () => {
-    const parsedURL = git.extractFromURL('ssh://git@github.com:octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves git@github.com:octo-org/octo-repo.git', () => {
-    const parsedURL = git.extractFromURL('git@github.com:octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves git@github.com:/octo-org/octo-repo.git', () => {
-    const parsedURL = git.extractFromURL('git@github.com:/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves git@github.com:octo-org/octo-repo.git#2.7.0', () => {
-    const parsedURL = git.extractFromURL('git@github.com:octo-org/octo-repo.git#2.7.0');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'ssh' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves git+https://github.com/octo-org/octo-repo.git', () => {
-    const parsedURL = git.extractFromURL('git+https://github.com/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'git', protocols: ['git', 'https'] }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves git+ssh://github.com/octo-org/octo-repo.git', () => {
-    const parsedURL = git.extractFromURL('git+ssh://github.com/octo-org/octo-repo.git');
-    expect(parsedURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...parsedURL.url, protocol: 'git', protocols: ['git', 'ssh'] }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves git@gist URLs', () => {
-    const githubURL = git.extractFromURL('git@gist.github.com:3135914.git');
-    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'ssh' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves https://gist URLs', () => {
-    const bitbucketURL = git.extractFromURL('https://bitbucket.org/snippets/vmaric/oed9AM/hello-json-message');
-    const gitlabURL = git.extractFromURL('https://gitlab.com/snippets/1927595');
-    expect(bitbucketURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...bitbucketURL.url, protocol: 'https', protocols: ['https'] }, oauth: 'bitbucket' });
-    expect(gitlabURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitlabURL.url, protocol: 'https', protocols: ['https'] }, oauth: 'gitlab' });
-  });
-
-  it('extractFromURL resolves GitHub Enterprise GHE URLs', () => {
-    const githubURL = git.extractFromURL('git://github.example.com/treygriffith/cellar.git');
-    expect(githubURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...githubURL.url, protocol: 'git' }, oauth: 'github' });
-  });
-
-  it('extractFromURL resolves BitBucket URLs', () => {
-    const gitURL = git.extractFromURL('git://bitbucket.org/bucket-org/bit-repo');
-    const gitFullURL = git.extractFromURL('git://bitbucket.org/bucket-org/bit-repo.git');
-    const httpsURL = git.extractFromURL('https://treygriffith@bitbucket.org/bucket-org/cellar.git');
-    const sshURL = git.extractFromURL('ssh://git@bitbucket.org/bucket-org/cellar.git');
-    const mercurialURL = git.extractFromURL('ssh://hp@bitbucket.org/bucket-org/cellar.git');
-    expect(gitURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitURL.url, protocol: 'git' }, oauth: 'bitbucket' });
-    expect(gitFullURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitFullURL.url, protocol: 'git' }, oauth: 'bitbucket' });
-    expect(httpsURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...httpsURL.url, protocol: 'https' }, oauth: 'bitbucket' });
-    expect(sshURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...sshURL.url, protocol: 'ssh' }, oauth: 'bitbucket' });
-    expect(mercurialURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...mercurialURL.url, protocol: 'ssh' }, oauth: 'bitbucket' });
-  });
-
-  it('extractFromURL resolves GitLab URLs', () => {
-    const gitURL = git.extractFromURL('git://gitlab.example.com/gitlab-org/lab-repo');
-    const gitFullURL = git.extractFromURL('git://gitlab.example.com/gitlab-org/lab-repo.git');
-    const httpsURL = git.extractFromURL('https://gitlab.com/gitlab-org/omnibus-gitlab');
-    const sshURL = git.extractFromURL('ssh://git@gitlab.com:labuser/lab-repo.git');
-    expect(gitURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitURL.url, protocol: 'git' }, oauth: 'gitlab' });
-    expect(gitFullURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...gitFullURL.url, protocol: 'git' }, oauth: 'gitlab' });
-    expect(httpsURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...httpsURL.url, protocol: 'https' }, oauth: 'gitlab' });
-    expect(sshURL).toMatchObject<{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }>({ url: { ...sshURL.url, protocol: 'ssh' }, oauth: 'gitlab' });
-  });
-});
-
-describe('git.getStatus', () => {
-  it('isGitTracked resolves tracked file to true', async () => {
-    return expect(git.getStatus('baz/qux/tracked-file.js')).resolves.toBe('absent');
-  });
-});
-
-describe('git.extractRepo', () => {
-  const existingRepo: Repository = {
-    id: '34',
-    name: 'test/test',
-    corsProxy: new URL('https://cors.github.com/example'),
-    url: parsePath('git@github.com:test/test.git'),
-    refs: ['sampleBranch'],
-    oauth: 'github',
-    username: '',
-    password: '',
-    token: ''
-  };
-
-  it('extractRepo resolves untracked Git directory to { undefined repo, undefined action }', async () => {
-    return expect(git.extractRepo('foo/bar/', [])).resolves.toStrictEqual({ repo: undefined, action: undefined });
-  });
-
-  it('extractRepo resolves a new Git repository to { new repo, AddRepoAction action }', async () => {
-    const { repo, action } = await git.extractRepo('baz/', []);
-    expect(action?.type).toBe(ActionKeys.ADD_REPO);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect({ ...repo, id: undefined }).toMatchSnapshot();
-    expect({ type: action?.type, id: undefined, repo: { ...action?.repo, id: undefined } }).toMatchSnapshot();
-  });
-
-  it('extractRepo resolves an existing Git repository with unknown branch ref to { existing repo, UpdateRepoAction action }', async () => {
-    const { repo, action } = await git.extractRepo('baz/', [existingRepo]);
-    const updatedRepo = { ...existingRepo, refs: [...existingRepo.refs, 'HEAD'] };
-    expect(repo).toMatchObject(updatedRepo);
-    expect(action?.type).toBe(ActionKeys.UPDATE_REPO);
-    expect(action?.repo).toMatchObject(updatedRepo);
-  });
-
-  it('extractRepo resolves an existing Git repository and known branch ref to { existing repo, undefined action }', async () => {
-    const { repo, action } = await git.extractRepo('baz/', [existingRepo], 'sampleBranch');
-    expect(repo).toMatchObject(existingRepo);
-    expect(action).toBeUndefined();
   });
 });

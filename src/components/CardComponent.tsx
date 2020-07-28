@@ -7,7 +7,19 @@ import { ActionKeys } from '../store/actions';
 import FileExplorerComponent from './FileExplorer';
 import Editor from './Editor';
 import Diff from './Diff';
+import { BrowserComponent } from './Browser';
 import { RootState } from '../store/root';
+import { makeStyles } from '@material-ui/core';
+// import { VersionTrackerComponent } from './VersionTracker';
+// import { BranchList } from './BranchList';
+
+export const useStyles = makeStyles({
+  root: {
+    color: 'rgba(171, 178, 191, 1.0)',
+    fontSize: 'small',
+    fontFamily: `'Lato', Georgia, Serif`
+  }
+});
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
@@ -21,6 +33,10 @@ const ContentFront: React.FunctionComponent<Card> = props => {
       return (<Diff left={props.related[0]} right={props.related[1]} />);
     case 'Explorer':
       return (<FileExplorerComponent rootId={props.related[0]} />);
+    case 'Browser':
+      return (<BrowserComponent />);
+    // case 'Tracker':
+    //   return (<VersionTrackerComponent />);
     default:
       return null;
   }
@@ -29,11 +45,15 @@ const ContentFront: React.FunctionComponent<Card> = props => {
 const ContentBack: React.FunctionComponent<Card> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
   const repos = useSelector((state: RootState) => state.repos);
+  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
+
   return (
     <>
-      <div className='git' /><span>{metafile.repo ? repos[metafile.repo].name : 'Untracked'}</span>
-      <span className='field'>ID:</span><span>{props.id}</span>
-      <span className='field'>Name:</span><span>{props.name}</span>
+      <div className='git_icon' /><span />
+      <span>Name:</span><span className='field'>{props.name}</span>
+      <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
+      <span>Repo:</span><span className='field'>{repo.name}</span>
+      {/* <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} /> */}
     </>
   );
 };
@@ -51,10 +71,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     canDrag: !props.captured
   });
 
-  const flip = () => {
-    console.log(`flip: ${flipped} => ${!flipped}`);
-    setFlipped(!flipped);
-  };
+  const flip = () => setFlipped(!flipped);
 
   return (
     <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>

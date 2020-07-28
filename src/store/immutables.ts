@@ -33,7 +33,7 @@ export const removeItemInArray = (array: string[], item: string): string[] => {
  * @param newItem A new item to be appended to map.
  * @returns New map containing all items from old map and including new item.
  */
-export const addItemInMap = <T extends { id: string }>(map: { [id: string]: T }, newItem: T) => {
+export const addItemInMap = <T extends { id: string }>(map: { [id: string]: T }, newItem: T): { [id: string]: T } => {
   const updatedItems: { [id: string]: T } = {};
   for (const k in map) {
     updatedItems[k] = map[k];
@@ -48,7 +48,7 @@ export const addItemInMap = <T extends { id: string }>(map: { [id: string]: T },
  * @param itemId An id associated with an item contained in the map.
  * @returns New map containing all items from map excluding item with matching id.
  */
-export const removeItemInMap = <T extends { id: string }>(map: { [id: string]: T }, itemId: string) => {
+export const removeItemInMap = <T extends { id: string }>(map: { [id: string]: T }, itemId: string): { [id: string]: T } => {
   return Object.keys(map).reduce((items: { [id: string]: T }, id) => {
     if (id !== itemId) {
       items[id] = map[id];
@@ -56,6 +56,21 @@ export const removeItemInMap = <T extends { id: string }>(map: { [id: string]: T
     return items;
   }, {});
 }
+
+/**
+ * Immutably remove items from map using specified filter function.
+ * @param map The initial source key-value map object.
+ * @param filterFn Filter function that returns true for each item in map that 
+ * meets conditions specified in function.
+ */
+export const removeMatchesInMap = <T>(map: { [id: string]: T }, filterFn: (item: T) => boolean): { [id: string]: T } => {
+  return Object.keys(map).reduce((items: { [id: string]: T }, id) => {
+    if (!filterFn(map[id])) {
+      items[id] = map[id];
+    }
+    return items;
+  }, {});
+};
 
 /**
  * Immutably filters items from map using specified filter function and applies a 
@@ -66,7 +81,7 @@ export const removeItemInMap = <T extends { id: string }>(map: { [id: string]: T
  * @param updateItemCallback Callback function to apply towards items that meet 
  * filter function predicates.
  */
-export const updateMatchesInMap = <T>(map: { [id: string]: T }, filterFn: (item: T) => boolean, updateItemCallback: (item: T) => T) => {
+export const updateMatchesInMap = <T>(map: { [id: string]: T }, filterFn: (item: T) => boolean, updateItemCallback: (item: T) => T): { [id: string]: T } => {
   const updatedItems: { [id: string]: T } = {};
   for (const k in map) {
     if (filterFn(map[k])) {
@@ -86,7 +101,7 @@ export const updateMatchesInMap = <T>(map: { [id: string]: T }, filterFn: (item:
  * @param updateItemCallback Callback function to apply towards item with matching id.
  * @returns New map containing all items from map including updated item.
  */
-export const updateItemInMapById = <T extends { id: string }>(map: { [id: string]: T }, itemId: string, updateItemCallback: (item: T) => T) => {
+export const updateItemInMapById = <T extends { id: string }>(map: { [id: string]: T }, itemId: string, updateItemCallback: (item: T) => T): { [id: string]: T } => {
   return updateMatchesInMap(map, (item => item.id === itemId), updateItemCallback);
 };
 

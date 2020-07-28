@@ -3,8 +3,9 @@ import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
 import { Canvas, Stack, Card, Filetype, Metafile, Repository } from '../../src/types';
-import { createStore } from 'redux';
+import { createStore, CombinedState, Store } from 'redux';
 import { rootReducer } from '../../src/store/root';
+import { Action } from '../../src/store/actions';
 
 type initStateT = {
   canvas: Canvas;
@@ -136,7 +137,7 @@ const initialState: initStateT = {
       filetype: 'Directory',
       handler: 'Explorer',
       modified: DateTime.fromISO('2001-01-01T01:01:01.111-08:00'),
-      ref: 'master',
+      branch: 'master',
       contains: []
     }
   },
@@ -144,9 +145,11 @@ const initialState: initStateT = {
     13: {
       id: '13',
       name: 'test/repo',
+      root: '/',
       corsProxy: new URL('http://www.random_proxy.edu'),
       url: parsePath('http://www.random_proxy.edu'),
-      refs: ['master'],
+      local: ['master'],
+      remote: [],
       oauth: 'github',
       username: 'sam',
       password: 'pass123',
@@ -155,11 +158,11 @@ const initialState: initStateT = {
   }
 };
 
-export const getMockStore = () => createStore(rootReducer, initialState);
+export const getMockStore = (): Store<CombinedState<initStateT>, Action> => createStore(rootReducer, initialState);
 
-export const getCanvasProps = () => initialState.canvas;
+export const getCanvasProps = (): Canvas => initialState.canvas;
 
-export const getCardProps = (index?: number) => {
+export const getCardProps = (index?: number): Card => {
   const initialCards = Object.values(initialState.cards);
   if (index && index >= 0 && index < initialCards.length) {
     return initialCards[index];

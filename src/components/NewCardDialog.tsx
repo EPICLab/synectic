@@ -6,23 +6,10 @@ import { DateTime } from 'luxon';
 
 import { RootState } from '../store/root';
 import { Metafile } from '../types';
-import { Actions, ActionKeys } from '../store/actions';
+import { Action, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
-
-export const checkFileName = (fileName: string, extension: string) => {
-  const ext = fileName.indexOf('.') !== -1 ? io.extractExtension(fileName) : "";
-  const isValid =
-    fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== '.' &&
-      fileName.slice(0, fileName.lastIndexOf('.')).slice(-1) !== ' ' &&
-      /*Regex below matches all occurances of invalid file name characters in the set: <, >, \, /, |, ?, *, 
-          and characters NULL to US (ASCII values 0 to 31)*/
-      // eslint-disable-next-line no-control-regex
-      !(/[<>:"\\/|?*\x00-\x1F]/g).test(fileName) ?
-      true : false;
-
-  return extension && extension.includes('.') ? isValid : isValid && fileName !== '' && fileName.slice(0, -ext.length - 1) !== "";
-}
+import { flatten } from '../containers/flatten';
 
 type NewCardDialogProps = {
   open: boolean;
@@ -32,57 +19,85 @@ type NewCardDialogProps = {
 export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props => {
   const dispatch = useDispatch();
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
+  const exts: string[] = flatten(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
+  // configExts is a list of all .config extensions found within exts:
+  const configExts: string[] = flatten((filetypes.map(filetype => filetype.extensions.filter(ext => ext.charAt(0) === '.'))).filter(arr => arr.length > 0));
+
   const [fileName, setFileName] = React.useState('');
   const [filetype, setFiletype] = React.useState('');
   const [isFileNameValid, setIsFileNameValid] = React.useState(false);
+  const [isExtensionValid, setIsExtensionValid] = React.useState(false);
 
   const handleClose = () => {
     setFileName('');
     setFiletype('');
+    setIsExtensionValid(false);
     setIsFileNameValid(false);
     props.onClose();
   };
 
   const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
+    // currExt takes the current extension found within the filename, or is an empty string if no extension is found
+    const currExt = event.target.value.indexOf('.') !== -1 ? io.extractExtension(event.target.value) : "";
+    // newExt matches currExt to an existing extension within filetypes. If none is found, it returns undefined
+    const newExt = filetypes.find(filetype => filetype.extensions.find(extension => currExt === extension || '.' + currExt === extension));
 
-    const ext = event.target.value.indexOf('.') !== -1 ? io.extractExtension(event.target.value) : "";
-    const newExt = filetypes.find(filetype => filetype.extensions.find(extension => ext === extension));
-
-    if (typeof newExt !== 'undefined' && checkFileName(event.target.value, newExt.extensions[0])) {
+    if (newExt) { // If a valid filetype extension was matched, then set the file type
       setFiletype(newExt.filetype);
-      setIsFileNameValid(true);
+      setIsExtensionValid(true);
     } else {
-      setIsFileNameValid(false);
+      setIsExtensionValid(false); // Otherwise, the extension is not valid
     }
+
+    io.validateFileName(event.target.value, configExts, exts) ? setIsFileNameValid(true) : setIsFileNameValid(false);
   };
 
   const handleFiletypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setFiletype(event.target.value as string);
+    const newFiletype = filetypes.find(filetype => filetype.filetype === event.target.value as string); // Match with a valid filetype
+    if (!newFiletype) return; // If no matches were found, return (forces typeof newFileType to be Filetype and not Undefined)
 
-    const newFiletype = filetypes.find(filetype => filetype.filetype === event.target.value as string);
-    if (typeof newFiletype === 'undefined') return;
-    const ext = fileName.indexOf('.') !== -1 ? io.extractExtension(fileName) : "";
+    const currExt = fileName.indexOf('.') !== -1 ? io.extractExtension(fileName) : ""; // Get the current extension from within fileName
+    // newExt sees if there is a .config extension within the new filetype, and stores it if so. Otherwise it is undefined
+    const confExt = newFiletype.extensions.find(extension => extension.includes('.'));
+    // currFileName will store the current file name with the added extension, as setFileName() won't update until this function finishes
+    // validateFileName() requires the most current version of the file name, so we use currFileName instead of fileName
+    let currFileName = "";
 
-    if (typeof newFiletype.extensions.find(extension => extension.includes('.')) !== 'undefined') {
-      ext === "" ? setFileName(fileName + newFiletype.extensions[0]) : setFileName(fileName.slice(0, -ext.length - 1) + newFiletype.extensions[0]);
-      checkFileName(fileName, newFiletype.extensions[0]) || fileName === '' ? setIsFileNameValid(true) : setIsFileNameValid(false);
-    } else {
-      if (ext === "" && fileName.slice(-1) !== ".") {
-        setFileName(fileName + '.' + newFiletype.extensions[0]);
-      } else if (ext === "" && fileName.slice(-1) === ".") {
-        setFileName(fileName + newFiletype.extensions[0]);
-      } else {
-        setFileName(fileName.slice(0, -ext.length) + newFiletype.extensions[0]);
+    if (confExt) { // If the current file type has a .config extension
+      if (!currExt) { // If the current file name doesn't already have an extension
+        currFileName = fileName + confExt;
+        setFileName(currFileName);
+      } else { // If the current file name does already have an extension
+        currFileName = fileName.slice(0, -currExt.length - 1) + confExt; // This line removes the old extension before adding the new one
+        setFileName(currFileName);
       }
-      checkFileName(fileName, newFiletype.extensions[0]) ? setIsFileNameValid(true) : setIsFileNameValid(false);
+    } else { // If the current file type does not have a .config type extension
+      if (!currExt && fileName.slice(-1) !== ".") { // If the current file name doesn't already have an extension or a '.' at the end
+        currFileName = fileName + '.' + newFiletype.extensions[0];
+        setFileName(currFileName);
+      } else if (!currExt && fileName.slice(-1) === ".") { // If the current file name doesn't already have an extension but has a '.' at the end
+        currFileName = fileName + newFiletype.extensions[0];
+        setFileName(currFileName);
+      } else { // If the current file name already has an extension
+        currFileName = fileName.slice(0, -currExt.length) + newFiletype.extensions[0]; // This line removes the old extension before adding the new one
+        setFileName(currFileName);
+      }
+    }
+
+    if (io.validateFileName(currFileName, configExts, exts)) {
+      setIsFileNameValid(true);
+      setIsExtensionValid(true);
+    } else {
+      setIsFileNameValid(false);
     }
   };
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1) {
+    if (isFileNameValid && isExtensionValid) {
       const metafile: Metafile = {
         id: v4(),
         name: fileName,
@@ -91,9 +106,10 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
         modified: DateTime.local(),
         handler: 'Editor'
       };
-      const addMetafileAction: Actions = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
+
+      const addMetafileAction: Action = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
       dispatch(addMetafileAction);
-      dispatch(loadCard(metafile));
+      dispatch(loadCard({ metafile: metafile }));
 
       handleClose();
     }
@@ -110,7 +126,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
           <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange} labelId="new-card-dialog-filetype-label" id="new-card-dialog-filetype" style={{ gridArea: 'footer' }}>
             {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
           </Select>
-          <Button id='create-card-button' variant='contained' color={isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={(e) => { handleClick(e) }} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
+          <Button id='create-card-button' variant='contained' color={isFileNameValid && isExtensionValid && filetype !== '' ? 'primary' : 'default'} onClick={(e) => { handleClick(e) }} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
         </div>
       </Dialog>
     </>
@@ -125,13 +141,12 @@ const NewCardButton: React.FunctionComponent = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  }
+  const handleClose = () => setOpen(false);
+
 
   return (
     <>
-      <Button id='newcard-button' variant='contained' color='primary' onClick={(e) => { handleClick(e) }}>New Card...</Button>
+      <Button id='newcard-button' variant='contained' color='primary' onClick={(e) => { handleClick(e) }}>New...</Button>
       <NewCardDialog open={open} onClose={handleClose} />
     </>
   );

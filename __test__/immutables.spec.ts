@@ -72,9 +72,21 @@ describe('immutables.removeItemInMap', () => {
     expect(newCats['mittens']).toBeFalsy();
   });
 
-  it('removeItemInMap resolves non-matching item and returnS original state', () => {
+  it('removeItemInMap resolves non-matching item and returns original state', () => {
     const newCats = utils.removeItemInMap(state.cats, 'tom');
     expect(newCats).toMatchObject(state.cats);
+  });
+});
+
+describe('immutables.removeMatchesInMap', () => {
+  it('removeMatchesInMap immutably filters and removes only matching items', () => {
+    const youngCats = utils.removeMatchesInMap(state.cats, (cat => cat.age > 10));
+    expect(youngCats).toMatchSnapshot();
+  });
+
+  it('removeMatchesInMap resolves non-matching item and returns original state', () => {
+    const adultCats = utils.removeMatchesInMap(state.cats, (cat => cat.age < 2));
+    expect(adultCats).toMatchObject(state.cats);
   });
 });
 
