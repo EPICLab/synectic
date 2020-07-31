@@ -97,6 +97,9 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
+    /* We must pass a constructed Metafile to loadCard instead of a filepath because this is a new card and the filepath
+       associated with it does not exist yet. We also cannot call metafiles.getMetafile() on it because that function only
+       accepts a filepath parameter. Therefore, we must make our own metafile and addMetafileAction to dispatch manually. */
     if (isFileNameValid && isExtensionValid) {
       const metafile: Metafile = {
         id: v4(),
