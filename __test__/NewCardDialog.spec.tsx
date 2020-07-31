@@ -3,7 +3,8 @@ import { ReactWrapper, mount } from 'enzyme';
 
 import { getMockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { NewCardDialog, checkFileName } from '../src/components/NewCardDialog';
+import { NewCardDialog } from '../src/components/NewCardDialog';
+import { validateFileName } from '../src/containers/io';
 import { TextField } from '@material-ui/core';
 
 type EmptyObject = Record<string, unknown>;
@@ -21,6 +22,9 @@ describe('NewCardDialog', () => {
   beforeEach(() => wrapper = mount(<NewCardContext open={true} />, mountOptions));
   afterEach(() => wrapper.unmount());
 
+  const exts = ["ts", "html"];
+  const configExts = [".gitignore", ".htaccess"];
+
   it('NewCardDialog starts with empty values for file name and filetype', () => {
     const newCardDialog = wrapper.find(NewCardDialog);
     expect(newCardDialog.prop('fileName')).toBeUndefined();
@@ -37,22 +41,22 @@ describe('NewCardDialog', () => {
     expect(before).toEqual(after);
   });
 
-  it('checkFileName returns false for an invalid file name and true for a valid file name', () => {
-    expect(checkFileName('<.ts')).toEqual(false);
-    expect(checkFileName('>.ts')).toEqual(false);
-    expect(checkFileName(':.ts')).toEqual(false);
-    expect(checkFileName('".ts')).toEqual(false);
-    expect(checkFileName('/.ts')).toEqual(false);
-    expect(checkFileName('\\.ts')).toEqual(false);
-    expect(checkFileName('|.ts')).toEqual(false);
-    expect(checkFileName('?.ts')).toEqual(false);
-    expect(checkFileName('*.ts')).toEqual(false);
-    expect(checkFileName(' .ts')).toEqual(false);
-    expect(checkFileName('..ts')).toEqual(false);
-    expect(checkFileName('foo .ts')).toEqual(false);
-    expect(checkFileName('bar..ts')).toEqual(false);
+  it('validateFileName returns false for an invalid file name and true for a valid file name', () => {
+    expect(validateFileName('<.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('>.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName(':.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('".ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('/.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('\\.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('|.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('?.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('*.ts', configExts, exts)).toEqual(false);
+    expect(validateFileName(' .ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('..ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('foo .ts', configExts, exts)).toEqual(false);
+    expect(validateFileName('bar..ts', configExts, exts)).toEqual(false);
 
-    expect(checkFileName('foo.ts')).toEqual(true);
-    expect(checkFileName('bar.html')).toEqual(true);
+    expect(validateFileName('foo.ts', configExts, exts)).toEqual(true);
+    expect(validateFileName('bar.html', configExts, exts)).toEqual(true);
   });
 });
