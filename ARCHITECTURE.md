@@ -115,7 +115,7 @@ Synectic uses Redux to manage stateful data about content that is displayed with
 
 The [`redux-devtools`](https://github.com/reduxjs/redux-devtools) module provides a Redux tab in Chrome DevTools for hot reloading, action replay, and a customizable UI for Redux state debugging.
 
-THe [`redux-thunk`](https://github.com/reduxjs/redux-thunk) module provides a Redux middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
+The [`redux-thunk`](https://github.com/reduxjs/redux-thunk) module provides a Redux middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
 
 **Packages:**
 * *`dependencies`*

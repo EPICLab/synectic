@@ -15,13 +15,24 @@ Several sections of the Synectic API include advanced TypeScript features and th
 * [TypeScript Deep Dive: Rest Parameters](https://basarat.gitbook.io/typescript/future-javascript/rest-parameters)
 * [TypeScript Deep Dive: Type Assertion](https://basarat.gitbook.io/typescript/type-system/type-assertion)
 * [TypeScript Deep Dive: Type Guard](https://basarat.gitbook.io/typescript/type-system/typeguard)
-* [TypeScript Deep Dive: Literal Types](https://basarat.gitbook.io/typescript/type-system/literal-types)
-* [Hooks API Reference](https://reactjs.org/docs/hooks-reference.html)
-* [Using the React useContext Hook](https://medium.com/digio-australia/using-the-react-usecontext-hook-9f55461c4eae)
 * [Using `Async/Await` with Typescript Classes](http://ivanbatic.com/using-async-await-typescript-classes/)
 * [Keep Your Promises in TypeScript using `async/await`](https://blog.bitsrc.io/keep-your-promises-in-typescript-using-async-await-7bdc57041308)
 * [Asynchronous Processing with TypeScript and Generic Promises](https://visualstudiomagazine.com/articles/2015/03/01/asynchronous-processing.aspx)
-* [TypeScript 2.1: `keyof` and Lookup Types](https://mariusschulz.com/blog/typescript-2-1-keyof-and-lookup-types)
+
+React and Redux:
+* [Hooks API Reference](https://reactjs.org/docs/hooks-reference.html)
+* [Using the React useContext Hook](https://medium.com/digio-australia/using-the-react-usecontext-hook-9f55461c4eae)
+* [Idiomatic Redux: Why use action creators?](https://blog.isquaredsoftware.com/2016/10/idiomatic-redux-why-use-action-creators/)
+
+Jest Testing:
 * [Taking Advantage of Jest Matchers (Part 1)](https://benmccormick.org/2017/08/15/jest-matchers-1/)
 * [Taking Advantage of Jest Matchers (Part 2)](https://benmccormick.org/2017/09/04/jest-matchers-2/)
 * [Jest matching objects in array](https://medium.com/@andrei.pfeiffer/jest-matching-objects-in-array-50fe2f4d6b98)
+
+Advanced typing features in TypeScript:
+* [TypeScript Handbook: Utility Types](https://www.typescriptlang.org/docs/handbook/utility-types.html)
+* [TypeScript Deep Dive: Literal Types](https://basarat.gitbook.io/typescript/type-system/literal-types)
+* [TypeScript 2.1: `keyof` and Lookup Types](https://mariusschulz.com/blog/typescript-2-1-keyof-and-lookup-types)
+* [keyof and Lookup Types in TypeScript](https://mariusschulz.com/blog/keyof-and-lookup-types-in-typescript)
+* [Typing Destructured Object Parameters in TypeScript](https://mariusschulz.com/blog/typing-destructured-object-parameters-in-typescript)
+* [Conditional Types in TypeScript](https://mariusschulz.com/blog/conditional-types-in-typescript)

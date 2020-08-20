@@ -42,8 +42,7 @@ module.exports = {
     "import/ignore": [".scss", ".less", ".css"], // eslint-plugin-import can't parse unprocessed CSS modules
     "import/no-unresolved": {
       ignore: [".scss$", ".less$", ".css$"] // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-unresolved.md#ignore
-    }
-    ,
+    },
     react: {
       pragma: "React",
       version: "detect"
