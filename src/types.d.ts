@@ -2,13 +2,6 @@ import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 
-// Utility types to allow the TypeScript compiler to narrow union types based on discriminated
-// typing (e.g. NarrowType<Actions, ActionKeys.ADD_REPO> narrows to type AddRepoAction, and
-// RemoveType<Actions, ActionKeys.INITIALIZE_CANVAS> removes the type InitializeCanvasAction and
-// returns all other Action types).
-export type NarrowType<T, N> = T extends { type: N } ? T : never;
-export type RemoveType<T, N> = T extends { type: N } ? never : T;
-
 export type UUID = string;
 
 export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
