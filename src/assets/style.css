@@ -12,8 +12,8 @@ body {
 
 .stack {
   background-color: rgba(102, 204, 117, 0.6);
-  height: calc((280px * 1.25) + 28px); /* scaled from card height */
-  width: calc((200px * 1.25) + 28px); /* scaled from card width */
+  height: calc((350px * 1.25) + 28px); /* scaled from card height */
+  width: calc((250px * 1.25) + 28px); /* scaled from card width */
   position: absolute;
   cursor: move;
   border: 0.5px solid rgba(125, 125, 125, 1.0);
@@ -24,8 +24,8 @@ body {
 .card {
   background: rgba(89,87,90,1.0);
   color: rgba(171,178,191,1.0);
-  width: 200px; /* 7:5 aspect ratio */
-  height: 280px; /* 7:5 aspect ratio */
+  height: 350px; /* 7:5 aspect ratio */
+  width: 250px; /* 7:5 aspect ratio */
   position: absolute;
   perspective: 1000px;
   border: 1px solid rgba(89,87,90,1.0);
@@ -241,22 +241,20 @@ img.diff_icon {
   width: 20px;
 }
 
+.file-icon {
+  margin-left: 20px;
+}
+
 .file-explorer {
   color: rgba(30, 30, 30, 1.0);
   background: rgba(235, 235, 235, 1.0);
-  width: 200px;
-  height: 248px;
+  width: 100%;
+  height: 100%;
   flex-grow: 1;
   text-indent: 20px;
-  border: 2px solid rgba(65, 65, 65, 1.0);
   border-radius: 0px 0px 10px 10px;
   overflow: auto;
-  text-overflow: clip;
-  transform: translateX(-2px);
-}
-
-.file-icon {
-  margin-left: 20px;
+  text-overflow: ellipsis;
 }
 
 .file-explorer::-webkit-scrollbar {
@@ -319,10 +317,6 @@ img.diff_icon {
   100% { 
     transform: translateX(0%); 
   }
-}
-
-.MuiTreeView-root {
-  transform: translateY(-12px);
 }
 
 .new-card-dialog-container {
