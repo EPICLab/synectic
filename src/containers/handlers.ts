@@ -1,13 +1,13 @@
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import filetypesJson from './filetypes.json';
-import { ActionKeys, Action } from '../store/actions';
-import { Filetype, Metafile, Card, Stack, Error, NarrowType } from '../types';
+import { ActionKeys, Action, NarrowActionType } from '../store/actions';
+import { Filetype, Metafile, Card, Stack, Error } from '../types';
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store/root';
 import { AnyAction } from 'redux';
 import { PathLike } from 'fs-extra';
-import { getMetafile } from './metafiles';
+import { getMetafile, metafileMissingError } from './metafiles';
 
 type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 type HandlerMissingMetafile = Omit<Metafile, 'handler'>;
@@ -33,7 +33,7 @@ export const importFiletypes = async (): Promise<Action[]> => {
  * @param metafile A `Metafile` object that includes a valid `handler` field.
  * @return An `AddCardAction` object that can be dispatched via Redux, or undefined if no handler is defined.
  */
-const addCard = (metafile: HandlerRequiredMetafile): NarrowType<Action, ActionKeys.ADD_CARD> => {
+const addCard = (metafile: HandlerRequiredMetafile): NarrowActionType<ActionKeys.ADD_CARD> => {
   const card: Card = {
     id: v4(),
     name: metafile.name,
@@ -57,7 +57,7 @@ const addCard = (metafile: HandlerRequiredMetafile): NarrowType<Action, ActionKe
  * @param metafile A `Metafile` object that does not contain a valid `handler` field.
  * @return An `AddErrorAction` object that can be dispatched via Redux.
  */
-const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowType<Action, ActionKeys.ADD_ERROR> => {
+const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowActionType<ActionKeys.ADD_ERROR> => {
   const error: Error = {
     id: v4(),
     type: 'HandlerMissingError',
@@ -88,8 +88,9 @@ export const loadCard = ({ metafile, filepath }: { metafile?: Metafile; filepath
       if (addCardAction) return dispatch(addCardAction).card;
     }
     if (filepath) {
-      const metafile = await dispatch(getMetafile(filepath));
-      if (!metafile.handler) dispatch(handlerMissingError(metafile));
+      const metafile = await dispatch(getMetafile({ filepath: filepath }));
+      if (!metafile) dispatch(metafileMissingError(filepath.toString()));
+      if (metafile && !metafile.handler) dispatch(handlerMissingError(metafile));
       const addCardAction = addCard(metafile as HandlerRequiredMetafile);
       if (addCardAction) return dispatch(addCardAction).card;
     }
