@@ -8,7 +8,7 @@ import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
 import { RootState } from '../store/root';
-import { UUID } from '../types';
+import { UUID, Card } from '../types';
 import { diff } from '../containers/diff';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
@@ -41,6 +41,19 @@ const Diff: React.FunctionComponent<{ left: UUID; right: UUID }> = props => {
     <AceEditor mode={original.filetype?.toLowerCase()} theme='github' name={original.id + '-diff'} value={diffOutput}
       className='editor' height='100%' width='100%' readOnly={true} markers={markers} showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
+  );
+};
+
+export const DiffReverse: React.FunctionComponent<Card> = props => {
+  const original = useSelector((state: RootState) => state.cards[props.related[0]]);
+  const updated = useSelector((state: RootState) => state.cards[props.related[1]]);
+
+  return (
+    <>
+      <span>Name:</span><span className='field'>Test</span>
+      <span>Original:</span><span className='field'>{original.name} (...{original.id.slice(-5)})</span>
+      <span>Updated:</span><span className='field'>{updated.name} (...{updated.id.slice(-5)})</span>
+    </>
   );
 };
 

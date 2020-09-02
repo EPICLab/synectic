@@ -359,4 +359,29 @@ button.refresh {
 
 div.browser-content {
   border-radius: 0px 0px 10px 10px;
+  height: calc(100% - 25px);
+  width: 100%;
+}
+
+div.version-tracker {
+  color: rgba(30, 30, 30, 1.0);
+  background: rgba(235, 235, 235, 1.0);
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+  text-indent: 20px;
+  border-radius: 0px 0px 10px 10px;
+  overflow: auto;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.version-tracker::-webkit-scrollbar {
+  visibility: hidden;
+  width: 0px;
+}
+
+.version-tracker-branches {
+ width: 100%;
+ padding-left: 10px;
 }

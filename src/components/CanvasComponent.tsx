@@ -16,7 +16,8 @@ import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import ErrorDialog from './ErrorDialog';
-// import { VersionTrackerButton } from './VersionTracker';
+import VersionStatusButton from './RepoBranchList';
+import MergePickerButton from './MergePickerDialog';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -84,9 +85,10 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <NewCardButton />
       <FilePickerButton />
       <BrowserButton />
-      {/* <VersionTrackerButton /> */}
+      <VersionStatusButton />
       <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
       <DiffPickerButton />
+      <MergePickerButton />
       <Button id='stack-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={createStack}>Stack...</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
