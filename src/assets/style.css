@@ -176,28 +176,6 @@ body {
   z-index: 20;
 }
 
-.file-explorer {
-  color: rgba(30, 30, 30, 1.0);
-  background: rgba(235, 235, 235, 1.0);
-  max-width: 200px;
-  height: 248px;
-  flex-grow: 1;
-  text-indent: 20px;
-  border: 2px solid rgba(65, 65, 65, 1.0);
-  border-radius: 0px 0px 10px 10px;
-  overflow: auto;
-  text-overflow: clip;
-}
-
-.file-icon {
-  margin-left: 20px;
-}
-
-.file-explorer::-webkit-scrollbar {
-  visibility: hidden;
-  width: 0px;
-}
-
 button.close {
   background: url('close_dark.svg');
   background-size: cover;
