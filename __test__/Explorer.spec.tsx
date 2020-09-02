@@ -2,12 +2,11 @@ import React from 'react';
 import mock from 'mock-fs';
 import { mount } from 'enzyme';
 
-// import TreeView from '@material-ui/lab/TreeView';
-// import TreeItem from '@material-ui/lab/TreeItem';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { getMockStore } from './__mocks__/reduxStoreMock';
-import FileExplorerComponent from '../src/components/FileExplorer';
-
+import { getMockStore } from './__mocks__/reduxStoreMock.old';
+import Explorer from '../src/components/Explorer';
+import TreeView from '@material-ui/lab/TreeView';
+import TreeItem from '@material-ui/lab/TreeItem';
 
 describe('FileExplorerComponent', () => {
 
@@ -27,13 +26,13 @@ describe('FileExplorerComponent', () => {
   };
   const store = getMockStore();
 
-  it('FileExplorer defaults to rendering only the root directory', () => {
-    const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
-    const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
-    expect(wrapper.find(FileExplorerComponent)).toHaveLength(1);
-    // expect(wrapper.find(FileExplorerComponent).prop('rootId')).toBe('99');
-    // expect(wrapper.find(TreeView)).toHaveLength(1);
-    // expect(wrapper.find(TreeItem)).toHaveLength(1);
+  it('Explorer defaults to rendering only the root directory', () => {
+    const ExplorerContext = wrapInReduxContext(Explorer, store);
+    const wrapper = mount(<ExplorerContext rootId={'99'} />, mountOptions);
+    expect(wrapper.find(Explorer)).toHaveLength(1);
+    expect(wrapper.find(Explorer).prop('rootId')).toBe('99');
+    expect(wrapper.find(TreeView)).toHaveLength(1);
+    expect(wrapper.find(TreeItem)).toHaveLength(0);
     // expect(wrapper.find(TreeItem).first().props().children).toStrictEqual([[], []]);
   });
 
@@ -45,14 +44,15 @@ describe('FileExplorerComponent', () => {
   //     expect(wrapper.find(TreeItem).first().props().children).toStrictEqual([[], []]);
   // });
 
-  // it('FileExplorer renders child components for each child file/directory', () => {
-  //   const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
-  //   const wrapper = mount(<FileExplorerContext rootId={'24'} />, mountOptions);
-  //   mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-  //   expect(wrapper.find(TreeItem)).toHaveLength(1);
-  //   expect(wrapper.find(TreeItem).first().props().children).toHaveLength(2);
-  //   expect(wrapper.find(TreeItem).first().props().children).toMatchSnapshot();
-  // });
+  it('Explorer renders child components for each child file/directory', () => {
+    const ExplorerContext = wrapInReduxContext(Explorer, store);
+    const wrapper = mount(<ExplorerContext rootId={'24'} />, mountOptions);
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(wrapper.find(TreeView)).toHaveLength(1);
+    expect(wrapper.find(TreeView).first().props().children).toHaveLength(2);
+    // expect(wrapper.find(TreeItem)).toHaveLength(1);
+    // expect(wrapper.find(TreeItem).first().props().children).toMatchSnapshot();
+  });
 
   // it('FileExplorer renders the correct current branch name for untracked directory', () => {
   //   const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
