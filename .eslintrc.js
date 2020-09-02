@@ -19,18 +19,22 @@ module.exports = {
     "@typescript-eslint",
     "react",
     "react-hooks",
-    "jest"
+    "jest",
+    "jest-dom",
+    "testing-library"
   ],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "plugin:jest/recommended",
-    "plugin:jest/style",
     "plugin:import/errors",
     "plugin:import/warnings",
-    "plugin:import/typescript"
+    "plugin:import/typescript",
+    "plugin:jest/recommended",
+    "plugin:jest/style",
+    "plugin:jest-dom/recommended",
+    "plugin:react/recommended",
+    "plugin:testing-library/recommended",
   ],
   settings: {
     "import/core-modules": ["electron"], // https://github.com/benmosher/eslint-plugin-import/blob/master/README.md#importcore-modules

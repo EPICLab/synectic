@@ -3,6 +3,11 @@ import thunk, { ThunkDispatch } from 'redux-thunk';
 
 import { RootState, rootReducer } from '../../src/store/root';
 import { Action } from '../../src/store/actions';
+import { DeepPartial } from 'redux';
+
+// Conditional type for extracting the type of values in a key-value map object, 
+// inspired by: https://mariusschulz.com/articles/conditional-types-in-typescript
+type KeyVal<T> = T extends { [x: string]: infer U } ? U : never;
 
 const middlewares = [thunk];
 const createMockStore = configureMockStore<RootState, Action, ThunkDispatch<RootState, undefined, Action>>(middlewares);
@@ -30,3 +35,17 @@ const createState = (initialState: RootState) => (actions: Action[]) => actions.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const mockStore = (initialState: RootState) => createMockStore(createState(initialState));
+
+/**
+ * Exposes an array of field objects found in the state of a mocked Redux store composed on key-value map objects, using 
+ * type inference and conditional typing to expose the value object types. The fields in a mocked Redux store (accessed by
+ * calling `store.getState().fieldName`) are of the type `DeepPartial<T> | undefined`, which requires filtering out undefined
+ * from both the store field and the deeper fields within the key-value mapj. Also, since we need the type of values in the
+ * key-value map we rely on the `KeyVal` conditional type.
+ * @param map The key-value map object contained in a mocked Redux store.
+ * @return A typed array of values stored in the field within the mocked Redux store.
+ */
+export const extractFieldArray = <T extends Record<string, KeyVal<T>>>(map: DeepPartial<T> | undefined): KeyVal<T>[] => {
+  if (map) return Object.values(map as T);
+  throw new Error('exposeStoreField() cannot resolve undefined');
+}
