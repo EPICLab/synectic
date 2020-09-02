@@ -3,7 +3,7 @@ import { mount, ReactWrapper } from 'enzyme';
 
 import { remote } from 'electron'; // imports the mocked dependency to allow access to the spies
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { getMockStore } from './__mocks__/reduxStoreMock';
+import { getMockStore } from './__mocks__/reduxStoreMock.old';
 import FilePickerButton from '../src/components/FilePickerDialog';
 
 type EmptyObject = Record<string, unknown>;

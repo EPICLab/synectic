@@ -1,7 +1,7 @@
 import React from 'react';
 import { ReactWrapper, mount } from 'enzyme';
 
-import { getMockStore } from './__mocks__/reduxStoreMock';
+import { getMockStore } from './__mocks__/reduxStoreMock.old';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { NewCardDialog } from '../src/components/NewCardDialog';
 import { validateFileName } from '../src/containers/io';

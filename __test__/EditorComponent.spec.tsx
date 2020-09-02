@@ -9,7 +9,7 @@ import ReactAce from 'react-ace/lib/ace';
 import { IAceEditor } from 'react-ace/lib/types';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { getMockStore } from './__mocks__/reduxStoreMock';
+import { getMockStore } from './__mocks__/reduxStoreMock.old';
 import Editor from '../src/components/Editor';
 
 describe('Editor', () => {

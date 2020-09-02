@@ -1,7 +1,7 @@
 import React from 'react';
 import { ReactWrapper, mount } from 'enzyme';
 
-import { getMockStore } from './__mocks__/reduxStoreMock';
+import { getMockStore } from './__mocks__/reduxStoreMock.old';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import NewCardButton, { NewCardDialog } from '../src/components/NewCardDialog';
 import { Backdrop } from '@material-ui/core';
