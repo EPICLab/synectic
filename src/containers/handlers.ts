@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import filetypesJson from './filetypes.json';
 import { ActionKeys, Action, NarrowActionType } from '../store/actions';
-import { Filetype, Metafile, Card, Stack, Error } from '../types';
+import { Filetype, Metafile, Card, Stack, Error, UUID } from '../types';
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store/root';
 import { AnyAction } from 'redux';
@@ -30,20 +30,20 @@ export const importFiletypes = async (): Promise<Action[]> => {
 
 /**
  * Action Creator for composing a valid ADD_CARD Redux Action.
- * @param metafile A `Metafile` object that includes a valid `handler` field.
+ * @param metafiles A list of related `Metafile` objects, where the first contains a valid `handler` field.
  * @return An `AddCardAction` object that can be dispatched via Redux, or undefined if no handler is defined.
  */
-const addCard = (metafile: HandlerRequiredMetafile): NarrowActionType<ActionKeys.ADD_CARD> => {
+const addCard = (metafiles: HandlerRequiredMetafile[]): NarrowActionType<ActionKeys.ADD_CARD> => {
   const card: Card = {
     id: v4(),
-    name: metafile.name,
+    name: metafiles[0].name,
     created: DateTime.local(),
-    modified: metafile.modified,
+    modified: metafiles[0].modified,
     captured: false,
     left: 10,
     top: 25,
-    type: metafile.handler,
-    related: [metafile.id]
+    type: metafiles[0].handler,
+    related: metafiles.map<UUID>(m => m.id)
   };
   return {
     type: ActionKeys.ADD_CARD,
@@ -72,26 +72,26 @@ const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowActionType
 }
 
 /**
- * Thunk Action Creator for adding a new Card, either by providing a metafile with an appropriate handler
- * field or by providing a filepath in order to read the filesystem and dispatch any necessary Redux
- * store updates before loading a new Card. This function will load an error if the metafile does not
- * contain a valid filetype handler.
- * @param metafile A `Metafile` object previously created or retrieved from the Redux state.
+ * Thunk Action Creator for adding a new Card, either by providing one or more metafile (specifically to
+ * support Diff cards which require two metafiles) with an appropriate handler field or by providing a filepath 
+ * in order to read the filesystem and dispatch any necessary Redux store updates before loading a new Card. 
+ * This function will load an error if the metafile does not contain a valid filetype handler.
+ * @param metafiles One or more `Metafile` objects previously created or retrieved from the Redux state.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve a `Card` object.
  */
-export const loadCard = ({ metafile, filepath }: { metafile?: Metafile; filepath?: PathLike }): ThunkAction<Promise<Card | undefined>, RootState, undefined, AnyAction> => {
+export const loadCard = ({ metafiles, filepath }: { metafiles?: Metafile[]; filepath?: PathLike }): ThunkAction<Promise<Card | undefined>, RootState, undefined, AnyAction> => {
   return async (dispatch) => {
-    if (metafile) {
-      if (!metafile.handler) dispatch(handlerMissingError(metafile));
-      const addCardAction = addCard(metafile as HandlerRequiredMetafile);
+    if (metafiles && metafiles.length > 0) {
+      if (!metafiles[0].handler) dispatch(handlerMissingError(metafiles[0]));
+      const addCardAction = addCard(metafiles as HandlerRequiredMetafile[]);
       if (addCardAction) return dispatch(addCardAction).card;
     }
     if (filepath) {
       const metafile = await dispatch(getMetafile({ filepath: filepath }));
       if (!metafile) dispatch(metafileMissingError(filepath.toString()));
       if (metafile && !metafile.handler) dispatch(handlerMissingError(metafile));
-      const addCardAction = addCard(metafile as HandlerRequiredMetafile);
+      const addCardAction = addCard(metafiles as HandlerRequiredMetafile[]);
       if (addCardAction) return dispatch(addCardAction).card;
     }
     return undefined;
