@@ -1,6 +1,6 @@
+import parsePath from 'parse-path';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import parsePath from 'parse-path';
 import * as isogit from 'isomorphic-git';
 
 import { mockStore } from './__mocks__/reduxStoreMock';

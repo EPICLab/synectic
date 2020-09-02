@@ -1,7 +1,7 @@
 import mock from 'mock-fs';
+import parsePath from 'parse-path';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import parsePath from 'parse-path';
 
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { ActionKeys } from '../src/store/actions';

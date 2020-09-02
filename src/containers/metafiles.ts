@@ -184,7 +184,7 @@ export const updateAll = (id: UUID): ThunkAction<Promise<boolean>, RootState, un
 type MetafileGettableFields =
   { id: UUID, filepath?: never, virtual?: never } |
   { id?: never, filepath: PathLike, virtual?: never } |
-  { id?: never, filepath?: never, virtual: { name: string, handler: CardType } };
+  { id?: never, filepath?: never, virtual: { name: string, handler: CardType } & Partial<Omit<Metafile, 'id' | 'modified'>> };
 
 /**
  * Thunk Action Creator for retrieving a `Metafile` object associated associated with the given filepath. If there is no
