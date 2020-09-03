@@ -10,7 +10,6 @@ import DiffPickerButton, { DiffPickerDialog } from '../src/components/DiffPicker
 import { act } from 'react-dom/test-utils';
 
 describe('DiffPickerDialog', () => {
-
   /**
    * For testing Material-UI components using React Testing Library (RTL), the query and selection
    * steps for finding elements are non-obvious from a user perspective (the methodology advocated in RTL).
@@ -105,17 +104,107 @@ describe('DiffPickerDialog', () => {
   });
 
   it('DiffPickerDialog returns UUIDs for selected cards on run', () => {
-    // make selections for both left and right cards
+    const onClose = jest.fn();
+    const cards = extractFieldArray(store.getState().cards);
+
+    const { getAllByRole } = render(<DiffPickerDialog open={true} options={cards} onClose={onClose} />);
+    const leftSelector = getAllByRole('button')[0];
+    const rightSelector = getAllByRole('button')[1];
+
+    const runDiffButton = screen.queryByText(/Run Diff/i);
+
+    // open the left select component
+    fireEvent.mouseDown(leftSelector);
+    const leftOptions = getAllByRole('option');
+    expect(leftOptions[0]).toHaveFocus();
+
+    // make selection for left card and close the component
+    act(() => {
+      leftOptions[1].click();
+    });
+
+    // open the right select component
+    fireEvent.mouseDown(rightSelector);
+    const rightOptions = getAllByRole('option');
+    expect(rightOptions[0]).toHaveFocus();
+
+    // make selection for right card and close
+    act(() => {
+      rightOptions[0].click();
+    });
+
     // click the Run Diff... button
+    if (runDiffButton) fireEvent.click(runDiffButton);
+
     // check the parameters of onClose fn to verify they match the card UUIDs
-    expect(true).toBe(false);
+    expect(onClose).toHaveBeenCalledWith(false, ["33", "14"]);
   });
 
-  it('DiffPickerDialog returns cancelled if both cards are not selected', () => {
-    // make selection for only one card
+  it('DiffPickerDialog returns cancelled if no cards are selected', () => {
+    const onClose = jest.fn();
+    const cards = extractFieldArray(store.getState().cards);
+
+    render(<DiffPickerDialog open={true} options={cards} onClose={onClose} />);
+
+    const dialog = screen.queryAllByRole('dialog')[0];
+
+    // exit the dialog via escape key
+    fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
+
     // check the parameters of onClose fn to verify that canceled parameter is true
-    // check for all possible scenarios (left is selected only, right is selected only, and none are selected)
-    expect(true).toBe(false);
+    expect(onClose).toHaveBeenCalledWith(true, ["", ""]);
+  });
+
+  it('DiffPickerDialog returns cancelled if only the left card is selected', () => {
+    const onClose = jest.fn();
+    const cards = extractFieldArray(store.getState().cards);
+
+    const { getAllByRole } = render(<DiffPickerDialog open={true} options={cards} onClose={onClose} />);
+    const leftSelector = getAllByRole('button')[0];
+
+    const dialog = screen.queryAllByRole('dialog')[0];
+
+    // open the left select component
+    fireEvent.mouseDown(leftSelector);
+    const leftOptions = getAllByRole('option');
+    expect(leftOptions[0]).toHaveFocus();
+
+    // make selection for only the left card and close
+    act(() => {
+      leftOptions[1].click();
+    });
+
+    // exit the dialog via escape key    
+    fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
+
+    // check the parameters of onClose fn to verify that canceled parameter is true
+    expect(onClose).toHaveBeenCalledWith(true, ["", ""]);
+  });
+
+  it('DiffPickerDialog returns cancelled if only the right card is selected', () => {
+    const onClose = jest.fn();
+    const cards = extractFieldArray(store.getState().cards);
+
+    const { getAllByRole } = render(<DiffPickerDialog open={true} options={cards} onClose={onClose} />);
+    const rightSelector = getAllByRole('button')[1];
+
+    const dialog = screen.queryAllByRole('dialog')[0];
+
+    // open the right select component
+    fireEvent.mouseDown(rightSelector);
+    const rightOptions = getAllByRole('option');
+    expect(rightOptions[0]).toHaveFocus();
+
+    // make selection for only the right card and close
+    act(() => {
+      rightOptions[1].click();
+    });
+
+    // exit the dialog via escape key
+    fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
+
+    // check the parameters of onClose fn to verify that canceled parameter is true
+    expect(onClose).toHaveBeenCalledWith(true, ["", ""]);
   });
 
 });
@@ -171,17 +260,20 @@ describe('DiffPickerButton', () => {
     expect(screen.getByText(/Run Diff/i)).toBeInTheDocument();
   });
 
-  it('DiffPickerButton resolves new Diff card on run', () => {
-    // don't worry about the DiffPickerDialog making selections and returning, just call DiffPickerButton.handleClose (if possible)
-    // we want to make sure that the appropriate Redux update actions are returned, so mimic the store.getActions() tests in
-    // metafiles.spec.ts or repos.spec.ts
-    expect(true).toBe(false);
-  });
-
   it('DiffPickerButton resolves no Diff card on canceled run', () => {
-    // same as above, but we want to verify that no Redux actions are queued up when the DiffPickerButton.handleClose parameters
-    // include cancelled being `true`
-    expect(true).toBe(false);
+    render(<DiffPickerContext />);
+
+    // open dialog
+    const button = screen.queryByText(/Diff\.\.\./i);
+    if (button) fireEvent.click(button);
+
+    const dialog = screen.queryAllByRole('dialog')[0];
+
+    // exit dialog via escape key
+    fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
+
+    // there should be no actions in the store
+    expect(store.getActions()).toEqual([]);
   });
 
 });

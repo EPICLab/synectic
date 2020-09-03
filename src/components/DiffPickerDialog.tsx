@@ -20,7 +20,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
   const [selectedRight, setSelectedRight] = useState<UUID>('');
 
   return (
-    <Dialog id='picker-dialog' role='dialog' open={props.open} onClose={() => props.onClose(false, ['', ''])}>
+    <Dialog id='picker-dialog' role='dialog' open={props.open} onClose={() => props.onClose(true, ['', ''])}>
       <div className='diff-container'>
         <DialogTitle id='picker-dialog-title' style={{ gridArea: 'header' }}>Select cards to diff</DialogTitle>
         <FormControl id='form-control-left' aria-label='Left Form' style={{ gridArea: 'left', width: 100 }}>
