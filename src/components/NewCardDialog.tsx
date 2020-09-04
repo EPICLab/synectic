@@ -25,7 +25,11 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const [fileName, setFileName] = React.useState('');
   const [filetype, setFiletype] = React.useState('');
   const [isFileNameValid, setIsFileNameValid] = React.useState(false);
+
+  // isExtensionValid is never used in this old version, made some tests fail
   const [isExtensionValid, setIsExtensionValid] = React.useState(false);
+
+  if (isExtensionValid) isExtensionValid; // Remove when merged, this is a version one commit behind development
 
   const handleClose = () => {
     setFileName('');

@@ -1,9 +1,11 @@
 import React from 'react';
 import mock from 'mock-fs';
 import { mount } from 'enzyme';
+import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { getMockStore } from './__mocks__/reduxStoreMock.old';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import Explorer from '../src/components/Explorer';
 import TreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
@@ -24,7 +26,24 @@ describe('FileExplorerComponent', () => {
   const mountOptions = {
     attachTo: domElement,
   };
-  const store = getMockStore();
+
+  const store = mockStore({
+    canvas: {
+      id: v4(),
+      created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
+      repos: [],
+      cards: [],
+      stacks: []
+    },
+    stacks: {},
+    cards: {},
+    filetypes: {},
+    metafiles: {},
+    repos: {},
+    errors: {}
+  });
+
+  afterEach(store.clearActions);
 
   it('Explorer defaults to rendering only the root directory', () => {
     const ExplorerContext = wrapInReduxContext(Explorer, store);
