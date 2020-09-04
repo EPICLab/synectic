@@ -187,10 +187,16 @@ type MetafileGettableFields =
   { id?: never, filepath?: never, virtual: { name: string, handler: CardType } & Partial<Omit<Metafile, 'id' | 'modified'>> };
 
 /**
- * Thunk Action Creator for retrieving a `Metafile` object associated associated with the given filepath. If there is no
- * previous metafile for the given filepath, then a new metafile is created. Git information, file contents, and 
- * directory contains fields are updated (as needed or determined by filetype) in the Redux store.
- * @param filepath The relative or absolute path to evaluate.
+ * Thunk Action Creator for retrieving a `Metafile` object associated with one of three different paremeter sets: (1) retrieve existing metafile by
+ * UUID, (2) get a existing or new metafile associated with a particular file path, or (3) get a new or existing virtual metafile by name and handler.
+ * 
+ * If no existing metafile is found under (1), then a `MetafileMissingError` error is thrown and undefined is returned. A `Metafile` object is always 
+ * returned under (2) and (3), since either an existing metafile is returned or a new metafile is created and returned. All fields within the metafile
+ * are updated in the Redux store before being returned.
+ * @param id The UUID corresponding to the metafile that should be updated and returned.
+ * @param filepath The relative or absolute path to a file or directory that should be represented by an updated metafile.
+ * @param virtual A named object containing at least the `name` and `handler` fields of a valid metafile (existing or new), and any other metafile
+ * fields except for `id` and `modified` (which are auto-generated on metafile creation).
  * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve a `Metafile` object, if the
  * metafile cannot be added or retrieved from the Redux store then `undefined` is returned instead.
  */
