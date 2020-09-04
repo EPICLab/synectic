@@ -73,6 +73,7 @@
     "@jedmao/redux-mock-store": "^3.0.5",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^10.4.9",
+    "@testing-library/react-hooks": "^3.4.1",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "26.0.10",

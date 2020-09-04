@@ -222,10 +222,13 @@ The [`@testing-library/jest-dom`](https://testing-library.com/docs/ecosystem-jes
 
 The [`react-select-event`](https://testing-library.com/docs/ecosystem-react-select-event) module is a companion library for `React Testing Library` that provides helper methods for interacting with [`react-select`](https://github.com/JedWatson/react-select) elements.
 
+The [`@testing-library/react-hooks`](https://github.com/testing-library/react-hooks-testing-library) module allows for React hooks testing by wrapping the hook in a function component, and providing various useful utility functions for updating the inputs and retrieving the outputs of custom hooks without having to construct, render, or interact with additional React components. It has peer dependencies with the `react` and `react-test-renderer` packages.
+
 **Packages:**
 * *`devDependencies`*
   * `@testing-library/jest-dom`
   * `@testing-library/react`
+  * `@testing-library/react-hooks`
   * `react-select-event`
 
 # Enzyme
