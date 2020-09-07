@@ -38,7 +38,17 @@ describe('FileExplorerComponent', () => {
     stacks: {},
     cards: {},
     filetypes: {},
-    metafiles: {},
+    metafiles: {
+      99: {
+        id: '99',
+        name: 'folder',
+        modified: DateTime.fromISO('2020-06-25T04:19:55.309-08:00'),
+        handler: 'Explorer',
+        branch: 'foop',
+        status: 'unmodified',
+        contains: ['21'],
+      },
+    },
     repos: {},
     errors: {}
   });
@@ -65,7 +75,7 @@ describe('FileExplorerComponent', () => {
 
   it('Explorer renders child components for each child file/directory', () => {
     const ExplorerContext = wrapInReduxContext(Explorer, store);
-    const wrapper = mount(<ExplorerContext rootId={'24'} />, mountOptions);
+    const wrapper = mount(<ExplorerContext rootId={'99'} />, mountOptions);
     mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(wrapper.find(TreeView)).toHaveLength(1);
     expect(wrapper.find(TreeView).first().props().children).toHaveLength(2);

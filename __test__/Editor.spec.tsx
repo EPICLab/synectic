@@ -27,19 +27,19 @@ describe('Editor', () => {
       id: v4(),
       created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
       repos: [],
-      cards: ['199'],
+      cards: [],
       stacks: []
     },
     stacks: {},
     cards: {},
     filetypes: {},
     metafiles: {
-      21: {
+      199: {
         id: '199',
         name: 'virtual.js',
         modified: DateTime.fromISO('2020-06-25T04:19:55.309-08:00'),
         handler: 'Editor',
-        content: ''
+        content: 'beep-boop'
       },
     },
     repos: {},
