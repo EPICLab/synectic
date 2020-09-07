@@ -20,7 +20,7 @@ const useStyles = makeStyles({
 });
 
 const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
-  const [{ directories, files }, { fetch }] = useDirectory(props.root);
+  const { directories, files, fetch } = useDirectory(props.root);
   const [expanded, setExpanded] = useState(false);
   const dispatch = useDispatch();
 
@@ -39,12 +39,14 @@ const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props =>
 
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const rootMetafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
-  const [{ directories, files }, { fetch }] = useDirectory(rootMetafile);
+  const { directories, files, fetch } = useDirectory(rootMetafile);
   const dispatch = useDispatch();
   const cssClasses = useStyles();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetch() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
+  useEffect(() => {
+    fetch();
+  }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
 
   return (
     <div className='file-explorer'>
