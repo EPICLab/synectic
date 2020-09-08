@@ -11,7 +11,7 @@ import { RootState } from '../store/root';
 import { UUID, Card } from '../types';
 import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
-import useDirectory from '../store/hooks/useDirectory';
+import { useDirectory } from '../store/hooks/useDirectory';
 
 const useStyles = makeStyles({
   root: {
@@ -19,7 +19,7 @@ const useStyles = makeStyles({
   }
 });
 
-const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
+export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
   const { directories, files, fetch } = useDirectory(props.root);
   const [expanded, setExpanded] = useState(false);
   const dispatch = useDispatch();
@@ -44,9 +44,7 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const cssClasses = useStyles();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    fetch();
-  }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
+  useEffect(() => { fetch() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
 
   return (
     <div className='file-explorer'>

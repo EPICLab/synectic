@@ -24,7 +24,7 @@ type useDirectoryHook = {
  * @param initialRoot The root directory that all subsequent child files and directories derive from; can be Metafile or filepath.
  * @return The states of `root`, `directories`, `files`, and the `fetch` function.
  */
-const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook => {
+export const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const [root, setRoot] = useState<Metafile | undefined>();
   const [directories, setDirectories] = useState<string[]>([]);
@@ -42,7 +42,7 @@ const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook => {
     let rootMetafile = root;
 
     if (!root) {
-      // since not root exists, use use`initialRoot` to get a metafile and update`root`
+      // since not root exists, use `initialRoot` to get a metafile and update `root`
       rootMetafile = isMetafile(initialRoot) ? await dispatch(getMetafile({ id: initialRoot.id })) : await dispatch(getMetafile({ filepath: initialRoot }));
       setRoot(rootMetafile);
     }
@@ -57,5 +57,3 @@ const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook => {
 
   return { root, directories, files, fetch };
 }
-
-export default useDirectory;

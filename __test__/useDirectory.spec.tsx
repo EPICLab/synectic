@@ -7,7 +7,7 @@ import { v4 } from 'uuid';
 
 import { mockStore } from './__mocks__/reduxStoreMock';
 import * as metafiles from '../src/containers/metafiles';
-import useDirectory from '../src/store/hooks/useDirectory';
+import { useDirectory } from '../src/store/hooks/useDirectory';
 
 describe('useDirectory', () => {
 
