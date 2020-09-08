@@ -1,31 +1,17 @@
+import '@testing-library/jest-dom';
 import React from 'react';
-import mock from 'mock-fs';
-import { mount } from 'enzyme';
+import TreeView from '@material-ui/lab/TreeView';
+import { render, fireEvent, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { mockStore } from './__mocks__/reduxStoreMock';
-import Explorer from '../src/components/Explorer';
-import TreeView from '@material-ui/lab/TreeView';
-import TreeItem from '@material-ui/lab/TreeItem';
+import { mockStore, extractFieldMap } from './__mocks__/reduxStoreMock';
+import { DirectoryComponent } from '../src/components/Explorer';
+import * as useDirectory from '../src/store/hooks/useDirectory';
 
-describe('FileExplorerComponent', () => {
-
-  beforeAll(() => {
-    mock({
-      withchildren: {
-        testdir: {},
-        test: mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
-      }
-    });
-  });
-  afterAll(mock.restore);
-
-  const domElement = document.getElementById('app');
-  const mountOptions = {
-    attachTo: domElement,
-  };
+describe('DirectoryComponent', () => {
 
   const store = mockStore({
     canvas: {
@@ -37,62 +23,72 @@ describe('FileExplorerComponent', () => {
     },
     stacks: {},
     cards: {},
-    filetypes: {},
-    metafiles: {
-      99: {
-        id: '99',
-        name: 'folder',
-        modified: DateTime.fromISO('2020-06-25T04:19:55.309-08:00'),
-        handler: 'Explorer',
-        branch: 'foop',
-        status: 'unmodified',
-        contains: ['21'],
+    filetypes: {
+      91: {
+        id: '91',
+        filetype: 'JavaScript',
+        handler: 'Editor',
+        extensions: ['js', 'jsm']
       },
+      101: {
+        id: '101',
+        filetype: 'Directory',
+        handler: 'Explorer',
+        extensions: []
+      }
+    },
+    metafiles: {
+      28: {
+        id: '28',
+        name: 'foo',
+        path: 'foo',
+        modified: DateTime.fromISO('2019-04-14T20:05:14.543-08:00'),
+        filetype: 'Directory',
+        contains: ['3']
+      },
+      3: {
+        id: '3',
+        name: 'bar.js',
+        path: 'foo/bar.js',
+        modified: DateTime.fromISO('2010-01-15T11:19:23.810-08:00'),
+        filetype: 'JavaScript'
+      },
+      21: {
+        id: '14',
+        name: 'virtual.js',
+        modified: DateTime.fromISO('2020-06-25T04:19:55.309-08:00')
+      }
     },
     repos: {},
     errors: {}
   });
-
   afterEach(store.clearActions);
 
-  it('Explorer defaults to rendering only the root directory', () => {
-    const ExplorerContext = wrapInReduxContext(Explorer, store);
-    const wrapper = mount(<ExplorerContext rootId={'99'} />, mountOptions);
-    expect(wrapper.find(Explorer)).toHaveLength(1);
-    expect(wrapper.find(Explorer).prop('rootId')).toBe('99');
-    expect(wrapper.find(TreeView)).toHaveLength(1);
-    expect(wrapper.find(TreeItem)).toHaveLength(0);
-    // expect(wrapper.find(TreeItem).first().props().children).toStrictEqual([[], []]);
+  it('DirectoryComponent initially renders without expanding to display children', () => {
+    const DirectoryContext = wrapInReduxContext(DirectoryComponent, store);
+    render(<TreeView><DirectoryContext root={'foo'} /></TreeView>);
+
+    expect(screen.getAllByRole('treeitem')).toHaveLength(1);
+    expect(screen.queryAllByText('bar.js')).toHaveLength(0);
   });
 
-  // it('FileExplorer renders without child components when no child files/directories exist', () => {
-  //   const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
-  //   const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
-  //   expect(wrapper.find(TreeItem)).toHaveLength(1);
-  //     expect(wrapper.find(TreeItem).first().props().nodeId).toBe('99');
-  //     expect(wrapper.find(TreeItem).first().props().children).toStrictEqual([[], []]);
-  // });
+  it('DirectoryComponent expands to display child files and directories', () => {
+    const root = extractFieldMap(store.getState().metafiles)[28];
+    jest.spyOn(useDirectory, 'useDirectory').mockReturnValue({
+      root: root,
+      directories: [],
+      files: ['foo/bar.js'],
+      fetch: () => { return new Promise((resolve) => resolve()) }
+    });
+    const DirectoryContext = wrapInReduxContext(DirectoryComponent, store);
+    render(<TreeView><DirectoryContext root={'foo'} /></TreeView>);
 
-  it('Explorer renders child components for each child file/directory', () => {
-    const ExplorerContext = wrapInReduxContext(Explorer, store);
-    const wrapper = mount(<ExplorerContext rootId={'99'} />, mountOptions);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
-    expect(wrapper.find(TreeView)).toHaveLength(1);
-    expect(wrapper.find(TreeView).first().props().children).toHaveLength(2);
-    // expect(wrapper.find(TreeItem)).toHaveLength(1);
-    // expect(wrapper.find(TreeItem).first().props().children).toMatchSnapshot();
+    expect(screen.queryAllByText('bar.js')).toHaveLength(0);
+    const component = screen.queryByText('foo');
+    act(() => {
+      if (component) fireEvent.click(component);
+    });
+    expect(screen.queryAllByText('bar.js')).toHaveLength(1);
   });
-
-  // it('FileExplorer renders the correct current branch name for untracked directory', () => {
-  //   const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
-  //   const wrapper = mount(<FileExplorerContext rootId={'99'} />, mountOptions);
-  //   expect(wrapper.find(FileExplorerComponent).first().html()).toContain('Branch: undefined');
-  // });
-
-  // it('FileExplorer renders the correct current branch name for tracked directory', () => {
-  //   const FileExplorerContext = wrapInReduxContext(FileExplorerComponent, store);
-  //   const wrapper = mount(<FileExplorerContext rootId={'75'} />, mountOptions);
-  //   expect(wrapper.find(FileExplorerComponent).first().html()).toContain('Branch: master');
-  // });
 
 });

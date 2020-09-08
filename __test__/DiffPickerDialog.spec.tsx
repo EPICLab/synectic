@@ -1,13 +1,13 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { mockStore, extractFieldArray } from './__mocks__/reduxStoreMock';
 import DiffPickerButton, { DiffPickerDialog } from '../src/components/DiffPickerDialog';
-import { act } from 'react-dom/test-utils';
 
 describe('DiffPickerDialog', () => {
   /**
