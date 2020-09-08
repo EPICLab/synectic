@@ -5,8 +5,7 @@ import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { mockStore } from './__mocks__/reduxStoreMock';
-import { Card } from '../src/types';
+import { mockStore, extractFieldMap } from './__mocks__/reduxStoreMock';
 import CardComponent from '../src/components/CardComponent';
 import Editor from '../src/components/Editor';
 
@@ -69,7 +68,7 @@ describe('CardComponent', () => {
 
   afterEach(store.clearActions);
 
-  const cards = store.getState().cards as { [id: string]: Card };
+  const cards = extractFieldMap(store.getState().cards);
 
   it('Card resolves props into React Component for Editor handler', () => {
     const CardContext = wrapInReduxContext(CardComponent, store);
