@@ -55,8 +55,9 @@ export type Metafile = {
   readonly repo?: UUID; // UUID to Repository object
   readonly branch?: string; // Git branch name or ref
   readonly status?: GitStatus; // Git version control status
-  readonly content?: string; // for non-Directory filetype, contents of the file
-  readonly contains?: string[]; // for Directory filetype, UUID to Metafile objects (sub-files/sub-directories)
+  readonly content?: string; // for files, contents of the file
+  readonly contains?: UUID[]; // for directories (Directory filetype), UUIDs to Metafile objects (sub-files/sub-directories)
+  readonly targets?: UUID[]; // for diffs (Diff handler), UUIDs to Card objects 
 }
 
 export type Repository = {
