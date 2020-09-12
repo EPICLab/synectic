@@ -90,7 +90,7 @@ describe('repos.checkoutBranch', () => {
         left: 10,
         top: 25,
         type: 'Editor',
-        related: ['3']
+        metafile: '3'
       }
     },
     filetypes: {},
@@ -148,7 +148,7 @@ describe('repos.checkoutBranch', () => {
           id: '36',
           name: 'bar.js',
           type: 'Editor',
-          related: expect.arrayContaining<string>(['7'])
+          metafile: '7'
         })
       })
     ]);
@@ -183,7 +183,7 @@ describe('repos.getRepository', () => {
         left: 10,
         top: 25,
         type: 'Editor',
-        related: ['3']
+        metafile: '3'
       }
     },
     filetypes: {},
