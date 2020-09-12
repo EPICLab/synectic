@@ -9,9 +9,12 @@ import { getRepoRoot, isValidRepository, extractRepoName, extractFromURL } from 
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 import { ActionKeys, NarrowActionType, Action } from '../store/actions';
-import { getMetafile, metafileMissingError } from './metafiles';
+import { getMetafile } from './metafiles';
 
-type AsyncThunkUpdateRepoAction = ThunkAction<Promise<NarrowActionType<ActionKeys.UPDATE_REPO> | undefined>, RootState, undefined, Action>;
+type AddRepoAction = NarrowActionType<ActionKeys.ADD_REPO>;
+type UpdateRepoAction = NarrowActionType<ActionKeys.UPDATE_REPO>;
+type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
+type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
 
 /**
  * Action Creator for composing a valid ADD_REPO Redux Action.
@@ -19,7 +22,7 @@ type AsyncThunkUpdateRepoAction = ThunkAction<Promise<NarrowActionType<ActionKey
  * @return An `AddRepoAction` object that can be dispatched via Redux.
  */
 const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>, username?: string, password?: string):
-  NarrowActionType<ActionKeys.ADD_REPO | ActionKeys.ADD_ERROR> => {
+  AddRepoAction | AddErrorAction => {
   const repo: Repository = {
     id: v4(),
     name: url ? extractRepoName(url.href) : '',
@@ -33,7 +36,7 @@ const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof e
     password: password ? password : '',
     token: ''
   };
-  if (!isValidRepository(repo)) return malformedRepositoryError(repo);
+  if (!isValidRepository(repo)) return reposError(repo.id, `Malformed repository '${repo.name}' cannot be added to the Redux store`);
   return {
     type: ActionKeys.ADD_REPO,
     id: repo.id,
@@ -48,7 +51,7 @@ const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof e
  * @param repo A Repository object containing new field values to be updated.
  * @return An `UpdateRepoAction` object that can be dispatched via Redux.
  */
-const updateRepository = (repo: Repository): NarrowActionType<ActionKeys.UPDATE_REPO> => {
+const updateRepository = (repo: Repository): UpdateRepoAction => {
   return {
     type: ActionKeys.UPDATE_REPO,
     id: repo.id,
@@ -57,36 +60,17 @@ const updateRepository = (repo: Repository): NarrowActionType<ActionKeys.UPDATE_
 }
 
 /**
- * Action Creator for composing a valid ADD_ERROR Redux Action for malformed repositories.
- * @param metafile A `Repository` object that does not adhere to the requirements for id, name, and the URLS for
- * repository remote and CORS proxy associated with a specific repository.
+ * Action Creator for composing a valid ADD_ERROR Redux Action.
+ * @param target Corresponds to the object or field originating the error.
+ * @param message The error message to be displayed to the user.
  * @return An `AddErrorAction` object that can be dispatched via Redux.
  */
-const malformedRepositoryError = (repo: Repository): NarrowActionType<ActionKeys.ADD_ERROR> => {
+export const reposError = (target: string, message: string): AddErrorAction => {
   const error: Error = {
     id: v4(),
-    type: 'MalformedRepositoryError',
-    target: repo.id,
-    message: `Malformed repository '${repo.name}' cannot be added to the Redux store`
-  };
-  return {
-    type: ActionKeys.ADD_ERROR,
-    id: error.id,
-    error: error
-  };
-}
-
-/**
- * Action Creator for composing a valid ADD_ERROR Redux Action for missing repositories.
- * @param metafile A `Metafile` object that does not contain a valid `repo' field.
- * @return An `AddErrorAction` object that can be dispatched via Redux.
- */
-const repositoryMissingError = (metafile: Metafile): NarrowActionType<ActionKeys.ADD_ERROR> => {
-  const error: Error = {
-    id: v4(),
-    type: 'RepositoryMissingError',
-    target: metafile.id,
-    message: `Repository missing for metafile '${metafile.name}'`
+    type: 'ReposError',
+    target: target,
+    message: message
   };
   return {
     type: ActionKeys.ADD_ERROR,
@@ -101,7 +85,7 @@ const repositoryMissingError = (metafile: Metafile): NarrowActionType<ActionKeys
 * @param metafile: A `Metafile` object that represents the new metafile information for the card.
 * @return An `UpdateCardAction` object that can be dispatched via Redux.
 */
-const switchCardMetafile = (card: Card, metafile: Metafile): NarrowActionType<ActionKeys.UPDATE_CARD> => {
+const switchCardMetafile = (card: Card, metafile: Metafile): UpdateCardAction => {
   return {
     type: ActionKeys.UPDATE_CARD,
     id: card.id,
@@ -109,7 +93,7 @@ const switchCardMetafile = (card: Card, metafile: Metafile): NarrowActionType<Ac
       ...card,
       name: metafile.name,
       modified: metafile.modified,
-      related: [metafile.id]
+      metafile: metafile.id
     }
   }
 }
@@ -120,13 +104,13 @@ const switchCardMetafile = (card: Card, metafile: Metafile): NarrowActionType<Ac
  *  Repository, and the Redux store is updated to reflect these changes.
  * @param root The root Git directory path associated with the `Repository` object.
  * @param repo The `Repository` object that needs to be updated with the latest branch `refs` list.
- * @return A Thunk that can be executed to simultaneously dispatch Redux updates and return the updated `Repository object 
+ * @return A Thunk that can be executed to simultaneously dispatch Redux updates and return the updated `Repository` object 
  * from the Redux store.
  */
-export const updateBranches = (id: UUID): AsyncThunkUpdateRepoAction =>
+export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction | AddErrorAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const repo = getState().repos[id];
-    if (!repo) throw new Error('Redux Error: Cannot update a repository that does not exist in the store.');
+    if (!repo) return dispatch(reposError(id, `Cannot update non-existing repo for id:'${id}'`));
     const localBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString() });
     const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
     return dispatch(updateRepository({ ...repo, local: localBranches, remote: remoteBranches }));
