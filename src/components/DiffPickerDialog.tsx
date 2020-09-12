@@ -12,7 +12,7 @@ import { loadCard } from '../containers/handlers';
 type DialogProps = {
   open: boolean;
   options: Card[];
-  onClose: (canceled: boolean, selected: [UUID, UUID]) => void;
+  onClose: (canceled: boolean, selected: [UUID, UUID]) => Promise<void>;
 }
 
 export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
@@ -29,7 +29,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
             autoWidth={true} onChange={(e) => setSelectedLeft(e.target.value as UUID)} input={<Input />}>
             {props.options.filter(card => card.type === 'Editor').map(card => (
               <MenuItem key={card.id} value={card.id}>
-                {card.name} (modified {card.modified.toRelative()})
+                {card.name} (uuid: ...{card.id.slice(-5)}, modified {card.modified.toRelative()})
               </MenuItem>
             ))}
           </Select>
@@ -41,7 +41,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
             autoWidth={true} onChange={(e) => setSelectedRight(e.target.value as UUID)} input={<Input />}>
             {props.options.filter(card => card.type === 'Editor').map(card => (
               <MenuItem key={card.id} value={card.id}>
-                {card.name} (modified {card.modified.toRelative()})
+                {card.name} (uuid: ...{card.id.slice(-5)}, modified {card.modified.toRelative()})
               </MenuItem>
             ))}
           </Select>
@@ -75,6 +75,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
     const leftMetafile = metafiles[left.metafile];
     const rightMetafile = metafiles[right.metafile];
     const diffCardName = `DIFF<${left.name} on ${leftMetafile?.branch},${right.name} on ${rightMetafile?.branch}>`;
+    const diffMetafile = await dispatch(getMetafile({ virtual: { name: diffCardName, handler: 'Diff', targets: [left.id, right.id] } }));
     if (diffMetafile && diffMetafile.handler && leftMetafile && rightMetafile) dispatch(loadCard({ metafile: diffMetafile }));
     setOpen(!open);
   };
@@ -82,7 +83,7 @@ const DiffPickerButton: React.FunctionComponent = () => {
   return (
     <>
       <Button id='diffpicker-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={() => setOpen(!open)}>Diff...</Button>
-      <DiffPickerDialog open={open} options={Object.values(cards)} onClose={() => handleClose} />
+      <DiffPickerDialog open={open} options={Object.values(cards)} onClose={handleClose} />
     </>
   );
 }
