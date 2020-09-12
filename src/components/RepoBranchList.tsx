@@ -51,7 +51,7 @@ const VersionStatusButton: React.FunctionComponent = () => {
 
   const handleClick = async () => {
     const metafile = await dispatch(getMetafile({ virtual: { name: 'Version Tracker', handler: 'Tracker' } }));
-    if (metafile) dispatch(loadCard({ metafiles: [metafile] }));
+    if (metafile) dispatch(loadCard({ metafile: metafile }));
   }
 
   return (

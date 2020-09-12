@@ -37,13 +37,14 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
 }
 
 export const EditorReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
+  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
 
   return (
     <>
       <span>ID:</span><span className='field'>...{props.id.slice(-10)}</span>
+      <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo.name}</span>

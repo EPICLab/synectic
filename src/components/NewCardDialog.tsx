@@ -101,7 +101,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
 
     if (isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1) {
       const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', path: fileName, filetype: filetype } }));
-      if (metafile) dispatch(loadCard({ metafiles: [metafile] }));
+      if (metafile) dispatch(loadCard({ metafile: metafile }));
       handleClose();
     }
   };

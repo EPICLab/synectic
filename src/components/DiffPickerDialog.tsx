@@ -58,6 +58,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
 const DiffPickerButton: React.FunctionComponent = () => {
   const [open, setOpen] = useState(false);
   const cards = useSelector((state: RootState) => state.cards);
+  const metafiles = useSelector((state: RootState) => state.metafiles);
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
 
   const handleClose = async (canceled: boolean, selected: [UUID, UUID]) => {
@@ -71,11 +72,10 @@ const DiffPickerButton: React.FunctionComponent = () => {
       return;
     }
 
-    const leftMetafile = await dispatch(getMetafile({ id: left.related[0] }));
-    const rightMetafile = await dispatch(getMetafile({ id: right.related[0] }));
+    const leftMetafile = metafiles[left.metafile];
+    const rightMetafile = metafiles[right.metafile];
     const diffCardName = `DIFF<${left.name} on ${leftMetafile?.branch},${right.name} on ${rightMetafile?.branch}>`;
-    const diffMetafile = await dispatch(getMetafile({ virtual: { name: diffCardName, handler: 'Diff' } }));
-    if (diffMetafile && diffMetafile.handler && leftMetafile && rightMetafile) dispatch(loadCard({ metafiles: [diffMetafile, leftMetafile, rightMetafile] }));
+    if (diffMetafile && diffMetafile.handler && leftMetafile && rightMetafile) dispatch(loadCard({ metafile: diffMetafile }));
     setOpen(!open);
   };
 

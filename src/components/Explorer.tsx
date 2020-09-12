@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { PathLike } from 'fs-extra';
 import TreeView from '@material-ui/lab/TreeView';
@@ -64,7 +64,7 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
 };
 
 export const ExplorerReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
+  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile[0]]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
 

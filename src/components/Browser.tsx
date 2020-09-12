@@ -67,7 +67,7 @@ export const BrowserButton: React.FunctionComponent = () => {
 
   const handleClick = async () => {
     const metafile = await dispatch(getMetafile({ virtual: { name: 'Browser', handler: 'Browser' } }));
-    if (metafile) dispatch(loadCard({ metafiles: [metafile] }));
+    if (metafile) dispatch(loadCard({ metafile: metafile }));
   };
 
   return (

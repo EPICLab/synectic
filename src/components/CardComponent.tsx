@@ -26,11 +26,11 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
 const ContentFront: React.FunctionComponent<Card> = props => {
   switch (props.type) {
     case 'Editor':
-      return (<Editor metafileId={props.related[0]} />);
+      return (<Editor metafileId={props.metafile} />);
     case 'Diff':
-      return (<Diff left={props.related[0]} right={props.related[1]} />);
+      return (<Diff metafileId={props.metafile} />);
     case 'Explorer':
-      return (<Explorer rootId={props.related[0]} />);
+      return (<Explorer rootId={props.metafile} />);
     case 'Browser':
       return (<BrowserComponent />);
     case 'Tracker':

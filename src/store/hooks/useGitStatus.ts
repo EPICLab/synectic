@@ -29,7 +29,7 @@ const useBranchStatus = (repo: UUID, branch: string): useGitStatusHook => {
     const updates = Object.assign({}, status);
 
     const statusCheck = async (card: Card) => {
-      const metafile = metafiles[card.related[0]];
+      const metafile = metafiles[card.metafile];
       return metafile.path ? await getStatus(metafile.path.toString()) : null;
     }
 
