@@ -23,6 +23,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
   const stacks = useSelector((state: RootState) => state.stacks);
   const metafiles = useSelector((state: RootState) => Object.values(state.metafiles));
+  const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const repos = useSelector((state: RootState) => Object.values(state.repos));
   const errors = useSelector((state: RootState) => Object.values(state.errors));
   const dispatch = useDispatch();
@@ -71,11 +72,13 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const showState = () => {
     const allCards = Object.values(cards);
     console.log(`CARDS: ${allCards.length}`)
-    allCards.map(c => console.log(`name: ${c.name}, type: ${c.type}`));
+    allCards.map(c => console.log(`name: ${c.name}, type: ${c.type}, metafile: ${c.metafile}`));
     console.log(`METAFILES: ${metafiles.length}`);
-    metafiles.map(m => console.log(`name: ${m.name}, path: ${m.path}, branch: ${m.branch}, contains: ${m.contains ? JSON.stringify(m.contains) : ''}`));
+    metafiles.map(m => console.log(`id: ${m.id}, name: ${m.name}, path: ${m.path}, branch: ${m.branch}, contains: ${m.contains ? JSON.stringify(m.contains) : ''}, content: ${m.content ? m.content : ''}, targets: ${m.targets ? JSON.stringify(m.targets) : ''}`));
     console.log(`REPOS: ${repos.length}`);
     repos.map(r => console.log(`name: ${r.name}, path: ${r.url.href}, local refs: ${JSON.stringify(r.local)}, remote refs: ${JSON.stringify(r.remote)}`));
+    console.log(`FILETYPES: ${filetypes.length}`);
+    // filetypes.map(f => console.log(`filetype: ${f.filetype}, handler: ${f.handler.toString()}, extensions: ${f.extensions}`));
     console.log(`ERRORS: ${errors.length}`);
     console.log(JSON.stringify(errors));
   }
