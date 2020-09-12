@@ -4,7 +4,7 @@ import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
-import { Metafile, Filetype, Error, UUID, CardType } from '../types';
+import { Metafile, Filetype, Error, UUID } from '../types';
 import { RootState } from '../store/root';
 import * as io from './io';
 import * as git from './git';
@@ -17,20 +17,21 @@ type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
 type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
 export type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
 export type ContainsRequiredMetafile = Metafile & Required<Pick<Metafile, 'contains'>>;
-type AsyncThunkUpdateMetafileAction = ThunkAction<Promise<NarrowActionType<ActionKeys.UPDATE_METAFILE>>, RootState, undefined, Action>;
 
 /**
- * Action Creator for composing a valid ADD_METAFILE Redux Action.
+ * Action Creator for composing a valid ADD_METAFILE Redux Action. The only required parameter is `name`,
+ * since `id` and `modified` are automatically generated for the new `Metafile` object. However, other valid Metafile 
+ * fields can be included via passing an anonymous JavaScript object with the requisite fields.
  * @param name The name to be associated with the new metafile.
- * @param handler (Optional) Handler type to be associated with the new metafile.
+ * @param fields Optional anonymous JavaScript object for all `Metafile` fields, except `id`, `name`, and `modified`.
  * @return An `AddMetafileAction` object that can be dispatched via Redux.
  */
-export const addMetafile = (name: string, handler?: CardType): NarrowActionType<ActionKeys.ADD_METAFILE> => {
+export const addMetafile = (name: string, fields?: Omit<Metafile, 'id' | 'modified' | 'name'>): AddMetafileAction => {
   const metafile: Metafile = {
     id: v4(),
     name: name,
     modified: DateTime.local(),
-    handler: handler
+    ...fields
   };
   return {
     type: ActionKeys.ADD_METAFILE,
@@ -136,10 +137,10 @@ export const updateGitInfo = (id: UUID): ThunkAction<Promise<UpdateMetafileActio
     if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
     if (!metafile.path) return dispatch(metafilesError(id, `Cannot update git info for virtual metafile id: '${id}'`));
 
-    const repoAction = await dispatch(getRepository(metafile.path));
+    const repoAction = metafile.path ? await dispatch(getRepository(metafile.path)) : undefined;
     const repo = repoAction ? getState().repos[repoAction.id] : undefined;
     const branch = repo ? (await git.currentBranch({ dir: repo.root.toString(), fullname: false })) : undefined;
-    const updated: Metafile = (!repo) ? metafile :
+    const updated: Metafile = (!repo || !metafile.path) ? metafile :
       { ...metafile, repo: repo.id, branch: branch ? branch : 'HEAD', status: (await git.getStatus(metafile.path)) };
     return dispatch(updateMetafile(updated));
   };
@@ -188,7 +189,7 @@ export const updateAll = (id: UUID): ThunkAction<Promise<boolean>, RootState, un
 type MetafileGettableFields =
   { id: UUID, filepath?: never, virtual?: never } |
   { id?: never, filepath: PathLike, virtual?: never } |
-  { id?: never, filepath?: never, virtual: { name: string, handler: CardType } & Partial<Omit<Metafile, 'id' | 'modified'>> };
+  { id?: never, filepath?: never, virtual: Required<Pick<Metafile, 'name' | 'handler'>> & Omit<Metafile, 'id' | 'modified' | 'name' | 'handler'> };
 
 /**
  * Thunk Action Creator for retrieving a `Metafile` object associated with one of three different paremeter sets: (1) retrieve existing metafile by
@@ -209,8 +210,8 @@ export const getMetafile = (param: MetafileGettableFields): ThunkAction<Promise<
     if (param.id) {
       // searches by UUID for existing Metafile in Redux store, dispatching an Error and returning undefined if no match, or updates Metafile otherwise
       const existing = await dispatch(updateAll(param.id));
-      if (!existing) dispatch(metafileMissingError(param.id));
-      return getState().metafiles[param.id];
+      if (!existing) dispatch(metafilesError(param.id, `Cannot update non-existing metafile for id: '${param.id}'`));
+      return existing ? getState().metafiles[param.id] : undefined;
     }
     if (param.filepath) {
       // searches by filepath (and git branch if available) for existing Metafile in the Redux store, creating a new Metafile if no match, or updates
@@ -219,15 +220,15 @@ export const getMetafile = (param: MetafileGettableFields): ThunkAction<Promise<
       const root = await git.getRepoRoot(param.filepath);
       const branch = root ? (await git.currentBranch({ dir: root.toString(), fullname: false })) : undefined;
       const existing = branch ? metafiles.find(m => m.path == param.filepath && m.branch == branch) : metafiles.find(m => m.path == param.filepath);
-      const id = existing ? existing.id : dispatch(addMetafile(io.extractFilename(param.filepath))).id;
-      await dispatch(updateAll(id));
-      return getState().metafiles[id];
+      const id = existing ? existing.id : dispatch(addMetafile(io.extractFilename(param.filepath), { path: param.filepath })).id;
+      const updated = await dispatch(updateAll(id));
+      return updated ? getState().metafiles[id] : undefined;
     }
     if (param.virtual) {
       // searches by name and handler for existing Metafile in the Redux store, creates a new Metafile if no match, or returns Metafile otherwise
       const metafiles = Object.values(getState().metafiles);
       const existing = metafiles.find(m => m.name == param.virtual.name && m.handler == param.virtual.handler);
-      const id = existing ? existing.id : dispatch(addMetafile(param.virtual.name, param.virtual.handler)).id;
+      const id = existing ? existing.id : dispatch(addMetafile(param.virtual.name, param.virtual)).id;
       return getState().metafiles[id];
     }
   };

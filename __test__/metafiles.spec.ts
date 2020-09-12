@@ -8,7 +8,66 @@ import { ActionKeys } from '../src/store/actions';
 import * as metafiles from '../src/containers/metafiles';
 import * as repos from '../src/containers/repos';
 import * as git from '../src/containers/git';
-import { Repository } from '../src/types';
+import { Repository, Metafile } from '../src/types';
+
+describe('metafiles.addMetafile', () => {
+
+  it('addMetafile resolves ADD_METAFILE action for name only', () => {
+    expect(metafiles.addMetafile('bar.js')).toStrictEqual(
+      expect.objectContaining({
+        type: ActionKeys.ADD_METAFILE,
+        metafile: expect.objectContaining({ name: 'bar.js' })
+      }));
+  });
+
+  it('addMetafile resolves ADD_METAFILE action for name, handler, and path', () => {
+    expect(metafiles.addMetafile('bar.js', { handler: 'Editor', path: 'foo/bar.js' })).toStrictEqual(
+      expect.objectContaining({
+        type: ActionKeys.ADD_METAFILE,
+        metafile: expect.objectContaining({
+          name: 'bar.js',
+          handler: 'Editor',
+          path: 'foo/bar.js'
+        })
+      }));
+  });
+
+  it('addMetafile resolves ADD_METAFILE action with extended properties', () => {
+    expect(metafiles.addMetafile('bar.js', { handler: 'Diff', repo: '789', targets: ['123', '456'] })).toStrictEqual(
+      expect.objectContaining({
+        type: ActionKeys.ADD_METAFILE,
+        metafile: expect.objectContaining({
+          name: 'bar.js',
+          handler: 'Diff',
+          repo: '789',
+          targets: expect.arrayContaining(['123', '456'])
+        })
+      }));
+  });
+});
+
+describe('metafiles.updateMetafile', () => {
+
+  it('updateMetafile resolves ADD_METAFILE action with modified timestamp updated', () => {
+    const initialDateTime = DateTime.fromISO('2016-05-25T09:08:34.123');
+    const metafile: Metafile = {
+      id: '50778',
+      name: 'bar.js',
+      modified: initialDateTime
+    }
+    const action = metafiles.updateMetafile(metafile);
+
+    expect(action).toStrictEqual(
+      expect.objectContaining({
+        type: ActionKeys.UPDATE_METAFILE,
+        metafile: expect.objectContaining({
+          id: '50778',
+          name: 'bar.js'
+        })
+      }));
+    expect(action.metafile.modified ? action.metafile.modified > initialDateTime : false).toBe(true);
+  });
+});
 
 describe('metafiles.updateFileStats', () => {
   const store = mockStore({
@@ -88,12 +147,24 @@ describe('metafiles.updateFileStats', () => {
     ]);
   });
 
-  it('updateFileStats rejects on UUID with no match in the Redux store', async () => {
-    return expect(store.dispatch(metafiles.updateFileStats('9'))).rejects.toThrow(/Redux Error/);
+  it('updateFileStats resolves to error on UUID with no match in the Redux store', async () => {
+    await store.dispatch(metafiles.updateFileStats('9'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'MetafilesError' })
+      })
+    ]);
   });
 
-  it('updateFileStats rejects on virtual metafile', async () => {
-    return expect(store.dispatch(metafiles.updateFileStats('21'))).rejects.toThrow(/Redux Error/);
+  it('updateFileStats resolves to error on virtual metafile', async () => {
+    await store.dispatch(metafiles.updateFileStats('21'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'MetafilesError' })
+      })
+    ]);
   });
 });
 
@@ -182,12 +253,24 @@ describe('metafiles.updateGitInfo', () => {
     ]);
   });
 
-  it('updateGitInfo rejects on UUID with no match in the Redux store', async () => {
-    return expect(store.dispatch(metafiles.updateGitInfo('9'))).rejects.toThrow(/Redux Error/);
+  it('updateGitInfo resolves to error on UUID with no match in the Redux store', async () => {
+    await store.dispatch(metafiles.updateGitInfo('9'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'MetafilesError' })
+      })
+    ]);
   });
 
-  it('updateGitInfo rejects on virtual metafile', async () => {
-    return expect(store.dispatch(metafiles.updateGitInfo('21'))).rejects.toThrow(/Redux Error/);
+  it('updateGitInfo resolves to error on virtual metafile', async () => {
+    await store.dispatch(metafiles.updateGitInfo('21'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'MetafilesError' })
+      })
+    ]);
   });
 });
 
@@ -278,12 +361,24 @@ describe('metafiles.updateContents', () => {
     ]);
   });
 
-  it('updateContents rejects on UUID with no match in the Redux store', async () => {
-    return expect(store.dispatch(metafiles.updateContents('9'))).rejects.toThrow(/Redux Error/);
+  it('updateContents resolves to error on UUID with no match in the Redux store', async () => {
+    await store.dispatch(metafiles.updateContents('9'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'MetafilesError' })
+      })
+    ]);
   });
 
   it('updateContents rejects on virtual metafile', async () => {
-    return expect(store.dispatch(metafiles.updateContents('21'))).rejects.toThrow(/Redux Error/);
+    await store.dispatch(metafiles.updateContents('21'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'MetafilesError' })
+      })
+    ]);
   });
 });
 
@@ -448,7 +543,7 @@ describe('metafiles.getMetafile', () => {
     expect(store.getActions()).toEqual([
       expect.objectContaining({
         type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafileMissingError' })
+        error: expect.objectContaining({ type: 'MetafilesError' })
       })
     ]);
   });
