@@ -9,9 +9,9 @@ import { AnyAction } from 'redux';
 import { PathLike } from 'fs-extra';
 import { getMetafile, metafileMissingError } from './metafiles';
 
+type AddCardAction = NarrowActionType<ActionKeys.ADD_CARD>;
+type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
 type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
-type HandlerMissingMetafile = Omit<Metafile, 'handler'>;
-
 /**
  * Extracts and updates list of supported filetypes in Redux store.
  * @return A Promise object for an array of Redux actions that update the store with supported filetypes.
@@ -54,15 +54,16 @@ const addCard = (metafiles: HandlerRequiredMetafile[]): NarrowActionType<ActionK
 
 /**
  * Action Creator for composing a valid ADD_ERROR Redux Action.
- * @param metafile A `Metafile` object that does not contain a valid `handler` field.
+ * @param target Corresponds to the object or field originating the error.
+ * @param message The error message to be displayed to the user.
  * @return An `AddErrorAction` object that can be dispatched via Redux.
  */
-const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowActionType<ActionKeys.ADD_ERROR> => {
+export const handlersError = (target: string, message: string): AddErrorAction => {
   const error: Error = {
     id: v4(),
-    type: 'HandlerMissingError',
-    target: metafile.id,
-    message: `Metafile ${metafile.name} missing handler to resolve filetype: '${metafile.filetype}'`
+    type: 'HandlersError',
+    target: target,
+    message: message
   };
   return {
     type: ActionKeys.ADD_ERROR,
