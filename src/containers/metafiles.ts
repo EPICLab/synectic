@@ -12,6 +12,9 @@ import { getRepository } from './repos';
 import { asyncFilter } from './format';
 import { shouldBeHiddenSync } from 'hidefile';
 
+type AddMetafileAction = NarrowActionType<ActionKeys.ADD_METAFILE>;
+type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
+type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
 export type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
 export type ContainsRequiredMetafile = Metafile & Required<Pick<Metafile, 'contains'>>;
 type AsyncThunkUpdateMetafileAction = ThunkAction<Promise<NarrowActionType<ActionKeys.UPDATE_METAFILE>>, RootState, undefined, Action>;
@@ -44,7 +47,7 @@ export const addMetafile = (name: string, handler?: CardType): NarrowActionType<
  * @return An `UpdateMetafileAction` object that can be dispatched via Redux, including an updated timestamp in the
  * `modified` field.
  */
-export const updateMetafile = (metafile: Metafile): NarrowActionType<ActionKeys.UPDATE_METAFILE> => {
+export const updateMetafile = (metafile: Metafile): UpdateMetafileAction => {
   return {
     type: ActionKeys.UPDATE_METAFILE,
     id: metafile.id,
@@ -54,15 +57,16 @@ export const updateMetafile = (metafile: Metafile): NarrowActionType<ActionKeys.
 
 /**
  * Action Creator for composing a valid ADD_ERROR Redux Action.
- * @param getterField Corresponds to the identifier portion of the `MetafileGettableFields` type.
+ * @param target Corresponds to the object or field originating the error.
+ * @param message The error message to be displayed to the user.
  * @return An `AddErrorAction` object that can be dispatched via Redux.
  */
-export const metafileMissingError = (getterField: string): NarrowActionType<ActionKeys.ADD_ERROR> => {
+export const metafilesError = (target: string, message: string): AddErrorAction => {
   const error: Error = {
     id: v4(),
-    type: 'MetafileMissingError',
-    target: getterField,
-    message: `Metafile missing for '${getterField}'`
+    type: 'MetafilesError',
+    target: target,
+    message: message
   };
   return {
     type: ActionKeys.ADD_ERROR,
@@ -93,16 +97,16 @@ export const filterDirectoryContainsTypes = async (metafile: ContainsRequiredMet
  * @param id The UUID corresponding to the metafile that should be updated.
  * @return A Thunk that can be executed to get file system properties and dispatch Redux updates.
  */
-export const updateFileStats = (id: UUID): ThunkAction<Promise<NarrowActionType<ActionKeys.UPDATE_METAFILE>>, RootState, undefined, Action> =>
+export const updateFileStats = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddErrorAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const metafile = getState().metafiles[id];
-    if (!metafile) throw new Error('Redux Error: Cannot update a metafile that does not exist in the store.');
-    if (!metafile.path) throw new Error('Redux Error: Cannot update file stats for a virtual metafile.');
+    if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
+    if (!metafile.path) return dispatch(metafilesError(id, `Cannot update file stats for virtual metafile id: '${id}'`));
 
     const stats = await io.extractStats(metafile.path);
     const filetypes = Object.values(getState().filetypes);
     let handler: Filetype | undefined;
-    if (stats?.isDirectory()) {
+    if (stats && stats.isDirectory()) {
       handler = filetypes.find(filetype => filetype.filetype === 'Directory');
     } else {
       const extension = io.extractExtension(metafile.path);
@@ -126,11 +130,11 @@ export const updateFileStats = (id: UUID): ThunkAction<Promise<NarrowActionType<
 * @param id The UUID corresponding to the metafile that should be updated.
 * @return A Thunk that can be executed to read git information and dispatch Redux updates.
 */
-export const updateGitInfo = (id: UUID): AsyncThunkUpdateMetafileAction =>
+export const updateGitInfo = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddErrorAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const metafile = getState().metafiles[id];
-    if (!metafile) throw new Error('Redux Error: Cannot update a metafile that does not exist in the store.');
-    if (!metafile.path) throw new Error('Redux Error: Cannot update git info for a virtual metafile.');
+    if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
+    if (!metafile.path) return dispatch(metafilesError(id, `Cannot update git info for virtual metafile id: '${id}'`));
 
     const repoAction = await dispatch(getRepository(metafile.path));
     const repo = repoAction ? getState().repos[repoAction.id] : undefined;
@@ -151,11 +155,11 @@ export const updateGitInfo = (id: UUID): AsyncThunkUpdateMetafileAction =>
  * @param id The UUID corresponding to the metafile that should be updated.
  * @return A Thunk that can be executed to asynchronously read content and dispatch Redux updates.
  */
-export const updateContents = (id: UUID): AsyncThunkUpdateMetafileAction =>
+export const updateContents = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddErrorAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const metafile = getState().metafiles[id];
-    if (!metafile) throw new Error('Redux Error: Cannot update a metafile that does not exist in the store.');
-    if (!metafile.path) throw new Error('Redux Error: Cannot update file content for a virtual metafile.');
+    if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
+    if (!metafile.path) return dispatch(metafilesError(id, `Cannot update file content for virtual metafile id: '${id}'`));
 
     const updated: Metafile = (metafile.filetype === 'Directory') ?
       { ...metafile, contains: (await io.readDirAsyncDepth(metafile.path, 1)).filter(p => p !== metafile.path) } :
