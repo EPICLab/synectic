@@ -65,8 +65,14 @@ describe('repos.updateBranches', () => {
     ]);
   });
 
-  it('updateBranches rejects on UUID with no match in the Redux store', async () => {
-    return expect(store.dispatch(repos.updateBranches('9'))).rejects.toThrow(/Redux Error/);
+  it('updateBranches resolves to error on UUID with no match in the Redux store', async () => {
+    await store.dispatch(repos.updateBranches('9'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'ReposError' })
+      })
+    ]);
   });
 });
 
@@ -154,12 +160,24 @@ describe('repos.checkoutBranch', () => {
     ]);
   });
 
-  it('checkoutBranch rejects on card UUID with no match in the Redux store', async () => {
-    return expect(store.dispatch(repos.checkoutBranch('41', '3', 'sample'))).rejects.toThrow(/Redux Error/);
+  it('checkoutBranch resolves to error on card UUID with no match in the Redux store', async () => {
+    await store.dispatch(repos.checkoutBranch('41', '3', 'sample'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'ReposError' })
+      })
+    ]);
   });
 
-  it('checkoutBranch rejects on metafile UUID with no match in the Redux store', async () => {
-    return expect(store.dispatch(repos.checkoutBranch('36', '9', 'sample'))).rejects.toThrow(/Redux Error/);
+  it('checkoutBranch resolves to error on metafile UUID with no match in the Redux store', async () => {
+    await store.dispatch(repos.checkoutBranch('36', '9', 'sample'));
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.ADD_ERROR,
+        error: expect.objectContaining({ type: 'ReposError' })
+      })
+    ]);
   });
 });
 

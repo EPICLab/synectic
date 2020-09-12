@@ -127,15 +127,19 @@ export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction |
 * @param progress Boolean switch to print phase progress information from `isomorphic-git.checkout()` to console.
 * @return An Thunk that can be executed to get a Metafile associated with a new Git branch and updates the card.
 */
-export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, progress?: boolean):
-  ThunkAction<Promise<Metafile | undefined>, RootState, undefined, AnyAction> =>
+export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, progress?: boolean): ThunkAction<Promise<Metafile | undefined>, RootState, undefined, AnyAction> =>
   async (dispatch, getState) => {
-    if (!getState().cards[cardId]) throw new Error('Redux Error: Cannot update a card that does not exist in the store.');
+    const card = getState().cards[cardId];
     const metafile = getState().metafiles[metafileId];
-    if (!metafile) throw new Error('Redux Error: Cannot update a metafile that does not exist in the store.');
+    if (!card) dispatch(reposError(metafileId, `Cannot update non-existing card for id:'${cardId}'`));
+    if (!metafile) dispatch(reposError(metafileId, `Cannot update non-existing metafile for id:'${metafileId}'`));
+    if (!card || !metafile) return undefined;
 
     const repo = metafile.repo ? getState().repos[metafile.repo] : undefined;
-    if (!repo) dispatch(repositoryMissingError(metafile));
+    if (!repo) {
+      dispatch(reposError(metafile.id, `Repository missing for metafile id:'${metafile.id}'`));
+      return undefined;
+    }
     if (repo && metafile.path) {
       const baseRef = metafile.branch;
       // change the repository branch to the new branch
@@ -145,11 +149,11 @@ export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, p
       // get an updated metafile based on the new branch
       const updated = await dispatch(getMetafile({ filepath: metafile.path }));
       if (!updated) {
-        dispatch(metafileMissingError(metafile.path.toString()));
+        dispatch(reposError(metafile.id, `Cannot locate updated metafile with new branch for path:'${metafile.path}'`));
         return undefined;
       }
       // update the metafile details (including file content) for the card
-      dispatch(switchCardMetafile(getState().cards[cardId], updated));
+      dispatch(switchCardMetafile(card, updated));
 
       // change the repository branch back to the old branch
       await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: baseRef });
