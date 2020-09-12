@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import filetypesJson from './filetypes.json';
 import { ActionKeys, Action, NarrowActionType } from '../store/actions';
-import { Filetype, Metafile, Card, Stack, Error, UUID } from '../types';
+import { Filetype, Metafile, Card, Stack, Error } from '../types';
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store/root';
 import { AnyAction } from 'redux';
@@ -30,20 +30,20 @@ export const importFiletypes = async (): Promise<Action[]> => {
 
 /**
  * Action Creator for composing a valid ADD_CARD Redux Action.
- * @param metafiles A list of related `Metafile` objects, where the first contains a valid `handler` field.
+ * @param metafile The related `Metafile` object containing a valid `handler` field.
  * @return An `AddCardAction` object that can be dispatched via Redux, or undefined if no handler is defined.
  */
-const addCard = (metafiles: HandlerRequiredMetafile[]): NarrowActionType<ActionKeys.ADD_CARD> => {
+const addCard = (metafile: HandlerRequiredMetafile): AddCardAction | AddErrorAction => {
   const card: Card = {
     id: v4(),
-    name: metafiles[0].name,
+    name: metafile.name,
     created: DateTime.local(),
-    modified: metafiles[0].modified,
+    modified: metafile.modified,
     captured: false,
     left: 10,
     top: 25,
-    type: metafiles[0].handler,
-    related: metafiles.map<UUID>(m => m.id)
+    type: metafile.handler,
+    metafile: metafile.id
   };
   return {
     type: ActionKeys.ADD_CARD,
