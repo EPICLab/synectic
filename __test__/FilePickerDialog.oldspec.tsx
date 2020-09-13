@@ -7,6 +7,8 @@ import { remote } from 'electron'; // imports the mocked dependency to allow acc
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import FilePickerButton from '../src/components/FilePickerDialog';
+import { render } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/dom';
 
 type EmptyObject = Record<string, unknown>;
 
@@ -45,7 +47,9 @@ describe('FilePicker', () => {
   });
 
   it('FilePicker allows users to pick a file for opening', async () => {
-    wrapper.find('#filepicker-button').first().simulate('click');
+    render(<FilePickerButton />);
+    const button = screen.queryByText(/filepicker-button/i);
+    if (button) fireEvent.click(button);
     return expect(remote.dialog.showOpenDialog).toHaveBeenCalled();
   });
 });
