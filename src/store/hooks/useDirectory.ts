@@ -1,52 +1,59 @@
 import { useCallback, useState } from 'react'
-import { Metafile } from '../../types'
 import { useDispatch } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
-import { RootState } from '../root'
-import { AnyAction } from 'redux'
-import { getMetafile, filterDirectoryContainsTypes, updateDirectoryContains, ContainsRequiredMetafile, PathRequiredMetafile } from '../../containers/metafiles'
 import { PathLike } from 'fs-extra'
 
-type useDirectoryHook = [
-  { root: Metafile | undefined, directories: string[], files: string[] },
-  { fetch: () => Promise<void> }
-];
+import { RootState } from '../root'
+import { Metafile } from '../../types'
+import { Action } from '../actions'
+import { getMetafile, filterDirectoryContainsTypes, ContainsRequiredMetafile } from '../../containers/metafiles'
+
+type useDirectoryHook = {
+  root: Metafile | undefined,
+  directories: string[],
+  files: string[],
+  fetch: () => Promise<void>
+};
 
 /**
- * Custom React Hook for managing the list of directories and files contained within a root directory that exists within the filesystem.
- * The initial state is of the hook is empty, and will only be populated upon a fetch. The fetch method is optimized to only call
- * filesystem-intensive functions when root has not been set (and no Metafile is supplied for initialRoot); the updateDirectoryContains()
- * method is already optimized to forgo updating Redux state if the contained paths are the same as the previous state (i.e. do not cause
- * a React rerender unless necessary).
+ * Custom React Hook for managing the list of directories and files contained within a root directory existing in the filesystem.
+ * The initial state of the hook is empty, and will only be populated upon a fetch. The fetch method is optimized to only call
+ * filesystem-intensive functions when root has not been set (and no Metafile is supplied for initialRoot); the 
+ * metafile.updateContents() method is already optimized to skip updating Redux state if the contained paths are the same as the 
+ * paths in the previous state (i.e. a React rerender only occurs when necessary to update contained files/directories).
  * @param initialRoot The root directory that all subsequent child files and directories derive from; can be Metafile or filepath.
- * @return A named set of state fields (root, directories, files) and a named action (fetch).
+ * @return The states of `root`, `directories`, `files`, and the `fetch` function.
  */
-const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook => {
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, AnyAction>>();
+export const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook => {
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const [root, setRoot] = useState<Metafile | undefined>();
   const [directories, setDirectories] = useState<string[]>([]);
   const [files, setFiles] = useState<string[]>([]);
 
-  const isMetafile = (untypedRoot: unknown): untypedRoot is Metafile => {
-    if ((untypedRoot as Metafile).id) return true;
-    return false;
-  };
+  // Type guard to verify and return a Metafile type predicate
+  const isMetafile = (untypedRoot: unknown): untypedRoot is Metafile => (untypedRoot as Metafile).id ? true : false;
 
   const fetch = useCallback(async () => {
-    // first check if root has previously been set (and if true just update contains), then differentiate dealing with Metafile or PathLike parameters
-    const rootMetafile = root ? (await dispatch(updateDirectoryContains(root as PathRequiredMetafile))) : (
-      isMetafile(initialRoot) ? initialRoot : await dispatch(getMetafile(initialRoot)));
+    /**
+     * Calling `setState` on a React useState hook does not immediately update the state, and instead enqueues a re-render of
+     * the component that will update state after the rerender. Therefore, we cannot use the `root` state directly on the same
+     * tick as it is set (via `setRoot`) and have to carry `rootMetafile` between the steps in this callback.
+     */
+    let rootMetafile = root;
 
-    if (rootMetafile.contains) {
-      const filteredContains = await filterDirectoryContainsTypes(rootMetafile as ContainsRequiredMetafile, false);
-      // verify that the root, directories, and files have changed before updating each of them
-      if ((root && JSON.stringify(root) !== JSON.stringify(rootMetafile)) || !root) setRoot(rootMetafile);
-      if (JSON.stringify(directories) !== JSON.stringify(filteredContains.directories)) setDirectories(filteredContains.directories);
-      if (JSON.stringify(files) !== JSON.stringify(filteredContains.files)) setFiles(filteredContains.files);
+    if (!root) {
+      // since not root exists, use `initialRoot` to get a metafile and update `root`
+      rootMetafile = isMetafile(initialRoot) ? await dispatch(getMetafile({ id: initialRoot.id })) : await dispatch(getMetafile({ filepath: initialRoot }));
+      setRoot(rootMetafile);
     }
-  }, [directories, dispatch, files, initialRoot, root]);
 
-  return [{ root, directories, files }, { fetch }];
+    if (rootMetafile && rootMetafile.contains) {
+      // update the `directories` and `files` states only if there are changes
+      const updates = await filterDirectoryContainsTypes(rootMetafile as ContainsRequiredMetafile, false);
+      if (JSON.stringify(directories) !== JSON.stringify(updates.directories)) setDirectories(updates.directories);
+      if (JSON.stringify(files) !== JSON.stringify(updates.files)) setFiles(updates.files);
+    }
+  }, [root, dispatch, initialRoot, directories, files]);
+
+  return { root, directories, files, fetch };
 }
-
-export default useDirectory;

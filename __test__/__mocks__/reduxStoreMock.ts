@@ -1,171 +1,65 @@
-import { DateTime } from 'luxon';
-import { v4 } from 'uuid';
-import parsePath from 'parse-path';
+import { configureMockStore } from '@jedmao/redux-mock-store';
+import thunk, { ThunkDispatch } from 'redux-thunk';
 
-import { Canvas, Stack, Card, Filetype, Metafile, Repository } from '../../src/types';
-import { createStore, CombinedState, Store } from 'redux';
-import { rootReducer } from '../../src/store/root';
+import { RootState, rootReducer } from '../../src/store/root';
 import { Action } from '../../src/store/actions';
+import { DeepPartial } from 'redux';
 
-type initStateT = {
-  canvas: Canvas;
-  stacks: { [id: string]: Stack };
-  cards: { [id: string]: Card };
-  filetypes: { [id: string]: Filetype };
-  metafiles: { [id: string]: Metafile };
-  repos: { [id: string]: Repository };
+// Conditional type for extracting the type of values in a key-value map object, 
+// inspired by: https://mariusschulz.com/articles/conditional-types-in-typescript
+type KeyVal<T> = T extends { [x: string]: infer U } ? U : never;
+
+const middlewares = [thunk];
+const createMockStore = configureMockStore<RootState, Action, ThunkDispatch<RootState, undefined, Action>>(middlewares);
+
+/** 
+ * The mocked Redux store does not execute any reducers, and therefore `getActions()` only provides the unexecuted actions 
+ * without applying their updates on the state. In order to handle Thunk Action Creators that rely on `getState()` for 
+ * controlling behavior, we must have actions apply their updates to the mocked store. Therefore, we must inject a reducer 
+ * step into the state of the mocked store using a customized initial state.
+ * 
+ * For more information, see:
+ *   * https://github.com/reduxjs/redux-mock-store/issues/71
+ *   * https://github.com/reduxjs/redux-mock-store/issues/71#issuecomment-515209822
+ */
+const createState = (initialState: RootState) => (actions: Action[]) => actions.reduce(rootReducer, initialState);
+
+/**
+ * Creates a mocked Redux store for testing purposes. The resulting store can be interacted with using:
+ *   * `store.dispatch()`: To dispatch Redux actions, thunks, and async thunks.
+ *   * `store.getActions()`: Returns the actions list of the mocked store.
+ *   * `store.getState()`: Returns the state of the mocked store.
+ *   * `store.clearActions()`: Clears the stored actions.
+ *   * `store.subscribe()`: Subscribes a listener to the store for specific actions.
+ * @param initialState A JavaScript object containing an initial Redux store state that mimicks the shape of `RootState`.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const mockStore = (initialState: RootState) => createMockStore(createState(initialState));
+
+/**
+ * Exposes an array of field objects found in the state of a mocked Redux store composed on key-value map objects, using 
+ * type inference and conditional typing to expose the value object types. The fields in a mocked Redux store (accessed by
+ * calling `store.getState().fieldName`) are of the type `DeepPartial<T> | undefined`, which requires filtering out undefined
+ * from both the store field and the deeper fields within the key-value map. Also, since we need the type of values in the
+ * key-value map we rely on the `KeyVal` conditional type to infer value types.
+ * @param map The key-value map object contained in a mocked Redux store.
+ * @return A typed array of values stored in the field within the mocked Redux store.
+ */
+export const extractFieldArray = <T extends Record<string, KeyVal<T>>>(map: DeepPartial<T> | undefined): KeyVal<T>[] => {
+  if (map) return Object.values(map as T);
+  throw new Error('exposeFieldArray() cannot resolve undefined');
 }
 
-const validCanvasUUID = v4();
-const validCardUUID = v4();
-const initialState: initStateT = {
-  canvas: {
-    id: validCanvasUUID,
-    created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-    repos: ['13 '],
-    cards: ['14', '33', validCardUUID],
-    stacks: ['36']
-  },
-  stacks: {
-    36: {
-      id: '36',
-      name: 'sample stack',
-      created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-      modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-      note: '',
-      cards: [],
-      left: 5,
-      top: 5
-    }
-  },
-  cards: {
-    14: {
-      id: '14',
-      name: 'test.js',
-      type: 'Editor',
-      related: ['243'],
-      created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-      modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-      captured: false,
-      left: 10,
-      top: 10
-    },
-    33: {
-      id: '33',
-      name: 'turtle.asp',
-      type: 'Editor',
-      related: ['459'],
-      created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00'),
-      modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
-      captured: false,
-      left: 27,
-      top: 105
-    },
-    validCardUUID: {
-      id: validCardUUID,
-      name: 'example.ts',
-      type: 'Editor',
-      related: ['199'],
-      created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-      modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-      captured: false,
-      left: 20,
-      top: 40
-    }
-  },
-  filetypes: {
-    91: {
-      id: '91',
-      filetype: 'JavaScript',
-      handler: 'Editor',
-      extensions: ['js', 'jsm']
-    },
-    45: {
-      id: '45',
-      filetype: 'TypeScript',
-      handler: 'Editor',
-      extensions: ['ts', 'typescript', 'str']
-    },
-    99: {
-      id: '99',
-      filetype: 'Razor',
-      handler: 'Editor',
-      extensions: ['cshtml', 'asp']
-    }
-  },
-  metafiles: {
-    199: {
-      id: '199',
-      name: 'test.js',
-      modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00'),
-      content: 'const rand: number = Math.floor(Math.random() * 6) + 1;'
-    },
-    243: {
-      id: '243',
-      name: 'example.ts',
-      modified: DateTime.fromISO('2015-06-19T19:10:47.572-08:00'),
-      content: 'var rand = Math.floor(Math.random() * 6) + 1;'
-    },
-    459: {
-      id: '243',
-      name: 'turtle.asp',
-      modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
-      content: 'Response.Write("Hello World!")'
-    },
-    99: {
-      id: '99',
-      name: 'testdir',
-      path: 'withchildren/testdir',
-      filetype: 'Directory',
-      handler: 'Explorer',
-      modified: DateTime.fromISO('2000-02-02T20:20:20.222-08:00'),
-      contains: []
-    },
-    24: {
-      id: '24',
-      name: 'withchildren',
-      path: 'withchildren',
-      filetype: 'Directory',
-      handler: 'Explorer',
-      modified: DateTime.fromISO('2001-01-01T01:01:01.111-08:00'),
-      contains: ['99', '199']
-    },
-    75: {
-      id: '75',
-      name: 'trackedDir',
-      path: 'trackedDir',
-      filetype: 'Directory',
-      handler: 'Explorer',
-      modified: DateTime.fromISO('2001-01-01T01:01:01.111-08:00'),
-      branch: 'master',
-      contains: []
-    }
-  },
-  repos: {
-    13: {
-      id: '13',
-      name: 'test/repo',
-      root: '/',
-      corsProxy: new URL('http://www.random_proxy.edu'),
-      url: parsePath('http://www.random_proxy.edu'),
-      local: ['master'],
-      remote: [],
-      oauth: 'github',
-      username: 'sam',
-      password: 'pass123',
-      token: '934394304234231'
-    }
-  }
-};
-
-export const getMockStore = (): Store<CombinedState<initStateT>, Action> => createStore(rootReducer, initialState);
-
-export const getCanvasProps = (): Canvas => initialState.canvas;
-
-export const getCardProps = (index?: number): Card => {
-  const initialCards = Object.values(initialState.cards);
-  if (index && index >= 0 && index < initialCards.length) {
-    return initialCards[index];
-  }
-  return initialCards[0];
-};
+/**
+ * Exposes a map of field objects found in the state of a mocked Redux store composed on key-value map objects, using
+ * type inference to expose the correct record types. The fields in a mocked Redux store (accessed by calling 
+ * `store.getState().fieldName`) are of the type `DeepPartial<T> | undefined`, which requires filtering out undefined
+ * from both the store field and the deeper fields within the key-value map. Also, since we need the type of values in the
+ * key-value map we rely on the `KeyVal` conditional type to infer value types.
+ * @param map The key-value map object contained in a mocked Redux store.
+ * @return A typed map stored in the field within the mocked Redux store.
+ */
+export const extractFieldMap = <T extends Record<string, KeyVal<T>>>(map: DeepPartial<T> | undefined): Record<string, KeyVal<T>> => {
+  if (map) return (map as T);
+  throw new Error('exposeFieldMap() cannot resolve undefined');
+}

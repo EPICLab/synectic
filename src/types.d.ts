@@ -2,13 +2,6 @@ import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 
-// Utility types to allow the TypeScript compiler to narrow union types based on discriminated
-// typing (e.g. NarrowType<Actions, ActionKeys.ADD_REPO> narrows to type AddRepoAction, and
-// RemoveType<Actions, ActionKeys.INITIALIZE_CANVAS> removes the type InitializeCanvasAction and
-// returns all other Action types).
-export type NarrowType<T, N> = T extends { type: N } ? T : never;
-export type RemoveType<T, N> = T extends { type: N } ? never : T;
-
 export type UUID = string;
 
 export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
@@ -18,7 +11,7 @@ export type Card = {
   readonly id: UUID;
   readonly name: string;
   readonly type: CardType;
-  readonly related: UUID[];
+  readonly metafile: UUID;
   readonly created: DateTime;
   readonly modified: DateTime;
   readonly captured: boolean;
@@ -62,8 +55,9 @@ export type Metafile = {
   readonly repo?: UUID; // UUID to Repository object
   readonly branch?: string; // Git branch name or ref
   readonly status?: GitStatus; // Git version control status
-  readonly content?: string; // for non-Directory filetype, contents of the file
-  readonly contains?: string[]; // for Directory filetype, UUID to Metafile objects (sub-files/sub-directories)
+  readonly content?: string; // for files, contents of the file
+  readonly contains?: UUID[]; // for directories (Directory filetype), UUIDs to Metafile objects (sub-files/sub-directories)
+  readonly targets?: UUID[]; // for diffs (Diff handler), UUIDs to Card objects 
 }
 
 export type Repository = {

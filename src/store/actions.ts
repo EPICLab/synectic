@@ -10,6 +10,20 @@ export enum ActionKeys {
   ADD_ERROR, REMOVE_ERROR
 }
 
+/**
+ * Utility type for selecting one or more Action types based on descriminated type narrowing of the Action union
+ * type. For example, NarrowActionType<ActionKeys.ADD_REPO> would narrow Actions to type AddRepoAction, and 
+ * NarrowActionType<ActionKeys.ADD_METAFILE | ActionKeys.UPDATE_METAFILE> would narrow to types AddMetafileAction 
+ * and UpdateMetafileAction.
+ */
+export type NarrowActionType<T extends ActionKeys> = Extract<Action, { type: T }>;
+/**
+ * Utility type for removing an Action type based on descriminated type narrowing of the Action union type. For 
+ * example, RemoveActionType<ActionKeys.INITIALIZE_CANVAS> removes the type InitializeCanvasAction and returns all 
+ * other Action types.
+ */
+export type RemoveActionType<T extends ActionKeys> = Exclude<Action, { type: T }>;
+
 export type Action =
   | InitializeCanvasAction
   | AddCardAction

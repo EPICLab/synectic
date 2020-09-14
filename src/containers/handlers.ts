@@ -1,17 +1,17 @@
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import filetypesJson from './filetypes.json';
-import { ActionKeys, Action } from '../store/actions';
-import { Filetype, Metafile, Card, Stack, Error, NarrowType } from '../types';
+import { ActionKeys, Action, NarrowActionType } from '../store/actions';
+import { Filetype, Metafile, Card, Stack, Error } from '../types';
 import { ThunkAction } from 'redux-thunk';
 import { RootState } from '../store/root';
 import { AnyAction } from 'redux';
 import { PathLike } from 'fs-extra';
 import { getMetafile } from './metafiles';
 
+type AddCardAction = NarrowActionType<ActionKeys.ADD_CARD>;
+type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
 type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
-type HandlerMissingMetafile = Omit<Metafile, 'handler'>;
-
 /**
  * Extracts and updates list of supported filetypes in Redux store.
  * @return A Promise object for an array of Redux actions that update the store with supported filetypes.
@@ -30,10 +30,10 @@ export const importFiletypes = async (): Promise<Action[]> => {
 
 /**
  * Action Creator for composing a valid ADD_CARD Redux Action.
- * @param metafile A `Metafile` object that includes a valid `handler` field.
+ * @param metafile The related `Metafile` object containing a valid `handler` field.
  * @return An `AddCardAction` object that can be dispatched via Redux, or undefined if no handler is defined.
  */
-const addCard = (metafile: HandlerRequiredMetafile): NarrowType<Action, ActionKeys.ADD_CARD> => {
+const addCard = (metafile: HandlerRequiredMetafile): AddCardAction | AddErrorAction => {
   const card: Card = {
     id: v4(),
     name: metafile.name,
@@ -43,7 +43,7 @@ const addCard = (metafile: HandlerRequiredMetafile): NarrowType<Action, ActionKe
     left: 10,
     top: 25,
     type: metafile.handler,
-    related: [metafile.id]
+    metafile: metafile.id
   };
   return {
     type: ActionKeys.ADD_CARD,
@@ -54,15 +54,16 @@ const addCard = (metafile: HandlerRequiredMetafile): NarrowType<Action, ActionKe
 
 /**
  * Action Creator for composing a valid ADD_ERROR Redux Action.
- * @param metafile A `Metafile` object that does not contain a valid `handler` field.
+ * @param target Corresponds to the object or field originating the error.
+ * @param message The error message to be displayed to the user.
  * @return An `AddErrorAction` object that can be dispatched via Redux.
  */
-const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowType<Action, ActionKeys.ADD_ERROR> => {
+export const handlersError = (target: string, message: string): AddErrorAction => {
   const error: Error = {
     id: v4(),
-    type: 'HandlerMissingError',
-    target: metafile.id,
-    message: `Metafile ${metafile.name} missing handler to resolve filetype: '${metafile.filetype}'`
+    type: 'HandlersError',
+    target: target,
+    message: message
   };
   return {
     type: ActionKeys.ADD_ERROR,
@@ -71,29 +72,34 @@ const handlerMissingError = (metafile: HandlerMissingMetafile): NarrowType<Actio
   };
 }
 
+// Descriminated union type for emulating a `mutually exclusive or` (XOR) operation between parameter types
+// Ref: https://github.com/microsoft/TypeScript/issues/14094#issuecomment-344768076
+type CardLoadableFields =
+  { metafile: Metafile, filepath?: never } |
+  { metafile?: never, filepath: PathLike };
+
 /**
- * Thunk Action Creator for adding a new Card, either by providing a metafile with an appropriate handler
- * field or by providing a filepath in order to read the filesystem and dispatch any necessary Redux
- * store updates before loading a new Card. This function will load an error if the metafile does not
- * contain a valid filetype handler.
- * @param metafile A `Metafile` object previously created or retrieved from the Redux state.
+ * Thunk Action Creator for adding a new Card, either by providing one or more metafile (specifically to
+ * support Diff cards which require two metafiles) with an appropriate handler field or by providing a filepath 
+ * in order to read the filesystem and dispatch any necessary Redux store updates before loading a new Card. 
+ * This function will load an error if the metafile does not contain a valid filetype handler.
+ * @param metafile A `Metafile` objects previously created or retrieved from the Redux state.
  * @param filepath The relative or absolute path to evaluate.
- * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve a `Card` object.
+ * @return A Thunk that can be executed to load a card onto the canvas and dispatch Redux updates, if the card cannot
+ * be added to the Redux store and no errors can be generated, then `undefined` is returned instead.
  */
-export const loadCard = ({ metafile, filepath }: { metafile?: Metafile; filepath?: PathLike }): ThunkAction<Promise<Card | undefined>, RootState, undefined, AnyAction> => {
+export const loadCard = (param: CardLoadableFields): ThunkAction<Promise<AddCardAction | AddErrorAction | undefined>, RootState, undefined, AnyAction> => {
   return async (dispatch) => {
-    if (metafile) {
-      if (!metafile.handler) dispatch(handlerMissingError(metafile));
-      const addCardAction = addCard(metafile as HandlerRequiredMetafile);
-      if (addCardAction) return dispatch(addCardAction).card;
+    if (param.metafile) {
+      if (!param.metafile.handler) return dispatch(handlersError(param.metafile.id, `Metafile '${param.metafile.name}' missing handler for filetype: '${param.metafile.filetype}'`));
+      return dispatch(addCard(param.metafile as HandlerRequiredMetafile));
     }
-    if (filepath) {
-      const metafile = await dispatch(getMetafile(filepath));
-      if (!metafile.handler) dispatch(handlerMissingError(metafile));
-      const addCardAction = addCard(metafile as HandlerRequiredMetafile);
-      if (addCardAction) return dispatch(addCardAction).card;
+    if (param.filepath) {
+      const metafile = await dispatch(getMetafile({ filepath: param.filepath }));
+      if (!metafile) return dispatch(handlersError(param.filepath.toString(), `Cannot update non-existing metafile for filepath: '${param.filepath.toString()}'`));
+      if (!metafile.handler) return dispatch(handlersError(metafile.id, `Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`));
+      return dispatch(addCard(metafile as HandlerRequiredMetafile));
     }
-    return undefined;
   };
 }
 

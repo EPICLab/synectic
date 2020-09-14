@@ -49,6 +49,9 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
  * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
  */
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus> => {
+  // isomorphic-git.status() does not handle directories, per: https://github.com/isomorphic-git/isomorphic-git/issues/13
+  // TODO: we currently returned a status of `unmodified` for directories, but need to implement a isomorphic-git.statusMatrix() path for directories
+  if (io.isDirectory(filepath)) return 'unmodified';
   const repoRoot = await getRepoRoot(filepath);
   return isogit.status({ fs: fs, dir: repoRoot ? repoRoot : '/', filepath: path.relative(repoRoot ? repoRoot : '/', filepath.toString()) });
 }

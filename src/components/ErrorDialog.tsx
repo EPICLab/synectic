@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogTitle, TextField, Button } from '@material-ui/core';
+import { Dialog, DialogTitle, Button, DialogContent, DialogContentText } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { Error } from '../types';
 import { ActionKeys } from '../store/actions';
@@ -13,8 +13,10 @@ const ErrorDialog: React.FunctionComponent<Error> = props => {
 
   return (
     <Dialog id='error-dialog' open={true} onClose={close} aria-labelledby='error-message-dialog'>
-      <DialogTitle id='error-dialog-title'>Error: {props.target}</DialogTitle>
-      <TextField id='error-dialog-message'>{props.message}</TextField>
+      <DialogTitle id='error-dialog-title'>{props.type}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id='error-dialog-message'>{props.message}</DialogContentText>
+      </DialogContent>
       <Button id='close-error-dialog' variant='contained' color='primary' onClick={close}>Okay...</Button>
     </Dialog>
   );

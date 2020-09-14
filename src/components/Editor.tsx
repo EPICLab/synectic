@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/root';
-import { UUID } from '../types';
+import { UUID, Card } from '../types';
 import 'ace-builds';
 import AceEditor from 'react-ace';
 /* webpack-resolver incorrectly resolves basePath for file-loader unless at least one mode has already been loaded, 
@@ -12,6 +12,7 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 import { ActionKeys } from '../store/actions';
+import { BranchList } from './BranchList';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
@@ -34,5 +35,23 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
 }
+
+export const EditorReverse: React.FunctionComponent<Card> = props => {
+  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
+  const repos = useSelector((state: RootState) => state.repos);
+  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
+
+  return (
+    <>
+      <span>ID:</span><span className='field'>...{props.id.slice(-10)}</span>
+      <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
+      <span>Name:</span><span className='field'>{props.name}</span>
+      <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
+      <span>Repo:</span><span className='field'>{repo.name}</span>
+      <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} />
+      <span>Status:</span><span className='field'>{metafile.status}</span>
+    </>
+  );
+};
 
 export default Editor;
