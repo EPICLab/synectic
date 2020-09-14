@@ -514,15 +514,15 @@
   optionalDependencies:
     electron-installer-dmg "^3.0.0"
 
-"@electron-forge/maker-rpm@6.0.0-beta.51":
-  version "6.0.0-beta.51"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.51.tgz#4576bfaddd3a4412d39cb36ff1d062551e80af40"
-  integrity sha512-HsMJzYzsT1wd3PcVQkSwKtnW67/UC32ZOkaSxNnthRVvnk8h2Ydf4JbDcJoHRzWMrKstEM8+b53yjmC1TD6Azg==
+"@electron-forge/maker-rpm@6.0.0-beta.53":
+  version "6.0.0-beta.53"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.53.tgz#a7d888c688508b9f7eaac59e693bf291cf5e1d17"
+  integrity sha512-tKL1yYVS6uY7XsuJX8JKQGLtdXDjrr1R8S2JnvvaZ3fT+oDQ0vdptcjQ1QqVTzKNN3VDOI46kLG5gyLVNSl4wQ==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.51"
-    "@electron-forge/shared-types" "6.0.0-beta.51"
+    "@electron-forge/maker-base" "6.0.0-beta.53"
+    "@electron-forge/shared-types" "6.0.0-beta.53"
   optionalDependencies:
-    electron-installer-redhat "^3.0.0"
+    electron-installer-redhat "^3.2.0"
 
 "@electron-forge/maker-squirrel@6.0.0-beta.51":
   version "6.0.0-beta.51"
@@ -3815,7 +3815,7 @@ electron-installer-dmg@^3.0.0:
   optionalDependencies:
     appdmg "^0.6.0"
 
-electron-installer-redhat@^3.0.0:
+electron-installer-redhat@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/electron-installer-redhat/-/electron-installer-redhat-3.2.0.tgz#2c0f5da6f4a244453e4675ab1eca0877a66788c5"
   integrity sha512-XMA+fQj3ULNVMl4eG+hIvrYITEqP1pfpERvx6kRwuPd06vdtB4KucL9241DAHT0NR5E9gnyJHM9Y6N24kk0mcA==
