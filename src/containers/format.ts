@@ -32,9 +32,9 @@ export const removeDuplicates = <T>(arr: T[], comparator: (a: T, b: T) => boolea
 /**
  * Generic for asynchronously filtering an array of elements given an async predicate
  * function that resolves to indicate whether an element should be considered for
- * inclusion in the resutling array.
+ * inclusion in the resulting array.
  * @param arr An array of elements.
- * @param predicate A predicate function that resolves to true if element e meets
+ * @param predicate A predicate function that resolves to true if element `e` meets
  * the filter inclusion requirements, and false otherwise.
  * @return The resulting array devoid of elements that did not meet the predicate.
  */

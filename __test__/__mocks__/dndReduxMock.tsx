@@ -20,9 +20,9 @@
  */
 import React from 'react';
 import { wrapInTestContext } from 'react-dnd-test-utils';
+import { DragDropManager } from 'dnd-core';
 import { Store, AnyAction } from 'redux';
 import { Provider } from 'react-redux';
-import { DragDropManager } from 'dnd-core';
 
 interface RefType {
   getManager: () => DragDropManager | undefined,

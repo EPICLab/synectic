@@ -12,8 +12,8 @@ body {
 
 .stack {
   background-color: rgba(102, 204, 117, 0.6);
-  height: calc((280px * 1.25) + 28px); /* scaled from card height */
-  width: calc((200px * 1.25) + 28px); /* scaled from card width */
+  height: calc((350px * 1.25) + 28px); /* scaled from card height */
+  width: calc((250px * 1.25) + 28px); /* scaled from card width */
   position: absolute;
   cursor: move;
   border: 0.5px solid rgba(125, 125, 125, 1.0);
@@ -24,8 +24,8 @@ body {
 .card {
   background: rgba(89,87,90,1.0);
   color: rgba(171,178,191,1.0);
-  width: 200px; /* 7:5 aspect ratio */
-  height: 280px; /* 7:5 aspect ratio */
+  height: 350px; /* 7:5 aspect ratio */
+  width: 250px; /* 7:5 aspect ratio */
   position: absolute;
   perspective: 1000px;
   border: 1px solid rgba(89,87,90,1.0);
@@ -176,28 +176,6 @@ body {
   z-index: 20;
 }
 
-.file-explorer {
-  color: rgba(30, 30, 30, 1.0);
-  background: rgba(235, 235, 235, 1.0);
-  max-width: 200px;
-  height: 248px;
-  flex-grow: 1;
-  text-indent: 20px;
-  border: 2px solid rgba(65, 65, 65, 1.0);
-  border-radius: 0px 0px 10px 10px;
-  overflow: auto;
-  text-overflow: clip;
-}
-
-.file-icon {
-  margin-left: 20px;
-}
-
-.file-explorer::-webkit-scrollbar {
-  visibility: hidden;
-  width: 0px;
-}
-
 button.close {
   background: url('close_dark.svg');
   background-size: cover;
@@ -241,22 +219,20 @@ img.diff_icon {
   width: 20px;
 }
 
+.file-icon {
+  margin-left: 20px;
+}
+
 .file-explorer {
   color: rgba(30, 30, 30, 1.0);
   background: rgba(235, 235, 235, 1.0);
-  width: 200px;
-  height: 248px;
+  width: 100%;
+  height: 100%;
   flex-grow: 1;
   text-indent: 20px;
-  border: 2px solid rgba(65, 65, 65, 1.0);
   border-radius: 0px 0px 10px 10px;
   overflow: auto;
-  text-overflow: clip;
-  transform: translateX(-2px);
-}
-
-.file-icon {
-  margin-left: 20px;
+  text-overflow: ellipsis;
 }
 
 .file-explorer::-webkit-scrollbar {
@@ -321,10 +297,6 @@ img.diff_icon {
   }
 }
 
-.MuiTreeView-root {
-  transform: translateY(-12px);
-}
-
 .new-card-dialog-container {
   width: 250px;
   height: 270px;
@@ -387,4 +359,29 @@ button.refresh {
 
 div.browser-content {
   border-radius: 0px 0px 10px 10px;
+  height: calc(100% - 25px);
+  width: 100%;
+}
+
+div.version-tracker {
+  color: rgba(30, 30, 30, 1.0);
+  background: rgba(235, 235, 235, 1.0);
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+  text-indent: 20px;
+  border-radius: 0px 0px 10px 10px;
+  overflow: auto;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.version-tracker::-webkit-scrollbar {
+  visibility: hidden;
+  width: 0px;
+}
+
+.version-tracker-branches {
+ width: 100%;
+ padding-left: 10px;
 }

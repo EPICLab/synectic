@@ -115,7 +115,9 @@ Synectic uses Redux to manage stateful data about content that is displayed with
 
 The [`redux-devtools`](https://github.com/reduxjs/redux-devtools) module provides a Redux tab in Chrome DevTools for hot reloading, action replay, and a customizable UI for Redux state debugging.
 
-THe [`redux-thunk`](https://github.com/reduxjs/redux-thunk) module provides a Redux middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
+The [`redux-thunk`](https://github.com/reduxjs/redux-thunk) module provides a Redux middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
+
+The [`@jedmao/redux-mock-store`](https://github.com/jedmao/redux-mock-store) module is a TypeScript fork of [`reduxjs/redux-mock-store`](https://github.com/reduxjs/redux-mock-store), which provides a mock store for testing Redux async action creators and middleware. The mock store will create an array of dispatched actions which serve as an action log for tests.
 
 **Packages:**
 * *`dependencies`*
@@ -123,6 +125,7 @@ THe [`redux-thunk`](https://github.com/reduxjs/redux-thunk) module provides a Re
   * `redux`
   * `redux-thunk`
 * *`devDependencies`*
+  * `@jedmao/redux-mock-store`
   * `redux-devtools`
 
 # ESLint
@@ -141,6 +144,10 @@ The [`eslint-plugin-react`](https://www.npmjs.com/package/eslint-plugin-react) m
 
 The [`eslint-plugin-jest`](https://www.npmjs.com/package/eslint-plugin-jest) module exports a recommended configuration that enforces good testing practices.
 
+The [`eslint-plugin-testing-library`](https://www.npmjs.com/package/eslint-plugin-testing-library) module provides specific rules for following best practices and anticipating common mistakes when writing tests with [Testing Library](https://testing-library.com/).
+
+The [`eslint-plugin-jest-dom`](https://www.npmjs.com/package/eslint-plugin-jest-dom) module provides specific rules for best practices and anticipating common mistakes when writing tests with [`@testing-library/jest-dom`](https://www.npmjs.com/package/@testing-library/jest-dom).
+
 **Packages:**
 * *`devDependencies`*
   * `eslint`
@@ -148,8 +155,10 @@ The [`eslint-plugin-jest`](https://www.npmjs.com/package/eslint-plugin-jest) mod
   * `@typescript-eslint/parser`
   * `eslint-plugin-import`
   * `eslint-plugin-jest`
+  * `eslint-plugin-jest-dom`
   * `eslint-plugin-react`
   * `eslint-plugin-react-hooks`
+  * `eslint-plugin-testing-library`
 
 **Configuration:**
 
@@ -166,16 +175,18 @@ Synectic has the following ESLint options set in `.eslintrc.js`:
 | `parserOptions` : `ecmaFeatures` : `jsx`   | `true`                         | Sets ESLint to recognize [JSX](https://facebook.github.io/jsx/) syntax         |
 | `parserOptions` : `useJSXTextNode`         | `true`                         | Prevents ESLint parser from using the legacy style of creating the AST of JSX texts |
 | `parserOptions` : `project`                | `./tsconfig.json`              | Required for ESLint to use rules that require type information |
-| `plugins`                                  | `["@typescript-eslint", "react", "react-hooks", "jest"]`    | Enables ESLint plugins `@typescript-eslint/eslint-plugin`, `eslint-plugin-react`, `eslint-plugin-react-hooks`, and `eslint-plugin-jest` |
+| `plugins`                                  | `["@typescript-eslint", "react", "react-hooks", "jest", "jest-dom", "testing-library"]`    | Enables ESLint plugins `@typescript-eslint/eslint-plugin`, `eslint-plugin-react`, `eslint-plugin-react-hooks`, `eslint-plugin-jest`, `eslint-plugin-jest-dom`, and `eslint-plugin-testing-library` |
 | `extends`                                  | `["eslint:recommended"]`       | ESLint rules for JavaScript and JSX configured from the [ESLint](https://eslint.org/docs/user-guide/configuring) plugin |
 | `extends`                                  | `["plugin:@typescript-eslint/eslint-recommended"]` | ESLint rules for TypeScript and TSX configured from the [TypeScript-ESLint](https://github.com/typescript-eslint/typescript-eslint) plugin, per [typescript-eslint in eslint](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage) configuration guide |
 | `extends`                                  | `["plugin:@typescript-eslint/recommended"]` | ESLint rules that supersede `eslint:recommended` core rules which are not compatible with TypeScript, per [typescript-eslint in eslint](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage) configuration guide |
-| `extends`                                  | `["plugin:react/recommended"]` | ESLint rules specific to React from [`eslint-plugin-react`](https://github.com/yannickcr/eslint-plugin-react) project |
-| `extends`                                  | `["plugin:jest/recommended"]`  | ESLint rules specific to [Jest](#Jest) syntax from [`eslint-plugin-jest`](https://github.com/jest-community/eslint-plugin-jest) project for enforcing good testing practices |
-| `extends`                                  | `["plugin:jest/style"]`        | ESLint rules specific to [Jest](#Jest) test style from [`eslint-plugin-jest`](https://github.com/jest-community/eslint-plugin-jest) project for extending `plugin:jest/recommended` to include stylistic rules |
 | `extends`                                  | `["plugin:import/warnings"]`  | ESLint rules for raising import errors from `eslint-plugin-import` project |
 | `extends`                                  | `["plugin:import/warnings"]`  | ESLint rules for raising import warnings from `eslint-plugin-import` project |
 | `extends`                                  | `["plugin:import/typescript"]` | ESLint rules that fix `plugin:imports/warnings` rules to be compatible with TypeScript, per [eslint-plugin-import](https://www.npmjs.com/package/eslint-plugin-import#typescript) installation guide |
+| `extends`                                  | `["plugin:jest/recommended"]`  | ESLint rules specific to [Jest](#Jest) syntax from [`eslint-plugin-jest`](https://github.com/jest-community/eslint-plugin-jest) project for enforcing good testing practices |
+| `extends`                                  | `["plugin:jest/style"]`        | ESLint rules specific to [Jest](#Jest) test style from [`eslint-plugin-jest`](https://github.com/jest-community/eslint-plugin-jest) project for extending `plugin:jest/recommended` to include stylistic rules |
+| `extends`                                  | `["plugin:jest-dom/recommended"]` | ESLint rules specific to `jest-dom` in the [Testing Library](#React-Testing-Library-(RTL)), per [eslint-plugin-jest-dom](https://github.com/testing-library/eslint-plugin-jest-dom) installation guide |
+| `extends`                                  | `["plugin:react/recommended"]` | ESLint rules specific to React from [`eslint-plugin-react`](https://github.com/yannickcr/eslint-plugin-react) project |
+| `extends`                                  | `["plugin:testing-library/recommended"]` | ESLint rules to enforce best practices when testing using the [Testing Library](#React-Testing-Library-(RTL)), per [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library) installation guide |
 | `settings` : `import/resolver` : `node` : `extensions` | `[".js", ".jsx", ".ts", ".tsx"]` | Sets ESLint import resolver to handle `.js`, `.jsx`, `.ts`, and `.tsx` files |
 | `settings` : `react` : `pragma`            | `React`                     | Enables ESLint to property process [JSX pragma](https://laptrinhx.com/what-is-jsx-pragma-2095738289/) comments |
 | `settings` : `react` : `version`           | `detect`                    | React version is automatically detected and set by ESLint |
@@ -200,6 +211,25 @@ The [`react-test-renderer`](https://reactjs.org/docs/test-renderer.html) module 
   * `jest`
   * `react-test-renderer`
   * `ts-jest`
+
+# React Testing Library (RTL)
+
+[Testing Library](https://testing-library.com/) is a family of testing utility libraries that adhere to the guiding principle that _"the more your tests resemble the way your software is used, the more confidence they can give you."_ The manifestation of this principle is that tests are composed by querying for nodes in similar fashion to how users would find them (which makes this methodology ideal for UI testing). The [`React Testing Library` (RTL)](https://testing-library.com/docs/react-testing-library/intro) builds on top of the [`DOM Testing Library`](https://testing-library.com/docs/dom-testing-library/intro) by adding APIs for working with React components.
+
+Synectic uses React Testing Library to render React components within tests written using Jest's custom assertions and convenience functions in order to verify UI interactions. The configuration of RTL was inspired by a detailed blog post from Robert Cooper, ["Testing Stateful React Function Components with React Testing Library"](https://www.robertcooper.me/testing-stateful-react-function-components-with-react-testing-library) (published 2019.04.08). In particular, the blog posting provides examples of testing React function components using [Enzyme](#Enzume) and [React Testing Library](#React-Testing-Library-(RTL)), and finds that there are less chances of test suites that produce false negatives (tests that fail when the underlying implementation changes) and false positives (tests that continue to pass when the underlying implementation is broken) when adhering what Kent C. Dodds calls [_"implementation detail free testing"_](https://kentcdodds.com/blog/testing-implementation-details).
+
+The [`@testing-library/jest-dom`](https://testing-library.com/docs/ecosystem-jest-dom) module provides custom DOM element matchers for Jest.
+
+The [`react-select-event`](https://testing-library.com/docs/ecosystem-react-select-event) module is a companion library for `React Testing Library` that provides helper methods for interacting with [`react-select`](https://github.com/JedWatson/react-select) elements.
+
+The [`@testing-library/react-hooks`](https://github.com/testing-library/react-hooks-testing-library) module allows for React hooks testing by wrapping the hook in a function component, and providing various useful utility functions for updating the inputs and retrieving the outputs of custom hooks without having to construct, render, or interact with additional React components. It has peer dependencies with the `react` and `react-test-renderer` packages.
+
+**Packages:**
+* *`devDependencies`*
+  * `@testing-library/jest-dom`
+  * `@testing-library/react`
+  * `@testing-library/react-hooks`
+  * `react-select-event`
 
 # Enzyme
 

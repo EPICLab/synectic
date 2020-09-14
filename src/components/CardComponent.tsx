@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useDrag } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { Card } from '../types';
 import { ActionKeys } from '../store/actions';
-import FileExplorerComponent from './FileExplorer';
-import Editor from './Editor';
-import Diff from './Diff';
+import Explorer, { ExplorerReverse } from './Explorer';
+import Editor, { EditorReverse } from './Editor';
+import Diff, { DiffReverse } from './Diff';
 import { BrowserComponent } from './Browser';
-import { RootState } from '../store/root';
 import { makeStyles } from '@material-ui/core';
-// import { VersionTrackerComponent } from './VersionTracker';
-// import { BranchList } from './BranchList';
+import { VersionStatusComponent } from './RepoBranchList';
 
 export const useStyles = makeStyles({
   root: {
@@ -28,35 +26,42 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
 const ContentFront: React.FunctionComponent<Card> = props => {
   switch (props.type) {
     case 'Editor':
-      return (<Editor metafileId={props.related[0]} />);
+      return (<Editor metafileId={props.metafile} />);
     case 'Diff':
-      return (<Diff left={props.related[0]} right={props.related[1]} />);
+      return (<Diff metafileId={props.metafile} />);
     case 'Explorer':
-      return (<FileExplorerComponent rootId={props.related[0]} />);
+      return (<Explorer rootId={props.metafile} />);
     case 'Browser':
       return (<BrowserComponent />);
-    // case 'Tracker':
-    //   return (<VersionTrackerComponent />);
+    case 'Tracker':
+      return (<VersionStatusComponent />);
     default:
       return null;
   }
 };
 
 const ContentBack: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.related[0]]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
-
-  return (
-    <>
-      <div className='git_icon' /><span />
-      <span>Name:</span><span className='field'>{props.name}</span>
-      <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
-      <span>Repo:</span><span className='field'>{repo.name}</span>
-      {/* <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} /> */}
-    </>
-  );
+  switch (props.type) {
+    case 'Editor':
+      return (<EditorReverse {...props} />);
+    case 'Diff':
+      return (<DiffReverse {...props} />);
+    case 'Explorer':
+      return (<ExplorerReverse {...props} />);
+    case 'Browser':
+      return null;
+    case 'Tracker':
+      return null;
+    default:
+      return null;
+  }
 };
+
+/**
+ * Backside works: Editor, Explorer,
+ * Backside crashes: Diff, Browser, Tracker
+ * Unknown (?): Merge
+ */
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
@@ -76,7 +81,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   return (
     <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
       <Header title={props.name}>
-        <button className='flip' onClick={() => flip()} />
+        <button className='flip' onClick={flip} />
         <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>

@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { Dialog, TextField, Button, Select, MenuItem, InputLabel, DialogTitle } from '@material-ui/core';
-import { v4 } from 'uuid';
-import { DateTime } from 'luxon';
 
 import { RootState } from '../store/root';
-import { Metafile } from '../types';
-import { Action, ActionKeys } from '../store/actions';
+import { Action } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
 import { flatten } from '../containers/flatten';
+import { getMetafile } from '../containers/metafiles';
 
 type NewCardDialogProps = {
   open: boolean;
@@ -17,7 +16,7 @@ type NewCardDialogProps = {
 }
 
 export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const exts: string[] = flatten(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
   // configExts is a list of all .config extensions found within exts:
@@ -26,7 +25,11 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const [fileName, setFileName] = React.useState('');
   const [filetype, setFiletype] = React.useState('');
   const [isFileNameValid, setIsFileNameValid] = React.useState(false);
+
+  // isExtensionValid is never used in this old version, made some tests fail
   const [isExtensionValid, setIsExtensionValid] = React.useState(false);
+
+  if (isExtensionValid) isExtensionValid; // Remove when merged, this is a version one commit behind development
 
   const handleClose = () => {
     setFileName('');
@@ -94,26 +97,11 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
     }
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleClick = async () => {
 
-    /* We must pass a constructed Metafile to loadCard instead of a filepath because this is a new card and the filepath
-       associated with it does not exist yet. We also cannot call metafiles.getMetafile() on it because that function only
-       accepts a filepath parameter. Therefore, we must make our own metafile and addMetafileAction to dispatch manually. */
-    if (isFileNameValid && isExtensionValid) {
-      const metafile: Metafile = {
-        id: v4(),
-        name: fileName,
-        filetype: filetype,
-        path: fileName,
-        modified: DateTime.local(),
-        handler: 'Editor'
-      };
-
-      const addMetafileAction: Action = { type: ActionKeys.ADD_METAFILE, id: metafile.id, metafile: metafile };
-      dispatch(addMetafileAction);
-      dispatch(loadCard({ metafile: metafile }));
-
+    if (isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1) {
+      const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', path: fileName, filetype: filetype } }));
+      if (metafile) dispatch(loadCard({ metafile: metafile }));
       handleClose();
     }
   };
@@ -129,7 +117,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
           <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange} labelId="new-card-dialog-filetype-label" id="new-card-dialog-filetype" style={{ gridArea: 'footer' }}>
             {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
           </Select>
-          <Button id='create-card-button' variant='contained' color={isFileNameValid && isExtensionValid && filetype !== '' ? 'primary' : 'default'} onClick={(e) => { handleClick(e) }} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
+          <Button id='create-card-button' variant='contained' color={isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={() => handleClick()} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
         </div>
       </Dialog>
     </>

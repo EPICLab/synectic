@@ -1,7 +1,9 @@
 import React from 'react';
 import { ReactWrapper, mount } from 'enzyme';
+import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 
-import { getMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { NewCardDialog } from '../src/components/NewCardDialog';
 import { validateFileName } from '../src/containers/io';
@@ -13,7 +15,24 @@ const domElement = document.getElementById('app');
 const mountOptions = {
   attachTo: domElement,
 };
-const store = getMockStore();
+
+const store = mockStore({
+  canvas: {
+    id: v4(),
+    created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
+    repos: [],
+    cards: [],
+    stacks: []
+  },
+  stacks: {},
+  cards: {},
+  filetypes: {},
+  metafiles: {},
+  repos: {},
+  errors: {}
+});
+
+afterEach(store.clearActions);
 
 describe('NewCardDialog', () => {
   const NewCardContext = wrapInReduxContext(NewCardDialog, store);

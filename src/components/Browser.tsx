@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { DateTime } from 'luxon';
-import { v4 } from 'uuid';
 import { useDispatch } from 'react-redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { Button } from '@material-ui/core';
-import { Metafile } from '../types';
+
+import { RootState } from '../store/root';
+import { Action } from '../store/actions';
 import { loadCard } from '../containers/handlers';
+import { getMetafile } from '../containers/metafiles';
 
 type BrowserState = {
   history: URL[];
@@ -14,7 +16,7 @@ type BrowserState = {
 
 export const BrowserComponent: React.FunctionComponent = () => {
   const [webviewKey, setWebviewKey] = useState(0);
-  const [urlInput, setUrlInput] = useState('');
+  const [urlInput, setUrlInput] = useState('https://epiclab.github.io/');
   const [browserState, setBrowserState] = useState<BrowserState>({ history: [new URL('https://epiclab.github.io/')], current: new URL('https://epiclab.github.io/'), index: 0 });
 
   const go = (e: React.KeyboardEvent) => {
@@ -52,7 +54,7 @@ export const BrowserComponent: React.FunctionComponent = () => {
         <input className="url-bar-style" type="text" placeholder="URL" value={urlInput} onKeyDown={go} onChange={e => setUrlInput(e.target.value)} />
       </div>
       <div className='browser-content'>
-        <webview key={webviewKey} src={browserState.current.toString()} style={{ height: '226px', width: '200px', borderRadius: '10px!important' }}></webview>
+        <webview key={webviewKey} src={browserState.current.toString()} style={{ height: '100%', width: '100%', borderRadius: '10px!important' }}></webview>
       </div>
     </>
   )
@@ -61,20 +63,14 @@ export const BrowserComponent: React.FunctionComponent = () => {
 
 
 export const BrowserButton: React.FunctionComponent = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const metafile: Metafile = {
-      id: v4(),
-      name: 'Browser',
-      modified: DateTime.local(),
-      handler: 'Browser'
-    };
-    dispatch(loadCard({ metafile: metafile }));
+  const handleClick = async () => {
+    const metafile = await dispatch(getMetafile({ virtual: { name: 'Browser', handler: 'Browser' } }));
+    if (metafile) dispatch(loadCard({ metafile: metafile }));
   };
 
   return (
-    <Button id='diffpicker-button' variant='contained' color='primary' onClick={e => handleClick(e)}>Browser...</Button>
+    <Button id='diffpicker-button' variant='contained' color='primary' onClick={() => handleClick()}>Browser...</Button>
   );
 }

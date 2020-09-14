@@ -7,9 +7,11 @@ ace.config.set('themePath', '');
 import AceEditor from 'react-ace';
 import ReactAce from 'react-ace/lib/ace';
 import { IAceEditor } from 'react-ace/lib/types';
+import { DateTime } from 'luxon';
+import { v4 } from 'uuid';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { getMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import Editor from '../src/components/Editor';
 
 describe('Editor', () => {
@@ -19,7 +21,32 @@ describe('Editor', () => {
   const mountOptions = {
     attachTo: domElement,
   };
-  const store = getMockStore();
+
+  const store = mockStore({
+    canvas: {
+      id: v4(),
+      created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
+      repos: [],
+      cards: [],
+      stacks: []
+    },
+    stacks: {},
+    cards: {},
+    filetypes: {},
+    metafiles: {
+      199: {
+        id: '199',
+        name: 'virtual.js',
+        modified: DateTime.fromISO('2020-06-25T04:19:55.309-08:00'),
+        handler: 'Editor',
+        content: 'beep-boop'
+      },
+    },
+    repos: {},
+    errors: {}
+  });
+
+  afterEach(store.clearActions);
 
   it('Editor component should work', () => {
     const EditorContext = wrapInReduxContext(Editor, store);
