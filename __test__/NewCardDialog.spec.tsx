@@ -8,6 +8,7 @@ import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { NewCardDialog } from '../src/components/NewCardDialog';
 import { validateFileName } from '../src/containers/io';
 import { TextField } from '@material-ui/core';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 type EmptyObject = Record<string, unknown>;
 
@@ -53,11 +54,41 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog does not change Redux state when invalid information is entered', () => {
+    render(<NewCardContext />);
     const before = JSON.stringify(store.getState());
     expect(wrapper.find(NewCardDialog).prop('isFileNameValid')).toBeFalsy();
-    wrapper.find('#create-card-button').first().simulate('click');
+    const button = screen.queryByText(/create-card-button/i);
+    if (button) fireEvent.click(button);
     const after = JSON.stringify(store.getState());
     expect(before).toEqual(after);
+  });
+
+  it('NewCardDialog allows the user to enter/edit the file name', () => {
+    render(<NewCardContext />);
+    const inputBox = screen.getByRole('textbox');
+
+    // Type guard so we can access .value from inputBox (.value doesn't exist in HTMLElement, but does in HTMLInputElement)
+    if ((inputBox instanceof HTMLInputElement)) {
+      expect(inputBox.value).toBe("");
+
+      // Enter file name into text box
+      if (inputBox) fireEvent.change(inputBox, { target: { value: 'foo' } });
+
+      expect(inputBox.value).toBe("foo");
+    }
+  });
+
+  // TODO: Add test to check that you can change the file type
+  it('NewCardDialog allows the user to pick a file type', () => {
+    render(<NewCardContext />);
+    const selector = screen.getAllByRole('button')[0];
+
+    fireEvent.mouseDown(selector);
+    const listBox = within(screen.getByRole('listbox'));
+
+    fireEvent.click(listBox.getByText(/TypeScript/i));
+
+    expect(screen.getByRole('heading')).toHaveTextContent(/TypeScript/i);
   });
 
   it('validateFileName returns false for an invalid file name and true for a valid file name', () => {

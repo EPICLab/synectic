@@ -26,10 +26,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const [filetype, setFiletype] = React.useState('');
   const [isFileNameValid, setIsFileNameValid] = React.useState(false);
 
-  // isExtensionValid is never used in this old version, made some tests fail
   const [isExtensionValid, setIsExtensionValid] = React.useState(false);
-
-  if (isExtensionValid) isExtensionValid; // Remove when merged, this is a version one commit behind development
 
   const handleClose = () => {
     setFileName('');
@@ -98,8 +95,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   };
 
   const handleClick = async () => {
-
-    if (isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1) {
+    if (isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
       const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', path: fileName, filetype: filetype } }));
       if (metafile) dispatch(loadCard({ metafile: metafile }));
       handleClose();
@@ -117,7 +113,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
           <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange} labelId="new-card-dialog-filetype-label" id="new-card-dialog-filetype" style={{ gridArea: 'footer' }}>
             {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
           </Select>
-          <Button id='create-card-button' variant='contained' color={isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={() => handleClick()} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
+          <Button id='create-card-button' variant='contained' color={isFileNameValid && isExtensionValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={() => handleClick()} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
         </div>
       </Dialog>
     </>
