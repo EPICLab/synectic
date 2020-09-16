@@ -35,7 +35,7 @@ export const DiffPickerDialog: React.FunctionComponent<DialogProps> = props => {
           </Select>
         </FormControl>
         <img className='diff_icon' />
-        <FormControl id='form-control-right' style={{ gridArea: 'right', width: 100 }}>
+        <FormControl id='form-control-right' aria-label='Right Form' style={{ gridArea: 'right', width: 100 }}>
           <InputLabel htmlFor='dif-card-select-right' id='diff-card-select-right-label'>Right</InputLabel>
           <Select labelId='diff-card-select-right' id='diff-card-select-right' value={selectedRight}
             autoWidth={true} onChange={(e) => setSelectedRight(e.target.value as UUID)} input={<Input />}>
