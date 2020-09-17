@@ -1,16 +1,26 @@
+import '@testing-library/jest-dom';
 import React from 'react';
 import { ReactWrapper, mount } from 'enzyme';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { NewCardDialog } from '../src/components/NewCardDialog';
 import { validateFileName } from '../src/containers/io';
 import { TextField } from '@material-ui/core';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { Filetype } from '../src/types';
 
 type EmptyObject = Record<string, unknown>;
+
+const newFiletype: Filetype = {
+  id: '55',
+  filetype: 'JavaScript',
+  handler: 'Editor',
+  extensions: ['js', 'jsm']
+}
 
 const domElement = document.getElementById('app');
 const mountOptions = {
@@ -27,7 +37,9 @@ const store = mockStore({
   },
   stacks: {},
   cards: {},
-  filetypes: {},
+  filetypes: {
+    "55": newFiletype
+  },
   metafiles: {},
   repos: {},
   errors: {}
@@ -39,11 +51,36 @@ describe('NewCardDialog', () => {
   const NewCardContext = wrapInReduxContext(NewCardDialog, store);
   let wrapper: ReactWrapper<EmptyObject, Readonly<EmptyObject>, React.Component<EmptyObject, EmptyObject, EmptyObject>>;
 
-  beforeEach(() => wrapper = mount(<NewCardContext open={true} />, mountOptions));
+  const onClose = jest.fn();
+
+  beforeEach(() => wrapper = mount(<NewCardContext open={true} onClose={onClose} />, mountOptions));
   afterEach(() => wrapper.unmount());
 
   const exts = ["ts", "html"];
   const configExts = [".gitignore", ".htaccess"];
+
+  it('NewCardDialog closes when escape key is pressed', () => {
+    render(<NewCardContext />);
+    const dialog = screen.queryAllByRole('dialog')[0];
+
+    expect(dialog).not.toBeNull();
+    expect(dialog).toBeInTheDocument();
+
+    fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('NewCardDialog closes when clicking outside of dialog', async () => {
+    render(<NewCardContext />);
+    const dialog = screen.queryAllByRole('dialog')[0];
+
+    expect(dialog).not.toBeNull();
+    expect(dialog).toBeInTheDocument();
+
+    const backdrop = document.querySelector('.MuiBackdrop-root');
+    if (backdrop) fireEvent.click(backdrop);
+    expect(onClose).toHaveBeenCalled();
+  });
 
   it('NewCardDialog starts with empty values for file name and filetype', () => {
     const newCardDialog = wrapper.find(NewCardDialog);
@@ -58,8 +95,10 @@ describe('NewCardDialog', () => {
     const before = JSON.stringify(store.getState());
     expect(wrapper.find(NewCardDialog).prop('isFileNameValid')).toBeFalsy();
     const button = screen.queryByText(/create-card-button/i);
+
     if (button) fireEvent.click(button);
     const after = JSON.stringify(store.getState());
+
     expect(before).toEqual(after);
   });
 
@@ -67,7 +106,7 @@ describe('NewCardDialog', () => {
     render(<NewCardContext />);
     const inputBox = screen.getByRole('textbox');
 
-    // Type guard so we can access .value from inputBox (.value doesn't exist in HTMLElement, but does in HTMLInputElement)
+    // Type guard so we can access .value from inputBox (*.value doesn't exist in HTMLElement, but does in HTMLInputElement)
     if ((inputBox instanceof HTMLInputElement)) {
       expect(inputBox.value).toBe("");
 
@@ -78,17 +117,23 @@ describe('NewCardDialog', () => {
     }
   });
 
-  // TODO: Add test to check that you can change the file type
   it('NewCardDialog allows the user to pick a file type', () => {
-    render(<NewCardContext />);
-    const selector = screen.getAllByRole('button')[0];
+    const { getAllByRole } = render(<NewCardContext />);
 
-    fireEvent.mouseDown(selector);
-    const listBox = within(screen.getByRole('listbox'));
+    const trigger = getAllByRole('button')[0];
 
-    fireEvent.click(listBox.getByText(/TypeScript/i));
+    fireEvent.mouseDown(trigger);
+    expect(getAllByRole('listbox')[0]).not.toBeNull();
 
-    expect(screen.getByRole('heading')).toHaveTextContent(/TypeScript/i);
+    const options = getAllByRole('option');
+    expect(options[0]).toHaveFocus();
+
+    act(() => {
+      options[0].click();
+    });
+
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveTextContent(new RegExp('JavaScript', 'i'));
   });
 
   it('validateFileName returns false for an invalid file name and true for a valid file name', () => {

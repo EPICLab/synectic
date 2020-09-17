@@ -1438,6 +1438,13 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
+"@types/redux-mock-store@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/redux-mock-store/-/redux-mock-store-1.0.2.tgz#c27d5deadfb29d8514bdb0fc2cadae6feea1922d"
+  integrity sha512-6LBtAQBN34i7SI5X+Qs4zpTEZO1tTDZ6sZ9fzFjYwTl3nLQXaBtwYdoV44CzNnyKu438xJ1lSIYyw0YMvunESw==
+  dependencies:
+    redux "^4.0.5"
+
 "@types/sha1@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@types/sha1/-/sha1-1.1.2.tgz#e4a101952a6a1ea341431b5107894c8b0e0fcaa7"
