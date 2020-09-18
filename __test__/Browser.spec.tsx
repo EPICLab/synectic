@@ -42,14 +42,10 @@ describe('BrowserComponent', () => {
         }
     });
 
-    //check that it actually changes the page somehow?
-
-    // it('BrowserComponent allows the user to navigate back in history', () => {
+    // it('BrowserComponent allows the user to navigate backwards in history', () => {
     //     render(<BrowserComponentContext />);
     //     const backButton = screen.getAllByRole('button')[0];
     //     const textBox = screen.getByRole('textbox');
-
-    //     screen.debug(backButton);
 
     //     // Type guard so we can access .value from textBox (*.value doesn't exist in HTMLElement, but does in HTMLInputElement)
     //     if ((textBox instanceof HTMLInputElement)) {
@@ -64,10 +60,29 @@ describe('BrowserComponent', () => {
     //     }
     // });
 
-    //check that you can go forward
+    it('BrowserComponent allows the user to navigate forwards in history', () => {
+        render(<BrowserComponentContext />);
+        const backButton = screen.getAllByRole('button')[0];
+        const forwardButton = screen.getAllByRole('button')[1];
+        const textBox = screen.getByRole('textbox');
 
-    //check refresh button
+        // Type guard so we can access .value from textBox (*.value doesn't exist in HTMLElement, but does in HTMLInputElement)
+        if ((textBox instanceof HTMLInputElement)) {
+            // Enter file name into text box
+            if (textBox) fireEvent.change(textBox, { target: { value: 'https://google.com' } });
 
+            expect(textBox.value).toBe("https://google.com");
+
+            fireEvent.click(backButton);
+            fireEvent.click(forwardButton);
+
+            expect(textBox.value).toBe("https://google.com");
+        }
+    });
+
+    //check refresh button somehow?
+
+    //test to check that it actually changes the page somehow?
 });
 
 describe('BrowserButton', () => {
