@@ -70,7 +70,7 @@ describe('NewCardDialog', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('NewCardDialog closes when clicking outside of dialog', async () => {
+  it('NewCardDialog closes when clicking outside of dialog', () => {
     render(<NewCardContext />);
     const dialog = screen.queryAllByRole('dialog')[0];
 
