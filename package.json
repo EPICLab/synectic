@@ -100,7 +100,7 @@
     "eslint-plugin-react-hooks": "^4.0.4",
     "eslint-plugin-testing-library": "^3.8.0",
     "file-loader": "^6.0.0",
-    "fork-ts-checker-webpack-plugin": "^5.0.4",
+    "fork-ts-checker-webpack-plugin": "^5.2.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "26.4.2",
     "jest-environment-enzyme": "^7.1.1",
