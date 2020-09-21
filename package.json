@@ -114,7 +114,7 @@
     "redux-devtools": "^3.5.0",
     "rimraf": "^3.0.2",
     "style-loader": "^1.2.1",
-    "ts-jest": "^26.1.1",
+    "ts-jest": "^26.4.0",
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.5",
     "uuid": "^8.1.0",
