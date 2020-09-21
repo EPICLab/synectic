@@ -90,7 +90,7 @@
     "electron": "8.2.4",
     "electron-devtools-installer": "^3.0.0",
     "enzyme": "^3.10.0",
-    "enzyme-adapter-react-16": "^1.15.1",
+    "enzyme-adapter-react-16": "^1.15.4",
     "enzyme-to-json": "^3.5.0",
     "eslint": "^7.3.0",
     "eslint-plugin-import": "^2.21.2",
