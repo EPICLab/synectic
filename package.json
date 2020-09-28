@@ -87,7 +87,7 @@
     "@zeit/webpack-asset-relocator-loader": "^0.8.0",
     "copy-webpack-plugin": "^6.0.2",
     "css-loader": "^4.3.0",
-    "electron": "8.2.4",
+    "electron": "10.1.2",
     "electron-devtools-installer": "^3.0.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.4",
