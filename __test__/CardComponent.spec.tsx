@@ -170,7 +170,19 @@ describe('CardComponent', () => {
     expect(backsideID).not.toBeNull();
   });
 
-  // TODO: Add test for Explorer reverse side when it's fixed
+  it('Explorer Card renders a reverse side when the flip button is clicked', () => {
+    const CardContext = wrapInReduxContext(CardComponent, store);
+    render(<CardContext {...cards['573']} />);
+
+    let backsideName = screen.queryByText(/Name:/i);
+    expect(backsideName).toBeNull();
+
+    const flipButton = screen.getAllByRole('button')[0];
+    fireEvent.click(flipButton);
+
+    backsideName = screen.queryByText(/Name:/i);
+    expect(backsideName).not.toBeNull();
+  });
 
   it('Diff Card renders a reverse side when the flip button is clicked', () => {
     const CardContext = wrapInReduxContext(CardComponent, store);
