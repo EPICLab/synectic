@@ -3,6 +3,7 @@ import * as path from 'path';
 import pako from 'pako';
 import { TextDecoder } from 'util';
 import { flatten } from './flatten';
+import { Filetype } from '../types';
 
 /**
  * Encoding formats that adhere to the name of [Node.js-supported encodings](https://stackoverflow.com/questions/14551608/list-of-encodings-that-node-js-supports#14551669).
@@ -262,7 +263,7 @@ export const writeFileAsync = (filepath: fs.PathLike, data: string | Buffer, opt
  * @param fileName A string file name with its accompanying .extension.
  * @param configExts An array of strings containing only valid .config extensions in the state.
  * @param exts An array of strings containing all valid extensions in the state.
- * @Return A boolean value indicating whether or not the file name is valid. 
+ * @return A boolean value indicating whether or not the file name is valid. 
  */
 export const validateFileName = (fileName: string, configExts: string[], exts: string[]): boolean => {
   const index = fileName.lastIndexOf('.'); // Get index of last '.' in the file name
@@ -277,4 +278,43 @@ export const validateFileName = (fileName: string, configExts: string[], exts: s
   /* If ext is a .config extension, just check for invalid chars and that the final char is not '.' or ' ' in file name
   Otherwise, check everything above AND that the file name is not empty and that the extension is valid */
   return (configExts.find(configExt => configExt === ext)) ? flag : name !== "" && exts.includes(ext.substr(1)) && flag;
+}
+
+/**
+ * Appends a new file type extension to a given file name. Handles file names both with and without
+ * valid extensions, as well as file names with a trailing '.' from a partially deleted extension.
+ * @param fileName A string holding the current file name, with or without the extension.
+ * @param newFiletype A Filetype that contains the new extension to be added to the file name.
+ * @return A string with the new extension correctly appended to the original file name.
+ */
+export const replaceExt = (fileName: string, newFiletype: Filetype): string => {
+  // Get the current extension from within fileName
+  const currExt = fileName.indexOf('.') !== -1 ? extractExtension(fileName) : "";
+  // confExt holds the extension if the new filetype is a .config type, otherwise is undefined
+  const confExt = newFiletype.extensions.find(extension => extension.includes('.'));
+
+  let finalFileName = "";
+
+  if (confExt) { // If the new file type has a .config extension
+    if (!currExt && fileName.slice(-1) !== ".") { // If the current file name doesn't already have an extension or a '.' at the end
+      finalFileName = fileName + confExt;
+    } else if (!currExt && fileName.slice(-1) === ".") { // If the current file name doesn't already have an extension but has a '.' at the end
+      // Remove the '.'  
+      finalFileName = fileName.slice(0, -1) + confExt;
+    } else { // If the current file name already has an extension
+      // Remove the old extension before adding the new one
+      finalFileName = fileName.slice(0, -currExt.length - 1) + confExt;
+    }
+  } else { // If the current file type does not have a .config type extension
+    if (!currExt && fileName.slice(-1) !== ".") { // If the current file name doesn't already have an extension or a '.' at the end
+      finalFileName = fileName + '.' + newFiletype.extensions[0];
+    } else if (!currExt && fileName.slice(-1) === ".") { // If the current file name doesn't already have an extension but has a '.' at the end
+      finalFileName = fileName + newFiletype.extensions[0];
+    } else { // If the current file name already has an extension
+      // Remove the old extension before adding the new one
+      finalFileName = fileName.slice(0, -currExt.length) + newFiletype.extensions[0];
+    }
+  }
+
+  return finalFileName;
 }

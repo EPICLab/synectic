@@ -1,6 +1,7 @@
 import mock from 'mock-fs';
 import * as io from '../src/containers/io';
 import * as fs from 'fs-extra';
+import { Filetype } from '../src/types';
 
 describe('io.extractStats', () => {
 
@@ -323,5 +324,69 @@ describe('io.writeFileAsync', () => {
     await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('version 1');
     await io.writeFileAsync(testPath, 'version 2');
     await expect(io.readFileAsync(testPath, { encoding: 'utf-8' })).resolves.toBe('version 2');
+  });
+});
+
+describe('io.validateFileName', () => {
+  const exts = ["ts", "html"];
+  const configExts = [".gitignore", ".htaccess"];
+
+  it('validateFileName returns false for an invalid file name and true for a valid file name', () => {
+    expect(io.validateFileName('<.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('>.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName(':.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('".ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('/.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('\\.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('|.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('?.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('*.ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName(' .ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('..ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('foo .ts', configExts, exts)).toEqual(false);
+    expect(io.validateFileName('bar..ts', configExts, exts)).toEqual(false);
+
+    expect(io.validateFileName('foo.ts', configExts, exts)).toEqual(true);
+    expect(io.validateFileName('bar.html', configExts, exts)).toEqual(true);
+  });
+});
+
+describe('io.replaceExt', () => {
+  const newFiletype: Filetype = {
+    id: '55',
+    filetype: 'JavaScript',
+    handler: 'Editor',
+    extensions: ['js', 'jsm']
+  }
+
+  const configFiletype: Filetype = {
+    id: '17',
+    filetype: 'ApacheConf',
+    handler: 'Editor',
+    extensions: ['.htaccess']
+  }
+
+  it('replaceFileType appends a normal extension to file name with no pre-existing extension', () => {
+    expect(io.replaceExt("foo", newFiletype)).toBe("foo.js");
+  });
+
+  it('replaceFileType appends a normal extension to file name with a pre-existing extension', () => {
+    expect(io.replaceExt("foo.html", newFiletype)).toBe("foo.js");
+  });
+
+  it('replaceFileType appends a normal extension to file name with a trailing "."', () => {
+    expect(io.replaceExt("foo.", newFiletype)).toBe("foo.js");
+  });
+
+  it('replaceFileType appends a .config extension to file name with no pre-existing extension', () => {
+    expect(io.replaceExt("foo", configFiletype)).toBe("foo.htaccess");
+  });
+
+  it('replaceFileType appends a .config extension to file name with a pre-existing extension', () => {
+    expect(io.replaceExt("foo.html", configFiletype)).toBe("foo.htaccess");
+  });
+
+  it('replaceFileType appends a .config extension to file name with a trailing "."', () => {
+    expect(io.replaceExt("foo.", configFiletype)).toBe("foo.htaccess");
   });
 });

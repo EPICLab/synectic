@@ -9,7 +9,6 @@ import { act } from 'react-dom/test-utils';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { NewCardDialog } from '../src/components/NewCardDialog';
-import { validateFileName } from '../src/containers/io';
 import { TextField } from '@material-ui/core';
 import { Filetype } from '../src/types';
 
@@ -56,9 +55,6 @@ describe('NewCardDialog', () => {
   beforeEach(() => wrapper = mount(<NewCardContext open={true} onClose={onClose} />, mountOptions));
   afterEach(() => wrapper.unmount());
 
-  const exts = ["ts", "html"];
-  const configExts = [".gitignore", ".htaccess"];
-
   it('NewCardDialog closes when escape key is pressed', () => {
     render(<NewCardContext />);
     const dialog = screen.queryAllByRole('dialog')[0];
@@ -104,17 +100,14 @@ describe('NewCardDialog', () => {
 
   it('NewCardDialog allows the user to enter/edit the file name', () => {
     render(<NewCardContext />);
-    const inputBox = screen.getByRole('textbox');
+    const inputBox = screen.getByRole('textbox') as HTMLInputElement;
 
-    // Type guard so we can access .value from inputBox (*.value doesn't exist in HTMLElement, but does in HTMLInputElement)
-    if ((inputBox instanceof HTMLInputElement)) {
-      expect(inputBox.value).toBe("");
+    expect(inputBox.value).toBe("");
 
-      // Enter file name into text box
-      if (inputBox) fireEvent.change(inputBox, { target: { value: 'foo' } });
+    // Enter file name into text box
+    if (inputBox) fireEvent.change(inputBox, { target: { value: 'foo' } });
 
-      expect(inputBox.value).toBe("foo");
-    }
+    expect(inputBox.value).toBe("foo");
   });
 
   it('NewCardDialog allows the user to pick a file type', () => {
@@ -136,22 +129,14 @@ describe('NewCardDialog', () => {
     expect(trigger).toHaveTextContent(new RegExp('JavaScript', 'i'));
   });
 
-  it('validateFileName returns false for an invalid file name and true for a valid file name', () => {
-    expect(validateFileName('<.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('>.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName(':.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('".ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('/.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('\\.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('|.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('?.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('*.ts', configExts, exts)).toEqual(false);
-    expect(validateFileName(' .ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('..ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('foo .ts', configExts, exts)).toEqual(false);
-    expect(validateFileName('bar..ts', configExts, exts)).toEqual(false);
+  it('NewCardDialog calls onClick when Create New Card button is clicked', () => {
+    const onClick = jest.fn();
+    const { getAllByRole } = render(<NewCardContext />);
+    const createNewCardButton = getAllByRole('button')[1];
 
-    expect(validateFileName('foo.ts', configExts, exts)).toEqual(true);
-    expect(validateFileName('bar.html', configExts, exts)).toEqual(true);
+    createNewCardButton.addEventListener('click', onClick);
+    fireEvent.click(createNewCardButton);
+
+    expect(onClick).toHaveBeenCalled();
   });
 });
