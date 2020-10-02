@@ -84,16 +84,14 @@ describe('Editor', () => {
   it('Editor component should let the user enter/edit text', () => {
     const EditorContext = wrapInReduxContext(Editor, store);
     render(<EditorContext metafileId='199' />);
-    const textBox = screen.queryByRole('textbox');
+    const textBox = screen.queryByRole('textbox') as HTMLInputElement;
 
-    if (textBox instanceof HTMLInputElement) {
-      expect(textBox.value).toBe("beep-boop");
+    expect(textBox.value).toBe("");
 
-      fireEvent.click(textBox);
-      fireEvent.change(textBox, { target: { value: 'var foo = 5;' } });
+    textBox.focus();
+    fireEvent.change(textBox, { target: { value: 'var foo = 5;' } });
 
-      expect(textBox.value).toBe("var foo = 5;");
-    }
+    expect(textBox.value).toBe("var foo = 5;");
   });
 
   it('Editor component should have a working reverse side', () => {
