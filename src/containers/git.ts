@@ -9,6 +9,7 @@ import getGitConfigPath from 'git-config-path';
 
 import * as io from './io';
 import { Repository, GitStatus } from '../types';
+import { shouldBeHiddenSync } from 'hidefile';
 
 /**
  * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to inject the 
@@ -29,10 +30,10 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
 }): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
 
 /**
- * Determines the Git tracking status of a specific file.
+ * Determines the Git tracking status of a specific file or directory path.
  * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing a status indicator for whether a file has been changed; the possible 
- * resolve values are:
+ * @return A Promise object containing undefined if the path is not contained within a Git repository, or a status indicator 
+ * for whether the path has been changed according to Git; the possible resolve values are:
  *
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |
@@ -50,11 +51,19 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
  * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
  * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
  */
-export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus> => {
-  // isomorphic-git.status() does not handle directories, per: https://github.com/isomorphic-git/isomorphic-git/issues/13
-  // TODO: we currently returned a status of `unmodified` for directories, but need to implement a isomorphic-git.statusMatrix() path for directories
-  if (io.isDirectory(filepath)) return 'unmodified';
+export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   const repoRoot = await getRepoRoot(filepath);
+  if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+  // isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
+  // (per: https://github.com/isomorphic-git/isomorphic-git/issues/13)
+  const isDirectory = await io.isDirectory(filepath);
+  if (isDirectory) {
+    const statuses = await isogit.statusMatrix({ fs: fs, dir: repoRoot ? repoRoot : '/', filter: f => !shouldBeHiddenSync(f) });
+    const changed = statuses
+      .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
+      .map(row => row[0]);                // return the filenames only
+    return (changed.length > 0) ? 'modified' : 'unmodified';
+  }
   return isogit.status({ fs: fs, dir: repoRoot ? repoRoot : '/', filepath: path.relative(repoRoot ? repoRoot : '/', filepath.toString()) });
 }
 
@@ -63,7 +72,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus> => {
  * contains a *.git* subdirectory.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Promise object containing the root Git directory path, or undefined if no root Git
- * directory exists for the filepath (i.e. the filepath is not part of a Git repo).
+ * directory exists for the filepath (i.e. the filepath is not part of a Git repository).
  */
 export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
   try {
