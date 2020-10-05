@@ -10,7 +10,7 @@ const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added
 type useGitStatusHook = {
   cards: Card[],
   modified: Card[],
-  status: (card: Card) => Promise<GitStatus | null>, // a null return is indicative of a Card not under version control
+  status: (card: Card) => Promise<GitStatus | undefined>, // undefined is indicative of a Card not under version control
 };
 
 export const useBranchStatus = (repo: UUID, branch: string): useGitStatusHook => {
@@ -20,7 +20,7 @@ export const useBranchStatus = (repo: UUID, branch: string): useGitStatusHook =>
 
   const status = useCallback(async (card: Card) => {
     const metafile = metafiles[card.metafile];
-    const updatedStatus = metafile.path ? await getStatus(metafile.path.toString()) : null;
+    const updatedStatus = metafile.path ? await getStatus(metafile.path.toString()) : undefined;
     if (updatedStatus && modifiedStatuses.includes(updatedStatus)) {
       setModified([...modified, card]);
     } else {
