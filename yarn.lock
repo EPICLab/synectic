@@ -1106,10 +1106,10 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
-"@testing-library/dom@>=5", "@testing-library/dom@^7.24.2":
-  version "7.24.3"
-  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.24.3.tgz#dae3071463cf28dc7755b43d9cf2202e34cbb85d"
-  integrity sha512-6eW9fUhEbR423FZvoHRwbWm9RUUByLWGayYFNVvqTnQLYvsNpBS4uEuKH9aqr3trhxFwGVneJUonehL3B1sHJw==
+"@testing-library/dom@>=7", "@testing-library/dom@^7.24.2":
+  version "7.24.5"
+  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.24.5.tgz#862124eec8c37ad184716379f09742476b23815d"
+  integrity sha512-oyOp8R2rhmnkOjgrySb4iYc2q73dzvQUAGddpbmicGJdCf4jkLmf5U9zOyobLMLWXbIHHK4UUHHjDTH8tSPLsA==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@babel/runtime" "^7.10.3"
@@ -8957,12 +8957,12 @@ react-redux@^7.2.0:
     prop-types "^15.7.2"
     react-is "^16.9.0"
 
-react-select-event@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/react-select-event/-/react-select-event-5.0.0.tgz#e16d1dd240b5e1f41f31cb74a50baaa89aa6406c"
-  integrity sha512-bESECffhi//x1nlMoRJtwI0nGl5n6OKaVYeIEcPTV8flVPycvUoBGank/1RIoxVc6WtoQ4QbPbU8xMvX0xAiOA==
+react-select-event@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/react-select-event/-/react-select-event-5.1.0.tgz#d45ef68f2a9c872903e8c9725f3ae6e7576f7be0"
+  integrity sha512-D5DzJlYCdZsGbDVFMQFynrG0OLalJM3ZzDT7KQADNVWE604JCeQF9bIuvPZqVD7IzhnPsFzOUCsilzDA6w6WRQ==
   dependencies:
-    "@testing-library/dom" ">=5"
+    "@testing-library/dom" ">=7"
 
 react-test-renderer@^16.0.0-0, react-test-renderer@^16.13.1:
   version "16.13.1"
