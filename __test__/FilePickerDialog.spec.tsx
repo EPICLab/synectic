@@ -1,5 +1,4 @@
 import React from 'react';
-import { mount, ReactWrapper } from 'enzyme';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -9,13 +8,6 @@ import { mockStore } from './__mocks__/reduxStoreMock';
 import FilePickerButton from '../src/components/FilePickerDialog';
 import { render } from '@testing-library/react';
 import { fireEvent, screen } from '@testing-library/dom';
-
-type EmptyObject = Record<string, unknown>;
-
-const domElement = document.getElementById('app');
-const mountOptions = {
-  attachTo: domElement,
-};
 
 const store = mockStore({
   canvas: {
@@ -33,22 +25,17 @@ const store = mockStore({
   errors: {}
 });
 
-afterEach(store.clearActions);
-
-describe('FilePicker', () => {
+describe('FilePickerDialog', () => {
   const FilePickerContext = wrapInReduxContext(FilePickerButton, store);
-  let wrapper: ReactWrapper<unknown, Readonly<EmptyObject>, React.Component<EmptyObject, EmptyObject, unknown>>;
-
-  beforeEach(() => wrapper = mount(<FilePickerContext />, mountOptions));
-  afterEach(() => wrapper.unmount());
 
   it('FilePicker does not render dialog on initial state', () => {
+    render(<FilePickerContext />);
     expect(remote.dialog.showOpenDialog).not.toHaveBeenCalled();
   });
 
   it('FilePicker allows users to pick a file for opening', async () => {
-    render(<FilePickerButton />);
-    const button = screen.queryByText(/filepicker-button/i);
+    render(<FilePickerContext />);
+    const button = screen.queryByRole('button');
     if (button) fireEvent.click(button);
     return expect(remote.dialog.showOpenDialog).toHaveBeenCalled();
   });

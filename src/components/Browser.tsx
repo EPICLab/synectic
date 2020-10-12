@@ -60,8 +60,6 @@ export const BrowserComponent: React.FunctionComponent = () => {
   )
 }
 
-
-
 export const BrowserButton: React.FunctionComponent = () => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
 

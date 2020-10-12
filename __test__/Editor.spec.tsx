@@ -9,10 +9,11 @@ import ReactAce from 'react-ace/lib/ace';
 import { IAceEditor } from 'react-ace/lib/types';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { mockStore } from './__mocks__/reduxStoreMock';
-import Editor from '../src/components/Editor';
+import Editor, { EditorReverse } from '../src/components/Editor';
 
 describe('Editor', () => {
 
@@ -27,11 +28,23 @@ describe('Editor', () => {
       id: v4(),
       created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
       repos: [],
-      cards: [],
+      cards: ['57'],
       stacks: []
     },
     stacks: {},
-    cards: {},
+    cards: {
+      57: {
+        id: '57',
+        name: 'virtual.js',
+        type: 'Editor',
+        metafile: '199',
+        created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00'),
+        modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
+        captured: false,
+        left: 27,
+        top: 105
+      }
+    },
     filetypes: {},
     metafiles: {
       199: {
@@ -66,5 +79,26 @@ describe('Editor', () => {
     expect(markers[3].clazz).toBe('test-marker');
     expect(markers[3].type).toBe('text');
     expect(editor.getSession().getMarkers()).toMatchSnapshot();
+  });
+
+  it('Editor component should let the user enter/edit text', () => {
+    const EditorContext = wrapInReduxContext(Editor, store);
+    render(<EditorContext metafileId='199' />);
+    const textBox = screen.queryByRole('textbox') as HTMLInputElement;
+
+    expect(textBox.value).toBe("");
+
+    textBox.focus();
+    fireEvent.change(textBox, { target: { value: 'var foo = 5;' } });
+
+    expect(textBox.value).toBe("var foo = 5;");
+  });
+
+  it('Editor component should have a working reverse side', () => {
+    const EditorReverseContext = wrapInReduxContext(EditorReverse, store);
+    const card = store.getState().cards?.["57"];
+    const wrapper = mount(<EditorReverseContext {...card} />, mountOptions);
+    const component = wrapper.find(EditorReverse).first();
+    expect(component).toBeDefined();
   });
 });
