@@ -1,14 +1,14 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
 import { exec } from 'child_process';
-import { clone, statusMatrix } from 'isomorphic-git';
+import { clone, statusMatrix, commit } from 'isomorphic-git';
 import * as fs from 'fs-extra';
 import * as http from 'isomorphic-git/http/node';
 
 const Script: React.FunctionComponent = () => {
 
-    const copyFile = (source: string, filePath: string, dest: string) => {
-        const sPath = source + "\\" + filePath;
+    const copyFile = (src: string, filePath: string, dest: string) => {
+        const sPath = src + "\\" + filePath;
         const dPath = dest + "\\" + filePath;
         fs.copyFile(sPath, dPath);
     }
@@ -43,7 +43,16 @@ const Script: React.FunctionComponent = () => {
         });
 
         // Create a commit with these staged changes
-
+        const com = await commit({
+            fs,
+            dir: 'C:\\Users\\15034\\Desktop\\phaser2\\.syn',
+            author: {
+                name: 'Mr. Test',
+                email: 'mrtest@example.com',
+            },
+            message: `Made changes to files ${stagedFiles}`,
+        });
+        console.log(`\nCommit: ${com}\n`);
 
         // Run npm install
         const install = exec('npm install', { cwd: 'C:\\Users\\15034\\Desktop\\phaser2\\.syn' }, (error, stdout, stderr) => {
