@@ -9182,10 +9182,10 @@ rcedit@^2.0.0:
   resolved "https://registry.yarnpkg.com/rcedit/-/rcedit-2.2.0.tgz#3bfe71248749fa821fef26eda3d35f4e0ee47afc"
   integrity sha512-dhFtYmQS+V8qQIANyX6zDK+sO50ayDePKApi46ZPK8I6QeyyTDD6LManMa7a3p3c9mLM4zi9QBP41pfhQ9p7Sg==
 
-react-ace@^9.0.0:
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/react-ace/-/react-ace-9.1.1.tgz#fe27e1c668b0186dc1609c422198d1c2df34d2bf"
-  integrity sha512-dL0w6GwtnS1opsOoWhJaF7rF7xCM+NOEOfePmDfiaeU+EyZQ6nRWDBgyzKsuiB3hyXH3G9D6FX37ur/LKUdKjA==
+react-ace@^9.2.0:
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/react-ace/-/react-ace-9.2.0.tgz#204873cafc2540b9e7580a483ffaccb6acda5edd"
+  integrity sha512-vuxDt/8+szWsS8TdrgChRk9TFrbHCrzCUvAb2fRN9iziQZwwHYgFQfaUcnv/+7gysK/pJng9Zeuh3svEweiKwg==
   dependencies:
     ace-builds "^1.4.6"
     diff-match-patch "^1.0.4"
