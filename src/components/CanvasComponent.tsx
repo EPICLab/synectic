@@ -18,7 +18,7 @@ import { loadStack } from '../containers/handlers';
 import ErrorDialog from './ErrorDialog';
 import VersionStatusButton from './RepoBranchList';
 import MergePickerButton from './MergePickerDialog';
-import Script from './Script';
+import BuildButton from './BuildButton';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -86,7 +86,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
 
   return (
     <div className='canvas' ref={drop}>
-      <Script />
+      <BuildButton />
       <NewCardButton />
       <FilePickerButton />
       <BrowserButton />
