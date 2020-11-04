@@ -73,7 +73,7 @@
     "@electron-forge/plugin-webpack": "6.0.0-beta.54",
     "@jedmao/redux-mock-store": "^3.0.5",
     "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.0.4",
+    "@testing-library/react": "^11.1.1",
     "@testing-library/react-hooks": "^3.4.1",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
