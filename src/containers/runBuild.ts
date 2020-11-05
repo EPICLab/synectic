@@ -2,17 +2,18 @@ import { exec } from 'child_process';
 import { clone, statusMatrix, commit } from 'isomorphic-git';
 import * as fs from 'fs-extra';
 import * as http from 'isomorphic-git/http/node';
-import { PathLike } from 'fs-extra';
+import { join } from 'path';
+
 import { getRepoRoot } from '../containers/git';
 
 // Helper function that copies a file and moves it to a new directory
-const copyFile = (src: PathLike, filePath: PathLike, dest: PathLike) => {
-    const sPath = `${src}\\${filePath}`;
-    const dPath = `${dest}\\${filePath}`;
+const copyFile = (src: string, filePath: string, dest: string) => {
+    const sPath = join(src, filePath);
+    const dPath = join(dest, filePath);
     fs.copyFile(sPath, dPath);
 }
 
-const runBuild = async (remoteRepoURL: string, localRepo: PathLike, copiedRepo: PathLike): Promise<void> => {
+const runBuild = async (remoteRepoURL: string, localRepo: fs.PathLike, copiedRepo: fs.PathLike): Promise<void> => {
     // Clone the remote repo to .syn directory within the copied repo's root dir
     const copiedRepoRoot = `${await getRepoRoot(copiedRepo)}\\.syn`;
     await clone({
@@ -36,7 +37,7 @@ const runBuild = async (remoteRepoURL: string, localRepo: PathLike, copiedRepo: 
 
     // Copy the local staged files to the cloned repo
     stagedFiles.map((file) => {
-        copyFile(localRepo, file, copiedRepoRoot);
+        copyFile(localRepo.toString(), file, copiedRepoRoot);
     });
 
     // Create a commit with these staged changes
