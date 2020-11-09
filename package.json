@@ -68,7 +68,7 @@
     "@electron-forge/maker-deb": "6.0.0-beta.53",
     "@electron-forge/maker-dmg": "^6.0.0-beta.53",
     "@electron-forge/maker-rpm": "6.0.0-beta.53",
-    "@electron-forge/maker-squirrel": "6.0.0-beta.53",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.54",
     "@electron-forge/maker-zip": "6.0.0-beta.54",
     "@electron-forge/plugin-webpack": "6.0.0-beta.54",
     "@jedmao/redux-mock-store": "^3.0.5",
