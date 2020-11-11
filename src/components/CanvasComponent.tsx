@@ -17,7 +17,7 @@ import StackComponent from './StackComponent';
 import { loadStack } from '../containers/handlers';
 import ErrorDialog from './ErrorDialog';
 import VersionStatusButton from './RepoBranchList';
-import MergePickerButton from './MergePickerDialog';
+import MergeButton from './MergeDialog';
 import BuildButton from './BuildButton';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
@@ -92,8 +92,8 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <BrowserButton />
       <VersionStatusButton />
       <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
+      <MergeButton />
       <DiffPickerButton />
-      <MergePickerButton />
       <Button id='stack-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={createStack}>Stack...</Button>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
