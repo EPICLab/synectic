@@ -11,6 +11,11 @@ import * as io from './io';
 import { Repository, GitStatus } from '../types';
 import { shouldBeHiddenSync } from 'hidefile';
 
+export type BranchDiffResult = {
+  path: string,
+  type: 'equal' | 'modified' | 'added' | 'removed'
+}
+
 /**
  * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to inject the 
  * fs parameter in to the *isomorphic-git/currentBranch* function.
@@ -28,6 +33,94 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
+
+/**
+ * Show the commit delta between two branches (i.e. the commits not contained in the overlapping subset). Although git refers
+ * to rev-lists of commits in a branch as trees, they are actually Directed Acyclic Graphs (DAG) where the directed paths can
+ * diverge and rejoin at several points. Therefore, we must determine the symmetric difference between the rev-list arrays
+ * from the branches. Operates comparably to the native git command: `git log <branch-1>...<branch-2>`
+ * @param dir The working tree directory path.
+ * @param branchA The base branch name.
+ * @param branchB The compare branch name.
+ * @return A Promise object containing a list of commits not found in both branches (i.e. the divergent set).
+ */
+export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: string): Promise<isogit.ReadCommitResult[]> => {
+  const logA = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` });
+  const logB = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` });
+  return logA
+    .filter(commitA => !logB.some(commitB => commitA.oid === commitB.oid))
+    .concat(logB.filter(commitB => !logA.some(commitA => commitB.oid === commitA.oid)));
+}
+
+/**
+ * Show the names and status of changed files between two branches. Walks the trees of both branches and compares file OIDs between
+ * branches to determine status. Operates comparably to the native git command: `git diff --name-status <tree-1>...<tree-2>`.
+ * @param dir The working tree directory path. 
+ * @param branchA The base branch.
+ * @param branchB The compare branch.
+ * @return A Promise object containing a list of file paths and a status indicator, where the possible status values for each file are:
+ *
+ * | status                | description                                                                           |
+ * | --------------------- | ------------------------------------------------------------------------------------- |
+ * | `"equal"`             | file is unchanged between both branches                                               |
+ * | `"modified"`          | file has modifications, but exists in both branches                                   |
+ * | `"added"`             | file does not exist in branch A, but was added in branch B                            |
+ * | `"removed"`           | file exists in branch A, but was removed in branch B                                  |
+ */
+export const branchDiff = async (dir: fs.PathLike, branchA: string, branchB: string, filter?: (result: BranchDiffResult) => boolean): Promise<BranchDiffResult[]> => {
+  const hashA = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}`, depth: 1 }))[0].oid;
+  const hashB = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}`, depth: 1 }))[0].oid;
+  const dirpath = dir.toString();
+  const files = await isogit.walk({
+    fs: fs,
+    dir: dirpath,
+    trees: [isogit.TREE({ ref: hashA }), isogit.TREE({ ref: hashB })],
+    map: async (filepath: string, entries: Array<isogit.WalkerEntry> | null) => {
+      if (!entries || entries.length < 2) return;
+      const [A, B] = entries.slice(0, 2);
+
+      if (filepath === '.') return;                                           // ignore directories
+      if ((await A.type()) === 'tree' || (await B.type()) === 'tree') return; // ignore directories, known as trees in git lingo
+      const Aoid = await A.oid();
+      const Boid = await B.oid();
+
+      const result: BranchDiffResult = {
+        path: `/${filepath}`,
+        type: 'equal'
+      }
+      if (Aoid !== Boid) result.type = 'modified';
+      if (Aoid === undefined) result.type = 'added';
+      if (Boid === undefined) result.type = 'removed';
+      if (Aoid === undefined && Boid === undefined) {
+        console.log('Something weird happened:');
+        console.log(A);
+        console.log(B);
+      }
+
+      return (!filter) || (filter && filter(result)) ? result : null;
+    },
+  });
+  return files;
+}
+
+/**
+ * Merge things...
+ * @param base 
+ * @param compare 
+ * @param dryRun 
+ */
+export const merge = async (dir: fs.PathLike, base: string, compare: string, dryRun?: boolean): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
+  if (dryRun) {
+    const name: { path: string, value: string | undefined } = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
+    const email: { path: string, value: string | undefined } = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
+    const missing: string[] = [name, email].filter(config => typeof config.value !== 'undefined').map(config => config.path);
+    const mergeResult = await isogit.merge({ fs: fs, dir: dir.toString(), ours: base, theirs: compare, dryRun: true });
+    const final = { missingConfigs: missing, ...mergeResult };
+    return final;
+  }
+
+  return await isogit.merge({ fs: fs, dir: dir.toString(), ours: base, theirs: compare });
+}
 
 /**
  * Determines the Git tracking status of a specific file or directory path.
