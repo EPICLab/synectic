@@ -10,6 +10,7 @@ import { green, red } from '@material-ui/core/colors';
 import { Repository, UUID } from '../types';
 import { RootState } from '../store/root';
 import { branchLog, merge } from '../containers/git';
+import { build } from '../containers/builds';
 
 const StyledCheckIcon = withStyles({
   root: {
@@ -220,14 +221,18 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
     if (commitStatus == 'Failing') return;
     setBranchConflicts(['Running', undefined]);
 
-    const conflictCheck = await merge(fullRepo.root, base, compare, true);
-    const conflictStatus = conflictCheck.mergeCommit ? 'Passing' : 'Failing';
-    setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
+    // const conflictCheck = await merge(fullRepo.root, base, compare, true);
+    // const conflictStatus = conflictCheck.mergeCommit ? 'Passing' : 'Failing';
+    // setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
+    await sleep(2000);
+    setBranchConflicts(['Passing', undefined]);
 
-    if (conflictStatus == 'Failing') return;
+    // if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
 
-    await sleep(2000);
+    // await sleep(2000);
+    const result = await build(fullRepo, base);
+    console.log(result);
     setBuildStatus(random());
   }
 
