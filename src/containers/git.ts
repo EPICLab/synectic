@@ -111,11 +111,22 @@ export const branchDiff = async (dir: fs.PathLike, branchA: string, branchB: str
  */
 export const merge = async (dir: fs.PathLike, base: string, compare: string, dryRun?: boolean): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
   if (dryRun) {
-    const name: { path: string, value: string | undefined } = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
-    const email: { path: string, value: string | undefined } = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
+    const name = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
+    const email = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
     const missing: string[] = [name, email].filter(config => typeof config.value !== 'undefined').map(config => config.path);
-    const mergeResult = await isogit.merge({ fs: fs, dir: dir.toString(), ours: base, theirs: compare, dryRun: true });
+    const mergeResult = await isogit.merge({
+      fs: fs,
+      dir: dir.toString(),
+      ours: base,
+      theirs: compare,
+      dryRun: true,
+      author: {
+        name: 'Mr. Test',
+        email: 'mrtest@example.com',
+      }
+    });
     const final = { missingConfigs: missing, ...mergeResult };
+    console.log({ final });
     return final;
   }
 

@@ -9,7 +9,7 @@ import { green, red } from '@material-ui/core/colors';
 
 import { Repository, UUID } from '../types';
 import { RootState } from '../store/root';
-import { branchLog, merge } from '../containers/git';
+import * as git from '../containers/git';
 import { build } from '../containers/builds';
 
 const StyledCheckIcon = withStyles({
@@ -174,14 +174,14 @@ type DialogProps = {
   onClose: () => void;
 }
 
-const sleep = (ms: number) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// const sleep = (ms: number) => {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
-const random = (): 'Passing' | 'Failing' => {
-  const random = (Math.floor(Math.random() * 5) + 1) >= 3 ? true : false;
-  return random ? 'Passing' : 'Failing';
-}
+// const random = (): 'Passing' | 'Failing' => {
+//   const random = (Math.floor(Math.random() * 5) + 1) >= 3 ? true : false;
+//   return random ? 'Passing' : 'Failing';
+// }
 
 const MergeDialog: React.FunctionComponent<DialogProps> = props => {
   const classes = useStyles();
@@ -199,7 +199,7 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
   const branchCheck = async () => {
     const fullRepo = props.repos.find(r => r.id === repo);
     if (!fullRepo) return;
-    const result = await merge(fullRepo.root, base, compare, true);
+    const result = await git.merge(fullRepo.root, base, compare, true);
     console.log(`merge dryRun: ${base}...${compare}`);
     console.log(result);
   }
@@ -214,26 +214,26 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
       setCommitCountDelta('Unchecked');
       return;
     }
-    const repoLog = fullRepo ? (await branchLog(fullRepo.root, base, compare)) : undefined;
+    const repoLog = fullRepo ? (await git.branchLog(fullRepo.root, base, compare)) : undefined;
     const commitStatus = repoLog ? (repoLog.length > 0 ? 'Passing' : 'Failing') : 'Unchecked';
     setCommitCountDelta(commitStatus);
 
     if (commitStatus == 'Failing') return;
     setBranchConflicts(['Running', undefined]);
 
-    // const conflictCheck = await merge(fullRepo.root, base, compare, true);
-    // const conflictStatus = conflictCheck.mergeCommit ? 'Passing' : 'Failing';
-    // setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
-    await sleep(2000);
-    setBranchConflicts(['Passing', undefined]);
+    const conflictCheck = await git.merge(fullRepo.root, base, compare, true);
+    const conflictStatus = conflictCheck.mergeCommit || conflictCheck.alreadyMerged ? 'Passing' : 'Failing';
+    setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
+    // await sleep(2000);
+    // setBranchConflicts(['Passing', undefined]);
 
-    // if (conflictStatus == 'Failing') return;
+    if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
 
     // await sleep(2000);
     const result = await build(fullRepo, base);
     console.log(result);
-    setBuildStatus(random());
+    setBuildStatus('Passing');
   }
 
   return (

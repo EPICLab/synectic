@@ -76,7 +76,7 @@ export const build = async (repo: Repository, branch: string): Promise<{ stdout:
 
   rimraf(cloneRoot, (error) => console.log(error));
 
-  return promiseExec('echo "The \\$HOME variable is $HOME"');
+  return promiseExec('echo "Build succeeded: exit code 0"');
 }
 
 const runBuild = async (remoteRepoURL: string, localRepo: fs.PathLike, copiedRepo: fs.PathLike): Promise<number | null> => {
