@@ -232,7 +232,7 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
 
     // await sleep(2000);
     const result = await build(fullRepo, base);
-    console.log(result);
+    console.log({ result });
     setBuildStatus('Passing');
   }
 

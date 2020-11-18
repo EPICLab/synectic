@@ -19,7 +19,7 @@ const copyFile = (src: string, filePath: string, dest: string) => {
   fs.copyFile(sPath, dPath);
 }
 
-export const build = async (repo: Repository, branch: string): Promise<{ stdout: string; stderr: string; }> => {
+export const build = async (repo: Repository, branch: string): Promise<{ installCode: number; buildCode: number; }> => {
   // Clone the remote repo into a temporary .syn sub-directory 
   const cloneRoot = join(repo.root.toString(), `.syn`);
   console.log(`cloneRoot: ${cloneRoot}, branch: ${branch}`);
@@ -50,7 +50,7 @@ export const build = async (repo: Repository, branch: string): Promise<{ stdout:
   console.log(`\nStaged files: ${stagedFiles}\n`);
 
   // Copy the local staged files to the cloned repo
-  stagedFiles.map((file) => copyFile(repo.root.toString(), file, cloneRoot));
+  stagedFiles.map((filepath) => fs.copyFile(join(repo.root.toString(), filepath), join(cloneRoot, filepath)));
 
   // Create a commit with these staged changes
   const com = await commit({
@@ -68,15 +68,38 @@ export const build = async (repo: Repository, branch: string): Promise<{ stdout:
   const packageManager = rootFiles.find(file => file === 'yarn.lock') ? 'yarn' : 'npm';
   console.log({ packageManager });
 
-  const installResults = await promiseExec(`${packageManager} install`, { cwd: cloneRoot });
-  console.log({ installResults });
+  let installCode = -1;
+  const installResults = promiseExec(`${packageManager} install`, { cwd: cloneRoot });
+  installResults.child.stdout?.on('data', data => {
+    const output = 'INSTALL stdout: ' + data;
+    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
+  });
+  installResults.child.stderr?.on('data', data => {
+    const output = 'INSTALL sterr: ' + data;
+    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
+  });
+  installResults.child.on('close', code => (installCode = code));
+  await installResults;
 
-  const buildResults = await promiseExec(`${packageManager} ${packageManager === 'yarn' ? 'run' : 'run-script'} rebuild`, { cwd: cloneRoot });
-  console.log({ buildResults });
+  if (installCode !== 0) return { installCode: installCode, buildCode: 1 };
+
+  let buildCode = -1;
+  const packageManagerBuildScript = packageManager === 'yarn' ? 'run' : 'run-script';
+  const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} rebuild`, { cwd: cloneRoot });
+  buildResults.child.stdout?.on('data', data => {
+    const output = 'BUILD stdout: ' + data;
+    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
+  });
+  buildResults.child.stderr?.on('data', data => {
+    const output = 'BUILD sterr: ' + data;
+    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
+  });
+  buildResults.child.on('close', code => (buildCode = code));
+  await buildResults;
 
   rimraf(cloneRoot, (error) => console.log(error));
 
-  return promiseExec('echo "Build succeeded: exit code 0"');
+  return { installCode: installCode, buildCode: buildCode };
 }
 
 const runBuild = async (remoteRepoURL: string, localRepo: fs.PathLike, copiedRepo: fs.PathLike): Promise<number | null> => {
