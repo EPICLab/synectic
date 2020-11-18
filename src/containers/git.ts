@@ -67,7 +67,9 @@ export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: stri
  * | `"added"`             | file does not exist in branch A, but was added in branch B                            |
  * | `"removed"`           | file exists in branch A, but was removed in branch B                                  |
  */
-export const branchDiff = async (dir: fs.PathLike, branchA: string, branchB: string, filter?: (result: BranchDiffResult) => boolean): Promise<BranchDiffResult[]> => {
+export const branchDiff = async (
+  dir: fs.PathLike, branchA: string, branchB: string, filter?: (result: BranchDiffResult) => boolean
+): Promise<BranchDiffResult[]> => {
   const hashA = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}`, depth: 1 }))[0].oid;
   const hashB = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}`, depth: 1 }))[0].oid;
   const dirpath = dir.toString();
@@ -109,7 +111,9 @@ export const branchDiff = async (dir: fs.PathLike, branchA: string, branchB: str
  * @param compare 
  * @param dryRun 
  */
-export const merge = async (dir: fs.PathLike, base: string, compare: string, dryRun?: boolean): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
+export const merge = async (
+  dir: fs.PathLike, base: string, compare: string, dryRun?: boolean
+): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
   if (dryRun) {
     const name = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
     const email = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };

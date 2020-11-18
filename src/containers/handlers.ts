@@ -88,16 +88,26 @@ type CardLoadableFields =
  * @return A Thunk that can be executed to load a card onto the canvas and dispatch Redux updates, if the card cannot
  * be added to the Redux store and no errors can be generated, then `undefined` is returned instead.
  */
-export const loadCard = (param: CardLoadableFields): ThunkAction<Promise<AddCardAction | AddErrorAction | undefined>, RootState, undefined, AnyAction> => {
+export const loadCard = (param: CardLoadableFields)
+  : ThunkAction<Promise<AddCardAction | AddErrorAction | undefined>, RootState, undefined, AnyAction> => {
   return async (dispatch) => {
     if (param.metafile) {
-      if (!param.metafile.handler) return dispatch(handlersError(param.metafile.id, `Metafile '${param.metafile.name}' missing handler for filetype: '${param.metafile.filetype}'`));
+
+      if (!param.metafile.handler) {
+        const missingHandlerError = `Metafile '${param.metafile.name}' missing handler for filetype: '${param.metafile.filetype}'`;
+        return dispatch(handlersError(param.metafile.id, missingHandlerError));
+      }
       return dispatch(addCard(param.metafile as HandlerRequiredMetafile));
     }
     if (param.filepath) {
       const metafile = await dispatch(getMetafile({ filepath: param.filepath }));
-      if (!metafile) return dispatch(handlersError(param.filepath.toString(), `Cannot update non-existing metafile for filepath: '${param.filepath.toString()}'`));
-      if (!metafile.handler) return dispatch(handlersError(metafile.id, `Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`));
+      if (!metafile) {
+        const missingMetafileError = `Cannot update non-existing metafile for filepath: '${param.filepath.toString()}'`;
+        return dispatch(handlersError(param.filepath.toString(), missingMetafileError));
+      }
+      if (!metafile.handler) {
+        return dispatch(handlersError(metafile.id, `Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`));
+      }
       return dispatch(addCard(metafile as HandlerRequiredMetafile));
     }
   };
