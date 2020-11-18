@@ -4,6 +4,8 @@ import * as path from 'path';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
 import { isWebUri } from 'valid-url';
+import parseGitConfig from 'parse-git-config';
+import getGitConfigPath from 'git-config-path';
 
 import * as io from './io';
 import { Repository, GitStatus } from '../types';
@@ -135,3 +137,34 @@ export const isValidRepository = (repo: Repository): boolean => (
   && (isWebUri(repo.corsProxy.href) ? true : false)
   && ((isWebUri(repo.url.href) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url.href)))
 );
+
+/**
+ * Override version of isomorphic-git's getConfig function. First checks for the provided path in the local .git/config file. Failing that,
+ * it checks for the provided path in the global .gitconfig file. If that also fails, it returns undefined. 
+ * @param dir The working tree directory path.
+ * @param path The key of the git config entry.
+ * @return A promise for either the requested git config entry, or undefined. 
+ */
+export const getConfig = async (dir: fs.PathLike, path: string): Promise<string | undefined> => {
+  // Check local .git/config file
+  const result = await isogit.getConfig({ fs: fs, dir: dir.toString(), path: path });
+  if (result) return result;
+
+  // If above fails, check global .gitconfig file
+  const pathPieces = path.split(".");
+
+  const getGlobalGitAuthorInfo = async () => {
+    const globalGitConfigPath = getGitConfigPath('global');
+    const parsedConfig = await parseGitConfig({
+      path: globalGitConfigPath
+    });
+    return parsedConfig;
+  };
+
+  const gitConfig = await getGlobalGitAuthorInfo();
+  const { [pathPieces[0]]: { [pathPieces[1]]: gitGlobal } = { undefined } } = gitConfig ? gitConfig : {};
+  if (gitGlobal) return gitGlobal;
+
+  // If above fails, return undefined
+  return undefined;
+};
