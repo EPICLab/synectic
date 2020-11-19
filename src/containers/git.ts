@@ -58,6 +58,7 @@ export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: stri
  * @param dir The working tree directory path. 
  * @param branchA The base branch.
  * @param branchB The compare branch.
+ * @param filter An optional filter function for returning only specific file results (i.e. only modified files or only newly added files).
  * @return A Promise object containing a list of file paths and a status indicator, where the possible status values for each file are:
  *
  * | status                | description                                                                           |
@@ -106,18 +107,24 @@ export const branchDiff = async (
 }
 
 /**
- * Merge things...
- * @param base 
- * @param compare 
- * @param dryRun 
+ * Merge two branches; this function is a wrapper to inject the fs parameter in to the *isomorphic-git/merge* function. The
+ * `dryRun` option additionally checks for `user.name` and `user.emal` from git-config, and injects a `missingConfig` return
+ * object that indicates whether either git-config field is missing from the local configuration level 
+ * (see https://www.atlassian.com/git/tutorials/setting-up-a-repository/git-config).
+ * @param dir The working tree directory path.
+ * @param base The base branch to merge delta commits into.
+ * @param compare The compare branch to examine for delta commits.
+ * @param dryRun Optional parameter for simulating a merge in order to preemptively test for a successful merge. 
+ * @return A Promise object containing the merge results (per https://isomorphic-git.org/docs/en/merge) and any missing git-config
+ * fields (only if fields are missing, undefined otherwise).
  */
 export const merge = async (
-  dir: fs.PathLike, base: string, compare: string, dryRun?: boolean
+  dir: fs.PathLike, base: string, compare: string, dryRun = false
 ): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
   if (dryRun) {
     const name = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
     const email = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
-    const missing: string[] = [name, email].filter(config => typeof config.value !== 'undefined').map(config => config.path);
+    const missing: string[] = [name, email].filter(config => config.value.length <= 0).map(config => config.path);
     const mergeResult = await isogit.merge({
       fs: fs,
       dir: dir.toString(),
@@ -125,12 +132,11 @@ export const merge = async (
       theirs: compare,
       dryRun: true,
       author: {
-        name: 'Mr. Test',
-        email: 'mrtest@example.com',
+        name: name.value,
+        email: email.value,
       }
     });
-    const final = { missingConfigs: missing, ...mergeResult };
-    console.log({ final });
+    const final = { missingConfigs: missing.length > 0 ? missing : undefined, ...mergeResult };
     return final;
   }
 

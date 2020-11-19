@@ -148,7 +148,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
           </TimelineSeparator>
           <TimelineContent className={classes.tl_content} >
             <Typography>Checking for merge conflicts...</Typography>
-            {branchConflicts[0] === 'Failing' ? <Typography color='secondary' variant='body2'>Missing git-config: {JSON.stringify(branchConflicts[1])}</Typography> : null}
+            {(branchConflicts[1] !== undefined) ? <Typography color='secondary' variant='body2'>Missing git-config: {JSON.stringify(branchConflicts[1])}</Typography> : null}
           </TimelineContent>
         </TimelineItem>
         : null
@@ -173,15 +173,6 @@ type DialogProps = {
   repos: Repository[];
   onClose: () => void;
 }
-
-// const sleep = (ms: number) => {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
-
-// const random = (): 'Passing' | 'Failing' => {
-//   const random = (Math.floor(Math.random() * 5) + 1) >= 3 ? true : false;
-//   return random ? 'Passing' : 'Failing';
-// }
 
 const MergeDialog: React.FunctionComponent<DialogProps> = props => {
   const classes = useStyles();
@@ -222,18 +213,15 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
     setBranchConflicts(['Running', undefined]);
 
     const conflictCheck = await git.merge(fullRepo.root, base, compare, true);
-    const conflictStatus = conflictCheck.mergeCommit || conflictCheck.alreadyMerged ? 'Passing' : 'Failing';
+    const conflictStatus = conflictCheck.mergeCommit || conflictCheck.alreadyMerged || conflictCheck.fastForward ? 'Passing' : 'Failing';
     setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
-    // await sleep(2000);
-    // setBranchConflicts(['Passing', undefined]);
 
     if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
 
-    // await sleep(2000);
-    const result = await build(fullRepo, base);
-    console.log({ result });
-    setBuildStatus('Passing');
+    const buildResults = await build(fullRepo, base);
+    const buildStatus = (buildResults.installCode === 0 && buildResults.buildCode === 0) ? 'Passing' : 'Failing';
+    setBuildStatus(buildStatus);
   }
 
   return (
@@ -303,29 +291,9 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
         </div>
         <div className={classes.section3}>
-          <Button
-            variant='outlined'
-            color='primary'
-            className={classes.button}
-            onClick={check}
-          >
-            Check
-          </Button>
-          <Button
-            variant='outlined'
-            color='primary'
-            className={classes.button}
-            onClick={branchCheck}
-          >
-            Check Branches
-          </Button>
-          <Button
-            variant='outlined'
-            color='primary'
-            className={classes.button}
-          >
-            Merge
-          </Button>
+          <Button variant='outlined' color='primary' className={classes.button} onClick={check}>Check</Button>
+          <Button variant='outlined' color='primary' className={classes.button} onClick={branchCheck}>Check Branches</Button>
+          <Button variant='outlined' color='primary' className={classes.button}>Merge</Button>
         </div>
       </div>
     </Dialog>

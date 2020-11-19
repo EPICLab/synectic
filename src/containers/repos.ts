@@ -38,7 +38,6 @@ const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof e
     password: password ? password : '',
     token: ''
   };
-  console.log({ repo });
   if (url && !isValidRepository(repo)) return reposError(repo.id, `Malformed repository '${repo.name}' cannot be added to the Redux store`);
   return {
     type: ActionKeys.ADD_REPO,
@@ -193,8 +192,6 @@ export const getRepository = (filepath: PathLike): ThunkAction<Promise<Repositor
     }
     const username = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'user.name' }) : undefined;
     const password = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'credential.helper' }) : undefined;
-
-    console.log({ root });
 
     const action = addRepository(root, { url, oauth }, username, password);
     dispatch(action); // dispatches either AddRepoAction or AddError
