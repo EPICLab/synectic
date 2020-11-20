@@ -139,7 +139,7 @@ export const isValidRepository = (repo: Repository): boolean => (
 );
 
 /**
- * Override version of isomorphic-git's getConfig function. First checks for the provided path in the local .git/config file. Failing that,
+ * Override version of isomorphic-git's getConfig function. First checks for the provided path in the local .gitconfig file. Failing that,
  * it checks for the provided path in the global .gitconfig file. If that also fails, it returns undefined. 
  * @param dir The working tree directory path.
  * @param path The key of the git config entry.
@@ -151,8 +151,6 @@ export const getConfig = async (dir: fs.PathLike, path: string): Promise<string 
   if (result) return result;
 
   // If above fails, check global .gitconfig file
-  const pathPieces = path.split(".");
-
   const getGlobalGitAuthorInfo = async () => {
     const globalGitConfigPath = getGitConfigPath('global');
     const parsedConfig = await parseGitConfig({
@@ -161,10 +159,32 @@ export const getConfig = async (dir: fs.PathLike, path: string): Promise<string 
     return parsedConfig;
   };
 
+  const pathPieces = path.split(".");
   const gitConfig = await getGlobalGitAuthorInfo();
   const { [pathPieces[0]]: { [pathPieces[1]]: gitGlobal } = { undefined } } = gitConfig ? gitConfig : {};
   if (gitGlobal) return gitGlobal;
 
   // If above fails, return undefined
   return undefined;
+};
+
+/**
+ * Override version of isomorphic-git's setConfig function. Depending in the value of the which parameter, it writes to either 
+ * the local .gitconfig file (which == 0), the global .gitconfig file (which == 1), or both (which == 2).
+ * @param path The key of the git config entry. 
+ * @param val The value to store at the provided path. Use undefined to delete the entry. 
+ * @param which Specifies whether the value should be written to the local or global file, or both. 
+ * @param dir The local working tree directory path. Optional in the case of writing only to the global .gitconfig file. 
+ * @return Resolves successfully when the operation is completed. 
+ */
+export const setConfig = async (path: string, val: string | boolean | number | void, which: number, dir?: fs.PathLike): Promise<void> => {
+  if (dir && (which == 0 || which == 2)) {
+    await isogit.setConfig({ fs: fs, dir: dir.toString(), path: path, value: val });
+  }
+
+  if (which == 1 || which == 2) {
+    const globalGitConfigPath = getGitConfigPath('global');
+    console.log(globalGitConfigPath);
+    //write to global .gitconfig file, not sure how to do this yet
+  }
 };
