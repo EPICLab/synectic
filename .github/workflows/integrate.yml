@@ -5,6 +5,13 @@ on:
     branches: [ development ]
     
 jobs:
+  initial_state:
+    runs-on: macos-latest
+    env:
+      DRAFT_STATE: ${{ github.event.pull_request.draft }}
+    steps:
+      - name: Draft State
+        run: echo "$DRAFT_STATE"
   test_pull_request:
     if: github.event.pull_request.draft == 'false'
     runs-on: ${{ matrix.os }}
