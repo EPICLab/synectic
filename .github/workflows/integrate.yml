@@ -8,7 +8,7 @@ jobs:
   initial_state:
     runs-on: macos-latest
     env:
-      DRAFT_STATE: ${{ github.event.pull_request.draft }}
+      DRAFT_STATE: ${{ github.event.pull_request.draft == 'false' }}
     steps:
       - name: Draft State
         run: echo "$DRAFT_STATE"
