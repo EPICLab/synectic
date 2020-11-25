@@ -138,6 +138,35 @@ export const isValidRepository = (repo: Repository): boolean => (
   && ((isWebUri(repo.url.href) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url.href)))
 );
 
+/** 
+ * Recursively finds all values within a given nested object that correspond to a given key. 
+ * @param obj The nested object to traverse. 
+ * @param keyToFind The key to use to search for corresponding values. 
+ * @return A ConcatArray<never> array of all the values within the given object corresponding to the given key. 
+ */
+const findAllByKey = (obj: parseGitConfig.Config, keyToFind: string): ConcatArray<never> => {
+  return Object.entries(obj)
+    .reduce((acc, [key, value]) => (key === keyToFind)
+      ? acc.concat(value)
+      : (typeof value === 'object')
+        ? acc.concat(findAllByKey(value, keyToFind))
+        : acc
+      , [])
+}
+
+/** 
+ * Finds the global .gitconfig file path, then asynchronously constructs a parseGitConfig.Config object containing all of the fields 
+ * found within the global .gitconfig file in a format similar to JSON. 
+ * @return A parseGitConfig.Config object containing the entire .gitconfig layout, or NULL if the process fails. 
+ */
+const getGlobalGitAuthorInfo = async () => {
+  const globalGitConfigPath = getGitConfigPath('global');
+  const parsedConfig = await parseGitConfig({
+    path: globalGitConfigPath
+  });
+  return parsedConfig;
+};
+
 /**
  * Override version of isomorphic-git's getConfig function. First checks for the provided path in the local .gitconfig file. Failing that,
  * it checks for the provided path in the global .gitconfig file. If that also fails, it returns undefined. 
@@ -146,23 +175,18 @@ export const isValidRepository = (repo: Repository): boolean => (
  * @return A promise for either the requested git config entry, or undefined. 
  */
 export const getConfig = async (dir: fs.PathLike, path: string): Promise<string | undefined> => {
-  // Check local .git/config file
+  // Check local .gitconfig file
   const result = await isogit.getConfig({ fs: fs, dir: dir.toString(), path: path });
   if (result) return result;
 
   // If above fails, check global .gitconfig file
-  const getGlobalGitAuthorInfo = async () => {
-    const globalGitConfigPath = getGitConfigPath('global');
-    const parsedConfig = await parseGitConfig({
-      path: globalGitConfigPath
-    });
-    return parsedConfig;
-  };
-
   const pathPieces = path.split(".");
   const gitConfig = await getGlobalGitAuthorInfo();
-  const { [pathPieces[0]]: { [pathPieces[1]]: gitGlobal } = { undefined } } = gitConfig ? gitConfig : {};
-  if (gitGlobal) return gitGlobal;
+
+  if (gitConfig) {
+    const configInfo = findAllByKey(gitConfig, pathPieces[pathPieces.length - 1]);
+    if (configInfo.length > 0) return configInfo[0];
+  }
 
   // If above fails, return undefined
   return undefined;
@@ -178,13 +202,16 @@ export const getConfig = async (dir: fs.PathLike, path: string): Promise<string 
  * @return Resolves successfully when the operation is completed. 
  */
 export const setConfig = async (path: string, val: string | boolean | number | void, which: number, dir?: fs.PathLike): Promise<void> => {
+  // Write to local .gitconfig file
   if (dir && (which == 0 || which == 2)) {
     await isogit.setConfig({ fs: fs, dir: dir.toString(), path: path, value: val });
   }
 
+  // Write to global .gitconfig file
   if (which == 1 || which == 2) {
     const globalGitConfigPath = getGitConfigPath('global');
     console.log(globalGitConfigPath);
-    //write to global .gitconfig file, not sure how to do this yet
+    //TODO: write to global .gitconfig file here, not sure how to do this yet
+
   }
 };
