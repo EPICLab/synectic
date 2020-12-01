@@ -168,6 +168,27 @@ const getGlobalGitAuthorInfo = async () => {
 };
 
 /**
+ * Replaces a given gitConfig key value with another given value.
+ * @param obj The gitConfig object to overwrite. 
+ * @param path The key within gitConfig to overwrite. 
+ * @param val The value to replace the given key's value with. 
+ */
+const replaceObjKey = (obj: parseGitConfig.Config, path: string, val: string | boolean | number | undefined) => {
+  const pathPieces = path.split(".");
+  if (obj) {
+    path.split('.')
+      .reduce(
+        (acc, curr) => {
+          if (acc[curr] === undefined && curr !== pathPieces[pathPieces.length - 1]) acc[curr] = {};
+
+          if (curr === pathPieces[pathPieces.length - 1]) acc[curr] = val;
+
+          return acc[curr];
+        }, obj);
+  }
+}
+
+/**
  * Override version of isomorphic-git's getConfig function. First checks for the provided path in the local .gitconfig file. Failing that,
  * it checks for the provided path in the global .gitconfig file. If that also fails, it returns undefined. 
  * @param dir The working tree directory path.
@@ -201,7 +222,9 @@ export const getConfig = async (dir: fs.PathLike, path: string): Promise<string 
  * @param dir The local working tree directory path. Optional in the case of writing only to the global .gitconfig file. 
  * @return Resolves successfully when the operation is completed. 
  */
-export const setConfig = async (path: string, val: string | boolean | number | void, which: number, dir?: fs.PathLike): Promise<void> => {
+export const setConfig = async (path: string, val: string | boolean | number | undefined, which: number, dir?: fs.PathLike): Promise<void> => {
+  //TODO: Account for val == undefined case when writing to global .gitconfig
+
   // Write to local .gitconfig file
   if (dir && (which == 0 || which == 2)) {
     await isogit.setConfig({ fs: fs, dir: dir.toString(), path: path, value: val });
@@ -209,9 +232,23 @@ export const setConfig = async (path: string, val: string | boolean | number | v
 
   // Write to global .gitconfig file
   if (which == 1 || which == 2) {
+    const gitConfig = await getGlobalGitAuthorInfo();
+    if (!gitConfig) return;
     const globalGitConfigPath = getGitConfigPath('global');
-    console.log(globalGitConfigPath);
-    //TODO: write to global .gitconfig file here, not sure how to do this yet
 
+    // Replace the given key with the given value
+    replaceObjKey(gitConfig, path, val);
+
+    // Iterate over the gitConfig object and format the string correctly
+    let reWrite = "";
+    for (const header in gitConfig) {
+      reWrite += `[${header}]\n`;
+      for (const property in gitConfig[header]) {
+        reWrite += `${property} = ${gitConfig[header][property]}\n`;
+      }
+    }
+
+    // Overwrite the global .gitconfig file
+    io.writeFileAsync(globalGitConfigPath, reWrite);
   }
 };
