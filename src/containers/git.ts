@@ -223,8 +223,6 @@ export const getConfig = async (dir: fs.PathLike, path: string): Promise<string 
  * @return Resolves successfully when the operation is completed. 
  */
 export const setConfig = async (path: string, val: string | boolean | number | undefined, which: number, dir?: fs.PathLike): Promise<void> => {
-  //TODO: Account for val == undefined case when writing to global .gitconfig
-
   // Write to local .gitconfig file
   if (dir && (which == 0 || which == 2)) {
     await isogit.setConfig({ fs: fs, dir: dir.toString(), path: path, value: val });
@@ -244,7 +242,7 @@ export const setConfig = async (path: string, val: string | boolean | number | u
     for (const header in gitConfig) {
       reWrite += `[${header}]\n`;
       for (const property in gitConfig[header]) {
-        reWrite += `${property} = ${gitConfig[header][property]}\n`;
+        if (gitConfig[header][property]) reWrite += `${property} = ${gitConfig[header][property]}\n`;
       }
     }
 
