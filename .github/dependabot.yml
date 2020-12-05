@@ -11,3 +11,4 @@ updates:
     target-branch: "development"
     milestone: 4
     open-pull-requests-limit: 7
+    rebase-strategy: "disabled"
