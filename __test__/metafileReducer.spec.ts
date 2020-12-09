@@ -12,7 +12,7 @@ describe('metafileReducer', () => {
       path: './sample/test.js',
       filetype: 'JavaScript',
       handler: 'Editor',
-      modified: DateTime.fromISO('2019-12-01T11:14:08.572-08:00'),
+      modified: DateTime.fromISO('2019-12-01T11:14:08.572-08:00', { setZone: true }),
       content: 'sample content from test.js',
       repo: '13',
       branch: '9'
@@ -25,7 +25,7 @@ describe('metafileReducer', () => {
     path: './sample/addition.ts',
     filetype: 'TypeScript',
     handler: 'Editor',
-    modified: DateTime.fromISO('2019-12-20T01:01:01.572-08:00'),
+    modified: DateTime.fromISO('2019-12-20T01:01:01.572-08:00', { setZone: true }),
     content: 'sample content from addition.ts'
   }
 
@@ -48,7 +48,7 @@ describe('metafileReducer', () => {
   it('metafileReducer updates state of matched metafile on action UPDATE_METAFILE', () => {
     const updatedMetafiles = metafileReducer(metafiles, {
       type: ActionKeys.UPDATE_METAFILE, id: '541', metafile: {
-        modified: DateTime.fromISO('2019-12-21T20:45:13.131-08:00'),
+        modified: DateTime.fromISO('2019-12-21T20:45:13.131-08:00', { setZone: true }),
         content: 'updated sample of content from test.js'
       }
     });
