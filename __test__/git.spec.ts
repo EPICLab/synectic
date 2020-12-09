@@ -61,11 +61,11 @@ describe('git.currentBranch', () => {
 
 describe('git.getStatus', () => {
   it('getStatus resolves Git status on tracked file', async () => {
-    await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz/tracked-file.js.md'))).resolves.toBe('*added');
+    await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz/tracked-file.js.md'))).resolves.toBe('unmodified');
   });
 
   it('getStatus resolves Git status on tracked directory', async () => {
-    await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz'))).resolves.toBe('modified');
+    await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz'))).resolves.toBe('unmodified');
   });
 
   it('getStatus resolves to undefined on untracked file', async () => {
