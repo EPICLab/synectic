@@ -9,8 +9,8 @@ describe('stackReducer', () => {
     '141': {
       id: '141',
       name: 'testStack',
-      created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-      modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
+      created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00', { setZone: true }),
+      modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00', { setZone: true }),
       note: 'This stack has all of my important API documentation.',
       cards: ['32', '14'],
       left: 16,
@@ -21,8 +21,8 @@ describe('stackReducer', () => {
   const newStack: Stack = {
     id: '2',
     name: 'stack',
-    created: DateTime.fromISO('2016-01-25T11:38:11.720-08:00'),
-    modified: DateTime.fromISO('2016-01-27T19:05:09.845-08:00'),
+    created: DateTime.fromISO('2016-01-25T11:38:11.720-08:00', { setZone: true }),
+    modified: DateTime.fromISO('2016-01-27T19:05:09.845-08:00', { setZone: true }),
     note: 'This stack contains very important cards for Project X',
     cards: [], left: 78, top: 13
   };

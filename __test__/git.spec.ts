@@ -50,15 +50,38 @@ describe('git.currentBranch', () => {
   it('currentBranch resolves to Git branch name on a tracked directory', async () => {
     return expect(git.currentBranch({ dir: 'foo/baz/' })).resolves.toBe('feature/test');
   });
-
-  it('currentBranch resolves to undefined on a tracked directory with detached HEAD', async () => {
-    return expect(git.currentBranch({ dir: 'foo/qux/' })).resolves.toBeUndefined();
-  });
-
-  it('currentBranch fails with an error on an untracked directory', async () => {
-    return expect(git.currentBranch({ dir: 'foo/bar/' })).rejects.toThrow(/Could not find HEAD/);
-  });
 });
+
+//   it('currentBranch resolves to undefined on a tracked directory with detached HEAD', async () => {
+//     return expect(git.currentBranch({ dir: 'foo/qux/' })).resolves.toBeUndefined();
+//   });
+
+//   it('currentBranch fails with an error on an untracked directory', async () => {
+//     await expect(git.currentBranch({ dir: path.resolve(mockGitPath, 'foo/bar/') })).rejects.toThrow(/Could not find HEAD/);
+//   });
+// });
+
+// describe('git.getStatus', () => {
+//   it('getStatus resolves Git status on tracked file', async () => {
+//     await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz/tracked-file.js.md'))).resolves.toBe('unmodified');
+//   });
+
+//   it('getStatus resolves Git status on tracked directory', async () => {
+//     await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz'))).resolves.toBe('unmodified');
+//   });
+
+//   it('getStatus resolves to undefined on untracked file', async () => {
+//     mock(mockGitProj);
+//     await expect(git.getStatus('foo/bar/untracked-file.js')).resolves.toBeUndefined();
+//     mock.restore();
+//   });
+
+//   it('getStatus resolves to undefined on untracked directory', async () => {
+//     mock(mockGitProj);
+//     await expect(git.getStatus('foo/bar/')).resolves.toBeUndefined();
+//     mock.restore();
+//   });
+// });
 
 describe('git.getRepoRoot', () => {
   it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
