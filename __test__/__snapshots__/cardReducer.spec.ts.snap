@@ -15,11 +15,11 @@ Object {
   },
   "t829w0351": Object {
     "captured": false,
-    "created": "2014-04-09T09:14:02.371-07:00",
+    "created": "2014-04-09T08:14:02.371-08:00",
     "id": "t829w0351",
     "left": 100,
     "metafile": "84354571",
-    "modified": "2014-06-23T22:58:44.507-07:00",
+    "modified": "2014-06-23T21:58:44.507-08:00",
     "name": "card2",
     "top": 50,
     "type": "Editor",

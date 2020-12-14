@@ -12,8 +12,8 @@ describe('cardReducer', () => {
       name: 'card1',
       type: 'Editor',
       metafile: '29334943',
-      created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-      modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
+      created: DateTime.fromISO('2019-11-19T19:22:47.572-08:00', { setZone: true }),
+      modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00', { setZone: true }),
       captured: false,
       left: 0, top: 0
     }
@@ -24,8 +24,8 @@ describe('cardReducer', () => {
     name: 'card2',
     type: 'Editor',
     metafile: '84354571',
-    created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00'),
-    modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00'),
+    created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00', { setZone: true }),
+    modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00', { setZone: true }),
     captured: false,
     left: 100, top: 50
   }
@@ -49,7 +49,7 @@ describe('cardReducer', () => {
   it('cardReducer updates state of matched card on action UPDATE_CARD', () => {
     const updatedCards = cardReducer(cards, {
       type: ActionKeys.UPDATE_CARD, id: '40d14391c', card: {
-        modified: DateTime.fromISO('2019-11-22T12:54:11.374-08:00'),
+        modified: DateTime.fromISO('2019-11-22T12:54:11.374-08:00', { setZone: true }),
         left: 178,
         top: 540
       }
