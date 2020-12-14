@@ -1,9 +1,7 @@
-name: Node Continuous Integration
-
+name: Production Test Check
 on:
   pull_request:
-    branches: [ development ]
-    
+    branches: [ master ]
 jobs:
   initial_state:
     runs-on: macos-latest
