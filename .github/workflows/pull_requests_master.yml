@@ -1,12 +1,10 @@
-name: Node Continuous Integration
-
+name: Production Test Check
 on:
   pull_request:
-    branches: [ development ]
-    
+    branches: [ master ]
 jobs:
   test_pull_request:
-    if: github.event.pull_request.draft == 'false'
+    if: github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
