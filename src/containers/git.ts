@@ -4,6 +4,8 @@ import * as path from 'path';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
 import { isWebUri } from 'valid-url';
+import parseGitConfig from 'parse-git-config';
+import getGitConfigPath from 'git-config-path';
 
 import * as io from './io';
 import { Repository, GitStatus } from '../types';
@@ -135,3 +137,155 @@ export const isValidRepository = (repo: Repository): boolean => (
   && (isWebUri(repo.corsProxy.href) ? true : false)
   && ((isWebUri(repo.url.href) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url.href)))
 );
+
+/** 
+ * Recursively searches all keys within a JSON-like structure (including JavaScript Objects) and returns the matches as an 
+ * array of the corresponding values.
+ * @param obj The nested object to traverse. 
+ * @param keyToFind The key to use to search for corresponding values. 
+ * @return A string array of all the values within the given object corresponding to the given key. 
+ */
+const findAllByKey = (obj: parseGitConfig.Config, keyToFind: string): string[] => {
+  return Object.entries(obj)
+    .reduce((acc: string[], [key, value]) => (key === keyToFind)
+      ? acc.concat(value)
+      : (typeof value === 'object')
+        ? acc.concat(findAllByKey(value, keyToFind))
+        : acc
+      , []);
+}
+
+/** 
+ * Finds the global .gitconfig file path, then asynchronously constructs a parseGitConfig.Config object containing all of the fields 
+ * found within the global .gitconfig file in a format similar to JSON. 
+ * @return A parseGitConfig.Config object containing the entire .gitconfig layout, or NULL if the process fails. This return type is
+ * from the parse-git-config library, which can be found here: https://www.npmjs.com/package/parse-git-config.
+ */
+const getGlobalGitConfig = async () => {
+  const globalGitConfigPath = getGitConfigPath('global');
+  const parsedConfig = await parseGitConfig({
+    path: globalGitConfigPath
+  });
+  return parsedConfig;
+};
+
+/**
+ * Replaces the global gitConfig key value with another given value.
+ * @param obj The gitConfig object to overwrite. 
+ * @param path The key within gitConfig to overwrite. 
+ * @param val The value to replace the given key's value with. 
+ * @return A parseGitConfig.Config object containing the entire .gitconfig layout, or NULL if the process fails. This return type is
+ * from the parse-git-config library, which can be found here: https://www.npmjs.com/package/parse-git-config.
+ */
+const replaceObjKey = async (path: string, val: string | boolean | number | undefined) => {
+  if (!path.includes(".")) return null;
+
+  const gitConfig = await getGlobalGitConfig();
+  if (!gitConfig) return null;
+
+  const pathPieces = path.split(".");
+  const lastPiece = pathPieces[pathPieces.length - 1];
+
+  pathPieces
+    .reduce(
+      (acc, curr) => {
+        if (acc[curr] === undefined && curr !== lastPiece) acc[curr] = {};
+
+        if (curr === lastPiece) acc[curr] = val;
+
+        return acc[curr];
+      }, gitConfig);
+
+  return gitConfig;
+}
+
+/**
+ * Replaces the value of the corresponding given gitconfig key path with the given value. Then, correctly formats a string from the updated
+ * gitconfig object to write to the global .gitconfig file. 
+ * @param path The key of the git config entry.
+ * @param val The value to store at the provided path. Use undefined to delete the entry. 
+ */
+const setGlobalGitConfig = async (path: string, val: string | boolean | number | undefined) => {
+  const globalGitConfigPath = getGitConfigPath('global');
+
+  // Replace the given key with the given value
+  const gitConfig = await replaceObjKey(path, val);
+  if (!gitConfig) return;
+
+  // Iterate over the gitConfig object and format the string correctly
+  let reWrite = "";
+  for (const header in gitConfig) {
+    reWrite += `[${header}]\n`;
+    for (const property in gitConfig[header]) {
+      if (gitConfig[header][property]) reWrite += `${property} = ${gitConfig[header][property]}\n`;
+    }
+  }
+
+  // Overwrite the global .gitconfig file
+  io.writeFileAsync(globalGitConfigPath, reWrite);
+}
+
+/**
+ * Override version of isomorphic-git's getConfig function. First checks for the provided path in the local .gitconfig file. Failing that,
+ * it checks for the provided path in the global .gitconfig file. If that also fails, it returns undefined. 
+ * @param dir The working tree directory path.
+ * @param path The key of the git config entry.
+ * @return A promise for either the requested git config entry, or undefined. 
+ */
+export const getConfig = async (dir: fs.PathLike, path: string): Promise<string | undefined> => {
+  // Check local .gitconfig file
+  const result = await isogit.getConfig({ fs: fs, dir: dir.toString(), path: path });
+  if (result) return result;
+
+  // If above fails, check global .gitconfig file
+  const gitConfig = await getGlobalGitConfig();
+
+  if (gitConfig) {
+    const configInfo = findAllByKey(gitConfig, path.split(".")[-1]);
+    if (configInfo.length > 0) return configInfo[0];
+  }
+
+  // If above fails, return undefined
+  return undefined;
+};
+
+/**
+ * Override version of isomorphic-git's setConfig function. First, it checks for the provided path in the local .gitconfig file to replace. If it 
+ * isn't found, it checks the global .gitconfig file. If it still isn't found, it may add a new entry depending on the value of the newEntry 
+ * parameter. If newEntry == 'local', it adds the entry to the local .gitconfig file. If newEntry == 'global', it adds the entry to the global 
+ * .gitconfig file. If newEntry is undefined, this function does nothing and returns. If the val parameter is undefined, it deletes the entry.
+ * @param path The key of the git config entry. 
+ * @param val The value to store at the provided path. Use undefined to delete the entry. 
+ * @param dir The local working tree directory path. 
+ * @param newEntry A string indicating where a new entry should be added. If undefined, no new entry shall be added. 
+ * @return Resolves successfully when the operation is completed. 
+ */
+export const setConfig = async (path: string, val: string | boolean | number | undefined, dir: fs.PathLike, newEntry?: 'local' | 'global'): Promise<void> => {
+  // If the path is found in the local .gitconfig file provided in dir, then replace the corresponding value with val
+  const local = await isogit.getConfig({ fs: fs, dir: dir.toString(), path: path });
+  if (local) {
+    await isogit.setConfig({ fs: fs, dir: dir.toString(), path: path, value: val });
+    return;
+  }
+
+  // If the above fails, then try and find the path in the global .gitconfig file and replace that corresponding value with val
+  const global = await getConfig(dir, path);
+  if (global) {
+    setGlobalGitConfig(path, val);
+    return;
+  }
+
+  // If the path cannot be found anywhere, then add it to either the local or global .gitconfig depending on the newEntry parameter
+  if (newEntry == 'local') {
+    await isogit.setConfig({ fs: fs, dir: dir.toString(), path: path, value: val });
+    return;
+  }
+
+  if (newEntry == 'global') {
+    setGlobalGitConfig(path, val);
+    return;
+  }
+
+  // If the path cannot be found and newEntry is not set, then just return
+  return;
+};
