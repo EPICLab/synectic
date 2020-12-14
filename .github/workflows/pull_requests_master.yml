@@ -1,0 +1,25 @@
+name: Production Test Check
+on:
+  pull_request:
+    branches: [ master ]
+jobs:
+  initial_state:
+    runs-on: macos-latest
+    env:
+      DRAFT_STATE: ${{ github.event.pull_request.draft == false }}
+    steps:
+      - name: Draft State
+        run: echo "$DRAFT_STATE"
+  test_pull_request:
+    if: github.event.pull_request.draft == false
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: yarn install
+      - run: yarn test
