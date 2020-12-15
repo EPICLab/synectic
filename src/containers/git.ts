@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as isogit from 'isomorphic-git';
+import * as http from 'isomorphic-git/http/node';
 import * as path from 'path';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
@@ -14,6 +15,25 @@ import { shouldBeHiddenSync } from 'hidefile';
 export type BranchDiffResult = {
   path: string,
   type: 'equal' | 'modified' | 'added' | 'removed'
+}
+
+/**
+ * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function with additional local-only branch 
+ * functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the local-only 
+ * repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
+ * @param repo A Repository object to be cloned.
+ * @param dir The working tree directory path to contain the cloned repo.
+ * @param ref An optional branch name or SHA-1 hash to target cloning to that specific branch or commit.
+ */
+export const clone = async (repo: Repository, dir: fs.PathLike, ref?: string): Promise<void> => {
+  const targetBranch = ref ? ref : (await currentBranch({ dir: repo.root.toString(), fullname: false }));
+  if (targetBranch && !repo.remote.includes(targetBranch)) {
+    return fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) });
+  }
+  return isogit.clone({
+    fs: fs, http: http, dir: dir.toString(), url: repo.url.href,
+    onProgress: (progress: isogit.GitProgressEvent) => console.log(`cloning objects: ${progress.loaded}/${progress.total}`)
+  });
 }
 
 /**
@@ -35,7 +55,7 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
 }): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
 
 /**
- * Show the commit delta between two branches (i.e. the commits not contained in the overlapping subset). Although git refers
+ * Show the commit delta (i.e. the commits not contained in the overlapping subset) between two branches. Although git refers
  * to rev-lists of commits in a branch as trees, they are actually Directed Acyclic Graphs (DAG) where the directed paths can
  * diverge and rejoin at several points. Therefore, we must determine the symmetric difference between the rev-list arrays
  * from the branches. Operates comparably to the native git command: `git log <branch-1>...<branch-2>`
@@ -121,26 +141,22 @@ export const branchDiff = async (
 export const merge = async (
   dir: fs.PathLike, base: string, compare: string, dryRun = false
 ): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
-  if (dryRun) {
-    const name = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
-    const email = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
-    const missing: string[] = [name, email].filter(config => config.value.length <= 0).map(config => config.path);
-    const mergeResult = await isogit.merge({
-      fs: fs,
-      dir: dir.toString(),
-      ours: base,
-      theirs: compare,
-      dryRun: true,
-      author: {
-        name: name.value,
-        email: email.value,
-      }
-    });
-    const final = { missingConfigs: missing.length > 0 ? missing : undefined, ...mergeResult };
-    return final;
-  }
-
-  return await isogit.merge({ fs: fs, dir: dir.toString(), ours: base, theirs: compare });
+  const name = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
+  const email = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
+  const missing: string[] = [name, email].filter(config => config.value.length <= 0).map(config => config.path);
+  const mergeResult = await isogit.merge({
+    fs: fs,
+    dir: dir.toString(),
+    ours: base,
+    theirs: compare,
+    dryRun: dryRun,
+    author: {
+      name: name.value ? name.value : 'Mr. Test',
+      email: email.value ? email.value : 'mrtest@example.com',
+    }
+  });
+  const final = { missingConfigs: missing.length > 0 ? missing : undefined, ...mergeResult };
+  return final;
 }
 
 /**

@@ -196,6 +196,7 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
   }
 
   const check = async () => {
+    console.log(`<<MERGE CHECK>>\nbase: ${base} => compare: ${compare}`);
     setCommitCountDelta('Running');
     setBranchConflicts(['Unchecked', undefined]);
     setBuildStatus('Unchecked');
@@ -213,13 +214,13 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
     setBranchConflicts(['Running', undefined]);
 
     const conflictCheck = await git.merge(fullRepo.root, base, compare, true);
-    const conflictStatus = conflictCheck.mergeCommit || conflictCheck.alreadyMerged || conflictCheck.fastForward ? 'Passing' : 'Failing';
+    const conflictStatus = conflictCheck.mergeCommit || conflictCheck.fastForward ? 'Passing' : 'Failing';
     setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
 
     if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
 
-    const buildResults = await build(fullRepo, base);
+    const buildResults = await build(fullRepo, base, compare);
     const buildStatus = (buildResults.installCode === 0 && buildResults.buildCode === 0) ? 'Passing' : 'Failing';
     setBuildStatus(buildStatus);
   }

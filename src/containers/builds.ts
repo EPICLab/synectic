@@ -1,180 +1,83 @@
 import { exec } from 'child_process';
 import util from 'util';
 import rimraf from 'rimraf';
-import { clone, statusMatrix, commit, GitProgressEvent, checkout } from 'isomorphic-git';
+import { checkout } from 'isomorphic-git';
 import * as fs from 'fs-extra';
-import * as http from 'isomorphic-git/http/node';
 import { join } from 'path';
 
-import { getRepoRoot } from '../containers/git';
 import { Repository } from '../types';
+import { clone, merge } from '../containers/git';
 import { readDirAsync } from './io';
 
 const promiseExec = util.promisify(exec);
 
-// Helper function that copies a file and moves it to a new directory
-const copyFile = (src: string, filePath: string, dest: string) => {
-  const sPath = join(src, filePath);
-  const dPath = join(dest, filePath);
-  fs.copyFile(sPath, dPath);
+export const tempClone = async (repo: Repository, branch: string): Promise<string> => {
+  const cloneRoot = join(repo.root.toString(), '../', '.syn');
+  await clone(repo, cloneRoot, branch);
+  return cloneRoot;
 }
 
-export const build = async (repo: Repository, branch: string): Promise<{ installCode: number; buildCode: number; }> => {
-  // Clone the remote repo into a temporary .syn sub-directory 
-  const cloneRoot = join(repo.root.toString(), `.syn`);
-  console.log(`cloneRoot: ${cloneRoot}, branch: ${branch}`);
-  await clone({
-    fs: fs,
-    http: http,
-    dir: cloneRoot,
-    corsProxy: 'https://cors.isomorphic-git.org',
-    url: repo.url.href,
-    // ref: branch,
-    // singleBranch: true,
-    depth: 1,
-    onProgress: (progress: GitProgressEvent) => console.log(`cloning objects: ${progress.loaded}/${progress.total}`)
-  });
+export const build = async (repo: Repository, base: string, compare: string): Promise<{ installCode: number; buildCode: number; }> => {
+  const cloneRoot = await tempClone(repo, base);
+  await checkout({ fs: fs, dir: cloneRoot, ref: base });
 
-  await fs.copy(join(repo.root.toString(), '.git'), join(cloneRoot, '.git'));
-  await checkout({
-    fs: fs,
-    dir: cloneRoot,
-    ref: branch
-  });
-
-  // Get the staged files in the local repo
-  const FILE = 0, WORKDIR = 2, STAGE = 3
-  const stagedFiles = (await statusMatrix({ fs: fs, dir: repo.root.toString() }))
-    .filter(row => row[WORKDIR] === 2 && row[STAGE] === 2)
-    .map(row => row[FILE]);
-  console.log(`\nStaged files: ${stagedFiles}\n`);
-
-  // Copy the local staged files to the cloned repo
-  stagedFiles.map((filepath) => fs.copyFile(join(repo.root.toString(), filepath), join(cloneRoot, filepath)));
-
-  // Create a commit with these staged changes
-  const com = await commit({
-    fs: fs,
-    dir: cloneRoot,
-    author: {
-      name: 'Mr. Test',
-      email: 'mrtest@example.com',
-    },
-    message: stagedFiles.length > 2 ? `Changes made to ${stagedFiles.length} files` : `Changes files: ${stagedFiles}`,
-  });
-  console.log(`\nCommit: ${com}\n`);
+  const mergeResult = await merge(cloneRoot, base, compare);
+  // this next step seems unnecessary, but isomorphic-git.merge stages a reversal changeset that negates the results of the merge
+  // reverting the target branch back to the merged commit (via checkout) allows these reversal changesets to be removed
+  await checkout({ fs: fs, dir: cloneRoot, ref: mergeResult.oid });
 
   const rootFiles = await readDirAsync(cloneRoot);
   const packageManager = rootFiles.find(file => file === 'yarn.lock') ? 'yarn' : 'npm';
-  console.log({ packageManager });
 
-  let installCode = -1;
-  const installResults = promiseExec(`${packageManager} install`, { cwd: cloneRoot });
-  installResults.child.stdout?.on('data', data => {
-    const output = 'INSTALL stdout: ' + data;
-    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
-  });
-  installResults.child.stderr?.on('data', data => {
-    const output = 'INSTALL sterr: ' + data;
-    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
-  });
-  installResults.child.on('close', code => (installCode = code));
-  await installResults;
+  let [installCode, buildCode] = [-1, -1];
+  try {
+    const installResults = promiseExec(`${packageManager} install`, { cwd: cloneRoot });
+    installResults.child.stdout?.on('data', data => console.log(`INSTALL: ` + data));
+    installResults.child.stderr?.on('data', data => console.log(`INSTALL error: ` + data));
+    installResults.child.on('close', code => {
+      console.log(`INSTALL 'close' listener found code: ${code}`);
+      (installCode = code);
+    });
+    installResults.child.on('exit', code => {
+      console.log(`INSTALL 'exit' listener found code: ${code}`);
+      (code ? (installCode = code) : null);
+    });
+    installResults.child.on('error', error => {
+      console.log(`INSTALL 'error' listener found error:`);
+      console.log({ error });
+    });
+    await installResults;
+  } catch (e) {
+    console.log(`INSTALL ERROR`);
+    console.log(e);
+  }
 
-  if (installCode !== 0) return { installCode: installCode, buildCode: 1 };
-
-  let buildCode = -1;
-  const packageManagerBuildScript = packageManager === 'yarn' ? 'run' : 'run-script';
-  const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} rebuild`, { cwd: cloneRoot });
-  buildResults.child.stdout?.on('data', data => {
-    const output = 'BUILD stdout: ' + data;
-    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
-  });
-  buildResults.child.stderr?.on('data', data => {
-    const output = 'BUILD sterr: ' + data;
-    console.log(output.length > 60 ? output.substr(0, 57) + '...' : output);
-  });
-  buildResults.child.on('close', code => (buildCode = code));
-  await buildResults;
+  if (installCode === 0) {
+    const packageManagerBuildScript = packageManager === 'yarn' ? 'run' : 'run-script';
+    try {
+      const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} build`, { cwd: cloneRoot });
+      buildResults.child.stdout?.on('data', data => console.log(`BUILD: ` + data));
+      buildResults.child.stderr?.on('data', data => console.log(`BUILD error: ` + data));
+      buildResults.child.on('close', code => {
+        console.log(`BUILD 'close' listener found code: ${code}`);
+        (buildCode = code);
+      });
+      buildResults.child.on('exit', code => {
+        console.log(`BUILD 'exit' listener found code: ${code}`);
+        (code ? (buildCode = code) : null);
+      });
+      buildResults.child.on('error', error => {
+        console.log(`BUILD 'error' listener found error:`);
+        console.log({ error });
+      });
+      await buildResults;
+    } catch (e) {
+      console.log(`BUILD ERROR`);
+      console.error(e);
+    }
+  }
 
   rimraf(cloneRoot, (error) => console.log(error));
 
   return { installCode: installCode, buildCode: buildCode };
 }
-
-const runBuild = async (remoteRepoURL: string, localRepo: fs.PathLike, copiedRepo: fs.PathLike): Promise<number | null> => {
-  // Clone the remote repo to .syn directory within the copied repo's root dir
-  const copiedRepoRoot = `${await getRepoRoot(copiedRepo)}\\.syn`;
-  await clone({
-    fs,
-    http,
-    dir: copiedRepoRoot,
-    corsProxy: 'https://cors.isomorphic-git.org',
-    url: remoteRepoURL,
-    singleBranch: true,
-    depth: 1,
-  });
-  console.log("\nFinished cloning!\n");
-
-  // Get the staged files in the local repo
-  const FILE = 0, WORKDIR = 2, STAGE = 3
-
-  const stagedFiles = (await statusMatrix({ fs, dir: localRepo.toString() }))
-    .filter(row => row[WORKDIR] === 2 && row[STAGE] === 2)
-    .map(row => row[FILE]);
-  console.log(`\nStaged files: ${stagedFiles}\n`);
-
-  // Copy the local staged files to the cloned repo
-  stagedFiles.map((file) => {
-    copyFile(localRepo.toString(), file, copiedRepoRoot);
-  });
-
-  // Create a commit with these staged changes
-  const com = await commit({
-    fs,
-    dir: copiedRepoRoot,
-    author: {
-      name: 'Mr. Test',
-      email: 'mrtest@example.com',
-    },
-    message: `Made changes to files ${stagedFiles}`,
-  });
-  console.log(`\nCommit: ${com}\n`);
-
-  // Run npm install
-  const install = exec('npm install', { cwd: copiedRepoRoot }, (error, stdout, stderr) => {
-    if (error) {
-      console.log(`\n(install) Error stack:\n${error.stack}\n`);
-      console.log(`\n(install) Error code: ${error.code}\n`);
-      console.log(`\n(install) Signal received: ${error.signal}\n`);
-    }
-    console.log(`\n(install) Child Process STDOUT: ${stdout}\n`);
-    console.log(`\n(install) Child Process STDERR: ${stderr}\n`);
-  });
-
-  let exitCode = null;
-
-  // Run the build
-  install.on('exit', (code) => {
-    console.log(`\n(run-script build) Child process exited with exit code: ${code}\n`);
-
-    const portfolio = exec('npm run-script build', { cwd: copiedRepoRoot }, (error, stdout, stderr) => {
-      if (error) {
-        console.log(`\n(run-script build) Error stack:\n${error.stack}\n`);
-        console.log(`\n(run-script build) Error code: ${error.code}\n`);
-        console.log(`\n(run-script build) Signal received: ${error.signal}\n`);
-      }
-      console.log(`\n(run-script build) Child Process STDOUT: ${stdout}\n`);
-      console.log(`\n(run-script build) Child Process STDERR: ${stderr}\n`);
-    });
-
-    portfolio.on('exit', (code) => {
-      console.log(`\n(run-script build) Child process exited with exit code: ${code}\n`);
-      exitCode = code;
-    });
-  });
-
-  return exitCode;
-}
-
-export default runBuild;
