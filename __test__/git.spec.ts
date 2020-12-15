@@ -79,71 +79,72 @@ describe('git.getStatus', () => {
     await expect(git.getStatus('foo/bar/')).resolves.toBeUndefined();
     mock.restore();
   });
+});
 
-  describe('git.getRepoRoot', () => {
-    it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
-      return expect(git.getRepoRoot(`${mockGitPath}/foo/baz/tracked-file.js`)).resolves.toBe(path.resolve(mockGitPath, 'foo/baz'));
-    });
-
-    it('getRepoRoot resolves to undefined on file in untracked directory', async () => {
-      mock(mockGitProj);
-      await expect(git.getRepoRoot(`foo/bar/untracked-file.js`)).resolves.toBeUndefined();
-      mock.restore();
-    });
+describe('git.getRepoRoot', () => {
+  it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
+    return expect(git.getRepoRoot(`${mockGitPath}/foo/baz/tracked-file.js`)).resolves.toBe(path.resolve(mockGitPath, 'foo/baz'));
   });
 
-  describe('git.isGitRepo', () => {
-    it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
-      return expect(git.isGitRepo(`${mockGitPath}/foo/baz/`)).resolves.toBe(true);
-    });
+  it('getRepoRoot resolves to undefined on file in untracked directory', async () => {
+    mock(mockGitProj);
+    await expect(git.getRepoRoot(`foo/bar/untracked-file.js`)).resolves.toBeUndefined();
+    mock.restore();
+  });
+});
 
-    it('isGitRepo resolves directory path ending in .git directory to true', async () => {
-      return expect(git.isGitRepo(`${mockGitPath}/foo/baz/.git`)).resolves.toBe(true);
-    });
-
-    it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
-      return expect(git.isGitRepo(`${mockGitPath}/foo/baz/another-file.ts`)).resolves.toBe(true);
-    });
-
-    it('isGitRepo resolves directory path without a .git directory to false', async () => {
-      return expect(git.isGitRepo(`${mockGitPath}/foo/bar/`)).resolves.toBe(false);
-    });
-
-    it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
-      return expect(git.isGitRepo(`${mockGitPath}/foo/bar/.git`)).resolves.toBe(false);
-    });
+describe('git.isGitRepo', () => {
+  it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
+    return expect(git.isGitRepo(`${mockGitPath}/foo/baz/`)).resolves.toBe(true);
   });
 
-  describe('git.extractRepoName', () => {
-    it('extractRepoName resolves git://*', () => {
-      expect(git.extractRepoName('git://github.com/octo-org/octo-repo')).toBe('octo-org/octo-repo');
-    });
-
-    it('extractRepoName resolves git://*.git', () => {
-      expect(git.extractRepoName('git://github.com/octo-org/octo-repo.git')).toBe('octo-org/octo-repo');
-    });
-
-    it('extractRepoName resolves https://*', () => {
-      expect(git.extractRepoName('https://treygriffith@bitbucket.org/bucket-org/cellar.git')).toBe('bucket-org/cellar');
-    });
-
-    it('extractRepoName resolves https://*.git', () => {
-      expect(git.extractRepoName('https://gitlab.com/gitlab-org/omnibus-gitlab.git')).toBe('gitlab-org/omnibus-gitlab');
-    });
-
-    it('extractRepoName resolves ssh://*.git', () => {
-      expect(git.extractRepoName('ssh://git@gitlab.com:labuser/lab-repo.git')).toBe('labuser/lab-repo');
-    });
-
-    it('extractRepoName resolves https://gist', () => {
-      expect(git.extractRepoName('https://bitbucket.org/snippets/vmaric/oed9AM/hello-json-message')).toBe('vmaric/oed9AM/hello-json-message');
-    });
-
-    it('extractRepoName resolves git@gist', () => {
-      expect(git.extractRepoName('git@gist.github.com:3135914.git')).toBe('3135914');
-    });
-
-    it('extractRepoName resolves git+https://*.git#tag', () => {
-      expect(git.extractRepoName('git+https://github.com/octo-org/octo-repo.git#2.7.0')).toBe('octo-org/octo-repo');
-    });
+  it('isGitRepo resolves directory path ending in .git directory to true', async () => {
+    return expect(git.isGitRepo(`${mockGitPath}/foo/baz/.git`)).resolves.toBe(true);
   });
+
+  it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
+    return expect(git.isGitRepo(`${mockGitPath}/foo/baz/another-file.ts`)).resolves.toBe(true);
+  });
+
+  it('isGitRepo resolves directory path without a .git directory to false', async () => {
+    return expect(git.isGitRepo(`${mockGitPath}/foo/bar/`)).resolves.toBe(false);
+  });
+
+  it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
+    return expect(git.isGitRepo(`${mockGitPath}/foo/bar/.git`)).resolves.toBe(false);
+  });
+});
+
+describe('git.extractRepoName', () => {
+  it('extractRepoName resolves git://*', () => {
+    expect(git.extractRepoName('git://github.com/octo-org/octo-repo')).toBe('octo-org/octo-repo');
+  });
+
+  it('extractRepoName resolves git://*.git', () => {
+    expect(git.extractRepoName('git://github.com/octo-org/octo-repo.git')).toBe('octo-org/octo-repo');
+  });
+
+  it('extractRepoName resolves https://*', () => {
+    expect(git.extractRepoName('https://treygriffith@bitbucket.org/bucket-org/cellar.git')).toBe('bucket-org/cellar');
+  });
+
+  it('extractRepoName resolves https://*.git', () => {
+    expect(git.extractRepoName('https://gitlab.com/gitlab-org/omnibus-gitlab.git')).toBe('gitlab-org/omnibus-gitlab');
+  });
+
+  it('extractRepoName resolves ssh://*.git', () => {
+    expect(git.extractRepoName('ssh://git@gitlab.com:labuser/lab-repo.git')).toBe('labuser/lab-repo');
+  });
+
+  it('extractRepoName resolves https://gist', () => {
+    expect(git.extractRepoName('https://bitbucket.org/snippets/vmaric/oed9AM/hello-json-message')).toBe('vmaric/oed9AM/hello-json-message');
+  });
+
+  it('extractRepoName resolves git@gist', () => {
+    expect(git.extractRepoName('git@gist.github.com:3135914.git')).toBe('3135914');
+  });
+
+  it('extractRepoName resolves git+https://*.git#tag', () => {
+    expect(git.extractRepoName('git+https://github.com/octo-org/octo-repo.git#2.7.0')).toBe('octo-org/octo-repo');
+  });
+});
