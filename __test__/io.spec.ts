@@ -157,7 +157,7 @@ describe('io.readDirAsync', () => {
     await expect(io.readDirAsync('foo/bar')).resolves.toHaveLength(2);
   });
 
-  it('readDirAsync fails with an error', async () => {
+  it('readDirAsync fails with an error on non-existent path', async () => {
     await expect(io.readDirAsync('foo/dep/')).rejects.toThrow(/ENOENT/);
   });
 });
@@ -169,7 +169,8 @@ describe('io.isDirectory', () => {
         bar: mock.file({ content: 'file contents', ctime: new Date(1) }),
         zap: {
           zip: mock.file({ content: 'file contents', ctime: new Date(1) }),
-        }
+        },
+        'tracked-file.js': 'directory is tracked by git',
       },
       empty: {},
     });
@@ -185,8 +186,13 @@ describe('io.isDirectory', () => {
     return expect(io.isDirectory('foo/zap')).resolves.toBe(true);
   });
 
-  it('isDirectory resolves to false for file', () => {
-    return expect(io.isDirectory('foo/bar')).resolves.toBe(false);
+  it('isDirectory resolves to false for file', async () => {
+    await expect(io.isDirectory('foo/bar')).resolves.toBe(false);
+    await expect(io.isDirectory('foo/tracked-file.js')).resolves.toBe(false);
+  });
+
+  it('isDirectory fails with an error on non-existent path', () => {
+    return expect(io.isDirectory('foo/dep/')).rejects.toThrow(/ENOENT/);
   });
 });
 

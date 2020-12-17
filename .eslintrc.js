@@ -54,18 +54,21 @@ module.exports = {
   },
   rules: {
     /**
-     * @description Rules of @eslint
+     * @description Rules of eslint
      */
-    // "max-len": ["error", {
-    //   "code": 120,
-    //   "tabWidth": 2,
-    //   "comments": 120,
-    //   "ignoreTrailingComments": true
-    // }],
+    "max-len": ["warn", {
+      "code": 140,
+      "tabWidth": 2,
+      "comments": 140,
+      "ignoreTrailingComments": true,
+      "ignorePattern": "^ \\* \\|.*\\|" // disable checks for Markdown tables, since cell rows cannot span multiple lines
+    }],
+    "no-unused-vars": "off",
 
     /**
-     * @description Rules of @typescript-eslint
+     * @description Rules of typescript-eslint
      */
+    "@typescript-eslint/no-unused-vars": 0,
     "@typescript-eslint/explicit-function-return-type": "off",
 
     /**

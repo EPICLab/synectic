@@ -66,7 +66,10 @@ describe('useDirectory', () => {
       'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
     });
   });
-  afterEach(store.clearActions);
+  afterEach(() => {
+    store.clearActions();
+    jest.clearAllMocks();
+  });
   afterAll(mock.restore);
 
   it('useDirectory hook contains no directories or files before fetch', async () => {

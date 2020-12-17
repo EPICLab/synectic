@@ -6,7 +6,8 @@ import { flatten } from './flatten';
 import { Filetype } from '../types';
 
 /**
- * Encoding formats that adhere to the name of [Node.js-supported encodings](https://stackoverflow.com/questions/14551608/list-of-encodings-that-node-js-supports#14551669).
+ * Encoding formats that adhere to the name of 
+ * [Node.js-supported encodings](https://stackoverflow.com/questions/14551608/list-of-encodings-that-node-js-supports#14551669).
  */
 export type nodeEncoding = 'ascii' | 'base64' | 'hex' | 'ucs-2' | 'utf-16le' | 'utf-8' | 'binary' | 'latin1';
 
@@ -100,26 +101,30 @@ export const extractExtension = (filepath: fs.PathLike): string => {
  * | `"utf-8"`             | UTF-8 (also ISO-10646) can represent any character in the Unicode standard using 1 to 4 bytes (8-bit) code units. UTF-8 is backwards compatible with ASCII.   |
  * | `"binary"`/`"latin1"` | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages.                                                                  |
  *
- * | flags   | description                                                                                                                  |
- * | ------- | ---------------------------------------------------------------------------------------------------------------------------- |
- * | `"a"`   | Open file for appending. The file is created if it does not exist.                                                           |
- * | `"ax"`  | Like `"a"` but fails if the path exists.                                                                                     |
- * | `"a+"`  | Open file for reading and appending. The file is created if it does not exist.                                               |
- * | `"ax+"` | Like `"a+"` but fails if the path exists.                                                                                    |
- * | `"as"`  | Open file for appending in synchronous mode. The file is created if it does not exist.                                       |
- * | `"as+"` | Open file for reading and appending in synchronous mode. The file is created if it does not exist.                           |
- * | `"r"`   | Open file for reading. An exception occurs if the file does not exist.                                                       |
- * | `"r+"`  | Open file for reading and writing. An exception occurs if the file does not exist.                                           |
- * | `"rs+"` | Open file for reading and writing in synchronous mode. Instructs the operating system to bypass the local file system cache. |
- * | `"w"`   | Open file for writing. The file is created (if it does not exist) or truncated (if it exists).                               |
- * | `"wx"`  | Like `"w"` but fails if the path exists.                                                                                     |
- * | `"w+"`  | Open file for reading and writing. The file is created (if it does not exist) or truncated (if it exists).                   |
- * | `"wx+"` | Like `"w+"` but fails if the path exists.                                                                                    |
+ * | flags   | description                                                                                                                |
+ * | ------- | -------------------------------------------------------------------------------------------------------------------------- |
+ * | `"a"`   | Open file for appending. The file is created if it does not exist.                                                         |
+ * | `"ax"`  | Like `"a"` but fails if the path exists.                                                                                   |
+ * | `"a+"`  | Open file for reading and appending. The file is created if it does not exist.                                             |
+ * | `"ax+"` | Like `"a+"` but fails if the path exists.                                                                                  |
+ * | `"as"`  | Open file for appending in synchronous mode. The file is created if it does not exist.                                     |
+ * | `"as+"` | Open file for reading and appending in synchronous mode. The file is created if it does not exist.                         |
+ * | `"r"`   | Open file for reading. An exception occurs if the file does not exist.                                                     |
+ * | `"r+"`  | Open file for reading and writing. An exception occurs if the file does not exist.                                         |
+ * | `"rs+"` | Open file for reading and writing in synchronous mode. Instructs the OS to bypass the local file system cache.             |
+ * | `"w"`   | Open file for writing. The file is created (if it does not exist) or truncated (if it exists).                             |
+ * | `"wx"`  | Like `"w"` but fails if the path exists.                                                                                   |
+ * | `"w+"`  | Open file for reading and writing. The file is created (if it does not exist) or truncated (if it exists).                 |
+ * | `"wx+"` | Like `"w+"` but fails if the path exists.                                                                                  |
  * @return A Promise object containing a Buffer, if no flag or encoding was provided, or a string of the file contents.
  */
-export function readFileAsync(filepath: fs.PathLike, options: { flag: string } | { encoding: nodeEncoding; flag?: string }): Promise<string>;
+export function readFileAsync(
+  filepath: fs.PathLike, options: { flag: string } | { encoding: nodeEncoding; flag?: string }
+): Promise<string>;
 export function readFileAsync(filepath: fs.PathLike): Promise<Buffer>;
-export function readFileAsync(filepath: fs.PathLike, options?: { flag: string } | { encoding: nodeEncoding; flag?: string }): Promise<string> | Promise<Buffer> {
+export function readFileAsync(
+  filepath: fs.PathLike, options?: { flag: string } | { encoding: nodeEncoding; flag?: string }
+): Promise<string> | Promise<Buffer> {
   const fullPath = path.resolve(filepath.toString());
   if (options) return fs.readFile(fullPath, options);
   else return fs.readFile(fullPath);
@@ -205,8 +210,8 @@ export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false
  * Asynchronously write data to a file. Creates a new file if none exists; will destructively rewrite existing files.
  * @param filepath A valid filename or path to write data to.
  * @param data A string or buffer containing data to be written.
- * @param options Options object for setting file encoding (default: `"utf8"`), file mode (default: `0o666`), and file system flags (default: `"w"`).
- * The possible option values are:
+ * @param options Options object for setting file encoding (default: `"utf8"`), file mode (default: `0o666`), and file system flags 
+ * (default: `"w"`). The possible option values are:
  *
  * | encoding                 | description                                                                                                                                                   |
  * | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -218,10 +223,10 @@ export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false
  * | `"utf8"`/`"utf-8"`       | UTF-8 (also ISO-10646) can represent any character in the Unicode standard using 1 to 4 bytes (8-bit) code units. UTF-8 is backwards compatible with ASCII.   |
  * | `"binary"`/`"latin1"`    | Latin-1 (also ISO-8859-1) is an 8-bit character set representing Western European languages.                                                                  |
  *
- * Mode adheres to the Unix/Linux permissions model. This model contain Read, Write, and Execute permissions that are combined into an octal value
- * representing the combined permissions for each of the Owner, Group, and Other (world) attributes. For embedding purposes the permissions are
- * stored with a umask; e.g. `0o753` represents the permission octal `7` for Owner, `5` for Group, and `3` for Other (world).
- * The absolute octal permissions are:
+ * Mode adheres to the Unix/Linux permissions model. This model contain Read, Write, and Execute permissions that are combined into an 
+ * octal value representing the combined permissions for each of the Owner, Group, and Other (world) attributes. For embedding purposes 
+ * the permissions are stored with a umask; e.g. `0o753` represents the permission octal `7` for Owner, `5` for Group, and `3` for Other 
+ * (world). The absolute octal permissions are:
  *
  * | octal | description                    |
  * | ----- | ------------------------------ |
@@ -251,7 +256,9 @@ export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false
  * | `"wx+"` | Like `"w+"` but fails if the path exists.                                                                                    |
  * @return A Promise object for the file write operation; where errors cause a rejection.
  */
-export const writeFileAsync = (filepath: fs.PathLike, data: string | Buffer, options?: { encoding?: string; flag?: string; mode?: number }): Promise<void> => {
+export const writeFileAsync = (
+  filepath: fs.PathLike, data: string | Buffer, options?: { encoding?: string; flag?: string; mode?: number }
+): Promise<void> => {
   const fullPath = path.resolve(filepath.toString());
   if (options) return fs.writeFile(fullPath, data, options);
   else return fs.writeFile(fullPath, data);
@@ -271,7 +278,7 @@ export const validateFileName = (fileName: string, configExts: string[], exts: s
   const name = index !== -1 ? fileName.substr(0, index) : fileName; // grabs the file name w/o the extension and the '.' before it
 
   /*Regex below matches all occurences of invalid file name characters in the set: <, >, \, /, |, ?, *, 
-       and characters NULL to US (ASCII values 0 to 31)*/
+  and characters NULL to US (ASCII values 0 to 31)*/
   // eslint-disable-next-line no-control-regex
   const flag = !(/[<>:"\\/|?*\x00-\x1F]/g).test(name) && name.slice(-1) !== ' ' && name.slice(-1) !== '.';
 
@@ -281,38 +288,33 @@ export const validateFileName = (fileName: string, configExts: string[], exts: s
 }
 
 /**
- * Appends a new file type extension to a given file name. Handles file names both with and without
- * valid extensions, as well as file names with a trailing '.' from a partially deleted extension.
+ * Appends a new file type extension to a given file name. Handles file names both with and without valid extensions, as well as file 
+ * names with a trailing '.' from a partially deleted extension.
  * @param fileName A string holding the current file name, with or without the extension.
  * @param newFiletype A Filetype that contains the new extension to be added to the file name.
  * @return A string with the new extension correctly appended to the original file name.
  */
 export const replaceExt = (fileName: string, newFiletype: Filetype): string => {
-  // Get the current extension from within fileName
-  const currExt = fileName.indexOf('.') !== -1 ? extractExtension(fileName) : "";
-  // confExt holds the extension if the new filetype is a .config type, otherwise is undefined
-  const confExt = newFiletype.extensions.find(extension => extension.includes('.'));
+  const currentExtension = fileName.indexOf('.') !== -1 ? extractExtension(fileName) : ""; // get current file extension
+  const configExtension = newFiletype.extensions.find(extension => extension.includes('.')); // get config file extension, otherwise undefined
 
   let finalFileName = "";
 
-  if (confExt) { // If the new file type has a .config extension
-    if (!currExt && fileName.slice(-1) !== ".") { // If the current file name doesn't already have an extension or a '.' at the end
-      finalFileName = fileName + confExt;
-    } else if (!currExt && fileName.slice(-1) === ".") { // If the current file name doesn't already have an extension but has a '.' at the end
-      // Remove the '.'  
-      finalFileName = fileName.slice(0, -1) + confExt;
-    } else { // If the current file name already has an extension
-      // Remove the old extension before adding the new one
-      finalFileName = fileName.slice(0, -currExt.length - 1) + confExt;
+  if (configExtension) {
+    if (!currentExtension && fileName.slice(-1) !== ".") {
+      finalFileName = fileName + configExtension; // add config file extension to filename when no extension exists and last character is not a '.'
+    } else if (!currentExtension && fileName.slice(-1) === ".") {
+      finalFileName = fileName.slice(0, -1) + configExtension; // add config file extension when filename has a trailing '.' character
+    } else {
+      finalFileName = fileName.slice(0, -currentExtension.length - 1) + configExtension; // replace the old file extension with the config file extension
     }
-  } else { // If the current file type does not have a .config type extension
-    if (!currExt && fileName.slice(-1) !== ".") { // If the current file name doesn't already have an extension or a '.' at the end
-      finalFileName = fileName + '.' + newFiletype.extensions[0];
-    } else if (!currExt && fileName.slice(-1) === ".") { // If the current file name doesn't already have an extension but has a '.' at the end
-      finalFileName = fileName + newFiletype.extensions[0];
-    } else { // If the current file name already has an extension
-      // Remove the old extension before adding the new one
-      finalFileName = fileName.slice(0, -currExt.length) + newFiletype.extensions[0];
+  } else {
+    if (!currentExtension && fileName.slice(-1) !== ".") {
+      finalFileName = fileName + '.' + newFiletype.extensions[0]; // add new file extension when no current extension exists and last character is not a '.'
+    } else if (!currentExtension && fileName.slice(-1) === ".") {
+      finalFileName = fileName + newFiletype.extensions[0]; // add new file extension when filename has a trailing '.' character
+    } else {
+      finalFileName = fileName.slice(0, -currentExtension.length) + newFiletype.extensions[0]; // replace the old file extension with the new file extension
     }
   }
 

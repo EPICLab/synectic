@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as isogit from 'isomorphic-git';
+import * as http from 'isomorphic-git/http/node';
 import * as path from 'path';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
@@ -9,6 +10,31 @@ import getGitConfigPath from 'git-config-path';
 
 import * as io from './io';
 import { Repository, GitStatus } from '../types';
+import { shouldBeHiddenSync } from 'hidefile';
+
+export type BranchDiffResult = {
+  path: string,
+  type: 'equal' | 'modified' | 'added' | 'removed'
+}
+
+/**
+ * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function with additional local-only branch 
+ * functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the local-only 
+ * repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
+ * @param repo A Repository object to be cloned.
+ * @param dir The working tree directory path to contain the cloned repo.
+ * @param ref An optional branch name or SHA-1 hash to target cloning to that specific branch or commit.
+ */
+export const clone = async (repo: Repository, dir: fs.PathLike, ref?: string): Promise<void> => {
+  const targetBranch = ref ? ref : (await currentBranch({ dir: repo.root.toString(), fullname: false }));
+  if (targetBranch && !repo.remote.includes(targetBranch)) {
+    return fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) });
+  }
+  return isogit.clone({
+    fs: fs, http: http, dir: dir.toString(), url: repo.url.href,
+    onProgress: (progress: isogit.GitProgressEvent) => console.log(`cloning objects: ${progress.loaded}/${progress.total}`)
+  });
+}
 
 /**
  * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to inject the 
@@ -29,10 +55,115 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
 }): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
 
 /**
- * Determines the Git tracking status of a specific file.
+ * Show the commit delta (i.e. the commits not contained in the overlapping subset) between two branches. Although git refers
+ * to rev-lists of commits in a branch as trees, they are actually Directed Acyclic Graphs (DAG) where the directed paths can
+ * diverge and rejoin at several points. Therefore, we must determine the symmetric difference between the rev-list arrays
+ * from the branches. Operates comparably to the native git command: `git log <branch-1>...<branch-2>`
+ * @param dir The working tree directory path.
+ * @param branchA The base branch name.
+ * @param branchB The compare branch name.
+ * @return A Promise object containing a list of commits not found in both branches (i.e. the divergent set).
+ */
+export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: string): Promise<isogit.ReadCommitResult[]> => {
+  const logA = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` });
+  const logB = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` });
+  return logA
+    .filter(commitA => !logB.some(commitB => commitA.oid === commitB.oid))
+    .concat(logB.filter(commitB => !logA.some(commitA => commitB.oid === commitA.oid)));
+}
+
+/**
+ * Show the names and status of changed files between two branches. Walks the trees of both branches and compares file OIDs between
+ * branches to determine status. Operates comparably to the native git command: `git diff --name-status <tree-1>...<tree-2>`.
+ * @param dir The working tree directory path. 
+ * @param branchA The base branch.
+ * @param branchB The compare branch.
+ * @param filter An optional filter function for returning only specific file results (i.e. only modified files or only newly added files).
+ * @return A Promise object containing a list of file paths and a status indicator, where the possible status values for each file are:
+ *
+ * | status                | description                                                                           |
+ * | --------------------- | ------------------------------------------------------------------------------------- |
+ * | `"equal"`             | file is unchanged between both branches                                               |
+ * | `"modified"`          | file has modifications, but exists in both branches                                   |
+ * | `"added"`             | file does not exist in branch A, but was added in branch B                            |
+ * | `"removed"`           | file exists in branch A, but was removed in branch B                                  |
+ */
+export const branchDiff = async (
+  dir: fs.PathLike, branchA: string, branchB: string, filter?: (result: BranchDiffResult) => boolean
+): Promise<BranchDiffResult[]> => {
+  const hashA = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}`, depth: 1 }))[0].oid;
+  const hashB = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}`, depth: 1 }))[0].oid;
+  const dirpath = dir.toString();
+  const files = await isogit.walk({
+    fs: fs,
+    dir: dirpath,
+    trees: [isogit.TREE({ ref: hashA }), isogit.TREE({ ref: hashB })],
+    map: async (filepath: string, entries: Array<isogit.WalkerEntry> | null) => {
+      if (!entries || entries.length < 2) return;
+      const [A, B] = entries.slice(0, 2);
+
+      if (filepath === '.') return;                                           // ignore directories
+      if ((await A.type()) === 'tree' || (await B.type()) === 'tree') return; // ignore directories, known as trees in git lingo
+      const Aoid = await A.oid();
+      const Boid = await B.oid();
+
+      const result: BranchDiffResult = {
+        path: `/${filepath}`,
+        type: 'equal'
+      }
+      if (Aoid !== Boid) result.type = 'modified';
+      if (Aoid === undefined) result.type = 'added';
+      if (Boid === undefined) result.type = 'removed';
+      if (Aoid === undefined && Boid === undefined) {
+        console.log('Something weird happened:');
+        console.log(A);
+        console.log(B);
+      }
+
+      return (!filter) || (filter && filter(result)) ? result : null;
+    },
+  });
+  return files;
+}
+
+/**
+ * Merge two branches; this function is a wrapper to inject the fs parameter in to the *isomorphic-git/merge* function. The
+ * `dryRun` option additionally checks for `user.name` and `user.emal` from git-config, and injects a `missingConfig` return
+ * object that indicates whether either git-config field is missing from the local configuration level 
+ * (see https://www.atlassian.com/git/tutorials/setting-up-a-repository/git-config).
+ * @param dir The working tree directory path.
+ * @param base The base branch to merge delta commits into.
+ * @param compare The compare branch to examine for delta commits.
+ * @param dryRun Optional parameter for simulating a merge in order to preemptively test for a successful merge. 
+ * @return A Promise object containing the merge results (per https://isomorphic-git.org/docs/en/merge) and any missing git-config
+ * fields (only if fields are missing, undefined otherwise).
+ */
+export const merge = async (
+  dir: fs.PathLike, base: string, compare: string, dryRun = false
+): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
+  const name = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
+  const email = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
+  const missing: string[] = [name, email].filter(config => config.value.length <= 0).map(config => config.path);
+  const mergeResult = await isogit.merge({
+    fs: fs,
+    dir: dir.toString(),
+    ours: base,
+    theirs: compare,
+    dryRun: dryRun,
+    author: {
+      name: name.value ? name.value : 'Mr. Test',
+      email: email.value ? email.value : 'mrtest@example.com',
+    }
+  });
+  const final = { missingConfigs: missing.length > 0 ? missing : undefined, ...mergeResult };
+  return final;
+}
+
+/**
+ * Determines the Git tracking status of a specific file or directory path.
  * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing a status indicator for whether a file has been changed; the possible 
- * resolve values are:
+ * @return A Promise object containing undefined if the path is not contained within a Git repository, or a status indicator 
+ * for whether the path has been changed according to Git; the possible resolve values are:
  *
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |
@@ -50,11 +181,19 @@ export const currentBranch = ({ dir, gitdir, fullname, test }: {
  * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
  * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
  */
-export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus> => {
-  // isomorphic-git.status() does not handle directories, per: https://github.com/isomorphic-git/isomorphic-git/issues/13
-  // TODO: we currently returned a status of `unmodified` for directories, but need to implement a isomorphic-git.statusMatrix() path for directories
-  if (io.isDirectory(filepath)) return 'unmodified';
+export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   const repoRoot = await getRepoRoot(filepath);
+  if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+  // isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
+  // (per: https://github.com/isomorphic-git/isomorphic-git/issues/13)
+  const isDirectory = await io.isDirectory(filepath);
+  if (isDirectory) {
+    const statuses = await isogit.statusMatrix({ fs: fs, dir: repoRoot ? repoRoot : '/', filter: f => !shouldBeHiddenSync(f) });
+    const changed = statuses
+      .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
+      .map(row => row[0]);                // return the filenames only
+    return (changed.length > 0) ? 'modified' : 'unmodified';
+  }
   return isogit.status({ fs: fs, dir: repoRoot ? repoRoot : '/', filepath: path.relative(repoRoot ? repoRoot : '/', filepath.toString()) });
 }
 
@@ -63,7 +202,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus> => {
  * contains a *.git* subdirectory.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Promise object containing the root Git directory path, or undefined if no root Git
- * directory exists for the filepath (i.e. the filepath is not part of a Git repo).
+ * directory exists for the filepath (i.e. the filepath is not part of a Git repository).
  */
 export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
   try {

@@ -1,18 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { UUID } from '../types';
 
 import TreeItem from '@material-ui/lab/TreeItem';
-import useBranchStatus from '../store/hooks/useGitStatus';
+import { useBranchStatus } from '../store/hooks/useBranchStatus';
 
 const BranchComponent: React.FunctionComponent<{ repo: UUID, branch: string }> = props => {
-  const [{ cards, modified, status }, { fetch }] = useBranchStatus(props.repo, props.branch);
-
-  useEffect(() => {
-    if (Object.keys(status).length > 0) console.log(`${props.branch} => status: ${JSON.stringify(status)}`);
-  }, [props.branch, status]);
+  const { cards, modified, status } = useBranchStatus(props.repo, props.branch);
 
   return (
-    <TreeItem nodeId={`${props.repo}-${props.branch}`} label={`${props.branch} [${modified}/${cards.length}]`} onClick={fetch} />
+    <TreeItem nodeId={`${props.repo}-${props.branch}`} label={`${props.branch} [${modified.length}/${cards.length}]`} onClick={() => cards.map(async c => await status(c))} />
   );
 };
 

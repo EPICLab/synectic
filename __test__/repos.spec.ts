@@ -82,7 +82,7 @@ describe('repos.checkoutBranch', () => {
       id: v4(),
       created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
       repos: ['23'],
-      cards: [],
+      cards: ['36'],
       stacks: []
     },
     stacks: {},
@@ -187,7 +187,7 @@ describe('repos.getRepository', () => {
       id: v4(),
       created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
       repos: ['23'],
-      cards: [],
+      cards: ['36'],
       stacks: []
     },
     stacks: {},

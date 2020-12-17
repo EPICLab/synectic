@@ -2,14 +2,16 @@ import * as fs from 'fs-extra';
 import * as isogit from 'isomorphic-git';
 import { PathLike } from 'fs-extra';
 import { ThunkAction } from 'redux-thunk';
-import { Repository, Card, Metafile, Error, UUID } from '../types';
-import { RootState } from '../store/root';
 import { AnyAction } from 'redux';
-import { getRepoRoot, isValidRepository, extractRepoName, extractFromURL } from './git';
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
+
+import { Repository, Card, Metafile, Error, UUID } from '../types';
+import { RootState } from '../store/root';
 import { ActionKeys, NarrowActionType, Action } from '../store/actions';
 import { getMetafile } from './metafiles';
+import { extractFilename } from './io';
+import { getRepoRoot, isValidRepository, extractRepoName, extractFromURL } from './git';
 
 type AddRepoAction = NarrowActionType<ActionKeys.ADD_REPO>;
 type UpdateRepoAction = NarrowActionType<ActionKeys.UPDATE_REPO>;
@@ -25,7 +27,7 @@ const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof e
   AddRepoAction | AddErrorAction => {
   const repo: Repository = {
     id: v4(),
-    name: url ? extractRepoName(url.href) : '',
+    name: url ? extractRepoName(url.href) : extractFilename(root),
     root: root,
     corsProxy: new URL('https://cors-anywhere.herokuapp.com'), // TODO: This is just a stubbed URL for now, but eventually we need to support Cross-Origin Resource Sharing (CORS) since isomorphic-git requires it
     url: url ? url : parsePath(''),
@@ -36,7 +38,7 @@ const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof e
     password: password ? password : '',
     token: ''
   };
-  if (!isValidRepository(repo)) return reposError(repo.id, `Malformed repository '${repo.name}' cannot be added to the Redux store`);
+  if (url && !isValidRepository(repo)) return reposError(repo.id, `Malformed repository '${repo.name}' cannot be added to the Redux store`);
   return {
     type: ActionKeys.ADD_REPO,
     id: repo.id,
@@ -127,7 +129,8 @@ export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction |
 * @param progress Boolean switch to print phase progress information from `isomorphic-git.checkout()` to console.
 * @return An Thunk that can be executed to get a Metafile associated with a new Git branch and updates the card.
 */
-export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, progress?: boolean): ThunkAction<Promise<Metafile | undefined>, RootState, undefined, AnyAction> =>
+export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, progress?: boolean)
+  : ThunkAction<Promise<Metafile | undefined>, RootState, undefined, AnyAction> =>
   async (dispatch, getState) => {
     const card = getState().cards[cardId];
     const metafile = getState().metafiles[metafileId];
@@ -179,7 +182,9 @@ export const getRepository = (filepath: PathLike): ThunkAction<Promise<Repositor
       await isogit.getConfigAll({ fs: fs, dir: root.toString(), path: 'remote.origin.url' }) : undefined;
     const { url, oauth } = (remoteOriginUrls && remoteOriginUrls?.length > 0) ?
       extractFromURL(remoteOriginUrls[0]) : { url: undefined, oauth: undefined };
-    const existing = url ? Object.values(getState().repos).find(r => r.name === extractRepoName(url.href) && r.url.href === url.href) : undefined;
+    const existing = url ?
+      Object.values(getState().repos).find(r => r.name === extractRepoName(url.href) && r.url.href === url.href)
+      : undefined;
     if (existing) {
       // the associated repository is already available in the Redux store
       await dispatch(updateBranches(existing.id));
