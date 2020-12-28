@@ -82,7 +82,7 @@
     "@testing-library/react-hooks": "^3.4.2",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
-    "@types/jest": "26.0.15",
+    "@types/jest": "26.0.19",
     "@types/mock-fs": "^4.13.0",
     "@types/redux-mock-store": "^1.0.2",
     "@types/rimraf": "^3.0.0",
