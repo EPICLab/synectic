@@ -7,7 +7,7 @@ import { RootState } from '../store/root';
 import { Action } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
-import { flatten } from '../containers/flatten';
+import { flattenArray } from '../containers/flatten';
 import { getMetafile } from '../containers/metafiles';
 
 type NewCardDialogProps = {
@@ -18,9 +18,9 @@ type NewCardDialogProps = {
 export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
-  const exts: string[] = flatten(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
+  const exts: string[] = flattenArray(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
   // configExts is a list of all .config extensions found within exts:
-  const configExts: string[] = flatten((filetypes.map(filetype => filetype.extensions.filter(ext => ext.charAt(0) === '.'))).filter(arr => arr.length > 0));
+  const configExts: string[] = flattenArray((filetypes.map(filetype => filetype.extensions.filter(ext => ext.charAt(0) === '.'))).filter(arr => arr.length > 0));
 
   const [fileName, setFileName] = React.useState('');
   const [filetype, setFiletype] = React.useState('');

@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import pako from 'pako';
 import { TextDecoder } from 'util';
-import { flatten } from './flatten';
+import { flattenArray } from './flatten';
 import { Filetype } from '../types';
 
 /**
@@ -186,7 +186,7 @@ export const readDirAsyncDepth = async (filepath: fs.PathLike, depth = Infinity)
     const fullPath = path.join(filepath.toString(), f);
     return depth > 1 && (await isDirectory(fullPath)) ? await readDirAsyncDepth(fullPath, depth - 1) : fullPath;
   }));
-  return [...flatten(files), filepath.toString()];
+  return [...flattenArray(files), filepath.toString()];
 }
 
 /**
