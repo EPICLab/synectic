@@ -30,7 +30,7 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@testing-library/user-event": "^12.2.2",
     "@types/diff": "^4.0.2",
-    "@types/fs-extra": "^9.0.5",
+    "@types/fs-extra": "^9.0.6",
     "@types/git-config-path": "^2.0.0",
     "@types/hidefile": "^3.0.0",
     "@types/luxon": "^1.25.0",
