@@ -1,6 +1,9 @@
 import mock from 'mock-fs';
+import * as path from 'path';
+import { homedir } from 'os';
 
 import * as git from '../src/containers/git';
+
 // import * as path from 'path';
 
 // const mockGitPath = path.resolve(__dirname, '__mocks__', 'gitProjMock');
@@ -198,7 +201,7 @@ describe('git.setConfig', () => {
 
   beforeEach(() => {
     mock({
-      '../../.gitconfig': mock.file({
+      [path.join(homedir(), '.gitconfig')]: mock.file({
         content: `[user]
   name = Sandy Updates
   email = supdate@oregonstate.edu
