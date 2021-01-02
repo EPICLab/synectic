@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`flatten.flattenObject flattenObject resolves nested JavaScript objects 1`] = `
+exports[`flatten.flattenObject flattenObject resolves nested heterogenous JavaScript objects 1`] = `
 Object {
   "a": "string",
   "c": 13,
