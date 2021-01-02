@@ -156,7 +156,7 @@ describe('git.getConfig', () => {
 
   beforeAll(() => {
     mock({
-      '../../.gitconfig': mock.file({
+      [path.join(homedir(), '.gitconfig')]: mock.file({
         content: `[user]
   name = Sandy Updates
   email = supdate@oregonstate.edu
@@ -181,6 +181,7 @@ describe('git.getConfig', () => {
   afterAll(mock.restore);
 
   it('getConfig resolves global git-config value', async () => {
+
     return expect(git.getConfig('user.name', true)).resolves.toStrictEqual({ scope: 'global', value: 'Sandy Updates' });
   });
 
