@@ -1,3 +1,5 @@
+import { flattenObject } from './flatten';
+
 /**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.
  * @param json A valid JSON string.
@@ -43,6 +45,31 @@ export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<bool
   return arr.filter((_v, index) => results[index]);
 };
 
+/**
+ * Generic for filtering an object given a set of filtering keys for inclusion in the resulting object.
+ * @param obj An object containing key-value indexed fields.
+ * @param filter An array of key strings that indicate which key-value pairs should included.
+ * @return The resulting object devoid of key-value fields that did not match the key filter.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const filterObject = <T extends { [key: string]: any }>(obj: T, filter: string[]): T[] => {
+  const flattenedObj = flattenObject(obj);
+  return Object.entries(flattenedObj).filter(([key, _]) => filter.includes(key)).map(([_, value]) => value);
+}
+
+/**
+ * Expand an array of path elements (i.e. a dot-format path such as `user.name`) into a successive series of named
+ * objects that contain any subsequent path elements and/or the updated value.
+ * @param path An array of path elements ordered in sequence (i.e. `user.name.lastName` would be `[user, name, lastName]`).
+ * @param value The value to insert or update at the specific path in the return object.
+ * @return An object containing a key-value structure of embedded container objects according to the given path.
+ */
+export const objectifyPath = (path: Array<string | number>, value: string | boolean | number | undefined):
+  Record<string | number, unknown> => {
+  return path
+    .slice(0, -1)
+    .reduceRight((prev: Record<string | number, unknown>, curr) => { return { [curr]: prev } }, { [path[path.length - 1]]: value });
+};
 
 /**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 

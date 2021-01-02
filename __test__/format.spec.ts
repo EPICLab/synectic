@@ -55,13 +55,13 @@ describe('format.removeDuplicates', () => {
 });
 
 describe('format.asyncFilter', () => {
-  it('asyncFilter evaluates and returns array of Primitive types', async () => {
+  it('asyncFilter evaluates and returns array of async Primitive types', async () => {
     const arr = [3, 4, 1, 0, 2, 3];
     const predicate = async (e: number) => (e % 2 == 0);
     return expect(format.asyncFilter(arr, predicate)).resolves.toStrictEqual([4, 0, 2]);
   });
 
-  it('asyncFilter evaluates and returns array of  types', async () => {
+  it('asyncFilter evaluates and returns array of await Primitive types', async () => {
     const arr = [3, 4, 1, 0, 2, 3];
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const predicate = async (e: number) => {
@@ -69,6 +69,26 @@ describe('format.asyncFilter', () => {
       return e % 2 === 0;
     };
     return expect(format.asyncFilter(arr, predicate)).resolves.toStrictEqual([4, 0, 2]);
+  });
+});
+
+describe('format.filterObject', () => {
+  it('filterObject recursively filters objects and returns homogenously-typed values', () => {
+    const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
+    return expect(format.filterObject(obj, ['c', 'e'])).toStrictEqual(['rose', 'tulip']);
+  });
+
+  it('filterObject recursively filters objects and returns heterogenously-typed values', () => {
+    const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
+    return expect(format.filterObject(obj, ['e', 'a'])).toStrictEqual([13, 'tulip']);
+  });
+});
+
+describe('format.objectifyPath', () => {
+
+  it('objectifyPath converts array of path elements into object with value', () => {
+    const expected = { user: { name: 3 } };
+    expect(format.objectifyPath(['user', 'name'], 3)).toStrictEqual(expected);
   });
 });
 
