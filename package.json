@@ -90,7 +90,7 @@
     "@types/valid-url": "^1.0.3",
     "@types/validator": "^13.1.2",
     "@typescript-eslint/eslint-plugin": "^4.11.1",
-    "@typescript-eslint/parser": "^4.7.0",
+    "@typescript-eslint/parser": "^4.11.1",
     "@zeit/webpack-asset-relocator-loader": "^0.8.0",
     "copy-webpack-plugin": "^7.0.0",
     "css-loader": "^5.0.1",
