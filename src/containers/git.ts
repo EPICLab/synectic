@@ -296,7 +296,7 @@ export const isValidRepository = (repo: Repository): boolean => (
  */
 export const getConfig = async (keyPath: string, global = false): Promise<GitConfig> => {
   const getConfigValue = async (key: string, scope: 'local' | 'global') => {
-    const configPath: string | null = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
+    const configPath = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
     if (!configPath) return null;                                                 // no git-config file exists for the requested scope
     if (scope == 'local' && !configPath.endsWith('.git/config')) return null;     // local scope requested, but only global scope found
     const configFile = ini.parse(await io.readFileAsync(configPath, { encoding: 'utf-8' }));
@@ -314,7 +314,7 @@ export const getConfig = async (keyPath: string, global = false): Promise<GitCon
 
 export const setConfig = async (scope: 'local' | 'global', keyPath: string, value: string | boolean | number | undefined)
   : Promise<string | null> => {
-  const configPath: string | null = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
+  const configPath = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
   if (!configPath) return null;                                                 // no git-config file exists for the requested scope
   if (scope == 'local' && !configPath.endsWith('.git/config')) return null;     // local scope requested, but only global scope found
 
