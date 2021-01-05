@@ -285,10 +285,10 @@ export const isValidRepository = (repo: Repository): boolean => (
 );
 
 /**
- * Read an entry from the git-config files; this function is a wrapper to inject the fs parameter in to the *isomorphic-git/getConfig* 
- * function and extends functionally to resolve global git-config files. The return object indicates the scope (`local` or `global`) in
- * which the value was located, and the git-config value. If the optional `global` parameter is not enabled, then `getConfig` will first
- * check the `local` scope and (if no value is found) then check the `global` scope.
+ * Read an entry from the git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality
+ * to resolve global git-config files. The return object indicates the scope (`local` or `global`) in which the value was located, and the 
+ * git-config value. If the optional `global` parameter is not enabled, then `getConfig` will first check the `local` scope and (if no 
+ * value is found) then check the `global` scope.
  * @param keyPath The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
  * @param global Optional parameter for restricting the search to only the global git-config file (i.e. the `global` scope).
  * @return A Promise object containing the value and a scope indicating whether the entry was found in the `local` or `global` git-config
@@ -312,6 +312,16 @@ export const getConfig = async (keyPath: string, global = false): Promise<GitCon
   return { scope: 'none' };
 };
 
+/**
+ * Update an entry in the git-config files; modeled after the *isomorphic-git/setConfig* function, but includes additional functionality
+ * to resolve global git-config files. The scope is strictly respected (i.e. if the entry exists only in `global` scope but `local` scope 
+ * is specified, then a new entry will be added to the git-config file in `local` scope). Entries can be removed by setting value to
+ * `undefined`; attempting to remove a non-existing entry will result in a null operation.
+ * @param scope The scope indicating whether the entry update should occur in the `local` or `global` git-config file. 
+ * @param keyPath The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
+ * @param value The value to be added, updated, or removed (by setting `undefined`) from the git-config file.
+ * @return A Promise object containing a string in ini-format with the contents of the updated git-config file.
+ */
 export const setConfig = async (scope: 'local' | 'global', keyPath: string, value: string | boolean | number | undefined)
   : Promise<string | null> => {
   const configPath = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
