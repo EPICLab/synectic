@@ -4,8 +4,6 @@ import { homedir } from 'os';
 
 import * as git from '../src/containers/git';
 
-// import * as path from 'path';
-
 // const mockGitPath = path.resolve(__dirname, '__mocks__', 'gitProjMock');
 // const mockGitProj = {
 //   empty: {},
