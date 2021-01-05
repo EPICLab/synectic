@@ -36,7 +36,7 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
     installResults.child.stderr?.on('data', data => console.log(`INSTALL error: ` + data));
     installResults.child.on('close', code => {
       console.log(`INSTALL 'close' listener found code: ${code}`);
-      (installCode = code);
+      (code ? (installCode = code) : null);
     });
     installResults.child.on('exit', code => {
       console.log(`INSTALL 'exit' listener found code: ${code}`);
@@ -60,7 +60,7 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
       buildResults.child.stderr?.on('data', data => console.log(`BUILD error: ` + data));
       buildResults.child.on('close', code => {
         console.log(`BUILD 'close' listener found code: ${code}`);
-        (buildCode = code);
+        (code ? (buildCode = code) : null);
       });
       buildResults.child.on('exit', code => {
         console.log(`BUILD 'exit' listener found code: ${code}`);

@@ -1,7 +1,8 @@
-// import mock from 'mock-fs';
+import mock from 'mock-fs';
+import * as path from 'path';
+import { homedir } from 'os';
 
 import * as git from '../src/containers/git';
-// import * as path from 'path';
 
 // const mockGitPath = path.resolve(__dirname, '__mocks__', 'gitProjMock');
 // const mockGitProj = {
@@ -146,5 +147,93 @@ describe('git.extractRepoName', () => {
 
   it('extractRepoName resolves git+https://*.git#tag', () => {
     expect(git.extractRepoName('git+https://github.com/octo-org/octo-repo.git#2.7.0')).toBe('octo-org/octo-repo');
+  });
+});
+
+describe('git.getConfig', () => {
+
+  beforeAll(() => {
+    mock({
+      [path.join(homedir(), '.gitconfig')]: mock.file({
+        content: `[user]
+  name = Sandy Updates
+  email = supdate@oregonstate.edu
+[core]
+  editor = vim
+  whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol`,
+      }),
+      '.git/config': mock.file({
+        content: `[user]
+  name = Bobby Tables
+  email = bdrop@oregonstate.edu
+[credential]
+  helper = osxkeychain
+[pull]
+  rebase = true
+[alias]
+  last = log -1 HEAD`,
+      }),
+    }, { createCwd: false });
+  });
+
+  afterAll(mock.restore);
+
+  it('getConfig resolves global git-config value', async () => {
+
+    return expect(git.getConfig('user.name', true)).resolves.toStrictEqual({ scope: 'global', value: 'Sandy Updates' });
+  });
+
+  it('getConfig resolves local git-config value', async () => {
+    return expect(git.getConfig('user.name')).resolves.toStrictEqual({ scope: 'local', value: 'Bobby Tables' });
+  });
+
+  it('getConfig checks both scopes for git-config value', async () => {
+    return expect(git.getConfig('core.editor')).resolves.toStrictEqual({ scope: 'global', value: 'vim' });
+  });
+
+  it('getConfig resolves none when no git-config value is found', async () => {
+    return expect(git.getConfig('commenter.name')).resolves.toStrictEqual({ scope: 'none' });
+  });
+});
+
+describe('git.setConfig', () => {
+
+  beforeEach(() => {
+    mock({
+      [path.join(homedir(), '.gitconfig')]: mock.file({
+        content: `[user]
+  name = Sandy Updates
+  email = supdate@oregonstate.edu
+[core]
+  editor = vim`,
+      }),
+      '.git/config': mock.file({
+        content: `[user]
+  name = Bobby Tables
+  email = bdrop@oregonstate.edu
+[credential]
+  helper = osxkeychain`,
+      }),
+    }, { createCwd: false });
+  });
+
+  afterAll(mock.restore);
+
+  it('setConfig adds value to global git-config', async () => {
+    const updated = await git.setConfig('global', 'user.username', 'supdate');
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(updated).toMatchSnapshot();
+  });
+
+  it('setConfig updates values to local git-config', async () => {
+    const updated = await git.setConfig('local', 'user.name', 'John Smith');
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(updated).toMatchSnapshot();
+  });
+
+  it('setConfig deletes values from local git-config', async () => {
+    const updated = await git.setConfig('local', 'user.name', undefined);
+    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    expect(updated).toMatchSnapshot();
   });
 });
