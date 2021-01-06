@@ -5,7 +5,8 @@ import parsePath from 'parse-path';
 export type UUID = string;
 
 export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
-export type GitStatus = "modified" | "ignored" | "unmodified" | "*modified" | "*deleted" | "*added" | "absent" | "deleted" | "added" | "*unmodified" | "*absent" | "*undeleted" | "*undeletemodified";
+export type GitStatus = "modified" | "ignored" | "unmodified" | "*modified" | "*deleted" | "*added"
+  | "absent" | "deleted" | "added" | "*unmodified" | "*absent" | "*undeleted" | "*undeletemodified";
 
 export type Card = {
   readonly id: UUID;

@@ -62,6 +62,22 @@ export const gitLog = async (dir: fs.PathLike, branch: string, depth: number): P
 }
 
 /**
+ * Get commit descriptions from the git history; this function is a wrapper to inject the fs parameter in to the 
+ * *isomorphic-git/log* function.
+ * @param dir The working tree directory path.
+ * @param ref The commit to begin walking backwards through the history from.
+ * @param depth Limit the number of commits returned. No limit by default.
+ * @param since Return history newer than the given date. Can be combined with `depth` to get whichever is shorter.
+ * @return A Promise object containing an array of `ReadCommitResult` objects (per https://isomorphic-git.org/docs/en/log).
+ */
+export const log = ({ dir, ref = 'HEAD', depth, since }: {
+  dir: fs.PathLike;
+  ref?: string;
+  depth?: number;
+  since?: Date;
+}): Promise<isogit.ReadCommitResult[]> => isogit.log({ fs: fs, dir: dir.toString(), ref: ref, depth: depth, since: since });
+
+/**
  * Show the commit delta (i.e. the commits not contained in the overlapping subset) between two branches. Although git refers
  * to rev-lists of commits in a branch as trees, they are actually Directed Acyclic Graphs (DAG) where the directed paths can
  * diverge and rejoin at several points. Therefore, we must determine the symmetric difference between the rev-list arrays
