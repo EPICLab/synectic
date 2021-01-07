@@ -385,3 +385,43 @@ div.version-tracker {
  width: 100%;
  padding-left: 10px;
 }
+
+.git-info-dialog-container {
+  width: 420px;
+  height: 270px;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
+  column-gap: 5px;
+  row-gap: 5px;
+  place-items: center;
+  grid-template-areas: 
+  "header header"
+  "upper-left upper-right"
+  "middle middle"
+  "lower-left lower-right"
+  "footer footer"
+  "lowest-left lowest-right"
+  "subfooter subfooter"
+}
+
+#git-info-dialog-title {
+  margin-top: -10px;
+}
+
+#submit-git-info-button {
+  margin-bottom: 10px;
+}
+
+#state-label {
+  margin-left: 10px;
+}
+
+#enter-name-label {
+  margin-right: 15px;
+}
+
+#enter-email-label {
+  margin-right: 45px;
+  margin-top: 5px;
+}

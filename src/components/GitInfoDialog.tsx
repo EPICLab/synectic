@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogTitle, InputLabel, TextField, Checkbox, FormControlLabel } from '@material-ui/core';
 
-//import { setConfig, getRepoRoot } from '../containers/git';
-
-const validateEmail = (email: string): boolean => {
-    const regExp = /\S+@\S+\.\S+/;
-    return regExp.test(email);
-};
+import { setConfig } from '../containers/git';
 
 type GitInfoDialogProps = {
     open: boolean;
@@ -30,43 +25,53 @@ export const GitInfoDialog: React.FunctionComponent<GitInfoDialogProps> = props 
     };
 
     const handleClick = () => {
-        console.log(`\nYour new name is: ${name}\n`);
-        console.log(`\nYour new email is: ${email}`);
-        console.log(`\nYour new information will be written to: ${checked ? "Global .gitconfig" : "Local .gitconfig"}\n`);
-
-        // if (checked) {
-        //     setConfig("user.name", name, "", "global");
-        //     setConfig("user.email", email, "", "global");
-        // } else {
-        //     //TODO: how to get the local directory?
-        //     // get the repo root with getreporoot, pass that to the setconfig call
-        //     const repoRoot = getRepoRoot(); // ?
-        //     setConfig("user.name", name, "local directory here", "local");
-        //     setConfig("user.email", email, "local directory here", "local");
-        // }
+        const scope = checked ? "global" : "local";
+        setConfig(scope, "user.name", name);
+        setConfig(scope, "user.email", email);
 
         handleClose();
     };
 
+    const validateEmail = (email: string): boolean => {
+        const regExp = /\S+@\S+\.\S+/;
+        return regExp.test(email);
+    };
+
     return (
         <Dialog id="git-info-dialog" open={props.open} onClose={handleClose} aria-labelledby="git-info-dialog" >
-            <DialogTitle id='git-info-dialog-title'>Update .gitconfig file information</DialogTitle>
-            <InputLabel id="enter-name-label">Enter Username:</InputLabel>
-            <TextField id="git-info-dialog-name" value={name} error={!name} onChange={handleNameChange} />
-            <InputLabel id="enter-email-label">Enter Email:</InputLabel>
-            <TextField id="git-info-dialog-email" value={email} error={!validateEmail(email)} onChange={handleEmailChange} />
-            <FormControlLabel
-                value="write-to-global-gitconfig"
-                control={<Checkbox checked={checked} color="primary" onChange={handleCheck} />}
-                label="Overwrite global instead of local .gitconfig file?"
-                labelPlacement="top"
-            />
-            <Button
-                id='submit-git-info-button'
-                variant='contained'
-                color={name && validateEmail(email) ? 'primary' : 'default'}
-                onClick={name && validateEmail(email) ? handleClick : () => alert("Please enter a valid name and email.")}>Submit
-            </Button>
+            <div className="git-info-dialog-container">
+                <DialogTitle id='git-info-dialog-title' style={{ gridArea: 'header' }}>Update .gitconfig file information</DialogTitle>
+                <InputLabel id="enter-name-label" style={{ gridArea: 'upper-left' }}>Enter username:</InputLabel>
+                <TextField id="git-info-dialog-name"
+                    value={name}
+                    error={!name}
+                    onChange={handleNameChange}
+                    style={{ gridArea: 'middle' }}
+                />
+                <InputLabel id="enter-email-label" style={{ gridArea: 'lower-left' }}>Enter email:</InputLabel>
+                <TextField
+                    id="git-info-dialog-email"
+                    value={email} error={!validateEmail(email)}
+                    onChange={handleEmailChange}
+                    style={{ gridArea: 'footer' }}
+                />
+                <InputLabel id="state-label" style={{ gridArea: 'lowest-left' }}>
+                    Overwrite global instead of local .gitconfig file?
+                </InputLabel>
+                <FormControlLabel
+                    value="write-to-global-gitconfig"
+                    control={<Checkbox checked={checked} color="primary" onChange={handleCheck} />}
+                    label=""
+                    style={{ gridArea: 'lowest-right' }}
+                />
+                <Button
+                    id='submit-git-info-button'
+                    variant='contained'
+                    color={name && validateEmail(email) ? 'primary' : 'default'}
+                    onClick={name && validateEmail(email) ? handleClick : () => alert("Please enter a valid name and email.")}
+                    style={{ gridArea: 'subfooter' }}>Submit
+                </Button>
+            </div>
         </Dialog >
     );
 };
