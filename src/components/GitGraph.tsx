@@ -5,6 +5,7 @@ import { Repository } from '../types';
 import { nodeTypes } from './GitNode';
 import { useGitHistory } from '../store/hooks/useGitHistory';
 import { ReadCommitResult } from 'isomorphic-git';
+import { layoutOptimizer } from '../containers/layout';
 
 export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => {
   const [elements, setElements] = useState<Array<FlowElement>>([]);
@@ -22,12 +23,12 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
   }, [commits, heads, props.repo.name]);
 
   useEffect(() => {
-    const newElements = [...commits.values()].reduce((prev: Array<FlowElement>, curr: ReadCommitResult, index): Array<FlowElement> => {
+    const newElements = [...commits.values()].reduce((prev: Array<FlowElement>, curr: ReadCommitResult): Array<FlowElement> => {
       const node: Node = {
         id: curr.oid,
         type: 'gitNode',
         data: { text: '', tooltip: `${curr.oid.slice(0, 7)}\n${curr.commit.message}` },
-        position: { x: 380, y: (15 + (index * 105)) } // TODO: Layout is currently not spreading multiple child nodes into left, right, and center x-coordinate positions
+        position: { x: 0, y: 0 }
       };
       const edges: Edge[] = curr.commit.parent.map(parent => {
         return {
@@ -39,7 +40,8 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
       });
       return [node, ...prev, ...edges];
     }, []);
-    setElements([...elements, ...newElements]);
+    const optimizedNewElements = layoutOptimizer(newElements);
+    setElements(optimizedNewElements);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commits, heads]);
 
