@@ -7,7 +7,6 @@ import { Button } from '@material-ui/core';
 import { RootState } from '../store/root';
 import { Canvas } from '../types';
 import { ActionKeys } from '../store/actions';
-
 import NewCardButton from './NewCardDialog';
 import FilePickerButton from './FilePickerDialog';
 import { BrowserButton } from './Browser';
@@ -19,6 +18,7 @@ import ErrorDialog from './ErrorDialog';
 import VersionStatusButton from './RepoBranchList';
 import MergeButton from './MergeDialog';
 import GitInfoButton from './GitInfoDialog';
+import { GitGraphButton } from './GitGraphButton';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -57,7 +57,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
           break;
         }
         default: {
-          console.log(`useDrop Error: default option, no item.type found`);
+          console.log('useDrop Error: default option, no item.type found');
           break;
         }
       }
@@ -75,9 +75,11 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     console.log(`CARDS: ${allCards.length}`)
     allCards.map(c => console.log(`name: ${c.name}, type: ${c.type}, metafile: ${c.metafile}`));
     console.log(`METAFILES: ${metafiles.length}`);
-    metafiles.map(m => console.log(`id: ${m.id}, name: ${m.name}, path: ${m.path}, branch: ${m.branch}, contains: ${m.contains ? JSON.stringify(m.contains) : ''}, content: ${m.content ? m.content : ''}, targets: ${m.targets ? JSON.stringify(m.targets) : ''}`));
+    metafiles.map(m => console.log(`id: ${m.id}, name: ${m.name}, path: ${m.path}, branch: ${m.branch}, contains: ${m.contains
+      ? JSON.stringify(m.contains) : ''}, content: ${m.content ? m.content : ''}, targets: ${m.targets ? JSON.stringify(m.targets) : ''}`));
     console.log(`REPOS: ${repos.length}`);
-    repos.map(r => console.log(`name: ${r.name}, path: ${r.url.href}, local refs: ${JSON.stringify(r.local)}, remote refs: ${JSON.stringify(r.remote)}`));
+    repos.map(r =>
+      console.log(`name: ${r.name}, path: ${r.url.href}, local: ${JSON.stringify(r.local)}, remote: ${JSON.stringify(r.remote)}`));
     console.log(`FILETYPES: ${filetypes.length}`);
     // filetypes.map(f => console.log(`filetype: ${f.filetype}, handler: ${f.handler.toString()}, extensions: ${f.extensions}`));
     console.log(`ERRORS: ${errors.length}`);
@@ -94,7 +96,9 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
       <MergeButton />
       <DiffPickerButton />
-      <Button id='stack-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={createStack}>Stack...</Button>
+      <Button id='stack-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2}
+        onClick={createStack}>Stack...</Button>
+      <GitGraphButton />
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {errors.map(error => <ErrorDialog key={error.id} {...error} />)}

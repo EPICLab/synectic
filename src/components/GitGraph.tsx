@@ -1,46 +1,52 @@
-import { ReadCommitResult } from 'isomorphic-git';
 import React, { useEffect, useState } from 'react';
-import ReactFlow from 'react-flow-renderer';
-import { useSelector } from 'react-redux';
-import { currentBranch, log } from '../containers/git';
-import { RootState } from '../store/root';
-import { UUID } from '../types';
+import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, Node } from 'react-flow-renderer';
 
-const elements = [
-  { id: '1', type: 'input', data: { label: 'Node 1' }, position: { x: 445, y: 15 }, className: 'git-node' },
-  { id: '2', data: { label: <div>Node 2</div> }, position: { x: 425, y: 182 }, className: 'git-node' },
-  { id: '3', type: 'output', data: { label: 'Node 3' }, position: { x: 570, y: 220 }, className: 'git-node' },
-  { id: 'e1-2', source: '1', target: '2', ArrowHeadType: 'arrow' },
-  { id: 'e1-3', source: '1', target: '3', ArrowHeadType: 'arrow' },
-];
+import { Repository } from '../types';
+import { nodeTypes } from './GitNode';
+import { useGitHistory } from '../store/hooks/useGitHistory';
+import { ReadCommitResult } from 'isomorphic-git';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-// eslint-disable-next-line react/display-name
-export default (): JSX.Element => <ReactFlow elements={elements} />;
+export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => {
+  const [elements, setElements] = useState<Array<FlowElement>>([]);
+  const onConnect = (params: Edge | Connection) => setElements((els) => addEdge(params, els));
+  const { commits, heads, update } = useGitHistory(props.repo);
 
-
-export const GitGraph: React.FunctionComponent<{ id: UUID }> = props => {
-  const repo = useSelector((state: RootState) => state.repos[props.id]);
-  const [commits, setCommits] = useState<ReadCommitResult[]>([]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { update() }, [props.repo]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const branch = await currentBranch({ dir: repo.root.toString(), fullname: false });
-      if (branch) {
-        const data: ReadCommitResult[] = await log({ dir: repo.root, ref: branch, depth: 10 });
-        console.log({ data });
-        setCommits(data);
-      }
+    if (commits.size > 0 && heads.size > 0) {
+      console.log(`REPO => repo: ${props.repo.name}, commits: ${commits.size}`);
+      console.log(JSON.stringify([...heads.entries()], null, 2));
     }
-    fetchData();
-  }, [repo, repo.root]);
+  }, [commits, heads, props.repo.name]);
 
-  return (
-    <>
-      <div>{`${repo.name} (${commits.length})`}</div>
-      {commits.map(c => <span key={c.oid}>{`Commit ${c.oid}\tMessage: ${c.payload}\n\n`}</span>)}
-      <ReactFlow elements={elements} />
-      { props.children}
-    </>
-  );
+  useEffect(() => {
+    const newElements = [...commits.values()].reduce((prev: Array<FlowElement>, curr: ReadCommitResult, index): Array<FlowElement> => {
+      const node: Node = {
+        id: curr.oid,
+        type: 'gitNode',
+        data: { text: '', tooltip: `${curr.oid.slice(0, 7)}\n${curr.commit.message}` },
+        position: { x: 380, y: (15 + (index * 105)) } // TODO: Layout is currently not spreading multiple child nodes into left, right, and center x-coordinate positions
+      };
+      const edges: Edge[] = curr.commit.parent.map(parent => {
+        return {
+          id: `e${parent.slice(0, 7)}-${curr.oid.slice(0, 7)}`,
+          source: parent,
+          target: curr.oid,
+          arrowHeadType: ArrowHeadType.ArrowClosed
+        };
+      });
+      return [node, ...prev, ...edges];
+    }, []);
+    setElements([...elements, ...newElements]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commits, heads]);
+
+  return (<ReactFlow
+    elements={elements}
+    nodeTypes={nodeTypes}
+    onConnect={onConnect}
+    onNodeMouseEnter={(_event, node) => console.log(node.id)}
+    className='git-flow' />);
 }
