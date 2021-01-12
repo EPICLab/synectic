@@ -51,7 +51,7 @@
     "isomorphic-git": "^1.8.0",
     "luxon": "^1.25.0",
     "pako": "^2.0.3",
-    "parse-path": "^4.0.2",
+    "parse-path": "^4.0.3",
     "react": "^16.14.0",
     "react-ace": "^9.2.0",
     "react-dnd": "^11.1.3",
