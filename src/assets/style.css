@@ -4,7 +4,7 @@ body {
 }
 
 .canvas {
-  background: url('canvas.png') center/auto fixed;
+  background: url("canvas.png") center/auto fixed;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -16,40 +16,40 @@ body {
   width: calc((250px * 1.25) + 28px); /* scaled from card width */
   position: absolute;
   cursor: move;
-  border: 0.5px solid rgba(125, 125, 125, 1.0);
+  border: 0.5px solid rgba(125, 125, 125, 1);
   border-radius: 5px;
   user-select: none;
 }
 
 .card {
-  background: rgba(89,87,90,1.0);
-  color: rgba(171,178,191,1.0);
+  background: rgba(89, 87, 90, 1);
+  color: rgba(171, 178, 191, 1);
   height: 350px; /* 7:5 aspect ratio */
   width: 250px; /* 7:5 aspect ratio */
   position: absolute;
   perspective: 1000px;
-  border: 1px solid rgba(89,87,90,1.0);
-  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+  border: 1px solid rgba(89, 87, 90, 1);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   border-radius: 10px;
   user-select: none;
 }
 
 .card:hover {
-  box-shadow: 0 0 3pt 1pt rgba(102,204,117,0.75);
+  box-shadow: 0 0 3pt 1pt rgba(102, 204, 117, 0.75);
 }
 
 .card.nohover:hover {
-  box-shadow: 0 0 5pt 3pt rgba(218,46,46,1.0) !important;
+  box-shadow: 0 0 5pt 3pt rgba(218, 46, 46, 1) !important;
 }
 
 .card.highlight {
-  box-shadow: 0 0 5pt 3pt rgba(218,46,46,1.0);
+  box-shadow: 0 0 5pt 3pt rgba(218, 46, 46, 1);
 }
 
 .card-header {
   height: 29px;
   width: 100%;
-  background: rgba(89,87,90,1.0);
+  background: rgba(89, 87, 90, 1);
   box-sizing: border-box;
   display: flex;
   flex-flow: row nowrap;
@@ -59,7 +59,7 @@ body {
   cursor: move;
   border-radius: 5px 5px 0 0;
   transform-style: preserve-3d;
-  font-family: 'Lato', Georgia, Serif;
+  font-family: "Lato", Georgia, Serif;
   font-weight: bold;
 }
 
@@ -86,21 +86,22 @@ body {
   z-index: 9999;
 }
 
-.card-front, .card-back {
+.card-front,
+.card-back {
   width: 100%;
   height: calc(100% - 29px);
   border-radius: 0 0 10px 10px;
   position: absolute;
   bottom: 0;
-  font-family: 'Lato', Georgia, Serif;
+  font-family: "Lato", Georgia, Serif;
 }
 
 .card-front {
-  background-color: rgba(40, 44, 52, 1.0);
+  background-color: rgba(40, 44, 52, 1);
 }
 
 .card-back {
-  background-color: rgba(255, 255, 255, 1.0);
+  background-color: rgba(255, 255, 255, 1);
   display: grid;
   grid-template-columns: minmax(2rem, 1.2fr) minmax(5rem, 3fr);
   column-gap: 0.1rem;
@@ -117,11 +118,11 @@ body {
 }
 
 .card-back .field {
-  border-bottom: 0.5px solid rgba(40, 44, 52, 1.0);
+  border-bottom: 0.5px solid rgba(40, 44, 52, 1);
 }
 
 .git_icon {
-  background: url('git_light.png') no-repeat center center / 47%;
+  background: url("git_light.png") no-repeat center center / 47%;
   padding: 0.2rem;
   margin: 0.1rem;
 }
@@ -129,7 +130,7 @@ body {
 /* CSSTransition from react-transition-group uses *-enter, *-enter-active,
    *-exit, and *-exit-active (in that order) for animation effects */
 .flip-enter {
-  transform-style: preserve-3d; 
+  transform-style: preserve-3d;
 }
 
 .flip-enter-active {
@@ -166,36 +167,36 @@ body {
 
 .ace_highlight_green {
   position: absolute;
-  background: rgba(147,200,54,0.8);
+  background: rgba(147, 200, 54, 0.8);
   z-index: 20;
 }
 
 .ace_highlight_red {
   position: absolute;
-  background: rgba(221,88,115,0.8);
+  background: rgba(221, 88, 115, 0.8);
   z-index: 20;
 }
 
 button.close {
-  background: url('close_dark.svg');
+  background: url("close_dark.svg");
   background-size: cover;
 }
 
 button.close:hover,
 button.close:active {
-  background: url('close_active.svg');
+  background: url("close_active.svg");
   background-size: cover;
   cursor: pointer;
 }
 
 button.flip {
-  background: url('flip_dark.svg');
+  background: url("flip_dark.svg");
   background-size: cover;
 }
 
 button.flip:hover,
 button.flip:active {
-  background: url('flip_active.svg');
+  background: url("flip_active.svg");
   background-size: cover;
   cursor: pointer;
 }
@@ -207,14 +208,14 @@ button.flip:active {
   column-gap: 5px;
   row-gap: 5px;
   place-items: center;
-  grid-template-areas: 
+  grid-template-areas:
     "header header header"
     "left center right"
     "footer footer footer";
 }
 
 img.diff_icon {
-  content:url('diff.png');
+  content: url("diff.png");
   height: auto;
   width: 20px;
 }
@@ -224,8 +225,8 @@ img.diff_icon {
 }
 
 .file-explorer {
-  color: rgba(30, 30, 30, 1.0);
-  background: rgba(235, 235, 235, 1.0);
+  color: rgba(30, 30, 30, 1);
+  background: rgba(235, 235, 235, 1);
   width: 100%;
   height: 100%;
   flex-grow: 1;
@@ -241,14 +242,14 @@ img.diff_icon {
 }
 
 .branch-ribbon-container {
-  background-color: rgba(72, 74, 212, 1.0);
+  background-color: rgba(72, 74, 212, 1);
   height: 20px;
   transform: translateY(-16px);
   padding-bottom: -10px;
 }
 
 .branch-ribbon-text {
-  color: rgba(235, 235, 235, 1.0);
+  color: rgba(235, 235, 235, 1);
   font-family: Arial, Helvetica, sans-serif;
   text-indent: 1px;
   overflow-x: hidden;
@@ -270,7 +271,7 @@ img.diff_icon {
 }
 
 @keyframes fade-text {
-  0% { 
+  0% {
     opacity: 0;
   }
 
@@ -278,22 +279,22 @@ img.diff_icon {
     transform: translateX(0%);
   }
 
-  100% { 
+  100% {
     opacity: 1;
   }
 }
 
 @keyframes scroll-text {
-  0% { 
-    transform: translateX(0%) 
+  0% {
+    transform: translateX(0%);
   }
 
   50% {
-    transform: translateX(-96%); 
+    transform: translateX(-96%);
   }
 
-  100% { 
-    transform: translateX(0%); 
+  100% {
+    transform: translateX(0%);
   }
 }
 
@@ -306,13 +307,13 @@ img.diff_icon {
   column-gap: 5px;
   row-gap: 5px;
   place-items: center;
-  grid-template-areas: 
-  "header header"
-  "upper-left upper-right"
-  "middle middle"
-  "lower-left lower-right"
-  "footer footer"
-  "subfooter subfooter";
+  grid-template-areas:
+    "header header"
+    "upper-left upper-right"
+    "middle middle"
+    "lower-left lower-right"
+    "footer footer"
+    "subfooter subfooter";
 }
 
 #new-card-dialog-filetype {
@@ -331,21 +332,21 @@ div.browser-topbar {
 }
 
 button.arrow-left {
-  background: url('arrow-left-bold.svg') no-repeat center top/contain;
+  background: url("arrow-left-bold.svg") no-repeat center top/contain;
   background-size: cover;
   border-style: none;
   outline: 0px;
 }
 
 button.arrow-right {
-  background: url('arrow-right-bold.svg') no-repeat center top/contain;
+  background: url("arrow-right-bold.svg") no-repeat center top/contain;
   background-size: cover;
   border-style: none;
   outline: 0px;
 }
 
 button.refresh {
-  background: url('refresh.svg') no-repeat center top/contain;
+  background: url("refresh.svg") no-repeat center top/contain;
   background-size: cover;
   border-style: none;
   outline: 0px;
@@ -364,8 +365,8 @@ div.browser-content {
 }
 
 div.version-tracker {
-  color: rgba(30, 30, 30, 1.0);
-  background: rgba(235, 235, 235, 1.0);
+  color: rgba(30, 30, 30, 1);
+  background: rgba(235, 235, 235, 1);
   width: 100%;
   height: 100%;
   flex-grow: 1;
@@ -382,46 +383,28 @@ div.version-tracker {
 }
 
 .version-tracker-branches {
- width: 100%;
- padding-left: 10px;
+  width: 100%;
+  padding-left: 10px;
 }
 
 .git-info-dialog-container {
-  width: 420px;
-  height: 270px;
+  width: 450px;
+  height: 250px;
   display: grid;
+  margin: 10px;
+  margin-top: -15px;
   grid-template-columns: auto;
   grid-template-rows: auto;
-  column-gap: 5px;
+  column-gap: 10px;
   row-gap: 5px;
   place-items: center;
-  grid-template-areas: 
-  "header header"
-  "upper-left upper-right"
-  "middle middle"
-  "lower-left lower-right"
-  "footer footer"
-  "lowest-left lowest-right"
-  "subfooter subfooter"
+  grid-template-areas:
+    "header header"
+    "middle middle"
+    "lower-left lower-right"
+    "footer footer";
 }
 
 #git-info-dialog-title {
-  margin-top: -10px;
-}
-
-#submit-git-info-button {
-  margin-bottom: 10px;
-}
-
-#state-label {
-  margin-left: 10px;
-}
-
-#enter-name-label {
-  margin-right: 15px;
-}
-
-#enter-email-label {
-  margin-right: 45px;
-  margin-top: 5px;
+  margin-bottom: -25px;
 }
