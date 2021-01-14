@@ -21,8 +21,8 @@ export const GitInfoDialog: React.FunctionComponent<GitInfoDialogProps> = props 
     const checkGitConfig = async (isChecked: boolean, keyPath: string): Promise<string> => {
         const result = isChecked ? await getConfig(keyPath, true) : await getConfig(keyPath);
 
-        if (!isChecked) return result.scope === "local" ? result.value : "[No value found]";
-        else return result.scope !== "none" ? result.value : "[No value found]";
+        if (!isChecked) return result.scope === 'local' ? result.value : '[No value found]';
+        else return result.scope !== 'none' ? result.value : '[No value found]';
     };
 
     useEffect(() => {
@@ -36,16 +36,16 @@ export const GitInfoDialog: React.FunctionComponent<GitInfoDialogProps> = props 
     }, [checked]);
 
     const handleClose = async () => {
-        setName(await checkGitConfig(false, "user.name"));
-        setEmail(await checkGitConfig(false, "user.email"));
+        setName(await checkGitConfig(false, 'user.name'));
+        setEmail(await checkGitConfig(false, 'user.email'));
         setChecked(false);
         props.onClose();
     };
 
     const handleClick = async () => {
-        const scope = checked ? "global" : "local";
-        await setConfig(scope, "user.name", name);
-        await setConfig(scope, "user.email", email);
+        const scope = checked ? 'global' : 'local';
+        await setConfig(scope, 'user.name', name);
+        await setConfig(scope, 'user.email', email);
         handleClose();
     };
 
@@ -63,9 +63,9 @@ export const GitInfoDialog: React.FunctionComponent<GitInfoDialogProps> = props 
                 <TextField 
                     id="git-info-dialog-name"
                     value={name}
-                    error={name === "[No value found]" || !name}
+                    error={name === '[No value found]' || !name}
                     onChange={handleNameChange}
-                    label={"Enter username"}
+                    label={'Enter username'}
                     variant="outlined"
                     style={{ gridArea: 'lower-left' }}
                 />
@@ -74,7 +74,7 @@ export const GitInfoDialog: React.FunctionComponent<GitInfoDialogProps> = props 
                     value={email}
                     error={!validateEmail(email)}
                     onChange={handleEmailChange}
-                    label={"Enter email"}
+                    label={'Enter email'}
                     variant="outlined"
                     style={{ gridArea: 'lower-right' }}
                 />
@@ -82,7 +82,7 @@ export const GitInfoDialog: React.FunctionComponent<GitInfoDialogProps> = props 
                     id='submit-git-info-button'
                     variant='contained'
                     color={name && validateEmail(email) ? 'primary' : 'default'}
-                    onClick={name && validateEmail(email) ? handleClick : () => alert("Please enter a valid name and email.")}
+                    onClick={name && validateEmail(email) ? handleClick : () => alert('Please enter a valid name and email.')}
                     style={{ gridArea: 'footer' }}>
                     Submit
                 </Button>
