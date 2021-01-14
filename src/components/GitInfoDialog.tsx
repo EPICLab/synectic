@@ -50,32 +50,32 @@ export const GitInfoDialog: React.FunctionComponent<GitInfoDialogProps> = props 
     };
 
     return (
-        <Dialog id="git-info-dialog" open={props.open} onClose={handleClose} aria-labelledby="git-info-dialog" >
-            <div className="git-info-dialog-container">
+        <Dialog id='git-info-dialog' open={props.open} onClose={handleClose} aria-labelledby='git-info-dialog' >
+            <div className='git-info-dialog-container'>
                 <DialogTitle id='git-info-dialog-title' style={{ gridArea: 'header' }}>Update .gitconfig file information</DialogTitle>
                 <FormControlLabel
-                    value="write-to-global-gitconfig"
-                    control={<Checkbox checked={checked} color="primary" onChange={handleCheck} />}
-                    label="Overwrite global instead of local .gitconfig file"
-                    labelPlacement="end"
+                    value='write-to-global-gitconfig'
+                    control={<Checkbox checked={checked} color='primary' onChange={handleCheck} />}
+                    label='Overwrite global instead of local .gitconfig file'
+                    labelPlacement='end'
                     style={{ gridArea: 'middle' }}
                 />
                 <TextField 
-                    id="git-info-dialog-name"
+                    id='git-info-dialog-name'
                     value={name}
                     error={name === '[No value found]' || !name}
                     onChange={handleNameChange}
                     label={'Enter username'}
-                    variant="outlined"
+                    variant='outlined'
                     style={{ gridArea: 'lower-left' }}
                 />
                 <TextField
-                    id="git-info-dialog-email"
+                    id='git-info-dialog-email'
                     value={email}
                     error={!validateEmail(email)}
                     onChange={handleEmailChange}
                     label={'Enter email'}
-                    variant="outlined"
+                    variant='outlined'
                     style={{ gridArea: 'lower-right' }}
                 />
                 <Button
