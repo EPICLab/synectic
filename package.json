@@ -32,7 +32,7 @@
     "@types/diff": "^5.0.0",
     "@types/fs-extra": "^9.0.6",
     "@types/hidefile": "^3.0.0",
-    "@types/luxon": "^1.25.0",
+    "@types/luxon": "^1.25.1",
     "@types/pako": "^1.0.1",
     "@types/parse-path": "^4.0.0",
     "@types/react": "^17.0.0",
@@ -42,7 +42,7 @@
     "@types/sha1": "^1.1.2",
     "diff": "^5.0.0",
     "electron-squirrel-startup": "^1.0.0",
-    "file-type": "^16.1.0",
+    "file-type": "^16.2.0",
     "fs-extra": "^9.0.1",
     "git-config-path": "^2.0.0",
     "hidefile": "^3.0.0",
@@ -75,10 +75,10 @@
     "@electron-forge/maker-zip": "6.0.0-beta.54",
     "@electron-forge/plugin-webpack": "6.0.0-beta.54",
     "@jedmao/redux-mock-store": "^3.0.5",
-    "@testing-library/dom": "^7.26.6",
-    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/dom": "^7.29.4",
+    "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.3",
-    "@testing-library/react-hooks": "^4.0.1",
+    "@testing-library/react-hooks": "^5.0.0",
     "@types/enzyme": "^3.10.8",
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/git-config-path": "^2.0.1",
@@ -128,6 +128,6 @@
     "uuid": "^8.3.1",
     "valid-url": "^1.0.9",
     "validator": "^13.5.2",
-    "webpack": "^5.13.0"
+    "webpack": "^5.15.0"
   }
 }
