@@ -37,7 +37,7 @@ const store = mockStore({
   stacks: {},
   cards: {},
   filetypes: {
-    "55": newFiletype
+    '55': newFiletype
   },
   metafiles: {},
   repos: {},
@@ -59,7 +59,6 @@ describe('NewCardDialog', () => {
     render(<NewCardContext />);
     const dialog = screen.queryAllByRole('dialog')[0];
 
-    expect(dialog).not.toBeNull();
     expect(dialog).toBeInTheDocument();
 
     fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
@@ -70,7 +69,6 @@ describe('NewCardDialog', () => {
     render(<NewCardContext />);
     const dialog = screen.queryAllByRole('dialog')[0];
 
-    expect(dialog).not.toBeNull();
     expect(dialog).toBeInTheDocument();
 
     const backdrop = document.querySelector('.MuiBackdrop-root');
@@ -83,7 +81,7 @@ describe('NewCardDialog', () => {
     expect(newCardDialog.prop('fileName')).toBeUndefined();
     expect(newCardDialog.prop('filetype')).toBeUndefined();
     expect(newCardDialog.html()).toContain('<input aria-hidden="true" tabindex="-1" class="MuiSelect-nativeInput" value="">');
-    expect(wrapper.find(TextField).props().value).toEqual("");
+    expect(wrapper.find(TextField).props().value).toEqual('');
   });
 
   it('NewCardDialog does not change Redux state when invalid information is entered', () => {
@@ -102,12 +100,12 @@ describe('NewCardDialog', () => {
     render(<NewCardContext />);
     const inputBox = screen.getByRole('textbox') as HTMLInputElement;
 
-    expect(inputBox.value).toBe("");
+    expect(inputBox).toHaveValue('');
 
     // Enter file name into text box
     if (inputBox) fireEvent.change(inputBox, { target: { value: 'foo' } });
 
-    expect(inputBox.value).toBe("foo");
+    expect(inputBox).toHaveValue('foo');
   });
 
   it('NewCardDialog allows the user to pick a file type', () => {
