@@ -407,8 +407,8 @@ div.version-tracker {
 
 #git-info-dialog-title {
   margin-bottom: -25px;
- width: 100%;
- padding-left: 10px;
+  width: 100%;
+  padding-left: 10px;
 }
 
 .git-flow {

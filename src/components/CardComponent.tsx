@@ -15,7 +15,7 @@ export const useStyles = makeStyles({
   root: {
     color: 'rgba(171, 178, 191, 1.0)',
     fontSize: 'small',
-    fontFamily: `'Lato', Georgia, Serif`
+    fontFamily: '\'Lato\', Georgia, Serif'
   }
 });
 
@@ -81,12 +81,14 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   return (
     <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
       <Header title={props.name}>
-        <button className='flip' onClick={flip} />
+        <button className='flip' aria-label='button-flip' onClick={flip} />
         <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>
-          {flipped ? <div className='card-back'><ContentBack {...props} /></div> : <div className='card-front'><ContentFront {...props} /></div>}
+          {flipped ?
+            <div className='card-back'><ContentBack {...props} /></div> :
+            <div className='card-front'><ContentFront {...props} /></div>}
         </>
       </CSSTransition>
     </div>
