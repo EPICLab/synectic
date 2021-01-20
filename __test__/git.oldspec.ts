@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import mock from 'mock-fs';
 
 import * as git from '../src/containers/git-experimental';
@@ -33,6 +34,7 @@ beforeEach(() => {
         },
         objects: {
           'f4': {
+            // eslint-disable-next-line quotes
             'ef1ec2ca088438c2b8fd7a0666d90ee856d278': `b'x\x01+)JMU01f040031Q()JL\xceNM\xd1M\xcb\xccI\xd5\xcb*fP=\x10\xf79y\xae\xae:_\xfd\xf3\xd4ee\x19\x1ffpj\x1f\x05\x00\xa8\xdb\x12\xa5'`
           },
           '4c': {
@@ -78,7 +80,7 @@ beforeEach(() => {
             '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
           },
           '42': {
-            '2a8a27eebd3798c661f2c0788dc8d6dfe597a1': `blob 26\x00My data fits on line line\n`
+            '2a8a27eebd3798c661f2c0788dc8d6dfe597a1': 'blob 26\x00My data fits on line line\n'
           }
         }
       },
