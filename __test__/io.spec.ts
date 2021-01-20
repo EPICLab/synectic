@@ -119,7 +119,8 @@ describe('io.decompressBinaryObject', () => {
     mock({
       'plainfile.txt': 'no compression was used',
       'e2': {
-        '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
+        '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102,
+          105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
       }
     });
   });
@@ -282,12 +283,14 @@ describe('io.filterReadArray', () => {
   afterAll(mock.restore);
 
   it('filterReadArray returns only child directories', () => {
-    const paths: fs.PathLike[] = ["foo/bar", "foo/baz", "foo/zap/zed/beq", "foo/zap/zed/bup", "foo/zap/zed", "foo/zap/zip", "foo/zap", "foo"];
+    const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
+      'foo/zap/zip', 'foo/zap', 'foo'];
     return expect(io.filterReadArray(paths)).resolves.toHaveLength(3);
   });
 
   it('filterReadArray returns only child files', () => {
-    const paths: fs.PathLike[] = ["foo/bar", "foo/baz", "foo/zap/zed/beq", "foo/zap/zed/bup", "foo/zap/zed", "foo/zap/zip", "foo/zap", "foo"];
+    const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
+      'foo/zap/zip', 'foo/zap', 'foo'];
     return expect(io.filterReadArray(paths, true)).resolves.toHaveLength(5);
   });
 });
@@ -322,7 +325,7 @@ describe('io.writeFileAsync', () => {
     const testPath = 'foo/bar/fileC.txt';
     await io.writeFileAsync(testPath, Buffer.from([1, 2, 3]), { encoding: 'hex' });
     await expect(fs.ensureFile(testPath)).resolves.not.toThrow();
-    await expect(io.readFileAsync(testPath, { encoding: 'hex' })).resolves.toBe("010203");
+    await expect(io.readFileAsync(testPath, { encoding: 'hex' })).resolves.toBe('010203');
   });
 
   it('writeFileAsync to resolve and overwrite an existing file with content', async () => {
@@ -334,8 +337,8 @@ describe('io.writeFileAsync', () => {
 });
 
 describe('io.validateFileName', () => {
-  const exts = ["ts", "html"];
-  const configExts = [".gitignore", ".htaccess"];
+  const exts = ['ts', 'html'];
+  const configExts = ['.gitignore', '.htaccess'];
 
   it('validateFileName returns false for an invalid file name and true for a valid file name', () => {
     expect(io.validateFileName('<.ts', configExts, exts)).toEqual(false);
@@ -373,26 +376,26 @@ describe('io.replaceExt', () => {
   }
 
   it('replaceFileType appends a normal extension to file name with no pre-existing extension', () => {
-    expect(io.replaceExt("foo", newFiletype)).toBe("foo.js");
+    expect(io.replaceExt('foo', newFiletype)).toBe('foo.js');
   });
 
   it('replaceFileType appends a normal extension to file name with a pre-existing extension', () => {
-    expect(io.replaceExt("foo.html", newFiletype)).toBe("foo.js");
+    expect(io.replaceExt('foo.html', newFiletype)).toBe('foo.js');
   });
 
   it('replaceFileType appends a normal extension to file name with a trailing "."', () => {
-    expect(io.replaceExt("foo.", newFiletype)).toBe("foo.js");
+    expect(io.replaceExt('foo.', newFiletype)).toBe('foo.js');
   });
 
   it('replaceFileType appends a .config extension to file name with no pre-existing extension', () => {
-    expect(io.replaceExt("foo", configFiletype)).toBe("foo.htaccess");
+    expect(io.replaceExt('foo', configFiletype)).toBe('foo.htaccess');
   });
 
   it('replaceFileType appends a .config extension to file name with a pre-existing extension', () => {
-    expect(io.replaceExt("foo.html", configFiletype)).toBe("foo.htaccess");
+    expect(io.replaceExt('foo.html', configFiletype)).toBe('foo.htaccess');
   });
 
   it('replaceFileType appends a .config extension to file name with a trailing "."', () => {
-    expect(io.replaceExt("foo.", configFiletype)).toBe("foo.htaccess");
+    expect(io.replaceExt('foo.', configFiletype)).toBe('foo.htaccess');
   });
 });
