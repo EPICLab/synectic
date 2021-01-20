@@ -1,6 +1,9 @@
 module.exports = {
   testEnvironment: 'enzyme',
-  setupFilesAfterEnv: ['jest-enzyme'],
+  setupFilesAfterEnv: [
+    'jest-enzyme',
+    '<rootDir>/__test__/setupTests.ts'
+  ],
   testEnvironmentOptions: {
     enzymeAdapter: 'react16'
   },
