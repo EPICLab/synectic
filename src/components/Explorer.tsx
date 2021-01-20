@@ -32,7 +32,8 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
   return (
     <TreeItem key={props.root.toString()} nodeId={props.root.toString()} label={extractFilename(props.root)} onClick={clickHandle}>
       {directories.map(dir => <DirectoryComponent key={dir} root={dir} />)}
-      {files?.map(file => <TreeItem key={file} nodeId={file} label={extractFilename(file)} onClick={() => dispatch(loadCard({ filepath: file }))} />)}
+      {files?.map(file =>
+        <TreeItem key={file} nodeId={file} label={extractFilename(file)} onClick={() => dispatch(loadCard({ filepath: file }))} />)}
     </TreeItem>
   );
 };
@@ -53,11 +54,14 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
         classes={cssClasses}
         defaultParentIcon={<img width="20px" src="../assets/folder.svg" alt="Folder" />}
         defaultEndIcon={<div className="file-icon"><img width="20px" src="../assets/file.svg" alt="File" /></div>}
-        defaultCollapseIcon={<><div className="folder-icon"><ExpandMoreIcon /></div> <img width="20px" src="../assets/open_folder.svg" alt="openFolder" /></>}
-        defaultExpandIcon={<><div className="folder-icon"><ChevronRightIcon /></div> <img width="20px" src="../assets/alt_folder.svg" alt="Folder" /></>}
+        defaultCollapseIcon={<><div className="folder-icon"><ExpandMoreIcon /></div>
+          <img width="20px" src="../assets/open_folder.svg" alt="openFolder" /></>}
+        defaultExpandIcon={<><div className="folder-icon"><ChevronRightIcon /></div>
+          <img width="20px" src="../assets/alt_folder.svg" alt="Folder" /></>}
       >
         {directories.map(dir => <DirectoryComponent key={dir} root={dir} />)}
-        {files.map(file => <TreeItem key={file} nodeId={file} label={extractFilename(file)} onClick={() => dispatch(loadCard({ filepath: file }))} />)}
+        {files.map(file =>
+          <TreeItem key={file} nodeId={file} label={extractFilename(file)} onClick={() => dispatch(loadCard({ filepath: file }))} />)}
       </TreeView>
     </div>
   );

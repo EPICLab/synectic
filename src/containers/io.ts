@@ -274,7 +274,7 @@ export const writeFileAsync = (
  */
 export const validateFileName = (fileName: string, configExts: string[], exts: string[]): boolean => {
   const index = fileName.lastIndexOf('.'); // Get index of last '.' in the file name
-  const ext = index !== -1 ? fileName.substring(fileName.lastIndexOf('.')) : ""; // grabs the extension plus the '.' before it
+  const ext = index !== -1 ? fileName.substring(fileName.lastIndexOf('.')) : ''; // grabs the extension plus the '.' before it
   const name = index !== -1 ? fileName.substr(0, index) : fileName; // grabs the file name w/o the extension and the '.' before it
 
   /*Regex below matches all occurences of invalid file name characters in the set: <, >, \, /, |, ?, *, 
@@ -284,7 +284,7 @@ export const validateFileName = (fileName: string, configExts: string[], exts: s
 
   /* If ext is a .config extension, just check for invalid chars and that the final char is not '.' or ' ' in file name
   Otherwise, check everything above AND that the file name is not empty and that the extension is valid */
-  return (configExts.find(configExt => configExt === ext)) ? flag : name !== "" && exts.includes(ext.substr(1)) && flag;
+  return (configExts.find(configExt => configExt === ext)) ? flag : name !== '' && exts.includes(ext.substr(1)) && flag;
 }
 
 /**
@@ -295,23 +295,23 @@ export const validateFileName = (fileName: string, configExts: string[], exts: s
  * @return A string with the new extension correctly appended to the original file name.
  */
 export const replaceExt = (fileName: string, newFiletype: Filetype): string => {
-  const currentExtension = fileName.indexOf('.') !== -1 ? extractExtension(fileName) : ""; // get current file extension
+  const currentExtension = fileName.indexOf('.') !== -1 ? extractExtension(fileName) : ''; // get current file extension
   const configExtension = newFiletype.extensions.find(extension => extension.includes('.')); // get config file extension, otherwise undefined
 
-  let finalFileName = "";
+  let finalFileName = '';
 
   if (configExtension) {
-    if (!currentExtension && fileName.slice(-1) !== ".") {
+    if (!currentExtension && fileName.slice(-1) !== '.') {
       finalFileName = fileName + configExtension; // add config file extension to filename when no extension exists and last character is not a '.'
-    } else if (!currentExtension && fileName.slice(-1) === ".") {
+    } else if (!currentExtension && fileName.slice(-1) === '.') {
       finalFileName = fileName.slice(0, -1) + configExtension; // add config file extension when filename has a trailing '.' character
     } else {
       finalFileName = fileName.slice(0, -currentExtension.length - 1) + configExtension; // replace the old file extension with the config file extension
     }
   } else {
-    if (!currentExtension && fileName.slice(-1) !== ".") {
+    if (!currentExtension && fileName.slice(-1) !== '.') {
       finalFileName = fileName + '.' + newFiletype.extensions[0]; // add new file extension when no current extension exists and last character is not a '.'
-    } else if (!currentExtension && fileName.slice(-1) === ".") {
+    } else if (!currentExtension && fileName.slice(-1) === '.') {
       finalFileName = fileName + newFiletype.extensions[0]; // add new file extension when filename has a trailing '.' character
     } else {
       finalFileName = fileName.slice(0, -currentExtension.length) + newFiletype.extensions[0]; // replace the old file extension with the new file extension

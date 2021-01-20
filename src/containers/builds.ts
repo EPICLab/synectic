@@ -32,8 +32,8 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
   let [installCode, buildCode] = [-1, -1];
   try {
     const installResults = promiseExec(`${packageManager} install`, { cwd: cloneRoot });
-    installResults.child.stdout?.on('data', data => console.log(`INSTALL: ` + data));
-    installResults.child.stderr?.on('data', data => console.log(`INSTALL error: ` + data));
+    installResults.child.stdout?.on('data', data => console.log('INSTALL: ' + data));
+    installResults.child.stderr?.on('data', data => console.log('INSTALL error: ' + data));
     installResults.child.on('close', code => {
       console.log(`INSTALL 'close' listener found code: ${code}`);
       (code ? (installCode = code) : null);
@@ -43,12 +43,12 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
       (code ? (installCode = code) : null);
     });
     installResults.child.on('error', error => {
-      console.log(`INSTALL 'error' listener found error:`);
+      console.log('INSTALL \'error\' listener found error:');
       console.log({ error });
     });
     await installResults;
   } catch (e) {
-    console.log(`INSTALL ERROR`);
+    console.log('INSTALL ERROR');
     console.log(e);
   }
 
@@ -56,8 +56,8 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
     const packageManagerBuildScript = packageManager === 'yarn' ? 'run' : 'run-script';
     try {
       const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} build`, { cwd: cloneRoot });
-      buildResults.child.stdout?.on('data', data => console.log(`BUILD: ` + data));
-      buildResults.child.stderr?.on('data', data => console.log(`BUILD error: ` + data));
+      buildResults.child.stdout?.on('data', data => console.log('BUILD: ' + data));
+      buildResults.child.stderr?.on('data', data => console.log('BUILD error: ' + data));
       buildResults.child.on('close', code => {
         console.log(`BUILD 'close' listener found code: ${code}`);
         (code ? (buildCode = code) : null);
@@ -67,12 +67,12 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
         (code ? (buildCode = code) : null);
       });
       buildResults.child.on('error', error => {
-        console.log(`BUILD 'error' listener found error:`);
+        console.log('BUILD \'error\' listener found error:');
         console.log({ error });
       });
       await buildResults;
     } catch (e) {
-      console.log(`BUILD ERROR`);
+      console.log('BUILD ERROR');
       console.error(e);
     }
   }

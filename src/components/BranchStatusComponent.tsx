@@ -8,7 +8,8 @@ const BranchComponent: React.FunctionComponent<{ repo: UUID, branch: string }> =
   const { cards, modified, status } = useBranchStatus(props.repo, props.branch);
 
   return (
-    <TreeItem nodeId={`${props.repo}-${props.branch}`} label={`${props.branch} [${modified.length}/${cards.length}]`} onClick={() => cards.map(async c => await status(c))} />
+    <TreeItem nodeId={`${props.repo}-${props.branch}`}
+      label={`${props.branch} [${modified.length}/${cards.length}]`} onClick={() => cards.map(async c => await status(c))} />
   );
 };
 

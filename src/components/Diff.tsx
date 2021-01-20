@@ -25,8 +25,10 @@ const extractMarkers = (diffOutput: string): IMarker[] => {
 
 const Diff: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
-  const original = useSelector((state: RootState) => (metafile.targets ? state.metafiles[state.cards[metafile.targets[0]]?.metafile] : undefined));
-  const updated = useSelector((state: RootState) => (metafile.targets ? state.metafiles[state.cards[metafile.targets[1]]?.metafile] : undefined));
+  const original = useSelector((state: RootState) => (metafile.targets ?
+    state.metafiles[state.cards[metafile.targets[0]]?.metafile] : undefined));
+  const updated = useSelector((state: RootState) => (metafile.targets ?
+    state.metafiles[state.cards[metafile.targets[1]]?.metafile] : undefined));
 
   const [diffOutput, setDiffOutput] = useState(diff(original?.content ? original.content : '', updated?.content ? updated.content : ''));
   const [markers, setMarkers] = useState(extractMarkers(diffOutput));
@@ -54,8 +56,10 @@ export const DiffReverse: React.FunctionComponent<Card> = props => {
   return (
     <>
       <span>Name:</span><span className='field'>{metafile.name}</span>
-      <span>Original:</span><span className='field'>{original ? original.name : '[Cannot locate original card]'} (...{original ? original.id.slice(-5) : '[uuid]'})</span>
-      <span>Updated:</span><span className='field'>{updated ? updated.name : '[Cannot locate updated card]'} (...{updated ? updated.id.slice(-5) : '[uuid]'})</span>
+      <span>Original:</span><span className='field'>{original ? original.name :
+        '[Cannot locate original card]'} (...{original ? original.id.slice(-5) : '[uuid]'})</span>
+      <span>Updated:</span><span className='field'>{updated ? updated.name :
+        '[Cannot locate updated card]'} (...{updated ? updated.id.slice(-5) : '[uuid]'})</span>
     </>
   );
 };

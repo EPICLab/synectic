@@ -43,7 +43,8 @@ export const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook
 
     if (!root) {
       // since not root exists, use `initialRoot` to get a metafile and update `root`
-      rootMetafile = isMetafile(initialRoot) ? await dispatch(getMetafile({ id: initialRoot.id })) : await dispatch(getMetafile({ filepath: initialRoot }));
+      rootMetafile = isMetafile(initialRoot) ? await dispatch(getMetafile({ id: initialRoot.id })) :
+        await dispatch(getMetafile({ filepath: initialRoot }));
       setRoot(rootMetafile);
     }
 

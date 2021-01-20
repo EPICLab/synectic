@@ -160,7 +160,7 @@ export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, p
 
       // change the repository branch back to the old branch
       await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: baseRef });
-      if (progress) console.log(`checkout complete...`);
+      if (progress) console.log('checkout complete...');
     }
     return getState().metafiles[metafile.id];
   };
