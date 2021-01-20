@@ -137,7 +137,7 @@ describe('DiffPickerDialog', () => {
     if (runDiffButton) fireEvent.click(runDiffButton);
 
     // check the parameters of onClose fn to verify they match the card UUIDs
-    expect(onClose).toHaveBeenCalledWith(false, ["33", "14"]);
+    expect(onClose).toHaveBeenCalledWith(false, ['33', '14']);
   });
 
   it('DiffPickerDialog returns cancelled if no cards are selected', () => {
@@ -152,7 +152,7 @@ describe('DiffPickerDialog', () => {
     fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
 
     // check the parameters of onClose fn to verify that canceled parameter is true
-    expect(onClose).toHaveBeenCalledWith(true, ["", ""]);
+    expect(onClose).toHaveBeenCalledWith(true, ['', '']);
   });
 
   it('DiffPickerDialog returns cancelled if only the left card is selected', () => {
@@ -178,7 +178,7 @@ describe('DiffPickerDialog', () => {
     fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
 
     // check the parameters of onClose fn to verify that canceled parameter is true
-    expect(onClose).toHaveBeenCalledWith(true, ["", ""]);
+    expect(onClose).toHaveBeenCalledWith(true, ['', '']);
   });
 
   it('DiffPickerDialog returns cancelled if only the right card is selected', () => {
@@ -204,7 +204,7 @@ describe('DiffPickerDialog', () => {
     fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
 
     // check the parameters of onClose fn to verify that canceled parameter is true
-    expect(onClose).toHaveBeenCalledWith(true, ["", ""]);
+    expect(onClose).toHaveBeenCalledWith(true, ['', '']);
   });
 
 });
