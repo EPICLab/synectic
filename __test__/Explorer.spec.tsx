@@ -68,8 +68,8 @@ describe('DirectoryComponent', () => {
     const DirectoryContext = wrapInReduxContext(DirectoryComponent, store);
     render(<TreeView><DirectoryContext root={'foo'} /></TreeView>);
 
-    expect(screen.getAllByRole('treeitem')).toHaveLength(1);
-    expect(screen.queryAllByText('bar.js')).toHaveLength(0);
+    expect(screen.getByRole('treeitem')).toBeInTheDocument();
+    expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
   });
 
   it('DirectoryComponent expands to display child files and directories', () => {
@@ -83,12 +83,12 @@ describe('DirectoryComponent', () => {
     const DirectoryContext = wrapInReduxContext(DirectoryComponent, store);
     render(<TreeView><DirectoryContext root={'foo'} /></TreeView>);
 
-    expect(screen.queryAllByText('bar.js')).toHaveLength(0);
+    expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
     const component = screen.queryByText('foo');
     act(() => {
       if (component) fireEvent.click(component);
     });
-    expect(screen.queryAllByText('bar.js')).toHaveLength(1);
+    expect(screen.queryByText('bar.js')).toBeInTheDocument();
   });
 
 });
