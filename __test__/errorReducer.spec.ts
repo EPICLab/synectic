@@ -8,7 +8,7 @@ describe('errorReducer', () => {
       id: '92',
       type: 'RepositoryMissingError',
       target: '23',
-      message: `Repository missing for metafile 'sampleUser/myRepo'`
+      message: 'Repository missing for metafile \'sampleUser/myRepo\''
     }
   }
 
@@ -16,7 +16,7 @@ describe('errorReducer', () => {
     id: '94',
     type: 'HandlerMissingError',
     target: '19',
-    message: `Metafile 'sampleUser/myRepo' missing handler to resolve filetype: 'TypeScript'`
+    message: 'Metafile \'sampleUser/myRepo\' missing handler to resolve filetype: \'TypeScript\''
   }
 
   it('errorReducer returns default state when current state is blank', () => {
