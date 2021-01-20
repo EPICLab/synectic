@@ -43,7 +43,7 @@ describe('NewCardButton', () => {
 
   it('NewCardButton does not render dialog on initial state', () => {
     render(<NewCardContext />);
-    expect(screen.queryByText(/Create New Card/i)).toBeNull();
+    expect(screen.queryByText(/Create New Card/i)).not.toBeInTheDocument();
     expect(wrapper.find(NewCardDialog).props().open).toBe(false);
   });
 
