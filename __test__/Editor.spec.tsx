@@ -86,17 +86,17 @@ describe('Editor', () => {
     render(<EditorContext metafileId='199' />);
     const textBox = screen.queryByRole('textbox') as HTMLInputElement;
 
-    expect(textBox.value).toBe("");
+    expect(textBox).toHaveValue('');
 
     textBox.focus();
     fireEvent.change(textBox, { target: { value: 'var foo = 5;' } });
 
-    expect(textBox.value).toBe("var foo = 5;");
+    expect(textBox).toHaveValue('var foo = 5;');
   });
 
   it('Editor component should have a working reverse side', () => {
     const EditorReverseContext = wrapInReduxContext(EditorReverse, store);
-    const card = store.getState().cards?.["57"];
+    const card = store.getState().cards?.['57'];
     const wrapper = mount(<EditorReverseContext {...card} />, mountOptions);
     const component = wrapper.find(EditorReverse).first();
     expect(component).toBeDefined();
