@@ -23,6 +23,8 @@ React and Redux:
 * [Hooks API Reference](https://reactjs.org/docs/hooks-reference.html)
 * [Using the React useContext Hook](https://medium.com/digio-australia/using-the-react-usecontext-hook-9f55461c4eae)
 * [Idiomatic Redux: Why use action creators?](https://blog.isquaredsoftware.com/2016/10/idiomatic-redux-why-use-action-creators/)
+* [ES6 Map with React.useState](https://medium.com/@jalalazimi/es6-map-with-react-usestate-9175cd7b409b)
+* [Understanding the React useMemo Hook](https://www.digitalocean.com/community/tutorials/react-usememo)
 
 Jest Testing:
 * [Taking Advantage of Jest Matchers (Part 1)](https://benmccormick.org/2017/08/15/jest-matchers-1/)

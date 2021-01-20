@@ -20,7 +20,8 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const exts: string[] = flattenArray(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
   // configExts is a list of all .config extensions found within exts:
-  const configExts: string[] = flattenArray((filetypes.map(filetype => filetype.extensions.filter(ext => ext.charAt(0) === '.'))).filter(arr => arr.length > 0));
+  const configExts: string[] = flattenArray((filetypes.map(filetype =>
+    filetype.extensions.filter(ext => ext.charAt(0) === '.'))).filter(arr => arr.length > 0));
 
   const [fileName, setFileName] = React.useState('');
   const [filetype, setFiletype] = React.useState('');
@@ -39,7 +40,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
     // currExt takes the current extension found within the filename, or is an empty string if no extension is found
-    const currExt = event.target.value.indexOf('.') !== -1 ? io.extractExtension(event.target.value) : "";
+    const currExt = event.target.value.indexOf('.') !== -1 ? io.extractExtension(event.target.value) : '';
     // newExt matches currExt to an existing extension within filetypes. If none is found, it returns undefined
     const newExt = filetypes.find(filetype => filetype.extensions.find(extension => currExt === extension || '.' + currExt === extension));
 
@@ -85,14 +86,19 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
     <>
       <Dialog id="new-card-dialog" open={props.open} onClose={handleClose} aria-labelledby="new-card-dialog">
         <div className="new-card-dialog-container">
-          <DialogTitle id='new-card-dialog-title' style={{ gridArea: 'header' }}>{"Create New Card"}</DialogTitle>
+          <DialogTitle id='new-card-dialog-title' style={{ gridArea: 'header' }}>{'Create New Card'}</DialogTitle>
           <InputLabel id="select-file-name-label" style={{ gridArea: 'upper-left' }}>Enter File Name:</InputLabel>
-          <TextField error={isFileNameValid ? false : true} id="new-card-dialog-file-name" helperText={isFileNameValid ? "" : "Invalid File Name"} value={fileName} onChange={handleFileNameChange} style={{ gridArea: 'middle' }} />
+          <TextField error={isFileNameValid ? false : true} id="new-card-dialog-file-name"
+            helperText={isFileNameValid ? '' : 'Invalid File Name'} value={fileName} onChange={handleFileNameChange}
+            style={{ gridArea: 'middle' }} />
           <InputLabel id="select-filetype-label" style={{ gridArea: 'lower-left' }}>Select Filetype:</InputLabel>
-          <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange} labelId="new-card-dialog-filetype-label" id="new-card-dialog-filetype" style={{ gridArea: 'footer' }}>
+          <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange}
+            labelId="new-card-dialog-filetype-label" id="new-card-dialog-filetype" style={{ gridArea: 'footer' }}>
             {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
           </Select>
-          <Button id='create-card-button' variant='contained' color={isFileNameValid && isExtensionValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'} onClick={() => handleClick()} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
+          <Button id='create-card-button' variant='contained'
+            color={isFileNameValid && isExtensionValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'}
+            onClick={() => handleClick()} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
         </div>
       </Dialog>
     </>

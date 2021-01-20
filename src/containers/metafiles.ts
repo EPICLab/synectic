@@ -189,43 +189,50 @@ export const updateAll = (id: UUID): ThunkAction<Promise<boolean>, RootState, un
 type MetafileGettableFields =
   { id: UUID, filepath?: never, virtual?: never } |
   { id?: never, filepath: PathLike, virtual?: never } |
-  { id?: never, filepath?: never, virtual: Required<Pick<Metafile, 'name' | 'handler'>> & Omit<Metafile, 'id' | 'modified' | 'name' | 'handler'> };
+  {
+    id?: never, filepath?: never, virtual:
+    Required<Pick<Metafile, 'name' | 'handler'>> & Omit<Metafile, 'id' | 'modified' | 'name' | 'handler'>
+  };
 
 /**
- * Thunk Action Creator for retrieving a `Metafile` object associated with one of three different paremeter sets: (1) retrieve existing metafile by
- * UUID, (2) get a existing or new metafile associated with a particular file path, or (3) get a new or existing virtual metafile by name and handler.
+ * Thunk Action Creator for retrieving a `Metafile` object associated with one of three different paremeter sets: (1) retrieve existing 
+ * metafile by UUID, (2) get a existing or new metafile associated with a particular file path, or (3) get a new or existing virtual 
+ * metafile by name and handler.
  * 
- * If no existing metafile is found under (1), then a `MetafileMissingError` error is thrown and undefined is returned. A `Metafile` object is always 
- * returned under (2) and (3), since either an existing metafile is returned or a new metafile is created and returned. All fields within the metafile
- * are updated in the Redux store before being returned.
+ * If no existing metafile is found under (1), then a `MetafileMissingError` error is thrown and undefined is returned. A `Metafile` object
+ * is always returned under (2) and (3), since either an existing metafile is returned or a new metafile is created and returned. All 
+ * fields within the metafile are updated in the Redux store before being returned.
  * @param id The UUID corresponding to the metafile that should be updated and returned.
  * @param filepath The relative or absolute path to a file or directory that should be represented by an updated metafile.
- * @param virtual A named object containing at least the `name` and `handler` fields of a valid metafile (existing or new), and any other metafile
- * fields except for `id` and `modified` (which are auto-generated on metafile creation).
+ * @param virtual A named object containing at least the `name` and `handler` fields of a valid metafile (existing or new), and any other 
+ * metafile fields except for `id` and `modified` (which are auto-generated on metafile creation).
  * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve a `Metafile` object, if the
  * metafile cannot be added or retrieved from the Redux store then `undefined` is returned instead.
  */
 export const getMetafile = (param: MetafileGettableFields): ThunkAction<Promise<Metafile | undefined>, RootState, undefined, Action> => {
   return async (dispatch, getState) => {
     if (param.id) {
-      // searches by UUID for existing Metafile in Redux store, dispatching an Error and returning undefined if no match, or updates Metafile otherwise
+      // searches by UUID for existing Metafile in Redux store, dispatching an Error and returning undefined if no match, or updates 
+      // Metafile otherwise
       const existing = await dispatch(updateAll(param.id));
       if (!existing) dispatch(metafilesError(param.id, `Cannot update non-existing metafile for id: '${param.id}'`));
       return existing ? getState().metafiles[param.id] : undefined;
     }
     if (param.filepath) {
-      // searches by filepath (and git branch if available) for existing Metafile in the Redux store, creating a new Metafile if no match, or updates
-      // Metafile otherwise
+      // searches by filepath (and git branch if available) for existing Metafile in the Redux store, creating a new Metafile if no match, 
+      // or updates Metafile otherwise
       const metafiles = Object.values(getState().metafiles);
       const root = await git.getRepoRoot(param.filepath);
       const branch = root ? (await git.currentBranch({ dir: root.toString(), fullname: false })) : undefined;
-      const existing = branch ? metafiles.find(m => m.path == param.filepath && m.branch == branch) : metafiles.find(m => m.path == param.filepath);
+      const existing = branch ? metafiles.find(m => m.path == param.filepath && m.branch == branch) :
+        metafiles.find(m => m.path == param.filepath);
       const id = existing ? existing.id : dispatch(addMetafile(io.extractFilename(param.filepath), { path: param.filepath })).id;
       const updated = await dispatch(updateAll(id));
       return updated ? getState().metafiles[id] : undefined;
     }
     if (param.virtual) {
-      // searches by name and handler for existing Metafile in the Redux store, creates a new Metafile if no match, or returns Metafile otherwise
+      // searches by name and handler for existing Metafile in the Redux store, creates a new Metafile if no match, or returns 
+      // Metafile otherwise
       const metafiles = Object.values(getState().metafiles);
       const existing = metafiles.find(m => m.name == param.virtual.name && m.handler == param.virtual.handler);
       const id = existing ? existing.id : dispatch(addMetafile(param.virtual.name, param.virtual)).id;

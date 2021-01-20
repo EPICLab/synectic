@@ -17,7 +17,10 @@ type BrowserState = {
 export const BrowserComponent: React.FunctionComponent = () => {
   const [webviewKey, setWebviewKey] = useState(0);
   const [urlInput, setUrlInput] = useState('https://epiclab.github.io/');
-  const [browserState, setBrowserState] = useState<BrowserState>({ history: [new URL('https://epiclab.github.io/')], current: new URL('https://epiclab.github.io/'), index: 0 });
+  const [browserState, setBrowserState] = useState<BrowserState>({
+    history: [new URL('https://epiclab.github.io/')],
+    current: new URL('https://epiclab.github.io/'), index: 0
+  });
 
   const go = (e: React.KeyboardEvent) => {
     if (e.keyCode != 13) return;
@@ -51,10 +54,12 @@ export const BrowserComponent: React.FunctionComponent = () => {
         <button className="arrow-left" onClick={() => backwards()} />
         <button className="arrow-right" onClick={() => forwards()} />
         <button className="refresh" onClick={() => setWebviewKey(webviewKey + 1)} />
-        <input className="url-bar-style" type="text" placeholder="URL" value={urlInput} onKeyDown={go} onChange={e => setUrlInput(e.target.value)} />
+        <input className="url-bar-style" type="text" placeholder="URL" value={urlInput}
+          onKeyDown={go} onChange={e => setUrlInput(e.target.value)} />
       </div>
       <div className='browser-content'>
-        <webview key={webviewKey} src={browserState.current.toString()} style={{ height: '100%', width: '100%', borderRadius: '10px!important' }}></webview>
+        <webview key={webviewKey} src={browserState.current.toString()}
+          style={{ height: '100%', width: '100%', borderRadius: '10px!important' }}></webview>
       </div>
     </>
   )

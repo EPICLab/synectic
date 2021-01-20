@@ -36,8 +36,10 @@ export const VersionStatusComponent: React.FunctionComponent = () => {
       <TreeView
         defaultParentIcon={<img width="20px" src="../assets/git_light.png" alt="Repo" />}
         defaultEndIcon={<div className="file-icon"><img width="20px" src="../assets/git_branch_light.png" alt="Branch" /></div>}
-        defaultCollapseIcon={<><div className="folder-icon"><ExpandMoreIcon /></div> <img width="20px" src="../assets/git_light.png" alt="Repo" /></>}
-        defaultExpandIcon={<><div className="folder-icon"><ChevronRightIcon /></div> <img width="20px" src="../assets/git_light.png" alt="Repo" /></>}
+        defaultCollapseIcon={<><div className="folder-icon"><ExpandMoreIcon /></div>
+          <img width="20px" src="../assets/git_light.png" alt="Repo" /></>}
+        defaultExpandIcon={<><div className="folder-icon"><ChevronRightIcon /></div>
+          <img width="20px" src="../assets/git_light.png" alt="Repo" /></>}
       >
         {repos.length == 0 && <TreeItem key={'no-repo'} nodeId={'no-repo'} label={'[no repos tracked]'} />}
         {repos.length > 0 && repos.map(repo => <RepoStatusComponent key={repo.id} repoId={repo.id} />)}

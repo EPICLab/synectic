@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-commented-out-tests */
+/* eslint-disable max-len */
 import mock from 'mock-fs';
 import * as path from 'path';
 import { homedir } from 'os';

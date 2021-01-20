@@ -62,13 +62,13 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     timeline: {
       margin: theme.spacing(1),
-      "& > :last-child .MuiTimelineItem-content": {
+      '& > :last-child .MuiTimelineItem-content': {
         height: 28
       }
     },
     tl_item: {
       padding: theme.spacing(0, 2),
-      "&:before": {
+      '&:before': {
         flex: 0,
         padding: theme.spacing(0)
       }
@@ -148,7 +148,8 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
           </TimelineSeparator>
           <TimelineContent className={classes.tl_content} >
             <Typography>Checking for merge conflicts...</Typography>
-            {(branchConflicts[1] !== undefined) ? <Typography color='secondary' variant='body2'>Missing git-config: {JSON.stringify(branchConflicts[1])}</Typography> : null}
+            {(branchConflicts[1] !== undefined) ?
+              <Typography color='secondary' variant='body2'>Missing git-config: {JSON.stringify(branchConflicts[1])}</Typography> : null}
           </TimelineContent>
         </TimelineItem>
         : null

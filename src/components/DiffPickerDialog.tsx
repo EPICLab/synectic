@@ -82,7 +82,8 @@ const DiffPickerButton: React.FunctionComponent = () => {
 
   return (
     <>
-      <Button id='diffpicker-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2} onClick={() => setOpen(!open)}>Diff...</Button>
+      <Button id='diffpicker-button' variant='contained' color='primary'
+        disabled={Object.values(cards).length < 2} onClick={() => setOpen(!open)}>Diff...</Button>
       <DiffPickerDialog open={open} options={Object.values(cards)} onClose={handleClose} />
     </>
   );

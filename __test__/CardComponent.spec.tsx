@@ -161,13 +161,13 @@ describe('CardComponent', () => {
     render(<CardContext {...cards['14']} />);
 
     let backsideID = screen.queryByText(/ID:/i);
-    expect(backsideID).toBeNull();
+    expect(backsideID).not.toBeInTheDocument();
 
-    const flipButton = screen.getAllByRole('button')[0];
+    const flipButton = screen.getByRole('button', { name: /button-flip/i });
     fireEvent.click(flipButton);
 
     backsideID = screen.queryByText(/ID:/i);
-    expect(backsideID).not.toBeNull();
+    expect(backsideID).toBeInTheDocument();
   });
 
   it('Explorer Card renders a reverse side when the flip button is clicked', () => {
@@ -175,13 +175,13 @@ describe('CardComponent', () => {
     render(<CardContext {...cards['573']} />);
 
     let backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).toBeNull();
+    expect(backsideName).not.toBeInTheDocument();
 
     const flipButton = screen.getAllByRole('button')[0];
     fireEvent.click(flipButton);
 
     backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).not.toBeNull();
+    expect(backsideName).toBeInTheDocument();
   });
 
   it('Diff Card renders a reverse side when the flip button is clicked', () => {
@@ -189,13 +189,13 @@ describe('CardComponent', () => {
     render(<CardContext {...cards['22']} />);
 
     let backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).toBeNull();
+    expect(backsideName).not.toBeInTheDocument();
 
     const flipButton = screen.getAllByRole('button')[0];
     fireEvent.click(flipButton);
 
     backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).not.toBeNull();
+    expect(backsideName).toBeInTheDocument();
   });
 
   it('Browser Card renders a reverse side when the flip button is clicked', () => {
@@ -219,12 +219,12 @@ describe('CardComponent', () => {
     render(<CardContext {...cards['46']} />);
 
     let icon = screen.queryByRole('img');
-    expect(icon).not.toBeNull();
+    expect(icon).toBeInTheDocument();
 
     const flipButton = screen.getAllByRole('button')[0];
     fireEvent.click(flipButton);
 
     icon = screen.queryByRole('img');
-    expect(icon).toBeNull();
+    expect(icon).not.toBeInTheDocument();
   });
 });

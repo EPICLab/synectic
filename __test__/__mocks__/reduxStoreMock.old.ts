@@ -1,5 +1,6 @@
 /**
- * @deprecated This testing infrastructure file will be removed in upcoming commits, prior to any new releases being created from the `development` branch. Please use the new `reduxStoreMock.ts` implementation instead.
+ * @deprecated This testing infrastructure file will be removed in upcoming commits, prior to any new releases being created from the 
+ * `development` branch. Please use the new `reduxStoreMock.ts` implementation instead.
  */
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
