@@ -40,7 +40,6 @@ describe('Editor', () => {
         metafile: '199',
         created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00'),
         modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
-        captured: false,
         left: 27,
         top: 105
       }

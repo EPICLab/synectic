@@ -38,7 +38,6 @@ describe('DiffPickerDialog', () => {
         metafile: '243',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 10,
         top: 10
       },
@@ -49,7 +48,6 @@ describe('DiffPickerDialog', () => {
         metafile: '459',
         created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00'),
         modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
-        captured: false,
         left: 27,
         top: 105
       }
@@ -228,7 +226,6 @@ describe('DiffPickerButton', () => {
         metafile: '243',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 10,
         top: 10
       },
@@ -239,7 +236,6 @@ describe('DiffPickerButton', () => {
         metafile: '459',
         created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00'),
         modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
-        captured: false,
         left: 27,
         top: 105
       }

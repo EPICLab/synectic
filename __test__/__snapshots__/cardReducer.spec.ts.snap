@@ -3,7 +3,6 @@
 exports[`cardReducer cardReducer appends a new card to state on action ADD_CARD 1`] = `
 Object {
   "40d14391c": Object {
-    "captured": false,
     "created": "2019-11-19T19:22:47.572-08:00",
     "id": "40d14391c",
     "left": 0,
@@ -14,7 +13,6 @@ Object {
     "type": "Editor",
   },
   "t829w0351": Object {
-    "captured": false,
     "created": "2014-04-09T08:14:02.371-08:00",
     "id": "t829w0351",
     "left": 100,
@@ -30,7 +28,6 @@ Object {
 exports[`cardReducer cardReducer updates state of matched card on action UPDATE_CARD 1`] = `
 Object {
   "40d14391c": Object {
-    "captured": false,
     "created": "2019-11-19T19:22:47.572-08:00",
     "id": "40d14391c",
     "left": 178,

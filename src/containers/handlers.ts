@@ -39,7 +39,6 @@ const addCard = (metafile: HandlerRequiredMetafile): AddCardAction | AddErrorAct
     name: metafile.name,
     created: DateTime.local(),
     modified: metafile.modified,
-    captured: false,
     left: 10,
     top: 25,
     type: metafile.handler,
@@ -128,13 +127,13 @@ export const loadStack = (name: string, cards: Card[], note?: string): Action[] 
     modified: DateTime.local(),
     note: note ? note : '',
     cards: cards.map(card => card.id),
-    left: 250,
-    top: 250
+    left: cards[0].left,
+    top: cards[0].top
   };
   const actions: Action[] = [{ type: ActionKeys.ADD_STACK, id: stack.id, stack: stack }];
   cards.map((card, index) => actions.push({
     type: ActionKeys.UPDATE_CARD, id: card.id,
-    card: { ...card, captured: true, top: (10 * index + 50), left: (10 * index + 10) }
+    card: { ...card, captured: stack.id, top: (10 * index + 50), left: (10 * index + 10) }
   }));
   return actions;
 }
