@@ -26,16 +26,21 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const [fileName, setFileName] = React.useState('');
   const [filetype, setFiletype] = React.useState('');
   const [isFileNameValid, setIsFileNameValid] = React.useState(false);
-
   const [isExtensionValid, setIsExtensionValid] = React.useState(false);
 
-  const handleClose = () => {
+  const reset = () => {
     setFileName('');
     setFiletype('');
     setIsExtensionValid(false);
     setIsFileNameValid(false);
-    props.onClose();
-  };
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleClick();
+    }
+  }
 
   const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
@@ -77,19 +82,24 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   const handleClick = async () => {
     if (isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
       const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', path: fileName, filetype: filetype } }));
-      if (metafile) dispatch(loadCard({ metafile: metafile }));
-      handleClose();
+      if (metafile) await dispatch(loadCard({ metafile: metafile }));
+      reset();
+      props.onClose();
     }
   };
 
   return (
     <>
-      <Dialog id="new-card-dialog" open={props.open} onClose={handleClose} aria-labelledby="new-card-dialog">
+      <Dialog id="new-card-dialog" open={props.open} onClose={() => props.onClose()} aria-labelledby="new-card-dialog">
         <div className="new-card-dialog-container">
           <DialogTitle id='new-card-dialog-title' style={{ gridArea: 'header' }}>{'Create New Card'}</DialogTitle>
           <InputLabel id="select-file-name-label" style={{ gridArea: 'upper-left' }}>Enter File Name:</InputLabel>
-          <TextField error={isFileNameValid ? false : true} id="new-card-dialog-file-name"
-            helperText={isFileNameValid ? '' : 'Invalid File Name'} value={fileName} onChange={handleFileNameChange}
+          <TextField error={isFileNameValid ? false : true}
+            id="new-card-dialog-file-name"
+            helperText={isFileNameValid ? '' : 'Invalid File Name'}
+            value={fileName}
+            onChange={handleFileNameChange}
+            onKeyDown={(e) => handleKeyDown(e)}
             style={{ gridArea: 'middle' }} />
           <InputLabel id="select-filetype-label" style={{ gridArea: 'lower-left' }}>Select Filetype:</InputLabel>
           <Select error={filetype === '' ? true : false} value={filetype} onChange={handleFiletypeChange}
@@ -98,7 +108,8 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
           </Select>
           <Button id='create-card-button' variant='contained'
             color={isFileNameValid && isExtensionValid && filetype !== '' && fileName.indexOf('.') !== -1 ? 'primary' : 'default'}
-            onClick={() => handleClick()} style={{ gridArea: 'subfooter' }}>Create New Card</Button>
+            onClick={() => handleClick()}
+            style={{ gridArea: 'subfooter' }}>Create New Card</Button>
         </div>
       </Dialog>
     </>
@@ -117,7 +128,7 @@ const NewCardButton: React.FunctionComponent = () => {
 
   return (
     <>
-      <Button id='newcard-button' variant='contained' color='primary' onClick={(e) => { handleClick(e) }}>New...</Button>
+      <Button id='newcard-button' variant='contained' color='primary' onClick={(e) => handleClick(e)}>New...</Button>
       <NewCardDialog open={open} onClose={handleClose} />
     </>
   );
