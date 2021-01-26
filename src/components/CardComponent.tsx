@@ -110,8 +110,6 @@ const CardComponent: React.FunctionComponent<Card> = props => {
           break;
         }
       }
-      const delta = monitor.getDifferenceFromInitialOffset();
-      console.log(delta);
     },
     collect: monitor => ({
       isOver: !!monitor.isOver() // return isOver prop to highlight drop sources that accept hovered item
