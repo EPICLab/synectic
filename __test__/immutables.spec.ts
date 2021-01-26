@@ -1,7 +1,7 @@
 import * as utils from '../src/store/immutables';
 
 type State = {
-  config: { id: string; display: boolean; enabled: boolean };
+  config: { id: string; display?: boolean; enabled: boolean };
   colors: string[];
   cats: { [id: string]: { id: string; age: number; color: string } };
 }
@@ -32,6 +32,13 @@ describe('immutables.updateObject', () => {
     const newState = utils.updateObject(state, { config: { ...state.config, enabled: true } });
     expect(newState.config.id).toMatch(state.config.id);
     expect(newState.config.enabled).toBe(true);
+  });
+
+  it('updateObject immutably allows removal of optional properties', () => {
+    const { display, ...newConfig } = state.config;
+    const newState = utils.updateObject(state, { config: newConfig });
+    expect(newState.config).not.toHaveProperty('display');
+    expect(newState.config).toMatchObject(newConfig);
   });
 });
 
