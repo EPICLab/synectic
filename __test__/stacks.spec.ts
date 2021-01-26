@@ -32,6 +32,15 @@ const cards: Card[] = [
     created: DateTime.fromISO('2018-09-15T15:54:11.371-08:00'),
     modified: DateTime.fromISO('2019-01-01T09:29:47.061-08:00'),
     left: 140, top: 90
+  },
+  {
+    id: '6aa5409b3',
+    name: 'card4',
+    type: 'Browser',
+    metafile: '58598471',
+    created: DateTime.fromISO('2011-01-01T01:05:40.001-08:00'),
+    modified: DateTime.fromISO('2011-01-01T01:05:43.153-08:00'),
+    left: 131, top: 19
   }];
 
 const stack: Stack = {
@@ -88,21 +97,33 @@ describe('stacks.updateStack', () => {
 });
 
 describe('stacks.appendCard', () => {
-  it('appendCard resolves UPDATE_STACK and UPDATE_CARD actions for adding child Card', () => {
-    const actions = stacks.appendCard(stack, cards[2]);
-    expect(actions).toHaveLength(2);
+  it('appendCard resolves UPDATE_STACK and UPDATE_CARD actions for adding child Cards', () => {
+    const actions = stacks.appendCards(stack, [cards[2], cards[3]]);
+    expect(actions).toHaveLength(3);
     expect(actions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: ActionKeys.UPDATE_STACK,
           stack: expect.objectContaining({
-            cards: expect.arrayContaining([cards[2].id])
+            cards: expect.arrayContaining([cards[2].id, cards[3].id])
           })
         }),
         expect.objectContaining({
           type: ActionKeys.UPDATE_CARD,
           card: expect.objectContaining({
-            captured: stack.id
+            id: cards[2].id,
+            captured: stack.id,
+            top: (10 * (stack.cards.length + 0) + 50),
+            left: (10 * (stack.cards.length + 0) + 10)
+          })
+        }),
+        expect.objectContaining({
+          type: ActionKeys.UPDATE_CARD,
+          card: expect.objectContaining({
+            id: cards[3].id,
+            captured: stack.id,
+            top: (10 * (stack.cards.length + 1) + 50),
+            left: (10 * (stack.cards.length + 1) + 10)
           })
         })
       ])

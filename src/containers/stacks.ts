@@ -50,16 +50,21 @@ export const updateStack = (stack: Stack): UpdateStackAction => {
 };
 
 /**
- * Action Creator for composing a valid UPDATE_STACK and UPDATE_CARD Redux actions for capturing a child card and containing
- * that card within a stack. Positioning of the card becomes relative to the bounds of the stack.
- * @param stack The target `Stack` object that should receive the new card.
- * @param card The `Card` object to be added to the stack.
+ * Action Creator for composing a valid UPDATE_STACK and UPDATE_CARD Redux actions for capturing child cards and appending them to be
+ * contained within a stack. Positioning of the cards becomes relative to the bounds of the stack and order of insertion.
+ * @param stack The target `Stack` object that should receive the new cards.
+ * @param cards An array of `Card` objects to be added to the stack.
  * @return An array of `UpdateStackAction` and `UpdateCardAction` objects that can be dispatched via Redux.
  */
-export const appendCard = (stack: Stack, card: Card): (UpdateStackAction | UpdateCardAction)[] => {
+export const appendCards = (stack: Stack, cards: Card[]): (UpdateStackAction | UpdateCardAction)[] => {
   return [
-    updateStack({ ...stack, cards: [...stack.cards, card.id] }),
-    updateCard({ ...card, captured: stack.id, top: (10 * stack.cards.length + 50), left: (10 * stack.cards.length + 10) })
+    updateStack({ ...stack, cards: [...stack.cards, ...cards.map(card => card.id)] }),
+    ...cards.map((card, index) => updateCard({
+      ...card,
+      captured: stack.id,
+      top: (10 * (stack.cards.length + index) + 50),
+      left: (10 * (stack.cards.length + index) + 10)
+    }))
   ];
 }
 
