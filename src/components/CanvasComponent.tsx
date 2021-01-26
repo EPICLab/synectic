@@ -1,24 +1,23 @@
 import React from 'react';
-// eslint-disable-next-line import/named
-import { useDrop, XYCoord } from 'react-dnd';
+import { useDrop } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
 
 import { RootState } from '../store/root';
 import { Canvas } from '../types';
-import { ActionKeys } from '../store/actions';
 import NewCardButton from './NewCardDialog';
 import FilePickerButton from './FilePickerDialog';
 import { BrowserButton } from './Browser';
 import DiffPickerButton from './DiffPickerDialog';
 import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
-import { loadStack } from '../containers/handlers';
 import ErrorDialog from './ErrorDialog';
 import VersionStatusButton from './RepoBranchList';
 import MergeButton from './MergeDialog';
 import GitInfoButton from './GitInfoDialog';
 import { GitGraphButton } from './GitGraphButton';
+import { removeCard, updateStack } from '../containers/stacks';
+import { updateCard } from '../containers/cards';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -29,31 +28,31 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const errors = useSelector((state: RootState) => Object.values(state.errors));
   const dispatch = useDispatch();
 
+  // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
     accept: ['CARD', 'STACK'],
-    collect: monitor => ({
-      isOver: !!monitor.isOver(),
-      canDrop: !!monitor.canDrop()
-    }),
+    canDrop: (_item, monitor) => {
+      return !monitor.getItem().captured;
+    },
     drop: (item, monitor) => {
-      const delta = monitor.getDifferenceFromInitialOffset() as XYCoord;
       switch (item.type) {
         case 'CARD': {
           const card = cards[monitor.getItem().id];
-          dispatch({
-            type: ActionKeys.UPDATE_CARD,
-            id: card.id,
-            card: { ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }
-          });
+          const delta = monitor.getDifferenceFromInitialOffset();
+          if (!delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
+          if (card.captured) {
+            const actions = removeCard(stacks[card.captured], card, delta);
+            actions.map(action => dispatch(action));
+          } else {
+            dispatch(updateCard({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
+          }
           break;
         }
         case 'STACK': {
           const stack = stacks[monitor.getItem().id];
-          dispatch({
-            type: ActionKeys.UPDATE_STACK,
-            id: stack.id,
-            stack: { ...stack, left: Math.round(stack.left + delta.x), top: Math.round(stack.top + delta.y) }
-          });
+          const delta = monitor.getDifferenceFromInitialOffset();
+          if (!delta) return; // no dragging is occurring, perhaps a stack was picked up and dropped without dragging
+          dispatch(updateStack({ ...stack, left: Math.round(stack.left + delta.x), top: Math.round(stack.top + delta.y) }));
           break;
         }
         default: {
@@ -64,25 +63,22 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     }
   });
 
-  const createStack = () => {
-    const cardsList = Object.values(cards);
-    const actions = loadStack('test', [cardsList[0], cardsList[1]], 'go get some testing');
-    actions.map(action => dispatch(action));
-  }
-
   const showState = () => {
     const allCards = Object.values(cards);
+    const allStacks = Object.values(stacks);
     console.log(`CARDS: ${allCards.length}`)
-    allCards.map(c => console.log(`name: ${c.name}, type: ${c.type}, metafile: ${c.metafile}`));
-    console.log(`METAFILES: ${metafiles.length}`);
+    allCards.map(c => console.log(`id: ${c.id}, name: ${c.name}, type: ${c.type}, metafile: ${c.metafile}, captured: ${c.captured}`));
+    console.log(`STACKS: ${allStacks.length}`)
+    allStacks.map(s => console.log(`id: ${s.id}, name: ${s.name}, cards: ${JSON.stringify(s.cards)}`));
+    console.log(`METAFILES: ${metafiles.length} `);
     metafiles.map(m => console.log(`id: ${m.id}, name: ${m.name}, path: ${m.path}, branch: ${m.branch}, contains: ${m.contains
-      ? JSON.stringify(m.contains) : ''}, content: ${m.content ? m.content : ''}, targets: ${m.targets ? JSON.stringify(m.targets) : ''}`));
-    console.log(`REPOS: ${repos.length}`);
+      ? JSON.stringify(m.contains) : ''
+      }, content: ${m.content ? m.content : ''}, targets: ${m.targets ? JSON.stringify(m.targets) : ''} `));
+    console.log(`REPOS: ${repos.length} `);
     repos.map(r =>
-      console.log(`name: ${r.name}, path: ${r.url.href}, local: ${JSON.stringify(r.local)}, remote: ${JSON.stringify(r.remote)}`));
-    console.log(`FILETYPES: ${filetypes.length}`);
-    // filetypes.map(f => console.log(`filetype: ${f.filetype}, handler: ${f.handler.toString()}, extensions: ${f.extensions}`));
-    console.log(`ERRORS: ${errors.length}`);
+      console.log(`name: ${r.name}, path: ${r.url.href}, local: ${JSON.stringify(r.local)}, remote: ${JSON.stringify(r.remote)} `));
+    console.log(`FILETYPES: ${filetypes.length} `);
+    console.log(`ERRORS: ${errors.length} `);
     console.log(JSON.stringify(errors));
   }
 
@@ -96,8 +92,6 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
       <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
       <MergeButton />
       <DiffPickerButton />
-      <Button id='stack-button' variant='contained' color='primary' disabled={Object.values(cards).length < 2}
-        onClick={createStack}>Stack...</Button>
       <GitGraphButton />
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}

@@ -11,7 +11,7 @@ import { BrowserComponent } from './Browser';
 import { makeStyles } from '@material-ui/core';
 import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
-import { addStack, appendCard } from '../containers/stacks';
+import { addStack, appendCards } from '../containers/stacks';
 
 export const useStyles = makeStyles({
   root: {
@@ -93,7 +93,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
         case 'CARD': {
           const dropSource = cards[monitor.getItem().id];
           if (dropTarget.captured) {
-            const actions = appendCard(stacks[dropTarget.captured], dropSource);
+            const actions = appendCards(stacks[dropTarget.captured], [dropSource]);
             actions.map(action => dispatch(action));
           } else {
             const actions = addStack('test', [dropTarget, dropSource], 'go get some testing');
@@ -104,7 +104,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
         case 'STACK': {
           if (!props.captured) {
             const dropSource = stacks[monitor.getItem().id];
-            const actions = appendCard(dropSource, dropTarget);
+            const actions = appendCards(dropSource, [dropTarget]);
             actions.map(action => dispatch(action));
           }
           break;
