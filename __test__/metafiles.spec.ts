@@ -355,7 +355,7 @@ describe('metafiles.updateContents', () => {
           id: '28',
           name: 'foo',
           path: 'foo',
-          contains: ['foo/bar.js']
+          contains: expect.arrayContaining(['foo/bar.js'])
         })
       })
     ]);
