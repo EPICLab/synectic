@@ -41,7 +41,13 @@ export const addStack = (name: string, cards: Card[], note?: string): (AddStackA
  * @param stack A `Stack` object containing new field values to be updated.
  * @return An `UpdateStackAction` object that can be dispatched via Redux, including an updated timestamp in the `modified` field.
  */
-export const updateStack = (stack: Stack): UpdateStackAction => updateStack({ ...stack, modified: DateTime.local() });
+export const updateStack = (stack: Stack): UpdateStackAction => {
+  return {
+    type: ActionKeys.UPDATE_STACK,
+    id: stack.id,
+    stack: { ...stack, modified: DateTime.local() }
+  };
+};
 
 /**
  * Action Creator for composing a valid UPDATE_STACK and UPDATE_CARD Redux actions for capturing a child card and containing
