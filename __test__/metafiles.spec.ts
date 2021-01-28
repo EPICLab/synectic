@@ -1,5 +1,6 @@
 import mock from 'mock-fs';
 import parsePath from 'parse-path';
+import { normalize } from 'path';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -348,18 +349,17 @@ describe('metafiles.updateContents', () => {
 
   it('updateContents resolves contains list for existing directory', async () => {
     await store.dispatch(metafiles.updateContents('28'));
-    expect(store.getActions()).toMatchSnapshot();
-    // expect(store.getActions()).toEqual([
-    //   expect.objectContaining({
-    //     type: ActionKeys.UPDATE_METAFILE,
-    //     metafile: expect.objectContaining({
-    //       id: '28',
-    //       name: 'foo',
-    //       path: 'foo',
-    //       contains: expect.arrayContaining(['foo/bar.js'])
-    //     })
-    //   })
-    // ]);
+    expect(store.getActions()).toEqual([
+      expect.objectContaining({
+        type: ActionKeys.UPDATE_METAFILE,
+        metafile: expect.objectContaining({
+          id: '28',
+          name: 'foo',
+          path: 'foo',
+          contains: expect.arrayContaining([normalize('foo/bar.js')])
+        })
+      })
+    ]);
   });
 
   it('updateContents resolves to error on UUID with no match in the Redux store', async () => {
