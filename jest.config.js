@@ -9,7 +9,10 @@ module.exports = {
   },
   preset: 'ts-jest',
   roots: ['<rootDir>/__test__'],
-  snapshotSerializers: ['enzyme-to-json/serializer'],
+  snapshotSerializers: [
+    'jest-serializer-path',
+    'enzyme-to-json/serializer'
+  ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     "ace-builds": "<rootDir>/node_modules/ace-builds",
