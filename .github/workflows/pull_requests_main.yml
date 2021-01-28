@@ -1,7 +1,7 @@
 name: Production Test Check
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 jobs:
   initial_state:
     runs-on: macos-latest
