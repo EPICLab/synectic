@@ -43,7 +43,7 @@
     "brace": "^0.11.1",
     "chai": "^4.2.0",
     "css-loader": "^2.1.0",
-    "electron": "^4.0.1",
+    "electron": "^9.4.0",
     "electron-mocha": "^6.0.4",
     "expose-loader": "^0.7.5",
     "fast-diff": "^1.2.0",
