@@ -181,7 +181,6 @@ describe('git.getConfig', () => {
   afterAll(mock.restore);
 
   it('getConfig resolves global git-config value', async () => {
-
     return expect(git.getConfig('user.name', true)).resolves.toStrictEqual({ scope: 'global', value: 'Sandy Updates' });
   });
 

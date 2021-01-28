@@ -1,5 +1,6 @@
 import mock from 'mock-fs';
 import parsePath from 'parse-path';
+import { normalize } from 'path';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -355,7 +356,7 @@ describe('metafiles.updateContents', () => {
           id: '28',
           name: 'foo',
           path: 'foo',
-          contains: ['foo/bar.js']
+          contains: expect.arrayContaining([normalize('foo/bar.js')])
         })
       })
     ]);
