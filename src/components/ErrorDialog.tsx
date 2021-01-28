@@ -1,7 +1,8 @@
 import React from 'react';
-import { Dialog, DialogTitle, Button, DialogContent, DialogContentText } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
-import { Error } from '../types';
+import { Dialog, DialogTitle, Button, DialogContent, DialogContentText } from '@material-ui/core';
+
+import type { Error } from '../types';
 import { ActionKeys } from '../store/actions';
 
 const ErrorDialog: React.FunctionComponent<Error> = props => {

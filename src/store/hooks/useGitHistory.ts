@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { ReadCommitResult } from 'isomorphic-git';
 
-import { Repository } from '../../types';
+import type { Repository } from '../../types';
 import { log } from '../../containers/git';
 
 type useGitHistoryHook = {

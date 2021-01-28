@@ -4,7 +4,7 @@ import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
-import { Metafile, Filetype, Error, UUID } from '../types';
+import type { Metafile, Filetype, Error, UUID } from '../types';
 import { RootState } from '../store/root';
 import * as io from './io';
 import * as git from './git';

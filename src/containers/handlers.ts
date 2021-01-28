@@ -1,13 +1,14 @@
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import filetypesJson from './filetypes.json';
-import { ActionKeys, Action, NarrowActionType } from '../store/actions';
-import { Filetype, Metafile, Card, Stack, Error } from '../types';
 import { ThunkAction } from 'redux-thunk';
-import { RootState } from '../store/root';
 import { AnyAction } from 'redux';
 import { PathLike } from 'fs-extra';
+
+import type { Filetype, Metafile, Card, Stack, Error } from '../types';
+import { RootState } from '../store/root';
 import { getMetafile } from './metafiles';
+import { ActionKeys, Action, NarrowActionType } from '../store/actions';
+import filetypesJson from './filetypes.json';
 
 type AddCardAction = NarrowActionType<ActionKeys.ADD_CARD>;
 type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;

@@ -10,8 +10,8 @@ import { isWebUri } from 'valid-url';
 import getGitConfigPath from 'git-config-path';
 import { shouldBeHiddenSync } from 'hidefile';
 
+import type { Repository, GitStatus } from '../types';
 import * as io from './io';
-import { Repository, GitStatus } from '../types';
 
 export type BranchDiffResult = {
   path: string,

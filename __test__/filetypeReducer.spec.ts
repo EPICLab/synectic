@@ -1,6 +1,6 @@
+import type { Filetype } from '../src/types';
 import { filetypeReducer } from '../src/store/reducers/filetypes';
 import { ActionKeys } from '../src/store/actions';
-import { Filetype } from '../src/types';
 
 describe('filetypeReducer', () => {
   const filetypes: { [id: string]: Filetype } = {

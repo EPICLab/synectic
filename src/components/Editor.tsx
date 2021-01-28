@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store/root';
-import { UUID, Card } from '../types';
 import 'ace-builds';
 import AceEditor from 'react-ace';
 /* webpack-resolver incorrectly resolves basePath for file-loader unless at least one mode has already been loaded, 
@@ -11,6 +9,9 @@ import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
+
+import type { UUID, Card } from '../types';
+import { RootState } from '../store/root';
 import { ActionKeys } from '../store/actions';
 import { BranchList } from './BranchList';
 

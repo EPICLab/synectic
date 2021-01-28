@@ -6,7 +6,7 @@ import { AnyAction } from 'redux';
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 
-import { Repository, Card, Metafile, Error, UUID } from '../types';
+import type { Repository, Card, Metafile, Error, UUID } from '../types';
 import { RootState } from '../store/root';
 import { ActionKeys, NarrowActionType, Action } from '../store/actions';
 import { getMetafile } from './metafiles';

@@ -3,8 +3,8 @@ import { useDispatch } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
 import { PathLike } from 'fs-extra'
 
+import type { Metafile } from '../../types'
 import { RootState } from '../root'
-import { Metafile } from '../../types'
 import { Action } from '../actions'
 import { getMetafile, filterDirectoryContainsTypes, ContainsRequiredMetafile } from '../../containers/metafiles'
 

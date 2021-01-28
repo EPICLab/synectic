@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { InputLabel, FormControl, Button, Dialog, Select, Input, MenuItem, DialogTitle } from '@material-ui/core';
 
+import type { UUID, Card } from '../types';
 import { RootState } from '../store/root';
-import { UUID, Card } from '../types';
 import { Action } from '../store/actions';
 import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';

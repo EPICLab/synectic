@@ -7,8 +7,8 @@ import { makeStyles } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
+import type { UUID, Card } from '../types';
 import { RootState } from '../store/root';
-import { UUID, Card } from '../types';
 import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
 import { useDirectory } from '../store/hooks/useDirectory';

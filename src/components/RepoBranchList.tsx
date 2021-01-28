@@ -8,8 +8,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { v4 } from 'uuid';
 
+import type { UUID } from '../types';
 import { RootState } from '../store/root';
-import { UUID } from '../types';
 import { loadCard } from '../containers/handlers';
 import { removeDuplicates } from '../containers/format';
 import BranchComponent from './BranchStatusComponent';

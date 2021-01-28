@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { useDrag } from 'react-dnd';
 
-import { Stack } from '../types';
+import type { Stack } from '../types';
 import { RootState } from '../store/root';
 import CardComponent from './CardComponent';
 

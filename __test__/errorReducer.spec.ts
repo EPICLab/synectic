@@ -1,4 +1,4 @@
-import { Error } from '../src/types';
+import type { Error } from '../src/types';
 import { errorReducer } from '../src/store/reducers/errors';
 import { ActionKeys } from '../src/store/actions';
 

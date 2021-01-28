@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { Stack } from '../src/types';
+import type { Stack } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { stackReducer } from '../src/store/reducers/stacks';
 

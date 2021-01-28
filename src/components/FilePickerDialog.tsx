@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import { remote } from 'electron';
+
 import { loadCard } from '../containers/handlers';
 
 const FilePickerButton: React.FunctionComponent = () => {
