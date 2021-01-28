@@ -15,6 +15,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "importsNotUsedAsValues": "preserve",
     "isolatedModules": true,
     "noEmit": true,
     "noUnusedLocals": true,
