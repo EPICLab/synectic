@@ -1,5 +1,5 @@
+import type { Error } from '../../types';
 import { Action, ActionKeys } from '../actions';
-import { Error } from '../../types';
 import { addItemInMap, removeItemInMap } from '../immutables';
 
 export const errorReducer = (state: { [id: string]: Error } = {}, action: Action): { [id: string]: Error } => {

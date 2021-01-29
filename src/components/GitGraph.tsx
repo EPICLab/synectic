@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, Node } from 'react-flow-renderer';
 
-import { Repository } from '../types';
+import type { Repository } from '../types';
 import { nodeTypes } from './GitNode';
 import { useGitHistory } from '../store/hooks/useGitHistory';
 import { ReadCommitResult } from 'isomorphic-git';

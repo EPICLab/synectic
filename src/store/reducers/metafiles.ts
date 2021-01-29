@@ -1,5 +1,5 @@
+import type { Metafile } from '../../types';
 import { Action, ActionKeys } from '../actions';
-import { Metafile } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject, updateMatchesInMap } from '../immutables';
 
 export const metafileReducer = (state: { [id: string]: Metafile } = {}, action: Action): { [id: string]: Metafile } => {

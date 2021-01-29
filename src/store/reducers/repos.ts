@@ -1,5 +1,5 @@
+import type { Repository } from '../../types';
 import { Action, ActionKeys } from '../actions';
-import { Repository } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
 export const reposReducer = (state: { [id: string]: Repository } = {}, action: Action): { [id: string]: Repository } => {

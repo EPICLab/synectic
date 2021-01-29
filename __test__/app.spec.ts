@@ -1,8 +1,9 @@
 import { rootReducer } from '../src/store/root';
 import { createStore } from 'redux';
 import { ActionKeys } from '../src/store/actions';
-import { Card } from '../src/types';
 import { DateTime } from 'luxon';
+
+import type { Card } from '../src/types';
 
 describe('App', () => {
 

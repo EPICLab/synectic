@@ -3,7 +3,7 @@ import isUUID from 'validator/lib/isUUID';
 import { mount } from 'enzyme';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { mockStore, extractFieldMap } from './__mocks__/reduxStoreMock';
@@ -164,7 +164,9 @@ describe('CardComponent', () => {
     expect(backsideID).not.toBeInTheDocument();
 
     const flipButton = screen.getByRole('button', { name: /button-flip/i });
-    fireEvent.click(flipButton);
+    act(() => {
+      fireEvent.click(flipButton);
+    });
 
     backsideID = screen.queryByText(/ID:/i);
     expect(backsideID).toBeInTheDocument();
@@ -178,7 +180,9 @@ describe('CardComponent', () => {
     expect(backsideName).not.toBeInTheDocument();
 
     const flipButton = screen.getAllByRole('button')[0];
-    fireEvent.click(flipButton);
+    act(() => {
+      fireEvent.click(flipButton);
+    });
 
     backsideName = screen.queryByText(/Name:/i);
     expect(backsideName).toBeInTheDocument();
@@ -192,7 +196,9 @@ describe('CardComponent', () => {
     expect(backsideName).not.toBeInTheDocument();
 
     const flipButton = screen.getAllByRole('button')[0];
-    fireEvent.click(flipButton);
+    act(() => {
+      fireEvent.click(flipButton);
+    });
 
     backsideName = screen.queryByText(/Name:/i);
     expect(backsideName).toBeInTheDocument();
@@ -208,7 +214,9 @@ describe('CardComponent', () => {
     expect(numButtons).toBe(5);
 
     const flipButton = buttons[0];
-    fireEvent.click(flipButton);
+    act(() => {
+      fireEvent.click(flipButton);
+    });
 
     numButtons = screen.getAllByRole('button').length;
     expect(numButtons).toBe(2);
@@ -222,7 +230,9 @@ describe('CardComponent', () => {
     expect(icon).toBeInTheDocument();
 
     const flipButton = screen.getAllByRole('button')[0];
-    fireEvent.click(flipButton);
+    act(() => {
+      fireEvent.click(flipButton);
+    });
 
     icon = screen.queryByRole('img');
     expect(icon).not.toBeInTheDocument();

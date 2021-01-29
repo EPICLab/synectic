@@ -4,12 +4,12 @@ import { normalize } from 'path';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
+import type { Repository, Metafile } from '../src/types';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { ActionKeys } from '../src/store/actions';
 import * as metafiles from '../src/containers/metafiles';
 import * as repos from '../src/containers/repos';
 import * as git from '../src/containers/git';
-import { Repository, Metafile } from '../src/types';
 
 describe('metafiles.addMetafile', () => {
 

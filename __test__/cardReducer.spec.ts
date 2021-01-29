@@ -1,9 +1,8 @@
 import { DateTime } from 'luxon';
 
-// import { Card, CardType } from '../src/types';
+import type { Card } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { cardReducer } from '../src/store/reducers/cards';
-import { Card } from '../src/types';
 
 describe('cardReducer', () => {
   const cards: { [id: string]: Card } = {

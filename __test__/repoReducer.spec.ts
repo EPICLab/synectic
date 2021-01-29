@@ -1,5 +1,6 @@
 import parsePath from 'parse-path';
-import { Repository } from '../src/types';
+
+import type { Repository } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { reposReducer } from '../src/store/reducers/repos';
 

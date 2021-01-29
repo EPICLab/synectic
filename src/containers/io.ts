@@ -2,8 +2,9 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import pako from 'pako';
 import { TextDecoder } from 'util';
+
+import type { Filetype } from '../types';
 import { flattenArray } from './flatten';
-import { Filetype } from '../types';
 
 /**
  * Encoding formats that adhere to the name of 

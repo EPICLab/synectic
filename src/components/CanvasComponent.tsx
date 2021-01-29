@@ -1,11 +1,10 @@
 import React from 'react';
-// eslint-disable-next-line import/named
 import { useDrop, XYCoord } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
 
+import type { Canvas } from '../types';
 import { RootState } from '../store/root';
-import { Canvas } from '../types';
 import { ActionKeys } from '../store/actions';
 import NewCardButton from './NewCardDialog';
 import FilePickerButton from './FilePickerDialog';

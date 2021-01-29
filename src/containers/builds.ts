@@ -5,7 +5,7 @@ import { checkout } from 'isomorphic-git';
 import * as fs from 'fs-extra';
 import { join } from 'path';
 
-import { Repository } from '../types';
+import type { Repository } from '../types';
 import { clone, merge } from '../containers/git';
 import { readDirAsync } from './io';
 

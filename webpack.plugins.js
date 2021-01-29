@@ -6,7 +6,7 @@ module.exports = [
     async: false,
     eslint: {
       enabled: true,
-      files: './src/**/*'
+      files: ['./src/**/*.ts', './src/**/*.tsx', './src/**/*.js']
     }
   }),
 ];

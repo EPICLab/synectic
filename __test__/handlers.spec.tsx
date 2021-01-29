@@ -1,9 +1,9 @@
 import mock from 'mock-fs';
 import { DateTime } from 'luxon';
 
+import type { Card } from '../src/types';
 import { importFiletypes, loadStack } from '../src/containers/handlers';
 import { ActionKeys } from '../src/store/actions';
-import { Card } from '../src/types';
 
 const card: Card = {
   id: 't829w0351',

@@ -1,5 +1,5 @@
+import type { Card } from '../../types';
 import { Action, ActionKeys } from '../actions';
-import { Card } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
 export const cardReducer = (state: { [id: string]: Card } = {}, action: Action): { [id: string]: Card } => {

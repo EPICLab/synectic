@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { Metafile } from '../src/types';
+import type { Metafile } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { metafileReducer } from '../src/store/reducers/metafiles';
 
