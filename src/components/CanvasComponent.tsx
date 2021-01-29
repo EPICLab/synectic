@@ -1,5 +1,4 @@
 import React from 'react';
-// eslint-disable-next-line import/named
 import { useDrop, XYCoord } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
