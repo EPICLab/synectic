@@ -3,7 +3,7 @@ import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { PathLike } from 'fs-extra';
 
-import type { Filetype, Metafile, Card, Stack, Error } from '../types';
+import type { Filetype, Metafile, Error } from '../types';
 import { RootState } from '../store/root';
 import { getMetafile } from './metafiles';
 import { addCard } from './cards';
