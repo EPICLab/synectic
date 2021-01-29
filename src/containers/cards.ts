@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
+
+import type { Card } from '../types';
 import { ActionKeys, NarrowActionType } from '../store/actions';
-import { Card } from '../types';
 import { HandlerRequiredMetafile } from './handlers';
 
 type AddCardAction = NarrowActionType<ActionKeys.ADD_CARD>;

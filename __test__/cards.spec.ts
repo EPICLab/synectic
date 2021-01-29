@@ -1,9 +1,9 @@
 import { DateTime } from 'luxon';
 
+import type { Card, Metafile } from '../src/types';
 import * as cards from '../src/containers/cards';
 import { HandlerRequiredMetafile } from '../src/containers/handlers';
 import { ActionKeys } from '../src/store/actions';
-import { Card, Metafile } from '../src/types';
 
 const testMetafile: Metafile = {
   id: '3',

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 
-import { Card, Stack } from '../types';
+import type { Card, Stack } from '../types';
 import { ActionKeys, NarrowActionType } from '../store/actions';
 import { updateCard } from './cards';
 import { removeItemInArray } from '../store/immutables';
