@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
-import { Card } from '../types';
+import { makeStyles } from '@material-ui/core';
+
+import type { Card } from '../types';
 import { ActionKeys } from '../store/actions';
 import Explorer, { ExplorerReverse } from './Explorer';
 import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
 import { BrowserComponent } from './Browser';
-import { makeStyles } from '@material-ui/core';
 import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
 import { addStack, appendCards } from '../containers/stacks';

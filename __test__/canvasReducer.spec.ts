@@ -1,7 +1,7 @@
 import parsePath from 'parse-path';
 import { DateTime } from 'luxon';
 
-import { Repository, Canvas, Card, Stack } from '../src/types';
+import type { Repository, Canvas, Card, Stack } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
 import { canvasReducer } from '../src/store/reducers/canvas';
 

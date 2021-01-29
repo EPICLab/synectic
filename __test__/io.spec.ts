@@ -1,7 +1,8 @@
 import mock from 'mock-fs';
-import * as io from '../src/containers/io';
 import * as fs from 'fs-extra';
-import { Filetype } from '../src/types';
+
+import type { Filetype } from '../src/types';
+import * as io from '../src/containers/io';
 
 describe('io.extractStats', () => {
 

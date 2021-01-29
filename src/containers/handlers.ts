@@ -1,14 +1,14 @@
+import { v4 } from 'uuid';
 import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { PathLike } from 'fs-extra';
-import { v4 } from 'uuid';
 
+import type { Filetype, Metafile, Card, Stack, Error } from '../types';
 import { RootState } from '../store/root';
 import { getMetafile } from './metafiles';
 import { addCard } from './cards';
 import filetypesJson from './filetypes.json';
 import { ActionKeys, Action, NarrowActionType } from '../store/actions';
-import { Filetype, Metafile, Error } from '../types';
 
 type AddCardAction = NarrowActionType<ActionKeys.ADD_CARD>;
 type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;

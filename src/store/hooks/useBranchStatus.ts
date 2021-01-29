@@ -1,5 +1,5 @@
+import type { Card, UUID, GitStatus } from '../../types';
 import { useCallback, useState } from 'react';
-import { Card, UUID, GitStatus } from '../../types';
 import { useSelector } from 'react-redux';
 import { getCardsByRepo } from '../selectors/repos';
 import { getStatus } from '../../containers/git';

@@ -1,7 +1,7 @@
 import React from 'react';
-import { UUID } from '../types';
-
 import TreeItem from '@material-ui/lab/TreeItem';
+
+import type { UUID } from '../types';
 import { useBranchStatus } from '../store/hooks/useBranchStatus';
 
 const BranchComponent: React.FunctionComponent<{ repo: UUID, branch: string }> = props => {

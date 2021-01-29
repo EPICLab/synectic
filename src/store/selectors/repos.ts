@@ -1,5 +1,5 @@
+import type { UUID, Card } from '../../types';
 import { RootState } from '../root';
-import { UUID, Card } from '../../types';
 
 export const getCardsByRepo = (repo: UUID, branch?: string) => (state: RootState): Card[] => {
   return Object.values(state.cards)

@@ -1,8 +1,9 @@
 import { createStyles, FormControl, InputLabel, makeStyles, MenuItem, Select, Theme } from '@material-ui/core';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+
+import type { Repository, UUID } from '../types';
 import { RootState } from '../store/root';
-import { Repository, UUID } from '../types';
 import { GitGraph } from './GitGraph';
 
 const useStyles = makeStyles((theme: Theme) =>

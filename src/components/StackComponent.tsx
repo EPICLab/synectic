@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 
-import { Stack } from '../types';
+import type { Stack } from '../types';
 import { RootState } from '../store/root';
 import CardComponent from './CardComponent';
 import { appendCards, removeCard } from '../containers/stacks';

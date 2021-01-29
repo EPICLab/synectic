@@ -1,5 +1,5 @@
+import type { Stack } from '../../types';
 import { Action, ActionKeys } from '../actions';
-import { Stack } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
 export const stackReducer = (state: { [id: string]: Stack } = {}, action: Action): { [id: string]: Stack } => {

@@ -3,8 +3,8 @@ import { useDrop } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core';
 
+import type { Canvas } from '../types';
 import { RootState } from '../store/root';
-import { Canvas } from '../types';
 import NewCardButton from './NewCardDialog';
 import FilePickerButton from './FilePickerDialog';
 import { BrowserButton } from './Browser';

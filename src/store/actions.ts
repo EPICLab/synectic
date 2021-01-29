@@ -1,4 +1,4 @@
-import { UUID, Card, Stack, Filetype, Metafile, Repository, Error } from '../types';
+import type { UUID, Card, Stack, Filetype, Metafile, Repository, Error } from '../types';
 
 export enum ActionKeys {
   INITIALIZE_CANVAS,

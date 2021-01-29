@@ -7,7 +7,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import { green, red } from '@material-ui/core/colors';
 
-import { Repository, UUID } from '../types';
+import type { Repository, UUID } from '../types';
 import { RootState } from '../store/root';
 import * as git from '../containers/git';
 import { build } from '../containers/builds';

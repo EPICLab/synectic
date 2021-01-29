@@ -5,12 +5,12 @@ import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
+import { TextField } from '@material-ui/core';
 
+import type { Filetype } from '../src/types';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import { NewCardDialog } from '../src/components/NewCardDialog';
-import { TextField } from '@material-ui/core';
-import { Filetype } from '../src/types';
 
 type EmptyObject = Record<string, unknown>;
 

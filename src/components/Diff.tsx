@@ -7,8 +7,8 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
+import type { UUID, Card } from '../types';
 import { RootState } from '../store/root';
-import { UUID, Card } from '../types';
 import { diff } from '../containers/diff';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {

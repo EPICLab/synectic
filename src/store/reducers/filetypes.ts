@@ -1,5 +1,5 @@
+import type { Filetype } from '../../types';
 import { Action, ActionKeys } from '../actions';
-import { Filetype } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
 export const filetypeReducer = (state: { [id: string]: Filetype } = {}, action: Action): { [id: string]: Filetype } => {

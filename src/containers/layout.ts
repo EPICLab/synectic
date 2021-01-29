@@ -1,5 +1,6 @@
 import dagre from 'dagre';
-import { FlowElement, isNode, isEdge } from 'react-flow-renderer';
+import type { FlowElement } from 'react-flow-renderer';
+import { isNode, isEdge } from 'react-flow-renderer';
 
 export const layoutOptimizer = (rfGraph: Array<FlowElement>): Array<FlowElement> => {
   const graph = new dagre.graphlib.Graph();
