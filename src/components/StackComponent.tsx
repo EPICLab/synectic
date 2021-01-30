@@ -23,6 +23,11 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
 
   const [, drop] = useDrop({
     accept: ['CARD', 'STACK'],
+    canDrop: (item, monitor) => {
+      const dropTarget = stacks[props.id];
+      const dropSource = item.type === 'CARD' ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
+      return dropTarget && dropTarget.id !== dropSource.id; // restrict dropped items from accepting a self-referencing drop (i.e. dropping a stack on itself)
+    },
     drop: (item, monitor) => {
       const delta = monitor.getDifferenceFromInitialOffset();
       if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
