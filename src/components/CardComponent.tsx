@@ -12,7 +12,7 @@ import Diff, { DiffReverse } from './Diff';
 import { BrowserComponent } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
-import { addStack, appendCards } from '../containers/stacks';
+import { addStack, appendCards, removeCard } from '../containers/stacks';
 
 export const useStyles = makeStyles({
   root: {
@@ -90,9 +90,15 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     },
     drop: (item, monitor) => {
       const dropTarget = cards[props.id];
+      const delta = monitor.getDifferenceFromInitialOffset();
+      if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
       switch (item.type) {
         case 'CARD': {
           const dropSource = cards[monitor.getItem().id];
+          if (dropSource.captured) {
+            const actions = removeCard(stacks[dropSource.captured], dropSource, delta);
+            actions.map(action => dispatch(action));
+          }
           if (dropTarget.captured) {
             const actions = appendCards(stacks[dropTarget.captured], [dropSource]);
             actions.map(action => dispatch(action));
