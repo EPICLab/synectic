@@ -27,7 +27,6 @@ describe('useBranchStatus', () => {
         name: 'bar.js',
         created: DateTime.fromISO('2010-01-15T11:19:23.810-08:00'),
         modified: DateTime.fromISO('2010-01-15T11:19:23.810-08:00'),
-        captured: false,
         left: 10,
         top: 25,
         type: 'Editor',

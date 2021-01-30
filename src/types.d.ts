@@ -15,7 +15,7 @@ export type Card = {
   readonly metafile: UUID;
   readonly created: DateTime;
   readonly modified: DateTime;
-  readonly captured: boolean;
+  readonly captured?: UUID;
   readonly left: number;
   readonly top: number;
 };

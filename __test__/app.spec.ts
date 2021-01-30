@@ -14,7 +14,6 @@ describe('App', () => {
     metafile: '65914371',
     created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00'),
     modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00'),
-    captured: false,
     left: 100,
     top: 50
   };

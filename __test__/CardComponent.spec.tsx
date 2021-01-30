@@ -36,7 +36,6 @@ describe('CardComponent', () => {
         metafile: '243',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 10,
         top: 10
       },
@@ -47,7 +46,6 @@ describe('CardComponent', () => {
         metafile: '199',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 20,
         top: 40
       },
@@ -58,7 +56,6 @@ describe('CardComponent', () => {
         metafile: '243',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 10,
         top: 10
       },
@@ -69,7 +66,6 @@ describe('CardComponent', () => {
         metafile: '243',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 10,
         top: 10
       },
@@ -80,7 +76,6 @@ describe('CardComponent', () => {
         metafile: '243',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 10,
         top: 10
       },
@@ -91,7 +86,6 @@ describe('CardComponent', () => {
         metafile: '243',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        captured: false,
         left: 10,
         top: 10
       }

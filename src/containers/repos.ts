@@ -12,6 +12,7 @@ import { ActionKeys, NarrowActionType, Action } from '../store/actions';
 import { getMetafile } from './metafiles';
 import { extractFilename } from './io';
 import { getRepoRoot, isValidRepository, extractRepoName, extractFromURL } from './git';
+import { updateCard } from './cards';
 
 type AddRepoAction = NarrowActionType<ActionKeys.ADD_REPO>;
 type UpdateRepoAction = NarrowActionType<ActionKeys.UPDATE_REPO>;
@@ -88,16 +89,12 @@ export const reposError = (target: string, message: string): AddErrorAction => {
 * @return An `UpdateCardAction` object that can be dispatched via Redux.
 */
 const switchCardMetafile = (card: Card, metafile: Metafile): UpdateCardAction => {
-  return {
-    type: ActionKeys.UPDATE_CARD,
-    id: card.id,
-    card: {
-      ...card,
-      name: metafile.name,
-      modified: metafile.modified,
-      metafile: metafile.id
-    }
-  }
+  return updateCard({
+    ...card,
+    name: metafile.name,
+    modified: metafile.modified,
+    metafile: metafile.id
+  });
 }
 
 /**

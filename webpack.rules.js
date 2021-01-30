@@ -4,31 +4,25 @@ module.exports = [
   // Add support for native node modules
   {
     test: /\.node$/,
-    use: 'node-loader',
+    use: ['node-loader'],
   },
   {
     test: /\.(m?js|node)$/,
     parser: { amd: false },
-    use: {
-      loader: '@zeit/webpack-asset-relocator-loader',
-      options: {
-        outputAssetBase: 'native_modules',
-      },
-    },
+    use: [{
+      loader: '@zeit/webpack-asset-relocator-loader', options: { outputAssetBase: 'native_modules', },
+    }],
   },
   {
     test: /\.tsx?$/,
     exclude: /(node_modules|.webpack)/,
-    loaders: [{
-      loader: 'ts-loader',
-      options: {
-        transpileOnly: true
-      }
-    }]
+    use: [{
+      loader: 'ts-loader', options: { transpileOnly: true, },
+    }],
   },
   {
     test: /\.jsx?$/,
-    loaders: ['react-hot-loader/webpack'],
+    use: ['react-hot-loader/webpack'],
     include: path.join(__dirname, '/src')
   },
   {

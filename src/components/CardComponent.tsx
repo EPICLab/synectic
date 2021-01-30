@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useDrag } from 'react-dnd';
+import { useDispatch, useSelector } from 'react-redux';
+import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { makeStyles } from '@material-ui/core';
 
@@ -11,6 +11,8 @@ import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
 import { BrowserComponent } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
+import { RootState } from '../store/root';
+import { addStack, appendCards, removeCard } from '../containers/stacks';
 
 export const useStyles = makeStyles({
   root: {
@@ -66,24 +68,77 @@ const ContentBack: React.FunctionComponent<Card> = props => {
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
+  const cards = useSelector((state: RootState) => state.cards);
+  const stacks = useSelector((state: RootState) => state.stacks);
   const dispatch = useDispatch();
 
+  // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
   const [{ isDragging }, drag] = useDrag({
     item: { type: 'CARD', id: props.id },
     collect: monitor => ({
-      item: monitor.getItem(),
-      isDragging: !!monitor.isDragging()
+      isDragging: !!monitor.isDragging(),
     }),
-    canDrag: !props.captured
   });
 
+  // Enable CardComponent as a drop target (i.e. allow other elements to be dropped on this card)
+  const [{ isOver }, drop] = useDrop({
+    accept: ['CARD', 'STACK'],
+    canDrop: (item, monitor) => {
+      const dropTarget = cards[props.id];
+      const dropSource = item.type === 'CARD' ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
+      return dropTarget.id !== dropSource.id; // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
+    },
+    drop: (item, monitor) => {
+      const dropTarget = cards[props.id];
+      const delta = monitor.getDifferenceFromInitialOffset();
+      if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
+      switch (item.type) {
+        case 'CARD': {
+          const dropSource = cards[monitor.getItem().id];
+          if (dropSource.captured) {
+            const actions = removeCard(stacks[dropSource.captured], dropSource, delta);
+            actions.map(action => dispatch(action));
+          }
+          if (dropTarget.captured) {
+            const actions = appendCards(stacks[dropTarget.captured], [dropSource]);
+            actions.map(action => dispatch(action));
+          } else {
+            const actions = addStack('test', [dropTarget, dropSource], 'go get some testing');
+            actions.map(action => dispatch(action));
+          }
+          break;
+        }
+        case 'STACK': {
+          if (!props.captured) {
+            const dropSource = stacks[monitor.getItem().id];
+            const actions = appendCards(dropSource, [dropTarget]);
+            actions.map(action => dispatch(action));
+          }
+          break;
+        }
+      }
+    },
+    collect: monitor => ({
+      isOver: !!monitor.isOver() // return isOver prop to highlight drop sources that accept hovered item
+    })
+  })
+
+  const dragAndDrop = (elementOrNode: ConnectableElement) => {
+    drag(elementOrNode);
+    drop(elementOrNode);
+  }
+
   const flip = () => setFlipped(!flipped);
+  const close = () => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id });
 
   return (
-    <div className='card' ref={drag} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
+    <div ref={dragAndDrop}
+      className={`card ${(isOver && !props.captured) ? 'drop-source' : ''}`}
+      style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
+    >
       <Header title={props.name}>
         <button className='flip' aria-label='button-flip' onClick={flip} />
-        <button className='close' onClick={() => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id })} />
+        <button className='close' onClick={close} />
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>
