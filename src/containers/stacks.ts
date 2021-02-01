@@ -2,14 +2,18 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 
 import type { Card, Stack } from '../types';
-import { ActionKeys, NarrowActionType } from '../store/actions';
+import { Action, ActionKeys, NarrowActionType } from '../store/actions';
 import { updateCard } from './cards';
 import { removeItemInArray } from '../store/immutables';
 import { XYCoord } from 'react-dnd';
+import { ThunkAction } from 'redux-thunk';
+import { RootState } from '../store/root';
 
 type AddStackAction = NarrowActionType<ActionKeys.ADD_STACK>;
 type UpdateStackAction = NarrowActionType<ActionKeys.UPDATE_STACK>;
+type RemoveStackAction = NarrowActionType<ActionKeys.REMOVE_STACK>;
 type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
+type RemoveMinStackActions = (UpdateStackAction | RemoveStackAction | UpdateCardAction)[];
 
 /**
  * Action Creator for composing a valid ADD_STACK Redux Action, which requires additional UPDATE_CARD Redux Actions for updating all 
@@ -69,24 +73,39 @@ export const appendCards = (stack: Stack, cards: Card[]): (UpdateStackAction | U
 }
 
 /**
- * Action Creator for composing a valid UPDATE_STACK and UPDATE_CARD Redux actions for removing a child card contained within
- * a stack. If the current Redux store does not contain a matching card (based on UUID) contained in the stack passed as a
- * parameter, then dispatching this action will not result in any changes in the Redux store state. Positioning of the card
- * becomes relative to the bounds of the canvas.
+ * Thunk Action Creator for composing valid UPDATE_STACK, REMOVE_STACK, and UPDATE_CARD Redux actions for removing a child card contained 
+ * within a stack. If the current Redux store does not contain a matching card (based on UUID) contained in the stack passed as a 
+ * parameter, then dispatching this action will not result in any changes in the Redux store state. Positioning of the card becomes 
+ * relative to the bounds of the canvas.
  * @param stack The target `Stack` object that contains the card to be removed.
  * @param card The `Card` object to be removed from the stack.
- * @param delta The { x, y } difference between the last recorded client offset of the pointer and the client offset when the 
+ * @param delta The { x, y } difference between the last recorded client offset of the pointer and the client offset when the
  * current drag operation has started (gathered from `DropTargetMonitor.getDifferenceFromInitialOffset()`).
- * @return An array of `UpdateStackAction` and `UpdateCardAction` objects that can be dispatched via Redux.
+ * @return A Thunk that can be executed to read Redux state and dispatch Redux updates for removing a card from a stack.
  */
-export const removeCard = (stack: Stack, card: Card, delta: XYCoord): (UpdateStackAction | UpdateCardAction)[] => {
-  return [
-    updateStack({ ...stack, cards: removeItemInArray(stack.cards, card.id) }),
-    updateCard({
+export const removeCard = (stack: Stack, card: Card, delta: XYCoord): ThunkAction<RemoveMinStackActions, RootState, undefined, Action> =>
+  (dispatch, getState) => {
+    const actions: RemoveMinStackActions = [];
+    if (stack.cards.length <= 2) {
+      // remove the stack, and update all related cards
+      actions.push({ type: ActionKeys.REMOVE_STACK, id: stack.id });
+      const bottomCardId = stack.cards.find(c => c !== card.id);
+      const bottomCard = bottomCardId ? getState().cards[bottomCardId] : undefined;
+      if (bottomCard) actions.push(updateCard({
+        ...bottomCard,
+        captured: undefined,
+        left: Math.round(stack.left + bottomCard.left),
+        top: Math.round(stack.top + bottomCard.top)
+      }));
+    } else {
+      // only remove the item from the stack, don't remove the stack
+      actions.push(updateStack({ ...stack, cards: removeItemInArray(stack.cards, card.id) }));
+    }
+    actions.push(updateCard({
       ...card,
       captured: undefined,
       left: Math.round(stack.left + card.left + delta.x),
       top: Math.round(stack.top + card.top + delta.y)
-    })
-  ];
-}
+    }));
+    return actions.map(action => dispatch(action));
+  };

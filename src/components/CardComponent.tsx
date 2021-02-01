@@ -96,8 +96,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
         case 'CARD': {
           const dropSource = cards[monitor.getItem().id];
           if (dropSource.captured) {
-            const actions = removeCard(stacks[dropSource.captured], dropSource, delta);
-            actions.map(action => dispatch(action));
+            dispatch(removeCard(stacks[dropSource.captured], dropSource, delta));
           }
           if (dropTarget.captured) {
             const actions = appendCards(stacks[dropTarget.captured], [dropSource]);
