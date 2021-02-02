@@ -13,6 +13,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
   const stacks = useSelector((state: RootState) => state.stacks);
   const dispatch = useDispatch();
 
+  // Enable StackComponent as a drop source (i.e. allowing this stack to be draggable)
   const [{ isDragging }, drag] = useDrag({
     item: { type: 'STACK', id: props.id },
     collect: monitor => ({
@@ -21,6 +22,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
     })
   });
 
+  // Enable StackComponent as a drop target (i.e. allow other elements to be dropped on this stack)
   const [, drop] = useDrop({
     accept: ['CARD', 'STACK'],
     canDrop: (item, monitor) => {
@@ -36,8 +38,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
           const dropTarget = stacks[props.id];
           const dropSource = cards[monitor.getItem().id];
           if (dropSource.captured) {
-            const actions = removeCard(dropTarget, dropSource, delta);
-            actions.map(action => dispatch(action));
+            dispatch(removeCard(dropTarget, dropSource, delta));
           }
           break;
         }
@@ -49,7 +50,6 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
           actions.map(action => dispatch(action));
           break;
         }
-
       }
     }
   });
