@@ -179,9 +179,10 @@ export const getRepository = (filepath: PathLike): ThunkAction<Promise<Repositor
       await isogit.getConfigAll({ fs: fs, dir: root.toString(), path: 'remote.origin.url' }) : undefined;
     const { url, oauth } = (remoteOriginUrls && remoteOriginUrls?.length > 0) ?
       extractFromURL(remoteOriginUrls[0]) : { url: undefined, oauth: undefined };
-    const existing = url ?
-      Object.values(getState().repos).find(r => r.name === extractRepoName(url.href) && r.url.href === url.href)
-      : undefined;
+    // const existo = url ? true : false;
+    const name = url ? extractRepoName(url.href) : extractFilename(root);
+    const existing = url ? Object.values(getState().repos).find(r => r.name === name && r.url.href === url.href)
+      : Object.values(getState().repos).find(r => r.name === name);
     if (existing) {
       // the associated repository is already available in the Redux store
       await dispatch(updateBranches(existing.id));
