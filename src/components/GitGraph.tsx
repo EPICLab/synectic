@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, Node } from 'react-flow-renderer';
+import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, isNode, Node } from 'react-flow-renderer';
 
 import type { Repository } from '../types';
 import { nodeTypes } from './GitNode';
@@ -38,7 +38,8 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
           arrowHeadType: ArrowHeadType.ArrowClosed
         };
       });
-      return [node, ...prev, ...edges];
+      if (prev.filter(isNode).length > 50) return prev;
+      else return [node, ...prev, ...edges];
     }, []);
     const optimizedNewElements = layoutOptimizer(newElements);
     setElements(optimizedNewElements);
