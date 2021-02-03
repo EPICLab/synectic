@@ -78,7 +78,7 @@ describe('DirectoryComponent', () => {
       root: root,
       directories: [],
       files: ['foo/bar.js'],
-      fetch: () => { return new Promise((resolve) => resolve()) }
+      fetch: async () => { await new Promise(resolve => resolve(0)) }
     });
     const DirectoryContext = wrapInReduxContext(DirectoryComponent, store);
     render(<TreeView><DirectoryContext root={'foo'} /></TreeView>);
