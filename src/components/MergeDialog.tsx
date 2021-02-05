@@ -11,6 +11,7 @@ import type { Repository, UUID } from '../types';
 import { RootState } from '../store/root';
 import * as git from '../containers/git';
 import { build } from '../containers/builds';
+import { GitConfigForm } from './GitConfigForm';
 
 const StyledCheckIcon = withStyles({
   root: {
@@ -94,6 +95,8 @@ type CheckState =
   | 'Passing'
   | 'Failing';
 
+type MissingGitConfigs = string[] | undefined;
+
 const StatusIcon = (state: CheckState) => {
   switch (state) {
     case 'Running':
@@ -109,14 +112,14 @@ const StatusIcon = (state: CheckState) => {
 
 type TimelineProps = {
   commitCountDelta: CheckState,
-  branchConflicts: [CheckState, string[] | undefined],
+  branchConflicts: [CheckState, MissingGitConfigs],
   buildStatus: CheckState
 }
 
 const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
   const classes = useStyles();
   const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
-  const [branchConflicts, setBranchConflicts] = useState<[CheckState, string[] | undefined]>(['Unchecked', undefined]);
+  const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
   const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
 
   useEffect(() => {
@@ -181,7 +184,7 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
   const [base, setBase] = useState<string>('');
   const [compare, setCompare] = useState<string>('');
   const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
-  const [branchConflicts, setBranchConflicts] = useState<[CheckState, string[] | undefined]>(['Unchecked', undefined]);
+  const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
   const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
 
   const repoChange = (event: React.ChangeEvent<{ value: unknown }>) => setRepo(event.target.value as UUID);
@@ -291,6 +294,13 @@ const MergeDialog: React.FunctionComponent<DialogProps> = props => {
             </Select>
           </FormControl>
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
+
+        </div>
+        {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}
+        <div className={classes.section2}>
+          <GitConfigForm
+            open={(branchConflicts[1] && branchConflicts[1].length > 0) ? true : false}
+          />
         </div>
         <div className={classes.section3}>
           <Button variant='outlined' color='primary' className={classes.button} onClick={check}>Check</Button>
@@ -306,12 +316,11 @@ const MergeButton: React.FunctionComponent = () => {
   const [open, setOpen] = useState(false);
   const repos = useSelector((state: RootState) => Object.values(state.repos));
 
-  const handleClose = () => setOpen(!open);
-
   return (
     <>
-      <Button id='diffpicker-button' variant='contained' color='primary' onClick={() => setOpen(!open)}>Merge...</Button>
-      {open ? <MergeDialog open={open} onClose={handleClose} repos={repos} /> : null}
+      <Button id='diffpicker-button' variant='contained' color='primary'
+        disabled={Object.values(repos).length == 0} onClick={() => setOpen(!open)}>Merge...</Button>
+      {open ? <MergeDialog open={open} onClose={() => setOpen(!open)} repos={repos} /> : null}
     </>
   );
 }
