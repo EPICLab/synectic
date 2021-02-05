@@ -166,7 +166,7 @@ export const merge = async (
 ): Promise<isogit.MergeResult & { missingConfigs?: string[] }> => {
   const name = { path: 'user.name', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.name' }) };
   const email = { path: 'user.email', value: await isogit.getConfig({ fs: fs, dir: dir.toString(), path: 'user.email' }) };
-  const missing: string[] = [name, email].filter(config => config.value.length <= 0).map(config => config.path);
+  const missing: string[] = [name, email].filter(config => !config.value || config.value.length <= 0).map(config => config.path);
   const mergeResult = await isogit.merge({
     fs: fs,
     dir: dir.toString(),
@@ -290,7 +290,7 @@ export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; 
  * Examines a Repository object to determine if it is well-formed. The `id` field is validated to be compliant 
  * with UUID version 4 (RFC4122), the `corsProxy` and `url` fields are validated to be well-formed HTTP or 
  * HTTPS URI (RFC3986), or valid SSH URI (Provisional IANA format standard) in the case of the `url` field.
- * @param repo A Repository object
+ * @param repo A Repository object.
  * @return A boolean indicating a well-formed Repository on true, and false otherwise.
  */
 export const isValidRepository = (repo: Repository): boolean => (

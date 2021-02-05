@@ -13,7 +13,6 @@ import StackComponent from './StackComponent';
 import ErrorDialog from './ErrorDialog';
 import VersionStatusButton from './RepoBranchList';
 import MergeButton from './MergeDialog';
-import GitInfoButton from './GitInfoDialog';
 import { GitGraphButton } from './GitGraphButton';
 import { removeCard, updateStack } from '../containers/stacks';
 import { updateCard } from '../containers/cards';
@@ -82,7 +81,6 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
 
   return (
     <div className='canvas' ref={drop}>
-      <GitInfoButton />
       <NewCardButton />
       <FilePickerButton />
       <VersionStatusButton />
