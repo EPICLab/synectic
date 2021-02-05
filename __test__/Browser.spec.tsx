@@ -5,7 +5,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { v4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
 
-import { BrowserButton, BrowserComponent } from '../src/components/Browser';
+import { BrowserComponent } from '../src/components/Browser';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 
@@ -91,45 +91,5 @@ describe('BrowserComponent', () => {
     expect(textBox).toHaveValue('https://google.com');
     fireEvent.click(refreshButton);
     expect(textBox).toHaveValue('https://google.com');
-  });
-});
-
-describe('BrowserButton', () => {
-  const store = mockStore({
-    canvas: {
-      id: v4(),
-      created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-      repos: [],
-      cards: [],
-      stacks: []
-    },
-    stacks: {},
-    cards: {},
-    filetypes: {},
-    metafiles: {
-      199: {
-        id: '199',
-        name: 'Browser',
-        handler: 'Browser',
-        modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00')
-      },
-    },
-    repos: {},
-    errors: {}
-  });
-
-  const BrowserButtonContext = wrapInReduxContext(BrowserButton, store);
-
-  it('BrowserButton calls onClick when clicked', () => {
-    const onClick = jest.fn();
-    render(<BrowserButtonContext />);
-
-    const button = screen.getByRole('button');
-    if (button) {
-      button.addEventListener('click', onClick);
-      fireEvent.click(button);
-    }
-
-    expect(onClick).toHaveBeenCalled();
   });
 });

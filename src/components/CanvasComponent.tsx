@@ -7,7 +7,6 @@ import type { Canvas } from '../types';
 import { RootState } from '../store/root';
 import NewCardButton from './NewCardDialog';
 import FilePickerButton from './FilePickerDialog';
-import { BrowserButton } from './Browser';
 import DiffPickerButton from './DiffPickerDialog';
 import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
@@ -84,11 +83,10 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     <div className='canvas' ref={drop}>
       <NewCardButton />
       <FilePickerButton />
-      <BrowserButton />
       <VersionStatusButton />
-      <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
       <MergeButton />
       <DiffPickerButton />
+      <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
       <GitGraphButton />
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}

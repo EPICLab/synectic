@@ -1,12 +1,4 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
-import { Button } from '@material-ui/core';
-
-import { RootState } from '../store/root';
-import { Action } from '../store/actions';
-import { loadCard } from '../containers/handlers';
-import { getMetafile } from '../containers/metafiles';
 
 type BrowserState = {
   history: URL[];
@@ -63,17 +55,4 @@ export const BrowserComponent: React.FunctionComponent = () => {
       </div>
     </>
   )
-}
-
-export const BrowserButton: React.FunctionComponent = () => {
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
-
-  const handleClick = async () => {
-    const metafile = await dispatch(getMetafile({ virtual: { name: 'Browser', handler: 'Browser' } }));
-    if (metafile) dispatch(loadCard({ metafile: metafile }));
-  };
-
-  return (
-    <Button id='diffpicker-button' variant='contained' color='primary' onClick={() => handleClick()}>Browser...</Button>
-  );
 }
