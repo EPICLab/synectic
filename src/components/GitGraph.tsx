@@ -3,8 +3,7 @@ import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, isNod
 
 import type { Repository } from '../types';
 import { nodeTypes } from './GitNode';
-import { useGitHistory } from '../store/hooks/useGitHistory';
-import { ReadCommitResult } from 'isomorphic-git';
+import { CommitInfo, useGitHistory } from '../store/hooks/useGitHistory';
 import { layoutOptimizer } from '../containers/layout';
 
 export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => {
@@ -23,24 +22,25 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
   }, [commits, heads, props.repo.name]);
 
   useEffect(() => {
-    const newElements = [...commits.values()].reduce((prev: Array<FlowElement>, curr: ReadCommitResult): Array<FlowElement> => {
-      const node: Node = {
-        id: curr.oid,
-        type: 'gitNode',
-        data: { text: '', tooltip: `${curr.oid.slice(0, 7)}\n${curr.commit.message}` },
-        position: { x: 0, y: 0 }
-      };
-      const edges: Edge[] = curr.commit.parent.map(parent => {
-        return {
-          id: `e${parent.slice(0, 7)}-${curr.oid.slice(0, 7)}`,
-          source: parent,
-          target: curr.oid,
-          arrowHeadType: ArrowHeadType.ArrowClosed
+    const newElements = [...commits.values()]
+      .reduce((prev: Array<FlowElement>, curr: CommitInfo): Array<FlowElement> => {
+        const node: Node = {
+          id: curr.oid,
+          type: 'gitNode',
+          data: { text: '', tooltip: `${curr.oid.slice(0, 7)}\n${curr.commit.message}` },
+          position: { x: 0, y: 0 }
         };
-      });
-      if (prev.filter(isNode).length > 50) return prev;
-      else return [node, ...prev, ...edges];
-    }, []);
+        const edges: Edge[] = curr.commit.parent.map(parent => {
+          return {
+            id: `e${parent.slice(0, 7)}-${curr.oid.slice(0, 7)}`,
+            source: parent,
+            target: curr.oid,
+            arrowHeadType: ArrowHeadType.ArrowClosed
+          };
+        });
+        if (prev.filter(isNode).length > 50) return prev;
+        else return [node, ...prev, ...edges];
+      }, []);
     const optimizedNewElements = layoutOptimizer(newElements);
     setElements(optimizedNewElements);
     // eslint-disable-next-line react-hooks/exhaustive-deps
