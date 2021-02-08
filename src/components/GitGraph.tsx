@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, isNode, Node } from 'react-flow-renderer';
+import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, isNode, Node, OnLoadFunc, OnLoadParams } from 'react-flow-renderer';
 
 import type { Repository } from '../types';
 import { nodeTypes } from './GitNode';
@@ -9,11 +9,19 @@ import { colorSets } from '../containers/colors';
 
 export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => {
   const [elements, setElements] = useState<Array<FlowElement>>([]);
+  const [reactFlowState, setReactFlowState] = useState<OnLoadParams>();
   const onConnect = (params: Edge | Connection) => setElements((els) => addEdge(params, els));
   const { commits, heads, update } = useGitHistory(props.repo);
+  const onLoad: OnLoadFunc = (rf) => { setReactFlowState(rf) };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { update() }, [props.repo]);
+
+  useEffect(() => {
+    if (reactFlowState && elements.length) {
+      reactFlowState.fitView();
+    }
+  }, [elements, reactFlowState]);
 
   useEffect(() => {
     if (commits.size > 0 && heads.size > 0) {
@@ -51,6 +59,7 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
     elements={elements}
     nodeTypes={nodeTypes}
     onConnect={onConnect}
+    onLoad={onLoad}
     onNodeMouseEnter={(_event, node) => console.log(node.id)}
     className='git-flow' />);
 }
