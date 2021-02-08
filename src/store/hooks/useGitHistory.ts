@@ -45,11 +45,11 @@ export const useGitHistory = (repo: Repository): useGitHistoryHook => {
     }
 
     await Promise.all(repo.local.map(async branch => processCommits(branch, 'local')));
-    await Promise.all(repo.local.map(async branch => processCommits(branch, 'remote')));
+    await Promise.all(repo.remote.map(async branch => processCommits(branch, 'remote')));
     // replace the `commits` and `heads` states every time, since deep comparisons for all commits is computationally expensive
     setCommits(commitsCache);
     setHeads(headsCache);
-  }, [repo.local, repo.root]);
+  }, [repo.local, repo.remote, repo.root]);
 
   return { commits, heads, update };
 }
