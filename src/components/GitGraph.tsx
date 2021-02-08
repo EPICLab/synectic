@@ -5,6 +5,7 @@ import type { Repository } from '../types';
 import { nodeTypes } from './GitNode';
 import { CommitInfo, useGitHistory } from '../store/hooks/useGitHistory';
 import { layoutOptimizer } from '../containers/layout';
+import { colorSets } from '../containers/colors';
 
 export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => {
   const [elements, setElements] = useState<Array<FlowElement>>([]);
@@ -27,7 +28,7 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
         const node: Node = {
           id: curr.oid,
           type: 'gitNode',
-          data: { text: '', tooltip: `${curr.oid.slice(0, 7)}\n${curr.commit.message}` },
+          data: { text: '', color: colorSets[0], tooltip: `${curr.oid.slice(0, 7)}\n${curr.commit.message}` },
           position: { x: 0, y: 0 }
         };
         const edges: Edge[] = curr.commit.parent.map(parent => {
