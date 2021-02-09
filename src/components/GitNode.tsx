@@ -1,15 +1,17 @@
 import React from 'react';
-import { Handle, Position } from 'react-flow-renderer';
+import { Handle, NodeProps, Position } from 'react-flow-renderer';
 import { Theme, Tooltip, withStyles } from '@material-ui/core';
+import { ColorSet } from '../containers/colors';
 
-const customNodeStyles = {
-  height: 10,
-  width: 10,
+const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => ({
   borderRadius: '50%',
-  background: '#9CABB3',
-  color: '#FFF',
-  padding: 10,
-};
+  borderStyle: border,
+  borderWidth: 'thin',
+  opacity: opacity,
+  background: color.primary,
+  color: color.secondary,
+  padding: 5,
+});
 
 const LightTooltip = withStyles((theme: Theme) => ({
   tooltip: {
@@ -21,15 +23,33 @@ const LightTooltip = withStyles((theme: Theme) => ({
   },
 }))(Tooltip);
 
-export const GitNode: React.FunctionComponent<{ data: { text: string, tooltip: string } }> = ({ data }) => {
+type GitNodeProps = NodeProps & {
+  data: {
+    text: string,
+    tooltip: string,
+    color: ColorSet,
+    border: string,
+    opacity?: string,
+    branch?: string
+  }
+}
+
+export const GitNode: React.FunctionComponent<GitNodeProps> = props => {
   return (
-    <LightTooltip title={data.tooltip} placement='right'>
-      <div style={customNodeStyles}>
-        <Handle type='target' position={Position.Top} style={{ borderRadius: '50%' }} />
-        <div>{data.text}</div>
-        <Handle type='source' position={Position.Bottom} style={{ borderRadius: '50%' }} />
+    props.data.branch ?
+      <LightTooltip title={props.data.branch} placement='right' open={true} arrow={true} >
+        <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}>
+          <Handle type='target' position={Position.Top} style={{ visibility: 'hidden' }} />
+          <div>{props.data.text}</div>
+          <Handle type='source' position={Position.Bottom} style={{ visibility: 'hidden' }} />
+        </div>
+      </LightTooltip>
+      :
+      <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}>
+        <Handle type='target' position={Position.Top} style={{ visibility: 'hidden' }} />
+        <div>{props.data.text}</div>
+        <Handle type='source' position={Position.Bottom} style={{ visibility: 'hidden' }} />
       </div>
-    </LightTooltip>
   )
 }
 

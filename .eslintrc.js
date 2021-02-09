@@ -62,7 +62,7 @@ module.exports = {
       'tabWidth': 2,
       'comments': 140,
       'ignoreTrailingComments': true,
-      'ignorePattern': '^ \\* \\|.*\\|' // disable checks for Markdown tables, since cell rows cannot span multiple lines
+      'ignorePattern': '(^ \\* \\|.*\\|)|(^import .*)', // disable checks for Markdown tables and long import lines
     }],
     'no-unused-vars': 'off',
 
