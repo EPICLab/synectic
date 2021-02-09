@@ -4,10 +4,10 @@ import { isNode, isEdge } from 'react-flow-renderer';
 
 export const layoutOptimizer = (rfGraph: Array<FlowElement>): Array<FlowElement> => {
   const graph = new dagre.graphlib.Graph();
-  graph.setGraph({});
+  graph.setGraph({ nodesep: 80 });
   graph.setDefaultEdgeLabel(() => { return {}; });
 
-  rfGraph.filter(isNode).map(node => graph.setNode(node.id, { width: 10, height: 10 }));
+  rfGraph.filter(isNode).map(node => graph.setNode(node.id, { width: 5, height: 5 }));
   rfGraph.filter(isEdge).map(edge => graph.setEdge(edge.source, edge.target));
   dagre.layout(graph);
 
