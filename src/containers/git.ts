@@ -21,41 +21,97 @@ export type BranchDiffResult = {
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
 /**
- * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function with additional local-only branch 
- * functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the local-only 
- * repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
+ * Get the value of a symbolic ref or resolve a ref to its SHA-1 object id; this is a wrapper to the *isomorphic-git/resolveRef* function 
+ * to inject the `fs` parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a file, then
+ * `.git` points to a file containing updated pathing to translate from the linked worktree to the main worktree and must be resolved 
+ * before any refs can be resolved.
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path.
+ * @param ref The ref to resolve.
+ * @param depth How many symbolic references to follow before returning.
+ * @return A Promise object containing the SHA-1 hash or branch name associated with the given `ref` depending on the `depth` parameter; 
+ * e.g. `ref: 'HEAD', depth: 2` returns the current branch name, `ref: 'HEAD', depth: 1` returns the SHA-1 hash of the current commit 
+ * pointed to by HEAD.
+ */
+export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git'), ref, depth }: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
+  ref: string;
+  depth?: number;
+}): Promise<string> => {
+  if (await io.isDirectory(gitdir)) {
+    return await isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, depth: depth });
+  } else {
+    const worktreeDir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    const commonDir = (await io.readFileAsync(`${worktreeDir}/commondir`, { encoding: 'utf-8' })).trim();
+    const updatedGitdir = path.normalize(`${worktreeDir}/${commonDir}`);
+    const updatedDir = path.normalize(`${gitdir}/..`);
+    return await isogit.resolveRef({ fs: fs, dir: updatedDir, gitdir: updatedGitdir, ref: ref, depth: depth });
+  }
+}
+
+/**
+ * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function to inject the `fs` parameter and extend with 
+ * additional local-only branch functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the 
+ * local-only repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
  * @param repo A Repository object to be cloned.
  * @param dir The working tree directory path to contain the cloned repo.
  * @param ref An optional branch name or SHA-1 hash to target cloning to that specific branch or commit.
+ * @param singleBranch Instead of the default behavior of fetching all the branches, only fetch a single branch.
+ * @param noCheckout Only fetch the repo without checking out a branch. Skipping checkout can save a lot of time normally spent writing 
+ * files to disk.
+ * @param noTags Disables the default behavior of fetching all tags.
+ * @param depth Set the maximum depth to retrieve from the git repository's history.
+ * @param exclude A list of branches or tags which should be excluded from remote server responses; specifically any commits reachable
+ * from these refs will be excluded.
+ * @return A Promise object for the clone operation.
  */
-export const clone = async (repo: Repository, dir: fs.PathLike, ref?: string): Promise<void> => {
+export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout = false, noTags = false, depth, exclude }: {
+  repo: Repository;
+  dir: fs.PathLike;
+  ref?: string;
+  singleBranch?: boolean;
+  noCheckout?: boolean;
+  noTags?: boolean;
+  depth?: number;
+  exclude?: string[];
+}): Promise<void> => {
   const targetBranch = ref ? ref : (await currentBranch({ dir: repo.root.toString(), fullname: false }));
   if (targetBranch && !repo.remote.includes(targetBranch)) {
     return fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) });
   }
   return isogit.clone({
-    fs: fs, http: http, dir: dir.toString(), url: repo.url.href,
+    fs: fs, http: http, dir: dir.toString(), url: repo.url.href, singleBranch: singleBranch, noCheckout: noCheckout,
+    noTags: noTags, depth: depth, exclude: exclude,
     onProgress: (progress: isogit.GitProgressEvent) => console.log(`cloning objects: ${progress.loaded}/${progress.total}`)
   });
-}
+};
 
 /**
- * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to inject the 
- * fs parameter in to the *isomorphic-git/currentBranch* function.
+ * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to the *isomorphic-git/currentBranch* 
+ * function to inject the `fs` parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a 
+ * file, then `.git` points to a file containing updated pathing to translate from the linked worktree to the `.git/worktree` directory in 
+ * the main worktree and this path must be used for branch checks.
  * @param dir The working tree directory path.
  * @param gitdir The git directory path.
- * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the 
- * abbreviated form.
- * @param test Boolean option to return 'undefined' if the current branch doesn't actually exist 
- * (such as 'master' right after git init).
+ * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the abbreviated form.
+ * @param test Boolean option to return 'undefined' if the current branch doesn't actually exist (such as 'master' right after git init).
  * @return A Promise object containing the current branch name, or undefined if the HEAD is detached.
  */
-export const currentBranch = ({ dir, gitdir, fullname, test }: {
-  dir?: string;
-  gitdir?: string;
+export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), fullname, test }: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
   fullname?: boolean;
   test?: boolean;
-}): Promise<string | void> => isogit.currentBranch({ fs: fs, dir: dir, gitdir: gitdir, fullname: fullname, test: test });
+  print?: boolean;
+}): Promise<string | void> => {
+  if (await io.isDirectory(gitdir)) {
+    return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
+  } else {
+    const worktreeDir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    return await isogit.currentBranch({ fs: fs, dir: worktreeDir, gitdir: worktreeDir, fullname: fullname, test: test });
+  }
+}
 
 export const gitLog = async (dir: fs.PathLike, branch: string, depth: number): Promise<isogit.ReadCommitResult[]> => {
   return isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branch}`, depth: depth });
@@ -221,8 +277,9 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
 }
 
 /**
- * Find the root Git directory. Starting at filepath, walks upward until it finds a directory that 
- * contains a *.git* subdirectory.
+ * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a 
+ * *.git* subdirectory. In the case of separate working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)),
+ * this will find and return a directory that contains a *.git* file instead.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Promise object containing the root Git directory path, or undefined if no root Git
  * directory exists for the filepath (i.e. the filepath is not part of a Git repository).
@@ -303,8 +360,8 @@ export const isValidRepository = (repo: Repository): boolean => (
 /**
  * Read an entry from the git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality
  * to resolve global git-config files. The return object indicates the scope (`local` or `global`) in which the value was located, and the 
- * git-config value. If the optional `global` parameter is not enabled, then `getConfig` will first check the `local` scope and (if no 
- * value is found) then check the `global` scope.
+ * git-config value. If the optional `global` parameter is not enabled, then `getConfig` will default to checking the `local` scope and
+ * then the `global` scope (if no value was found in `local`).
  * @param keyPath The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
  * @param global Optional parameter for restricting the search to only the global git-config file (i.e. the `global` scope).
  * @return A Promise object containing the value and a scope indicating whether the entry was found in the `local` or `global` git-config
@@ -313,7 +370,7 @@ export const isValidRepository = (repo: Repository): boolean => (
 export const getConfig = async (keyPath: string, global = false): Promise<GitConfig> => {
   const getConfigValue = async (key: string, scope: 'local' | 'global') => {
     const configPath = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
-    if (!configPath) return null;                                                 // no git-config file exists for the requested scope
+    if (!configPath) return null; // no git-config file exists for the requested scope
     if (scope == 'local' && !configPath.endsWith(path.normalize('.git/config'))) return null; // local scope requested, but global scope found
     const configFile = ini.parse(await io.readFileAsync(configPath, { encoding: 'utf-8' }));
     return dot.has(configFile, key) ? dot.get(configFile, key) as string : null;
