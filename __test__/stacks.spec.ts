@@ -183,7 +183,7 @@ describe('stacks.updateStack', () => {
 describe('stacks.appendCard', () => {
   it('appendCard resolves UPDATE_STACK and UPDATE_CARD actions for adding child Cards', () => {
     const targetStack = sampleStacks[0];
-    const actions = stacks.appendCards(targetStack, [sampleCards[0], sampleCards[1]]);
+    const actions = stacks.pushCards(targetStack, [sampleCards[0], sampleCards[1]]);
     expect(actions).toHaveLength(3);
     expect(actions).toEqual(
       expect.arrayContaining([
@@ -219,7 +219,7 @@ describe('stacks.appendCard', () => {
 describe('stacks.removeCard', () => {
   it('removeCard resolves UPDATE_STACK and UPDATE_CARD actions for removing from Stack with >2 cards', () => {
     const targetStack = sampleStacks[0];
-    store.dispatch(stacks.removeCard(targetStack, sampleCards[2], { x: 32, y: 14 }));
+    store.dispatch(stacks.popCard(targetStack, sampleCards[2], { x: 32, y: 14 }));
     expect(store.getActions()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -243,7 +243,7 @@ describe('stacks.removeCard', () => {
 
   it('removeCard resolves REMOVE_STACK and UPDATE_CARD actions for removing from Stack with 2 cards', () => {
     const targetStack = sampleStacks[1];
-    store.dispatch(stacks.removeCard(targetStack, sampleCards[5], { x: 32, y: 14 }));
+    store.dispatch(stacks.popCard(targetStack, sampleCards[5], { x: 32, y: 14 }));
     expect(store.getActions()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

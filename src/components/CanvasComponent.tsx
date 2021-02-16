@@ -14,7 +14,7 @@ import ErrorDialog from './ErrorDialog';
 import VersionStatusButton from './RepoBranchList';
 import MergeButton from './MergeDialog';
 import { GitGraphButton } from './GitGraphButton';
-import { removeCard, updateStack } from '../containers/stacks';
+import { popCard, updateStack } from '../containers/stacks';
 import { updateCard } from '../containers/cards';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
@@ -39,7 +39,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
           if (card.captured) {
-            dispatch(removeCard(stacks[card.captured], card, delta));
+            dispatch(popCard(stacks[card.captured], card, delta));
           } else {
             dispatch(updateCard({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
           }

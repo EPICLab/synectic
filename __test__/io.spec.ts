@@ -302,7 +302,7 @@ describe('io.writeFileAsync', () => {
       'foo/bar': {
         'fileD.txt': 'version 1'
       },
-      'baz': {/** empty directory */ }
+      'baz': { /** empty directory */ }
     });
   });
 
