@@ -52,7 +52,7 @@ describe('git-worktree.list', () => {
 
 describe('git-worktree.add', () => {
 
-  beforeAll(() => {
+  beforeEach(() => {
     mock({
       baseRepo: {
         '.git': {
@@ -98,9 +98,9 @@ describe('git-worktree.add', () => {
     });
   });
 
-  afterAll(mock.restore);
+  afterEach(mock.restore);
 
-  it('add resolves a linked worktree with new branch', async () => {
+  it('add resolves a linked worktree on new branch', async () => {
     const repo: Repository = {
       id: '23',
       name: 'sampleUser/baseRepo',
@@ -122,4 +122,28 @@ describe('git-worktree.add', () => {
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/commondir', { encoding: 'utf-8' })).resolves.toBe('../..');
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
   })
+
+  it('add resolves a linked worktree on SHA-1 commit hash', async () => {
+    const repo: Repository = {
+      id: '23',
+      name: 'sampleUser/baseRepo',
+      root: 'baseRepo/',
+      corsProxy: new URL('http://www.oregonstate.edu'),
+      url: parsePath('https://github.com/sampleUser/baseRepo'),
+      local: ['master'],
+      remote: [],
+      oauth: 'github',
+      username: 'sampleUser',
+      password: '12345',
+      token: '584n29dkj1683a67f302x009q164'
+    };
+    await worktree.add(repo, 'foo/', 'f204b02baf1322ee079fe9768e9593509d683412');
+    await expect(readFileAsync('foo/.git', { encoding: 'utf-8' })).resolves.toBe('gitdir: baseRepo/.git/worktrees/foo');
+    await expect(readFileAsync('baseRepo/.git/worktrees/foo/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/foo');
+    await expect(readFileAsync('baseRepo/.git/worktrees/foo/ORIG_HEAD', { encoding: 'utf-8' }))
+      .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412');
+    await expect(readFileAsync('baseRepo/.git/worktrees/foo/commondir', { encoding: 'utf-8' })).resolves.toBe('../..');
+    await expect(readFileAsync('baseRepo/.git/worktrees/foo/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
+  })
+
 });

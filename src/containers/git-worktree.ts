@@ -21,14 +21,19 @@ const getWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), 
   };
 }
 
+/**
+ * Git index files are tricky since their encoded in a custom binary form with byte and bit-specific entries that depend
+ * upon the presence of different configurations and extensions; see https://git-scm.com/docs/index-format.
+ * @param repo 
+ * @param dir 
+ * @param commitish 
+ */
 export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string): Promise<void> => {
   const commit = (commitish && isHash(commitish, 'sha1')) ? commitish : await resolveRef({ dir: repo.root, ref: 'HEAD' });
   const branch = (commitish && !isHash(commitish, 'sha1')) ? commitish : io.extractDirname(dir);
   const gitdir = path.resolve(`${dir.toString()}/.git`);
   const worktreedir = path.join(repo.root.toString(), '/.git/worktrees', branch);
   const commondir = path.relative(worktreedir, path.join(repo.root.toString(), '.git'));
-
-  console.log({ commitish, commit, branch, gitdir, worktreedir, commondir });
 
   // initialize the linked worktree
   await clone({ repo: repo, dir: dir, ref: branch, singleBranch: true });
@@ -43,7 +48,7 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
   await io.writeFileAsync(path.join(worktreedir, 'commondir'), commondir);
   await io.writeFileAsync(path.join(worktreedir, 'gitdir'), gitdir + '\n');
 
-  // resolve missing index in the linked worktree, if available in main worktree
+  // resolve missing git index file in the linked worktree, by copying from main worktree (if available)
   const index = path.resolve(`${worktreedir}/${commondir}/index`);
   if (await io.extractStats(index)) await fs.copy(index, `${worktreedir}/index`);
 
