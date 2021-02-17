@@ -42,11 +42,11 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   if (await io.isDirectory(gitdir)) {
     return await isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, depth: depth });
   } else {
-    const worktreeDir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    const commonDir = (await io.readFileAsync(`${worktreeDir}/commondir`, { encoding: 'utf-8' })).trim();
-    const updatedGitdir = path.normalize(`${worktreeDir}/${commonDir}`);
-    const updatedDir = path.normalize(`${gitdir}/..`);
-    return await isogit.resolveRef({ fs: fs, dir: updatedDir, gitdir: updatedGitdir, ref: ref, depth: depth });
+    const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
+    const linkedgitdir = path.normalize(`${worktreedir}/${commondir}`);
+    const linkeddir = path.normalize(`${gitdir}/..`);
+    return await isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: ref, depth: depth });
   }
 }
 
@@ -108,8 +108,8 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   if (await io.isDirectory(gitdir)) {
     return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
   } else {
-    const worktreeDir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    return await isogit.currentBranch({ fs: fs, dir: worktreeDir, gitdir: worktreeDir, fullname: fullname, test: test });
+    const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    return await isogit.currentBranch({ fs: fs, dir: worktreedir, gitdir: worktreedir, fullname: fullname, test: test });
   }
 }
 

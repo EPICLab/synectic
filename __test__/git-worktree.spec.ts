@@ -4,7 +4,7 @@ import parsePath from 'parse-path';
 import type { Repository } from '../src/types';
 import { currentBranch, resolveRef } from '../src/containers/git';
 import * as worktree from '../src/containers/git-worktree';
-import { extractStats, readDirAsync } from '../src/containers/io';
+import { readFileAsync } from '../src/containers/io';
 
 describe('git.resolveRef and git.currentBranch', () => {
   it('resolveRef resolves both main and linked worktree refs', async () => {
@@ -43,19 +43,20 @@ describe('git-worktree.list', () => {
   it('list fails on a repository without a linked worktree directory', () => {
     return expect(worktree.list('/Users/nelsonni/Workspace/synectic')).resolves.toStrictEqual(
       expect.arrayContaining([
-        expect.objectContaining({ path: '/Users/nelsonni/Workspace/synectic', ref: 'development' })
+        expect.objectContaining({ path: '/Users/nelsonni/Workspace/synectic', ref: 'feat/git-worktree' })
       ])
     );
   })
+
 });
 
 describe('git-worktree.add', () => {
 
   beforeAll(() => {
     mock({
-      sampleUser: {
+      baseRepo: {
         '.git': {
-          'HEAD': 'ref: refs/heads/master',
+          HEAD: 'ref: refs/heads/master',
           branches: {},
           config: `[core]
 	repositoryformatversion = 0
@@ -80,7 +81,9 @@ describe('git-worktree.add', () => {
             pack: {}
           },
           refs: {
-            heads: {},
+            heads: {
+              master: 'f204b02baf1322ee079fe9768e9593509d683412'
+            },
             tags: {}
           }
         }
@@ -97,24 +100,26 @@ describe('git-worktree.add', () => {
 
   afterAll(mock.restore);
 
-  it('something something about adding worktree', async () => {
+  it('add resolves a linked worktree with new branch', async () => {
     const repo: Repository = {
       id: '23',
-      name: 'sampleUser/myRepo',
-      root: 'sampleUser/',
+      name: 'sampleUser/baseRepo',
+      root: 'baseRepo/',
       corsProxy: new URL('http://www.oregonstate.edu'),
-      url: parsePath('https://github.com/sampleUser/myRepo'),
-      local: ['master', 'sample', 'test'],
+      url: parsePath('https://github.com/sampleUser/baseRepo'),
+      local: ['master'],
       remote: [],
       oauth: 'github',
       username: 'sampleUser',
       password: '12345',
       token: '584n29dkj1683a67f302x009q164'
     };
-    await worktree.add(repo, 'foo/');
-    const exists = (await extractStats('foo/.git')) ? true : false;
-    const files = await readDirAsync('foo/');
-    console.log(files);
-    return expect(exists).toBe(true);
+    await worktree.add(repo, 'foo/', 'hotfix');
+    await expect(readFileAsync('foo/.git', { encoding: 'utf-8' })).resolves.toBe('gitdir: baseRepo/.git/worktrees/hotfix');
+    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/hotfix');
+    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/ORIG_HEAD', { encoding: 'utf-8' }))
+      .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412');
+    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/commondir', { encoding: 'utf-8' })).resolves.toBe('../..');
+    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
   })
 });

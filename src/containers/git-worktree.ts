@@ -22,12 +22,30 @@ const getWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), 
 }
 
 export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string): Promise<void> => {
+  const commit = (commitish && isHash(commitish, 'sha1')) ? commitish : await resolveRef({ dir: repo.root, ref: 'HEAD' });
   const branch = (commitish && !isHash(commitish, 'sha1')) ? commitish : io.extractDirname(dir);
+  const gitdir = path.resolve(`${dir.toString()}/.git`);
+  const worktreedir = path.join(repo.root.toString(), '/.git/worktrees', branch);
+  const commondir = path.relative(worktreedir, path.join(repo.root.toString(), '.git'));
 
-  // await fs.mkdirp(path.toString());
+  console.log({ commitish, commit, branch, gitdir, worktreedir, commondir });
+
+  // initialize the linked worktree
   await clone({ repo: repo, dir: dir, ref: branch, singleBranch: true });
-  await fs.remove(path.join(dir.toString(), '.git'));
-  await io.writeFileAsync(path.join(dir.toString(), '.git'), `gitdir: ${repo.root.toString()}/.git/worktrees/${branch}`);
+  await fs.remove(gitdir);
+  await io.writeFileAsync(gitdir, `gitdir: ${worktreedir}`);
+
+  // populate internal git files in main worktree to include linked worktree
+  await fs.ensureDir(worktreedir);
+  await io.writeFileAsync(path.join(worktreedir, 'HEAD'), `ref: refs/heads/${branch}`);
+  await io.writeFileAsync(path.resolve(`${worktreedir}/${commondir}/refs/heads/${branch}`), commit);
+  await io.writeFileAsync(path.join(worktreedir, 'ORIG_HEAD'), commit);
+  await io.writeFileAsync(path.join(worktreedir, 'commondir'), commondir);
+  await io.writeFileAsync(path.join(worktreedir, 'gitdir'), gitdir + '\n');
+
+  // resolve missing index in the linked worktree, if available in main worktree
+  const index = path.resolve(`${worktreedir}/${commondir}/index`);
+  if (await io.extractStats(index)) await fs.copy(index, `${worktreedir}/index`);
 
   return;
 }
@@ -44,15 +62,16 @@ export const list = async (dir: fs.PathLike): Promise<Worktree[] | undefined> =>
 
   if (!(await io.isDirectory(`${root}/.git`))) {
     // dir points to a linked worktree, so we update root to point to the main worktree path
-    const worktreeDir = (await io.readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    const commonDir = (await io.readFileAsync(`${worktreeDir}/commondir`, { encoding: 'utf-8' })).trim();
-    root = path.normalize(`${worktreeDir}/${commonDir}/..`);
+    const worktreedir = (await io.readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
+    root = path.normalize(`${worktreedir}/${commondir}/..`);
   }
 
   const main = await getWorktree(root);
-  const worktreesDir = path.join(root, '.git/worktrees');
-  const exists = (await io.extractStats(worktreesDir)) ? true : false; // verify whether .git/worktrees exists in main worktree
-  const linked = exists ? await Promise.all((await io.readDirAsync(worktreesDir)).map(async worktree => {
+  const worktrees = path.join(root, '.git/worktrees');
+  // .git/worktrees directory will only exist if a linked worktree has been added (even if it was later deleted), so verify it exists
+  const exists = (await io.extractStats(worktrees)) ? true : false;
+  const linked = exists ? await Promise.all((await io.readDirAsync(worktrees)).map(async worktree => {
     const gitdir = (await io.readFileAsync(`${root}/.git/worktrees/${worktree}/gitdir`, { encoding: 'utf-8' })).trim();
     const dir = path.normalize(`${gitdir}/..`);
     return getWorktree(dir);
