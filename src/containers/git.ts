@@ -254,7 +254,10 @@ export const merge = async (
 }
 
 /**
- * Determines the git tracking status of a specific file or directory path.
+ * Determines the git tracking status of a specific file or directory path. If the `filepath` parameter points to a linked worktree,
+ * then the `.git` file in that worktree must be used to translate paths back to the main worktree for querying the index. Subsequent
+ * calls to **isomorphic-git/status** and **isomorphic-git/statusMatrix** will use a `dir` parameter pointing to the linked worktree
+ * root, and a `gitdir` parameter pointing to the `.git` directory in the main worktree.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Promise object containing undefined if the path is not contained within a git repository, or a status indicator 
  * for whether the path has been changed according to git; the possible resolve values are:
@@ -279,38 +282,30 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   const repoRoot = await getRepoRoot(filepath);
   if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
 
-  /**  TODO: isomorphic-git relies on the ignore manager (https://github.com/kaelzhang/node-ignore) for handling .gitignore and other 
-   * git pathsec requirements to determine which files to check status on via status() or statusMatrix(), so when the relative filepath
-   * is something like '../{linked-worktree}' it throws the following error:
-   *    RangeError: path should be a `path.relative()`d string, but got "../{linked-worktree}" 
-   * 
-   * This has to do with the following check 
-   * (https://github.com/kaelzhang/node-ignore/blob/9b68fcee3ca07f95b5b8eacd60c074e10dc2353d/index.js):
-   *    const REGEX_TEST_INVALID_PATH = /^\.*\/|^\.+$/
-   *    const isNotRelative = path => REGEX_TEST_INVALID_PATH.test(path)
-   * 
-   * A way of circumventing this error is needed in order to determine the status of files in the linked-worktree, since they cannot exist
-   * in the main worktree. */
+  let mainRoot: string | undefined;
+  if (!(await io.isDirectory(`${repoRoot}/.git`))) {
+    const worktreedir = (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
+    mainRoot = path.resolve(`${worktreedir}/${commondir}/../.git`);
+  }
 
-  // if (!(await io.isDirectory(`${repoRoot}/.git`))) {
-  //   const worktreedir = (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-  //   const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
-  //   repoRoot = path.resolve(`${worktreedir}/${commondir}/..`);
-  //   const fpath = path.relative(repoRoot ? repoRoot : '/', filepath.toString());
-  //   console.log({ repoRoot, fpath });
-  // }
+  // parse the necessary paths based on main or linked worktree
+  const dir = (repoRoot ? repoRoot : '/');
+  const gitdir = mainRoot ? mainRoot : path.join(dir, '.git');
+  const relativePath = path.relative(repoRoot ? repoRoot : '/', filepath.toString());
 
   const isDirectory = await io.isDirectory(filepath);
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
    * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
   if (isDirectory) {
-    const statuses = await isogit.statusMatrix({ fs: fs, dir: repoRoot ? repoRoot : '/', filter: f => !shouldBeHiddenSync(f) });
+    const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !shouldBeHiddenSync(f) });
     const changed = statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
       .map(row => row[0]);                // return the filenames only
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
-  return isogit.status({ fs: fs, dir: repoRoot ? repoRoot : '/', filepath: path.relative(repoRoot ? repoRoot : '/', filepath.toString()) });
+
+  return isogit.status({ fs: fs, dir: dir, gitdir: gitdir, filepath: relativePath });
 }
 
 /**

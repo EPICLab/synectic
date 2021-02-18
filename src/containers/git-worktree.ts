@@ -6,7 +6,7 @@ import isHash from 'validator/lib/isHash';
 
 import * as io from './io';
 import type { Repository, Worktree } from '../types';
-import { clone, currentBranch, deleteBranch, getRepoRoot, resolveRef } from './git';
+import { clone, currentBranch, deleteBranch, getRepoRoot, getStatus, resolveRef } from './git';
 
 // SOURCE: https://git-scm.com/docs/git-worktree
 
@@ -125,11 +125,8 @@ export const prune = async (dir: fs.PathLike, verbose = false, expire?: DateTime
 
 export const remove = async (worktree: Worktree, force = false): Promise<void> => {
   if (await io.isDirectory(`${worktree.path.toString()}/.git`)) return; // main worktree cannot be removed
-
-  // TODO: fix the issues described for `git.getStatus()` in order to handle linked worktrees
-  // const status = await getStatus(worktree.path.toString());
-  // if (status === 'modified' && !force) return; // cannot remove non-clean working trees (untracked files and 
-  // modifications in tracked files)
+  const status = await getStatus(worktree.path.toString());
+  if (status === 'modified' && !force) return; // cannot remove non-clean working trees (untracked files and modifications in tracked files)
 
   const worktreedir = (await io.readFileAsync(`${worktree.path.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
   const root = await getRepoRoot(worktreedir);

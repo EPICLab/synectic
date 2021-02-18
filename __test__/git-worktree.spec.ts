@@ -2,7 +2,7 @@ import mock from 'mock-fs';
 import parsePath from 'parse-path';
 
 import type { Repository, Worktree } from '../src/types';
-import { currentBranch, resolveRef } from '../src/containers/git';
+import * as git from '../src/containers/git';
 import * as worktree from '../src/containers/git-worktree';
 import { extractStats, readFileAsync } from '../src/containers/io';
 
@@ -67,15 +67,15 @@ describe('git.resolveRef and git.currentBranch', () => {
   afterEach(mock.restore);
 
   it('resolveRef resolves both main and linked worktree refs', async () => {
-    const main = await resolveRef({ dir: 'baseRepo/', ref: 'master' });
-    const linked = await resolveRef({ dir: 'foo/', ref: 'master' });
+    const main = await git.resolveRef({ dir: 'baseRepo/', ref: 'master' });
+    const linked = await git.resolveRef({ dir: 'foo/', ref: 'master' });
     expect(linked).toEqual(main);
   })
 
   it('currentBranch resolves both main and linked woktree refs', async () => {
-    const main = await currentBranch({ dir: 'baseRepo/' });
+    const main = await git.currentBranch({ dir: 'baseRepo/' });
     expect(main).toBe('master');
-    const linked = await currentBranch({ dir: 'foo/' });
+    const linked = await git.currentBranch({ dir: 'foo/' });
     expect(linked).toBe('foo');
   })
 });
@@ -374,6 +374,7 @@ describe('git-worktree.remove', () => {
       ref: 'foo',
       rev: 'f204b02baf1322ee079fe9768e9593509d683412'
     }
+    jest.spyOn(git, 'getStatus').mockResolvedValue('unmodified'); // git.statusCheck() requires a valid `index` file, which is a difficult file to mock
     await worktree.remove(linkedWorktree);
     await expect(extractStats('foo/')).resolves.toBeUndefined();
     await expect(extractStats('baseRepo/.git/worktrees/foo')).resolves.toBeUndefined();
