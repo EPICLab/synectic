@@ -103,7 +103,6 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   gitdir?: fs.PathLike;
   fullname?: boolean;
   test?: boolean;
-  print?: boolean;
 }): Promise<string | void> => {
   if (await io.isDirectory(gitdir)) {
     return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
@@ -113,12 +112,27 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   }
 }
 
+/**
+ * Delete a local branch; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/deleteBranch* function.
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path.
+ * @param ref The branch name to delete.
+ * @return A Promise object for the branch deletion operation; succeeds when filesystem operations are complete.
+ */
+export const deleteBranch = ({ dir, gitdir = path.join(dir.toString(), '.git'), ref }: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
+  ref: string;
+}): Promise<void> => {
+  return isogit.deleteBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref });
+}
+
 export const gitLog = async (dir: fs.PathLike, branch: string, depth: number): Promise<isogit.ReadCommitResult[]> => {
   return isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branch}`, depth: depth });
 }
 
 /**
- * Get commit descriptions from the git history; this function is a wrapper to inject the fs parameter in to the 
+ * Get commit descriptions from the git history; this function is a wrapper to inject the `fs` parameter in to the 
  * *isomorphic-git/log* function.
  * @param dir The working tree directory path.
  * @param ref The commit to begin walking backwards through the history from.
@@ -170,6 +184,7 @@ export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: stri
 export const branchDiff = async (
   dir: fs.PathLike, branchA: string, branchB: string, filter?: (result: BranchDiffResult) => boolean
 ): Promise<BranchDiffResult[]> => {
+  // TODO: investigate whether using `resolveRef({ dir: dir, ref: 'heads/${branchA}' })` is faster; probably is...
   const hashA = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}`, depth: 1 }))[0].oid;
   const hashB = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}`, depth: 1 }))[0].oid;
   const dirpath = dir.toString();
@@ -239,10 +254,10 @@ export const merge = async (
 }
 
 /**
- * Determines the Git tracking status of a specific file or directory path.
+ * Determines the git tracking status of a specific file or directory path.
  * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing undefined if the path is not contained within a Git repository, or a status indicator 
- * for whether the path has been changed according to Git; the possible resolve values are:
+ * @return A Promise object containing undefined if the path is not contained within a git repository, or a status indicator 
+ * for whether the path has been changed according to git; the possible resolve values are:
  *
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |
@@ -263,9 +278,31 @@ export const merge = async (
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   const repoRoot = await getRepoRoot(filepath);
   if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
-  // isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
-  // (per: https://github.com/isomorphic-git/isomorphic-git/issues/13)
+
+  /**  TODO: isomorphic-git relies on the ignore manager (https://github.com/kaelzhang/node-ignore) for handling .gitignore and other 
+   * git pathsec requirements to determine which files to check status on via status() or statusMatrix(), so when the relative filepath
+   * is something like '../{linked-worktree}' it throws the following error:
+   *    RangeError: path should be a `path.relative()`d string, but got "../{linked-worktree}" 
+   * 
+   * This has to do with the following check 
+   * (https://github.com/kaelzhang/node-ignore/blob/9b68fcee3ca07f95b5b8eacd60c074e10dc2353d/index.js):
+   *    const REGEX_TEST_INVALID_PATH = /^\.*\/|^\.+$/
+   *    const isNotRelative = path => REGEX_TEST_INVALID_PATH.test(path)
+   * 
+   * A way of circumventing this error is needed in order to determine the status of files in the linked-worktree, since they cannot exist
+   * in the main worktree. */
+
+  // if (!(await io.isDirectory(`${repoRoot}/.git`))) {
+  //   const worktreedir = (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  //   const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
+  //   repoRoot = path.resolve(`${worktreedir}/${commondir}/..`);
+  //   const fpath = path.relative(repoRoot ? repoRoot : '/', filepath.toString());
+  //   console.log({ repoRoot, fpath });
+  // }
+
   const isDirectory = await io.isDirectory(filepath);
+  /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
+   * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
   if (isDirectory) {
     const statuses = await isogit.statusMatrix({ fs: fs, dir: repoRoot ? repoRoot : '/', filter: f => !shouldBeHiddenSync(f) });
     const changed = statuses
@@ -277,12 +314,12 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
 }
 
 /**
- * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a 
- * *.git* subdirectory. In the case of separate working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)),
- * this will find and return a directory that contains a *.git* file instead.
+ * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a *.git* subdirectory. In the 
+ * case of separate working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)), this will find and return a directory that 
+ * contains a *.git* file instead.
  * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing the root Git directory path, or undefined if no root Git
- * directory exists for the filepath (i.e. the filepath is not part of a Git repository).
+ * @return A Promise object containing the root git directory path, or undefined if no root git directory exists for the filepath (i.e. 
+ * the filepath is not part of a Git repository).
  */
 export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
   try {
@@ -297,8 +334,8 @@ export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undef
 /**
  * Asynchronous check for presence of .git within directory to validate Git version control.
  * @param filepath The relative or absolute path to evaluate. 
- * @return A Promise object containing true if filepath contains a .git subdirectory (or points 
- * directly to the .git directory), and false otherwise.
+ * @return A Promise object containing true if filepath contains a .git subdirectory (or points directly to the .git directory), 
+ * and false otherwise.
  */
 export const isGitRepo = async (filepath: fs.PathLike): Promise<boolean> => {
   const stats = await io.extractStats(filepath);

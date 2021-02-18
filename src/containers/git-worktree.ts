@@ -6,14 +6,16 @@ import isHash from 'validator/lib/isHash';
 
 import * as io from './io';
 import type { Repository, Worktree } from '../types';
-import { clone, currentBranch, getRepoRoot, resolveRef } from './git';
+import { clone, currentBranch, deleteBranch, getRepoRoot, resolveRef } from './git';
+
+// SOURCE: https://git-scm.com/docs/git-worktree
 
 const getWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), '.git'), bare = false): Promise<Worktree> => {
   const branch = await currentBranch({ dir: dir.toString(), gitdir: gitdir });
   const commit = await resolveRef({ dir: dir, ref: 'HEAD' });
   return {
     id: v4(),
-    path: dir,
+    path: path.resolve(dir.toString()),
     bare: bare,
     detached: branch ? false : true,
     ref: branch ? branch : undefined,
@@ -38,14 +40,14 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
   // initialize the linked worktree
   await clone({ repo: repo, dir: dir, ref: branch, singleBranch: true });
   await fs.remove(gitdir);
-  await io.writeFileAsync(gitdir, `gitdir: ${worktreedir}`);
+  await io.writeFileAsync(gitdir, `gitdir: ${worktreedir}\n`);
 
   // populate internal git files in main worktree to include linked worktree
   await fs.ensureDir(worktreedir);
-  await io.writeFileAsync(path.join(worktreedir, 'HEAD'), `ref: refs/heads/${branch}`);
-  await io.writeFileAsync(path.resolve(`${worktreedir}/${commondir}/refs/heads/${branch}`), commit);
-  await io.writeFileAsync(path.join(worktreedir, 'ORIG_HEAD'), commit);
-  await io.writeFileAsync(path.join(worktreedir, 'commondir'), commondir);
+  await io.writeFileAsync(path.join(worktreedir, 'HEAD'), `ref: refs/heads/${branch}` + '\n');
+  await io.writeFileAsync(path.resolve(`${worktreedir}/${commondir}/refs/heads/${branch}`), commit + '\n');
+  await io.writeFileAsync(path.join(worktreedir, 'ORIG_HEAD'), commit + '\n');
+  await io.writeFileAsync(path.join(worktreedir, 'commondir'), commondir + '\n');
   await io.writeFileAsync(path.join(worktreedir, 'gitdir'), gitdir + '\n');
 
   // resolve missing git index file in the linked worktree, by copying from main worktree (if available)
@@ -109,20 +111,38 @@ export const prune = async (dir: fs.PathLike, verbose = false, expire?: DateTime
   if (!worktrees) return; // if worktrees is undefined, then dir is not under version control
 
   const mainWorktree = worktrees?.shift(); // remove first worktree from list, since the main worktree cannot be pruned
-  if (!worktrees || !mainWorktree) return; // if there is no linked or main worktrees, then pruning is a no-op
+  if (!mainWorktree) return; // if there is no linked worktrees, then pruning is a no-op
 
   worktrees.map(async worktree => {
     const stats = await io.extractStats(worktree.path);
     if (!stats || (expire && stats && DateTime.fromJSDate(stats.mtime) < expire)) {
-      const worktreePath = path.resolve(path.join(mainWorktree.path.toString(), '.git/worktrees', worktree.ref ? worktree.ref : 'ERROR'));
+      const worktreedir = path.resolve(path.join(mainWorktree.path.toString(), '.git/worktrees', worktree.ref ? worktree.ref : 'ERROR'));
       if (verbose) console.log(`Removing worktrees/${worktree.ref}: gitdir file points to non-existent location`);
-      if (!dryRun) fs.remove(worktreePath);
+      if (!dryRun) fs.remove(worktreedir);
     }
   });
 }
 
-export const remove = (worktree: Worktree, force = false): void => {
-  console.log({ worktree, force });
+export const remove = async (worktree: Worktree, force = false): Promise<void> => {
+  if (await io.isDirectory(`${worktree.path.toString()}/.git`)) return; // main worktree cannot be removed
+
+  // TODO: fix the issues described for `git.getStatus()` in order to handle linked worktrees
+  // const status = await getStatus(worktree.path.toString());
+  // if (status === 'modified' && !force) return; // cannot remove non-clean working trees (untracked files and 
+  // modifications in tracked files)
+
+  const worktreedir = (await io.readFileAsync(`${worktree.path.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  const root = await getRepoRoot(worktreedir);
+
+  // remove the .git/worktrees/{branch} directory in the main worktree
+  await fs.remove(worktreedir);
+
+  // remove the directory of the linked worktree
+  await fs.remove(worktree.path.toString());
+
+  // if force parameter is enabled, delete the branch ref from the main worktree
+  if (force && root && worktree.ref) await deleteBranch({ dir: root, ref: worktree.ref });
+
   return;
 }
 
