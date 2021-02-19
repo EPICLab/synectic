@@ -118,6 +118,177 @@ import * as git from '../src/containers/git';
 //   });
 // });
 
+describe('git.resolveRef', () => {
+
+  beforeAll(() => {
+    mock({
+      baseRepo: {
+        '.git': {
+          HEAD: 'ref: refs/heads/master\n',
+          branches: {},
+          config: `[core]
+  	repositoryformatversion = 0
+  	filemode = true
+  	bare = false
+  	logallrefupdates = true
+  	ignorecase = true
+  	precomposeunicode = true`,
+          description: 'Unnamed repository; edit this file \'description\' to name the repository.',
+          hooks: {},
+          info: {
+            exclude: `# git ls-files --others --exclude-from=.git/info/exclude
+  # Lines that start with '#' are comments.
+  # For a project mostly in C, the following would be a good set of
+  # exclude patterns (uncomment them if you want to use them):
+  # *.[oa]
+  # *~
+  .DS_Store`
+          },
+          objects: {
+            info: {},
+            pack: {}
+          },
+          refs: {
+            heads: {
+              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+              foo: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+            },
+            tags: {}
+          },
+          worktrees: {
+            foo: {
+              HEAD: 'ref: refs/heads/foo\n',
+              ORIG_HEAD: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+              commondir: '../..\n',
+              gitdir: `${process.cwd()}/foo/.git` // gitdir is an absolute path, and mock-fs uses process.cwd() as the path base
+            }
+          }
+        }
+      },
+      foo: {
+        '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
+        bar: 'file contents'
+      },
+      qux: {
+        '.git': {
+          HEAD: 'b204b02bac07x4419809fe9768e9593509d68341',
+          objects: {},
+          refs: {
+            heads: {
+              master: 'b204b02bac07x4419809fe9768e9593509d68341\n',
+            }
+          }
+        }
+      },
+      baz: {
+        'sample.txt': 'non-tracked file and directory'
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('resolveRef resolves to SHA-1 hash on a main worktree ref', async () => {
+    return expect(git.resolveRef({ dir: 'baseRepo/', ref: 'master' })).resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412');
+  })
+
+  it('resolveRef resolves to SHA-1 hash on a linked worktree ref', async () => {
+    return expect(git.resolveRef({ dir: 'foo/', ref: 'master' })).resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412');
+  })
+
+});
+
+describe('git.currentBranch', () => {
+
+  beforeAll(() => {
+    mock({
+      baseRepo: {
+        '.git': {
+          HEAD: 'ref: refs/heads/master\n',
+          branches: {},
+          config: `[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true`,
+          description: 'Unnamed repository; edit this file \'description\' to name the repository.',
+          hooks: {},
+          info: {
+            exclude: `# git ls-files --others --exclude-from=.git/info/exclude
+# Lines that start with '#' are comments.
+# For a project mostly in C, the following would be a good set of
+# exclude patterns (uncomment them if you want to use them):
+# *.[oa]
+# *~
+.DS_Store`
+          },
+          objects: {
+            info: {},
+            pack: {}
+          },
+          refs: {
+            heads: {
+              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+              foo: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+            },
+            tags: {}
+          },
+          worktrees: {
+            foo: {
+              HEAD: 'ref: refs/heads/foo\n',
+              ORIG_HEAD: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+              commondir: '../..\n',
+              gitdir: `${process.cwd()}/foo/.git` // gitdir is an absolute path, and mock-fs uses process.cwd() as the path base
+            }
+          }
+        }
+      },
+      foo: {
+        '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
+        bar: mock.file({
+          content: 'file contents',
+          ctime: new Date(1),
+          mtime: new Date(1)
+        })
+      },
+      qux: {
+        '.git': {
+          HEAD: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+          objects: {},
+          refs: {
+            heads: {
+              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+            }
+          }
+        }
+      },
+      baz: {
+        'sample.txt': 'non-tracked file and directory'
+      }
+    });
+  });
+
+  afterAll(mock.restore);
+
+  it('currentBranch resolves to Git branch name on a tracked worktree', async () => {
+    return expect(git.currentBranch({ dir: 'baseRepo/' })).resolves.toBe('master');
+  });
+
+  it('currentBranch resolves to Git branch name on a linked woktree', async () => {
+    return expect(git.currentBranch({ dir: 'foo/' })).resolves.toBe('foo');
+  });
+
+  it('currentBranch resolves to undefined on a tracked directory with detached HEAD', async () => {
+    await expect(git.currentBranch({ dir: 'qux/' })).resolves.toBeUndefined();
+  });
+
+  it('currentBranch fails with an error on an untracked directory', async () => {
+    await expect(git.currentBranch({ dir: 'baz/' })).rejects.toThrow(/ENOENT/);
+  });
+});
+
 describe('git.extractRepoName', () => {
   it('extractRepoName resolves git://*', () => {
     expect(git.extractRepoName('git://github.com/octo-org/octo-repo')).toBe('octo-org/octo-repo');

@@ -1,84 +1,11 @@
 import mock from 'mock-fs';
 import parsePath from 'parse-path';
+import * as path from 'path';
 
 import type { Repository } from '../src/types';
 import * as git from '../src/containers/git';
 import * as worktree from '../src/containers/git-worktree';
 import { extractStats, readFileAsync } from '../src/containers/io';
-
-describe('git.resolveRef and git.currentBranch', () => {
-
-  beforeEach(() => {
-    mock({
-      baseRepo: {
-        '.git': {
-          HEAD: 'ref: refs/heads/master\n',
-          branches: {},
-          config: `[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = false
-	logallrefupdates = true
-	ignorecase = true
-	precomposeunicode = true`,
-          description: 'Unnamed repository; edit this file \'description\' to name the repository.',
-          hooks: {},
-          info: {
-            exclude: `# git ls-files --others --exclude-from=.git/info/exclude
-# Lines that start with '#' are comments.
-# For a project mostly in C, the following would be a good set of
-# exclude patterns (uncomment them if you want to use them):
-# *.[oa]
-# *~
-.DS_Store`
-          },
-          objects: {
-            info: {},
-            pack: {}
-          },
-          refs: {
-            heads: {
-              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
-              foo: 'f204b02baf1322ee079fe9768e9593509d683412\n',
-            },
-            tags: {}
-          },
-          worktrees: {
-            foo: {
-              HEAD: 'ref: refs/heads/foo\n',
-              ORIG_HEAD: 'f204b02baf1322ee079fe9768e9593509d683412\n',
-              commondir: '../..\n',
-              gitdir: `${process.cwd()}/foo/.git` // gitdir is an absolute path, and mock-fs uses process.cwd() as the path base
-            }
-          }
-        }
-      },
-      foo: {
-        '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
-        bar: mock.file({
-          content: 'file contents',
-          ctime: new Date(1),
-          mtime: new Date(1)
-        })
-      }
-    });
-  });
-
-  afterEach(mock.restore);
-
-  it('resolveRef resolves both main and linked worktree refs', async () => {
-    const main = await git.resolveRef({ dir: 'baseRepo/', ref: 'master' });
-    const linked = await git.resolveRef({ dir: 'foo/', ref: 'master' });
-    expect(linked).toEqual(main);
-  })
-
-  it('currentBranch resolves both main and linked woktree refs', async () => {
-    const main = await git.currentBranch({ dir: 'baseRepo/' });
-    expect(main).toBe('master');
-    const linked = await git.currentBranch({ dir: 'foo/' });
-    expect(linked).toBe('foo');
-  })
-});
 
 describe('git-worktree.list', () => {
 
