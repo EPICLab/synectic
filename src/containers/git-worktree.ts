@@ -5,10 +5,19 @@ import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
 
 import * as io from './io';
-import type { Repository, Worktree } from '../types';
+import type { Repository, SHA1, UUID } from '../types';
 import { clone, currentBranch, deleteBranch, getRepoRoot, getStatus, resolveRef } from './git';
 
-// SOURCE: https://git-scm.com/docs/git-worktree
+// API SOURCE: https://git-scm.com/docs/git-worktree
+
+export type Worktree = {
+  id: UUID; // The UUID for Worktree object.
+  path: fs.PathLike; // The relative or absolute path to the git worktree root repository.
+  bare: boolean; // A flag for indicating a bare git worktree.
+  detached: boolean; // A flag for indicating a detached HEAD state in the worktree.
+  ref?: string; // A branch name or symbolic ref (can be abbreviated).
+  rev?: SHA1 | string; // A revision (or commit) representing the current state of `index` for the worktree.
+}
 
 const getWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), '.git'), bare = false): Promise<Worktree> => {
   const branch = await currentBranch({ dir: dir.toString(), gitdir: gitdir });
@@ -131,14 +140,9 @@ export const remove = async (worktree: Worktree, force = false): Promise<void> =
   const worktreedir = (await io.readFileAsync(`${worktree.path.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
   const root = await getRepoRoot(worktreedir);
 
-  // remove the .git/worktrees/{branch} directory in the main worktree
-  await fs.remove(worktreedir);
-
-  // remove the directory of the linked worktree
-  await fs.remove(worktree.path.toString());
-
-  // if force parameter is enabled, delete the branch ref from the main worktree
-  if (force && root && worktree.ref) await deleteBranch({ dir: root, ref: worktree.ref });
+  await fs.remove(worktreedir); // remove the .git/worktrees/{branch} directory in the main worktree  
+  await fs.remove(worktree.path.toString()); // remove the directory of the linked worktree
+  if (force && root && worktree.ref) await deleteBranch({ dir: root, ref: worktree.ref }); // delete branch ref, if force param is enabled
 
   return;
 }
