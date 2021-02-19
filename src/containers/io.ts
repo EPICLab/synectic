@@ -124,7 +124,8 @@ export const extractExtension = (filepath: fs.PathLike): string => {
  * | `"wx"`  | Like `"w"` but fails if the path exists.                                                                                   |
  * | `"w+"`  | Open file for reading and writing. The file is created (if it does not exist) or truncated (if it exists).                 |
  * | `"wx+"` | Like `"w+"` but fails if the path exists.                                                                                  |
- * @return A Promise object containing a Buffer, if no flag or encoding was provided, or a string of the file contents.
+ * @return A Promise object containing a Buffer, if no flag or encoding was provided, or a string of the file contents. Throws ENOENT error
+ * on non-existent filepath, and EISDIR error on a filepath pointing to a directory. 
  */
 export function readFileAsync(
   filepath: fs.PathLike, options: { flag: string } | { encoding: nodeEncoding; flag?: string }
@@ -164,7 +165,8 @@ export function decompressBinaryObject(filecontent: Buffer, format?: decoderEnco
 /**
  * Asynchronously read filenames contained within a target directory.
  * @param filepath A valid directory path to read from.
- * @return A Promise object for an array of filenames.
+ * @return A Promise object for an array of filenames. Throws ENOENT error on non-existent filepath, and ENOTDIR error on 
+ * a filepath pointing to a file.
  */
 export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
   return new Promise<string[]>((resolve, reject) => {
@@ -178,7 +180,8 @@ export const readDirAsync = (filepath: fs.PathLike): Promise<string[]> => {
 /**
  * Asynchronously checks for the existence of a directory at the path.
  * @param filepath The relative or absolute path to evaluate.
- * @return A boolean indicating true if the filepath is a directory, or false otherwise.
+ * @return A Promise object containing a boolean indicating true if the filepath is a directory, or false otherwise. Throws 
+ * ENOENT error on non-existent filepath.
  */
 export const isDirectory = async (filepath: fs.PathLike): Promise<boolean> => (await fs.stat(filepath.toString())).isDirectory();
 
@@ -187,7 +190,8 @@ export const isDirectory = async (filepath: fs.PathLike): Promise<boolean> => (a
  * Descends to `depth` level, if specified, otherwise defaults to recursively visiting all sub-directories. 
  * @param filepath A valid directory path to read from.
  * @param depth Number of sub-directories to descend; default to infinity.
- * @return A Promise object for an array of filenames.
+ * @return A Promise object for an array of filenames. Throws ENOENT error on non-existent filepath, and ENOTDIR error on
+ * a filepath pointing to a file.
  */
 export const readDirAsyncDepth = async (filepath: fs.PathLike, depth = Infinity): Promise<string[]> => {
   const files = await Promise.all((await fs.readdir(filepath.toString())).map(async f => {
