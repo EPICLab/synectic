@@ -1,7 +1,7 @@
 import mock from 'mock-fs';
 import parsePath from 'parse-path';
 
-import type { Repository, Worktree } from '../src/types';
+import type { Repository } from '../src/types';
 import * as git from '../src/containers/git';
 import * as worktree from '../src/containers/git-worktree';
 import { extractStats, readFileAsync } from '../src/containers/io';
@@ -366,7 +366,7 @@ describe('git-worktree.remove', () => {
   afterEach(mock.restore);
 
   it('remove resolves a clean linked worktree for removal without force', async () => {
-    const linkedWorktree: Worktree = {
+    const linkedWorktree: worktree.Worktree = {
       id: '19',
       path: 'foo/',
       bare: false,
@@ -382,7 +382,7 @@ describe('git-worktree.remove', () => {
   })
 
   it('remove resolves a linked worktree (and branches) for removal with force', async () => {
-    const linkedWorktree: Worktree = {
+    const linkedWorktree: worktree.Worktree = {
       id: '19',
       path: 'foo/',
       bare: false,
@@ -396,3 +396,10 @@ describe('git-worktree.remove', () => {
     await expect(extractStats('baseRepo/.git/refs/heads/foo')).resolves.toBeUndefined();
   })
 });
+
+// describe('extra test for different branches during status check', () => {
+//   it('does different branches cause issues for the current status check implementation', async () => {
+//     const status = await git.getStatus('/Users/nelsonni/Workspace/foo_hotfix');
+//     return expect(status).toBe('modified');
+//   })
+// });

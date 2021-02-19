@@ -142,23 +142,6 @@ export type Repository = {
   readonly token: string;
 }
 
-export type Worktree = {
-  /** The UUID for Worktree object. */
-  readonly id: UUID;
-  /** The relative or absolute path to the git worktree root repository. */
-  readonly path: PathLike;
-  /** A flag for indicating a bare git worktree; for the definition of a `bare repository` see: 
-   * https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefbarerepositoryabarerepository. */
-  readonly bare: boolean;
-  /** A flag for indicating a detached HEAD state in the worktree; for the definition of `detached HEAD` see:
-   * https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefdetachedHEADadetachedHEAD */
-  readonly detached: boolean;
-  /** A branch name or symbolic ref (can be abbreviated); for the definition of `ref` see: */
-  readonly ref?: string;
-  /** A revision (or commit) representing the current state of `index` for the worktree. */
-  readonly rev?: SHA1 | string;
-}
-
 /** A runtime error derived from user actions which requires a visible response from the system. */
 export type Error = {
   /** The UUID for Error object. */
