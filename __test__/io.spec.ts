@@ -113,6 +113,10 @@ describe('io.readFileAsync', () => {
   it('readFileAsync fails with error on non-existing file', async () => {
     await expect(io.readFileAsync('foo/bar/empty-dir/nonexist.js')).rejects.toThrow(/ENOENT/);
   });
+
+  it('readFileAsync fails with error on directory paths', async () => {
+    await expect(io.readFileAsync('foo/bar')).rejects.toThrow(/EISDIR/);
+  });
 });
 
 describe('io.decompressBinaryObject', () => {
@@ -161,6 +165,10 @@ describe('io.readDirAsync', () => {
 
   it('readDirAsync fails with an error on non-existent path', async () => {
     await expect(io.readDirAsync('foo/dep/')).rejects.toThrow(/ENOENT/);
+  });
+
+  it('readDirAsync fails with an error on file paths', async () => {
+    await expect(io.readDirAsync('foo/bar/some-file.txt')).rejects.toThrow(/ENOTDIR/);
   });
 });
 
@@ -261,6 +269,10 @@ describe('io.readDirAsyncDepth', () => {
 
   it('readDirAsyncDepth fails with an error on non-existent paths', () => {
     return expect(io.readDirAsyncDepth('foo/dep/')).rejects.toThrow(/ENOENT/);
+  });
+
+  it('readDirAsyncDepth fails with an error on file paths', () => {
+    return expect(io.readDirAsyncDepth('foo/bar')).rejects.toThrow(/ENOTDIR/);
   });
 });
 
