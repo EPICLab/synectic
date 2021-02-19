@@ -21,10 +21,15 @@ type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
 
 /**
  * Action Creator for composing a valid ADD_REPO Redux Action.
- * @param repo A Repository object containing a valid UUID.
+ * @param root The relative or absolute path to the git root directory.
+ * @param {url, oauth} urlProtocol The URL and type of OAuth authentication required based on remote-hosting service.
+ * @param username The authentication username associated with an account on the remote-hosting service.
+ * @param password The authentication password associated with an account on the remote-hosting service.
+ * @param token The authentication token associated with an account on the remote-hosting service.
  * @return An `AddRepoAction` object that can be dispatched via Redux.
  */
-const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>, username?: string, password?: string):
+const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>,
+  username?: string, password?: string, token?: string):
   AddRepoAction | AddErrorAction => {
   const repo: Repository = {
     id: v4(),
@@ -37,7 +42,7 @@ const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof e
     oauth: oauth ? oauth : 'github',
     username: username ? username : '',
     password: password ? password : '',
-    token: ''
+    token: token ? token : ''
   };
   if (url && !isValidRepository(repo)) return reposError(repo.id, `Malformed repository '${repo.name}' cannot be added to the Redux store`);
   return {
