@@ -39,14 +39,14 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   ref: string;
   depth?: number;
 }): Promise<string> => {
-  if (await io.isDirectory(gitdir)) {
-    return await isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, depth: depth });
+  if (fs.statSync(gitdir).isDirectory()) {
+    return isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, depth: depth });
   } else {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
+    const commondir = (await io.readFileAsync(path.join(worktreedir, 'commondir'), { encoding: 'utf-8' })).trim();
     const linkedgitdir = path.normalize(`${worktreedir}/${commondir}`);
     const linkeddir = path.normalize(`${gitdir}/..`);
-    return await isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: ref, depth: depth });
+    return isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: ref, depth: depth });
   }
 }
 
@@ -104,7 +104,7 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => {
-  if (await io.isDirectory(gitdir)) {
+  if (fs.statSync(gitdir).isDirectory()) {
     return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
   } else {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
@@ -294,10 +294,9 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   const gitdir = mainRoot ? mainRoot : path.join(dir, '.git');
   const relativePath = path.relative(repoRoot ? repoRoot : '/', filepath.toString());
 
-  const isDirectory = await io.isDirectory(filepath);
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
    * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
-  if (isDirectory) {
+  if (fs.statSync(filepath.toString()).isDirectory()) {
     const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !shouldBeHiddenSync(f) });
     const changed = statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
