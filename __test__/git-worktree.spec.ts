@@ -105,8 +105,8 @@ describe('git-worktree.list', () => {
   it('list returns list of worktrees from the main worktree directory', () => {
     return expect(worktree.list('baseRepo/')).resolves.toStrictEqual(
       expect.arrayContaining([
-        expect.objectContaining({ path: `${process.cwd()}/baseRepo`, ref: 'master' }),
-        expect.objectContaining({ path: `${process.cwd()}/foo`, ref: 'foo' })
+        expect.objectContaining({ path: path.join(process.cwd(), 'baseRepo'), ref: 'master' }),
+        expect.objectContaining({ path: path.join(process.cwd(), 'foo'), ref: 'foo' })
       ])
     );
   })
@@ -114,8 +114,8 @@ describe('git-worktree.list', () => {
   it('list returns list of worktrees from a linked worktree directory', () => {
     return expect(worktree.list('foo/')).resolves.toStrictEqual(
       expect.arrayContaining([
-        expect.objectContaining({ path: `${process.cwd()}/baseRepo`, ref: 'master' }),
-        expect.objectContaining({ path: `${process.cwd()}/foo`, ref: 'foo' })
+        expect.objectContaining({ path: path.join(process.cwd(), 'baseRepo'), ref: 'master' }),
+        expect.objectContaining({ path: path.join(process.cwd(), 'foo'), ref: 'foo' })
       ])
     );
   })
@@ -123,7 +123,7 @@ describe('git-worktree.list', () => {
   it('list returns list containing only main worktree on repository without linked worktrees', () => {
     return expect(worktree.list('bazRepo/')).resolves.toStrictEqual(
       expect.arrayContaining([
-        expect.objectContaining({ path: `${process.cwd()}/bazRepo`, ref: 'master' })
+        expect.objectContaining({ path: path.join(process.cwd(), 'bazRepo'), ref: 'master' })
       ])
     );
   })
@@ -199,7 +199,8 @@ describe('git-worktree.add', () => {
       token: '584n29dkj1683a67f302x009q164'
     };
     await worktree.add(repo, 'foo/', 'hotfix');
-    await expect(readFileAsync('foo/.git', { encoding: 'utf-8' })).resolves.toBe('gitdir: baseRepo/.git/worktrees/hotfix\n');
+    await expect(readFileAsync('foo/.git', { encoding: 'utf-8' }))
+      .resolves.toBe(`gitdir: ${path.join('baseRepo', '.git', 'worktrees', 'hotfix')}\n`);
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/hotfix\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/ORIG_HEAD', { encoding: 'utf-8' }))
       .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
@@ -222,7 +223,8 @@ describe('git-worktree.add', () => {
       token: '584n29dkj1683a67f302x009q164'
     };
     await worktree.add(repo, 'foo/', 'f204b02baf1322ee079fe9768e9593509d683412');
-    await expect(readFileAsync('foo/.git', { encoding: 'utf-8' })).resolves.toBe('gitdir: baseRepo/.git/worktrees/foo\n');
+    await expect(readFileAsync('foo/.git', { encoding: 'utf-8' }))
+      .resolves.toBe(`gitdir: ${path.join('baseRepo', '.git', 'worktrees', 'foo')}\n`);
     await expect(readFileAsync('baseRepo/.git/worktrees/foo/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/foo\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/foo/ORIG_HEAD', { encoding: 'utf-8' }))
       .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
@@ -290,9 +292,12 @@ describe('git-worktree.remove', () => {
     });
   });
 
-  afterEach(mock.restore);
+  afterEach(() => {
+    mock.restore();
+    jest.clearAllMocks();
+  });
 
-  it('remove resolves a clean linked worktree for removal without force', async () => {
+  it('remove without force resolves to delete clean linked worktree', async () => {
     const linkedWorktree: worktree.Worktree = {
       id: '19',
       path: 'foo/',
@@ -308,7 +313,7 @@ describe('git-worktree.remove', () => {
     await expect(extractStats('baseRepo/.git/refs/heads/foo')).resolves.toBeDefined();
   })
 
-  it('remove resolves a linked worktree (and branches) for removal with force', async () => {
+  it('remove without force resolves to no action on dirty linked worktree', async () => {
     const linkedWorktree: worktree.Worktree = {
       id: '19',
       path: 'foo/',
@@ -317,10 +322,57 @@ describe('git-worktree.remove', () => {
       ref: 'foo',
       rev: 'f204b02baf1322ee079fe9768e9593509d683412'
     }
+    jest.spyOn(git, 'getStatus').mockResolvedValue('modified'); // git.statusCheck() requires a valid `index` file, which is a difficult file to mock
+    await worktree.remove(linkedWorktree);
+    await expect(extractStats('foo/')).resolves.toBeDefined();
+    await expect(extractStats('baseRepo/.git/worktrees/foo')).resolves.toBeDefined();
+    await expect(extractStats('baseRepo/.git/refs/heads/foo')).resolves.toBeDefined();
+  })
+
+  it('remove with force enabled resolves to delete clean linked worktree and related branch', async () => {
+    const linkedWorktree: worktree.Worktree = {
+      id: '19',
+      path: 'foo/',
+      bare: false,
+      detached: false,
+      ref: 'foo',
+      rev: 'f204b02baf1322ee079fe9768e9593509d683412'
+    }
+    jest.spyOn(git, 'getStatus').mockResolvedValue('unmodified'); // git.statusCheck() requires a valid `index` file, which is a difficult file to mock
     await worktree.remove(linkedWorktree, true);
     await expect(extractStats('foo/')).resolves.toBeUndefined();
     await expect(extractStats('baseRepo/.git/worktrees/foo')).resolves.toBeUndefined();
     await expect(extractStats('baseRepo/.git/refs/heads/foo')).resolves.toBeUndefined();
+  })
+
+  it('remove with force enabled resolves to delete dirty linked worktree and related branch', async () => {
+    const linkedWorktree: worktree.Worktree = {
+      id: '19',
+      path: 'foo/',
+      bare: false,
+      detached: false,
+      ref: 'foo',
+      rev: 'f204b02baf1322ee079fe9768e9593509d683412'
+    }
+    jest.spyOn(git, 'getStatus').mockResolvedValue('modified'); // git.statusCheck() requires a valid `index` file, which is a difficult file to mock
+    await worktree.remove(linkedWorktree, true);
+    await expect(extractStats('foo/')).resolves.toBeUndefined();
+    await expect(extractStats('baseRepo/.git/worktrees/foo')).resolves.toBeUndefined();
+    await expect(extractStats('baseRepo/.git/refs/heads/foo')).resolves.toBeUndefined();
+  })
+
+  it('remove resolves to no action on main worktree', async () => {
+    const linkedWorktree: worktree.Worktree = {
+      id: '19',
+      path: 'foo/',
+      bare: false,
+      detached: false,
+      ref: 'foo',
+      rev: 'f204b02baf1322ee079fe9768e9593509d683412'
+    }
+    jest.spyOn(git, 'getStatus').mockResolvedValue('unmodified'); // git.statusCheck() requires a valid `index` file, which is a difficult file to mock
+    await worktree.remove(linkedWorktree);
+    await expect(extractStats('baseRepo/')).resolves.toBeDefined();
   })
 });
 
