@@ -33,11 +33,14 @@ const getWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), 
 }
 
 /**
- * Git index files are tricky since their encoded in a custom binary form with byte and bit-specific entries that depend
- * upon the presence of different configurations and extensions; see https://git-scm.com/docs/index-format.
- * @param repo 
- * @param dir 
- * @param commitish 
+ * Create a new directory and checkout a branch (either creating a new branch or switching to an existing branch) into the
+ * new directory. The new working directory is linked to the current repository, sharing everything except working directory
+ * specific files such as `HEAD`, `index`, etc. Adheres to the specifications of the `git worktree add` command, see:
+ * https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addltpathgtltcommit-ishgt
+ * @param repo A Repository object to use as the main worktree.
+ * @param dir The relative or absolute path to create the new linked worktree; will create a new directory if none is found.
+ * @param commitish A branch name or symbolic ref.
+ * @return A Promise object for the add worktree operation.
  */
 export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string): Promise<void> => {
   const commit = (commitish && isHash(commitish, 'sha1')) ? commitish : await resolveRef({ dir: repo.root, ref: 'HEAD' });
@@ -67,12 +70,14 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
 }
 
 /**
- * List details of each working tree. The main working tree is listed first, followed by each of the linked working trees. 
- * The output details include whether the working tree is bare, the revision currently checked out, the branch currently 
- * checked out (or "detached HEAD" if none), and "locked" if the worktree is locked.
- * @param dir The working tree directory path.
+ * List details of each working tree. Resulting array contains the main working tree as the first element, followed by each of the linked 
+ * working trees found in `GIT_DIR/worktrees`. The output details include whether the working tree is bare, the revision currently checked 
+ * out, the branch currently checked out (or "detached HEAD" if none), and "locked" if the worktree is locked.
+ * @param dir The relative or absolute path to a working tree directory.
+ * @return A Promise containing an array of worktree details, or undefined if not under version control.
  */
 export const list = async (dir: fs.PathLike): Promise<Worktree[] | undefined> => {
+  if (!(await io.extractStats(dir))) return; // cannot list from non-existent git directory
   let root = await getRepoRoot(dir);
   if (!root) return undefined; // if there is no root, then dir is not under version control
 
@@ -98,24 +103,29 @@ export const list = async (dir: fs.PathLike): Promise<Worktree[] | undefined> =>
 
 
 export const lock = (worktree: Worktree, reason?: string): void => {
+  // TODO: Implementation will be added in future versions.
   console.log({ worktree, reason });
   return;
 }
 
 export const move = (worktree: Worktree, newPath: fs.PathLike): void => {
+  // TODO: Implementation will be added in future versions.
   console.log({ worktree, newPath });
   return;
 }
 
 /**
  * Prune working tree information in `$GIT_DIR/worktrees`, specifically worktrees that were deleted without using `worktreeRemove` 
- * (or the underlying `git worktree remove` terminal command). The `expire` option further restricts which worktrees will be removed.
+ * (or the underlying `git worktree remove` terminal command). The `expire` option further restricts which worktrees will be removed
+ * based on a specific datetime threshold.
  * @param dir The relative or absolute directory path for the main worktree.
  * @param verbose Flag for reporting all removals.
  * @param expire Only expire unusued working trees older than a specific DateTime.
- * @param dryRun Flag for no removing anything; just reporting what would be removed.
+ * @param dryRun Flag for not removing anything; just reporting what would be removed.
+ * @return A Promise for the prune worktree command.
  */
 export const prune = async (dir: fs.PathLike, verbose = false, expire?: DateTime, dryRun = false): Promise<void> => {
+  if (!(await io.extractStats(dir))) return; // cannot prune non-existent git directory
   const worktrees = await list(dir);
   if (!worktrees) return; // if worktrees is undefined, then dir is not under version control
 
@@ -132,12 +142,22 @@ export const prune = async (dir: fs.PathLike, verbose = false, expire?: DateTime
   });
 }
 
+/**
+ * Remove a linked working tree, when is in a clean state (no untracked files and no modifications in tracked files). Unclean working 
+ * trees or ones with submodules can be removed by enabling the `force` option. When enabled, `force` will also delete the branch associated
+ * with the linked worktree.
+ * @param worktree A Worktree object containing details of the linked worktree to be removed.
+ * @param force Flag for deleting the linked worktree (and branch) even if the currently in a dirty worktree state.
+ * @return A Promise for the removing worktree command.
+ */
 export const remove = async (worktree: Worktree, force = false): Promise<void> => {
-  if (await io.isDirectory(`${worktree.path.toString()}/.git`)) return; // main worktree cannot be removed
+  const gitdir = path.join(worktree.path.toString(), '.git');
+  if (!(await io.extractStats(gitdir))) return; // cannot remove non-existent git directory
+  if (await io.isDirectory(gitdir)) return; // main worktree cannot be removed
   const status = await getStatus(worktree.path.toString());
   if (status === 'modified' && !force) return; // cannot remove non-clean working trees (untracked files and modifications in tracked files)
 
-  const worktreedir = (await io.readFileAsync(`${worktree.path.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
   const root = await getRepoRoot(worktreedir);
 
   await fs.remove(worktreedir); // remove the .git/worktrees/{branch} directory in the main worktree  
@@ -148,11 +168,13 @@ export const remove = async (worktree: Worktree, force = false): Promise<void> =
 }
 
 export const repair = (path: fs.PathLike, ...paths: fs.PathLike[]): void => {
+  // TODO: Implementation will be added in future versions.
   console.log({ path, paths });
   return;
 }
 
 export const unlock = (worktree: Worktree): void => {
+  // TODO: Implementation will be added in future versions.
   console.log({ worktree });
   return;
 }
