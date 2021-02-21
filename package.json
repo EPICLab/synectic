@@ -30,7 +30,7 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@testing-library/user-event": "^12.6.3",
     "@types/diff": "^5.0.0",
-    "@types/fs-extra": "^9.0.6",
+    "@types/fs-extra": "^9.0.7",
     "@types/hidefile": "^3.0.0",
     "@types/luxon": "^1.25.1",
     "@types/pako": "^1.0.1",
