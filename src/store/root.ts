@@ -4,7 +4,7 @@ import { stackReducer } from './reducers/stacks';
 import { cardReducer } from './reducers/cards';
 import { filetypeReducer } from './reducers/filetypes';
 import { metafileReducer } from './reducers/metafiles';
-import { reposReducer } from './reducers/repos';
+import { repoReducer } from './reducers/repos';
 import { errorReducer } from './reducers/errors';
 
 /**
@@ -19,7 +19,7 @@ export const rootReducer = combineReducers({
   cards: cardReducer,
   filetypes: filetypeReducer,
   metafiles: metafileReducer,
-  repos: reposReducer,
+  repos: repoReducer,
   errors: errorReducer
 });
 

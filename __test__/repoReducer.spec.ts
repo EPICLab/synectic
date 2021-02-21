@@ -2,7 +2,7 @@ import parsePath from 'parse-path';
 
 import type { Repository } from '../src/types';
 import { ActionKeys } from '../src/store/actions';
-import { reposReducer } from '../src/store/reducers/repos';
+import { repoReducer } from '../src/store/reducers/repos';
 
 describe('reposReducer', () => {
   const repos: { [id: string]: Repository } = {
@@ -36,29 +36,29 @@ describe('reposReducer', () => {
   }
 
   it('reposReducer returns default state when current state is blank', () => {
-    const newRepos = reposReducer(undefined, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo });
+    const newRepos = repoReducer(undefined, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo });
     expect(Object.keys(newRepos)).toHaveLength(1);
     expect(newRepos).toMatchSnapshot();
   });
 
   it('reposReducer appends a new repo to state on action ADD_REPO', () => {
-    const addedRepos = reposReducer(repos, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo });
+    const addedRepos = repoReducer(repos, { type: ActionKeys.ADD_REPO, id: newRepo.id, repo: newRepo });
     expect(Object.keys(addedRepos)).toHaveLength(2);
     expect(addedRepos).toMatchSnapshot();
   });
 
   it('reposReducer removes a repo from state on action REMOVE_REPO', () => {
-    const matchedRepos = reposReducer(repos, { type: ActionKeys.REMOVE_REPO, id: '23' });
+    const matchedRepos = repoReducer(repos, { type: ActionKeys.REMOVE_REPO, id: '23' });
     expect(Object.keys(matchedRepos)).toHaveLength(0);
   });
 
   it('reposReducer resolves non-matching repo in state on action REMOVE_REPO', () => {
-    const nonMatchedRepos = reposReducer(repos, { type: ActionKeys.REMOVE_REPO, id: newRepo.id });
+    const nonMatchedRepos = repoReducer(repos, { type: ActionKeys.REMOVE_REPO, id: newRepo.id });
     expect(Object.keys(nonMatchedRepos)).toHaveLength(Object.keys(repos).length);
   });
 
   it('reposReducer updates state of matched repo on action UPDATE_REPO', () => {
-    const updatedRepos = reposReducer(repos, {
+    const updatedRepos = repoReducer(repos, {
       type: ActionKeys.UPDATE_REPO, id: '23', repo: {
         oauth: 'bitbucket'
       }
