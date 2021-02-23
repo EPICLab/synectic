@@ -10,8 +10,8 @@ import { mockStore, extractFieldMap } from './__mocks__/reduxStoreMock';
 import CardComponent from '../src/components/CardComponent';
 import Editor from '../src/components/Editor';
 import Diff from '../src/components/Diff';
+import Browser from '../src/components/Browser';
 import Explorer from '../src/components/Explorer';
-import { BrowserComponent } from '../src/components/Browser';
 import { VersionStatusComponent } from '../src/components/RepoBranchList';
 
 describe('CardComponent', () => {
@@ -134,7 +134,7 @@ describe('CardComponent', () => {
   it('Card resolves props into React Component for Browser handler', () => {
     const CardContext = wrapInReduxContext(CardComponent, store);
     const wrapper = mount(<CardContext {...cards['6']} />, mountOptions);
-    expect(wrapper.find(BrowserComponent)).toHaveLength(1);
+    expect(wrapper.find(Browser)).toHaveLength(1);
   });
 
   it('Card resolves props into React Component for Tracker handler', () => {

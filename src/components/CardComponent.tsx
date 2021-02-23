@@ -9,7 +9,7 @@ import { ActionKeys } from '../store/actions';
 import Explorer, { ExplorerReverse } from './Explorer';
 import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
-import { BrowserComponent } from './Browser';
+import Browser, { BrowserReverse } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
 import { addStack, appendCards, removeCard } from '../containers/stacks';
@@ -35,7 +35,7 @@ const ContentFront: React.FunctionComponent<Card> = props => {
     case 'Explorer':
       return (<Explorer rootId={props.metafile} />);
     case 'Browser':
-      return (<BrowserComponent />);
+      return (<Browser />);
     case 'Tracker':
       return (<VersionStatusComponent />);
     default:
@@ -52,19 +52,13 @@ const ContentBack: React.FunctionComponent<Card> = props => {
     case 'Explorer':
       return (<ExplorerReverse {...props} />);
     case 'Browser':
-      return null;
+      return (<BrowserReverse {...props} />);
     case 'Tracker':
       return null;
     default:
       return null;
   }
 };
-
-/**
- * Backside works: Editor, Explorer,
- * Backside crashes: Diff, Browser, Tracker
- * Unknown (?): Merge
- */
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { Card } from '../types';
 
 type BrowserState = {
   history: URL[];
@@ -6,7 +7,7 @@ type BrowserState = {
   index: number;
 }
 
-export const BrowserComponent: React.FunctionComponent = () => {
+const Browser: React.FunctionComponent = () => {
   const [webviewKey, setWebviewKey] = useState(0);
   const [urlInput, setUrlInput] = useState('https://epiclab.github.io/');
   const [browserState, setBrowserState] = useState<BrowserState>({
@@ -56,3 +57,16 @@ export const BrowserComponent: React.FunctionComponent = () => {
     </>
   )
 }
+
+export const BrowserReverse: React.FunctionComponent<Card> = props => {
+  return (
+    <>
+      <span>ID:</span><span className='field'>...{props.id.slice(-10)}</span>
+      <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
+      <span>Name:</span><span className='field'>{props.name}</span>
+      <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
+    </>
+  );
+};
+
+export default Browser;

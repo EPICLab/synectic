@@ -5,11 +5,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { v4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
 
-import { BrowserComponent } from '../src/components/Browser';
+import Browser from '../src/components/Browser';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 
-describe('BrowserComponent', () => {
+describe('Browser', () => {
   const store = mockStore({
     canvas: {
       id: v4(),
@@ -26,10 +26,10 @@ describe('BrowserComponent', () => {
     errors: {}
   });
 
-  const BrowserComponentContext = wrapInReduxContext(BrowserComponent, store);
+  const BrowserContext = wrapInReduxContext(Browser, store);
 
-  it('BrowserComponent allows the user to enter/edit a URL', async () => {
-    render(<BrowserComponentContext />);
+  it('Browser allows the user to enter/edit a URL', async () => {
+    render(<BrowserContext />);
     const textBox = screen.getByRole('textbox') as HTMLInputElement;
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
@@ -44,8 +44,8 @@ describe('BrowserComponent', () => {
     expect(textBox).toHaveValue('https://google.com');
   });
 
-  it('BrowserComponent allows the user to navigate backwards and forwards in history', async () => {
-    render(<BrowserComponentContext />);
+  it('Browser allows the user to navigate backwards and forwards in history', async () => {
+    render(<BrowserContext />);
     const backButton = screen.getAllByRole('button')[0];
     const forwardButton = screen.getAllByRole('button')[1];
     const textBox = screen.getByRole('textbox') as HTMLInputElement;
@@ -70,8 +70,8 @@ describe('BrowserComponent', () => {
     expect(textBox).toHaveValue('https://google.com/');
   });
 
-  it('BrowserComponent does not change the page URL when the refresh button is clicked', async () => {
-    render(<BrowserComponentContext />);
+  it('Browser does not change the page URL when the refresh button is clicked', async () => {
+    render(<BrowserContext />);
     const textBox = screen.getByRole('textbox') as HTMLInputElement;
     const refreshButton = screen.getAllByRole('button')[2];
 
