@@ -9345,12 +9345,12 @@ react-dnd-html5-backend@^12.1.0:
   dependencies:
     dnd-core "12.0.1"
 
-react-dnd-test-backend@^11.1.3:
-  version "11.1.3"
-  resolved "https://registry.yarnpkg.com/react-dnd-test-backend/-/react-dnd-test-backend-11.1.3.tgz#7af2cfa3dc891845ef0e4b8d2e58383b066b1f67"
-  integrity sha512-5qFm+NI2GdWIUfiYun0A8Gv0xjbq0NGOPS+f6z3x/3nTuliApjmqcM1lfTgePoz1FDG47ZofF58N8y96If62+Q==
+react-dnd-test-backend@^12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/react-dnd-test-backend/-/react-dnd-test-backend-12.0.0.tgz#3597566811d52269ae2661fd6dbe6a228b254409"
+  integrity sha512-SJI24oVls8fymjypfekmVnfEUKGjXtZlsGpfJ6UjW8MkXej0xnHd6Vpw2iUV8+KSjzQmTvvnXdUP3L7/8EyQcA==
   dependencies:
-    dnd-core "^11.1.3"
+    dnd-core "12.0.0"
 
 react-dnd-test-utils@^11.1.3:
   version "11.1.3"
