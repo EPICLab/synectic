@@ -303,6 +303,7 @@ describe('git-worktree.remove', () => {
       path: 'foo/',
       bare: false,
       detached: false,
+      main: false,
       ref: 'foo',
       rev: 'f204b02baf1322ee079fe9768e9593509d683412'
     }
@@ -319,6 +320,7 @@ describe('git-worktree.remove', () => {
       path: 'foo/',
       bare: false,
       detached: false,
+      main: false,
       ref: 'foo',
       rev: 'f204b02baf1322ee079fe9768e9593509d683412'
     }
@@ -335,6 +337,7 @@ describe('git-worktree.remove', () => {
       path: 'foo/',
       bare: false,
       detached: false,
+      main: false,
       ref: 'foo',
       rev: 'f204b02baf1322ee079fe9768e9593509d683412'
     }
@@ -351,6 +354,7 @@ describe('git-worktree.remove', () => {
       path: 'foo/',
       bare: false,
       detached: false,
+      main: false,
       ref: 'foo',
       rev: 'f204b02baf1322ee079fe9768e9593509d683412'
     }
@@ -367,6 +371,7 @@ describe('git-worktree.remove', () => {
       path: 'foo/',
       bare: false,
       detached: false,
+      main: false,
       ref: 'foo',
       rev: 'f204b02baf1322ee079fe9768e9593509d683412'
     }
@@ -375,10 +380,3 @@ describe('git-worktree.remove', () => {
     await expect(extractStats('baseRepo/')).resolves.toBeDefined();
   })
 });
-
-// describe('extra test for different branches during status check', () => {
-//   it('does different branches cause issues for the current status check implementation', async () => {
-//     const status = await git.getStatus('/Users/nelsonni/Workspace/foo_hotfix');
-//     return expect(status).toBe('modified');
-//   })
-// });

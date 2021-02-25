@@ -4,9 +4,9 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
 
-import * as io from './io';
 import type { Repository, SHA1, UUID } from '../types';
-import { clone, currentBranch, deleteBranch, getRepoRoot, getStatus, resolveRef } from './git';
+import * as io from './io';
+import * as git from './git';
 
 // API SOURCE: https://git-scm.com/docs/git-worktree
 
@@ -15,21 +15,72 @@ export type Worktree = {
   path: fs.PathLike; // The relative or absolute path to the git worktree root repository.
   bare: boolean; // A flag for indicating a bare git worktree.
   detached: boolean; // A flag for indicating a detached HEAD state in the worktree.
+  main: boolean; // A flag for indicating a main worktree, as opposed to a linked worktree.
   ref?: string; // A branch name or symbolic ref (can be abbreviated).
   rev?: SHA1 | string; // A revision (or commit) representing the current state of `index` for the worktree.
 }
 
-const getWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), '.git'), bare = false): Promise<Worktree> => {
-  const branch = await currentBranch({ dir: dir.toString(), gitdir: gitdir });
-  const commit = await resolveRef({ dir: dir, ref: 'HEAD' });
+/**
+ * Utility function for discerning whether a working tree directory path (`dir`) or a git directory path (`gitdir`) is associated with a 
+ * linked working tree (see [git-worktree](https://git-scm.com/docs/git-worktree)). This is determined by examining whether `.git` points
+ * to a sub-directory or a file; where a sub-directory indicates a main worktree and a file indicates a linked worktree.
+ * @param dir The working tree directory path.
+ * @param filepath The git directory path (typically ends in `.git`).
+ * @return A boolean indicating whether the provided path is a linked worktree.
+ */
+const isLinkedWorktree = async (param: { dir: fs.PathLike, gitdir?: never } | { dir?: never, gitdir: fs.PathLike }): Promise<boolean> => {
+  if (param.dir) {
+    const gitdir = path.join(param.dir.toString(), '.git');
+    return !(await io.isDirectory(gitdir));
+  }
+  if (param.gitdir) {
+    return !(await io.isDirectory(param.gitdir));
+  }
+  return false;
+}
+
+/**
+ * Utility function for compiling all necessary information for working with either linked and main working trees 
+ * (see [git-worktree](https://git-scm.com/docs/git-worktree)).
+ * @param dir The working tre directory path.
+ * @param gitdir The git directory path (typicallyg ends in `.git`).
+ * @param bare A flag indicating a bare git worktree.
+ * @return A Worktree object 
+ */
+const createWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), '.git'), bare = false): Promise<Worktree> => {
+  const branch = await git.currentBranch({ dir: dir.toString(), gitdir: gitdir });
+  const commit = await git.resolveRef({ dir: dir, ref: 'HEAD' });
+  const isMain = await isLinkedWorktree({ dir: dir });
   return {
     id: v4(),
     path: path.resolve(dir.toString()),
     bare: bare,
     detached: branch ? false : true,
+    main: isMain,
     ref: branch ? branch : undefined,
     rev: commit
   };
+}
+
+/**
+ * Get worktree path information for a branch within a repository. The main worktree is always listed, even when no linked
+ * worktrees exist, so the base case is that the main worktree information is returned. If there is no worktree associated
+ * with the target branch, a new worktree will be added (including checking out the code into a separate `.syn/{branch}` 
+ * directory outside of the root directory of the main worktree) and returned.
+ * @param repo The Repository object that points to the main worktree.
+ * @param targetBranch The local or remote target branch that should be resolved into a worktree.
+ * @return A Worktree object containing a path to linked/main worktree root, a ref to current branch, and the current commit
+ * revision hash at the head of the branch.
+ */
+export const resolveWorktree = async (repo: Repository, targetBranch: string): Promise<Worktree | undefined> => {
+  if (![...repo.local, ...repo.remote].includes(targetBranch)) return undefined; // unknown target branch
+  const worktrees = await list(repo.root);
+  const existing = worktrees ? worktrees.find(w => w.ref === targetBranch) : undefined;
+  if (existing) return existing;
+  const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${targetBranch}`);
+  await add(repo, linkedRoot, targetBranch);
+  const updatedWorktrees = await list(repo.root);
+  return updatedWorktrees ? updatedWorktrees.find(w => w.ref === targetBranch) : undefined;
 }
 
 /**
@@ -37,35 +88,34 @@ const getWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), 
  * new directory. The new working directory is linked to the current repository, sharing everything except working directory
  * specific files such as `HEAD`, `index`, etc. Adheres to the specifications of the `git worktree add` command, see:
  * https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addltpathgtltcommit-ishgt
- * @param repo A Repository object to use as the main worktree.
+ * @param repo A Repository object that points to the main worktree.
  * @param dir The relative or absolute path to create the new linked worktree; will create a new directory if none is found.
  * @param commitish A branch name or symbolic ref.
  * @return A Promise object for the add worktree operation.
  */
 export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string): Promise<void> => {
-  const commit = (commitish && isHash(commitish, 'sha1')) ? commitish : await resolveRef({ dir: repo.root, ref: 'HEAD' });
+  const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await git.resolveRef({ dir: repo.root, ref: commitish }))
+    : await git.resolveRef({ dir: repo.root, ref: 'HEAD' });
   const branch = (commitish && !isHash(commitish, 'sha1')) ? commitish : io.extractDirname(dir);
   const gitdir = path.resolve(`${dir.toString()}/.git`);
   const worktreedir = path.join(repo.root.toString(), '/.git/worktrees', branch);
   const commondir = path.relative(worktreedir, path.join(repo.root.toString(), '.git'));
 
   // initialize the linked worktree
-  await clone({ repo: repo, dir: dir, ref: branch, singleBranch: true });
-  await fs.remove(gitdir);
-  await io.writeFileAsync(gitdir, `gitdir: ${worktreedir}\n`);
+  await git.clone({ repo: repo, dir: dir, ref: branch });
 
-  // populate internal git files in main worktree to include linked worktree
+  // populate internal git files in main worktree to recognize the new linked worktree
   await fs.ensureDir(worktreedir);
-  await io.writeFileAsync(path.join(worktreedir, 'HEAD'), `ref: refs/heads/${branch}` + '\n');
+  await fs.copy(path.resolve(`${dir}/.git/HEAD`), path.join(worktreedir, 'HEAD'));
+  await fs.copy(path.resolve(`${dir}/.git/index`), `${worktreedir}/index`);
   await io.writeFileAsync(path.resolve(`${worktreedir}/${commondir}/refs/heads/${branch}`), commit + '\n');
   await io.writeFileAsync(path.join(worktreedir, 'ORIG_HEAD'), commit + '\n');
   await io.writeFileAsync(path.join(worktreedir, 'commondir'), commondir + '\n');
   await io.writeFileAsync(path.join(worktreedir, 'gitdir'), gitdir + '\n');
 
-  // resolve missing git index file in the linked worktree, by copying from main worktree (if available)
-  const index = path.resolve(`${worktreedir}/${commondir}/index`);
-  if (await io.extractStats(index)) await fs.copy(index, `${worktreedir}/index`);
-
+  // // overwrite the internal git files in linked worktree to point to main worktree
+  await fs.remove(gitdir);
+  await io.writeFileAsync(gitdir, `gitdir: ${worktreedir}\n`);
   return;
 }
 
@@ -78,24 +128,24 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
  */
 export const list = async (dir: fs.PathLike): Promise<Worktree[] | undefined> => {
   if (!(await io.extractStats(dir))) return; // cannot list from non-existent git directory
-  let root = await getRepoRoot(dir);
+  let root = await git.getRepoRoot(dir);
   if (!root) return undefined; // if there is no root, then dir is not under version control
 
-  if (!(await io.isDirectory(`${root}/.git`))) {
+  if (await isLinkedWorktree({ dir: root })) {
     // dir points to a linked worktree, so we update root to point to the main worktree path
     const worktreedir = (await io.readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
     const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
     root = path.normalize(`${worktreedir}/${commondir}/..`);
   }
 
-  const main = await getWorktree(root);
+  const main = await createWorktree(root);
   const worktrees = path.join(root, '.git/worktrees');
   // .git/worktrees directory will only exist if a linked worktree has been added (even if it was later deleted), so verify it exists
   const exists = (await io.extractStats(worktrees)) ? true : false;
   const linked = exists ? await Promise.all((await io.readDirAsync(worktrees)).map(async worktree => {
     const gitdir = (await io.readFileAsync(`${root}/.git/worktrees/${worktree}/gitdir`, { encoding: 'utf-8' })).trim();
     const dir = path.normalize(`${gitdir}/..`);
-    return getWorktree(dir);
+    return await createWorktree(dir);
   })) : [];
 
   return [main, ...linked];
@@ -153,16 +203,16 @@ export const prune = async (dir: fs.PathLike, verbose = false, expire?: DateTime
 export const remove = async (worktree: Worktree, force = false): Promise<void> => {
   const gitdir = path.join(worktree.path.toString(), '.git');
   if (!(await io.extractStats(gitdir))) return; // cannot remove non-existent git directory
-  if (await io.isDirectory(gitdir)) return; // main worktree cannot be removed
-  const status = await getStatus(worktree.path.toString());
+  if (!(await isLinkedWorktree({ gitdir: gitdir }))) return; // main worktree cannot be removed
+  const status = await git.getStatus(worktree.path.toString());
   if (status === 'modified' && !force) return; // cannot remove non-clean working trees (untracked files and modifications in tracked files)
 
   const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-  const root = await getRepoRoot(worktreedir);
+  const root = await git.getRepoRoot(worktreedir);
 
   await fs.remove(worktreedir); // remove the .git/worktrees/{branch} directory in the main worktree  
   await fs.remove(worktree.path.toString()); // remove the directory of the linked worktree
-  if (force && root && worktree.ref) await deleteBranch({ dir: root, ref: worktree.ref }); // delete branch ref, if force param is enabled
+  if (force && root && worktree.ref) await git.deleteBranch({ dir: root, ref: worktree.ref }); // delete branch ref, if force param is enabled
 
   return;
 }
