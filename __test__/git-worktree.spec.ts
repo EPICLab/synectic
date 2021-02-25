@@ -166,7 +166,8 @@ describe('git-worktree.add', () => {
           },
           refs: {
             heads: {
-              master: 'f204b02baf1322ee079fe9768e9593509d683412\n'
+              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+              hotfix: 'f204b02baf1322ee079fe9768e9593509d683412\n'
             },
             tags: {}
           }
@@ -191,7 +192,7 @@ describe('git-worktree.add', () => {
       root: 'baseRepo/',
       corsProxy: new URL('http://www.oregonstate.edu'),
       url: parsePath('https://github.com/sampleUser/baseRepo'),
-      local: ['master'],
+      local: ['master', 'hotfix'],
       remote: [],
       oauth: 'github',
       username: 'sampleUser',
