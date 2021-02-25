@@ -51,6 +51,26 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   }
 }
 
+export const checkout = async ({
+  dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', filepaths, remote = 'origin',
+  noCheckout = false, noUpdateHead = ref === undefined, dryRun = false, force = false
+}: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
+  ref?: string;
+  filepaths?: string[];
+  remote?: string;
+  noCheckout?: boolean;
+  noUpdateHead?: boolean;
+  dryRun?: boolean;
+  force?: boolean;
+}): Promise<string | void> => {
+  return isogit.checkout({
+    fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, filepaths: filepaths,
+    remote: remote, noCheckout: noCheckout, noUpdateHead: noUpdateHead, dryRun: dryRun, force: force
+  });
+}
+
 /**
  * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function to inject the `fs` parameter and extend with 
  * additional local-only branch functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the 
