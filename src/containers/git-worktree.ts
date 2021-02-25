@@ -100,6 +100,7 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
   const gitdir = path.resolve(`${dir.toString()}/.git`);
   const worktreedir = path.join(repo.root.toString(), '/.git/worktrees', branch);
   const commondir = path.relative(worktreedir, path.join(repo.root.toString(), '.git'));
+  const detached = (commitish && isHash(commitish, 'sha1')) ? commitish : undefined;
 
   // initialize the linked worktree
   await git.clone({ repo: repo, dir: dir, ref: branch });
@@ -107,7 +108,8 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
   // populate internal git files in main worktree to recognize the new linked worktree
   await fs.ensureDir(worktreedir);
   await fs.copy(path.resolve(`${dir}/.git/HEAD`), path.join(worktreedir, 'HEAD'));
-  await fs.copy(path.resolve(`${dir}/.git/index`), `${worktreedir}/index`);
+  detached ? await io.writeFileAsync(path.join(worktreedir, 'HEAD'), detached + '\n')
+    : await fs.copy(path.resolve(`${dir}/.git/index`), `${worktreedir}/index`);
   await io.writeFileAsync(path.resolve(`${worktreedir}/${commondir}/refs/heads/${branch}`), commit + '\n');
   await io.writeFileAsync(path.join(worktreedir, 'ORIG_HEAD'), commit + '\n');
   await io.writeFileAsync(path.join(worktreedir, 'commondir'), commondir + '\n');
@@ -147,6 +149,19 @@ export const list = async (dir: fs.PathLike): Promise<Worktree[] | undefined> =>
     const dir = path.normalize(`${gitdir}/..`);
     return await createWorktree(dir);
   })) : [];
+
+  /**
+   * LIST OUTPUT FORMAT
+   *   The worktree list command has two output formats. The default format
+   *   shows the details on a single line with columns. For example:
+   * 
+   *       S git worktree list
+   *       /path/to/bare-source            (bare)
+   *       /path/to/linked-worktree        abcd1234 [master]
+   *       /path/to/other-linked-worktree  1234abc  (detached HEAD)
+   *
+   * SOURCE: https://docs.oracle.com/cd/E88353_01/html/E37839/git-worktree-1.html
+   */
 
   return [main, ...linked];
 }

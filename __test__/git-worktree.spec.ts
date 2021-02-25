@@ -5,7 +5,7 @@ import * as path from 'path';
 import type { Repository } from '../src/types';
 import * as git from '../src/containers/git';
 import * as worktree from '../src/containers/git-worktree';
-import { extractStats, readFileAsync } from '../src/containers/io';
+import { extractStats, readFileAsync, writeFileAsync } from '../src/containers/io';
 
 describe('git-worktree.list', () => {
 
@@ -166,8 +166,8 @@ describe('git-worktree.add', () => {
           },
           refs: {
             heads: {
-              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
-              hotfix: 'f204b02baf1322ee079fe9768e9593509d683412\n'
+              master: 'f39895c492e97f23d9ce252afefca347a656a4b2\n',
+              hotfix: '6b35cb455b16b0d0247c9cfdcb4982a4de599b23\n'
             },
             tags: {}
           }
@@ -183,9 +183,16 @@ describe('git-worktree.add', () => {
     });
   });
 
-  afterEach(mock.restore);
+  afterEach(() => {
+    mock.restore();
+    jest.clearAllMocks();
+  });
 
   it('add resolves a linked worktree on new branch', async () => {
+    jest.spyOn(git, 'checkout').mockImplementation(async () => {
+      await writeFileAsync(path.resolve('foo/.git/index'), '2349024234');
+      await writeFileAsync(path.resolve('foo/.git/HEAD'), 'ref: refs/heads/hotfix\n');
+    });
     const repo: Repository = {
       id: '23',
       name: 'sampleUser/baseRepo',
@@ -204,7 +211,7 @@ describe('git-worktree.add', () => {
       .resolves.toBe(`gitdir: ${path.join('baseRepo', '.git', 'worktrees', 'hotfix')}\n`);
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/hotfix\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/ORIG_HEAD', { encoding: 'utf-8' }))
-      .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
+      .resolves.toBe('6b35cb455b16b0d0247c9cfdcb4982a4de599b23\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/commondir', { encoding: 'utf-8' })).resolves.toBe('../..\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
   })
@@ -216,7 +223,7 @@ describe('git-worktree.add', () => {
       root: 'baseRepo/',
       corsProxy: new URL('http://www.oregonstate.edu'),
       url: parsePath('https://github.com/sampleUser/baseRepo'),
-      local: ['master'],
+      local: ['master', 'hotfix'],
       remote: [],
       oauth: 'github',
       username: 'sampleUser',
@@ -226,7 +233,8 @@ describe('git-worktree.add', () => {
     await worktree.add(repo, 'foo/', 'f204b02baf1322ee079fe9768e9593509d683412');
     await expect(readFileAsync('foo/.git', { encoding: 'utf-8' }))
       .resolves.toBe(`gitdir: ${path.join('baseRepo', '.git', 'worktrees', 'foo')}\n`);
-    await expect(readFileAsync('baseRepo/.git/worktrees/foo/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/foo\n');
+    await expect(readFileAsync('baseRepo/.git/worktrees/foo/HEAD', { encoding: 'utf-8' }))
+      .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/foo/ORIG_HEAD', { encoding: 'utf-8' }))
       .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/foo/commondir', { encoding: 'utf-8' })).resolves.toBe('../..\n');
