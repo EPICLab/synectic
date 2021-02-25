@@ -307,17 +307,12 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   const repoRoot = await getRepoRoot(filepath);
   if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
 
-  let mainRoot: string | undefined;
-  if (!(await io.isDirectory(`${repoRoot}/.git`))) {
-    const worktreedir = (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    const commondir = (await io.readFileAsync(`${worktreedir}/commondir`, { encoding: 'utf-8' })).trim();
-    mainRoot = path.resolve(`${worktreedir}/${commondir}/../.git`);
-  }
-
-  // parse the necessary paths based on main or linked worktree
-  const dir = (repoRoot ? repoRoot : '/');
-  const gitdir = mainRoot ? mainRoot : path.join(dir, '.git');
-  const relativePath = path.relative(repoRoot ? repoRoot : '/', filepath.toString());
+  // parse the paths based on main or linked worktree structure
+  const dir = repoRoot;
+  const gitdir = (!(await io.isDirectory(`${repoRoot}/.git`))) ?
+    (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim()
+    : path.join(dir, '.git');
+  const relativePath = path.relative(dir, filepath.toString());
 
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
    * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
@@ -329,6 +324,12 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
 
+  /** TODO: The following status check is able to process linked worktree files, but is unable to provide meaningful status results.
+   * Determining status should involve reading the `index` for the correct branch, in the case of linked worktrees that would be the
+   * `index` file inside of the `.git/worktrees/{worktree-name}` directory. However, the `isomorphic-git.status` command is instead
+   * comparing against the `index` file at `.git/index` (which is associated with the current branch on the main worktree). Therefore,
+   * if a new file was added in the linked worktree, the status would return as `added` since the branch on the main worktree has no
+   * records of that file being committed. */
   return isogit.status({ fs: fs, dir: dir, gitdir: gitdir, filepath: relativePath });
 }
 
