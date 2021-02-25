@@ -39,14 +39,15 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   ref: string;
   depth?: number;
 }): Promise<string> => {
-  if (fs.statSync(gitdir).isDirectory()) {
+  if (await io.isDirectory(gitdir)) {
     return isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, depth: depth });
   } else {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
     const commondir = (await io.readFileAsync(path.join(worktreedir, 'commondir'), { encoding: 'utf-8' })).trim();
     const linkedgitdir = path.normalize(`${worktreedir}/${commondir}`);
     const linkeddir = path.normalize(`${gitdir}/..`);
-    return isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: ref, depth: depth });
+    const updatedRef = (ref === 'HEAD') ? (await io.readFileAsync(`${worktreedir}/HEAD`, { encoding: 'utf-8' })).trim() : ref;
+    return isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: updatedRef, depth: depth });
   }
 }
 
@@ -94,7 +95,7 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
  * the main worktree and this path must be used for branch checks.
  * @param dir The working tree directory path.
  * @param gitdir The git directory path.
- * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the abbreviated form.
+ * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the abbreviated form; default is false.
  * @param test Boolean option to return 'undefined' if the current branch doesn't actually exist (such as 'master' right after git init).
  * @return A Promise object containing the current branch name, or undefined if the HEAD is detached.
  */
@@ -104,7 +105,8 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => {
-  if (fs.statSync(gitdir).isDirectory()) {
+  // if (fs.statSync(gitdir).isDirectory()) {
+  if (await io.isDirectory(gitdir)) {
     return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
   } else {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
@@ -296,7 +298,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
 
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
    * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
-  if (fs.statSync(filepath.toString()).isDirectory()) {
+  if (await io.isDirectory(filepath)) {
     const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !shouldBeHiddenSync(f) });
     const changed = statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
@@ -391,8 +393,8 @@ export const isValidRepository = (repo: Repository): boolean => (
 /**
  * Read an entry from the git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality
  * to resolve global git-config files. The return object indicates the scope (`local` or `global`) in which the value was located, and the 
- * git-config value. If the optional `global` parameter is not enabled, then `getConfig` will default to checking the `local` scope and
- * then the `global` scope (if no value was found in `local`).
+ * git-config value. If the optional `global` parameter is not enabled, then `getConfig` will default to checking the `local` scope followed
+ * by the `global` scope (only if no value was found in `local`).
  * @param keyPath The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
  * @param global Optional parameter for restricting the search to only the global git-config file (i.e. the `global` scope).
  * @return A Promise object containing the value and a scope indicating whether the entry was found in the `local` or `global` git-config

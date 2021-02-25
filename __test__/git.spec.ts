@@ -5,6 +5,7 @@ import * as path from 'path';
 import { homedir } from 'os';
 
 import * as git from '../src/containers/git';
+import * as io from '../src/containers/io';
 
 // const mockGitPath = path.resolve(__dirname, '__mocks__', 'gitProjMock');
 // const mockGitProj = {
@@ -189,10 +190,12 @@ describe('git.resolveRef', () => {
   afterAll(mock.restore);
 
   it('resolveRef resolves to SHA-1 hash on a main worktree ref', async () => {
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(true); // mock-fs struggles to mock async IO calls, like io.isDirectory()
     return expect(git.resolveRef({ dir: 'baseRepo/', ref: 'master' })).resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412');
   })
 
   it('resolveRef resolves to SHA-1 hash on a linked worktree ref', async () => {
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(false); // mock-fs struggles to mock async IO calls, like io.isDirectory()
     return expect(git.resolveRef({ dir: 'foo/', ref: 'master' })).resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412');
   })
 
@@ -272,19 +275,25 @@ describe('git.currentBranch', () => {
 
   afterAll(mock.restore);
 
+  afterEach(jest.clearAllMocks);
+
   it('currentBranch resolves to Git branch name on a tracked worktree', async () => {
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(true); // mock-fs struggles to mock async IO calls, like io.isDirectory()
     return expect(git.currentBranch({ dir: 'baseRepo/' })).resolves.toBe('master');
   });
 
   it('currentBranch resolves to Git branch name on a linked woktree', async () => {
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(false); // mock-fs struggles to mock async IO calls, like io.isDirectory()
     return expect(git.currentBranch({ dir: 'foo/' })).resolves.toBe('foo');
   });
 
   it('currentBranch resolves to undefined on a tracked directory with detached HEAD', async () => {
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(true); // mock-fs struggles to mock async IO calls, like io.isDirectory()
     await expect(git.currentBranch({ dir: 'qux/' })).resolves.toBeUndefined();
   });
 
   it('currentBranch fails with an error on an untracked directory', async () => {
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(false); // mock-fs struggles to mock async IO calls, like io.isDirectory()
     await expect(git.currentBranch({ dir: 'baz/' })).rejects.toThrow(/ENOENT/);
   });
 });
