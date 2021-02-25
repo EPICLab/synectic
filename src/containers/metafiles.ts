@@ -139,7 +139,8 @@ export const updateGitInfo = (id: UUID): ThunkAction<Promise<UpdateMetafileActio
 
     const repoAction = metafile.path ? await dispatch(getRepository(metafile.path)) : undefined;
     const repo = repoAction ? getState().repos[repoAction.id] : undefined;
-    const branch = repo ? (await git.currentBranch({ dir: repo.root.toString(), fullname: false })) : undefined;
+    const root = await git.getRepoRoot(metafile.path);
+    const branch = repo ? (await git.currentBranch({ dir: root ? root : repo.root.toString(), fullname: false })) : undefined;
     const updated: Metafile = (!repo || !metafile.path) ? metafile :
       { ...metafile, repo: repo.id, branch: branch ? branch : 'HEAD', status: (await git.getStatus(metafile.path)) };
     return dispatch(updateMetafile(updated));
