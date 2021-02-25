@@ -97,9 +97,12 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   depth?: number;
   exclude?: string[];
 }): Promise<void> => {
-  const targetBranch = ref ? ref : (await currentBranch({ dir: repo.root.toString(), fullname: false }));
+  const existingBranch = await currentBranch({ dir: repo.root.toString(), fullname: false });
+  const targetBranch = ref ? ref : existingBranch;
   if (targetBranch && !repo.remote.includes(targetBranch)) {
-    return fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) });
+    await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) });
+    if (targetBranch !== existingBranch) await checkout({ dir: dir, ref: targetBranch, noCheckout: noCheckout });
+    return;
   }
   return isogit.clone({
     fs: fs, http: http, dir: dir.toString(), url: repo.url.href, singleBranch: singleBranch, noCheckout: noCheckout,
