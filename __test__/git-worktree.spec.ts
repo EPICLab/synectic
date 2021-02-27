@@ -212,7 +212,8 @@ describe('git-worktree.add', () => {
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/hotfix\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/ORIG_HEAD', { encoding: 'utf-8' }))
       .resolves.toBe('6b35cb455b16b0d0247c9cfdcb4982a4de599b23\n');
-    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/commondir', { encoding: 'utf-8' })).resolves.toBe('../..\n');
+    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/commondir', { encoding: 'utf-8' }))
+      .resolves.toBe(`${path.normalize('../..')}\n`);
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
   })
 
@@ -237,7 +238,8 @@ describe('git-worktree.add', () => {
       .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/foo/ORIG_HEAD', { encoding: 'utf-8' }))
       .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
-    await expect(readFileAsync('baseRepo/.git/worktrees/foo/commondir', { encoding: 'utf-8' })).resolves.toBe('../..\n');
+    await expect(readFileAsync('baseRepo/.git/worktrees/foo/commondir', { encoding: 'utf-8' }))
+      .resolves.toBe(`${path.normalize('../..')}\n`);
     await expect(readFileAsync('baseRepo/.git/worktrees/foo/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
   })
 
