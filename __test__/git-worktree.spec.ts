@@ -214,7 +214,8 @@ describe('git-worktree.add', () => {
       .resolves.toBe('6b35cb455b16b0d0247c9cfdcb4982a4de599b23\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/commondir', { encoding: 'utf-8' }))
       .resolves.toBe(`${path.normalize('../..')}\n`);
-    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
+    await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/gitdir', { encoding: 'utf-8' }))
+      .resolves.toMatch(/((\\|\/){1,2})foo((\\|\/){1,2})\.git\n?$/); // ends in foo/.git with file path separators for Windows or Unix
   })
 
   it('add resolves a linked worktree on SHA-1 commit hash', async () => {
@@ -240,7 +241,8 @@ describe('git-worktree.add', () => {
       .resolves.toBe('f204b02baf1322ee079fe9768e9593509d683412\n');
     await expect(readFileAsync('baseRepo/.git/worktrees/foo/commondir', { encoding: 'utf-8' }))
       .resolves.toBe(`${path.normalize('../..')}\n`);
-    await expect(readFileAsync('baseRepo/.git/worktrees/foo/gitdir', { encoding: 'utf-8' })).resolves.toMatch(/foo\/.git\n?$/);
+    await expect(readFileAsync('baseRepo/.git/worktrees/foo/gitdir', { encoding: 'utf-8' }))
+      .resolves.toMatch(/((\\|\/){1,2})foo((\\|\/){1,2})\.git\n?$/); // ends in foo/.git with file path separators for Windows or Unix
   })
 
 });
