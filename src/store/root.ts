@@ -7,12 +7,6 @@ import { metafileReducer } from './reducers/metafiles';
 import { repoReducer } from './reducers/repos';
 import { errorReducer } from './reducers/errors';
 
-/**
- * TODO: Experiment with setting the reducer outputs to Readonly<> to see if doing so will allow the TypeScript type
- * checker to catch usages where this type modifier is violated; i.e. when changes to state are not handled through
- * immutable operations and Redux actions.
- */
-
 export const rootReducer = combineReducers({
   canvas: canvasReducer,
   stacks: stackReducer,

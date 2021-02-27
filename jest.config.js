@@ -13,6 +13,7 @@ module.exports = {
     'jest-serializer-path',
     'enzyme-to-json/serializer'
   ],
+  clearMocks: true,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     "ace-builds": "<rootDir>/node_modules/ace-builds",

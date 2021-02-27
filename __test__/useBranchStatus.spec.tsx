@@ -1,5 +1,6 @@
 import React from 'react';
 import mock from 'mock-fs';
+import parsePath from 'parse-path';
 import { renderHook } from '@testing-library/react-hooks';
 import { Provider } from 'react-redux';
 import { DateTime } from 'luxon';
@@ -8,7 +9,6 @@ import { v4 } from 'uuid';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { useBranchStatus } from '../src/store/hooks/useBranchStatus';
 import * as git from '../src/containers/git';
-import parsePath from 'parse-path';
 
 describe('useBranchStatus', () => {
 
@@ -101,6 +101,7 @@ describe('useBranchStatus', () => {
   afterAll(mock.restore);
 
   it('useBranchStatus hook maintains list of cards associated with the specific repo and branch', async () => {
+    jest.spyOn(git, 'getStatus').mockResolvedValue('*modified');
     const { result } = renderHook(() => useBranchStatus('23', 'sample'), { wrapper });
     expect(result.current.cards).toHaveLength(1);
   });

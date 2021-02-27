@@ -79,8 +79,6 @@ describe('metafiles.updateFileStats', () => {
       cards: [],
       stacks: []
     },
-    stacks: {},
-    cards: {},
     filetypes: {
       91: {
         id: '91',
@@ -114,6 +112,8 @@ describe('metafiles.updateFileStats', () => {
         modified: DateTime.fromISO('2020-06-25T04:19:55.309-08:00')
       }
     },
+    stacks: {},
+    cards: {},
     repos: {},
     errors: {}
   });
@@ -178,9 +178,6 @@ describe('metafiles.updateGitInfo', () => {
       cards: [],
       stacks: []
     },
-    stacks: {},
-    cards: {},
-    filetypes: {},
     metafiles: {
       3: {
         id: '3',
@@ -212,6 +209,9 @@ describe('metafiles.updateGitInfo', () => {
         token: '584n29dkj1683a67f302x009q164'
       }
     },
+    stacks: {},
+    cards: {},
+    filetypes: {},
     errors: {}
   });
 
@@ -284,8 +284,6 @@ describe('metafiles.updateContents', () => {
       cards: [],
       stacks: []
     },
-    stacks: {},
-    cards: {},
     filetypes: {
       91: {
         id: '91',
@@ -320,6 +318,8 @@ describe('metafiles.updateContents', () => {
         modified: DateTime.fromISO('2020-06-25T04:19:55.309-08:00')
       }
     },
+    stacks: {},
+    cards: {},
     repos: {},
     errors: {}
   });
@@ -392,8 +392,6 @@ describe('metafiles.getMetafile', () => {
       cards: [],
       stacks: []
     },
-    stacks: {},
-    cards: {},
     filetypes: {
       91: {
         id: '91',
@@ -443,6 +441,8 @@ describe('metafiles.getMetafile', () => {
         token: '584n29dkj1683a67f302x009q164'
       }
     },
+    stacks: {},
+    cards: {},
     errors: {}
   });
 

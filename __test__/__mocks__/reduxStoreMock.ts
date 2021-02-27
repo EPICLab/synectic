@@ -1,9 +1,9 @@
 import { configureMockStore } from '@jedmao/redux-mock-store';
 import thunk, { ThunkDispatch } from 'redux-thunk';
+import { DeepPartial } from 'redux';
 
 import { RootState, rootReducer } from '../../src/store/root';
 import { Action } from '../../src/store/actions';
-import { DeepPartial } from 'redux';
 
 // Conditional type for extracting the type of values in a key-value map object, 
 // inspired by: https://mariusschulz.com/articles/conditional-types-in-typescript

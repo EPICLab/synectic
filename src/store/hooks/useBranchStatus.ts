@@ -20,7 +20,7 @@ export const useBranchStatus = (repo: UUID, branch: string): useGitStatusHook =>
 
   const status = useCallback(async (card: Card) => {
     const metafile = metafiles[card.metafile];
-    const updatedStatus = metafile.path ? await getStatus(metafile.path.toString()) : undefined;
+    const updatedStatus: GitStatus | undefined = metafile.path ? await getStatus(metafile.path.toString()) : undefined;
     if (updatedStatus && modifiedStatuses.includes(updatedStatus)) {
       setModified([...modified, card]);
     } else {

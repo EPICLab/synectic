@@ -12,7 +12,7 @@ import Diff, { DiffReverse } from './Diff';
 import Browser, { BrowserReverse } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
-import { addStack, appendCards, removeCard } from '../containers/stacks';
+import { addStack, pushCards, popCard } from '../containers/stacks';
 
 export const useStyles = makeStyles({
   root: {
@@ -90,10 +90,10 @@ const CardComponent: React.FunctionComponent<Card> = props => {
         case 'CARD': {
           const dropSource = cards[monitor.getItem().id];
           if (dropSource.captured) {
-            dispatch(removeCard(stacks[dropSource.captured], dropSource, delta));
+            dispatch(popCard(stacks[dropSource.captured], dropSource, delta));
           }
           if (dropTarget.captured) {
-            const actions = appendCards(stacks[dropTarget.captured], [dropSource]);
+            const actions = pushCards(stacks[dropTarget.captured], [dropSource]);
             actions.map(action => dispatch(action));
           } else {
             const actions = addStack('test', [dropTarget, dropSource], 'go get some testing');
@@ -104,7 +104,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
         case 'STACK': {
           if (!props.captured) {
             const dropSource = stacks[monitor.getItem().id];
-            const actions = appendCards(dropSource, [dropTarget]);
+            const actions = pushCards(dropSource, [dropTarget]);
             actions.map(action => dispatch(action));
           }
           break;
@@ -122,7 +122,10 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   }
 
   const flip = () => setFlipped(!flipped);
-  const close = () => dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id });
+  const close = () => {
+    if (props.captured) dispatch(popCard(stacks[props.captured], cards[props.id]));
+    dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id });
+  }
 
   return (
     <div ref={dragAndDrop}

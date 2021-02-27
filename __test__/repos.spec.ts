@@ -7,7 +7,9 @@ import { mockStore } from './__mocks__/reduxStoreMock';
 import { ActionKeys } from '../src/store/actions';
 import * as repos from '../src/containers/repos';
 import * as git from '../src/containers/git';
+import * as worktree from '../src/containers/git-worktree';
 import * as metafiles from '../src/containers/metafiles';
+import * as io from '../src/containers/io';
 
 describe('repos.updateBranches', () => {
   const store = mockStore({
@@ -129,7 +131,17 @@ describe('repos.checkoutBranch', () => {
 
   beforeAll(() => {
     jest.spyOn(isogit, 'checkout').mockResolvedValue();
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(true);
     jest.spyOn(git, 'currentBranch').mockResolvedValue('sample');
+    jest.spyOn(worktree, 'resolveWorktree').mockResolvedValue({
+      id: '293',
+      path: 'foo',
+      bare: false,
+      detached: false,
+      main: true,
+      ref: 'master',
+      rev: '23492g98239023fs324'
+    });
     jest.spyOn(metafiles, 'getMetafile').mockImplementation(() => () => {
       return new Promise((resolve) => resolve({
         id: '7',
@@ -171,12 +183,16 @@ describe('repos.checkoutBranch', () => {
 
   it('checkoutBranch resolves to error on metafile UUID with no match in the Redux store', async () => {
     await store.dispatch(repos.checkoutBranch('36', '9', 'sample'));
-    expect(store.getActions()).toEqual([
-      expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'ReposError' })
-      })
-    ]);
+    expect(store.getActions()).toStrictEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: ActionKeys.ADD_ERROR,
+          error: expect.objectContaining({
+            type: 'ReposError'
+          })
+        })
+      ])
+    );
   });
 });
 
@@ -254,6 +270,7 @@ describe('repos.getRepository', () => {
   it('getRepository resolves to update branches on existing repository', async () => {
     jest.spyOn(git, 'getRepoRoot').mockResolvedValue('foo/');
     jest.spyOn(isogit, 'getConfigAll').mockResolvedValue(['https://github.com/sampleUser/myRepo']);
+    jest.spyOn(io, 'isDirectory').mockResolvedValue(true);
 
     await store.dispatch(repos.getRepository('foo/bar.js'));
     expect(store.getActions()).toEqual([

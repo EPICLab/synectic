@@ -5,7 +5,7 @@ import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import type { Stack } from '../types';
 import { RootState } from '../store/root';
 import CardComponent from './CardComponent';
-import { appendCards, removeCard } from '../containers/stacks';
+import { pushCards, popCard } from '../containers/stacks';
 import { Action, ActionKeys } from '../store/actions';
 
 const StackComponent: React.FunctionComponent<Stack> = props => {
@@ -38,14 +38,14 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
           const dropTarget = stacks[props.id];
           const dropSource = cards[monitor.getItem().id];
           if (dropSource.captured) {
-            dispatch(removeCard(dropTarget, dropSource, delta));
+            dispatch(popCard(dropTarget, dropSource, delta));
           }
           break;
         }
         case 'STACK': {
           const dropTarget = stacks[props.id];
           const dropSource = stacks[monitor.getItem().id];
-          const actions: Action[] = appendCards(dropTarget, dropSource.cards.map(id => cards[id]));
+          const actions: Action[] = pushCards(dropTarget, dropSource.cards.map(id => cards[id]));
           actions.push({ type: ActionKeys.REMOVE_STACK, id: dropSource.id });
           actions.map(action => dispatch(action));
           break;

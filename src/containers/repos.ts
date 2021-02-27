@@ -5,12 +5,14 @@ import { ThunkAction } from 'redux-thunk';
 import { AnyAction } from 'redux';
 import { v4 } from 'uuid';
 import parsePath from 'parse-path';
+import * as path from 'path';
 
 import type { Repository, Card, Metafile, Error, UUID } from '../types';
+import * as worktree from './git-worktree';
 import { RootState } from '../store/root';
 import { ActionKeys, NarrowActionType, Action } from '../store/actions';
 import { getMetafile } from './metafiles';
-import { extractFilename } from './io';
+import { extractFilename, isDirectory, readFileAsync } from './io';
 import { getRepoRoot, isValidRepository, extractRepoName, extractFromURL } from './git';
 import { updateCard } from './cards';
 
@@ -21,10 +23,15 @@ type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
 
 /**
  * Action Creator for composing a valid ADD_REPO Redux Action.
- * @param repo A Repository object containing a valid UUID.
+ * @param root The relative or absolute path to the git root directory.
+ * @param {url, oauth} urlProtocol The URL and type of OAuth authentication required based on remote-hosting service.
+ * @param username The authentication username associated with an account on the remote-hosting service.
+ * @param password The authentication password associated with an account on the remote-hosting service.
+ * @param token The authentication token associated with an account on the remote-hosting service.
  * @return An `AddRepoAction` object that can be dispatched via Redux.
  */
-const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>, username?: string, password?: string):
+const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>,
+  username?: string, password?: string, token?: string):
   AddRepoAction | AddErrorAction => {
   const repo: Repository = {
     id: v4(),
@@ -37,7 +44,7 @@ const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof e
     oauth: oauth ? oauth : 'github',
     username: username ? username : '',
     password: password ? password : '',
-    token: ''
+    token: token ? token : ''
   };
   if (url && !isValidRepository(repo)) return reposError(repo.id, `Malformed repository '${repo.name}' cannot be added to the Redux store`);
   return {
@@ -123,43 +130,48 @@ export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction |
 * @param cardId The UUID associated with the card that will display the updated content.
 * @param metafileId The UUID associated with the original metafile.
 * @param branch Git branch name or commit hash; defaults to 'master'.
-* @param progress Boolean switch to print phase progress information from `isomorphic-git.checkout()` to console.
-* @return An Thunk that can be executed to get a Metafile associated with a new Git branch and updates the card.
+* @param progress Enable printing progress information from `isomorphic-git.checkout()` to console.
+* @param update Enable changing the branch for the main worktree; will prevent any new linked worktrees from being created.
+* @return A Thunk that can be executed to get a Metafile associated with a new Git branch and updates the card.
 */
-export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, progress?: boolean)
+export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, progress?: boolean, update?: boolean)
   : ThunkAction<Promise<Metafile | undefined>, RootState, undefined, AnyAction> =>
   async (dispatch, getState) => {
+    // verify card, metafile, and repo exist in Redux store before proceeding
     const card = getState().cards[cardId];
     const metafile = getState().metafiles[metafileId];
+    const repo = (metafile && metafile.repo) ? getState().repos[metafile.repo] : undefined;
     if (!card) dispatch(reposError(metafileId, `Cannot update non-existing card for id:'${cardId}'`));
     if (!metafile) dispatch(reposError(metafileId, `Cannot update non-existing metafile for id:'${metafileId}'`));
-    if (!card || !metafile) return undefined;
+    if (!repo) dispatch(reposError(metafileId, `Repository missing for metafile id:'${metafileId}'`));
+    if (!card || !metafile || !repo) return undefined;
+    if (!metafile.path) return undefined; // metafile cannot be virtual
 
-    const repo = metafile.repo ? getState().repos[metafile.repo] : undefined;
-    if (!repo) {
-      dispatch(reposError(metafile.id, `Repository missing for metafile id:'${metafile.id}'`));
-      return undefined;
-    }
-    if (repo && metafile.path) {
-      const baseRef = metafile.branch;
-      // change the repository branch to the new branch
+    let updated: Metafile | undefined;
+    if (update) {
+      // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
       if (progress) await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: branch, onProgress: (e) => console.log(e.phase) });
       else await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: branch });
+      updated = await dispatch(getMetafile({ filepath: metafile.path }));
+    } else {
+      // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
+      const oldWorktree = metafile.branch ? await worktree.resolveWorktree(repo, metafile.branch) : undefined;
+      const newWorktree = await worktree.resolveWorktree(repo, branch);
+      if (!oldWorktree || !newWorktree) return undefined; // no worktree could be resolved for either current or new worktree
 
-      // get an updated metafile based on the new branch
-      const updated = await dispatch(getMetafile({ filepath: metafile.path }));
-      if (!updated) {
-        dispatch(reposError(metafile.id, `Cannot locate updated metafile with new branch for path:'${metafile.path}'`));
-        return undefined;
-      }
-      // update the metafile details (including file content) for the card
-      dispatch(switchCardMetafile(card, updated));
-
-      // change the repository branch back to the old branch
-      await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: baseRef });
-      if (progress) console.log('checkout complete...');
+      const relative = path.relative(oldWorktree.path.toString(), metafile.path.toString());
+      updated = await dispatch(getMetafile({ filepath: path.join(newWorktree.path.toString(), relative) }));
     }
-    return getState().metafiles[metafile.id];
+    // get an updated metafile based on the updated worktree path
+    if (!updated) {
+      dispatch(reposError(metafile.id, `Cannot locate updated metafile with new branch for path:'${metafile.path}'`));
+      return undefined;
+    }
+
+    // update the metafile details (including file content) for the card
+    dispatch(switchCardMetafile(card, updated));
+    if (progress) console.log('checkout complete...');
+    return getState().metafiles[updated.id];
   };
 
 /**
@@ -172,14 +184,20 @@ export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, p
  */
 export const getRepository = (filepath: PathLike): ThunkAction<Promise<Repository | undefined>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
-    const root = await getRepoRoot(filepath);
+    let root = await getRepoRoot(filepath);
     if (!root) return undefined; // if there is no root, then filepath is not under version control
 
+    if (!(await isDirectory(`${root}/.git`))) {
+      // root points to a linked worktree, so we update root to point to the main worktree path
+      const gitdir = (await readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+      root = await getRepoRoot(gitdir);
+      if (!root) return undefined; // if there is no root, then the main worktree path is corrupted
+    }
+
     const remoteOriginUrls: string[] | undefined = root ?
-      await isogit.getConfigAll({ fs: fs, dir: root.toString(), path: 'remote.origin.url' }) : undefined;
+      await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
     const { url, oauth } = (remoteOriginUrls && remoteOriginUrls?.length > 0) ?
       extractFromURL(remoteOriginUrls[0]) : { url: undefined, oauth: undefined };
-    // const existo = url ? true : false;
     const name = url ? extractRepoName(url.href) : extractFilename(root);
     const existing = url ? Object.values(getState().repos).find(r => r.name === name && r.url.href === url.href)
       : Object.values(getState().repos).find(r => r.name === name);

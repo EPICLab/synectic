@@ -13,7 +13,7 @@ const promiseExec = util.promisify(exec);
 
 export const tempClone = async (repo: Repository, branch: string): Promise<string> => {
   const cloneRoot = join(repo.root.toString(), '../', '.syn');
-  await clone(repo, cloneRoot, branch);
+  await clone({ repo: repo, dir: cloneRoot, ref: branch });
   return cloneRoot;
 }
 
