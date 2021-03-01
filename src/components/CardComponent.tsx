@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
+
+import SaveIcon from '@material-ui/icons/Save';
+import AutorenewIcon from '@material-ui/icons/Autorenew';
+import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core';
 
 import type { Card } from '../types';
@@ -13,13 +17,14 @@ import Browser, { BrowserReverse } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
 import { addStack, pushCards, popCard } from '../containers/stacks';
+import { StyledIconButton } from './StyledIconButton';
 
 export const useStyles = makeStyles({
   root: {
     color: 'rgba(171, 178, 191, 1.0)',
     fontSize: 'small',
     fontFamily: '\'Lato\', Georgia, Serif'
-  }
+  },
 });
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
@@ -122,6 +127,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   }
 
   const flip = () => setFlipped(!flipped);
+  const save = () => console.log(`saving ${props.name}...`);
   const close = () => {
     if (props.captured) dispatch(popCard(stacks[props.captured], cards[props.id]));
     dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id });
@@ -133,8 +139,9 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
-        <button className='flip' aria-label='button-flip' onClick={flip} />
-        <button className='close' onClick={close} />
+        <StyledIconButton aria-label='save' disabled={!props.saveable} onClick={save} ><SaveIcon /></StyledIconButton>
+        <StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton>
+        <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>

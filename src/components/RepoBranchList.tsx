@@ -3,28 +3,32 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { Button } from '@material-ui/core';
 import TreeView from '@material-ui/lab/TreeView';
-import TreeItem from '@material-ui/lab/TreeItem';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import ErrorIcon from '@material-ui/icons/Error';
 import { v4 } from 'uuid';
 
 import type { UUID } from '../types';
 import { RootState } from '../store/root';
 import { loadCard } from '../containers/handlers';
 import { removeDuplicates } from '../containers/format';
-import BranchComponent from './BranchStatusComponent';
+import BranchStatus from './BranchStatus';
 import { getMetafile } from '../containers/metafiles';
 import { Action } from '../store/actions';
-
+import { StyledTreeItem } from './StyledTreeComponent';
+import { GitRepoIcon } from './GitIcons';
 
 const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => {
   const repo = useSelector((state: RootState) => state.repos[props.repoId]);
   const branches = removeDuplicates([...repo.local, ...repo.remote], (a: string, b: string) => a === b);
 
   return (
-    <TreeItem key={repo.id} nodeId={repo.id} label={repo.name}>
-      {branches.map(branch => <BranchComponent key={v4()} repo={repo.id} branch={branch} />)}
-    </TreeItem>
+    <StyledTreeItem key={repo.id} nodeId={repo.id}
+      labelText={repo.name}
+      labelIcon={GitRepoIcon}
+    >
+      {branches.map(branch => <BranchStatus key={v4()} repo={repo.id} branch={branch} />)}
+    </StyledTreeItem>
   );
 }
 
@@ -34,14 +38,16 @@ export const VersionStatusComponent: React.FunctionComponent = () => {
   return (
     <div className='version-tracker'>
       <TreeView
-        defaultParentIcon={<img width="20px" src="../assets/git_light.png" alt="Repo" />}
-        defaultEndIcon={<div className="file-icon"><img width="20px" src="../assets/git_branch_light.png" alt="Branch" /></div>}
-        defaultCollapseIcon={<><div className="folder-icon"><ExpandMoreIcon /></div>
-          <img width="20px" src="../assets/git_light.png" alt="Repo" /></>}
-        defaultExpandIcon={<><div className="folder-icon"><ChevronRightIcon /></div>
-          <img width="20px" src="../assets/git_light.png" alt="Repo" /></>}
+        defaultCollapseIcon={<ArrowDropDownIcon />}
+        defaultExpandIcon={<ArrowRightIcon />}
+        defaultEndIcon={<div style={{ width: 8 }} />}
       >
-        {repos.length == 0 && <TreeItem key={'no-repo'} nodeId={'no-repo'} label={'[no repos tracked]'} />}
+        {repos.length == 0 &&
+          <StyledTreeItem key={'no-repo'} nodeId={'no-repo'}
+            labelText={'[no repos tracked]'}
+            labelIcon={ErrorIcon}
+          />
+        }
         {repos.length > 0 && repos.map(repo => <RepoStatusComponent key={repo.id} repoId={repo.id} />)}
       </TreeView>
     </div>

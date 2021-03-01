@@ -157,7 +157,7 @@ describe('CardComponent', () => {
     let backsideID = screen.queryByText(/ID:/i);
     expect(backsideID).not.toBeInTheDocument();
 
-    const flipButton = screen.getByRole('button', { name: /button-flip/i });
+    const flipButton = screen.getByRole('button', { name: /flip/i });
     act(() => {
       fireEvent.click(flipButton);
     });
@@ -173,7 +173,7 @@ describe('CardComponent', () => {
     let backsideName = screen.queryByText(/Name:/i);
     expect(backsideName).not.toBeInTheDocument();
 
-    const flipButton = screen.getAllByRole('button')[0];
+    const flipButton = screen.getByRole('button', { name: /flip/i });
     act(() => {
       fireEvent.click(flipButton);
     });
@@ -189,7 +189,7 @@ describe('CardComponent', () => {
     let backsideName = screen.queryByText(/Name:/i);
     expect(backsideName).not.toBeInTheDocument();
 
-    const flipButton = screen.getAllByRole('button')[0];
+    const flipButton = screen.getByRole('button', { name: /flip/i });
     act(() => {
       fireEvent.click(flipButton);
     });
@@ -202,33 +202,27 @@ describe('CardComponent', () => {
     const CardContext = wrapInReduxContext(CardComponent, store);
     render(<CardContext {...cards['6']} />);
 
-    const buttons = screen.getAllByRole('button');
+    expect(screen.getAllByRole('button')).toHaveLength(6);
 
-    let numButtons = buttons.length;
-    expect(numButtons).toBe(5);
-
-    const flipButton = buttons[0];
+    const flipButton = screen.getByRole('button', { name: /flip/i });
     act(() => {
       fireEvent.click(flipButton);
     });
 
-    numButtons = screen.getAllByRole('button').length;
-    expect(numButtons).toBe(2);
+    expect(screen.getAllByRole('button')).toHaveLength(3);
   });
 
-  it('Tracker Card renders a reverse side when the flip button is clicked', () => {
+  it('Tracker Card renders a reverse side when the flip button is clicked', async () => {
     const CardContext = wrapInReduxContext(CardComponent, store);
     render(<CardContext {...cards['46']} />);
 
-    let icon = screen.queryByRole('img');
-    expect(icon).toBeInTheDocument();
+    expect(screen.queryByText(/no repos tracked/i)).toBeInTheDocument();
 
-    const flipButton = screen.getAllByRole('button')[0];
+    const flipButton = screen.getByRole('button', { name: /flip/i });
     act(() => {
       fireEvent.click(flipButton);
     });
 
-    icon = screen.queryByRole('img');
-    expect(icon).not.toBeInTheDocument();
+    expect(screen.queryByText(/no repos tracked/i)).not.toBeInTheDocument();
   });
 });
