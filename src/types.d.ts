@@ -46,6 +46,8 @@ export type Card = {
   readonly modified: DateTime;
   /** The UUID for capturing Stack object, or undefined if not captured. */
   readonly captured?: UUID;
+  /** Flag indicating that card content can be saved (i.e. written to file or web-service). */
+  readonly saveable?: boolean;
   /** The horizontal position of card relative to parent object. */
   readonly left: number;
   /** The vertical position of card relative to parent object. */
