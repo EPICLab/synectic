@@ -26,7 +26,7 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
     dispatch({
       type: ActionKeys.UPDATE_METAFILE,
       id: metafile.id,
-      metafile: { ...metafile, content: newCode }
+      metafile: { ...metafile, content: newCode, state: 'modified' }
     });
   };
 

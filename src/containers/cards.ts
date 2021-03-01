@@ -22,7 +22,6 @@ export const addCard = (metafile: HandlerRequiredMetafile): AddCardAction => {
     left: 10,
     top: 30,
     type: metafile.handler,
-    saveable: metafile.handler === 'Editor',
     metafile: metafile.id
   };
   return {

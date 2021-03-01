@@ -165,7 +165,7 @@ export const updateContents = (id: UUID): ThunkAction<Promise<UpdateMetafileActi
 
     const updated: Metafile = (metafile.filetype === 'Directory') ?
       { ...metafile, contains: (await io.readDirAsyncDepth(metafile.path, 1)).filter(p => p !== metafile.path) } :
-      { ...metafile, content: await io.readFileAsync(metafile.path, { encoding: 'utf-8' }) };
+      { ...metafile, content: await io.readFileAsync(metafile.path, { encoding: 'utf-8' }), state: 'unmodified' };
     return dispatch(updateMetafile(updated));
   };
 
