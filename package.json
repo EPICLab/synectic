@@ -49,7 +49,7 @@
     "hidefile": "^3.0.0",
     "immutability-helper": "^3.1.1",
     "ini": "^2.0.0",
-    "isomorphic-git": "^1.8.0",
+    "isomorphic-git": "^1.8.1",
     "luxon": "^1.26.0",
     "pako": "^2.0.3",
     "parse-path": "^4.0.3",
