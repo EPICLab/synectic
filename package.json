@@ -98,7 +98,7 @@
     "@typescript-eslint/parser": "^4.15.1",
     "@zeit/webpack-asset-relocator-loader": "^0.8.0",
     "css-loader": "^5.0.2",
-    "electron": "11.2.3",
+    "electron": "11.3.0",
     "electron-devtools-installer": "^3.0.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.6",
