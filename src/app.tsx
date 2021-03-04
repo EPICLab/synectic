@@ -23,7 +23,6 @@ const App = (): JSX.Element => {
     fetchData();
   }, []); // run the effect only after the first render
 
-
   return (
     <Provider store={store}>
       <DndProvider backend={HTML5Backend}>

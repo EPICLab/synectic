@@ -1,7 +1,7 @@
 // Type definitions for synectic 1.0.0
 // Project: https://github.com/EPICLab/synectic
 // Definitions by: Nicholas Nelson <https://github.com/nelsonni>
-// TypeScript Version: 4.1
+// TypeScript Version: 4.2
 
 import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
@@ -13,6 +13,7 @@ export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 
 export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
+export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'BranchList' | 'MergeSelector' | 'Error';
 /**
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |
@@ -169,14 +170,16 @@ export type Repository = {
   readonly token: string;
 }
 
-/** A runtime error derived from user actions which requires a visible response from the system. */
-export type Error = {
-  /** The UUID for Error object. */
+/** A queued modal event (dialog or error) that requires a visible response from the system. */
+export type Modal = {
+  /** The UUID for Modal object. */
   readonly id: UUID;
-  /** The type of error (e.g. `LoadError`). */
-  readonly type: string;
-  /** The UUID for the related object that is the root-cause of the error (e.g. Card, Stack, Metafile, etc.). */
-  readonly target: UUID;
-  /** The error message to be displayed to the user. */
-  readonly message: string;
+  /** The type of modal (e.g. `NewCardDialog` or `Error`). */
+  readonly type: ModalType;
+  /** A specific type to delineate a class of modals (e.g. `LoadError`) */
+  readonly subtype?: string;
+  /** The UUID for related object that triggered the modal event. */
+  readonly target?: UUID;
+  /** Options targeting specific types of modals. */
+  readonly options?: { [key: string]: string | number | boolean }
 }

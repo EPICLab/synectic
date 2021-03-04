@@ -1,4 +1,4 @@
-import type { UUID, Card, Stack, Filetype, Metafile, Repository, Error } from '../types';
+import type { UUID, Card, Stack, Filetype, Metafile, Repository, Modal } from '../types';
 
 export enum ActionKeys {
   INITIALIZE_CANVAS,
@@ -7,7 +7,7 @@ export enum ActionKeys {
   ADD_FILETYPE, REMOVE_FILETYPE, UPDATE_FILETYPE,
   ADD_METAFILE, REMOVE_METAFILE, UPDATE_METAFILE,
   ADD_REPO, REMOVE_REPO, UPDATE_REPO,
-  ADD_ERROR, REMOVE_ERROR
+  ADD_MODAL, REMOVE_MODAL
 }
 
 /**
@@ -39,8 +39,8 @@ export type Action =
   | AddRepoAction
   | RemoveRepoAction
   | UpdateRepoAction
-  | AddErrorAction
-  | RemoveErrorAction;
+  | AddModalAction
+  | RemoveModalAction;
 
 type InitializeCanvasAction = {
   type: ActionKeys.INITIALIZE_CANVAS;
@@ -131,13 +131,13 @@ type UpdateRepoAction = {
   repo: Partial<Repository>;
 };
 
-type AddErrorAction = {
-  type: ActionKeys.ADD_ERROR;
+type AddModalAction = {
+  type: ActionKeys.ADD_MODAL;
   id: UUID;
-  error: Error;
+  modal: Modal;
 };
 
-type RemoveErrorAction = {
-  type: ActionKeys.REMOVE_ERROR;
+type RemoveModalAction = {
+  type: ActionKeys.REMOVE_MODAL;
   id: UUID;
 };
