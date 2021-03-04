@@ -29,14 +29,14 @@ const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
 
     const leftMetafile = metafiles[left.metafile];
     const rightMetafile = metafiles[right.metafile];
-    const diffCardName = `DIFF<${left.name} on ${leftMetafile?.branch},${right.name} on ${rightMetafile?.branch}>`;
+    const diffCardName = `Δ ${leftMetafile?.branch}/${left.name} -> ${rightMetafile?.branch}/${right.name}`;
     const diffMetafile = await dispatch(getMetafile({ virtual: { name: diffCardName, handler: 'Diff', targets: [left.id, right.id] } }));
     if (diffMetafile && diffMetafile.handler && leftMetafile && rightMetafile) dispatch(loadCard({ metafile: diffMetafile }));
     dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id });
   };
 
   return (
-    <MUI.Dialog id='picker-dialog' role='dialog' open={true} onClose={() => handleClose(true, ['', ''])}>
+    <MUI.Dialog id='picker-dialog' data-testid='diff-picker-dialog' role='dialog' open={true} onClose={() => handleClose(true, ['', ''])}>
       <div className='diff-container'>
         <MUI.DialogTitle id='picker-dialog-title' style={{ gridArea: 'header' }}>Select cards to diff</MUI.DialogTitle>
         <MUI.FormControl id='form-control-left' aria-label='Left Form' style={{ gridArea: 'left', width: 100 }}>

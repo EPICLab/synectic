@@ -68,6 +68,9 @@ describe('DiffPickerDialog', () => {
     const modals = extractFieldArray(store.getState().modals);
     render(<DiffPickerContext {...modals[0]} />);
 
+    const canvas = extractFieldArray(store.getState().canvas);
+    console.log({ canvas });
+
     const dialog = await screen.findByText(/Select cards to diff/i);
     expect(dialog).toBeInTheDocument();
     screen.debug();
