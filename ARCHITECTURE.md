@@ -226,6 +226,7 @@ The [`@testing-library/react-hooks`](https://github.com/testing-library/react-ho
 
 **Packages:**
 * *`devDependencies`*
+  * `@testing-library/dom`
   * `@testing-library/jest-dom`
   * `@testing-library/react`
   * `@testing-library/react-hooks`
