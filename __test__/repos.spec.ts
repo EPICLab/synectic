@@ -39,7 +39,7 @@ describe('repos.updateBranches', () => {
         token: '584n29dkj1683a67f302x009q164'
       }
     },
-    errors: {}
+    modals: {}
   });
 
   afterEach(() => {
@@ -71,8 +71,8 @@ describe('repos.updateBranches', () => {
     await store.dispatch(repos.updateBranches('9'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'ReposError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'ReposError' })
       })
     ]);
   });
@@ -126,7 +126,7 @@ describe('repos.checkoutBranch', () => {
         token: '584n29dkj1683a67f302x009q164'
       }
     },
-    errors: {}
+    modals: {}
   });
 
   beforeAll(() => {
@@ -175,8 +175,8 @@ describe('repos.checkoutBranch', () => {
     await store.dispatch(repos.checkoutBranch('41', '3', 'sample'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'ReposError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'ReposError' })
       })
     ]);
   });
@@ -186,10 +186,8 @@ describe('repos.checkoutBranch', () => {
     expect(store.getActions()).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          type: ActionKeys.ADD_ERROR,
-          error: expect.objectContaining({
-            type: 'ReposError'
-          })
+          type: ActionKeys.ADD_MODAL,
+          modal: expect.objectContaining({ type: 'Error', subtype: 'ReposError' })
         })
       ])
     );
@@ -244,7 +242,7 @@ describe('repos.getRepository', () => {
         token: '584n29dkj1683a67f302x009q164'
       }
     },
-    errors: {}
+    modals: {}
   });
 
   afterEach(() => {

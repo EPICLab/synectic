@@ -85,7 +85,7 @@ describe('useBranchStatus', () => {
         token: '584n29dkj1683a67f302x009q164'
       }
     },
-    errors: {}
+    modals: {}
   });
   const wrapper = ({ children }: { children: React.ReactNode }) => <Provider store={store}>{children}</Provider>;
 

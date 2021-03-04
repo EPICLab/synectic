@@ -1,7 +1,5 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
-import { Button } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import TreeView from '@material-ui/lab/TreeView';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
@@ -10,13 +8,21 @@ import { v4 } from 'uuid';
 
 import type { UUID } from '../types';
 import { RootState } from '../store/root';
-import { loadCard } from '../containers/handlers';
 import { removeDuplicates } from '../containers/format';
-import BranchStatus from './BranchStatus';
-import { getMetafile } from '../containers/metafiles';
-import { Action } from '../store/actions';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { GitRepoIcon } from './GitIcons';
+import { GitRepoIcon, GitBranchIcon } from './GitIcons';
+import { useBranchStatus } from '../store/hooks/useBranchStatus';
+
+const BranchStatus: React.FunctionComponent<{ repo: UUID, branch: string }> = props => {
+  const { cards, modified, status } = useBranchStatus(props.repo, props.branch);
+
+  return (
+    <StyledTreeItem key={`${props.repo}-${props.branch}`} nodeId={`${props.repo}-${props.branch}`}
+      labelText={`${props.branch} [${modified.length}/${cards.length}]`}
+      labelIcon={GitBranchIcon}
+      onClick={() => cards.map(async c => await status(c))}
+    />);
+};
 
 const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => {
   const repo = useSelector((state: RootState) => state.repos[props.repoId]);
@@ -54,17 +60,4 @@ export const VersionStatusComponent: React.FunctionComponent = () => {
   );
 };
 
-const VersionStatusButton: React.FunctionComponent = () => {
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
-
-  const handleClick = async () => {
-    const metafile = await dispatch(getMetafile({ virtual: { name: 'Version Tracker', handler: 'Tracker' } }));
-    if (metafile) dispatch(loadCard({ metafile: metafile }));
-  }
-
-  return (
-    <Button id='versiontracker-button' variant='contained' color='primary' onClick={() => handleClick()}>Versions...</Button>
-  );
-}
-
-export default VersionStatusButton;
+export default VersionStatusComponent;
