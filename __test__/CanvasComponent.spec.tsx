@@ -27,7 +27,7 @@ describe('CanvasComponent', () => {
     filetypes: {},
     metafiles: {},
     repos: {},
-    errors: {}
+    modals: {}
   });
 
   afterEach(store.clearActions);
