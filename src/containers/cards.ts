@@ -20,7 +20,7 @@ export const addCard = (metafile: HandlerRequiredMetafile): AddCardAction => {
     created: DateTime.local(),
     modified: metafile.modified,
     left: 10,
-    top: 30,
+    top: 50,
     type: metafile.handler,
     metafile: metafile.id
   };
