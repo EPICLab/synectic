@@ -60,7 +60,7 @@ describe('DirectoryComponent', () => {
       }
     },
     repos: {},
-    errors: {}
+    modals: {}
   });
   afterEach(store.clearActions);
 

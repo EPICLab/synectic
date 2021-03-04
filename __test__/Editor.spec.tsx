@@ -55,7 +55,7 @@ describe('Editor', () => {
       },
     },
     repos: {},
-    errors: {}
+    modals: {}
   });
 
   afterEach(store.clearActions);

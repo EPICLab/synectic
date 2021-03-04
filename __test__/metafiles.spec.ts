@@ -115,7 +115,7 @@ describe('metafiles.updateFileStats', () => {
     stacks: {},
     cards: {},
     repos: {},
-    errors: {}
+    modals: {}
   });
 
   beforeAll(() => {
@@ -152,8 +152,8 @@ describe('metafiles.updateFileStats', () => {
     await store.dispatch(metafiles.updateFileStats('9'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafilesError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'MetafilesError' })
       })
     ]);
   });
@@ -162,8 +162,8 @@ describe('metafiles.updateFileStats', () => {
     await store.dispatch(metafiles.updateFileStats('21'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafilesError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'MetafilesError' })
       })
     ]);
   });
@@ -212,7 +212,7 @@ describe('metafiles.updateGitInfo', () => {
     stacks: {},
     cards: {},
     filetypes: {},
-    errors: {}
+    modals: {}
   });
 
   afterEach(() => {
@@ -258,8 +258,8 @@ describe('metafiles.updateGitInfo', () => {
     await store.dispatch(metafiles.updateGitInfo('9'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafilesError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'MetafilesError' })
       })
     ]);
   });
@@ -268,8 +268,8 @@ describe('metafiles.updateGitInfo', () => {
     await store.dispatch(metafiles.updateGitInfo('21'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafilesError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'MetafilesError' })
       })
     ]);
   });
@@ -321,7 +321,7 @@ describe('metafiles.updateContents', () => {
     stacks: {},
     cards: {},
     repos: {},
-    errors: {}
+    modals: {}
   });
 
   beforeAll(() => {
@@ -366,8 +366,8 @@ describe('metafiles.updateContents', () => {
     await store.dispatch(metafiles.updateContents('9'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafilesError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'MetafilesError' })
       })
     ]);
   });
@@ -376,8 +376,8 @@ describe('metafiles.updateContents', () => {
     await store.dispatch(metafiles.updateContents('21'));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafilesError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'MetafilesError' })
       })
     ]);
   });
@@ -443,7 +443,7 @@ describe('metafiles.getMetafile', () => {
     },
     stacks: {},
     cards: {},
-    errors: {}
+    modals: {}
   });
 
   beforeAll(() => {
@@ -543,8 +543,8 @@ describe('metafiles.getMetafile', () => {
     await store.dispatch(metafiles.getMetafile({ id: '9' }));
     expect(store.getActions()).toEqual([
       expect.objectContaining({
-        type: ActionKeys.ADD_ERROR,
-        error: expect.objectContaining({ type: 'MetafilesError' })
+        type: ActionKeys.ADD_MODAL,
+        modal: expect.objectContaining({ type: 'Error', subtype: 'MetafilesError' })
       })
     ]);
   });

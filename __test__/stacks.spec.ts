@@ -128,7 +128,7 @@ const store = mockStore({
   filetypes: {},
   metafiles: {},
   repos: {},
-  errors: {}
+  modals: {}
 });
 
 afterEach(() => {

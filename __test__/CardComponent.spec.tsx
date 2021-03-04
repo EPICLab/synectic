@@ -106,7 +106,7 @@ describe('CardComponent', () => {
       }
     },
     repos: {},
-    errors: {}
+    modals: {}
   });
 
   afterEach(store.clearActions);
@@ -202,14 +202,14 @@ describe('CardComponent', () => {
     const CardContext = wrapInReduxContext(CardComponent, store);
     render(<CardContext {...cards['6']} />);
 
-    expect(screen.getAllByRole('button')).toHaveLength(6);
+    expect(screen.getAllByRole('button')).toHaveLength(5);
 
     const flipButton = screen.getByRole('button', { name: /flip/i });
     act(() => {
       fireEvent.click(flipButton);
     });
 
-    expect(screen.getAllByRole('button')).toHaveLength(3);
+    expect(screen.getAllByRole('button')).toHaveLength(2);
   });
 
   it('Tracker Card renders a reverse side when the flip button is clicked', async () => {

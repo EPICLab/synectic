@@ -23,7 +23,7 @@ describe('Browser', () => {
     filetypes: {},
     metafiles: {},
     repos: {},
-    errors: {}
+    modals: {}
   });
 
   const BrowserContext = wrapInReduxContext(Browser, store);

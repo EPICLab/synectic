@@ -57,7 +57,7 @@ describe('useDirectory', () => {
       }
     },
     repos: {},
-    errors: {}
+    modals: {}
   });
   const wrapper = ({ children }: { children: React.ReactNode }) => <Provider store={store}>{children}</Provider>;
 
