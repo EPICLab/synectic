@@ -6,9 +6,9 @@ import { DateTime } from 'luxon';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import type { Filetype } from '../src/types';
-import { mockStore } from './__mocks__/reduxStoreMock';
+import { extractFieldArray, mockStore } from './__mocks__/reduxStoreMock';
 import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { NewCardDialog } from '../src/components/NewCardDialog';
+import NewCardDialog from '../src/components/NewCardDialog';
 
 const newFiletype: Filetype = {
   id: '55',
@@ -37,38 +37,50 @@ const store = mockStore({
   },
   metafiles: {},
   repos: {},
-  errors: {}
+  modals: {
+    21: {
+      id: '21',
+      type: 'NewCardDialog'
+    }
+  }
 });
 
 afterEach(store.clearActions);
 
 describe('NewCardDialog', () => {
   const NewCardContext = wrapInReduxContext(NewCardDialog, store);
-  const onClose = jest.fn();
 
   it('NewCardDialog closes when escape key is pressed', () => {
-    render(<NewCardContext open={true} onClose={onClose} />);
-    const dialog = screen.queryAllByRole('dialog')[0];
+    const modals = extractFieldArray(store.getState().modals);
+    render(<NewCardContext {...modals[0]} />);
 
+    let dialog = screen.queryAllByRole('dialog')[0];
     expect(dialog).toBeInTheDocument();
 
     fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
-    expect(onClose).toHaveBeenCalled();
+
+    dialog = screen.queryAllByRole('dialog')[0];
+    expect(dialog).toBeInTheDocument();
   });
 
   it('NewCardDialog closes when clicking outside of dialog', () => {
-    render(<NewCardContext open={true} onClose={onClose} />);
-    const dialog = screen.queryAllByRole('dialog')[0];
+    const modals = extractFieldArray(store.getState().modals);
+    render(<NewCardContext {...modals[0]} />);
 
+    let dialog = screen.queryAllByRole('dialog')[0];
     expect(dialog).toBeInTheDocument();
 
     const backdrop = document.querySelector('.MuiBackdrop-root');
     if (backdrop) fireEvent.click(backdrop);
-    expect(onClose).toHaveBeenCalled();
+
+    dialog = screen.queryAllByRole('dialog')[0];
+    expect(dialog).toBeInTheDocument();
   });
 
   it('NewCardDialog starts with empty values for filename and filetype', () => {
-    render(<NewCardContext open={true} onClose={onClose} />);
+    const modals = extractFieldArray(store.getState().modals);
+    render(<NewCardContext {...modals[0]} />);
+
     fireEvent.click(screen.getByText('Editor')); // click Editor button to load dialog
     expect(screen.getByLabelText('Filename')).toHaveValue('');
     // Material-UI's Select component does not include a <select> HTML element, so .toHaveFormValues() will not work
@@ -76,7 +88,8 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog does not change Redux state when invalid information is entered', () => {
-    const wrapper = mount(<NewCardContext open={true} onClose={onClose} />, mountOptions);
+    const modals = extractFieldArray(store.getState().modals);
+    const wrapper = mount(<NewCardContext {...modals[0]} />, mountOptions);
     const before = JSON.stringify(store.getState());
     expect(wrapper.find(NewCardDialog).prop('isFileNameValid')).toBeFalsy();
     const button = screen.queryByText(/create-card-button/i);
@@ -89,7 +102,9 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog allows the user to enter/edit the filename', () => {
-    render(<NewCardContext open={true} onClose={onClose} />);
+    const modals = extractFieldArray(store.getState().modals);
+    render(<NewCardContext {...modals[0]} />);
+
     fireEvent.click(screen.getByText('Editor')); // click Editor button to load dialog
     const inputBox = screen.getByLabelText('Filename');
     expect(inputBox).toHaveValue('');
@@ -100,7 +115,8 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog handles filetype selections', () => {
-    const { getByRole, getAllByRole, getByText } = render(<NewCardContext open={true} onClose={onClose} />);
+    const modals = extractFieldArray(store.getState().modals);
+    const { getByRole, getAllByRole, getByText } = render(<NewCardContext {...modals[0]} />);
     fireEvent.click(getByText('Editor')); // click Editor button to load dialog
     const selectPopoverTrigger = getAllByRole('button')[2];
 
@@ -111,8 +127,9 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog calls onClick when Create New Card button is clicked', () => {
+    const modals = extractFieldArray(store.getState().modals);
     const onClick = jest.fn();
-    const { getAllByRole } = render(<NewCardContext open={true} onClose={onClose} />);
+    const { getAllByRole } = render(<NewCardContext {...modals[0]} />);
     const createNewCardButton = getAllByRole('button')[1];
 
     createNewCardButton.addEventListener('click', onClick);
