@@ -1,7 +1,6 @@
 module.exports = {
-  testEnvironment: 'enzyme',
+  testEnvironment: 'jest-environment-jsdom-sixteen',
   setupFilesAfterEnv: [
-    'jest-enzyme',
     '<rootDir>/__test__/setupTests.ts'
   ],
   testEnvironmentOptions: {
