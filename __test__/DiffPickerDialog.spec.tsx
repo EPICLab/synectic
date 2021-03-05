@@ -1,15 +1,24 @@
-import '@testing-library/jest-dom';
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
-// import { act } from 'react-dom/test-utils';
-import { v4 } from 'uuid';
-import { DateTime } from 'luxon';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act } from '@testing-library/react/pure';
+// import { act } from 'react-test-renderer';
+import { Provider } from 'react-redux';
 
-import { mockStore, extractFieldArray } from './__mocks__/reduxStoreMock';
 import DiffPickerDialog from '../src/components/DiffPickerDialog';
-import { wrapInReduxContext } from './__mocks__/dndReduxMock';
+import { diffPickerModal } from './__fixtures__/Modal';
+import { mockStore } from './__mocks__/reduxStoreMock';
+import { ActionKeys } from '../src/store/actions';
+import { basicStore } from './__fixtures__/ReduxStore';
+import userEvent from '@testing-library/user-event';
 
 describe('DiffPickerDialog', () => {
+  const store = mockStore(basicStore);
+
+  afterEach(() => {
+    cleanup;
+    jest.resetAllMocks();
+  });
+
   /**
    * For testing Material-UI components using React Testing Library (RTL), the query and selection
    * steps for finding elements are non-obvious from a user perspective (the methodology advocated in RTL).
@@ -20,207 +29,131 @@ describe('DiffPickerDialog', () => {
    * (For example, the Select component from Material-UI includes tests for making option selections:
    * https://github.com/mui-org/material-ui/blob/next/packages/material-ui/test/integration/Select.test.js)
    */
-
-  const store = mockStore({
-    canvas: {
-      id: v4(),
-      created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-      repos: [],
-      cards: ['14', '33'],
-      stacks: []
-    },
-    stacks: {},
-    cards: {
-      14: {
-        id: '14',
-        name: 'test.js',
-        type: 'Editor',
-        metafile: '243',
-        created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        left: 10,
-        top: 10
-      },
-      33: {
-        id: '33',
-        name: 'turtle.asp',
-        type: 'Editor',
-        metafile: '459',
-        created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00'),
-        modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00'),
-        left: 27,
-        top: 105
-      }
-    },
-    filetypes: {},
-    metafiles: {},
-    repos: {},
-    modals: {
-      18: {
-        id: '18',
-        type: 'DiffPicker'
-      }
-    }
+  it('DiffPickerDialog renders correctly', () => {
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <DiffPickerDialog {...diffPickerModal} />
+      </Provider>
+    );
+    expect(getByTestId('diff-picker-dialog')).toBeInTheDocument();
   });
-  const DiffPickerContext = wrapInReduxContext(DiffPickerDialog, store);
 
-  it('DiffPickerDialog closes when escape key is pressed', async () => {
-    const modals = extractFieldArray(store.getState().modals);
-    render(<DiffPickerContext {...modals[0]} />);
+  it('DiffPickerDialog generates REMOVE_MODAL action when escape key is pressed', async () => {
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <DiffPickerDialog {...diffPickerModal} />
+      </Provider>
+    );
 
-    const canvas = extractFieldArray(store.getState().canvas);
-    console.log({ canvas });
-
-    const dialog = await screen.findByText(/Select cards to diff/i);
-    expect(dialog).toBeInTheDocument();
-    screen.debug();
-
-    fireEvent.keyDown(dialog, {
+    fireEvent.keyDown(getByTestId('diff-picker-dialog'), {
       key: 'Escape',
       code: 'Escape',
       keyCode: 27,
       charCode: 27
     });
 
-    expect(await screen.findByText(/Select cards to diff/i)).not.toBeInTheDocument();
-    screen.debug();
+    await waitFor(() => {
+      expect(store.getActions()).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: ActionKeys.REMOVE_MODAL,
+            id: diffPickerModal.id
+          })
+        ])
+      )
+    });
   });
 
-  // it('DiffPickerDialog closes when clicking outside of dialog', async () => {
-  //   const modals = extractFieldArray(store.getState().modals);
-  //   render(<DiffPickerContext {...modals[0]} />);
-  //   expect(screen.queryAllByRole('dialog')[0]).toBeInTheDocument();
+  it('DiffPickerDialog generates REMOVE_MODAL action when clicking outside of dialog', async () => {
+    render(
+      <Provider store={store}>
+        <DiffPickerDialog {...diffPickerModal} />
+      </Provider>
+    );
 
-  //   const dialog = screen.queryAllByRole('dialog')[0];
-  //   const backdrop = document.querySelector('.MuiBackdrop-root');
-  //   if (backdrop) fireEvent.click(backdrop);
-  //   expect(dialog).not.toBeInTheDocument();
-  // });
+    // using DOM selector method instead of RTL
+    const backdrop = document.querySelector('.MuiBackdrop-root');
+    if (backdrop) userEvent.click(backdrop);
 
-  // it('DiffPickerDialog changes selected items for cards', () => {
-  //   const modals = extractFieldArray(store.getState().modals);
-  //   const cards = extractFieldArray(store.getState().cards);
+    await waitFor(() => {
+      expect(store.getActions()).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: ActionKeys.REMOVE_MODAL,
+            id: diffPickerModal.id
+          })
+        ])
+      )
+    });
+  });
 
-  //   const { getAllByRole } = render(<DiffPickerContext {...modals[0]} />);
-  //   const trigger = getAllByRole('button')[0];
+  it('DiffPickerDialog tracks selection updates', async () => {
+    const { getAllByRole } = render(
+      <Provider store={store}>
+        <DiffPickerDialog {...diffPickerModal} />
+      </Provider>
+    );
+    const trigger = getAllByRole('button')[0];
+    // open the select component
+    fireEvent.mouseDown(trigger);
 
-  //   // open the select component
-  //   fireEvent.mouseDown(trigger);
-  //   const options = getAllByRole('option');
-  //   expect(options[0]).toHaveFocus();
+    const options = getAllByRole('option');
+    expect(options[0]).toHaveFocus();
 
-  //   // make a selection and close the select component
-  //   act(() => {
-  //     options[1].click();
-  //   });
+    // // make a selection and close the select component
+    act(() => {
+      options[1].click();
+    });
 
-  //   expect(trigger).toHaveFocus();
-  //   expect(trigger).toHaveTextContent(new RegExp(`${cards[1].name}`, 'i'));
-  // });
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
+      expect(trigger).toHaveTextContent(/turtle\.asp/i);
+    });
+  });
 
-  // it('DiffPickerDialog returns UUIDs for selected cards on run', () => {
-  //   const modals = extractFieldArray(store.getState().modals);
+  it('DiffPickerDialog returns UUIDs for selected cards on run', async () => {
+    const { getAllByRole, queryByText } = render(
+      <Provider store={store}>
+        <DiffPickerDialog {...diffPickerModal} />
+      </Provider>
+    );
+    const leftSelector = getAllByRole('button')[0];
+    const rightSelector = getAllByRole('button')[1];
+    const runButton = queryByText(/Run Diff/i);
 
-  //   const { getAllByRole } = render(<DiffPickerContext {...modals[0]} />);
-  //   const leftSelector = getAllByRole('button')[0];
-  //   const rightSelector = getAllByRole('button')[1];
+    // open the left select component
+    fireEvent.mouseDown(leftSelector);
+    const leftOptions = getAllByRole('option');
+    expect(leftOptions[0]).toHaveFocus();
+    // make selection and close left component
+    act(() => {
+      leftOptions[1].click();
+    });
 
-  //   const runDiffButton = screen.queryByText(/Run Diff/i);
+    // open the right select component
+    fireEvent.mouseDown(rightSelector);
+    const rightOptions = getAllByRole('option');
+    expect(rightOptions[0]).toHaveFocus();
+    // make selection and close right component
+    act(() => {
+      rightOptions[0].click();
+    });
 
-  //   // open the left select component
-  //   fireEvent.mouseDown(leftSelector);
-  //   const leftOptions = getAllByRole('option');
-  //   expect(leftOptions[0]).toHaveFocus();
+    if (runButton) fireEvent.click(runButton);
 
-  //   // make selection for left card and close the component
-  //   act(() => {
-  //     leftOptions[1].click();
-  //   });
-
-  //   // open the right select component
-  //   fireEvent.mouseDown(rightSelector);
-  //   const rightOptions = getAllByRole('option');
-  //   expect(rightOptions[0]).toHaveFocus();
-
-  //   // make selection for right card and close
-  //   act(() => {
-  //     rightOptions[0].click();
-  //   });
-
-  //   // click the Run Diff... button
-  //   if (runDiffButton) fireEvent.click(runDiffButton);
-
-  //   // check that cards now contain a Diff card with the associated filenames
-  //   const cards = extractFieldArray(store.getState().cards);
-  //   expect(cards.find(c => c.name === 'DIFF <turtle.asp on unknown, test.js on unknown>')).toHaveLength(1);
-  // });
-
-  // it('DiffPickerDialog returns cancelled if no cards are selected', () => {
-  //   const modals = extractFieldArray(store.getState().modals);
-
-  //   render(<DiffPickerContext {...modals[0]} />);
-
-  //   const dialog = screen.queryAllByRole('dialog')[0];
-
-  //   // exit the dialog via escape key
-  //   fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
-
-  //   // check that the dialog no longer exists in the document
-  //   expect(dialog).not.toBeInTheDocument();
-  // });
-
-  // it('DiffPickerDialog returns cancelled if only the left card is selected', () => {
-  //   const modals = extractFieldArray(store.getState().modals);
-
-  //   const { getAllByRole } = render(<DiffPickerContext {...modals[0]} />);
-  //   const leftSelector = getAllByRole('button')[0];
-
-  //   let dialog = screen.queryAllByRole('dialog')[0];
-
-  //   // open the left select component
-  //   fireEvent.mouseDown(leftSelector);
-  //   const leftOptions = getAllByRole('option');
-  //   expect(leftOptions[0]).toHaveFocus();
-
-  //   // make selection for only the left card and close
-  //   act(() => {
-  //     leftOptions[1].click();
-  //   });
-
-  //   // exit the dialog via escape key    
-  //   fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
-
-  //   dialog = screen.queryAllByRole('dialog')[0];
-
-  //   // check whether dialog is still displayed
-  //   expect(dialog).not.toBeInTheDocument();
-  // });
-
-  // it('DiffPickerDialog returns cancelled if only the right card is selected', () => {
-  //   const modals = extractFieldArray(store.getState().modals);
-
-  //   const { getAllByRole } = render(<DiffPickerContext {...modals[0]} />);
-  //   const rightSelector = getAllByRole('button')[1];
-
-  //   let dialog = screen.queryAllByRole('dialog')[0];
-
-  //   // open the right select component
-  //   fireEvent.mouseDown(rightSelector);
-  //   const rightOptions = getAllByRole('option');
-  //   expect(rightOptions[0]).toHaveFocus();
-
-  //   // make selection for only the right card and close
-  //   act(() => {
-  //     rightOptions[1].click();
-  //   });
-
-  //   // exit the dialog via escape key
-  //   fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
-
-  //   dialog = screen.queryAllByRole('dialog')[0];
-
-  //   // check whether dialog is still displayed
-  //   expect(dialog).not.toBeInTheDocument();
-  // });
+    await waitFor(() => {
+      expect(store.getActions()).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            metafile: expect.objectContaining({
+              handler: 'Diff',
+              name: expect.stringMatching(/^.*turtle\.asp.*test\.js/i),
+              targets: ['33', '14']
+            })
+          })
+        ])
+      )
+    });
+  });
 
 });
