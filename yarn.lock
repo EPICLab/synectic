@@ -1165,7 +1165,7 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@testing-library/dom@>=7", "@testing-library/dom@^7.28.1", "@testing-library/dom@^7.29.6":
+"@testing-library/dom@^7.28.1", "@testing-library/dom@^7.29.6":
   version "7.29.6"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.29.6.tgz#eb37844fb431186db7960a7ff6749ea65a19617c"
   integrity sha512-vzTsAXa439ptdvav/4lsKRcGpAQX7b6wBIqia7+iNzqGJ5zjswApxA6jDAsexrc6ue9krWcbh8o+LYkBXW+GCQ==
@@ -1471,6 +1471,11 @@
   version "12.19.12"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.19.12.tgz#04793c2afa4ce833a9972e4c476432e30f9df47b"
   integrity sha512-UwfL2uIU9arX/+/PRcIkT08/iBadGN2z6ExOROA2Dh5mAuWTBj6iJbQX4nekiV5H8cTrEG569LeX+HRco9Cbxw==
+
+"@types/node@^14.14.31":
+  version "14.14.31"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.31.tgz#72286bd33d137aa0d152d47ec7c1762563d34055"
+  integrity sha512-vFHy/ezP5qI0rFgJ7aQnjDXwAMrG0KqqIH7tQG5PPv3BWBayOPIQNBjVc/P6hhdZfMx51REc6tfDNXHUio893g==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -9588,10 +9593,10 @@ react-dnd-test-backend@^12.0.0:
   dependencies:
     dnd-core "12.0.0"
 
-react-dnd-test-utils@^11.1.3:
-  version "11.1.3"
-  resolved "https://registry.yarnpkg.com/react-dnd-test-utils/-/react-dnd-test-utils-11.1.3.tgz#edd36df5989ab6b868db5fea0dcdf25a64ac94f9"
-  integrity sha512-Yg+oTpXaCJ+NxEFt+qXJZX96dbar47EK410eXj7bDsIdYYTZzYO51BtEGlEvR/a9Kb4vEkhPZkJLxyCfqNrpjw==
+react-dnd-test-utils@^12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/react-dnd-test-utils/-/react-dnd-test-utils-12.0.0.tgz#52396473f3d956a579362ac2302e65a0c403f749"
+  integrity sha512-w6C6LOidzRbHlM4GLlP+tVdZF1KLiHawguttR3KHC7HICnsvBz/dbovO/A6GJfTR5XQsaGkGLAfMTmq7jhOH4g==
 
 react-dnd@^11.1.3:
   version "11.1.3"
@@ -9687,13 +9692,6 @@ react-redux@^7.2.2:
     loose-envify "^1.4.0"
     prop-types "^15.7.2"
     react-is "^16.13.1"
-
-react-select-event@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/react-select-event/-/react-select-event-5.2.0.tgz#ab0e77bc81e02b4dca2926a04d28ba9c94f39f55"
-  integrity sha512-9+C+lFQZRrhXs/+czZdlbUlEjIW+raiHK0QIVLD4IJMspvlf2TTqcepm5tm5GCIvUHFuw5VF0oL2ebyKrMbDZg==
-  dependencies:
-    "@testing-library/dom" ">=7"
 
 react-test-renderer@^16.0.0-0, react-test-renderer@^16.14.0:
   version "16.14.0"
