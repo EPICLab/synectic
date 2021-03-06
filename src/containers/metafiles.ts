@@ -16,7 +16,7 @@ type AddMetafileAction = NarrowActionType<ActionKeys.ADD_METAFILE>;
 type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
 type AddModalAction = NarrowActionType<ActionKeys.ADD_MODAL>;
 export type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
-export type ContainsRequiredMetafile = Metafile & Required<Pick<Metafile, 'contains'>>;
+export type MetafileWithContains = Metafile & Required<Pick<Metafile, 'contains'>>;
 
 /**
  * Action Creator for composing a valid ADD_METAFILE Redux Action. The only required parameter is `name`,
@@ -85,7 +85,7 @@ export const metafilesError = (target: string, message: string): AddModalAction 
  * @param includeHidden (Optional) Flag for returning hidden files (e.g. `.<filename>` format on MacOS); defaults to true.
  * @return An anonymous JavaScript object with directories and files lists containing the filtered paths.
  */
-export const filterDirectoryContainsTypes = async (metafile: ContainsRequiredMetafile, includeHidden = true):
+export const filterDirectoryContainsTypes = async (metafile: MetafileWithContains, includeHidden = true):
   Promise<{ directories: string[], files: string[] }> => {
   const directories: string[] = await asyncFilter(metafile.contains, async (e: string) => io.isDirectory(e));
   let files: string[] = metafile.contains.filter(childPath => !directories.includes(childPath));
