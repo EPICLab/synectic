@@ -118,7 +118,7 @@ export type Metafile = {
   readonly name: string;
   /** The timestamp for last update to metafile properties (not directly associated with filesystem `mtime` or `ctime`). */
   readonly modified: DateTime;
-  /** The filetype format for encoding/decoding contents (same as `Filetype.filetype`, but this allows fo virtual metafiles). */
+  /** The filetype format for encoding/decoding contents (same as `Filetype.filetype`, but this allows for virtual metafiles). */
   readonly filetype?: string;
   /** The type of card that can load the content of this metafile. */
   readonly handler?: CardType;
