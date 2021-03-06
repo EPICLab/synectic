@@ -196,7 +196,7 @@ Synectic has the following ESLint options set in `.eslintrc.js`:
 
 [Jest](https://jestjs.io/) is a JavaScript testing framework with a focus on simplicity. It is maintained by Facebook, and supports [Babel](https://babeljs.io/), [TypeScript](#TypeScript), [Node.js](https://nodejs.org/en/about/), [React](#React), [Angular](https://angular.io/), and [Vue.js](https://vuejs.org/). Jest is built on top of Jasmine, and serves as a test runner with predefined tests for mocking and stub React components.
 
-Synectic uses Jest for unit testing, integration testing, code coverage, and interfacing with [Enzyme](#Enzyme) for React component testing.
+Synectic uses Jest for unit testing, integration testing, code coverage, and interfacing with [React Testing Library](#React-Testing-Library-(RTL)) for React component testing.
 
 The [`ts-jest`](https://kulshekhar.github.io/ts-jest/) module is a TypeScript preprocessor with source map support for Jest that lets Synectic use Jest to test projects written in TypeScript. In particular, the choice to use TypeScript (with `ts-jest`) instead of Babel7 (with `@babel/preset-typescript`) is based upon the reasons outlined in a blog post from Kulshekhar Kabra, ["Babel7 or TypeScript"](https://kulshekhar.github.io/ts-jest/user/babel7-or-ts) (published 2018.09.16).
 
@@ -212,11 +212,26 @@ The [`react-test-renderer`](https://reactjs.org/docs/test-renderer.html) module 
   * `react-test-renderer`
   * `ts-jest`
 
+
+**Configuration:**
+
+Synectic has the following [Jest](#Jest) options set in `jest.config.js`:
+
+| Setting                                    | Value                       | Description  |
+| ------------------------------------------ |:---------------------------:| ----------------------------------------------------:|
+| `setupFilesAfterEnv`                       | `['<rootDir>/__test__/setupTests.ts']`           | A list of paths to modules that configure or setup the testing framework before each test (i.e. the actions defined in `setupTests.ts` executes after environment setup) |
+| `preset` | `ts-jest` | All TypeScript files (`.ts` and `.tsx`) will be handled by `ts-jest`; JavaScript files are not processed |
+| `roots` | `['<rootDir>/__test__']` | Jest will only search for test files in the `__test__` directory |
+| `snapshotSerializers` | `['jest-serializer-path']` | Enables the `jest-serializer-path` for removing absolute paths and normalizing paths across all platforms in Jest snapshots |
+| `moduleNameMapper` | `{"\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": '<rootDir>/__mocks__/fileMock.js'}` | Use a mocked CSS proxy for CSS Modules via [`identity-obj-proxy`](https://jestjs.io/docs/en/webpack#mocking-css-modules) during testing |
+| `moduleNameMapper` | `{"\\.(css|less)$": 'identity-obj-proxy'}` | Mocks all static assets (e.g. stylesheets and images) during testing |
+| `moduleNameMapper` | `{"^dnd-cores$": "dnd-core/dist/cjs", "^react-dnd$": "react-dnd/dist/cjs", "^react-dnd-html5-backend$": "react-dnd-html5-backend/dist/cjs", "^react-dnd-touch-backend$": "react-dnd-touch-backend/dist/cjs", "^react-dnd-test-backend$": "react-dnd-test-backend/dist/cjs", "^react-dnd-test-utils$": "react-dnd-test-utils/dist/cjs"}` | Jest does not work well with ES Modules yet, but can use CommonJS builds for `react-dnd` libraries (per [React DnD testing docs](https://react-dnd.github.io/react-dnd/docs/testing)) |
+
 # React Testing Library (RTL)
 
 [Testing Library](https://testing-library.com/) is a family of testing utility libraries that adhere to the guiding principle that _"the more your tests resemble the way your software is used, the more confidence they can give you."_ The manifestation of this principle is that tests are composed by querying for nodes in similar fashion to how users would find them (which makes this methodology ideal for UI testing). The [`React Testing Library` (RTL)](https://testing-library.com/docs/react-testing-library/intro) builds on top of the [`DOM Testing Library`](https://testing-library.com/docs/dom-testing-library/intro) by adding APIs for working with React components.
 
-Synectic uses React Testing Library to render React components within tests written using Jest's custom assertions and convenience functions in order to verify UI interactions. The configuration of RTL was inspired by a detailed blog post from Robert Cooper, ["Testing Stateful React Function Components with React Testing Library"](https://www.robertcooper.me/testing-stateful-react-function-components-with-react-testing-library) (published 2019.04.08). In particular, the blog posting provides examples of testing React function components using [Enzyme](#Enzume) and [React Testing Library](#React-Testing-Library-(RTL)), and finds that there are less chances of test suites that produce false negatives (tests that fail when the underlying implementation changes) and false positives (tests that continue to pass when the underlying implementation is broken) when adhering what Kent C. Dodds calls [_"implementation detail free testing"_](https://kentcdodds.com/blog/testing-implementation-details).
+Synectic uses React Testing Library to render React components within tests written using Jest's custom assertions and convenience functions in order to verify UI interactions. The configuration of RTL was inspired by a detailed blog post from Robert Cooper, ["Testing Stateful React Function Components with React Testing Library"](https://www.robertcooper.me/testing-stateful-react-function-components-with-react-testing-library) (published 2019.04.08). In particular, the blog posting provides examples of testing React function components using [React Testing Library](#React-Testing-Library-(RTL)), and finds that there are less chances of test suites that produce false negatives (tests that fail when the underlying implementation changes) and false positives (tests that continue to pass when the underlying implementation is broken) when adhering what Kent C. Dodds calls [_"implementation detail free testing"_](https://kentcdodds.com/blog/testing-implementation-details).
 
 The [`@testing-library/jest-dom`](https://testing-library.com/docs/ecosystem-jest-dom) module provides custom DOM element matchers for Jest.
 
@@ -231,38 +246,3 @@ The [`@testing-library/react-hooks`](https://github.com/testing-library/react-ho
   * `@testing-library/react`
   * `@testing-library/react-hooks`
   * `react-select-event`
-
-# Enzyme
-
-[Enzyme](https://airbnb.io/enzyme/) is a JavaScript testing utility for React that tests components with assertions that simulate UI interactions. Enzyme is developed by AirBnB and wraps packages like [ReactTestUtils](https://reactjs.org/docs/test-utils.html), [JSDOM](https://github.com/jsdom/jsdom), and [CheerIO](https://cheerio.js.org/) to create a simpler interface for writing unit tests. The API is meant to be intuitive and flexible by mimicking the jQuery API for DOM manipulation and traversal.
-
-Synectic uses Enzyme to model and render React components and hooks within tests written using Jest's custom assertions and convenience functions.
-
-The [`jest-environment-enzyme`](https://github.com/FormidableLabs/enzyme-matchers/tree/master/packages/jest-environment-enzyme) module from [FormidableLabs](https://formidable.com/) provides a simplified declarative setup for configuring Enzyme with Jest and React. This package also simplifies test files by declaring React, and enzyme wrappers in the global scope. This means that all test files do not need to include imports for React or enzyme.
-
-The `enzyme-to-json` module converts enzyme wrappers to a format compatible with Jest snapshot testing, by providing a serializer plugin to [Jest](#Jest).
-
-**Packages:**
-* *`devDependencies`*
-  * `@types/enzyme`
-  * `@types/enzyme-adapter-react-16`
-  * `enzyme`
-  * `enzyme-adapter-react-16`
-  * `enzyme-to-json`
-  * `jest-environment-enzyme`
-  * `jest-enzyme`
-  
-  **Configuration:**
-
-Synectic has the following [Jest](#Jest) and [Enzyme](#Enzyme) options set in `jest.config.js`:
-| Setting                                    | Value                       | Description  |
-| ------------------------------------------ |:---------------------------:| ----------------------------------------------------:|
-| `testEnvironment`                          | `enzyme`                    | Specifies the test environment that will be used for Jest testing |
-| `setupFilesAfterEnv`                       | `['jest-enzyme']`           | A list of paths to modules that configure or setup the testing framework before each test (i.e. the `jest-enzyme` plugin executes after environment setup) |
-| `testEnvironmentOptions` : `enzymeAdapter` | `react16`                   | Sets `enzyme-adapter-react-16` as the default Enzyme adapter |
-| `preset` | `ts-jest` | All TypeScript files (`.ts` and `.tsx`) will be handled by `ts-jest`; JavaScript files are not processed |
-| `roots` | `['<rootDir>/__test__']` | Jest will only search for test files in the `__test__` directory |
-| `snapshotSerializers` | `['enzyme-to-json/serializer']` | Enables the `enzyme-to-json` for serializing all Jest snapshots |
-| `moduleNameMapper` | `{"\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": '<rootDir>/__mocks__/fileMock.js'}` | Use a mocked CSS proxy for CSS Modules via [`identity-obj-proxy`](https://jestjs.io/docs/en/webpack#mocking-css-modules) during testing |
-| `moduleNameMapper` | `{"\\.(css|less)$": 'identity-obj-proxy'}` | Mocks all static assets (e.g. stylesheets and images) during testing |
-| `moduleNameMapper` | `{"^dnd-cores$": "dnd-core/dist/cjs", "^react-dnd$": "react-dnd/dist/cjs", "^react-dnd-html5-backend$": "react-dnd-html5-backend/dist/cjs", "^react-dnd-touch-backend$": "react-dnd-touch-backend/dist/cjs", "^react-dnd-test-backend$": "react-dnd-test-backend/dist/cjs", "^react-dnd-test-utils$": "react-dnd-test-uttils/dist/cjs"}` | Jest does not work well with ES Modules yet, but can use CommonJS builds for `react-dnd` libraries (per [React DnD testing docs](https://react-dnd.github.io/react-dnd/docs/testing)) |
