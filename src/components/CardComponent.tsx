@@ -142,7 +142,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   }
 
   return (
-    <div ref={dragAndDrop}
+    <div ref={dragAndDrop} data-testid='card-component' id={props.id}
       className={`card ${(isOver && !props.captured) ? 'drop-source' : ''}`}
       style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >

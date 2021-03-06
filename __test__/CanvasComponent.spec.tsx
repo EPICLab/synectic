@@ -1,59 +1,88 @@
 import React from 'react';
-import isUUID from 'validator/lib/isUUID';
-import { mount } from 'enzyme';
-import { v4 } from 'uuid';
-import { DateTime } from 'luxon';
+import { Provider } from 'react-redux';
+import { cleanup, render } from '@testing-library/react';
+import { act } from '@testing-library/react/pure';
+import { wrapWithTestBackend } from 'react-dnd-test-utils';
+import mock from 'mock-fs';
+import * as path from 'path';
+import { homedir } from 'os';
 
-import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { mockStore } from './__mocks__/reduxStoreMock';
 import CanvasComponent from '../src/components/CanvasComponent';
-import CardComponent from '../src/components/CardComponent';
-import StackComponent from '../src/components/StackComponent';
+import { extractFieldArray, mockStore } from './__mocks__/reduxStoreMock';
+import { testStore } from './__fixtures__/ReduxStore';
+import { fullCanvas } from './__fixtures__/Canvas';
+import { flattenArray } from '../src/containers/flatten';
+
+const store = mockStore(testStore);
 
 describe('CanvasComponent', () => {
 
-  const domElement = document.getElementById('app');
-  const mountOptions = { attachTo: domElement, };
-  const store = mockStore({
-    canvas: {
-      id: v4(),
-      created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-      repos: [],
-      cards: [],
-      stacks: []
-    },
-    stacks: {},
-    cards: {},
-    filetypes: {},
-    metafiles: {},
-    repos: {},
-    modals: {}
+  // mocks for git config are required; ReduxStore fixture contains MergeDialog components which check for config values
+  beforeEach(() => {
+    mock({
+      [path.join(homedir(), '.gitconfig')]: mock.file({
+        content: `[user]
+  name = Sandy Updates
+  email = supdate@oregonstate.edu
+[core]
+  editor = vim
+  whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol`,
+      }),
+      '.git/config': mock.file({
+        content: `[user]
+  name = Bobby Tables
+  email = bdrop@oregonstate.edu
+[credential]
+  helper = osxkeychain
+[pull]
+  rebase = true
+[alias]
+  last = log -1 HEAD`,
+      }),
+    }, { createCwd: false });
   });
 
-  afterEach(store.clearActions);
-
-  it('Canvas has a valid UUID when props contain valid UUID', () => {
-    const CanvasContext = wrapInReduxContext(CanvasComponent, store);
-    const canvasProps = store.getState().canvas;
-    const wrapper = mount(<CanvasContext {...canvasProps} />, mountOptions);
-    const component = wrapper.find(CanvasComponent).first();
-    expect(isUUID(component.props().id, 4)).toBe(true);
+  afterEach(() => {
+    cleanup;
+    jest.resetAllMocks();
+    mock.restore();
   });
 
-  it('Canvas resolves props into React Components for cards', () => {
-    const CanvasContext = wrapInReduxContext(CanvasComponent, store);
-    const canvasProps = store.getState().canvas;
-    const wrapper = mount(<CanvasContext {...canvasProps} />, mountOptions);
-    const component = wrapper.find(CanvasComponent).first();
-    expect(wrapper.find(CardComponent)).toHaveLength(component.props().cards.length);
+  it('Canvas renders correctly', async () => {
+    await act(async () => {
+      const [WrappedComponent] = wrapWithTestBackend(CanvasComponent);
+      const { getByTestId } = render(
+        <Provider store={store}>
+          <WrappedComponent {...fullCanvas} />
+        </Provider>
+      );
+      expect(getByTestId('canvas-component')).toBeInTheDocument();
+    })
   });
 
-  it('Canvas resolves props into React Components for stacks', () => {
-    const CanvasContext = wrapInReduxContext(CanvasComponent, store);
-    const canvasProps = store.getState().canvas;
-    const wrapper = mount(<CanvasContext {...canvasProps} />, mountOptions);
-    const component = wrapper.find(CanvasComponent).first();
-    expect(wrapper.find(StackComponent)).toHaveLength(component.props().stacks.length);
+  it('Canvas resolves props to render Cards', async () => {
+    await act(async () => {
+      const [WrappedComponent] = wrapWithTestBackend(CanvasComponent);
+      const { getAllByTestId } = render(
+        <Provider store={store}>
+          <WrappedComponent {...fullCanvas} />
+        </Provider>
+      );
+      const cardsInStacks = flattenArray(extractFieldArray(store.getState().stacks).map(s => s.cards));
+      expect(getAllByTestId('card-component')).toHaveLength(fullCanvas.cards.length + cardsInStacks.length);
+    });
+  });
+
+  it('Canvas resolves props to render Stacks', async () => {
+    await act(async () => {
+      const [WrappedComponent] = wrapWithTestBackend(CanvasComponent);
+      const { getAllByTestId } = render(
+        <Provider store={store}>
+          <WrappedComponent {...fullCanvas} />
+        </Provider>
+      );
+      expect(getAllByTestId('stack-component')).toHaveLength(fullCanvas.stacks.length);
+    });
   });
 
 });

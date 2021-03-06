@@ -109,7 +109,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   ];
 
   return (
-    <div className='canvas' ref={drop}>
+    <div className='canvas' ref={drop} data-testid='canvas-component'>
       <div className={classes.root} >
         <NavMenu label='File' submenu={fileMenu} />
         <NavMenu label='Action' submenu={actionMenu} />

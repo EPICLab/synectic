@@ -1,140 +1,135 @@
-import '@testing-library/jest-dom';
 import React from 'react';
-import { mount } from 'enzyme';
-import { v4 } from 'uuid';
-import { DateTime } from 'luxon';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
-import type { Filetype } from '../src/types';
-import { extractFieldArray, mockStore } from './__mocks__/reduxStoreMock';
-import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 import NewCardDialog from '../src/components/NewCardDialog';
+import { mockStore } from './__mocks__/reduxStoreMock';
+import { Provider } from 'react-redux';
+import { newCardModal } from './__fixtures__/Modal';
+import { testStore } from './__fixtures__/ReduxStore';
+import { ActionKeys } from '../src/store/actions';
 
-const newFiletype: Filetype = {
-  id: '55',
-  filetype: 'JavaScript',
-  handler: 'Editor',
-  extensions: ['js', 'jsm']
-}
-
-const domElement = document.getElementById('app');
-const mountOptions = {
-  attachTo: domElement,
-};
-
-const store = mockStore({
-  canvas: {
-    id: v4(),
-    created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-    repos: [],
-    cards: [],
-    stacks: []
-  },
-  stacks: {},
-  cards: {},
-  filetypes: {
-    '55': newFiletype
-  },
-  metafiles: {},
-  repos: {},
-  modals: {
-    21: {
-      id: '21',
-      type: 'NewCardDialog'
-    }
-  }
-});
-
-afterEach(store.clearActions);
+const store = mockStore(testStore);
 
 describe('NewCardDialog', () => {
-  const NewCardContext = wrapInReduxContext(NewCardDialog, store);
 
-  it('NewCardDialog closes when escape key is pressed', () => {
-    const modals = extractFieldArray(store.getState().modals);
-    render(<NewCardContext {...modals[0]} />);
-
-    let dialog = screen.queryAllByRole('dialog')[0];
-    expect(dialog).toBeInTheDocument();
-
-    fireEvent.keyDown(dialog, { key: 'Escape', keyCode: 27, which: 27 });
-
-    dialog = screen.queryAllByRole('dialog')[0];
-    expect(dialog).toBeInTheDocument();
+  afterEach(() => {
+    cleanup;
+    jest.resetAllMocks();
   });
 
-  it('NewCardDialog closes when clicking outside of dialog', () => {
-    const modals = extractFieldArray(store.getState().modals);
-    render(<NewCardContext {...modals[0]} />);
+  it('NewCardDialog renders correctly', () => {
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <NewCardDialog {...newCardModal} />
+      </Provider>
+    );
+    expect(getByTestId('new-card-dialog')).toBeInTheDocument();
+  });
 
-    let dialog = screen.queryAllByRole('dialog')[0];
-    expect(dialog).toBeInTheDocument();
+  it('NewCardDialog generates REMOVAL_MODAL action when escape key is pressed', async () => {
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <NewCardDialog {...newCardModal} />
+      </Provider>
+    );
 
+    fireEvent.keyDown(getByTestId('new-card-dialog'), {
+      key: 'Escape',
+      code: 'Escape',
+      keyCode: 27,
+      charCode: 27
+    });
+
+    await waitFor(() => {
+      expect(store.getActions()).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: ActionKeys.REMOVE_MODAL,
+            id: newCardModal.id
+          })
+        ])
+      )
+    });
+  });
+
+  it('NewCardDialog generates REMOVE_MODAL action when clicking outside of dialog', async () => {
+    render(
+      <Provider store={store}>
+        <NewCardDialog {...newCardModal} />
+      </Provider>
+    );
+
+    // using DOM selector method instead of RTL
     const backdrop = document.querySelector('.MuiBackdrop-root');
-    if (backdrop) fireEvent.click(backdrop);
+    if (backdrop) userEvent.click(backdrop);
 
-    dialog = screen.queryAllByRole('dialog')[0];
-    expect(dialog).toBeInTheDocument();
+    await waitFor(() => {
+      expect(store.getActions()).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: ActionKeys.REMOVE_MODAL,
+            id: newCardModal.id
+          })
+        ])
+      )
+    });
   });
 
-  it('NewCardDialog starts with empty values for filename and filetype', () => {
-    const modals = extractFieldArray(store.getState().modals);
-    render(<NewCardContext {...modals[0]} />);
+  it('NewCardDialog validates filename and filetype', async () => {
+    const { getByTestId, getByLabelText, getByText } = render(
+      <Provider store={store}>
+        <NewCardDialog {...newCardModal} />
+      </Provider>
+    )
 
-    fireEvent.click(screen.getByText('Editor')); // click Editor button to load dialog
-    expect(screen.getByLabelText('Filename')).toHaveValue('');
-    // Material-UI's Select component does not include a <select> HTML element, so .toHaveFormValues() will not work
-    expect(screen.getByTestId('new-card-filetype-selector').outerHTML).toContain('value=""');
+    // open the editor portion of dialog
+    userEvent.click(getByTestId('editor-button'));
+    // enter a filename with an invalid filetype
+    fireEvent.change(getByLabelText('Filename'), {
+      target: { value: 'test.jsxw' }
+    });
+    expect(getByText('Invalid Filename')).toBeInTheDocument();
+
+    // click to attempt to create a card
+    userEvent.click(getByText('Create Card'));
+    await waitFor(() => {
+      expect(store.getActions()).not.toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: ActionKeys.ADD_METAFILE | ActionKeys.ADD_CARD
+          })
+        ])
+      )
+    });
   });
 
-  it('NewCardDialog does not change Redux state when invalid information is entered', () => {
-    const modals = extractFieldArray(store.getState().modals);
-    const wrapper = mount(<NewCardContext {...modals[0]} />, mountOptions);
-    const before = JSON.stringify(store.getState());
-    expect(wrapper.find(NewCardDialog).prop('isFileNameValid')).toBeFalsy();
-    const button = screen.queryByText(/create-card-button/i);
+  it('NewCardDialog populates filetype on valid filename entry', async () => {
+    const { getByTestId, getByLabelText, getByText } = render(
+      <Provider store={store}>
+        <NewCardDialog {...newCardModal} />
+      </Provider>
+    )
 
-    if (button) fireEvent.click(button);
-    const after = JSON.stringify(store.getState());
+    // open the editor portion of dialog
+    userEvent.click(getByTestId('editor-button'));
+    // enter a filename with a valid filetype
+    fireEvent.change(getByLabelText('Filename'), {
+      target: { value: 'test.js' }
+    });
+    expect(getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
 
-    expect(before).toEqual(after);
-    wrapper.unmount();
+    // click to attempt to create a card
+    userEvent.click(getByText('Create Card'));
+    await waitFor(() => {
+      expect(store.getActions()).toStrictEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: ActionKeys.ADD_METAFILE
+          })
+        ])
+      )
+    });
   });
 
-  it('NewCardDialog allows the user to enter/edit the filename', () => {
-    const modals = extractFieldArray(store.getState().modals);
-    render(<NewCardContext {...modals[0]} />);
-
-    fireEvent.click(screen.getByText('Editor')); // click Editor button to load dialog
-    const inputBox = screen.getByLabelText('Filename');
-    expect(inputBox).toHaveValue('');
-
-    // Enter file name into text box
-    if (inputBox) fireEvent.change(inputBox, { target: { value: 'foo' } });
-    expect(inputBox).toHaveValue('foo');
-  });
-
-  it('NewCardDialog handles filetype selections', () => {
-    const modals = extractFieldArray(store.getState().modals);
-    const { getByRole, getAllByRole, getByText } = render(<NewCardContext {...modals[0]} />);
-    fireEvent.click(getByText('Editor')); // click Editor button to load dialog
-    const selectPopoverTrigger = getAllByRole('button')[2];
-
-    fireEvent.mouseDown(selectPopoverTrigger);
-    const listbox = within(getByRole('listbox'));
-    fireEvent.click(listbox.getByText(/JavaScript/i));
-    expect(screen.getByTestId('new-card-filetype-selector').outerHTML).toContain('value="JavaScript"');
-  });
-
-  it('NewCardDialog calls onClick when Create New Card button is clicked', () => {
-    const modals = extractFieldArray(store.getState().modals);
-    const onClick = jest.fn();
-    const { getAllByRole } = render(<NewCardContext {...modals[0]} />);
-    const createNewCardButton = getAllByRole('button')[1];
-
-    createNewCardButton.addEventListener('click', onClick);
-    fireEvent.click(createNewCardButton);
-
-    expect(onClick).toHaveBeenCalled();
-  });
 });

@@ -59,7 +59,8 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
     drop(elementOrNode);
   }
 
-  return <div className='stack' ref={dragAndDrop} style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
+  return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
+    style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
     {props.cards.map(cardId => {
       const card = cards[cardId];
       return <CardComponent key={card.id} {...card} />;

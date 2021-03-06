@@ -147,7 +147,7 @@ const NewCardDialog: React.FunctionComponent<Modal> = props => {
   };
 
   return (
-    <Dialog id='new-card-dialog' open={true} onClose={handleClose} aria-labelledby='new-card-dialog'>
+    <Dialog id='new-card-dialog' data-testid='new-card-dialog' open={true} onClose={handleClose} aria-labelledby='new-card-dialog'>
       <div className={classes.root}>
         <div className={classes.section1}>
           <Grid container alignItems='center'>
@@ -165,9 +165,9 @@ const NewCardDialog: React.FunctionComponent<Modal> = props => {
         </div>
         <Divider variant='middle' />
         <div className={classes.section2}>
-          <Button className={classes.button} variant={category === 'Editor' ? 'contained' : 'outlined'}
+          <Button className={classes.button} data-testid='editor-button' variant={category === 'Editor' ? 'contained' : 'outlined'}
             color='primary' onClick={() => setCategory('Editor')}>Editor</Button>
-          <Button className={classes.button} variant={category === 'Browser' ? 'contained' : 'outlined'}
+          <Button className={classes.button} data-testid='browser-button' variant={category === 'Browser' ? 'contained' : 'outlined'}
             color='primary' onClick={() => setCategory('Browser')}>Browser</Button>
         </div>
         {category === 'Editor' ?
@@ -184,10 +184,11 @@ const NewCardDialog: React.FunctionComponent<Modal> = props => {
               error={fileName.length > 0 && !isFileNameValid}
               helperText={(fileName.length > 0 && !isFileNameValid) ? 'Invalid Filename' : ''}
             />
-            <FormControl variant='outlined' className={classes.formControl2}>
-              <InputLabel>Filetype</InputLabel>
+            <FormControl data-testid='new-card-filetype-form' variant='outlined' className={classes.formControl2}>
+              <InputLabel htmlFor={'new-card-filetype-selector'} >Filetype</InputLabel>
               <Select
                 id='new-card-filetype-selector'
+                aria-label='new-card-filetype-selector'
                 inputProps={{ 'data-testid': 'new-card-filetype-selector' }}
                 disabled={category !== 'Editor'}
                 value={filetype}
@@ -202,6 +203,7 @@ const NewCardDialog: React.FunctionComponent<Modal> = props => {
         <div className={classes.section3}>
           <Button id='create-card-button'
             className={classes.button}
+            data-testid='create-card-button'
             variant='outlined'
             color='primary'
             disabled={!isCreateReady()}

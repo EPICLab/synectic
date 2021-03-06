@@ -1,18 +1,18 @@
 import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { act } from '@testing-library/react/pure';
-// import { act } from 'react-test-renderer';
 import { Provider } from 'react-redux';
-
-import DiffPickerDialog from '../src/components/DiffPickerDialog';
-import { diffPickerModal } from './__fixtures__/Modal';
-import { mockStore } from './__mocks__/reduxStoreMock';
-import { ActionKeys } from '../src/store/actions';
-import { basicStore } from './__fixtures__/ReduxStore';
 import userEvent from '@testing-library/user-event';
 
+import DiffPickerDialog from '../src/components/DiffPickerDialog';
+import { ActionKeys } from '../src/store/actions';
+import { mockStore } from './__mocks__/reduxStoreMock';
+import { testStore } from './__fixtures__/ReduxStore';
+import { diffPickerModal } from './__fixtures__/Modal';
+import { firstEditorCard, secondEditorCard } from './__fixtures__/Card';
+
 describe('DiffPickerDialog', () => {
-  const store = mockStore(basicStore);
+  const store = mockStore(testStore);
 
   afterEach(() => {
     cleanup;
@@ -148,7 +148,7 @@ describe('DiffPickerDialog', () => {
             metafile: expect.objectContaining({
               handler: 'Diff',
               name: expect.stringMatching(/^.*turtle\.asp.*test\.js/i),
-              targets: ['33', '14']
+              targets: [secondEditorCard.id, firstEditorCard.id]
             })
           })
         ])
