@@ -133,6 +133,14 @@ export const testStore: RootState = {
       id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
       name: 'turtle.asp',
       modified: DateTime.fromISO('2017-01-05T19:09:22.744-08:00'),
+    },
+    '28': {
+      id: '28',
+      name: 'foo',
+      path: 'foo',
+      modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00'),
+      filetype: 'Directory',
+      contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71']
     }
   },
   repos: {},

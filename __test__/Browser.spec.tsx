@@ -1,36 +1,14 @@
-import '@testing-library/jest-dom';
-import { DateTime } from 'luxon';
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { v4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
 
 import Browser from '../src/components/Browser';
-import { mockStore } from './__mocks__/reduxStoreMock';
-import { wrapInReduxContext } from './__mocks__/dndReduxMock';
 
 describe('Browser', () => {
-  const store = mockStore({
-    canvas: {
-      id: v4(),
-      created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-      repos: [],
-      cards: [],
-      stacks: []
-    },
-    stacks: {},
-    cards: {},
-    filetypes: {},
-    metafiles: {},
-    repos: {},
-    modals: {}
-  });
-
-  const BrowserContext = wrapInReduxContext(Browser, store);
 
   it('Browser allows the user to enter/edit a URL', async () => {
-    render(<BrowserContext />);
-    const textBox = screen.getByRole('textbox') as HTMLInputElement;
+    const { getByRole } = render(<Browser />);
+    const textBox = getByRole('textbox');
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
 
@@ -45,10 +23,10 @@ describe('Browser', () => {
   });
 
   it('Browser allows the user to navigate backwards and forwards in history', async () => {
-    render(<BrowserContext />);
-    const backButton = screen.getAllByRole('button')[0];
-    const forwardButton = screen.getAllByRole('button')[1];
-    const textBox = screen.getByRole('textbox') as HTMLInputElement;
+    const { getByRole, getAllByRole } = render(<Browser />);
+    const textBox = getByRole('textbox');
+    const backButton = getAllByRole('button')[0];
+    const forwardButton = getAllByRole('button')[1];
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
     textBox.focus();
@@ -71,9 +49,9 @@ describe('Browser', () => {
   });
 
   it('Browser does not change the page URL when the refresh button is clicked', async () => {
-    render(<BrowserContext />);
-    const textBox = screen.getByRole('textbox') as HTMLInputElement;
-    const refreshButton = screen.getAllByRole('button')[2];
+    const { getByRole, getAllByRole } = render(<Browser />);
+    const textBox = getByRole('textbox');
+    const refreshButton = getAllByRole('button')[2];
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
     fireEvent.click(refreshButton);
