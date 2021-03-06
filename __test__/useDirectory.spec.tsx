@@ -82,8 +82,10 @@ describe('useDirectory', () => {
     jest.spyOn(metafiles, 'filterDirectoryContainsTypes').mockResolvedValue({ directories: [], files: ['foo/bar.js'] });
     const { result, waitForNextUpdate } = renderHook(() => useDirectory('foo'), { wrapper });
 
-    result.current.fetch();
-    await waitForNextUpdate();
+    await act(async () => {
+      result.current.fetch();
+      await waitForNextUpdate();
+    })
 
     expect(result.current.root).toEqual(
       expect.objectContaining({ id: '28', name: 'foo' })

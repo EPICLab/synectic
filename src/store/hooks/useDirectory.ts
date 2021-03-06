@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { ThunkDispatch } from 'redux-thunk'
 import { PathLike } from 'fs-extra'
@@ -6,13 +6,13 @@ import { PathLike } from 'fs-extra'
 import type { Metafile } from '../../types'
 import { RootState } from '../root'
 import { Action } from '../actions'
-import { getMetafile, filterDirectoryContainsTypes, ContainsRequiredMetafile } from '../../containers/metafiles'
+import { getMetafile, filterDirectoryContainsTypes, MetafileWithContains } from '../../containers/metafiles'
 
 type useDirectoryHook = {
   root: Metafile | undefined,
   directories: string[],
   files: string[],
-  fetch: () => Promise<void>
+  fetch: () => void
 };
 
 /**
@@ -29,32 +29,45 @@ export const useDirectory = (initialRoot: Metafile | PathLike): useDirectoryHook
   const [root, setRoot] = useState<Metafile | undefined>();
   const [directories, setDirectories] = useState<string[]>([]);
   const [files, setFiles] = useState<string[]>([]);
+  const [trigger, setTrigger] = useState(false);
 
   // Type guard to verify and return a Metafile type predicate
   const isMetafile = (untypedRoot: unknown): untypedRoot is Metafile => (untypedRoot as Metafile).id ? true : false;
 
-  const fetch = useCallback(async () => {
-    /**
+  useEffect(() => {
+    const fetchData = async () => {
+      /**
      * Calling `setState` on a React useState hook does not immediately update the state, and instead enqueues a re-render of
      * the component that will update state after the rerender. Therefore, we cannot use the `root` state directly on the same
      * tick as it is set (via `setRoot`) and have to carry `rootMetafile` between the steps in this callback.
      */
-    let rootMetafile = root;
+      let rootMetafile = root;
 
-    if (!root) {
-      // since not root exists, use `initialRoot` to get a metafile and update `root`
-      rootMetafile = isMetafile(initialRoot) ? await dispatch(getMetafile({ id: initialRoot.id })) :
-        await dispatch(getMetafile({ filepath: initialRoot }));
-      setRoot(rootMetafile);
+      if (!root) {
+        // since not root exists, use `initialRoot` to get a metafile and update `root`
+        rootMetafile = isMetafile(initialRoot) ? await dispatch(getMetafile({ id: initialRoot.id })) :
+          await dispatch(getMetafile({ filepath: initialRoot }));
+        setRoot(rootMetafile);
+      }
+
+      if (rootMetafile && rootMetafile.contains) {
+        // update the `directories` and `files` states only if there are changes
+        const updates = await filterDirectoryContainsTypes(rootMetafile as MetafileWithContains, false);
+        if (JSON.stringify(directories) !== JSON.stringify(updates.directories)) setDirectories(updates.directories);
+        if (JSON.stringify(files) !== JSON.stringify(updates.files)) setFiles(updates.files);
+      }
     }
 
-    if (rootMetafile && rootMetafile.contains) {
-      // update the `directories` and `files` states only if there are changes
-      const updates = await filterDirectoryContainsTypes(rootMetafile as ContainsRequiredMetafile, false);
-      if (JSON.stringify(directories) !== JSON.stringify(updates.directories)) setDirectories(updates.directories);
-      if (JSON.stringify(files) !== JSON.stringify(updates.files)) setFiles(updates.files);
+    if (trigger) fetchData();
+
+    return () => {
+      // cleanup function to disable additional calls to fetchData
+      setTrigger(false);
     }
-  }, [root, dispatch, initialRoot, directories, files]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trigger]);
+
+  const fetch = () => setTrigger(true);
 
   return { root, directories, files, fetch };
 }
