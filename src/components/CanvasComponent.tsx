@@ -15,11 +15,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { addModal } from '../containers/modals';
 import { filePickerDialog } from '../containers/filepicker';
 import { loadBranchVersions } from '../containers/branch-tracker';
-<<<<<<< HEAD
 import { GitGraphSelect } from './GitGraphSelect';
-=======
-import { GitGraphButton } from './GitGraphButton';
->>>>>>> 9341dad... Partial refactoring of DiffPickerDialog tests to RTL
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
