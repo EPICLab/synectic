@@ -15,7 +15,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { addModal } from '../containers/modals';
 import { filePickerDialog } from '../containers/filepicker';
 import { loadBranchVersions } from '../containers/branch-tracker';
-import { GitGraphButton } from './GitGraphButton';
+import { GitGraphSelect } from './GitGraphSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -114,8 +114,8 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
         <NavMenu label='File' submenu={fileMenu} />
         <NavMenu label='Action' submenu={actionMenu} />
         <NavMenu label='View' submenu={viewMenu} />
+        <GitGraphSelect />
       </div>
-      <GitGraphButton />
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {modals.map(modal => <ModalComponent key={modal.id} {...modal} />)}

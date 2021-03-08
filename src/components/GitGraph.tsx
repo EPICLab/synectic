@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import ReactFlow, { addEdge, ArrowHeadType, Connection, Edge, FlowElement, Node, OnLoadFunc, OnLoadParams } from 'react-flow-renderer';
 
-import type { Repository } from '../types';
+import type { Repository, UUID } from '../types';
 import { nodeTypes } from './GitNode';
 import { CommitInfo, useGitHistory } from '../store/hooks/useGitHistory';
 import { layoutOptimizer } from '../containers/layout';
 import { colorSets } from '../containers/colors';
 import { currentBranch, getStatus } from '../containers/git';
 import { flattenArray } from '../containers/flatten';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/root';
 
 const getGitNode = (commit: CommitInfo, branchHead: string | undefined): Node => ({
   id: commit.oid,
@@ -62,11 +64,12 @@ const getGitStaged = async (commit: CommitInfo, repo: Repository): Promise<(Node
   }
 };
 
-export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => {
+export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
+  const repo = useSelector((state: RootState) => state.repos[props.repo]);
   const [elements, setElements] = useState<Array<FlowElement>>([]);
   const [reactFlowState, setReactFlowState] = useState<OnLoadParams>();
   const onConnect = (params: Edge | Connection) => setElements((els) => addEdge(params, els));
-  const { commits, heads, update } = useGitHistory(props.repo);
+  const { commits, heads, update } = useGitHistory(repo);
   const onLoad: OnLoadFunc = (rf) => { setReactFlowState(rf) };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -94,16 +97,16 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
       // compared to the latest version in the branch. The following line has to wait until this is implemented:
       //
       // const staged = flattenArray(await Promise.all(headCommits.map(headCommit => getGitStaged(headCommit, props.repo))));
-      const currentBranchName = await currentBranch({ dir: props.repo.root.toString() });
+      const currentBranchName = await currentBranch({ dir: repo.root.toString() });
       const currentBranchHash = heads.get(`local/${currentBranchName}`);
       const staged = flattenArray(await Promise.all(headCommits
         .filter(commit => commit.oid === currentBranchHash)
-        .map(currentBranchCommit => getGitStaged(currentBranchCommit, props.repo))));
+        .map(currentBranchCommit => getGitStaged(currentBranchCommit, repo))));
       const optimizedNewElements = layoutOptimizer([...newElements, ...staged]);
       setElements(optimizedNewElements);
     }
     asyncGraphConstruction();
-  }, [commits, heads, props.repo]);
+  }, [commits, heads, repo]);
 
   return (<ReactFlow
     elements={elements}
@@ -113,3 +116,5 @@ export const GitGraph: React.FunctionComponent<{ repo: Repository }> = props => 
     onNodeMouseEnter={(_event, node) => console.log(node.id)}
     className='git-flow' />);
 }
+
+export default GitGraph;
