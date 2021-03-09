@@ -43,7 +43,7 @@
     "dagre": "^0.8.5",
     "diff": "^5.0.0",
     "electron-squirrel-startup": "^1.0.0",
-    "file-type": "^16.2.0",
+    "file-type": "^16.3.0",
     "fs-extra": "^9.1.0",
     "git-config-path": "^2.0.0",
     "hidefile": "^3.0.0",
