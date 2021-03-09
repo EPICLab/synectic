@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as winattr from 'winattr';
 import pako from 'pako';
 import { TextDecoder } from 'util';
 
@@ -12,6 +13,7 @@ import { TextDecoder } from 'util';
 
 import type { Filetype } from '../types';
 import { flattenArray } from './flatten';
+import { shouldBeHiddenSync } from 'hidefile';
 
 /**
  * Encoding formats that adhere to the name of 
@@ -46,6 +48,16 @@ export const extractStats = (filepath: fs.PathLike): Promise<fs.Stats | undefine
       .catch(() => resolve(undefined));
   });
 };
+
+export const isHidden = (filepath: fs.PathLike): boolean => {
+  const isWindows = process.platform === 'win32';
+  if (isWindows) {
+    const attrs = winattr.getSync(filepath.toString());
+    return attrs['hidden'];
+  } else {
+    return shouldBeHiddenSync(filepath.toString());
+  }
+}
 
 /**
  * Extract the file basename from the path. Returns the filename, including extension, after the last 

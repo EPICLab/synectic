@@ -8,7 +8,6 @@ import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
 import { isWebUri } from 'valid-url';
 import getGitConfigPath from 'git-config-path';
-import { shouldBeHiddenSync } from 'hidefile';
 
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
@@ -301,7 +300,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
    * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
   if (await io.isDirectory(filepath)) {
-    const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !shouldBeHiddenSync(f) });
+    const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !io.isHidden(f) });
     const changed = statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
       .map(row => row[0]);                // return the filenames only

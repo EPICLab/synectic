@@ -10,7 +10,6 @@ import * as io from './io';
 import * as git from './git';
 import { getRepository } from './repos';
 import { asyncFilter } from './format';
-import { shouldBeHiddenSync } from 'hidefile';
 
 type AddMetafileAction = NarrowActionType<ActionKeys.ADD_METAFILE>;
 type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
@@ -103,7 +102,7 @@ export const filterDirectoryContainsTypes = async (metafile: MetafileWithContain
   Promise<{ directories: string[], files: string[] }> => {
   const directories: string[] = await asyncFilter(metafile.contains, async (e: string) => io.isDirectory(e));
   let files: string[] = metafile.contains.filter(childPath => !directories.includes(childPath));
-  if (includeHidden == false) files = files.filter(childPath => !shouldBeHiddenSync(childPath));
+  if (includeHidden == false) files = files.filter(childPath => !io.isHidden(childPath));
   return { directories: directories, files: files };
 };
 

@@ -65,7 +65,8 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "sha1": "^1.1.1",
-    "ts-dot-prop": "^1.4.2"
+    "ts-dot-prop": "^1.4.2",
+    "winattr": "^3.0.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "6.0.0-beta.54",
