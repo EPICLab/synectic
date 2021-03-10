@@ -78,7 +78,7 @@ export const layoutOptimizer = (rfGraph: Array<FlowElement>): Array<FlowElement>
   });
 }
 
-export const asyncGraphConstruction = async (commits: Map<string, CommitInfo>, heads: Map<string, string>, repo: Repository)
+export const graphConstruction = async (commits: Map<string, CommitInfo>, heads: Map<string, string>, repo: Repository)
   : Promise<Array<FlowElement>> => {
   const currentCommits = [...commits.values()].slice(Math.max(commits.size - 50, 0)) // limited to 50 most recent commits
   const newElements = currentCommits.reduce((prev: Array<FlowElement>, curr: CommitInfo): Array<FlowElement> => {
@@ -89,10 +89,9 @@ export const asyncGraphConstruction = async (commits: Map<string, CommitInfo>, h
   }, []);
   const headsHashes = [...heads.values()];
   const headCommits = currentCommits.filter(commit => headsHashes.includes(commit.oid));
-  // TODO: Until we have copied repositories that exist in a cache (probably in within .syn or .git directory), we will need to
-  // check through all the open cards on the canvas to determine if any of them are associated with a branch and have changes
-  // compared to the latest version in the branch. The following line has to wait until this is implemented:
-  //
+  // TODO: Until `git.getStatus` is able to handle worktrees, we will need to check through all open cards on the canvas
+  // to determine if any contain changes compared to the latest version in the associated branch. The following line 
+  // is an initial implementation that relies on this card-checking functionality:
   // const staged = flattenArray(await Promise.all(headCommits.map(headCommit => getGitStaged(headCommit, props.repo))));
   const currentBranchName = await currentBranch({ dir: repo.root.toString() });
   const currentBranchHash = heads.get(`local/${currentBranchName}`);
