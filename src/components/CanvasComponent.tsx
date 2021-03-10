@@ -99,8 +99,8 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   ];
 
   const actionMenu: NavItemProps[] = [
-    { label: 'Diff...', click: () => dispatch(addModal({ type: 'DiffPicker' })), disabled: (Object.values(cards).length < 2) },
-    { label: 'Merge...', click: () => dispatch(addModal({ type: 'MergeSelector' })), disabled: (Object.values(cards).length < 2) },
+    { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(addModal({ type: 'DiffPicker' })) },
+    { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal({ type: 'MergeSelector' })) },
   ];
 
   const viewMenu: NavItemProps[] = [
