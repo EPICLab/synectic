@@ -1,6 +1,5 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as winattr from 'winattr';
 import pako from 'pako';
 import { TextDecoder } from 'util';
 
@@ -52,8 +51,7 @@ export const extractStats = (filepath: fs.PathLike): Promise<fs.Stats | undefine
 export const isHidden = (filepath: fs.PathLike): boolean => {
   const isWindows = process.platform === 'win32';
   if (isWindows) {
-    const attrs = winattr.getSync(filepath.toString());
-    return attrs['hidden'];
+    return extractFilename(filepath).startsWith('.');
   } else {
     return shouldBeHiddenSync(filepath.toString());
   }
