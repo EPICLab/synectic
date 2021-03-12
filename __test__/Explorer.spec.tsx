@@ -1,22 +1,31 @@
-import '@testing-library/jest-dom';
 import React from 'react';
+import mock from 'mock-fs';
 import { Provider } from 'react-redux';
 import TreeView from '@material-ui/lab/TreeView';
-import { render, fireEvent, cleanup } from '@testing-library/react';
-import { act } from '@testing-library/react/pure';
+import { render, cleanup, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-import { mockStore, extractFieldMap } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import { DirectoryComponent } from '../src/components/Explorer';
-import * as useDirectory from '../src/store/hooks/useDirectory';
 import { testStore } from './__fixtures__/ReduxStore';
+// import * as io from '../src/containers/io';
+// import * as hook from '../src/store/hooks/useDirectory';
 
 const store = mockStore(testStore);
 
 describe('DirectoryComponent', () => {
 
+  beforeAll(() => {
+    mock({
+      'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
+    });
+  });
+  afterAll(mock.restore);
+
   afterEach(() => {
     cleanup;
-    jest.resetAllMocks();
+    store.clearActions();
+    jest.clearAllMocks();
   });
 
   it('DirectoryComponent initially renders without expanding to display children', () => {
@@ -30,25 +39,18 @@ describe('DirectoryComponent', () => {
     expect(queryByText('bar.js')).not.toBeInTheDocument();
   });
 
-  it('DirectoryComponent expands to display child files and directories', () => {
-    const root = extractFieldMap(store.getState().metafiles)[28];
-    jest.spyOn(useDirectory, 'useDirectory').mockReturnValue({
-      root: root,
-      directories: [],
-      files: ['foo/bar.js'],
-      fetch: async () => { await new Promise(resolve => resolve(0)) }
-    });
-    const { queryByText } = render(
+  it('DirectoryComponent expands to display child files and directories', async () => {
+    const { queryByText, getByText } = render(
       <Provider store={store}>
         <TreeView><DirectoryComponent root={'foo'} /></TreeView>
       </Provider>
     );
-
     expect(queryByText('bar.js')).not.toBeInTheDocument();
-    const component = queryByText('foo');
-    act(() => {
-      if (component) fireEvent.click(component);
+
+    await act(async () => {
+      userEvent.click(getByText('foo'));
     });
+
     expect(queryByText('bar.js')).toBeInTheDocument();
   });
 

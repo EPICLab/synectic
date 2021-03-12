@@ -15,8 +15,22 @@ import { shouldBeHiddenSync } from 'hidefile';
 type AddMetafileAction = NarrowActionType<ActionKeys.ADD_METAFILE>;
 type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
 type AddModalAction = NarrowActionType<ActionKeys.ADD_MODAL>;
-export type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
+export type MetafileWithPath = Metafile & Required<Pick<Metafile, 'path'>>;
+export type MetafileWithContent = Metafile & Required<Pick<Metafile, 'content'>>;
 export type MetafileWithContains = Metafile & Required<Pick<Metafile, 'contains'>>;
+export type MetafileWithTargets = Metafile & Required<Pick<Metafile, 'targets'>>;
+
+export const isMetafileFile = (metafile: Metafile): metafile is MetafileWithContent => {
+  return (metafile as MetafileWithContent).content !== undefined;
+}
+
+export const isMetafileDirectory = (metafile: Metafile): metafile is MetafileWithContains => {
+  return (metafile as MetafileWithContains).contains !== undefined;
+}
+
+export const isMetafileDiff = (metafile: Metafile): metafile is MetafileWithTargets => {
+  return (metafile as MetafileWithTargets).targets !== undefined;
+}
 
 /**
  * Action Creator for composing a valid ADD_METAFILE Redux Action. The only required parameter is `name`,

@@ -1,14 +1,13 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import { cleanup, render } from '@testing-library/react';
-import { act } from '@testing-library/react/pure';
-import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import mock from 'mock-fs';
+import { Provider } from 'react-redux';
+import { cleanup, render, act } from '@testing-library/react';
+import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import * as path from 'path';
 import { homedir } from 'os';
 
 import CanvasComponent from '../src/components/CanvasComponent';
-import { extractFieldArray, mockStore } from './__mocks__/reduxStoreMock';
+import { mockStore, extractFieldArray } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 import { fullCanvas } from './__fixtures__/Canvas';
 import { flattenArray } from '../src/containers/flatten';
@@ -20,6 +19,7 @@ describe('CanvasComponent', () => {
   // mocks for git config are required; ReduxStore fixture contains MergeDialog components which check for config values
   beforeEach(() => {
     mock({
+      'foo': {},
       [path.join(homedir(), '.gitconfig')]: mock.file({
         content: `[user]
   name = Sandy Updates
@@ -44,7 +44,7 @@ describe('CanvasComponent', () => {
 
   afterEach(() => {
     cleanup;
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     mock.restore();
   });
 
