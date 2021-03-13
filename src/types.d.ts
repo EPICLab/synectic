@@ -1,7 +1,7 @@
 // Type definitions for synectic 1.0.0
 // Project: https://github.com/EPICLab/synectic
 // Definitions by: Nicholas Nelson <https://github.com/nelsonni>
-// TypeScript Version: 4.1
+// TypeScript Version: 4.2
 
 import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
@@ -13,8 +13,34 @@ export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 
 export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
+export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'BranchList' | 'MergeSelector' | 'Error' | 'GitGraph';
+/**
+ * | status                | description                                                                           |
+ * | --------------------- | ------------------------------------------------------------------------------------- |
+ * | `"ignored"`           | file ignored by a .gitignore rule                                                     |
+ * | `"unmodified"`        | file unchanged from HEAD commit                                                       |
+ * | `"*modified"`         | file has modifications, not yet staged                                                |
+ * | `"*deleted"`          | file has been removed, but the removal is not yet staged                              |
+ * | `"*added"`            | file is untracked, not yet staged                                                     |
+ * | `"absent"`            | file not present in HEAD commit, staging area, or working dir                         |
+ * | `"modified"`          | file has modifications, staged                                                        |
+ * | `"deleted"`           | file has been removed, staged                                                         |
+ * | `"added"`             | previously untracked file, staged                                                     |
+ * | `"*unmodified"`       | working dir and HEAD commit match, but index differs                                  |
+ * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index              |
+ * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
+ * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
+*/
 export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*deleted' | '*added'
   | 'absent' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified';
+/**
+ * | status                | description                                                                           |
+ * | --------------------- | ------------------------------------------------------------------------------------- |
+ * | `"unmodified"`        | file unchanged from metafile content                                                  |
+ * | `"modified"`          | file has modifications, not yet saved                                                 |
+ * | `"unlinked"`          | no file linked to metafile, virtual metafile                                          |
+ */
+export type FilesystemStatus = 'modified' | 'unmodified' | 'unlinked';
 
 /** A canvas representing a base layer in which child objects can be explicitly positioned.  */
 export type Canvas = {
@@ -46,8 +72,6 @@ export type Card = {
   readonly modified: DateTime;
   /** The UUID for capturing Stack object, or undefined if not captured. */
   readonly captured?: UUID;
-  /** Flag indicating that card content can be saved (i.e. written to file or web-service). */
-  readonly saveable?: boolean;
   /** The horizontal position of card relative to parent object. */
   readonly left: number;
   /** The vertical position of card relative to parent object. */
@@ -94,7 +118,7 @@ export type Metafile = {
   readonly name: string;
   /** The timestamp for last update to metafile properties (not directly associated with filesystem `mtime` or `ctime`). */
   readonly modified: DateTime;
-  /** The filetype format for encoding/decoding contents (same as `Filetype.filetype`, but this allows fo virtual metafiles). */
+  /** The filetype format for encoding/decoding contents (same as `Filetype.filetype`, but this allows for virtual metafiles). */
   readonly filetype?: string;
   /** The type of card that can load the content of this metafile. */
   readonly handler?: CardType;
@@ -106,6 +130,8 @@ export type Metafile = {
   readonly branch?: UUID;
   /** The latest Git status code for this file relative to the associated repository and branch. */
   readonly status?: GitStatus;
+  /** The latest Filesystem status code for this file relative to the associated content. */
+  readonly state?: FilesystemStatus;
   /** The textual contents maintained for files; can differ from actual file content when unsaved changes are made in Synectic. */
   readonly content?: string;
   /** An array with all Metafile object UUIDs for direct sub-files and sub-directories (when this metafile has a `Directory` filetype). */
@@ -144,14 +170,16 @@ export type Repository = {
   readonly token: string;
 }
 
-/** A runtime error derived from user actions which requires a visible response from the system. */
-export type Error = {
-  /** The UUID for Error object. */
+/** A queued modal event (dialog or error) that requires a visible response from the system. */
+export type Modal = {
+  /** The UUID for Modal object. */
   readonly id: UUID;
-  /** The type of error (e.g. `LoadError`). */
-  readonly type: string;
-  /** The UUID for the related object that is the root-cause of the error (e.g. Card, Stack, Metafile, etc.). */
-  readonly target: UUID;
-  /** The error message to be displayed to the user. */
-  readonly message: string;
+  /** The type of modal (e.g. `NewCardDialog` or `Error`). */
+  readonly type: ModalType;
+  /** A specific type to delineate a class of modals (e.g. `LoadError`) */
+  readonly subtype?: string;
+  /** The UUID for related object that triggered the modal event. */
+  readonly target?: UUID;
+  /** Options targeting specific types of modals. */
+  readonly options?: { [key: string]: string | number | boolean }
 }

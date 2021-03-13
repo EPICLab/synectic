@@ -7,7 +7,7 @@ import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 import * as path from 'path';
 
-import type { Repository, Card, Metafile, Error, UUID } from '../types';
+import type { Repository, Card, Metafile, Modal, UUID } from '../types';
 import * as worktree from './git-worktree';
 import { RootState } from '../store/root';
 import { ActionKeys, NarrowActionType, Action } from '../store/actions';
@@ -18,7 +18,7 @@ import { updateCard } from './cards';
 
 type AddRepoAction = NarrowActionType<ActionKeys.ADD_REPO>;
 type UpdateRepoAction = NarrowActionType<ActionKeys.UPDATE_REPO>;
-type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
+type AddModalAction = NarrowActionType<ActionKeys.ADD_MODAL>;
 type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
 
 /**
@@ -32,7 +32,7 @@ type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
  */
 const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>,
   username?: string, password?: string, token?: string):
-  AddRepoAction | AddErrorAction => {
+  AddRepoAction | AddModalAction => {
   const repo: Repository = {
     id: v4(),
     name: url ? extractRepoName(url.href) : extractFilename(root),
@@ -73,19 +73,20 @@ const updateRepository = (repo: Repository): UpdateRepoAction => {
  * Action Creator for composing a valid ADD_ERROR Redux Action.
  * @param target Corresponds to the object or field originating the error.
  * @param message The error message to be displayed to the user.
- * @return An `AddErrorAction` object that can be dispatched via Redux.
+ * @return An `AddModalAction` object that can be dispatched via Redux.
  */
-export const reposError = (target: string, message: string): AddErrorAction => {
-  const error: Error = {
+export const reposError = (target: string, message: string): AddModalAction => {
+  const modal: Modal = {
     id: v4(),
-    type: 'ReposError',
+    type: 'Error',
+    subtype: 'ReposError',
     target: target,
-    message: message
+    options: { message: message }
   };
   return {
-    type: ActionKeys.ADD_ERROR,
-    id: error.id,
-    error: error
+    type: ActionKeys.ADD_MODAL,
+    id: modal.id,
+    modal: modal
   };
 }
 
@@ -113,7 +114,7 @@ const switchCardMetafile = (card: Card, metafile: Metafile): UpdateCardAction =>
  * @return A Thunk that can be executed to simultaneously dispatch Redux updates and return the updated `Repository` object 
  * from the Redux store.
  */
-export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction | AddErrorAction>, RootState, undefined, Action> =>
+export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction | AddModalAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const repo = getState().repos[id];
     if (!repo) return dispatch(reposError(id, `Cannot update non-existing repo for id:'${id}'`));

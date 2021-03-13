@@ -69,6 +69,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
   const cards = useSelector((state: RootState) => state.cards);
   const stacks = useSelector((state: RootState) => state.stacks);
+  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
   const dispatch = useDispatch();
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
@@ -127,19 +128,28 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   }
 
   const flip = () => setFlipped(!flipped);
-  const save = () => console.log(`saving ${props.name}...`);
+  const save = () => {
+    dispatch({
+      type: ActionKeys.UPDATE_METAFILE,
+      id: metafile.id,
+      metafile: { ...metafile, state: 'unmodified' }
+    });
+    console.log(`saving ${props.name}...`);
+  }
   const close = () => {
     if (props.captured) dispatch(popCard(stacks[props.captured], cards[props.id]));
     dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id });
   }
 
   return (
-    <div ref={dragAndDrop}
+    <div ref={dragAndDrop} data-testid='card-component' id={props.id}
       className={`card ${(isOver && !props.captured) ? 'drop-source' : ''}`}
       style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
-        <StyledIconButton aria-label='save' disabled={!props.saveable} onClick={save} ><SaveIcon /></StyledIconButton>
+        {metafile.state &&
+          <StyledIconButton aria-label='save' disabled={metafile.state === 'unmodified'} onClick={save} ><SaveIcon /></StyledIconButton>
+        }
         <StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton>
         <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>
       </Header>

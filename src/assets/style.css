@@ -87,7 +87,7 @@ body {
 }
 
 .card-back {
-  background-color: rgba(255, 255, 255, 1);
+  background-color: rgba(232, 233, 233, 1);
   display: grid;
   grid-template-columns: minmax(2rem, 1.2fr) minmax(5rem, 3fr);
   column-gap: 0.1rem;

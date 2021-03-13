@@ -15,6 +15,7 @@ import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
 import { useDirectory } from '../store/hooks/useDirectory';
 import { StyledTreeItem } from './StyledTreeComponent';
+import { MetafileWithPath } from '../containers/metafiles';
 
 const useStyles = makeStyles({
   root: {
@@ -23,12 +24,13 @@ const useStyles = makeStyles({
 });
 
 export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
-  const { directories, files, fetch } = useDirectory(props.root);
+  const { directories, files, update } = useDirectory(props.root);
   const [expanded, setExpanded] = useState(false);
   const dispatch = useDispatch();
 
-  const clickHandle = () => {
-    if (!expanded) fetch();
+  // TODO: This click handler is problematic, possibly because it expects update to find files
+  const clickHandle = async () => {
+    if (!expanded) await update();
     setExpanded(!expanded);
   }
 
@@ -38,9 +40,9 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
       labelIcon={expanded ? FolderOpenIcon : FolderIcon}
       onClick={clickHandle}
     >
-      { directories.map(dir => <DirectoryComponent key={dir} root={dir} />)}
+      { directories.map(dir => <DirectoryComponent key={dir.toString()} root={dir} />)}
       { files?.map(file =>
-        <StyledTreeItem key={file} nodeId={file}
+        <StyledTreeItem key={file.toString()} nodeId={file.toString()}
           labelText={extractFilename(file)}
           labelIcon={InsertDriveFileIcon}
           onClick={() => dispatch(loadCard({ filepath: file }))}
@@ -52,12 +54,12 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
 
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const rootMetafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
-  const { directories, files, fetch } = useDirectory(rootMetafile);
+  const { directories, files, update } = useDirectory((rootMetafile as MetafileWithPath).path);
   const dispatch = useDispatch();
   const cssClasses = useStyles();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetch() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
+  useEffect(() => { update() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
 
   return (
     <div className='file-explorer'>
@@ -68,9 +70,9 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
         defaultExpandIcon={<ArrowRightIcon />}
         defaultEndIcon={<div style={{ width: 8 }} />}
       >
-        {directories.map(dir => <DirectoryComponent key={dir} root={dir} />)}
+        {directories.map(dir => <DirectoryComponent key={dir.toString()} root={dir} />)}
         {files.map(file =>
-          <StyledTreeItem key={file} nodeId={file}
+          <StyledTreeItem key={file.toString()} nodeId={file.toString()}
             labelText={extractFilename(file)}
             labelIcon={InsertDriveFileIcon}
             onClick={() => dispatch(loadCard({ filepath: file }))}

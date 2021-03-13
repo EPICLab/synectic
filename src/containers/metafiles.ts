@@ -4,19 +4,32 @@ import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
-import type { Metafile, Filetype, Error, UUID } from '../types';
+import type { Metafile, Filetype, Modal, UUID } from '../types';
 import { RootState } from '../store/root';
 import * as io from './io';
 import * as git from './git';
 import { getRepository } from './repos';
 import { asyncFilter } from './format';
-import { shouldBeHiddenSync } from 'hidefile';
 
 type AddMetafileAction = NarrowActionType<ActionKeys.ADD_METAFILE>;
 type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
-type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
-export type PathRequiredMetafile = Metafile & Required<Pick<Metafile, 'path'>>;
-export type ContainsRequiredMetafile = Metafile & Required<Pick<Metafile, 'contains'>>;
+type AddModalAction = NarrowActionType<ActionKeys.ADD_MODAL>;
+export type MetafileWithPath = Metafile & Required<Pick<Metafile, 'path'>>;
+export type MetafileWithContent = Metafile & Required<Pick<Metafile, 'content'>>;
+export type MetafileWithContains = Metafile & Required<Pick<Metafile, 'contains'>>;
+export type MetafileWithTargets = Metafile & Required<Pick<Metafile, 'targets'>>;
+
+export const isMetafileFile = (metafile: Metafile): metafile is MetafileWithContent => {
+  return (metafile as MetafileWithContent).content !== undefined;
+}
+
+export const isMetafileDirectory = (metafile: Metafile): metafile is MetafileWithContains => {
+  return (metafile as MetafileWithContains).contains !== undefined;
+}
+
+export const isMetafileDiff = (metafile: Metafile): metafile is MetafileWithTargets => {
+  return (metafile as MetafileWithTargets).targets !== undefined;
+}
 
 /**
  * Action Creator for composing a valid ADD_METAFILE Redux Action. The only required parameter is `name`,
@@ -60,19 +73,20 @@ export const updateMetafile = (metafile: Metafile): UpdateMetafileAction => {
  * Action Creator for composing a valid ADD_ERROR Redux Action.
  * @param target Corresponds to the object or field originating the error.
  * @param message The error message to be displayed to the user.
- * @return An `AddErrorAction` object that can be dispatched via Redux.
+ * @return An `AddModalAction` object that can be dispatched via Redux.
  */
-export const metafilesError = (target: string, message: string): AddErrorAction => {
-  const error: Error = {
+export const metafilesError = (target: string, message: string): AddModalAction => {
+  const modal: Modal = {
     id: v4(),
-    type: 'MetafilesError',
+    type: 'Error',
+    subtype: 'MetafilesError',
     target: target,
-    message: message
+    options: { message: message }
   };
   return {
-    type: ActionKeys.ADD_ERROR,
-    id: error.id,
-    error: error
+    type: ActionKeys.ADD_MODAL,
+    id: modal.id,
+    modal: modal
   };
 }
 
@@ -84,11 +98,11 @@ export const metafilesError = (target: string, message: string): AddErrorAction 
  * @param includeHidden (Optional) Flag for returning hidden files (e.g. `.<filename>` format on MacOS); defaults to true.
  * @return An anonymous JavaScript object with directories and files lists containing the filtered paths.
  */
-export const filterDirectoryContainsTypes = async (metafile: ContainsRequiredMetafile, includeHidden = true):
+export const filterDirectoryContainsTypes = async (metafile: MetafileWithContains, includeHidden = true):
   Promise<{ directories: string[], files: string[] }> => {
   const directories: string[] = await asyncFilter(metafile.contains, async (e: string) => io.isDirectory(e));
   let files: string[] = metafile.contains.filter(childPath => !directories.includes(childPath));
-  if (includeHidden == false) files = files.filter(childPath => !shouldBeHiddenSync(childPath));
+  if (includeHidden == false) files = files.filter(childPath => !io.isHidden(childPath));
   return { directories: directories, files: files };
 };
 
@@ -98,7 +112,7 @@ export const filterDirectoryContainsTypes = async (metafile: ContainsRequiredMet
  * @param id The UUID corresponding to the metafile that should be updated.
  * @return A Thunk that can be executed to get file system properties and dispatch Redux updates.
  */
-export const updateFileStats = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddErrorAction>, RootState, undefined, Action> =>
+export const updateFileStats = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddModalAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const metafile = getState().metafiles[id];
     if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
@@ -131,7 +145,7 @@ export const updateFileStats = (id: UUID): ThunkAction<Promise<UpdateMetafileAct
 * @param id The UUID corresponding to the metafile that should be updated.
 * @return A Thunk that can be executed to read git information and dispatch Redux updates.
 */
-export const updateGitInfo = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddErrorAction>, RootState, undefined, Action> =>
+export const updateGitInfo = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddModalAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const metafile = getState().metafiles[id];
     if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
@@ -157,7 +171,7 @@ export const updateGitInfo = (id: UUID): ThunkAction<Promise<UpdateMetafileActio
  * @param id The UUID corresponding to the metafile that should be updated.
  * @return A Thunk that can be executed to asynchronously read content and dispatch Redux updates.
  */
-export const updateContents = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddErrorAction>, RootState, undefined, Action> =>
+export const updateContents = (id: UUID): ThunkAction<Promise<UpdateMetafileAction | AddModalAction>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     const metafile = getState().metafiles[id];
     if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
@@ -165,7 +179,7 @@ export const updateContents = (id: UUID): ThunkAction<Promise<UpdateMetafileActi
 
     const updated: Metafile = (metafile.filetype === 'Directory') ?
       { ...metafile, contains: (await io.readDirAsyncDepth(metafile.path, 1)).filter(p => p !== metafile.path) } :
-      { ...metafile, content: await io.readFileAsync(metafile.path, { encoding: 'utf-8' }) };
+      { ...metafile, content: await io.readFileAsync(metafile.path, { encoding: 'utf-8' }), state: 'unmodified' };
     return dispatch(updateMetafile(updated));
   };
 

@@ -1,228 +1,166 @@
 import React from 'react';
-import isUUID from 'validator/lib/isUUID';
-import { mount } from 'enzyme';
-import { v4 } from 'uuid';
-import { DateTime } from 'luxon';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import mock from 'mock-fs';
+import { Provider } from 'react-redux';
+import { cleanup, render, act, waitFor } from '@testing-library/react';
+import { wrapWithTestBackend } from 'react-dnd-test-utils';
+import userEvent from '@testing-library/user-event';
 
-import { wrapInReduxContext } from './__mocks__/dndReduxMock';
-import { mockStore, extractFieldMap } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import CardComponent from '../src/components/CardComponent';
-import Editor from '../src/components/Editor';
-import Diff from '../src/components/Diff';
-import Browser from '../src/components/Browser';
-import Explorer from '../src/components/Explorer';
-import { VersionStatusComponent } from '../src/components/RepoBranchList';
+import { testStore } from './__fixtures__/ReduxStore';
+import { browserCard, diffCard, explorerCard, firstEditorCard, trackerCard } from './__fixtures__/Card';
+import * as useDirectoryHook from '../src/store/hooks/useDirectory';
+
+const store = mockStore(testStore);
 
 describe('CardComponent', () => {
 
-  const domElement = document.getElementById('app');
-  const mountOptions = { attachTo: domElement, };
+  beforeAll(() => {
+    mock({
+      'foo/example.ts': mock.file({ content: 'var rand = Math.floor(Math.random() * 6) + 1;', ctime: new Date(1), mtime: new Date(1) }),
+      'test.js': mock.file({ content: 'var rand: number = Math.floor(Math.random() * 6) + 1;', ctime: new Date(1), mtime: new Date(1) }),
+      'example.ts': mock.file({ content: 'const rand = Math.floor(Math.random() * 6) + 1;', ctime: new Date(1), mtime: new Date(1) })
+    });
+  });
+  afterAll(mock.restore);
 
-  const store = mockStore({
-    canvas: {
-      id: v4(),
-      created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00'),
-      repos: [],
-      cards: ['14', '17734ae2-f8da-40cf-be86-993dc21b4079', '22', '573', '46'],
-      stacks: []
-    },
-    stacks: {},
-    cards: {
-      14: {
-        id: '14',
-        name: 'test.js',
-        type: 'Editor',
-        metafile: '243',
-        created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        left: 10,
-        top: 10
-      },
-      '17734ae2-f8da-40cf-be86-993dc21b4079': {
-        id: '17734ae2-f8da-40cf-be86-993dc21b4079',
-        name: 'example.ts',
-        type: 'Editor',
-        metafile: '199',
-        created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        left: 20,
-        top: 40
-      },
-      22: {
-        id: '22',
-        name: 'foo',
-        type: 'Diff',
-        metafile: '243',
-        created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        left: 10,
-        top: 10
-      },
-      573: {
-        id: '573',
-        name: 'bar',
-        type: 'Explorer',
-        metafile: '243',
-        created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        left: 10,
-        top: 10
-      },
-      6: {
-        id: '6',
-        name: 'zap',
-        type: 'Browser',
-        metafile: '243',
-        created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        left: 10,
-        top: 10
-      },
-      46: {
-        id: '46',
-        name: 'baz',
-        type: 'Tracker',
-        metafile: '243',
-        created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00'),
-        modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00'),
-        left: 10,
-        top: 10
-      }
-    },
-    filetypes: {},
-    metafiles: {
-      199: {
-        id: '199',
-        name: 'test.js',
-        modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00'),
-        content: 'const rand: number = Math.floor(Math.random() * 6) + 1;'
-      },
-      243: {
-        id: '243',
-        name: 'example.ts',
-        modified: DateTime.fromISO('2015-06-19T19:10:47.572-08:00'),
-        content: 'var rand = Math.floor(Math.random() * 6) + 1;'
-      }
-    },
-    repos: {},
-    errors: {}
+  afterEach(() => {
+    cleanup;
+    store.clearActions();
+    jest.clearAllMocks();
   });
 
-  afterEach(store.clearActions);
-
-  const cards = extractFieldMap(store.getState().cards);
-
   it('Card resolves props into React Component for Editor handler', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...cards['14']} />, mountOptions);
-    expect(wrapper.find(Editor)).toHaveLength(1);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <WrappedComponent {...firstEditorCard} />
+      </Provider>
+    );
+    expect(getByTestId('card-component')).toBeInTheDocument();
   });
 
   it('Card resolves props into React Component for Diff handler', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...cards['22']} />, mountOptions);
-    expect(wrapper.find(Diff)).toHaveLength(1);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <WrappedComponent {...diffCard} />
+      </Provider>
+    );
+    expect(getByTestId('card-component')).toBeInTheDocument();
   });
 
-  it('Card resolves props into React Component for Explorer handler', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...cards['573']} />, mountOptions);
-    expect(wrapper.find(Explorer)).toHaveLength(1);
+  it('Card resolves props into React Component for Explorer handler', async () => {
+    // Explorer component automatically loads files and directories through async calls to the useDirectory hook
+    jest.spyOn(useDirectoryHook, 'useDirectory').mockReturnValue({
+      root: 'foo',
+      directories: [],
+      files: [],
+      update: () => { return new Promise<void>(resolve => resolve()) }
+    });
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    await act(async () => {
+      const { getByTestId } = render(
+        <Provider store={store}>
+          <WrappedComponent {...explorerCard} />
+        </Provider>
+      );
+      expect(getByTestId('card-component')).toBeInTheDocument();
+    });
   });
 
   it('Card resolves props into React Component for Browser handler', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...cards['6']} />, mountOptions);
-    expect(wrapper.find(Browser)).toHaveLength(1);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <WrappedComponent {...browserCard} />
+      </Provider>
+    );
+    expect(getByTestId('card-component')).toBeInTheDocument();
   });
 
   it('Card resolves props into React Component for Tracker handler', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...cards['46']} />, mountOptions);
-    expect(wrapper.find(VersionStatusComponent)).toHaveLength(1);
-  });
-
-  it('Card has a valid UUID when props contain a valid UUID', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    const wrapper = mount(<CardContext {...cards['17734ae2-f8da-40cf-be86-993dc21b4079']} />, mountOptions);
-    const component = wrapper.find(CardComponent).first();
-    expect(isUUID(component.props().id, 4)).toBe(true);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <WrappedComponent {...trackerCard} />
+      </Provider>
+    );
+    expect(getByTestId('card-component')).toBeInTheDocument();
   });
 
   it('Editor Card renders a reverse side when the flip button is clicked', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    render(<CardContext {...cards['14']} />);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByText, getByRole } = render(
+      <Provider store={store}>
+        <WrappedComponent {...firstEditorCard} />
+      </Provider>
+    );
 
-    let backsideID = screen.queryByText(/ID:/i);
-    expect(backsideID).not.toBeInTheDocument();
+    userEvent.click(getByRole('button', { name: /flip/i }));
 
-    const flipButton = screen.getByRole('button', { name: /flip/i });
-    act(() => {
-      fireEvent.click(flipButton);
-    });
-
-    backsideID = screen.queryByText(/ID:/i);
-    expect(backsideID).toBeInTheDocument();
+    expect(getByText(/ID:/i)).toBeInTheDocument();
   });
 
-  it('Explorer Card renders a reverse side when the flip button is clicked', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    render(<CardContext {...cards['573']} />);
-
-    let backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).not.toBeInTheDocument();
-
-    const flipButton = screen.getByRole('button', { name: /flip/i });
-    act(() => {
-      fireEvent.click(flipButton);
+  it('Explorer Card renders a reverse side when the flip button is clicked', async () => {
+    // Explorer component automatically loads files and directories through async calls to the useDirectory hook
+    jest.spyOn(useDirectoryHook, 'useDirectory').mockReturnValue({
+      root: 'foo',
+      directories: [],
+      files: [],
+      update: () => { return new Promise<void>(resolve => resolve()) }
     });
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    await act(async () => {
+      const { getByText, getByRole } = render(
+        <Provider store={store}>
+          <WrappedComponent {...explorerCard} />
+        </Provider>
+      );
 
-    backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).toBeInTheDocument();
+      userEvent.click(getByRole('button', { name: /flip/i }));
+      await waitFor(() => {
+        expect(getByText(/Name:/i)).toBeInTheDocument();
+      });
+    });
   });
 
   it('Diff Card renders a reverse side when the flip button is clicked', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    render(<CardContext {...cards['22']} />);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByText, getByRole } = render(
+      <Provider store={store}>
+        <WrappedComponent {...diffCard} />
+      </Provider>
+    );
 
-    let backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).not.toBeInTheDocument();
+    userEvent.click(getByRole('button', { name: /flip/i }));
 
-    const flipButton = screen.getByRole('button', { name: /flip/i });
-    act(() => {
-      fireEvent.click(flipButton);
-    });
-
-    backsideName = screen.queryByText(/Name:/i);
-    expect(backsideName).toBeInTheDocument();
+    expect(getByText(/Name:/i)).toBeInTheDocument();
   });
 
   it('Browser Card renders a reverse side when the flip button is clicked', () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    render(<CardContext {...cards['6']} />);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByText, getByRole } = render(
+      <Provider store={store}>
+        <WrappedComponent {...browserCard} />
+      </Provider>
+    );
 
-    expect(screen.getAllByRole('button')).toHaveLength(6);
+    userEvent.click(getByRole('button', { name: /flip/i }));
 
-    const flipButton = screen.getByRole('button', { name: /flip/i });
-    act(() => {
-      fireEvent.click(flipButton);
-    });
-
-    expect(screen.getAllByRole('button')).toHaveLength(3);
+    expect(getByText(/ID:/i)).toBeInTheDocument();
   });
 
   it('Tracker Card renders a reverse side when the flip button is clicked', async () => {
-    const CardContext = wrapInReduxContext(CardComponent, store);
-    render(<CardContext {...cards['46']} />);
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    const { getByText, getByRole } = render(
+      <Provider store={store}>
+        <WrappedComponent {...browserCard} />
+      </Provider>
+    );
 
-    expect(screen.queryByText(/no repos tracked/i)).toBeInTheDocument();
+    userEvent.click(getByRole('button', { name: /flip/i }));
 
-    const flipButton = screen.getByRole('button', { name: /flip/i });
-    act(() => {
-      fireEvent.click(flipButton);
-    });
-
-    expect(screen.queryByText(/no repos tracked/i)).not.toBeInTheDocument();
+    expect(getByText(/ID:/i)).toBeInTheDocument();
   });
 });

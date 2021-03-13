@@ -1,17 +1,12 @@
 module.exports = {
-  testEnvironment: 'enzyme',
+  testEnvironment: 'jest-environment-jsdom-sixteen',
   setupFilesAfterEnv: [
-    'jest-enzyme',
     '<rootDir>/__test__/setupTests.ts'
   ],
-  testEnvironmentOptions: {
-    enzymeAdapter: 'react16'
-  },
   preset: 'ts-jest',
   roots: ['<rootDir>/__test__'],
   snapshotSerializers: [
     'jest-serializer-path',
-    'enzyme-to-json/serializer'
   ],
   clearMocks: true,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],

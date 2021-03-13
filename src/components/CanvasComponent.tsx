@@ -1,21 +1,33 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
-import { Button } from '@material-ui/core';
 
 import type { Canvas } from '../types';
 import { RootState } from '../store/root';
-import NewCardButton from './NewCardDialog';
-import FilePickerButton from './FilePickerDialog';
-import DiffPickerButton from './DiffPickerDialog';
 import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
-import ErrorDialog from './ErrorDialog';
-import VersionStatusButton from './RepoBranchList';
-import MergeButton from './MergeDialog';
-import { GitGraphButton } from './GitGraphButton';
+import ModalComponent from './ModalComponent';
 import { popCard, updateStack } from '../containers/stacks';
 import { updateCard } from '../containers/cards';
+import { NavMenu } from './NavMenu';
+import { NavItemProps } from './NavItem';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { addModal } from '../containers/modals';
+import { filePickerDialog } from '../containers/filepicker';
+import { loadBranchVersions } from '../containers/branch-tracker';
+import { GitGraphSelect } from './GitGraphSelect';
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      backgroundColor: 'rgba(232, 233, 233, 1)',
+      padding: theme.spacing(0.25),
+    },
+  })
+);
+
+const isMac = process.platform === 'darwin';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const cards = useSelector((state: RootState) => state.cards);
@@ -23,8 +35,9 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const metafiles = useSelector((state: RootState) => Object.values(state.metafiles));
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
   const repos = useSelector((state: RootState) => Object.values(state.repos));
-  const errors = useSelector((state: RootState) => Object.values(state.errors));
+  const modals = useSelector((state: RootState) => Object.values(state.modals));
   const dispatch = useDispatch();
+  const classes = useStyles();
 
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
@@ -64,33 +77,48 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     const allCards = Object.values(cards);
     const allStacks = Object.values(stacks);
     console.log(`CARDS: ${allCards.length}`)
-    allCards.map(c => console.log(`id: ${c.id}, name: ${c.name}, type: ${c.type}, metafile: ${c.metafile}, captured: ${c.captured}`));
+    console.log({ allCards });
     console.log(`STACKS: ${allStacks.length}`)
-    allStacks.map(s => console.log(`id: ${s.id}, name: ${s.name}, cards: ${JSON.stringify(s.cards)}`));
+    console.log({ allStacks });
     console.log(`METAFILES: ${metafiles.length} `);
-    metafiles.map(m => console.log(`id: ${m.id}, name: ${m.name}, path: ${m.path}, branch: ${m.branch}, contains: ${m.contains
-      ? JSON.stringify(m.contains) : ''
-      }, content: ${m.content ? m.content : ''}, targets: ${m.targets ? JSON.stringify(m.targets) : ''} `));
+    console.log({ metafiles });
     console.log(`REPOS: ${repos.length} `);
-    repos.map(r =>
-      console.log(`name: ${r.name}, path: ${r.url.href}, local: ${JSON.stringify(r.local)}, remote: ${JSON.stringify(r.remote)} `));
+    console.log({ repos });
     console.log(`FILETYPES: ${filetypes.length} `);
-    console.log(`ERRORS: ${errors.length} `);
-    console.log(JSON.stringify(errors));
+    console.log({ filetypes });
+    console.log(`MODALS: ${modals.length} `);
+    console.log({ modals });
   }
 
+  const fileMenu: NavItemProps[] = [
+    { label: 'New...', click: () => dispatch(addModal({ type: 'NewCardDialog' })) },
+    ...(isMac ? [{ label: 'Open...', click: () => dispatch(filePickerDialog()) }] : [
+      { label: 'Open File...', click: () => dispatch(filePickerDialog('openFile')) },
+      { label: 'Open Directory...', click: () => dispatch(filePickerDialog('openDirectory')) }
+    ])
+  ];
+
+  const actionMenu: NavItemProps[] = [
+    { label: 'Diff...', click: () => dispatch(addModal({ type: 'DiffPicker' })), disabled: (Object.values(cards).length < 2) },
+    { label: 'Merge...', click: () => dispatch(addModal({ type: 'MergeSelector' })), disabled: (Object.values(cards).length < 2) },
+  ];
+
+  const viewMenu: NavItemProps[] = [
+    { label: 'Branches...', click: async () => dispatch(loadBranchVersions()) },
+    { label: 'Show All...', click: () => showState() }
+  ];
+
   return (
-    <div className='canvas' ref={drop}>
-      <NewCardButton />
-      <FilePickerButton />
-      <VersionStatusButton />
-      <MergeButton />
-      <DiffPickerButton />
-      <Button id='state-button' variant='contained' color='primary' onClick={showState}>Show...</Button>
-      <GitGraphButton />
+    <div className='canvas' ref={drop} data-testid='canvas-component'>
+      <div className={classes.root} >
+        <NavMenu label='File' submenu={fileMenu} />
+        <NavMenu label='Action' submenu={actionMenu} />
+        <NavMenu label='View' submenu={viewMenu} />
+        <GitGraphSelect />
+      </div>
       {Object.values(stacks).map(stack => <StackComponent key={stack.id} {...stack} />)}
       {Object.values(cards).filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
-      {errors.map(error => <ErrorDialog key={error.id} {...error} />)}
+      {modals.map(modal => <ModalComponent key={modal.id} {...modal} />)}
       {props.children}
     </div >
   );

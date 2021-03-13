@@ -6,3 +6,5 @@
  * Solution found on Stack Overflow: https://stackoverflow.com/a/41946697
  */
 declare module '*.css';
+
+declare module 'winattr';

@@ -3,7 +3,7 @@ import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { PathLike } from 'fs-extra';
 
-import type { Filetype, Metafile, Error } from '../types';
+import type { Filetype, Metafile, Modal } from '../types';
 import { RootState } from '../store/root';
 import { getMetafile } from './metafiles';
 import { addCard } from './cards';
@@ -11,7 +11,7 @@ import filetypesJson from './filetypes.json';
 import { ActionKeys, Action, NarrowActionType } from '../store/actions';
 
 type AddCardAction = NarrowActionType<ActionKeys.ADD_CARD>;
-type AddErrorAction = NarrowActionType<ActionKeys.ADD_ERROR>;
+type AddModalAction = NarrowActionType<ActionKeys.ADD_MODAL>;
 export type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 
 /**
@@ -44,19 +44,20 @@ export const importFiletypes = async (): Promise<Action[]> => {
  * Action Creator for composing a valid ADD_ERROR Redux Action.
  * @param target Corresponds to the object or field originating the error.
  * @param message The error message to be displayed to the user.
- * @return An `AddErrorAction` object that can be dispatched via Redux.
+ * @return An `AddModalAction` object that can be dispatched via Redux.
  */
-export const handlersError = (target: string, message: string): AddErrorAction => {
-  const error: Error = {
+export const handlersError = (target: string, message: string): AddModalAction => {
+  const modal: Modal = {
     id: v4(),
-    type: 'HandlersError',
+    type: 'Error',
+    subtype: 'HandlersError',
     target: target,
-    message: message
+    options: { message: message }
   };
   return {
-    type: ActionKeys.ADD_ERROR,
-    id: error.id,
-    error: error
+    type: ActionKeys.ADD_MODAL,
+    id: modal.id,
+    modal: modal
   };
 }
 
@@ -77,7 +78,7 @@ type CardLoadableFields =
  * be added to the Redux store and no errors can be generated, then `undefined` is returned instead.
  */
 export const loadCard = (param: CardLoadableFields)
-  : ThunkAction<Promise<AddCardAction | AddErrorAction | undefined>, RootState, undefined, AnyAction> => {
+  : ThunkAction<Promise<AddCardAction | AddModalAction | undefined>, RootState, undefined, AnyAction> => {
   return async (dispatch) => {
     if (param.metafile) {
       if (isHandlerRequiredMetafile(param.metafile)) {

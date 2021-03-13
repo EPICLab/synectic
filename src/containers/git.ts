@@ -8,7 +8,6 @@ import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
 import { isWebUri } from 'valid-url';
 import getGitConfigPath from 'git-config-path';
-import { shouldBeHiddenSync } from 'hidefile';
 
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
@@ -285,23 +284,7 @@ export const merge = async (
  * root, and a `gitdir` parameter pointing to the `.git` directory in the main worktree.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Promise object containing undefined if the path is not contained within a git repository, or a status indicator 
- * for whether the path has been changed according to git; the possible resolve values are:
- *
- * | status                | description                                                                           |
- * | --------------------- | ------------------------------------------------------------------------------------- |
- * | `"ignored"`           | file ignored by a .gitignore rule                                                     |
- * | `"unmodified"`        | file unchanged from HEAD commit                                                       |
- * | `"*modified"`         | file has modifications, not yet staged                                                |
- * | `"*deleted"`          | file has been removed, but the removal is not yet staged                              |
- * | `"*added"`            | file is untracked, not yet staged                                                     |
- * | `"absent"`            | file not present in HEAD commit, staging area, or working dir                         |
- * | `"modified"`          | file has modifications, staged                                                        |
- * | `"deleted"`           | file has been removed, staged                                                         |
- * | `"added"`             | previously untracked file, staged                                                     |
- * | `"*unmodified"`       | working dir and HEAD commit match, but index differs                                  |
- * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index              |
- * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
- * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
+ * for whether the path has been changed according to git; the possible resolve values are described for the `GitStatus` type definition.
  */
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   const repoRoot = await getRepoRoot(filepath);
@@ -317,7 +300,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
    * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
   if (await io.isDirectory(filepath)) {
-    const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !shouldBeHiddenSync(f) });
+    const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !io.isHidden(f) });
     const changed = statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
       .map(row => row[0]);                // return the filenames only

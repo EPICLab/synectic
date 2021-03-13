@@ -5,9 +5,9 @@ import { Provider } from 'react-redux';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 
-import { mockStore } from './__mocks__/reduxStoreMock';
-import * as metafiles from '../src/containers/metafiles';
 import { useDirectory } from '../src/store/hooks/useDirectory';
+import { mockStore } from './__mocks__/reduxStoreMock';
+import { writeFileAsync } from '../src/containers/io';
 
 describe('useDirectory', () => {
 
@@ -57,7 +57,7 @@ describe('useDirectory', () => {
       }
     },
     repos: {},
-    errors: {}
+    modals: {}
   });
   const wrapper = ({ children }: { children: React.ReactNode }) => <Provider store={store}>{children}</Provider>;
 
@@ -66,44 +66,51 @@ describe('useDirectory', () => {
       'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
     });
   });
+  afterAll(mock.restore);
+
   afterEach(() => {
     store.clearActions();
     jest.clearAllMocks();
   });
-  afterAll(mock.restore);
 
-  it('useDirectory hook contains no directories or files before fetch', async () => {
+
+  it('useDirectory hook contains no directories or files before update', async () => {
     const { result } = renderHook(() => useDirectory('foo'), { wrapper });
     expect(result.current.directories).toHaveLength(0);
     expect(result.current.files).toHaveLength(0);
   });
 
   it('useDirectory hook sets root, directories, and files on fetch', async () => {
-    jest.spyOn(metafiles, 'filterDirectoryContainsTypes').mockResolvedValue({ directories: [], files: ['foo/bar.js'] });
-    const { result, waitForNextUpdate } = renderHook(() => useDirectory('foo'), { wrapper });
+    const { result } = renderHook(() => useDirectory('foo'), { wrapper });
 
-    result.current.fetch();
-    await waitForNextUpdate();
+    await act(async () => {
+      await result.current.update();
+    })
 
-    expect(result.current.root).toEqual(
-      expect.objectContaining({ id: '28', name: 'foo' })
-    );
+    expect(result.current.root).toEqual('foo');
     expect(result.current.directories).toHaveLength(0);
     expect(result.current.files).toEqual(['foo/bar.js']);
   });
 
-  it('useDirectory hook does not reset root, directories, and files on multiple fetches', async () => {
-    jest.spyOn(metafiles, 'filterDirectoryContainsTypes').mockResolvedValue({ directories: [], files: ['foo/bar.js'] });
-    const getMetafileSpy = jest.spyOn(metafiles, 'getMetafile');
-    const { result, waitForNextUpdate } = renderHook(() => useDirectory('foo'), { wrapper });
+  it('useDirectory hook updates root, directories, and files when new filesystem objects exist', async () => {
+    const { result } = renderHook(() => useDirectory('foo'), { wrapper });
 
     await act(async () => {
-      result.current.fetch();
-      await waitForNextUpdate();
-      result.current.fetch();
+      await result.current.update();
     });
 
-    expect(getMetafileSpy).toHaveBeenCalledTimes(1);
-  });
+    expect(result.current.root).toEqual('foo');
+    expect(result.current.directories).toHaveLength(0);
+    expect(result.current.files).toEqual(['foo/bar.js']);
+
+    await act(async () => {
+      await writeFileAsync('foo/baz.js', 'test example');
+      await result.current.update();
+    });
+
+    expect(result.current.root).toEqual('foo');
+    expect(result.current.directories).toHaveLength(0);
+    expect(result.current.files).toEqual(['foo/bar.js', 'foo/baz.js']);
+  })
 
 });

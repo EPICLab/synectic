@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`modalReducer modalReducer appends a new modal to state on action ADD_ERROR 1`] = `
+Object {
+  "92": Object {
+    "id": "92",
+    "options": Object {
+      "message": "Repository missing for metafile 'sampleUser/myRepo'",
+    },
+    "subtype": "RepositoryMissingError",
+    "target": "23",
+    "type": "Error",
+  },
+  "94": Object {
+    "id": "94",
+    "options": Object {
+      "message": "Metafile 'sampleUser/myRepo' missing handler to resolve filetype: 'TypeScript'",
+    },
+    "subtype": "HandlerMissingError",
+    "target": "19",
+    "type": "Error",
+  },
+}
+`;
+
+exports[`modalReducer modalReducer returns default state when current state is blank 1`] = `
+Object {
+  "94": Object {
+    "id": "94",
+    "options": Object {
+      "message": "Metafile 'sampleUser/myRepo' missing handler to resolve filetype: 'TypeScript'",
+    },
+    "subtype": "HandlerMissingError",
+    "target": "19",
+    "type": "Error",
+  },
+}
+`;

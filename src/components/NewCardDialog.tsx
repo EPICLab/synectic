@@ -4,9 +4,9 @@ import { ThunkDispatch } from 'redux-thunk';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@material-ui/core';
 
-import type { CardType } from '../types';
+import type { CardType, Modal } from '../types';
 import { RootState } from '../store/root';
-import { Action } from '../store/actions';
+import { Action, ActionKeys } from '../store/actions';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
 import { flattenArray } from '../containers/flatten';
@@ -58,12 +58,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-type NewCardDialogProps = {
-  open: boolean;
-  onClose: () => void;
-}
-
-export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props => {
+const NewCardDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
@@ -84,7 +79,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
     setFiletype('');
     setIsExtensionValid(false);
     setIsFileNameValid(false);
-  }, [props.open]);
+  }, []);
 
   const isCreateReady = () => {
     if (category === 'Editor') return (isFileNameValid && isExtensionValid && filetype !== '' && fileName.indexOf('.') !== -1);
@@ -136,21 +131,23 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
     }
   };
 
+  const handleClose = () => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id });
+
   const handleClick = async () => {
     if (category === 'Editor' && isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
       const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', path: fileName, filetype: filetype } }));
       if (metafile) await dispatch(loadCard({ metafile: metafile }));
-      props.onClose();
+      handleClose();
     }
     if (category === 'Browser') {
       const metafile = await dispatch(getMetafile({ virtual: { name: 'Browser', handler: 'Browser' } }));
       if (metafile) dispatch(loadCard({ metafile: metafile }));
-      props.onClose();
+      handleClose();
     }
   };
 
   return (
-    <Dialog id='new-card-dialog' open={props.open} onClose={() => props.onClose()} aria-labelledby='new-card-dialog'>
+    <Dialog id='new-card-dialog' data-testid='new-card-dialog' open={true} onClose={handleClose} aria-labelledby='new-card-dialog'>
       <div className={classes.root}>
         <div className={classes.section1}>
           <Grid container alignItems='center'>
@@ -168,9 +165,9 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
         </div>
         <Divider variant='middle' />
         <div className={classes.section2}>
-          <Button className={classes.button} variant={category === 'Editor' ? 'contained' : 'outlined'}
+          <Button className={classes.button} data-testid='editor-button' variant={category === 'Editor' ? 'contained' : 'outlined'}
             color='primary' onClick={() => setCategory('Editor')}>Editor</Button>
-          <Button className={classes.button} variant={category === 'Browser' ? 'contained' : 'outlined'}
+          <Button className={classes.button} data-testid='browser-button' variant={category === 'Browser' ? 'contained' : 'outlined'}
             color='primary' onClick={() => setCategory('Browser')}>Browser</Button>
         </div>
         {category === 'Editor' ?
@@ -187,10 +184,11 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
               error={fileName.length > 0 && !isFileNameValid}
               helperText={(fileName.length > 0 && !isFileNameValid) ? 'Invalid Filename' : ''}
             />
-            <FormControl variant='outlined' className={classes.formControl2}>
-              <InputLabel>Filetype</InputLabel>
+            <FormControl data-testid='new-card-filetype-form' variant='outlined' className={classes.formControl2}>
+              <InputLabel htmlFor={'new-card-filetype-selector'} >Filetype</InputLabel>
               <Select
                 id='new-card-filetype-selector'
+                aria-label='new-card-filetype-selector'
                 inputProps={{ 'data-testid': 'new-card-filetype-selector' }}
                 disabled={category !== 'Editor'}
                 value={filetype}
@@ -205,6 +203,7 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
         <div className={classes.section3}>
           <Button id='create-card-button'
             className={classes.button}
+            data-testid='create-card-button'
             variant='outlined'
             color='primary'
             disabled={!isCreateReady()}
@@ -216,15 +215,4 @@ export const NewCardDialog: React.FunctionComponent<NewCardDialogProps> = props 
   );
 };
 
-const NewCardButton: React.FunctionComponent = () => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <Button id='newcard-button' variant='contained' color='primary' onClick={() => setOpen(true)}>New...</Button>
-      <NewCardDialog open={open} onClose={() => setOpen(false)} />
-    </>
-  );
-};
-
-export default NewCardButton;
+export default NewCardDialog;
