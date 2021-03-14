@@ -1613,6 +1613,11 @@
     "@typescript-eslint/types" "4.16.1"
     eslint-visitor-keys "^2.0.0"
 
+"@vercel/webpack-asset-relocator-loader@^1.2.1":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@vercel/webpack-asset-relocator-loader/-/webpack-asset-relocator-loader-1.2.2.tgz#f5ace8686602c9fbdfc95aed535253360b5dccf1"
+  integrity sha512-Re6pmZ4U5KMUDU5vP2zp3xSwTu1190qEvpnMELSXgsb/EaIIfhYEW0YNpMF0cA97UJYIwiQIGiaBQOu8kYmaiA==
+
 "@webassemblyjs/ast@1.11.0":
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.0.tgz#a5aa679efdc9e51707a4207139da57920555961f"
@@ -1888,11 +1893,6 @@
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
-
-"@zeit/webpack-asset-relocator-loader@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@zeit/webpack-asset-relocator-loader/-/webpack-asset-relocator-loader-0.8.0.tgz#aeba5baefb9908caf3865807fc175a211c4746b0"
-  integrity sha512-PNx8BUlOv3aLWWKJP7OtHF9hwpc7mhv/iToWmFTF22mwltRMeJT70EmgbYj+70+apY+lDwx5IrDuorzeRCDxiA==
 
 abab@^2.0.3:
   version "2.0.5"

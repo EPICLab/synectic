@@ -1,7 +1,7 @@
 import React from 'react';
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
-import { Theme, Tooltip, withStyles } from '@material-ui/core';
 import { ColorSet } from '../containers/colors';
+import { OutlinedCard } from './GitGraphBranchTag';
 
 const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => ({
   borderRadius: '50%',
@@ -12,16 +12,6 @@ const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => 
   color: color.secondary,
   padding: 5,
 });
-
-const LightTooltip = withStyles((theme: Theme) => ({
-  tooltip: {
-    backgroundColor: theme.palette.common.white,
-    color: 'rgba(0, 0, 0, 0.87)',
-    boxShadow: theme.shadows[1],
-    fontFamily: 'Lato, Georgia, Serif',
-    fontSize: 11,
-  },
-}))(Tooltip);
 
 type GitNodeProps = NodeProps & {
   data: {
@@ -36,20 +26,14 @@ type GitNodeProps = NodeProps & {
 
 export const GitNode: React.FunctionComponent<GitNodeProps> = props => {
   return (
-    props.data.branch ?
-      <LightTooltip title={props.data.branch} placement='right' open={true} arrow={true} >
-        <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}>
-          <Handle type='target' position={Position.Top} style={{ visibility: 'hidden' }} />
-          <div>{props.data.text}</div>
-          <Handle type='source' position={Position.Bottom} style={{ visibility: 'hidden' }} />
-        </div>
-      </LightTooltip>
-      :
+    <>
+      { props.data.branch ? <OutlinedCard content={props.data.branch} placement='right' /> : null}
       <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}>
         <Handle type='target' position={Position.Top} style={{ visibility: 'hidden' }} />
         <div>{props.data.text}</div>
         <Handle type='source' position={Position.Bottom} style={{ visibility: 'hidden' }} />
       </div>
+    </>
   )
 }
 
