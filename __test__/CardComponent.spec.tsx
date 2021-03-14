@@ -119,10 +119,6 @@ describe('CardComponent', () => {
       );
 
       userEvent.click(getByRole('button', { name: /flip/i }));
-<<<<<<< HEAD
-=======
-
->>>>>>> a9edfd7... Deprecated Enzyme testing and replaced with React Testing Library
       await waitFor(() => {
         expect(getByText(/Name:/i)).toBeInTheDocument();
       });
