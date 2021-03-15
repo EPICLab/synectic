@@ -8,6 +8,7 @@ import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
 import { isWebUri } from 'valid-url';
 import getGitConfigPath from 'git-config-path';
+import { toHTTPS } from 'git-remote-protocol';
 
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
@@ -316,6 +317,21 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   return isogit.status({ fs: fs, dir: dir, gitdir: gitdir, filepath: relativePath });
 }
 
+export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', corsProxy, forPush = false, headers = {} }: {
+  onAuth?: isogit.AuthCallback;
+  onAuthFailure?: isogit.AuthFailureCallback;
+  onAuthSuccess?: isogit.AuthSuccessCallback;
+  url?: string;
+  corsProxy?: string;
+  forPush?: boolean;
+  headers?: Record<string, string>;
+}): Promise<isogit.GetRemoteInfoResult> => {
+  return isogit.getRemoteInfo({
+    http: http, onAuth: onAuth, onAuthFailure: onAuthFailure, onAuthSuccess: onAuthSuccess,
+    url: url, corsProxy: corsProxy, forPush: forPush, headers: headers
+  })
+}
+
 /**
  * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a *.git* subdirectory. In the 
  * case of separate working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)), this will find and return a directory that 
@@ -396,6 +412,18 @@ export const isValidRepository = (repo: Repository): boolean => (
   && (isWebUri(repo.corsProxy.href) ? true : false)
   && ((isWebUri(repo.url.href) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url.href)))
 );
+
+/**
+ * Checks for ssh or git protocols in use within a URL and converts to http/https. This is directly needed in order
+ * to support **isomorphic-git** commands that require a URL, but do not currently support ssh or git protocols. See
+ * https://github.com/isomorphic-git/isomorphic-git/issues/665 or https://github.com/isomorphic-git/isomorphic-git/issues/231.
+ * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
+ * @returns A string containing an https protocol URL that matches to the incoming URL variant.
+ */
+export const resolveURL = (url: parsePath.ParsedPath): string => {
+  const isSSH = /((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(url.href);
+  return isSSH ? toHTTPS(url.href) : url.href;
+}
 
 /**
  * Read an entry from the git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality

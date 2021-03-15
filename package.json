@@ -45,6 +45,7 @@
     "file-type": "^16.3.0",
     "fs-extra": "^9.1.0",
     "git-config-path": "^2.0.0",
+    "git-remote-protocol": "^0.1.0",
     "hidefile": "^3.0.0",
     "immutability-helper": "^3.1.1",
     "ini": "^2.0.0",

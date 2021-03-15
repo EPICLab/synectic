@@ -7,4 +7,4 @@
  */
 declare module '*.css';
 
-declare module 'winattr';
+declare module 'git-remote-protocol';
