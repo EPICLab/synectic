@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ReadCommitResult } from 'isomorphic-git';
 
 import type { Repository } from '../../types';
-import { log } from '../../containers/git';
+import { getConfig, log } from '../../containers/git';
 
 export type CommitInfo = ReadCommitResult & {
   branch: string,
@@ -13,6 +13,15 @@ type useGitHistoryHook = {
   commits: Map<string, CommitInfo>,
   heads: Map<string, string>,
   update: () => Promise<void>
+}
+
+const resolveRemote = async (branch: string) => {
+  const defaultBranch = await getConfig('init.defaultBranch');
+  let remote = await getConfig(`branch.${branch}.remote`);
+  if (remote.scope === 'none' && defaultBranch.scope !== 'none') remote = await getConfig(`branch.${defaultBranch.value}.remote`);
+  if (remote.scope === 'none') remote = await getConfig('branch.master.remote');
+  if (remote.scope === 'none') remote = await getConfig('branch.main.remote');
+  return (remote.scope === 'none') ? 'origin' : remote.value;
 }
 
 /**
@@ -35,13 +44,19 @@ export const useGitHistory = (repo: Repository): useGitHistoryHook => {
     const headsCache = new Map<string, string>();
 
     const processCommits = async (branch: string, scope: 'local' | 'remote'): Promise<void> => {
-      const branchCommits = await log({ dir: repo.root.toString(), ref: branch });
+      const remote = await resolveRemote(branch);
+
+      const branchCommits = (scope === 'remote')
+        ? await log({ dir: repo.root.toString(), ref: `remotes/${remote}/${branch}` })
+        : await log({ dir: repo.root.toString(), ref: branch });
       // append to the caches only if no entries exist for the new commit or branch
-      branchCommits.map(commit => (!commitsCache.has(commit.oid)) ?
-        commitsCache.set(commit.oid, { ...commit, branch: branch, scope: scope }) :
-        null);
-      const scopedBranch = `${scope}/${branch}`;
-      if (!headsCache.has(scopedBranch)) headsCache.set(scopedBranch, branchCommits[0].oid);
+      branchCommits.map(commit =>
+        (!commitsCache.has(commit.oid))
+          ? commitsCache.set(commit.oid, { ...commit, branch: branch, scope: scope })
+          : null);
+      if (!headsCache.has(`${scope}/${branch}`)) {
+        headsCache.set(`${scope}/${branch}`, branchCommits[0].oid);
+      }
     }
 
     await Promise.all(repo.local.map(async branch => processCommits(branch, 'local')));
