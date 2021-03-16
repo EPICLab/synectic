@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
 import { ColorSet } from '../containers/colors';
-import { OutlinedCard } from './GitGraphBranchTag';
+import { OutlinedCard } from './GitGraphTag';
 
 const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => ({
   borderRadius: '50%',
@@ -25,10 +25,15 @@ type GitNodeProps = NodeProps & {
 }
 
 export const GitNode: React.FunctionComponent<GitNodeProps> = props => {
+  const [isHovering, setIsHovering] = useState(false);
+
   return (
     <>
       { props.data.branch ? <OutlinedCard content={props.data.branch} placement='right' /> : null}
-      <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}>
+      { isHovering ? <OutlinedCard content={props.id} placement='bottom' /> : null}
+      <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}
+        onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}
+      >
         <Handle type='target' position={Position.Top} style={{ visibility: 'hidden' }} />
         <div>{props.data.text}</div>
         <Handle type='source' position={Position.Bottom} style={{ visibility: 'hidden' }} />
