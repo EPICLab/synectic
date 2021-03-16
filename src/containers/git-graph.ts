@@ -80,7 +80,9 @@ export const layoutOptimizer = (rfGraph: Array<FlowElement>): Array<FlowElement>
 
 export const graphConstruction = async (commits: Map<string, CommitInfo>, heads: Map<string, string>, repo: Repository)
   : Promise<Array<FlowElement>> => {
-  const currentCommits = [...commits.values()].slice(Math.max(commits.size - 50, 0)) // limited to 50 most recent commits
+  const currentCommits = [...commits.values()]
+    .sort((a, b) => a.commit.author.timestamp - b.commit.author.timestamp)  // sort by commit timestamp
+    .slice(Math.max(commits.size - 80, 0))                                  // limited to 50 most recent commits
   const newElements = currentCommits.reduce((prev: Array<FlowElement>, curr: CommitInfo): Array<FlowElement> => {
     const branchHead = heads.get(`${curr.scope}/${curr.branch}`);
     const node: Node = getGitNode(curr, branchHead);
