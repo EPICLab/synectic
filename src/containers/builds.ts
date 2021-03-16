@@ -1,6 +1,5 @@
 import { exec } from 'child_process';
 import util from 'util';
-import rimraf from 'rimraf';
 import { checkout } from 'isomorphic-git';
 import * as fs from 'fs-extra';
 import { join } from 'path';
@@ -77,7 +76,7 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
     }
   }
 
-  rimraf(cloneRoot, (error) => console.log(error));
+  fs.remove(cloneRoot, (error) => console.log(error));
 
   return { installCode: installCode, buildCode: buildCode };
 }
