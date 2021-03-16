@@ -18,6 +18,8 @@ import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
 import { addStack, pushCards, popCard } from '../containers/stacks';
 import { StyledIconButton } from './StyledIconButton';
+import { writeFileAsync } from '../containers/io';
+import { updateGitInfo } from '../containers/metafiles';
 
 export const useStyles = makeStyles({
   root: {
@@ -128,13 +130,20 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   }
 
   const flip = () => setFlipped(!flipped);
-  const save = () => {
+  const save = async () => {
     dispatch({
       type: ActionKeys.UPDATE_METAFILE,
       id: metafile.id,
       metafile: { ...metafile, state: 'unmodified' }
     });
-    console.log(`saving ${props.name}...`);
+    if (metafile.path && metafile.content) {
+      console.log(`saving ${props.name}...`);
+      await writeFileAsync(metafile.path, metafile.content);
+      dispatch(updateGitInfo(metafile.id));
+    } else {
+      console.log(`unable to save content to ${props.name}...`);
+    }
+
   }
   const close = () => {
     if (props.captured) dispatch(popCard(stacks[props.captured], cards[props.id]));
