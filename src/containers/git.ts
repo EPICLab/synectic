@@ -209,9 +209,8 @@ export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: stri
 export const branchDiff = async (
   dir: fs.PathLike, branchA: string, branchB: string, filter?: (result: BranchDiffResult) => boolean
 ): Promise<BranchDiffResult[]> => {
-  // TODO: investigate whether using `resolveRef({ dir: dir, ref: 'heads/${branchA}' })` is faster; probably is...
-  const hashA = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}`, depth: 1 }))[0].oid;
-  const hashB = (await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}`, depth: 1 }))[0].oid;
+  const hashA = await resolveRef({ dir: dir, ref: `heads/${branchA}` });
+  const hashB = await resolveRef({ dir: dir, ref: `heads/${branchB}` });
   const dirpath = dir.toString();
   const files = await isogit.walk({
     fs: fs,
@@ -293,9 +292,10 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
 
   // parse the paths based on main or linked worktree structure
   const dir = repoRoot;
-  const gitdir = (!(await io.isDirectory(`${repoRoot}/.git`))) ?
-    (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim()
-    : path.join(dir, '.git');
+  const isLinked = !(await io.isDirectory(`${repoRoot}/.git`));
+  const gitdir = isLinked ?
+    (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim()   // linked worktree
+    : path.join(dir, '.git');                                                                             // main worktree
   const relativePath = path.relative(dir, filepath.toString());
 
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 

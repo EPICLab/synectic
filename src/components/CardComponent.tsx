@@ -143,7 +143,6 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     } else {
       console.log(`unable to save content to ${props.name}...`);
     }
-
   }
   const close = () => {
     if (props.captured) dispatch(popCard(stacks[props.captured], cards[props.id]));
