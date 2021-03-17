@@ -12,6 +12,7 @@ import { toHTTPS } from 'git-remote-protocol';
 
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
+import { status } from './git-worktree';
 
 export type BranchDiffResult = {
   path: string,
@@ -295,7 +296,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   const isLinked = !(await io.isDirectory(`${repoRoot}/.git`));
   const gitdir = isLinked ?
     (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim()   // linked worktree
-    : path.join(dir, '.git');                                                                             // main worktree
+    : path.join(dir, '.git');                                                                            // main worktree
   const relativePath = path.relative(dir, filepath.toString());
 
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
@@ -308,12 +309,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
 
-  /** TODO: The following status check is able to process linked worktree files, but is unable to provide meaningful status results.
-   * Determining status should involve reading the `index` for the correct branch, in the case of linked worktrees that would be the
-   * `index` file inside of the `.git/worktrees/{worktree-name}` directory. However, the `isomorphic-git.status` command is instead
-   * comparing against the `index` file at `.git/index` (which is associated with the current branch on the main worktree). Therefore,
-   * if a new file was added in the linked worktree, the status would return as `added` since the branch on the main worktree has no
-   * records of that file being committed. */
+  if (isLinked) return status(filepath); // use alternative status function for linked worktree files
   return isogit.status({ fs: fs, dir: dir, gitdir: gitdir, filepath: relativePath });
 }
 

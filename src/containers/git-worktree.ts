@@ -4,9 +4,10 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
 
-import type { Repository, SHA1, UUID } from '../types';
+import type { GitStatus, Repository, SHA1, UUID } from '../types';
 import * as io from './io';
 import * as git from './git';
+import { hashBlob, TREE, walk, WalkerEntry } from 'isomorphic-git';
 
 // API SOURCE: https://git-scm.com/docs/git-worktree
 
@@ -60,6 +61,43 @@ const createWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(
     ref: branch ? branch : undefined,
     rev: commit
   };
+}
+
+export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
+  const repoRoot = await git.getRepoRoot(filepath);
+  if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+  if (!isLinkedWorktree({ dir: repoRoot })) return undefined; // not part of a linked worktree, use `git.getStatus` instead
+
+  const gitdir = (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  const dir = await git.getRepoRoot(gitdir);
+  if (!dir) return undefined;
+  const branch = io.extractFilename(gitdir);
+  const relativePath = path.relative(repoRoot, filepath.toString());
+
+  const branchRef = await git.resolveRef({ dir: dir, ref: `heads/${branch}` });
+  const status = await walk({
+    fs: fs,
+    dir: dir,
+    trees: [TREE({ ref: branchRef })],
+    map: async (filename: string, entries: Array<WalkerEntry> | null) => {
+      if (filename === '.' || filename !== relativePath) return;
+      if (!entries) return;
+      const [entry] = entries.slice(0, 1);
+      if ((await entry.type()) === 'tree') return;
+
+      const oid = await entry.oid();
+      const fileContent = await io.readFileAsync(filepath, { encoding: 'utf-8' });
+      const hash = await hashBlob({ object: fileContent });
+
+      let result = 'unmodified';
+      if (oid !== hash.oid) result = 'modified';
+      if (oid === undefined) result = 'added';
+      if (hash === undefined) result = 'removed';
+
+      return result;
+    }
+  });
+  return status;
 }
 
 /**
