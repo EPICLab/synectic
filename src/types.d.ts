@@ -130,6 +130,8 @@ export type Metafile = {
   readonly branch?: UUID;
   /** The latest Git status code for this file relative to the associated repository and branch. */
   readonly status?: GitStatus;
+  /** The SHA-1 object id for referencing into the Git index, working directory, or HEAD tree. */
+  readonly oid?: SHA1;
   /** The latest Filesystem status code for this file relative to the associated content. */
   readonly state?: FilesystemStatus;
   /** The textual contents maintained for files; can differ from actual file content when unsaved changes are made in Synectic. */

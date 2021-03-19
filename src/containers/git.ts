@@ -12,13 +12,9 @@ import { toHTTPS } from 'git-remote-protocol';
 
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
-import { status } from './git-worktree';
+import { isLinkedWorktree, resolveWorktreeRoot, status } from './git-worktree';
 
-export type BranchDiffResult = {
-  path: string,
-  type: 'equal' | 'modified' | 'added' | 'removed'
-}
-
+export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
 /**
@@ -50,6 +46,29 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
     const updatedRef = (ref === 'HEAD') ? (await io.readFileAsync(`${worktreedir}/HEAD`, { encoding: 'utf-8' })).trim() : ref;
     return isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: updatedRef, depth: depth });
   }
+}
+
+/**
+ * Resolve a ref to its SHA-1 object id for a specific filepath contained within a git branch. The response represents an oid that 
+ * can be provided directly to `resolveRef` in order to obtain a blob string containing the latest version on a particular branch 
+ * (i.e. for determining whether the file has diverged from the latest version in git).
+ * @param dir The working tree directory path.
+ * @param branch The branch to reference for resolving the indicated filepath.
+* @param relativeFilepath The relative path from a git root (either linked or main worktree) to the target file.
+ * @returns A Promise object containing the SHA-1 hash associated with the filepath in the latest commit on the indicated branch.
+ */
+export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise<string | undefined> => {
+  const repoRoot = await getRepoRoot(filepath);
+  if (!repoRoot) return undefined;
+  const dir = (await isLinkedWorktree({ dir: repoRoot })) ? (await resolveWorktreeRoot(filepath)) : repoRoot;
+  if (!dir) return undefined;
+
+  const relativePath = path.relative(repoRoot, filepath.toString());
+  const commit = await resolveRef({ dir: dir, ref: branch });
+  const tree = (await isogit.readCommit({ fs: fs, dir: dir, oid: commit })).commit.tree;
+  const entry = (await isogit.readTree({ fs: fs, dir: dir, oid: tree })).tree
+    .find(entry => entry.path === relativePath);
+  return entry ? entry.oid : undefined;
 }
 
 export const checkout = async ({
@@ -129,12 +148,13 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => {
-  // if (fs.statSync(gitdir).isDirectory()) {
-  if (await io.isDirectory(gitdir)) {
-    return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
-  } else {
+  if (await isLinkedWorktree({ gitdir: gitdir })) {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    console.log(`worktree => dir: ${worktreedir}`);
     return await isogit.currentBranch({ fs: fs, dir: worktreedir, gitdir: worktreedir, fullname: fullname, test: test });
+  } else {
+    console.log(`maintree => dir: ${dir.toString()}`);
+    return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
   }
 }
 
@@ -302,6 +322,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
   /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories 
    * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13) */
   if (await io.isDirectory(filepath)) {
+    if (isLinked) console.log(await status(filepath));
     const statuses = await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !io.isHidden(f) });
     const changed = statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit

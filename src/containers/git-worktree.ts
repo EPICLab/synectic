@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as isogit from 'isomorphic-git';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
@@ -7,7 +8,6 @@ import isHash from 'validator/lib/isHash';
 import type { GitStatus, Repository, SHA1, UUID } from '../types';
 import * as io from './io';
 import * as git from './git';
-import { hashBlob, TREE, walk, WalkerEntry } from 'isomorphic-git';
 
 // API SOURCE: https://git-scm.com/docs/git-worktree
 
@@ -20,24 +20,10 @@ export type Worktree = {
   ref?: string; // A branch name or symbolic ref (can be abbreviated).
   rev?: SHA1 | string; // A revision (or commit) representing the current state of `index` for the worktree.
 }
-
-/**
- * Utility function for discerning whether a working tree directory path (`dir`) or a git directory path (`gitdir`) is associated with a 
- * linked working tree (see [git-worktree](https://git-scm.com/docs/git-worktree)). This is determined by examining whether `.git` points
- * to a sub-directory or a file; where a sub-directory indicates a main worktree and a file indicates a linked worktree.
- * @param dir The working tree directory path.
- * @param filepath The git directory path (typically ends in `.git`).
- * @return A boolean indicating whether the provided path is a linked worktree.
- */
-const isLinkedWorktree = async (param: { dir: fs.PathLike, gitdir?: never } | { dir?: never, gitdir: fs.PathLike }): Promise<boolean> => {
-  if (param.dir) {
-    const gitdir = path.join(param.dir.toString(), '.git');
-    return !(await io.isDirectory(gitdir));
-  }
-  if (param.gitdir) {
-    return !(await io.isDirectory(param.gitdir));
-  }
-  return false;
+type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]; // see: https://stackoverflow.com/questions/48230773/how-to-create-a-partial-like-that-requires-a-single-property-to-be-set/48244432#48244432
+type WorktreePaths = {
+  dir: fs.PathLike;
+  gitdir: fs.PathLike;
 }
 
 /**
@@ -63,40 +49,97 @@ const createWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(
   };
 }
 
+/**
+ * Utility function for discerning whether a working tree directory path (`dir`) or a git directory path (`gitdir`) is associated with a 
+ * linked working tree (see [git-worktree](https://git-scm.com/docs/git-worktree)). This is determined by examining whether `.git` points
+ * to a sub-directory or a file; where a sub-directory indicates a main worktree and a file indicates a linked worktree.
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path (typically ends in `.git`).
+ * @return A boolean indicating whether the provided path is a linked worktree.
+ */
+export const isLinkedWorktree = async (param: AtLeastOne<WorktreePaths>)
+  : Promise<boolean> => {
+  const gitdir = param.gitdir
+    ? param.gitdir
+    : (param.dir ? path.join(param.dir.toString(), '.git') : undefined);
+  return gitdir ? !(await io.isDirectory(gitdir)) : false;
+}
+
+/**
+ * Resolve the root working tree directory from a linked worktree. Starting from the *.git* file within a linked worktree, reads the path
+ * to the worktree folder in the main worktree (i.e. `.git/worktrees/worktree-branch`) and walks upward until it finds a directory 
+ * containing a *.git* subdirectory.
+ * @param filepath The relative or absolute path within a working tree to evaluate.
+ * @return A Promise object containing the working tree directory path, or undefined if the working tree *.git* file or the main tree
+ * *.git* directory do not exist.
+ */
+export const resolveWorktreeRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
+  const worktreeRoot = await git.getRepoRoot(filepath);
+  if (!worktreeRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+  if (!isLinkedWorktree({ dir: worktreeRoot })) return undefined; // not part of a linked worktree, use `git.getStatus` instead
+
+  const gitdir = (await io.readFileAsync(`${worktreeRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  const dir = await git.getRepoRoot(gitdir); // need to find the working tree directory containing .git in the main worktree
+  return dir;
+}
+
 export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
-  const repoRoot = await git.getRepoRoot(filepath);
-  if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
-  if (!isLinkedWorktree({ dir: repoRoot })) return undefined; // not part of a linked worktree, use `git.getStatus` instead
+  const worktreeRoot = await git.getRepoRoot(filepath);
+  if (!worktreeRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+  if (!isLinkedWorktree({ dir: worktreeRoot })) return undefined; // not part of a linked worktree, use `git.getStatus` instead
 
-  const gitdir = (await io.readFileAsync(`${repoRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-  const dir = await git.getRepoRoot(gitdir);
+  const dir = await resolveWorktreeRoot(filepath);
   if (!dir) return undefined;
-  const branch = io.extractFilename(gitdir);
-  const relativePath = path.relative(repoRoot, filepath.toString());
+  const branch = await git.currentBranch({ dir: worktreeRoot });
+  if (!branch) return undefined;
 
-  const branchRef = await git.resolveRef({ dir: dir, ref: `heads/${branch}` });
-  const status = await walk({
-    fs: fs,
-    dir: dir,
-    trees: [TREE({ ref: branchRef })],
-    map: async (filename: string, entries: Array<WalkerEntry> | null) => {
-      if (filename === '.' || filename !== relativePath) return;
-      if (!entries) return;
-      const [entry] = entries.slice(0, 1);
-      if ((await entry.type()) === 'tree') return;
+  // determine SHA-1 hash for content in the git index
+  const fileOid = await git.resolveOid(filepath, branch);
+  if (!fileOid) return undefined;
+  const oid = (await isogit.readBlob({ fs: fs, dir: dir, oid: fileOid })).oid;
 
-      const oid = await entry.oid();
-      const fileContent = await io.readFileAsync(filepath, { encoding: 'utf-8' });
-      const hash = await hashBlob({ object: fileContent });
+  // determine SHA-1 hash for content in the file
+  const fileContent = await io.readFileAsync(filepath, { encoding: 'utf-8' });
+  const hash = await isogit.hashBlob({ object: fileContent });
 
-      let result = 'unmodified';
-      if (oid !== hash.oid) result = 'modified';
-      if (oid === undefined) result = 'added';
-      if (hash === undefined) result = 'removed';
+  let status: GitStatus = 'unmodified';
+  if (oid !== hash.oid) status = 'modified';
+  if (oid === undefined) status = 'added';
+  if (hash === undefined) status = 'deleted';
 
-      return result;
-    }
-  });
+  // const branchRef = await git.resolveRef({ dir: dir, ref: `heads/${branch}` });
+  // const check = await isogit.walk({
+  //   fs: fs,
+  //   dir: dir,
+  //   trees: [isogit.TREE({ ref: branchRef })],
+  //   map: async (filename: string, entries: Array<isogit.WalkerEntry> | null) => {
+  //     if (filename === '.' || filename !== relative(worktreeRoot, filepath.toString())) {
+  //       console.log(`skip: ${filename}`);
+  //       return;
+  //     }
+  //     console.log(`evaluate: ${filename}`);
+  //     if (!entries) {
+  //       console.log('no entries!');
+  //       return;
+  //     }
+  //     const [entry] = entries.slice(0, 1);
+  //     if ((await entry.type()) === 'tree') return;
+
+  //     const oid = await entry.oid();
+  //     const fileContent = await io.readFileAsync(filepath, { encoding: 'utf-8' });
+  //     const hash = await isogit.hashBlob({ object: fileContent });
+
+  //     console.log({ oid, hash });
+
+  //     let result = 'unmodified';
+  //     if (oid !== hash.oid) result = 'modified';
+  //     if (oid === undefined) result = 'added';
+  //     if (hash === undefined) result = 'removed';
+
+  //     return result;
+  //   }
+  // });
+  // console.log({ status, check });
   return status;
 }
 
