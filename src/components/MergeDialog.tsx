@@ -11,9 +11,10 @@ import { green, red } from '@material-ui/core/colors';
 import type { Modal, UUID } from '../types';
 import { Action, ActionKeys } from '../store/actions';
 import { RootState } from '../store/root';
-import * as git from '../containers/git';
 import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
+import { merge } from '../containers/git-porcelain';
+import { branchLog } from '../containers/git-plumbing';
 
 const StyledCheckIcon = withStyles({
   root: {
@@ -194,7 +195,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const branchCheck = async () => {
     const fullRepo = repos.find(r => r.id === repo);
     if (!fullRepo) return;
-    const result = await git.merge(fullRepo.root, base, compare, true);
+    const result = await merge(fullRepo.root, base, compare, true);
     console.log(`merge dryRun: ${base}...${compare}`);
     console.log(result);
   }
@@ -210,14 +211,14 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
       setCommitCountDelta('Unchecked');
       return;
     }
-    const repoLog = fullRepo ? (await git.branchLog(fullRepo.root, base, compare)) : undefined;
+    const repoLog = fullRepo ? (await branchLog(fullRepo.root, base, compare)) : undefined;
     const commitStatus = repoLog ? (repoLog.length > 0 ? 'Passing' : 'Failing') : 'Unchecked';
     setCommitCountDelta(commitStatus);
 
     if (commitStatus == 'Failing') return;
     setBranchConflicts(['Running', undefined]);
 
-    const conflictCheck = await git.merge(fullRepo.root, base, compare, true);
+    const conflictCheck = await merge(fullRepo.root, base, compare, true);
     const conflictStatus = conflictCheck.mergeCommit || conflictCheck.fastForward ? 'Passing' : 'Failing';
     setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
 

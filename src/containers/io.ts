@@ -199,7 +199,7 @@ export const isDirectory = async (filepath: fs.PathLike): Promise<boolean> => (a
  * Asynchronously and recursively descends from a root directory to read filenames and child directories. 
  * Descends to `depth` level, if specified, otherwise defaults to recursively visiting all sub-directories. 
  * @param filepath A valid directory path to read from.
- * @param depth Number of sub-directories to descend; default to infinity.
+ * @param depth Number of sub-directories to descend; defaults to infinity.
  * @return A Promise object for an array of filenames. Throws ENOENT error on non-existent filepath, and ENOTDIR error on
  * a filepath pointing to a file.
  */
@@ -299,8 +299,8 @@ export const validateFileName = (fileName: string, configExts: string[], exts: s
   const ext = index !== -1 ? fileName.substring(fileName.lastIndexOf('.')) : ''; // grabs the extension plus the '.' before it
   const name = index !== -1 ? fileName.substr(0, index) : fileName; // grabs the file name w/o the extension and the '.' before it
 
-  /*Regex below matches all occurences of invalid file name characters in the set: <, >, \, /, |, ?, *, 
-  and characters NULL to US (ASCII values 0 to 31)*/
+  /* Regex matches all occurences of invalid file name characters in the set: <, >, \, /, |, ?, *, and 
+  characters NULL to US (ASCII values 0 to 31) */
   // eslint-disable-next-line no-control-regex
   const flag = !(/[<>:"\\/|?*\x00-\x1F]/g).test(name) && name.slice(-1) !== ' ' && name.slice(-1) !== '.';
 

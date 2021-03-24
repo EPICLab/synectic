@@ -13,7 +13,8 @@ import { RootState } from '../store/root';
 import { ActionKeys, NarrowActionType, Action } from '../store/actions';
 import { getMetafile } from './metafiles';
 import { extractFilename, isDirectory, readFileAsync } from './io';
-import { getRepoRoot, isValidRepository, extractRepoName, extractFromURL } from './git';
+import { getRepoRoot } from './git-porcelain';
+import { isValidRepository, extractRepoName, extractFromURL } from './git-plumbing';
 import { updateCard } from './cards';
 
 type AddRepoAction = NarrowActionType<ActionKeys.ADD_REPO>;

@@ -6,7 +6,7 @@ import * as isogit from 'isomorphic-git';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { ActionKeys } from '../src/store/actions';
 import * as repos from '../src/containers/repos';
-import * as git from '../src/containers/git';
+import * as git from '../src/containers/git-porcelain';
 import * as worktree from '../src/containers/git-worktree';
 import * as metafiles from '../src/containers/metafiles';
 import * as io from '../src/containers/io';
