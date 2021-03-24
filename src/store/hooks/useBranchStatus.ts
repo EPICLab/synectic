@@ -2,7 +2,7 @@ import type { Card, UUID, GitStatus } from '../../types';
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getCardsByRepo } from '../selectors/repos';
-import { getStatus } from '../../containers/git';
+import { getStatus } from '../../containers/git-porcelain';
 import { RootState } from '../root';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];

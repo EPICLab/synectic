@@ -88,6 +88,10 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
 
+  /**
+   * TODO: Need to update the metafile.status for the directory when an underlying file changes
+   */
+
   return (
     <>
       <span>Name:</span><span className='field'>{props.name}</span>

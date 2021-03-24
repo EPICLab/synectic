@@ -99,7 +99,7 @@ describe('CardComponent', () => {
 
     userEvent.click(getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/ID:/i)).toBeInTheDocument();
+    expect(getByText(/ID:/)).toBeInTheDocument();
   });
 
   it('Explorer Card renders a reverse side when the flip button is clicked', async () => {
@@ -120,7 +120,7 @@ describe('CardComponent', () => {
 
       userEvent.click(getByRole('button', { name: /flip/i }));
       await waitFor(() => {
-        expect(getByText(/Name:/i)).toBeInTheDocument();
+        expect(getByText(/Name:/)).toBeInTheDocument();
       });
     });
   });
@@ -135,7 +135,7 @@ describe('CardComponent', () => {
 
     userEvent.click(getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/Name:/i)).toBeInTheDocument();
+    expect(getByText(/Name:/)).toBeInTheDocument();
   });
 
   it('Browser Card renders a reverse side when the flip button is clicked', () => {
@@ -148,7 +148,7 @@ describe('CardComponent', () => {
 
     userEvent.click(getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/ID:/i)).toBeInTheDocument();
+    expect(getByText(/ID:/)).toBeInTheDocument();
   });
 
   it('Tracker Card renders a reverse side when the flip button is clicked', async () => {
@@ -161,6 +161,6 @@ describe('CardComponent', () => {
 
     userEvent.click(getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/ID:/i)).toBeInTheDocument();
+    expect(getByText(/ID:/)).toBeInTheDocument();
   });
 });

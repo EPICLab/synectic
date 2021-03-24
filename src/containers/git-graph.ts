@@ -2,7 +2,7 @@ import dagre from 'dagre';
 import { ArrowHeadType, Edge, FlowElement, Node, isNode, isEdge } from 'react-flow-renderer';
 
 import type { Repository } from '../types';
-import { currentBranch, getStatus } from '../containers/git';
+import { currentBranch, getStatus } from '../containers/git-porcelain';
 import { CommitInfo } from '../store/hooks/useGitHistory';
 import { flattenArray } from '../containers/flatten';
 import { colorSets } from '../containers/colors';
