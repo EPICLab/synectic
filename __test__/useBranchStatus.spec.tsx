@@ -8,7 +8,7 @@ import { v4 } from 'uuid';
 
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { useBranchStatus } from '../src/store/hooks/useBranchStatus';
-import * as git from '../src/containers/git';
+import * as git from '../src/containers/git-porcelain';
 
 describe('useBranchStatus', () => {
 
