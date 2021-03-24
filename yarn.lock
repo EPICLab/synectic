@@ -1060,10 +1060,10 @@
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^7.28.1"
 
-"@testing-library/user-event@^12.8.0":
-  version "12.8.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-12.8.0.tgz#e07e52d4109a606772f72fa40641b284e8686221"
-  integrity sha512-5+k4U3X6XaFDSBSu6tsD02HVfzuOiPcygQmmYFE2aQQ0e5wRSxWRoU80UH1msa9Q6wuxa0BQsAmwAAAMydcscg==
+"@testing-library/user-event@^13.0.10":
+  version "13.0.10"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-13.0.10.tgz#8bd5c9f82b5e707fde598a8f319943c289a87378"
+  integrity sha512-LORQD86zMtv/lP1RpulfBm5wGjTwmzqCRBx15nOYcH55ojsGoaTNsL76V5eoZWefl+T2SvG0kqY6mwOxJ1/5Og==
   dependencies:
     "@babel/runtime" "^7.12.5"
 
@@ -2406,6 +2406,14 @@ big.js@^5.2.2:
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
   integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
 
+binarnia@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/binarnia/-/binarnia-3.1.3.tgz#d762a3e80e9b75c699754e9fe50dd440fc6f0edd"
+  integrity sha512-HY/pLRivR7Ii69aprlgGmW4dFkkTUe8vmnqXFnP8/M4c7SWJ1C1SN0cPahtrXZHS4pGnKrML3ZaxS0316e9Kpg==
+  dependencies:
+    currify "^4.0.0"
+    read-uint "^2.0.0"
+
 binary-extensions@^1.0.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.13.1.tgz#598afe54755b2868a5330d2aff9d4ebb53209b65"
@@ -3420,6 +3428,11 @@ currently-unhandled@^0.4.1:
   integrity sha1-mI3zP+qxke95mmE2nddsF635V+o=
   dependencies:
     array-find-index "^1.0.1"
+
+currify@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/currify/-/currify-4.0.0.tgz#54637df9a9752de8a0d59efbfb5ce59384a1e306"
+  integrity sha512-ABfH28PWp5oqqp31cLXJQdeMqoFNej9rJOu84wKhN3jPCH7FAZg3zY1MVI27PTFoqfPlxOyhGmh9PzOVv+yN2g==
 
 cyclist@^1.0.1:
   version "1.0.1"
@@ -5638,7 +5651,7 @@ ignore@^4.0.6:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-ignore@^5.1.4:
+ignore@^5.1.4, ignore@^5.1.8:
   version "5.1.8"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.1.8.tgz#f150a8b50a34289b33e22f5889abd4d8016f0e57"
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
@@ -8925,6 +8938,11 @@ read-pkg@^5.2.0:
     normalize-package-data "^2.5.0"
     parse-json "^5.0.0"
     type-fest "^0.6.0"
+
+read-uint@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/read-uint/-/read-uint-2.0.0.tgz#81f79d83bbb82c897e4050d36d20c29c230f1574"
+  integrity sha512-LftSSrKU+MrjrQCwppDCw8seWunN+/MP64ileQqPRNtceoYhNpODGC+x2a+WIGPlfJTQd2UDKAWPovtZKIhimQ==
 
 "readable-stream@1 || 2", readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.6, readable-stream@^2.1.5, readable-stream@^2.2.2, readable-stream@^2.3.3, readable-stream@^2.3.5, readable-stream@^2.3.6, readable-stream@~2.3.6:
   version "2.3.7"
