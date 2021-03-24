@@ -9,7 +9,7 @@ import { mockStore } from './__mocks__/reduxStoreMock';
 import { ActionKeys } from '../src/store/actions';
 import * as metafiles from '../src/containers/metafiles';
 import * as repos from '../src/containers/repos';
-import * as git from '../src/containers/git';
+import * as git from '../src/containers/git-porcelain';
 
 describe('metafiles.addMetafile', () => {
 

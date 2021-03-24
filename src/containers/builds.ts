@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 
 import type { Repository } from '../types';
-import { clone, merge } from '../containers/git';
+import { clone, merge } from '../containers/git-porcelain';
 import { readDirAsync } from './io';
 
 const promiseExec = util.promisify(exec);
