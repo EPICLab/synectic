@@ -51,7 +51,6 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span>Repo:</span><span className='field'>{repo.name}</span>
       <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} />
       <span>Status:</span><span className='field'>{metafile.status}</span>
-      <span>Oid:</span><span className='field'>{metafile.oid}</span>
     </>
   );
 };

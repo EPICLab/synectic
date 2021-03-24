@@ -5,11 +5,11 @@ import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
 import type { Metafile, Filetype, Modal, UUID } from '../types';
-import { RootState } from '../store/root';
 import * as io from './io';
-import * as git from './git';
+import { RootState } from '../store/root';
 import { getRepository } from './repos';
 import { asyncFilter } from './format';
+import { currentBranch, getRepoRoot, getStatus } from './git-porcelain';
 
 type AddMetafileAction = NarrowActionType<ActionKeys.ADD_METAFILE>;
 type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
@@ -153,12 +153,11 @@ export const updateGitInfo = (id: UUID): ThunkAction<Promise<UpdateMetafileActio
 
     const repoAction = metafile.path ? await dispatch(getRepository(metafile.path)) : undefined;
     const repo = repoAction ? getState().repos[repoAction.id] : undefined;
-    const root = await git.getRepoRoot(metafile.path);
-    const branch = repo ? (await git.currentBranch({ dir: root ? root : repo.root.toString(), fullname: false })) : undefined;
-    const oid = (root && branch) ? await git.resolveOid(metafile.path, branch) : undefined;
-    const status = await git.getStatus(metafile.path);
+    const root = await getRepoRoot(metafile.path);
+    const branch = repo ? (await currentBranch({ dir: root ? root : repo.root.toString(), fullname: false })) : undefined;
+    const status = await getStatus(metafile.path);
     const updated: Metafile = (!repo || !metafile.path) ? metafile :
-      { ...metafile, repo: repo.id, branch: branch ? branch : 'HEAD', oid: oid, status: status };
+      { ...metafile, repo: repo.id, branch: branch ? branch : 'HEAD', status: status };
     return dispatch(updateMetafile(updated));
   };
 
@@ -239,8 +238,8 @@ export const getMetafile = (param: MetafileGettableFields): ThunkAction<Promise<
       // searches by filepath (and git branch if available) for existing Metafile in the Redux store, creating a new Metafile if no match, 
       // or updates Metafile otherwise
       const metafiles = Object.values(getState().metafiles);
-      const root = await git.getRepoRoot(param.filepath);
-      const branch = root ? (await git.currentBranch({ dir: root.toString(), fullname: false })) : undefined;
+      const root = await getRepoRoot(param.filepath);
+      const branch = root ? (await currentBranch({ dir: root.toString(), fullname: false })) : undefined;
       const existing = branch ? metafiles.find(m => m.path == param.filepath && m.branch == branch) :
         metafiles.find(m => m.path == param.filepath);
       const id = existing ? existing.id : dispatch(addMetafile(io.extractFilename(param.filepath), { path: param.filepath })).id;

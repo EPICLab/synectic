@@ -7,7 +7,10 @@ import isHash from 'validator/lib/isHash';
 
 import type { GitStatus, Repository, SHA1, UUID } from '../types';
 import * as io from './io';
-import * as git from './git';
+import { clone, currentBranch, deleteBranch, getRepoRoot, getStatus } from './git-porcelain';
+import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
+import { parse } from './git-index';
+import { compareStats } from './io-stats';
 
 // API SOURCE: https://git-scm.com/docs/git-worktree
 
@@ -35,8 +38,8 @@ type WorktreePaths = {
  * @return A Worktree object 
  */
 const createWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(), '.git'), bare = false): Promise<Worktree> => {
-  const branch = await git.currentBranch({ dir: dir.toString(), gitdir: gitdir });
-  const commit = await git.resolveRef({ dir: dir, ref: 'HEAD' });
+  const branch = await currentBranch({ dir: dir.toString(), gitdir: gitdir });
+  const commit = await resolveRef({ dir: dir, ref: 'HEAD' });
   const isMain = await isLinkedWorktree({ dir: dir });
   return {
     id: v4(),
@@ -69,78 +72,156 @@ export const isLinkedWorktree = async (param: AtLeastOne<WorktreePaths>)
  * Resolve the root working tree directory from a linked worktree. Starting from the *.git* file within a linked worktree, reads the path
  * to the worktree folder in the main worktree (i.e. `.git/worktrees/worktree-branch`) and walks upward until it finds a directory 
  * containing a *.git* subdirectory.
- * @param filepath The relative or absolute path within a working tree to evaluate.
+ * @param worktreeRoot The working tree directory path for a linked worktree (i.e. the directory containing a *.git* file).
  * @return A Promise object containing the working tree directory path, or undefined if the working tree *.git* file or the main tree
  * *.git* directory do not exist.
  */
-export const resolveWorktreeRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
-  const worktreeRoot = await git.getRepoRoot(filepath);
-  if (!worktreeRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+export const resolveLinkToRoot = async (worktreeRoot: fs.PathLike): Promise<string | undefined> => {
   if (!isLinkedWorktree({ dir: worktreeRoot })) return undefined; // not part of a linked worktree, use `git.getStatus` instead
-
-  const gitdir = (await io.readFileAsync(`${worktreeRoot}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-  const dir = await git.getRepoRoot(gitdir); // need to find the working tree directory containing .git in the main worktree
+  const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  const dir = await getRepoRoot(gitdir); // need to find the working tree directory containing .git in the main worktree
   return dir;
 }
 
-export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
-  const worktreeRoot = await git.getRepoRoot(filepath);
+/**
+ * Efficiently get the status of multiple files in a linked worktree directory at once. This function is modeled after 
+ * **isomorphic-git/statusMatrix**, even returning the same structure, but is capable of parsing paths in a linked worktree directory.
+ * @param filepath Limits the query to the given directory and any contained files and directories.
+ * @returns A Promise object containing an array of entries comprised of filenames and HEAD/WORKDIR/STAGE status digits, or undefined
+ * if the given directory path is not under git version control.
+ */
+export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined> => {
+  const worktreeRoot = await getRepoRoot(filepath);
   if (!worktreeRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
-  if (!isLinkedWorktree({ dir: worktreeRoot })) return undefined; // not part of a linked worktree, use `git.getStatus` instead
+  const dir = await resolveLinkToRoot(worktreeRoot);
+  if (!dir) return undefined; // not part of a linked worktree, use `git.getStatus` instead
 
-  const dir = await resolveWorktreeRoot(filepath);
-  if (!dir) return undefined;
-  const branch = await git.currentBranch({ dir: worktreeRoot });
+  const branch = await currentBranch({ dir: worktreeRoot });
   if (!branch) return undefined;
 
-  // determine SHA-1 hash for content in the git index
-  const fileOid = await git.resolveOid(filepath, branch);
-  if (!fileOid) return undefined;
-  const oid = (await isogit.readBlob({ fs: fs, dir: dir, oid: fileOid })).oid;
+  const ignoreWorktree = await getIgnore(worktreeRoot);
+  // this rule is standard for git-based projects
+  ignoreWorktree.add('.git');
+  // .gitignore files often include 'node_modules/' as a rule, but node-ignore treats that rule as requiring the trailing '/'
+  // so the 'node_module' directory will not be ignored. See: https://github.com/kaelzhang/node-ignore#2-filenames-and-dirnames
+  ignoreWorktree.add('node_modules');
 
-  // determine SHA-1 hash for content in the file
-  const fileContent = await io.readFileAsync(filepath, { encoding: 'utf-8' });
-  const hash = await isogit.hashBlob({ object: fileContent });
+  // parse the appropriate git index file for evaluating staged tree status
+  const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  const indexBuffer = await io.readFileAsync(path.join(gitdir.toString(), 'index'))
+  const index = parse(indexBuffer);
 
-  let status: GitStatus = 'unmodified';
-  if (oid !== hash.oid) status = 'modified';
-  if (oid === undefined) status = 'added';
-  if (hash === undefined) status = 'deleted';
+  const result = await isogit.walk({
+    fs: fs,
+    dir: dir,
+    trees: [isogit.TREE({ ref: branch }), isogit.WORKDIR(), isogit.STAGE()],
+    map: async (filename: string, entries: Array<isogit.WalkerEntry> | null) => {
+      if (!entries || filename === '.' || ignoreWorktree.ignores(filename)) return;
 
-  // const branchRef = await git.resolveRef({ dir: dir, ref: `heads/${branch}` });
-  // const check = await isogit.walk({
-  //   fs: fs,
-  //   dir: dir,
-  //   trees: [isogit.TREE({ ref: branchRef })],
-  //   map: async (filename: string, entries: Array<isogit.WalkerEntry> | null) => {
-  //     if (filename === '.' || filename !== relative(worktreeRoot, filepath.toString())) {
-  //       console.log(`skip: ${filename}`);
-  //       return;
-  //     }
-  //     console.log(`evaluate: ${filename}`);
-  //     if (!entries) {
-  //       console.log('no entries!');
-  //       return;
-  //     }
-  //     const [entry] = entries.slice(0, 1);
-  //     if ((await entry.type()) === 'tree') return;
+      const [head, workdir, stage] = entries.slice(0, 3);
 
-  //     const oid = await entry.oid();
-  //     const fileContent = await io.readFileAsync(filepath, { encoding: 'utf-8' });
-  //     const hash = await isogit.hashBlob({ object: fileContent });
+      // determine oid for HEAD tree
+      const headOid = head ? await head.oid() : undefined;
 
-  //     console.log({ oid, hash });
+      // determine oid for working directory tree
+      let workdirOid;
+      if (!head && workdir && !stage) {
+        workdirOid = '42';
+      } else if (workdir) {
+        const content = await io.readFileAsync(path.join(worktreeRoot, filename), { encoding: 'utf-8' });
+        const hash = (await isogit.hashBlob({ object: content }));
+        workdirOid = hash.oid;
+      }
 
-  //     let result = 'unmodified';
-  //     if (oid !== hash.oid) result = 'modified';
-  //     if (oid === undefined) result = 'added';
-  //     if (hash === undefined) result = 'removed';
+      // determine oid for index tree (staged)
+      const indexEntry = index.entries.find(entry => entry.filePath === filename);
+      const stageOid = indexEntry ? indexEntry.objectId.slice(2) : undefined;
 
-  //     return result;
-  //   }
-  // });
-  // console.log({ status, check });
-  return status;
+      const entry = [undefined, headOid, workdirOid, stageOid];
+      const result = entry.map(value => entry.indexOf(value));
+      result.shift();
+
+      return [filename, ...result];
+    }
+  });
+
+  return new Promise(resolve => resolve(result));
+}
+
+/**
+ * Determine whether a file has been changed in accordance with the git repository. This function is modeled after 
+ * **isomorphic-git/status**, even returning the same structure, but is capable of parsing paths in a linked worktree directory.
+ * @param filepath The relative or absolute path to evaluate.
+ * @return A Promise object containing undefined if the path is not contained within a git repository, or a status indicator
+ * for whether the path has been changed according to git; the possible resolve values are described for the `GitStatus` type definition.
+ */
+export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
+  const worktreeRoot = await getRepoRoot(filepath);
+  if (!worktreeRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+  const dir = await resolveLinkToRoot(worktreeRoot);
+  if (!dir) return undefined; // not part of a linked worktree, use `git.getStatus` instead
+
+  const relativePath = path.relative(worktreeRoot, filepath.toString());
+  const branch = await currentBranch({ dir: worktreeRoot });
+  if (!branch) return undefined;
+
+  const ignoreWorktree = await getIgnore(worktreeRoot);
+  // this rule is standard for git-based projects
+  ignoreWorktree.add('.git');
+  // .gitignore files often include 'node_modules/' as a rule, but node-ignore treats that rule as requiring the trailing '/'
+  // so the 'node_module' directory will not be ignored. See: https://github.com/kaelzhang/node-ignore#2-filenames-and-dirnames
+  ignoreWorktree.add('node_modules');
+  if (ignoreWorktree.ignores(relativePath)) return 'ignored';
+
+  // determine oid for HEAD tree
+  const oid = await resolveOid(filepath, branch);
+  if (!oid) return undefined;
+  const treeOid = (await isogit.readBlob({ fs: fs, dir: dir, oid: oid })).oid;
+
+  // parse the appropriate git index file for evaluating staged tree status
+  const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+  const indexBuffer = await io.readFileAsync(path.join(gitdir.toString(), 'index'))
+  const index = parse(indexBuffer);
+  const indexEntry = index.entries.find(entry => entry.filePath === relativePath);
+
+  const stats = await io.extractStats(filepath);
+  const indexOid = indexEntry ? indexEntry.objectId.slice(2) : undefined;
+
+  const H = treeOid !== null;     // head
+  const I = indexEntry !== null;  // index
+  const W = stats !== null;       // working dir
+
+  const getWorkdirOid = async () => {
+    if (indexEntry && stats && !compareStats(indexEntry, stats)) {
+      return indexEntry.objectId;
+    } else {
+      const object = await io.readFileAsync(filepath, { encoding: 'utf-8' });
+      const workdirOid = (await isogit.hashBlob({ object: object })).oid;
+      return workdirOid;
+    }
+  }
+
+  if (!H && !W && !I) return 'absent';
+  if (!H && !W && I) return '*absent';
+  if (!H && W && !I) return '*added';
+  if (!H && W && I) {
+    const workdirOid = await getWorkdirOid();
+    return workdirOid === indexOid ? 'added' : '*added';
+  }
+  if (H && !W && !I) return 'deleted';
+  if (H && !W && I) return '*deleted';
+  if (H && W && !I) {
+    const workdirOid = await getWorkdirOid();
+    return workdirOid === treeOid ? '*undeleted' : '*undeletemodified';
+  }
+  if (H && W && I) {
+    const workdirOid = await getWorkdirOid();
+    if (workdirOid === treeOid) {
+      return workdirOid === indexOid ? 'unmodified' : '*unmodified';
+    } else {
+      return workdirOid === indexOid ? 'modified' : '*modified';
+    }
+  }
 }
 
 /**
@@ -175,8 +256,8 @@ export const resolveWorktree = async (repo: Repository, targetBranch: string): P
  * @return A Promise object for the add worktree operation.
  */
 export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string): Promise<void> => {
-  const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await git.resolveRef({ dir: repo.root, ref: commitish }))
-    : await git.resolveRef({ dir: repo.root, ref: 'HEAD' });
+  const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await resolveRef({ dir: repo.root, ref: commitish }))
+    : await resolveRef({ dir: repo.root, ref: 'HEAD' });
   const branch = (commitish && !isHash(commitish, 'sha1')) ? commitish : io.extractDirname(dir);
   const gitdir = path.resolve(`${dir.toString()}/.git`);
   const worktreedir = path.join(repo.root.toString(), '/.git/worktrees', branch);
@@ -184,7 +265,7 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
   const detached = (commitish && isHash(commitish, 'sha1')) ? commitish : undefined;
 
   // initialize the linked worktree
-  await git.clone({ repo: repo, dir: dir, ref: branch });
+  await clone({ repo: repo, dir: dir, ref: branch });
 
   // populate internal git files in main worktree to recognize the new linked worktree
   await fs.ensureDir(worktreedir);
@@ -211,7 +292,7 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
  */
 export const list = async (dir: fs.PathLike): Promise<Worktree[] | undefined> => {
   if (!(await io.extractStats(dir))) return; // cannot list from non-existent git directory
-  let root = await git.getRepoRoot(dir);
+  let root = await getRepoRoot(dir);
   if (!root) return undefined; // if there is no root, then dir is not under version control
 
   if (await isLinkedWorktree({ dir: root })) {
@@ -300,15 +381,15 @@ export const remove = async (worktree: Worktree, force = false): Promise<void> =
   const gitdir = path.join(worktree.path.toString(), '.git');
   if (!(await io.extractStats(gitdir))) return; // cannot remove non-existent git directory
   if (!(await isLinkedWorktree({ gitdir: gitdir }))) return; // main worktree cannot be removed
-  const status = await git.getStatus(worktree.path.toString());
+  const status = await getStatus(worktree.path.toString());
   if (status === 'modified' && !force) return; // cannot remove non-clean working trees (untracked files and modifications in tracked files)
 
   const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-  const root = await git.getRepoRoot(worktreedir);
+  const root = await getRepoRoot(worktreedir);
 
   await fs.remove(worktreedir); // remove the .git/worktrees/{branch} directory in the main worktree  
   await fs.remove(worktree.path.toString()); // remove the directory of the linked worktree
-  if (force && root && worktree.ref) await git.deleteBranch({ dir: root, ref: worktree.ref }); // delete branch ref, if force param is enabled
+  if (force && root && worktree.ref) await deleteBranch({ dir: root, ref: worktree.ref }); // delete branch ref, if force param is enabled
 
   return;
 }
