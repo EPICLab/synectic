@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, FormControlLabel, Switch, TextField, Typography } from '@material-ui/core';
-import { getConfig, setConfig } from '../containers/git';
+import { getConfig, setConfig } from '../containers/git-porcelain';
 import isEmail from 'validator/lib/isEmail';
 
 const useStyles = makeStyles((theme: Theme) =>

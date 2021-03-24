@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { ReadCommitResult } from 'isomorphic-git';
 
 import type { Repository } from '../../types';
-import { getConfig, log } from '../../containers/git';
+import { getConfig, log } from '../../containers/git-porcelain';
 
 export type CommitInfo = ReadCommitResult & {
   branch: string,
