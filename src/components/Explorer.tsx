@@ -28,7 +28,6 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
   const [expanded, setExpanded] = useState(false);
   const dispatch = useDispatch();
 
-  // TODO: This click handler is problematic, possibly because it expects update to find files
   const clickHandle = async () => {
     if (!expanded) await update();
     setExpanded(!expanded);

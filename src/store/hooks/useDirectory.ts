@@ -20,7 +20,7 @@ type DifferentiatedPaths = {
  * Custom React Hook for managing the list of directories and files contained within a root directory. The initial state of the 
  * hook is empty, and will only be populated after update has been called. The update method is optimized to only alter the
  * `directories` and `files` states when they no longer match the filesystem. This should alleviate any unnecessary rerendering
- * for downstream React components.
+ * for components that use this hook.
  * @param root The root directory that all subsequent child files and directories derive from.
  * @return The states of `root`, `directories`, `files`, and the asynchronous `update` function.
  */
