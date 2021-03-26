@@ -7,9 +7,9 @@ import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
 
-import type { Repository } from '../types';
+import type { GitStatus, Repository } from '../types';
 import * as io from './io';
-import { isLinkedWorktree, resolveLinkToRoot } from './git-worktree';
+import * as worktree from './git-worktree';
 import { getRepoRoot } from './git-porcelain';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
@@ -132,7 +132,7 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
 export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise<string | undefined> => {
   const repoRoot = await getRepoRoot(filepath);
   if (!repoRoot) return undefined;
-  const dir = (await isLinkedWorktree({ dir: repoRoot })) ? (await resolveLinkToRoot(repoRoot)) : repoRoot;
+  const dir = (await worktree.isLinkedWorktree({ dir: repoRoot })) ? (await worktree.resolveLinkToRoot(repoRoot)) : repoRoot;
   if (!dir) return undefined;
 
   const relativePath = path.relative(repoRoot, filepath.toString());
@@ -228,4 +228,46 @@ export const getIgnore = async (dir: fs.PathLike): Promise<Ignore> => {
     ignoreManager.add(content);
   });
   return ignoreManager;
+}
+
+/**
+ * Determine whether a file has been changed in accordance with the git repository. Extending the utility of
+ * [**isomorphic-git/status**](https://isomorphic-git.org/docs/en/status), this function resolves pathing for linked working 
+ * trees (see [`git-worktree`](https://git-scm.com/docs/git-worktree)) and returns the same git status indicators for the given 
+ * filepath.
+ * @param filepath The relative or absolute path to evaluate.
+ * @returns A Promise object containing undefined if the path is not contained within a directory under version control, or a git 
+ * status indicator (see `GitStatus` type definition for all possible status values).
+ */
+export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
+  const dir = await getRepoRoot(filepath);
+  if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
+  const isLinked = await worktree.isLinkedWorktree({ dir: dir });
+
+  return isLinked
+    ? worktree.status(filepath)
+    : isogit.status({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) });
+}
+
+/**
+ * Efficiently get the git status of multiple files in a directory at once. Extending the utility of 
+ * [**isomorphic-git/statusMatrix**](https://isomorphic-git.org/docs/en/statusMatrix), this function resolves pathing for linked 
+ * working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)) and returns the same status matrix containing HEAD 
+ * status, WORKDIR status, and STAGE status entries for each file or blob in the directory.
+ * @param dirpath The relative or absolute path to evaluate.
+ * @returns A Promise object containing undefined if the path is not contained within a directory under version control, or a 2D array 
+ * of tuples alphabetical ordered according to the filename followed by three integers representing the HEAD status, WORKDIR status, 
+ * and STAGE status of the entry (in this order). For each status, the values represent:
+ *   * The HEAD status is either absent (0) or present (1).
+ *   * The WORKDIR status is either absent (0), identical to HEAD (1), or different from HEAD (2).
+ *   * The STAGE status is either absent (0), identical to HEAD (1), identical to WORKDIR (2), or different from WORKDIR (3).
+ */
+export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined> => {
+  const dir = await getRepoRoot(dirpath);
+  if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
+  const isLinked = await worktree.isLinkedWorktree({ dir: dir });
+
+  return isLinked
+    ? worktree.statusMatrix(dirpath)
+    : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !io.isHidden(f) });
 }

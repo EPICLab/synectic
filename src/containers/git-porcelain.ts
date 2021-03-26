@@ -8,7 +8,8 @@ import getGitConfigPath from 'git-config-path';
 
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
-import { isLinkedWorktree, status, statusMatrix } from './git-worktree';
+import { isLinkedWorktree } from './git-worktree';
+import { status, statusMatrix } from './git-plumbing';
 
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
@@ -196,36 +197,22 @@ export const merge = async (
 
 /**
  * Determines the git tracking status of a specific file or directory path. If the `filepath` parameter points to a linked worktree,
- * then the `.git` file in that worktree must be used to translate paths back to the main worktree for querying the index. Subsequent
- * calls to **isomorphic-git/status** and **isomorphic-git/statusMatrix** will use a `dir` parameter pointing to the linked worktree
- * root, and a `gitdir` parameter pointing to the `.git` directory in the main worktree.
+ * then the `.git` file in that worktree will be used to translate paths back to the main worktree for querying the git trees 
+ * (HEAD, WORKDIR, and STAGE).
  * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing undefined if the path is not contained within a git repository, or a status indicator 
- * for whether the path has been changed according to git; the possible resolve values are described for the `GitStatus` type definition.
+ * @return A Promise object containing undefined if the path is not contained within a directory under version control, or a git 
+ * status indicator (see `GitStatus` type definition for all possible status values).
  */
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
-  /** isomorphic-git provides `status()` for individual files, but requires `statusMatrix()` for directories
-     * (per: https://github.com/isomorphic-git/isomorphic-git/issues/13), however neither can resolve linked worktrees */
-  const repoRoot = await getRepoRoot(filepath);
-  if (!repoRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
-
-  const dir = repoRoot;
-  const gitdir = path.join(dir, '.git');
-  const relativePath = path.relative(dir, filepath.toString());
-  const isLinked = await isLinkedWorktree({ dir: dir });
-
   if (await io.isDirectory(filepath)) {
-    const statuses = isLinked
-      ? await statusMatrix(filepath)
-      : await isogit.statusMatrix({ fs: fs, dir: dir, gitdir: gitdir, filter: f => !io.isHidden(f) });
+    const statuses = await statusMatrix(filepath);
     const changed = statuses ? statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
       .map(row => row[0])                 // return the filenames only
       : [];                               // handle the case that `statusMatrix` returned undefined
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
-
-  return isLinked ? status(filepath) : isogit.status({ fs: fs, dir: dir, gitdir: gitdir, filepath: relativePath });
+  return status(filepath);
 }
 
 /**

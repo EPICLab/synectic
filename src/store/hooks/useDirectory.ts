@@ -3,55 +3,98 @@ import { PathLike } from 'fs-extra';
 
 import * as io from '../../containers/io';
 import { removeDuplicates } from '../../containers/format';
+import { getRepoRoot } from '../../containers/git-porcelain';
+import { statusMatrix } from '../../containers/git-plumbing';
+import { join } from 'path';
 
 type useDirectoryHook = {
   root: PathLike,
-  directories: PathLike[],
-  files: PathLike[],
+  directories: HookEntry[],
+  files: HookEntry[],
   update: () => Promise<void>
 }
+type HookEntry = { path: PathLike, status?: [number, number, number] }
+type FilteredPaths = { directories: HookEntry[], files: HookEntry[] }
 
-type DifferentiatedPaths = {
-  directories: PathLike[];
-  files: PathLike[];
-}
+// splits filepaths into directory and file entry lists
+const filterPaths = async (filepaths: PathLike[]): Promise<FilteredPaths> => {
+  return await filepaths.reduce(async (previousPromise: Promise<FilteredPaths>, filepath: PathLike) => {
+    const collection = await previousPromise;
+    const isDirectory = await io.isDirectory(filepath);
+    if (isDirectory) collection.directories.push({ path: filepath });
+    else collection.files.push({ path: filepath });
+    return collection;
+  }, Promise.resolve({ directories: [], files: [] }));
+};
+
+// compare two list of filepaths to determine whether there are deviations between them
+const hasPathChanges = (prev: HookEntry[], curr: HookEntry[]): boolean => {
+  const uniques = removeDuplicates<PathLike>(
+    [...prev.map(p => p.path), ...curr.map(c => c.path)],
+    (p: PathLike, c: PathLike) => p.toString() === c.toString()
+  );
+  return uniques.length > 0;
+};
+
+// compare previous entry status with latest status matrix results; returns updated entries only if git status has changed
+const getStatusChanges = async (prev: HookEntry[], root: PathLike): Promise<HookEntry[] | undefined> => {
+  const statuses = await statusMatrix(root);
+  if (!statuses) return undefined;
+
+  const prevMap = new Map<string, HookEntry>(prev.map(e => [e.path.toString(), e]));
+
+  let changed = false;
+  const updatedEntries: HookEntry[] = statuses.map(row => {
+    const prevEntry = prevMap.get(row[0]);
+    const prevStatus = prevEntry ? prevEntry.status : undefined;
+    if (!prevStatus) changed = true; // file didn't previously exist in git, so it must have changed
+    else if (
+      prevStatus[0] !== row[1] ||   // HEAD status
+      prevStatus[1] !== row[2] ||   // WORKDIR status
+      prevStatus[2] !== row[3]      // STAGE status
+    ) {
+      changed = true;
+    }
+    return { path: join(root.toString(), row[0]), status: [row[1], row[2], row[3]] };
+  });
+
+  return changed ? updatedEntries : undefined;
+};
 
 /**
- * Custom React Hook for managing the list of directories and files contained within a root directory. The initial state of the 
- * hook is empty, and will only be populated after update has been called. The update method is optimized to only alter the
- * `directories` and `files` states when they no longer match the filesystem. This should alleviate any unnecessary rerendering
- * for components that use this hook.
+ * Custom React Hook for managing the list of directories and files contained within a root directory. The initial state of the hook is 
+ * empty, and will only be populated after `update` has been called. The `update` function is git-aware and optimized to only alter 
+ * `directories` and `files` states when they no longer match the state of the git repository; or when used on a directory that is not
+ * under version control it will revert to matching against the filesystem. This should alleviate any unnecessary rerendering for 
+ * components that rely on this hook for renderable state.
  * @param root The root directory that all subsequent child files and directories derive from.
  * @return The states of `root`, `directories`, `files`, and the asynchronous `update` function.
  */
 export const useDirectory = (root: PathLike): useDirectoryHook => {
-  const [directories, setDirectories] = useState<PathLike[]>([]);
-  const [files, setFiles] = useState<PathLike[]>([]);
-
-  // splits filepaths into directory and file lists
-  const filterPaths = async (filepaths: PathLike[]): Promise<DifferentiatedPaths> => {
-    return await filepaths.reduce(async (previousPromise: Promise<DifferentiatedPaths>, filepath: PathLike) => {
-      const collection = await previousPromise;
-      const directory = await io.isDirectory(filepath);
-      if (directory) collection.directories.push(filepath);
-      else collection.files.push(filepath);
-      return collection;
-    }, Promise.resolve({ directories: [], files: [] }));
-  };
-
-  // compare two list of filepaths to determine whether there are deviations between them
-  const isChanged = (a: PathLike[], b: PathLike[]): boolean => {
-    const uniques = removeDuplicates<PathLike>([...a, ...b], (a: PathLike, b: PathLike) => a.toString() === b.toString());
-    return uniques.length > 0;
-  }
+  const [directories, setDirectories] = useState<HookEntry[]>([]);
+  const [files, setFiles] = useState<HookEntry[]>([]);
 
   // read child paths of root directory and update if any changes are found
   const update = useCallback(async () => {
-    const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
-    const differentiated = await filterPaths(filepaths);
-    // // only update if changes are detected between the previous state and the new results
-    if (isChanged(directories, differentiated.directories)) setDirectories(differentiated.directories);
-    if (isChanged(files, differentiated.files)) setFiles(differentiated.files);
+    const dir = await getRepoRoot(root);
+    if (dir) {
+      const updatedFiles = await getStatusChanges(files, root);
+      if (updatedFiles) console.log('updating git-tracked files', { updatedFiles });
+      if (updatedFiles) setFiles(updatedFiles);
+    } else {
+      const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
+      const currPaths = await filterPaths(filepaths);
+      // only update if changes are detected between the previous state and the new results
+      if (hasPathChanges(directories, currPaths.directories)) {
+        console.log('updating non-tracked directories', { currPaths });
+        setDirectories(currPaths.directories);
+      }
+      if (hasPathChanges(files, currPaths.files)) {
+        console.log('updating non-tracked files', { currPaths });
+        setFiles(currPaths.files);
+      }
+    }
+
   }, [directories, files, root]);
 
   return { root, directories, files, update };

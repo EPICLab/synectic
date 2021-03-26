@@ -39,12 +39,12 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
       labelIcon={expanded ? FolderOpenIcon : FolderIcon}
       onClick={clickHandle}
     >
-      { directories.map(dir => <DirectoryComponent key={dir.toString()} root={dir} />)}
-      { files?.map(file =>
+      { directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
+      { files.map(file =>
         <StyledTreeItem key={file.toString()} nodeId={file.toString()}
-          labelText={extractFilename(file)}
+          labelText={extractFilename(file.path)}
           labelIcon={InsertDriveFileIcon}
-          onClick={() => dispatch(loadCard({ filepath: file }))}
+          onClick={() => dispatch(loadCard({ filepath: file.path }))}
         />
       )}
     </StyledTreeItem>
@@ -69,12 +69,12 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
         defaultExpandIcon={<ArrowRightIcon />}
         defaultEndIcon={<div style={{ width: 8 }} />}
       >
-        {directories.map(dir => <DirectoryComponent key={dir.toString()} root={dir} />)}
+        {directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
         {files.map(file =>
-          <StyledTreeItem key={file.toString()} nodeId={file.toString()}
-            labelText={extractFilename(file)}
+          <StyledTreeItem key={file.path.toString()} nodeId={file.path.toString()}
+            labelText={extractFilename(file.path)}
             labelIcon={InsertDriveFileIcon}
-            onClick={() => dispatch(loadCard({ filepath: file }))}
+            onClick={() => dispatch(loadCard({ filepath: file.path }))}
           />
         )}
       </TreeView>
