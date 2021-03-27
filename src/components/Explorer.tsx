@@ -20,7 +20,8 @@ import { MetafileWithPath } from '../containers/metafiles';
 const useStyles = makeStyles({
   root: {
     transform: 'translateY(-12px)',
-  }
+  },
+
 });
 
 export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
@@ -60,6 +61,14 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { update() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
 
+  const colorFilter = (status: [number, number, number] | undefined): string | undefined => {
+    if (!status) return undefined;
+    if (status[0] === 0) return '#95bf77'; // absent in HEAD; new or added
+    if (status[0] === 1 && status[1] === 2) return '#d19a66'; // present in HEAD, different in WORKDIR; modified
+    if (status[0] === 1 && status[1] === 0) return '#da6473'; // present in HEAD, absent in WORKDIR; deleted
+    return undefined;
+  }
+
   return (
     <div className='file-explorer'>
       <div className='branch-ribbon-container'><p className='branch-ribbon-text'>{`Branch: ${rootMetafile.branch}`}</p></div>
@@ -72,6 +81,7 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
         {directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
         {files.map(file =>
           <StyledTreeItem key={file.path.toString()} nodeId={file.path.toString()}
+            color={colorFilter(file.status)}
             labelText={extractFilename(file.path)}
             labelIcon={InsertDriveFileIcon}
             onClick={() => dispatch(loadCard({ filepath: file.path }))}

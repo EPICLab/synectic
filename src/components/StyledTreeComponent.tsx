@@ -60,6 +60,15 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       padding: theme.spacing(0.5, 0),
     },
+    labelRootAdded: {
+      color: 'rgba(149, 191, 119, 1)'
+    },
+    labelRootModified: {
+      color: 'rgba(209, 154, 102, 1)'
+    },
+    labelRootDeleted: {
+      color: 'rgba(218, 100, 115, 1)'
+    },
     labelIcon: {
       marginRight: theme.spacing(1),
     },
@@ -71,15 +80,15 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
 );
 
 export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = props => {
-  const classes = useTreeItemStyles();
   const { labelText, labelIcon: LabelIcon, labelInfo, color, bgColor, ...other } = props;
+  const classes = useTreeItemStyles();
 
   return (
     <TreeItem
       label={
         <div className={classes.labelRoot}>
-          <LabelIcon color='inherit' className={classes.labelIcon} />
-          <Typography variant='body2' className={classes.labelText}>
+          <LabelIcon color='inherit' className={classes.labelIcon} style={{ color: color }} />
+          <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
             {labelText}
           </Typography>
           <Typography variant='caption' color='inherit'>
