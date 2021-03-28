@@ -20,6 +20,7 @@ import { addStack, pushCards, popCard } from '../containers/stacks';
 import { StyledIconButton } from './StyledIconButton';
 import { writeFileAsync } from '../containers/io';
 import { updateGitInfo } from '../containers/metafiles';
+import { fileSaveDialog } from '../containers/dialogs';
 
 export const useStyles = makeStyles({
   root: {
@@ -138,10 +139,11 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     });
     if (metafile.path && metafile.content) {
       console.log(`saving ${props.name}...`);
+      console.log({ metafile });
       await writeFileAsync(metafile.path, metafile.content);
       dispatch(updateGitInfo(metafile.id));
     } else {
-      console.log(`unable to save content to ${props.name}...`);
+      dispatch(fileSaveDialog(metafile));
     }
   }
   const close = () => {

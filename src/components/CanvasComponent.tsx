@@ -13,7 +13,7 @@ import { NavMenu } from './NavMenu';
 import { NavItemProps } from './NavItem';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { addModal } from '../containers/modals';
-import { filePickerDialog } from '../containers/filepicker';
+import { filePickerDialog } from '../containers/dialogs';
 import { loadBranchVersions } from '../containers/branch-tracker';
 import { GitGraphSelect } from './GitGraphSelect';
 

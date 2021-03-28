@@ -135,7 +135,7 @@ const NewCardDialog: React.FunctionComponent<Modal> = props => {
 
   const handleClick = async () => {
     if (category === 'Editor' && isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
-      const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', path: fileName, filetype: filetype } }));
+      const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', filetype: filetype } }));
       if (metafile) await dispatch(loadCard({ metafile: metafile }));
       handleClose();
     }

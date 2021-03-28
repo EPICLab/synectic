@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 
 import { remote } from 'electron'; // imports the mocked dependency to allow access to the spies
 import { mockStore } from './__mocks__/reduxStoreMock';
-import { filePickerDialog } from '../src/containers/filepicker';
+import { filePickerDialog } from '../src/containers/dialogs';
 
 const store = mockStore({
   canvas: {

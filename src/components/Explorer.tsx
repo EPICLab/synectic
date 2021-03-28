@@ -84,7 +84,11 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
             color={colorFilter(file.status)}
             labelText={extractFilename(file.path)}
             labelIcon={InsertDriveFileIcon}
-            onClick={() => dispatch(loadCard({ filepath: file.path }))}
+            onClick={
+              () => (file.status && file.status[0] === 1 && file.status[1] === 0)
+                ? null
+                : dispatch(loadCard({ filepath: file.path }))
+            }
           />
         )}
       </TreeView>
