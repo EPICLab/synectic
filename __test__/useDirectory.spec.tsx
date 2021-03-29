@@ -89,7 +89,7 @@ describe('useDirectory', () => {
 
     expect(result.current.root).toEqual('foo');
     expect(result.current.directories).toHaveLength(0);
-    expect(result.current.files).toEqual(['foo/bar.js']);
+    expect(result.current.files).toEqual([{ path: 'foo/bar.js' }]);
   });
 
   it('useDirectory hook updates root, directories, and files when new filesystem objects exist', async () => {
@@ -101,7 +101,7 @@ describe('useDirectory', () => {
 
     expect(result.current.root).toEqual('foo');
     expect(result.current.directories).toHaveLength(0);
-    expect(result.current.files).toEqual(['foo/bar.js']);
+    expect(result.current.files).toEqual([{ path: 'foo/bar.js' }]);
 
     await act(async () => {
       await writeFileAsync('foo/baz.js', 'test example');
@@ -110,7 +110,7 @@ describe('useDirectory', () => {
 
     expect(result.current.root).toEqual('foo');
     expect(result.current.directories).toHaveLength(0);
-    expect(result.current.files).toEqual(['foo/bar.js', 'foo/baz.js']);
+    expect(result.current.files).toEqual([{ path: 'foo/bar.js' }, { path: 'foo/baz.js' }]);
   })
 
 });
