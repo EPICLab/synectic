@@ -82,7 +82,7 @@
     "@electron-forge/plugin-webpack": "6.0.0-beta.54",
     "@jedmao/redux-mock-store": "^3.0.5",
     "@testing-library/dom": "^7.30.0",
-    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.5",
     "@testing-library/react-hooks": "^5.0.3",
     "@testing-library/user-event": "^13.0.10",
