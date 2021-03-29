@@ -86,11 +86,9 @@ export const useDirectory = (root: PathLike): useDirectoryHook => {
       const currPaths = await filterPaths(filepaths);
       // only update if changes are detected between the previous state and the new results
       if (hasPathChanges(directories, currPaths.directories)) {
-        console.log('updating non-tracked directories', { currPaths });
         setDirectories(currPaths.directories);
       }
       if (hasPathChanges(files, currPaths.files)) {
-        console.log('updating non-tracked files', { currPaths });
         setFiles(currPaths.files);
       }
     }
