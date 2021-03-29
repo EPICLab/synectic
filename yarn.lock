@@ -3683,10 +3683,10 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-dnd-core@12.0.0:
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/dnd-core/-/dnd-core-12.0.0.tgz#b5b243121538279782a8ca35c4e55234a621f1ed"
-  integrity sha512-7GQTkQfNmmdFBN85hN0aHKXeP6Vf4yFUZQBT02+yHKbR82C80N504onI4Av5ZKm2goY1ppQr3wdDp5pa5tlaYA==
+dnd-core@12.0.1:
+  version "12.0.1"
+  resolved "https://registry.yarnpkg.com/dnd-core/-/dnd-core-12.0.1.tgz#2263391d6de218801770df4d345294a5f1eccc48"
+  integrity sha512-KzfKXQM9t9uSBO7DFmrILVgXUCShpY3/MbnLPF9/wg1Wcvq2KblbeT72GhjcrplS9cz0DFXilE1NXy43n8plag==
   dependencies:
     "@react-dnd/asap" "^4.0.0"
     "@react-dnd/invariant" "^2.0.0"
@@ -8710,12 +8710,12 @@ react-dnd-html5-backend@^14.0.0:
   dependencies:
     dnd-core "14.0.0"
 
-react-dnd-test-backend@^12.0.0:
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/react-dnd-test-backend/-/react-dnd-test-backend-12.0.0.tgz#3597566811d52269ae2661fd6dbe6a228b254409"
-  integrity sha512-SJI24oVls8fymjypfekmVnfEUKGjXtZlsGpfJ6UjW8MkXej0xnHd6Vpw2iUV8+KSjzQmTvvnXdUP3L7/8EyQcA==
+react-dnd-test-backend@^14.0.0:
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/react-dnd-test-backend/-/react-dnd-test-backend-14.0.0.tgz#4ab247dfc54aafc4570b3491510067d4d87a2199"
+  integrity sha512-eeAFsxEYV05+uoCth4lZTzaIZf9J3D7Mlr1IVCpJ5IHcaLylN2wY6OK2jE51G/lCwzs+55evAOIueMM1fDf+IQ==
   dependencies:
-    dnd-core "12.0.0"
+    dnd-core "14.0.0"
 
 react-dnd-test-utils@^14.0.0:
   version "14.0.0"
