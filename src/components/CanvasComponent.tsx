@@ -13,7 +13,7 @@ import { NavMenu } from './NavMenu';
 import { NavItemProps } from './NavItem';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { addModal } from '../containers/modals';
-import { filePickerDialog } from '../containers/dialogs';
+import { fileOpenDialog } from '../containers/dialogs';
 import { loadBranchVersions } from '../containers/branch-tracker';
 import { GitGraphSelect } from './GitGraphSelect';
 
@@ -92,9 +92,9 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
 
   const fileMenu: NavItemProps[] = [
     { label: 'New...', click: () => dispatch(addModal({ type: 'NewCardDialog' })) },
-    ...(isMac ? [{ label: 'Open...', click: () => dispatch(filePickerDialog()) }] : [
-      { label: 'Open File...', click: () => dispatch(filePickerDialog('openFile')) },
-      { label: 'Open Directory...', click: () => dispatch(filePickerDialog('openDirectory')) }
+    ...(isMac ? [{ label: 'Open...', click: () => dispatch(fileOpenDialog()) }] : [
+      { label: 'Open File...', click: () => dispatch(fileOpenDialog('openFile')) },
+      { label: 'Open Directory...', click: () => dispatch(fileOpenDialog('openDirectory')) }
     ])
   ];
 

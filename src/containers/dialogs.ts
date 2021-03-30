@@ -11,7 +11,7 @@ import { updateGitInfo } from './metafiles';
 
 type PickerType = 'openFile' | 'openDirectory';
 
-export const filePickerDialog = (pickerType?: PickerType): ThunkAction<Promise<void>, RootState, undefined, Action> => {
+export const fileOpenDialog = (pickerType?: PickerType): ThunkAction<Promise<void>, RootState, undefined, Action> => {
   return async (dispatch) => {
     const isMac = process.platform === 'darwin';
     const properties: ('openFile' | 'openDirectory')[] = pickerType ? [pickerType] : (isMac ? ['openFile', 'openDirectory'] : ['openFile']);
