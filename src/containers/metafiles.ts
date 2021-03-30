@@ -126,6 +126,7 @@ export const updateFileStats = (id: UUID): ThunkAction<Promise<UpdateMetafileAct
     } else {
       const extension = io.extractExtension(metafile.path);
       handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
+      if (!handler) handler = handler = filetypes.find(filetype => filetype.filetype === 'Text');
     }
 
     const updated: Metafile = {
