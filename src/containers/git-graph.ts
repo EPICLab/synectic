@@ -2,7 +2,7 @@ import dagre from 'dagre';
 import { ArrowHeadType, Edge, FlowElement, Node, isNode, isEdge } from 'react-flow-renderer';
 
 import type { Repository } from '../types';
-import { currentBranch, getStatus } from '../containers/git-porcelain';
+import { getStatus } from '../containers/git-porcelain';
 import { CommitInfo } from '../store/hooks/useGitHistory';
 import { flattenArray } from '../containers/flatten';
 import { colorSets } from '../containers/colors';
@@ -33,7 +33,7 @@ const getGitEdge = (commit: CommitInfo): Edge[] => {
 
 const getGitStaged = async (commit: CommitInfo, repo: Repository): Promise<(Node | Edge)[]> => {
   const currentBranchStatus = await getStatus(repo.root);
-  if (currentBranchStatus && !['ignored', 'unmodified'].includes(currentBranchStatus)) {
+  if (currentBranchStatus && !(currentBranchStatus in ['ignored', 'unmodified'])) {
     return [{
       id: `${commit.oid}*`,
       type: 'gitNode',
@@ -82,26 +82,19 @@ export const graphConstruction = async (commits: Map<string, CommitInfo>, heads:
   : Promise<Array<FlowElement>> => {
   const currentCommits = [...commits.values()]
     .sort((a, b) => a.commit.author.timestamp - b.commit.author.timestamp)  // sort by commit timestamp
-    .slice(Math.max(commits.size - 80, 0))                                  // limited to 50 most recent commits
+    .slice(Math.max(commits.size - 80, 0))                                  // limited to 80 most recent commits
+
   const newElements = currentCommits.reduce((prev: Array<FlowElement>, curr: CommitInfo): Array<FlowElement> => {
     const branchHead = heads.get(`${curr.scope}/${curr.branch}`);
     const node: Node = getGitNode(curr, branchHead);
     const edges: Edge[] = getGitEdge(curr);
     return [node, ...prev, ...edges];
   }, []);
+
   const headsHashes = [...heads.values()];
   const headCommits = currentCommits.filter(commit => headsHashes.includes(commit.oid));
-  // TODO: Until `git.getStatus` is able to handle worktrees, we will need to check through all open cards on the canvas
-  // to determine if any contain changes compared to the latest version in the associated branch. The following line 
-  // is an initial implementation that relies on this card-checking functionality:
-  // const staged = flattenArray(await Promise.all(headCommits.map(headCommit => getGitStaged(headCommit, props.repo))));
-  const currentBranchName = await currentBranch({ dir: repo.root.toString() });
-  const currentBranchHash = heads.get(`local/${currentBranchName}`);
-  const staged = flattenArray(await Promise.all(
-    headCommits
-      .filter(commit => commit.oid === currentBranchHash)
-      .map(currentBranchCommit => getGitStaged(currentBranchCommit, repo))
-  ));
+  const staged = flattenArray(await Promise.all(headCommits.map(currentBranchCommit => getGitStaged(currentBranchCommit, repo))));
+
   const optimizedNewElements = layoutOptimizer([...newElements, ...staged]);
   return optimizedNewElements;
 }

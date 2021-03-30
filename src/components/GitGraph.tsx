@@ -26,6 +26,7 @@ export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
   }, [elements, reactFlowState]);
 
   useEffect(() => {
+    console.log('generating graph...');
     const asyncFetchGraph = async () => setElements(await graphConstruction(commits, heads, repo));
     asyncFetchGraph();
   }, [commits, heads, repo]);
@@ -35,7 +36,7 @@ export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
     nodeTypes={nodeTypes}
     onConnect={onConnect}
     onLoad={onLoad}
-    onNodeMouseEnter={(_event, node) => console.log(node.id)}
+    // onNodeMouseEnter={(_event, node) => console.log(node.id)}
     className='git-flow' />);
 }
 
