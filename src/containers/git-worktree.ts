@@ -60,8 +60,7 @@ const createWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(
  * @param gitdir The git directory path (typically ends in `.git`).
  * @return A boolean indicating whether the provided path is a linked worktree.
  */
-export const isLinkedWorktree = async (param: AtLeastOne<WorktreePaths>)
-  : Promise<boolean> => {
+export const isLinkedWorktree = async (param: AtLeastOne<WorktreePaths>): Promise<boolean> => {
   const gitdir = param.gitdir
     ? param.gitdir
     : (param.dir ? path.join(param.dir.toString(), '.git') : undefined);

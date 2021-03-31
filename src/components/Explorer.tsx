@@ -4,6 +4,7 @@ import { PathLike } from 'fs-extra';
 import TreeView from '@material-ui/lab/TreeView';
 import { makeStyles } from '@material-ui/core';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
+import ReplayIcon from '@material-ui/icons/Replay';
 import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -12,10 +13,11 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import type { UUID, Card } from '../types';
 import { RootState } from '../store/root';
 import { loadCard } from '../containers/handlers';
-import { extractFilename } from '../containers/io';
+import { extractFilename, writeFileAsync } from '../containers/io';
 import { useDirectory } from '../store/hooks/useDirectory';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { MetafileWithPath } from '../containers/metafiles';
+import { getMetafile, MetafileWithPath } from '../containers/metafiles';
+import { discardChanges } from '../containers/git-plumbing';
 
 const useStyles = makeStyles({
   root: {
@@ -34,6 +36,12 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
     setExpanded(!expanded);
   }
 
+  const discardHandlerConstructor = (filepath: PathLike) => async (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await discardChanges(filepath);
+  }
+
   return (
     <StyledTreeItem key={props.root.toString()} nodeId={props.root.toString()}
       labelText={extractFilename(props.root)}
@@ -45,6 +53,8 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
         <StyledTreeItem key={file.toString()} nodeId={file.toString()}
           labelText={extractFilename(file.path)}
           labelIcon={InsertDriveFileIcon}
+          labelInfo={ReplayIcon}
+          labelInfoClickHandler={discardHandlerConstructor(file.path)}
           onClick={() => dispatch(loadCard({ filepath: file.path }))}
         />
       )}
@@ -69,6 +79,18 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
     return undefined;
   }
 
+  const discardHandlerConstructor = (filepath: PathLike) => async (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(`clicked on revert for ${filepath.toString()}`);
+    const updatedContent = await discardChanges(filepath);
+    if (updatedContent) {
+      console.log(`writing content to file and updating metafile for ${filepath.toString()}`);
+      await writeFileAsync(filepath, updatedContent);
+      dispatch(getMetafile({ filepath: filepath }));
+    }
+  }
+
   return (
     <div className='file-explorer'>
       <div className='branch-ribbon-container'><p className='branch-ribbon-text'>{`Branch: ${rootMetafile.branch}`}</p></div>
@@ -83,6 +105,8 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
           <StyledTreeItem key={file.path.toString()} nodeId={file.path.toString()}
             color={colorFilter(file.status)}
             labelText={extractFilename(file.path)}
+            labelInfo={colorFilter(file.status) ? ReplayIcon : undefined}
+            labelInfoClickHandler={discardHandlerConstructor(file.path)}
             labelIcon={InsertDriveFileIcon}
             onClick={
               () => (file.status && file.status[0] === 1 && file.status[1] === 0)

@@ -10,7 +10,7 @@ import { toHTTPS } from 'git-remote-protocol';
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { getRepoRoot } from './git-porcelain';
+import { currentBranch, getRepoRoot } from './git-porcelain';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 
@@ -270,4 +270,25 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
   return isLinked
     ? worktree.statusMatrix(dirpath)
     : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !io.isHidden(f) });
+}
+
+/**
+ * Discard uncommitted changes to a file and revert to the version at the head of the related branch. The resulting content can be written 
+ * to the underlying file, but any metafiles will also need to be updated before those changes are reflected in Synectic.
+ * @param filepath The relative or absolute path to revert.
+ * @return A Promise object containing undefined if the path is not contained within a directory under version control, or the reverted
+ * file content from the head of the associated branch as a UTF-8 encoded string.
+ */
+export const discardChanges = async (filepath: fs.PathLike): Promise<string | undefined> => {
+  const root = await getRepoRoot(filepath);
+  if (!root) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
+  const dir = (await worktree.isLinkedWorktree({ dir: root })) ? await worktree.resolveLinkToRoot(root) : root;
+  if (!dir) return undefined;
+  const branch = await currentBranch({ dir: root, fullname: false });
+  if (!branch) return undefined;
+
+  const oid = await resolveOid(filepath, branch);
+  if (!oid) return undefined;
+  const blob = await isogit.readBlob({ fs: fs, dir: dir, oid: oid });
+  return Buffer.from(blob.blob).toString('utf-8');
 }

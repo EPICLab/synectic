@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TreeItem, { TreeItemProps } from '@material-ui/lab/TreeItem';
 import { createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 import { SvgIconProps } from '@material-ui/core/SvgIcon';
@@ -14,8 +14,9 @@ type StyledTreeItemProps = TreeItemProps & {
   bgColor?: string;
   color?: string;
   labelIcon: React.ElementType<SvgIconProps>;
-  labelInfo?: string;
+  labelInfo?: React.ElementType<SvgIconProps>;
   labelText: string;
+  labelInfoClickHandler?: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 };
 
 export const useTreeItemStyles = makeStyles((theme: Theme) =>
@@ -60,28 +61,31 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       padding: theme.spacing(0.5, 0),
     },
-    labelRootAdded: {
-      color: 'rgba(149, 191, 119, 1)'
-    },
-    labelRootModified: {
-      color: 'rgba(209, 154, 102, 1)'
-    },
-    labelRootDeleted: {
-      color: 'rgba(218, 100, 115, 1)'
-    },
     labelIcon: {
       marginRight: theme.spacing(1),
     },
     labelText: {
       fontWeight: 'inherit',
       flexGrow: 1
+    },
+    labelInfo: {
+      fontWeight: 'inherit',
+      fontSize: 16,
+      marginRight: theme.spacing(1)
     }
   })
 );
 
 export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = props => {
-  const { labelText, labelIcon: LabelIcon, labelInfo, color, bgColor, ...other } = props;
+  const { labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler, color, bgColor, ...other } = props;
+  const [hover, setHover] = useState(false);
   const classes = useTreeItemStyles();
+
+  // const clickHandle = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   console.log(`clicked on revert for ${labelText}`);
+  // }
 
   return (
     <TreeItem
@@ -91,15 +95,17 @@ export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = prop
           <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
             {labelText}
           </Typography>
-          <Typography variant='caption' color='inherit'>
-            {labelInfo}
-          </Typography>
+          {(LabelInfo && labelInfoClickHandler && hover)
+            ? <LabelInfo color='inherit' className={classes.labelInfo} onClick={labelInfoClickHandler} style={{ color: color }} />
+            : null}
         </div>
       }
       style={{
         '--tree-view-color': color,
         '--tree-view-bg-color': bgColor,
       }}
+      onMouseOver={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       classes={{
         root: classes.root,
         content: classes.content,
