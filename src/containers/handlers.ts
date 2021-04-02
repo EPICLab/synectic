@@ -4,6 +4,7 @@ import { ThunkAction } from 'redux-thunk';
 import { PathLike } from 'fs-extra';
 
 import type { Filetype, Metafile, Modal } from '../types';
+import * as io from './io';
 import { RootState } from '../store/root';
 import { getMetafile } from './metafiles';
 import { addCard } from './cards';
@@ -60,6 +61,21 @@ export const handlersError = (target: string, message: string): AddModalAction =
     modal: modal
   };
 }
+
+export const resolveHandler = (filepath: PathLike): ThunkAction<Promise<Filetype | undefined>, RootState, undefined, Action> =>
+  async (_, getState) => {
+    const stats = await io.extractStats(filepath);
+    const filetypes = Object.values(getState().filetypes);
+    let handler: Filetype | undefined;
+    if (stats && stats.isDirectory()) {
+      handler = filetypes.find(filetype => filetype.filetype === 'Directory');
+    } else {
+      const extension = io.extractExtension(filepath);
+      handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
+      if (!handler) handler = handler = filetypes.find(filetype => filetype.filetype === 'Text');
+    }
+    return handler;
+  }
 
 // Descriminated union type for emulating a `mutually exclusive or` (XOR) operation between parameter types
 // Ref: https://github.com/microsoft/TypeScript/issues/14094#issuecomment-344768076

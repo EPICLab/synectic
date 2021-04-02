@@ -4,12 +4,13 @@ import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
-import type { Metafile, Filetype, Modal, UUID } from '../types';
+import type { Metafile, Modal, UUID } from '../types';
 import * as io from './io';
 import { RootState } from '../store/root';
 import { getRepository } from './repos';
 import { asyncFilter } from './format';
 import { currentBranch, getRepoRoot, getStatus } from './git-porcelain';
+import { resolveHandler } from './handlers';
 
 type AddMetafileAction = NarrowActionType<ActionKeys.ADD_METAFILE>;
 type UpdateMetafileAction = NarrowActionType<ActionKeys.UPDATE_METAFILE>;
@@ -118,16 +119,7 @@ export const updateFileStats = (id: UUID): ThunkAction<Promise<UpdateMetafileAct
     if (!metafile) return dispatch(metafilesError(id, `Cannot update non-existing metafile for id: '${id}'`));
     if (!metafile.path) return dispatch(metafilesError(id, `Cannot update file stats for virtual metafile id: '${id}'`));
 
-    const stats = await io.extractStats(metafile.path);
-    const filetypes = Object.values(getState().filetypes);
-    let handler: Filetype | undefined;
-    if (stats && stats.isDirectory()) {
-      handler = filetypes.find(filetype => filetype.filetype === 'Directory');
-    } else {
-      const extension = io.extractExtension(metafile.path);
-      handler = filetypes.find(filetype => filetype.extensions.some(ext => ext === extension));
-      if (!handler) handler = handler = filetypes.find(filetype => filetype.filetype === 'Text');
-    }
+    const handler = await dispatch(resolveHandler(metafile.path));
 
     const updated: Metafile = {
       ...metafile,
