@@ -274,7 +274,8 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
 
 /**
  * Discard uncommitted changes to a file and revert to the version at the head of the related branch. The resulting content can be written 
- * to the underlying file, but any metafiles will also need to be updated before those changes are reflected in Synectic.
+ * to the underlying file, but any metafiles will also need to be updated before those changes are reflected in Synectic. If the change was
+ * the addition or deletion of a file, then this function should not be used; `fs-extra/remove` or `io/writeFileAsync` can be used instead.
  * @param filepath The relative or absolute path to revert.
  * @return A Promise object containing undefined if the path is not contained within a directory under version control, or the reverted
  * file content from the head of the associated branch as a UTF-8 encoded string.

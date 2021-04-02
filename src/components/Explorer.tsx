@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { PathLike } from 'fs-extra';
+import { PathLike, remove } from 'fs-extra';
 import TreeView from '@material-ui/lab/TreeView';
 import { makeStyles } from '@material-ui/core';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
@@ -12,18 +12,19 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
 import type { UUID, Card } from '../types';
 import { RootState } from '../store/root';
-import { loadCard } from '../containers/handlers';
+import { Action } from '../store/actions';
+import { loadCard, resolveHandler } from '../containers/handlers';
 import { extractFilename, writeFileAsync } from '../containers/io';
-import { useDirectory } from '../store/hooks/useDirectory';
+import { FileState, useDirectory } from '../store/hooks/useDirectory';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { discardChanges } from '../containers/git-plumbing';
+import { ThunkDispatch } from 'redux-thunk';
 
 const useStyles = makeStyles({
   root: {
-    transform: 'translateY(-12px)',
+    transform: 'translateY(-12px)', // used by Branch Ribbon to remove extra whitespace before the first file/dir element
   },
-
 });
 
 export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
@@ -65,31 +66,73 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const rootMetafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
   const { directories, files, update } = useDirectory((rootMetafile as MetafileWithPath).path);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const cssClasses = useStyles();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { update() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
 
-  const colorFilter = (status: [number, number, number] | undefined): string | undefined => {
-    if (!status) return undefined;
-    if (status[0] === 0) return '#95bf77'; // absent in HEAD; new or added
-    if (status[0] === 1 && status[1] === 2) return '#d19a66'; // present in HEAD, different in WORKDIR; modified
-    if (status[0] === 1 && status[1] === 0) return '#da6473'; // present in HEAD, absent in WORKDIR; deleted
-    return undefined;
-  }
-
-  const discardHandlerConstructor = (filepath: PathLike) => async (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log(`clicked on revert for ${filepath.toString()}`);
-    const updatedContent = await discardChanges(filepath);
-    if (updatedContent) {
-      console.log(`writing content to file and updating metafile for ${filepath.toString()}`);
-      await writeFileAsync(filepath, updatedContent);
-      dispatch(getMetafile({ filepath: filepath }));
+  const colorFilter = (fileStatus: FileState) => {
+    switch (fileStatus) {
+      case 'added':
+        return '#95bf77';
+      case 'deleted':
+        return '#da6473';
+      case 'modified':
+        return '#d19a66';
+      case 'unmodified':
+        return undefined;
+      default:
+        return undefined;
     }
   }
+
+  const discardHandlerConstructor = (filepath: PathLike, fileState: FileState) =>
+    async (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      switch (fileState) {
+        case 'added': {
+          console.log('added file, so removing file to discard changes');
+          remove(filepath.toString(), (error) => console.log(error));
+          const handler = await dispatch(resolveHandler(filepath));
+          if (handler) dispatch(getMetafile({ virtual: { name: extractFilename(filepath), handler: handler.handler } }));
+          update();
+          break;
+        }
+        case 'modified': {
+          console.log('modified file, checking for changed content before doing anything')
+          const updatedContent = await discardChanges(filepath);
+          if (updatedContent) {
+            console.log('  changed content => overwriting with original content')
+            await writeFileAsync(filepath, updatedContent);
+            dispatch(getMetafile({ filepath: filepath }));
+            update();
+          }
+          break;
+        }
+        case 'deleted': {
+          console.log('deleted file, so rewriting file content to discard changes');
+          const content = await discardChanges(filepath);
+          if (content) {
+            await writeFileAsync(filepath, content);
+            dispatch(getMetafile({ filepath: filepath }));
+            update();
+          }
+          break;
+        }
+
+        case 'unmodified': {
+          console.log('unmodified...');
+          break;
+        }
+        default: {
+          console.log('undefined...');
+          break;
+        }
+      }
+    }
 
   return (
     <div className='file-explorer'>
@@ -103,10 +146,10 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
         {directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
         {files.map(file =>
           <StyledTreeItem key={file.path.toString()} nodeId={file.path.toString()}
-            color={colorFilter(file.status)}
+            color={colorFilter(file.fileState)}
             labelText={extractFilename(file.path)}
-            labelInfo={colorFilter(file.status) ? ReplayIcon : undefined}
-            labelInfoClickHandler={discardHandlerConstructor(file.path)}
+            labelInfo={(file.fileState && file.fileState !== 'unmodified') ? ReplayIcon : undefined}
+            labelInfoClickHandler={discardHandlerConstructor(file.path, file.fileState)}
             labelIcon={InsertDriveFileIcon}
             onClick={
               () => (file.status && file.status[0] === 1 && file.status[1] === 0)
