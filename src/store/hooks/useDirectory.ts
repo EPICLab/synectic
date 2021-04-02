@@ -8,6 +8,7 @@ import { statusMatrix } from '../../containers/git-plumbing';
 import { join } from 'path';
 
 export type FileState = 'added' | 'deleted' | 'modified' | 'unmodified' | undefined;
+export type HookEntry = { path: PathLike, status?: [number, number, number], fileState?: FileState }
 
 type useDirectoryHook = {
   root: PathLike,
@@ -15,7 +16,6 @@ type useDirectoryHook = {
   files: HookEntry[],
   update: () => Promise<void>
 }
-type HookEntry = { path: PathLike, status?: [number, number, number], fileState?: FileState }
 type FilteredPaths = { directories: HookEntry[], files: HookEntry[] }
 
 // splits filepaths into directory and file entry lists
