@@ -81,12 +81,6 @@ export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = prop
   const [hover, setHover] = useState(false);
   const classes = useTreeItemStyles();
 
-  // const clickHandle = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   console.log(`clicked on revert for ${labelText}`);
-  // }
-
   return (
     <TreeItem
       label={
