@@ -7,13 +7,15 @@ import { getRepoRoot } from '../../containers/git-porcelain';
 import { statusMatrix } from '../../containers/git-plumbing';
 import { join } from 'path';
 
+export type FileState = 'added' | 'deleted' | 'modified' | 'unmodified' | undefined;
+
 type useDirectoryHook = {
   root: PathLike,
   directories: HookEntry[],
   files: HookEntry[],
   update: () => Promise<void>
 }
-type HookEntry = { path: PathLike, status?: [number, number, number] }
+type HookEntry = { path: PathLike, status?: [number, number, number], fileState?: FileState }
 type FilteredPaths = { directories: HookEntry[], files: HookEntry[] }
 
 // splits filepaths into directory and file entry lists
@@ -42,6 +44,12 @@ const getStatusChanges = async (prev: HookEntry[], root: PathLike): Promise<Hook
   if (!statuses) return undefined;
 
   const prevMap = new Map<string, HookEntry>(prev.map(e => [e.path.toString(), e]));
+  const fileStateFilter = (status: [number, number, number]) => {
+    if (status[0] === 0) return 'added';
+    if (status[0] === 1 && status[1] === 2) return 'modified';
+    if (status[0] === 1 && status[1] === 0) return 'deleted';
+    return 'unmodified';
+  }
 
   let changed = false;
   const updatedEntries: HookEntry[] = statuses.map(row => {
@@ -55,7 +63,8 @@ const getStatusChanges = async (prev: HookEntry[], root: PathLike): Promise<Hook
     ) {
       changed = true;
     }
-    return { path: join(root.toString(), row[0]), status: [row[1], row[2], row[3]] };
+    const statusRow: [number, number, number] = [row[1], row[2], row[3]];
+    return { path: join(root.toString(), row[0]), status: statusRow, fileState: fileStateFilter(statusRow) };
   });
 
   return changed ? updatedEntries : undefined;
