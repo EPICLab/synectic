@@ -1,4 +1,5 @@
 import { remote } from 'electron';
+import { join } from 'path';
 import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { ActionKeys } from '../store/actions';
@@ -24,7 +25,8 @@ export const fileSaveDialog = (metafile: Metafile): ThunkAction<Promise<void>, R
   return async (dispatch, getState) => {
     const isMac = process.platform === 'darwin';
     const properties: ('showHiddenFiles' | 'createDirectory')[] = isMac ? ['showHiddenFiles', 'createDirectory'] : ['showHiddenFiles'];
-    const response = await remote.dialog.showSaveDialog({ properties: properties });
+
+    const response = await remote.dialog.showSaveDialog({ defaultPath: join(process.cwd(), metafile.name), properties: properties });
     if (!response.canceled && response.filePath && metafile.content) {
       // update metafile
       dispatch({
