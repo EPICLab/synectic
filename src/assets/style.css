@@ -179,10 +179,10 @@ img.diff_icon {
 .file-explorer {
   color: rgba(30, 30, 30, 1);
   background: rgba(235, 235, 235, 1);
-  width: 100%;
+  /* width: 100%; */
   height: 100%;
   flex-grow: 1;
-  text-indent: 20px;
+  text-indent: 10px;
   border-radius: 0px 0px 10px 10px;
   overflow: auto;
   text-overflow: ellipsis;
@@ -193,61 +193,29 @@ img.diff_icon {
   width: 0px;
 }
 
+.branch-ribbon {
+  display: block;
+  background-color: rgb(88, 90, 194);
+  color: rgb(200, 210, 220);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  padding: 0.3rem;
+}
+
+.branch-ribbon.long:hover {
+  animation: scroll-text 8s linear infinite;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
 .branch-ribbon-container {
   background-color: rgba(72, 74, 212, 1);
-  height: 20px;
-  transform: translateY(-16px);
-  padding-bottom: -10px;
-}
-
-.branch-ribbon-text {
-  color: rgba(235, 235, 235, 1);
-  font-family: Arial, Helvetica, sans-serif;
-  text-indent: 1px;
-  overflow-x: hidden;
-  white-space: nowrap;
-  width: fit-content;
-  margin-bottom: 0px;
-}
-
-.branch-ribbon-container:hover > .branch-ribbon-text {
-  animation: scroll-text 10s linear infinite;
-  animation-timing-function: ease-in-out;
-  animation-fill-mode: forwards;
-}
-
-.branch-ribbon-container:not(:hover) > .branch-ribbon-text {
-  animation: fade-text 1s;
-  animation-timing-function: ease-in-out;
-  animation-fill-mode: forwards;
-}
-
-@keyframes fade-text {
-  0% {
-    opacity: 0;
-  }
-
-  50% {
-    transform: translateX(0%);
-  }
-
-  100% {
-    opacity: 1;
-  }
 }
 
 @keyframes scroll-text {
-  0% {
-    transform: translateX(0%);
-  }
-
-  50% {
-    transform: translateX(-96%);
-  }
-
-  100% {
-    transform: translateX(0%);
-  }
+  0% { transform: translateX(0%); }
+  50% { transform: translateX(-40%); }
+  100% { transform: translateX(0%); }
 }
 
 .new-card-dialog-container {
