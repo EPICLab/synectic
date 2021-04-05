@@ -84,7 +84,7 @@
     "@testing-library/dom": "^7.30.3",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.5",
-    "@testing-library/react-hooks": "^5.0.3",
+    "@testing-library/react-hooks": "^5.1.1",
     "@testing-library/user-event": "^13.0.10",
     "@types/dagre": "^0.7.44",
     "@types/git-config-path": "^2.0.1",
