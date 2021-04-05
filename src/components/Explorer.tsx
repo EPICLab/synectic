@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { PathLike, remove } from 'fs-extra';
 import TreeView from '@material-ui/lab/TreeView';
-import { makeStyles } from '@material-ui/core';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
 import ReplayIcon from '@material-ui/icons/Replay';
 import FolderIcon from '@material-ui/icons/Folder';
@@ -20,12 +19,7 @@ import { StyledTreeItem } from './StyledTreeComponent';
 import { getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { discardChanges } from '../containers/git-plumbing';
 import { ThunkDispatch } from 'redux-thunk';
-
-const useStyles = makeStyles({
-  root: {
-    transform: 'translateY(-12px)', // used by Branch Ribbon to remove extra whitespace before the first file/dir element
-  },
-});
+import { BranchRibbon } from './BranchRibbon';
 
 const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise<void> }> = props => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
@@ -120,16 +114,14 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const rootMetafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
   const { directories, files, update } = useDirectory((rootMetafile as MetafileWithPath).path);
-  const cssClasses = useStyles();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { update() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
 
   return (
     <div className='file-explorer'>
-      <div className='branch-ribbon-container'><p className='branch-ribbon-text'>{`Branch: ${rootMetafile.branch}`}</p></div>
+      <BranchRibbon branch={rootMetafile.branch} />
       <TreeView
-        classes={cssClasses}
         defaultCollapseIcon={<ArrowDropDownIcon />}
         defaultExpandIcon={<ArrowRightIcon />}
         defaultEndIcon={<div style={{ width: 8 }} />}

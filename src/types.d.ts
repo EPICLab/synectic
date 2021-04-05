@@ -12,7 +12,7 @@ import parsePath from 'parse-path';
 export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 
-export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge';
+export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge' | 'SourceControl';
 export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'BranchList' | 'MergeSelector' | 'Error' | 'GitGraph';
 /**
  * | status                | description                                                                           |
@@ -126,8 +126,8 @@ export type Metafile = {
   readonly path?: PathLike;
   /** The UUID for related Repository object, when managed by a version control system. */
   readonly repo?: UUID;
-  /** The UUID for related Branch object (representing a branch or ref), when managed by a version control system. */
-  readonly branch?: UUID;
+  /** The branch name or ref, when managed by a version control system. */
+  readonly branch?: string;
   /** The latest Git status code for this file relative to the associated repository and branch. */
   readonly status?: GitStatus;
   /** The latest Filesystem status code for this file relative to the associated content. */
