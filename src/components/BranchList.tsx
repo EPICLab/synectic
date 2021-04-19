@@ -10,9 +10,10 @@ import { useStyles } from './CardComponent';
  * canvas. The list displays both local and remote branches, and allows for checking out any branch at any 
  * point (without concern for whether there are changes on a particular branch). Checkouts will only affect 
  * the contents of the indicated card.
- * @param props Metafile UUID and Card UUID required for determining correct repository and display target.
+ * @param props Metafile UUID and Card UUID required for determining correct repository and display target. Optional
+ * update boolean flag indicates whether all checkouts should update the main worktree (instead of using linked worktrees).
  */
-export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; }> = props => {
+export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; update?: boolean; }> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
@@ -23,7 +24,7 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
   const checkout = (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
     updateBranch(newBranch);
-    dispatch(checkoutBranch(props.cardId, metafile.id, newBranch));
+    dispatch(checkoutBranch(props.cardId, metafile.id, newBranch, undefined, props.update));
   };
 
   return (
