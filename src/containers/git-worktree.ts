@@ -7,7 +7,7 @@ import isHash from 'validator/lib/isHash';
 
 import type { GitStatus, Repository, SHA1, UUID } from '../types';
 import * as io from './io';
-import { clone, currentBranch, deleteBranch, getRepoRoot, getStatus } from './git-porcelain';
+import { checkout, clone, currentBranch, deleteBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
 import { parse } from './git-index';
 import { compareStats } from './io-stats';
@@ -265,7 +265,7 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
 
   // initialize the linked worktree
   await clone({ repo: repo, dir: dir, ref: branch });
-  await isogit.checkout({ fs: fs, dir: dir.toString(), ref: branch });
+  await checkout({ dir: dir, ref: branch });
 
   // populate internal git files in main worktree to recognize the new linked worktree
   await fs.ensureDir(worktreedir);
