@@ -60,7 +60,8 @@ export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; 
       oauth = 'gitlab';
       break;
   }
-  return { url: parsedPath, oauth: oauth };
+  // TODO: Eventually, url should directly return parsedPath when git:// and ssh:// protocols are supported in isomorphic-git
+  return { url: parsePath(resolveURL(parsedPath)), oauth: oauth };
 }
 
 /**
@@ -256,7 +257,7 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
  * status, WORKDIR status, and STAGE status entries for each file or blob in the directory.
  * @param dirpath The relative or absolute path to evaluate.
  * @returns A Promise object containing undefined if the path is not contained within a directory under version control, or a 2D array 
- * of tuples alphabetical ordered according to the filename followed by three integers representing the HEAD status, WORKDIR status, 
+ * of tuples alphabetically ordered according to the filename followed by three integers representing the HEAD status, WORKDIR status, 
  * and STAGE status of the entry (in this order). For each status, the values represent:
  *   * The HEAD status is either absent (0) or present (1).
  *   * The WORKDIR status is either absent (0), identical to HEAD (1), or different from HEAD (2).

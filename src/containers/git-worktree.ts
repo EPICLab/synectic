@@ -265,6 +265,7 @@ export const add = async (repo: Repository, dir: fs.PathLike, commitish?: string
 
   // initialize the linked worktree
   await clone({ repo: repo, dir: dir, ref: branch });
+  await isogit.checkout({ fs: fs, dir: dir.toString(), ref: branch });
 
   // populate internal git files in main worktree to recognize the new linked worktree
   await fs.ensureDir(worktreedir);
