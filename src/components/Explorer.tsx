@@ -20,6 +20,7 @@ import { getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { discardChanges } from '../containers/git-plumbing';
 import { ThunkDispatch } from 'redux-thunk';
 import { BranchRibbon } from './BranchRibbon';
+import { BranchList } from './BranchList';
 
 const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise<void> }> = props => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
@@ -27,11 +28,11 @@ const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise
   const colorFilter = (fileStatus: FileState) => {
     switch (fileStatus) {
       case 'added':
-        return '#95bf77';
+        return '#95bf77'; // green
       case 'deleted':
-        return '#da6473';
+        return '#da6473'; // red
       case 'modified':
-        return '#d19a66';
+        return '#d19a66'; // orange
       case 'unmodified':
         return undefined;
       default:
@@ -147,7 +148,7 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo.name}</span>
-      <span>Branch:</span><span className='field'>{metafile.branch ? metafile.branch : 'untracked'}</span>
+      <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} update={true} />
       <span>Status:</span><span className='field'>{metafile.status}</span>
     </>
   );
