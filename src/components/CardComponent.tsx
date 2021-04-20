@@ -10,9 +10,10 @@ import { makeStyles } from '@material-ui/core';
 
 import type { Card } from '../types';
 import { ActionKeys } from '../store/actions';
-import Explorer, { ExplorerReverse } from './Explorer';
 import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
+import Explorer, { ExplorerReverse } from './Explorer';
+import SourceControl, { SourceControlReverse } from './SourceControl';
 import Browser, { BrowserReverse } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
 import { RootState } from '../store/root';
@@ -21,6 +22,7 @@ import { StyledIconButton } from './StyledIconButton';
 import { writeFileAsync } from '../containers/io';
 import { updateGitInfo } from '../containers/metafiles';
 import { fileSaveDialog } from '../containers/dialogs';
+
 
 export const useStyles = makeStyles({
   root: {
@@ -42,6 +44,8 @@ const ContentFront: React.FunctionComponent<Card> = props => {
       return (<Diff metafileId={props.metafile} />);
     case 'Explorer':
       return (<Explorer rootId={props.metafile} />);
+    case 'SourceControl':
+      return (<SourceControl rootId={props.metafile} />);
     case 'Browser':
       return (<Browser />);
     case 'Tracker':
@@ -59,6 +63,8 @@ const ContentBack: React.FunctionComponent<Card> = props => {
       return (<DiffReverse {...props} />);
     case 'Explorer':
       return (<ExplorerReverse {...props} />);
+    case 'SourceControl':
+      return (<SourceControlReverse {...props} />);
     case 'Browser':
       return (<BrowserReverse {...props} />);
     case 'Tracker':

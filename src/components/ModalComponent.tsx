@@ -6,6 +6,7 @@ import ErrorDialog from './ErrorDialog';
 import { GitGraph } from './GitGraph';
 import MergeDialog from './MergeDialog';
 import NewCardDialog from './NewCardDialog';
+import SourcePickerDialog from './SourcePickerDialog';
 
 const ModalComponent: React.FunctionComponent<Modal> = props => {
   switch (props.type) {
@@ -13,6 +14,8 @@ const ModalComponent: React.FunctionComponent<Modal> = props => {
       return (<NewCardDialog {...props} />);
     case 'DiffPicker':
       return (<DiffPickerDialog {...props} />);
+    case 'SourcePicker':
+      return (<SourcePickerDialog {...props} />);
     case 'MergeSelector':
       return (<MergeDialog {...props} />)
     case 'Error':

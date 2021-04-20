@@ -13,7 +13,7 @@ export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 
 export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge' | 'SourceControl';
-export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'BranchList' | 'MergeSelector' | 'Error' | 'GitGraph';
+export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'SourcePicker' | 'BranchList' | 'MergeSelector' | 'Error' | 'GitGraph';
 /**
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |

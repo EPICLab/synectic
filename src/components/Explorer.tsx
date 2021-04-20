@@ -21,6 +21,8 @@ import { discardChanges } from '../containers/git-plumbing';
 import { ThunkDispatch } from 'redux-thunk';
 import { BranchRibbon } from './BranchRibbon';
 import { BranchList } from './BranchList';
+import { Button } from '@material-ui/core';
+import { getBranchRoot } from '../containers/git-porcelain';
 
 const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise<void> }> = props => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
@@ -40,7 +42,7 @@ const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise
     }
   }
 
-  const discardHandlerConstructor = (filepath: PathLike, fileState: FileState) =>
+  const discardChangesHandler = (filepath: PathLike, fileState: FileState) =>
     async (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
       e.preventDefault();
       e.stopPropagation();
@@ -83,8 +85,9 @@ const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise
       color={colorFilter(props.fileState)}
       labelText={extractFilename(props.path)}
       labelInfo={(props.fileState && props.fileState !== 'unmodified') ? ReplayIcon : undefined}
-      labelInfoClickHandler={discardHandlerConstructor(props.path, props.fileState)}
+      labelInfoClickHandler={discardChangesHandler(props.path, props.fileState)}
       labelIcon={InsertDriveFileIcon}
+      enableHover={true}
       onClick={() => (props.fileState === 'deleted') ? null : dispatch(loadCard({ filepath: props.path }))}
     />
   );
@@ -137,7 +140,22 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
 export const ExplorerReverse: React.FunctionComponent<Card> = props => {
   const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
   const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
+  const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
+
+  const handleVersionsClick = async () => {
+    if (!repo || !metafile.branch) return;
+    const sourceControlMetafile = await dispatch(getMetafile({
+      virtual: {
+        name: 'Source Control',
+        handler: 'SourceControl',
+        repo: repo.id,
+        branch: metafile.branch,
+        path: await getBranchRoot(repo, metafile.branch)
+      }
+    }));
+    if (sourceControlMetafile) dispatch(loadCard({ metafile: sourceControlMetafile }));
+  }
 
   /**
    * TODO: Need to update the metafile.status for the directory when an underlying file changes
@@ -147,9 +165,10 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
     <>
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
-      <span>Repo:</span><span className='field'>{repo.name}</span>
+      <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
       <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} update={true} />
       <span>Status:</span><span className='field'>{metafile.status}</span>
+      <span>Versions:</span><Button onClick={handleVersionsClick}>Source Control</Button>
     </>
   );
 };

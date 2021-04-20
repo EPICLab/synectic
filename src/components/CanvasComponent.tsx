@@ -101,11 +101,12 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
   const actionMenu: NavItemProps[] = [
     { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(addModal({ type: 'DiffPicker' })) },
     { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal({ type: 'MergeSelector' })) },
+    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal({ type: 'SourcePicker' })) },
   ];
 
   const viewMenu: NavItemProps[] = [
     { label: 'Branches...', click: async () => dispatch(loadBranchVersions()) },
-    { label: 'Show All...', click: () => showState() }
+    { label: 'Show All...', click: () => showState() },
   ];
 
   return (
