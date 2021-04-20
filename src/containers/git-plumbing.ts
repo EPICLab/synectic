@@ -10,9 +10,12 @@ import { toHTTPS } from 'git-remote-protocol';
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { currentBranch, getRepoRoot } from './git-porcelain';
+import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
+import { AtLeastOne } from './format';
+import { MatrixStatus } from '../store/hooks/useDirectory';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
+type Unpromisify<T> = T extends Promise<infer U> ? U : T;
 
 /**
  * Asynchronous check for presence of .git within directory to validate Git version control.
@@ -240,7 +243,7 @@ export const getIgnore = async (dir: fs.PathLike): Promise<Ignore> => {
  * @returns A Promise object containing undefined if the path is not contained within a directory under version control, or a git 
  * status indicator (see `GitStatus` type definition for all possible status values).
  */
-export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
+export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   const dir = await getRepoRoot(filepath);
   if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
   const isLinked = await worktree.isLinkedWorktree({ dir: dir });
@@ -271,6 +274,55 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
   return isLinked
     ? worktree.statusMatrix(dirpath)
     : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !io.isHidden(f) });
+}
+
+/**
+ * Select an individual file from the results of *statusMatrix* and convert the numeric tuple into a GitStatus string.
+ * @param file
+ * @param matrix
+ */
+export const parseStatusMatrix = async (file: fs.PathLike, matrix: Unpromisify<ReturnType<typeof statusMatrix>>):
+  Promise<GitStatus | undefined> => {
+  const dir = await getRepoRoot(file);
+  if (!dir) return undefined;
+  if (!matrix) return undefined;
+
+  const isIgnored = (await getIgnore(dir)).ignores(path.relative(dir.toString(), file.toString()));
+  if (isIgnored) return 'ignored';
+
+  const matrixFile = matrix.find(status => io.extractFilename(status[0]) === io.extractFilename(file));
+  if (!matrixFile) console.log('parseStatusMatrix =>', { file, matrix, matrixFile });
+  if (!matrixFile) return 'absent';
+
+  return matrixToStatus({ matrixEntry: matrixFile });
+}
+
+type statusMatrixTypes = {
+  matrixEntry: [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3],
+  status: MatrixStatus
+}
+
+export const matrixToStatus = (entry: AtLeastOne<statusMatrixTypes>): GitStatus | undefined => {
+  // [1] for HEAD, [2] for WORKDIR, [3] for STAGE trees
+  const status: [number, number, number] = entry.matrixEntry ? [entry.matrixEntry[1], entry.matrixEntry[2], entry.matrixEntry[3]]
+    : (entry.status ? [entry.status[0], entry.status[1], entry.status[2]] : [0, 0, 0]);
+  const tuplesEqual = <T, U, V>(x: [T, U, V], y: [T, U, V]) => x.every((xVal, i) => xVal === y[i]);
+
+  if (tuplesEqual(status, [0, 0, 0])) return 'absent';
+  if (tuplesEqual(status, [0, 0, 3])) return '*absent';
+  if (tuplesEqual(status, [0, 2, 0])) return '*added';
+  if (tuplesEqual(status, [0, 2, 2])) return 'added';
+  if (tuplesEqual(status, [0, 2, 3])) return '*added';
+  if (tuplesEqual(status, [1, 1, 0])) return '*undeleted';
+  if (tuplesEqual(status, [1, 1, 1])) return 'unmodified';
+  if (tuplesEqual(status, [1, 1, 3])) return '*unmodified';
+  if (tuplesEqual(status, [1, 2, 0])) return '*modified';
+  if (tuplesEqual(status, [1, 2, 1])) return '*modified';
+  if (tuplesEqual(status, [1, 2, 2])) return 'modified';
+  if (tuplesEqual(status, [1, 2, 3])) return '*modified';
+  if (tuplesEqual(status, [1, 0, 1])) return '*deleted';
+  if (tuplesEqual(status, [1, 0, 0])) return 'deleted';
+  return undefined;
 }
 
 /**
