@@ -86,9 +86,6 @@ const useStyles = makeStyles((theme: Theme) =>
     section2: {
       margin: theme.spacing(1, 1),
     },
-    section3: {
-      margin: theme.spacing(1, 1),
-    },
   }),
 );
 
@@ -303,7 +300,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
             open={(branchConflicts[1] && branchConflicts[1].length > 0) ? true : false}
           />
         </div>
-        <div className={classes.section3}>
+        <div className={classes.section2}>
           <MUI.Button variant='outlined' color='primary' className={classes.button} onClick={check}>Check</MUI.Button>
           <MUI.Button variant='outlined' color='primary' className={classes.button} onClick={branchCheck}>Check Branches</MUI.Button>
           <MUI.Button variant='outlined' color='primary' className={classes.button}>Merge</MUI.Button>
