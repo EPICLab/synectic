@@ -6,6 +6,7 @@ import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
 
 import type { GitStatus, Repository, SHA1, UUID } from '../types';
+import type { AtLeastOne } from './format';
 import * as io from './io';
 import { checkout, clone, currentBranch, deleteBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
@@ -23,7 +24,6 @@ export type Worktree = {
   ref?: string; // A branch name or symbolic ref (can be abbreviated).
   rev?: SHA1 | string; // A revision (or commit) representing the current state of `index` for the worktree.
 }
-type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]; // see: https://stackoverflow.com/questions/48230773/how-to-create-a-partial-like-that-requires-a-single-property-to-be-set/48244432#48244432
 type WorktreePaths = {
   dir: fs.PathLike;
   gitdir: fs.PathLike;
