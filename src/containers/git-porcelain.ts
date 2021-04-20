@@ -9,7 +9,7 @@ import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
 import { isLinkedWorktree } from './git-worktree';
-import { status, statusMatrix } from './git-plumbing';
+import { matrixEntry, statusMatrix } from './git-plumbing';
 
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
@@ -30,6 +30,33 @@ export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undef
     return undefined;
   }
 };
+
+/**
+ * Find the root git directory for a specific branch. For the current branch on the main worktree, this corresponds to calling *getRepoRoot*
+ * function. For branches on linked worktrees, this corresponds to reading the `.git/worktrees/{branch}/gitdir` file to determine the file
+ * location for the linked worktree directory.
+ * @param repo Repository object corresponding to the target branch.
+ * @param branch Name of the target branch.
+ * @returns A Promise object containing the root git directory path, or undefined if no root git directory exists for the branch (i.e. the 
+ * branch is remote-only and is not currently being tracked locally).
+ */
+export const getBranchRoot = async (repo: Repository, branch: string): Promise<string | undefined> => {
+  // check to see if branch matches the main worktree
+  const current = await currentBranch({ dir: repo.root });
+  if (branch === current) return getRepoRoot(repo.root);
+
+  // check to see if branch matches one of the linked worktrees
+  const worktreePath = path.join(repo.root.toString(), '.git', 'worktrees');
+  return fs.stat(worktreePath)
+    .then(async () => {
+      const worktreeBranches = await io.readDirAsync(worktreePath);
+      const match = worktreeBranches.find(w => w === branch);
+      if (match) {
+        return path.dirname((await io.readFileAsync(path.join(worktreePath, match, 'gitdir'), { encoding: 'utf-8' })).trim());
+      }
+    })
+    .catch(() => { return undefined });
+}
 
 /**
  * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function to inject the `fs` parameter and extend with
@@ -212,7 +239,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
       : [];                               // handle the case that `statusMatrix` returned undefined
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
-  return status(filepath);
+  return matrixEntry(filepath);
 }
 
 /**
