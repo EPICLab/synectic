@@ -8,7 +8,15 @@ import { statusMatrix } from '../../containers/git-plumbing';
 import { join } from 'path';
 
 export type FileState = 'added' | 'deleted' | 'modified' | 'unmodified' | undefined;
-export type HookEntry = { path: PathLike, status?: [number, number, number], fileState?: FileState }
+export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
+export type HookEntry = {
+  /** Absolute path to specific file or directory. */
+  path: PathLike,
+  /** Set of numerical status indicators for HEAD, WORKDIR, and STAGE trees. */
+  status?: MatrixStatus,
+  /** Git status for the path, relative to the filesystem. */
+  fileState?: FileState
+}
 
 type useDirectoryHook = {
   root: PathLike,
@@ -63,7 +71,7 @@ const getStatusChanges = async (prev: HookEntry[], root: PathLike): Promise<Hook
     ) {
       changed = true;
     }
-    const statusRow: [number, number, number] = [row[1], row[2], row[3]];
+    const statusRow: MatrixStatus = [row[1], row[2], row[3]];
     return { path: join(root.toString(), row[0]), status: statusRow, fileState: fileStateFilter(statusRow) };
   });
 
