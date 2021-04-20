@@ -13,8 +13,10 @@ declare module 'csstype' {
 type StyledTreeItemProps = TreeItemProps & {
   bgColor?: string;
   color?: string;
+  enableHover?: boolean;
   labelIcon: React.ElementType<SvgIconProps>;
   labelInfo?: React.ElementType<SvgIconProps>;
+  labelInfoText?: string;
   labelText: string;
   labelInfoClickHandler?: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 };
@@ -26,19 +28,20 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       '&:hover > $content': {
         backgroundColor: theme.palette.action.hover,
       },
-      '&:focus > $content, &$selected > $content': {
-        backgroundColor: `var(--tree-view-bg-color, ${theme.palette.grey[400]})`,
-        color: 'var(--tree-view-color)',
-      },
+      // '&:focus > $content, &$selected > $content': {
+      //   backgroundColor: `var(--tree-view-bg-color, ${theme.palette.grey[400]})`,
+      //   color: 'var(--tree-view-color)',
+      // },
       '&:focus > $content $label, &:hover > $content $label, &$selected > $content $label': {
         backgroundColor: 'transparent',
       }
     },
     content: {
+      boxSizing: 'border-box',
       color: theme.palette.text.secondary,
       borderTopRightRadius: theme.spacing(2),
       borderBottomRightRadius: theme.spacing(2),
-      paddingRight: theme.spacing(1),
+      // paddingRight: theme.spacing(1),
       fontWeight: theme.typography.fontWeightMedium,
       '$expanded > &': {
         fontWeight: theme.typography.fontWeightRegular,
@@ -77,7 +80,8 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
 );
 
 export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = props => {
-  const { labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler, color, bgColor, ...other } = props;
+  const { labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler,
+    color, bgColor, enableHover, labelInfoText, ...other } = props;
   const [hover, setHover] = useState(false);
   const classes = useTreeItemStyles();
 
@@ -89,7 +93,8 @@ export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = prop
           <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
             {labelText}
           </Typography>
-          {(LabelInfo && labelInfoClickHandler && hover)
+          {labelInfoText ? <Typography variant='body2' className={classes.labelInfo}>{labelInfoText}</Typography> : null}
+          {(LabelInfo && (!enableHover || (enableHover && hover)))
             ? <LabelInfo color='inherit' className={classes.labelInfo} onClick={labelInfoClickHandler} style={{ color: color }} />
             : null}
         </div>
