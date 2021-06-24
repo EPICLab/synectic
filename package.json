@@ -115,7 +115,7 @@
     "jest": "26.6.3",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "jest-serializer-path": "^0.1.15",
-    "mock-fs": "^4.13.0",
+    "mock-fs": "^5.0.0",
     "node-loader": "^1.0.2",
     "react-dnd-test-backend": "^14.0.0",
     "react-dnd-test-utils": "^14.0.0",
