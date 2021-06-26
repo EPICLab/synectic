@@ -51,7 +51,7 @@ Follow the instructions in [Install](#Install) section to install dependencies. 
 # Testing
 
 Follow the instructions in [Install](#Install) section to install dependencies. Once installed, the following commands can be used from within the project root directory:
-* `yarn test` - executes [Jest](https://jestjs.io/) with [Enzyme](https://airbnb.io/enzyme/) tests located in `__test__` directory
+* `yarn test` - executes [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) tests located in `__test__` directory
 
 # Linting
 
