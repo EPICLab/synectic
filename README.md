@@ -51,7 +51,7 @@ Follow the instructions in [Install](#Install) section to install dependencies. 
 # Testing
 
 Follow the instructions in [Install](#Install) section to install dependencies. Once installed, the following commands can be used from within the project root directory:
-* `yarn test` - executes [Jest](https://jestjs.io/) with [Enzyme](https://airbnb.io/enzyme/) tests located in `__test__` directory
+* `yarn test` - executes [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) tests located in `__test__` directory
 
 # Linting
 
@@ -62,4 +62,4 @@ Follow the instructions in [Install](#Install) section to install dependencies. 
 
 We welcome contributions to this open source project on Github. When contributing, please follow the [Contributing Code Guide](https://github.com/EPICLab/synectic/blob/master/CONTRIBUTING.md). Also, any new contributors should include a commit that updates this `README.md` document to include your name and a link to your GitHub profile page (unless you wish to be anonymous).
 
-Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Jett Seale ([@jettseale](https://github.com/jettseale)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Marjan Adeli ([@Marjan-Adeli](https://github.com/Marjan-Adeli)), Hayden Coffey ([@hcoffey1](https://github.com/hcoffey1)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar))
+Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Jett Seale ([@jettseale](https://github.com/jettseale)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Marjan Adeli ([@Marjan-Adeli](https://github.com/Marjan-Adeli)), Hayden Coffey ([@hcoffey1](https://github.com/hcoffey1)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar)), Andrea Tongsak ([@andrealit](https://github.com/andrealit))
