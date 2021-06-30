@@ -114,7 +114,7 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
     fs: fs,
     dir: dir,
     trees: [isogit.TREE({ ref: branch }), isogit.WORKDIR(), isogit.STAGE()],
-    map: async (filename: string, entries: Array<isogit.WalkerEntry> | null) => {
+    map: async (filename: string, entries: (isogit.WalkerEntry | null)[]) => {
       if (!entries || filename === '.' || ignoreWorktree.ignores(filename)) return;
 
       const [head, workdir, stage] = entries.slice(0, 3);
