@@ -4,6 +4,7 @@ module.exports = {
    * that runs in the main process.
    */
   entry: './src/main.js',
+  target: 'electron-main',
   devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json']
