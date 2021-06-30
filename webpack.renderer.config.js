@@ -7,6 +7,7 @@ rules.push({
 })
 
 module.exports = {
+  target: 'electron-renderer',
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css']
   },
