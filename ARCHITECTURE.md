@@ -21,7 +21,7 @@ The [`electron-devtools-installer`](https://github.com/MarshallOfSound/electron-
   * `@electron-forge/maker-squirrel`
   * `@electron-forge/maker-zip`
   * `@electron-forge/plugin-webpack`
-  * `@marshallofsound/webpack-asset-relocator-loader`
+  * `@vercel/webpack-asset-relocator-loader`
   * `electron-devtools-installer`
 
 **Configuration:**
