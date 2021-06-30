@@ -190,11 +190,12 @@ export const branchDiff = async (
     fs: fs,
     dir: dirpath,
     trees: [isogit.TREE({ ref: hashA }), isogit.TREE({ ref: hashB })],
-    map: async (filepath: string, entries: Array<isogit.WalkerEntry> | null) => {
-      if (!entries || entries.length < 2) return;
+    map: async (filepath: string, entries: (isogit.WalkerEntry | null)[]) => {
+      if (!entries || entries.length < 2) return [];
       const [A, B] = entries.slice(0, 2);
+      if (!A || !B) return [];
 
-      if (filepath === '.') return;                                           // ignore directories
+      if (filepath === '.') return [];                                           // ignore directories
       if ((await A.type()) === 'tree' || (await B.type()) === 'tree') return; // ignore directories, known as trees in git lingo
       const Aoid = await A.oid();
       const Boid = await B.oid();
@@ -210,7 +211,7 @@ export const branchDiff = async (
         console.log('Something weird happened:', { A, B });
       }
 
-      return (!filter) || (filter && filter(result)) ? result : null;
+      return (!filter) || (filter && filter(result)) ? result : [];
     },
   });
   return files;
