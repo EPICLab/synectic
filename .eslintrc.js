@@ -34,7 +34,7 @@ module.exports = {
     'plugin:jest/style',
     'plugin:jest-dom/recommended',
     'plugin:react/recommended',
-    'plugin:testing-library/recommended',
+    'plugin:testing-library/dom',
   ],
   settings: {
     'import/core-modules': ['electron'], // https://github.com/benmosher/eslint-plugin-import/blob/master/README.md#importcore-modules
