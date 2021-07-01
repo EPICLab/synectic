@@ -1,6 +1,6 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor, screen } from '@testing-library/react';
 
 import NewCardDialog from '../src/components/NewCardDialog';
 import { mockStore } from './__mocks__/reduxStoreMock';
@@ -105,22 +105,23 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog populates filetype on valid filename entry', async () => {
-    const { getByTestId, getByLabelText, getByText } = render(
+    render(
       <Provider store={store}>
         <NewCardDialog {...newCardModal} />
       </Provider>
     )
 
     // open the editor portion of dialog
-    userEvent.click(getByTestId('editor-button'));
+    userEvent.click(screen.getByTestId('editor-button'));
     // enter a filename with a valid filetype
-    fireEvent.change(getByLabelText('Filename'), {
+    fireEvent.change(screen.getByLabelText('Filename'), {
       target: { value: 'test.js' }
     });
-    expect(getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
+    expect(screen.getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
+    expect(screen.getByText('Create Card').closest('button')).toBeEnabled();
 
     // click to attempt to create a card
-    userEvent.click(getByText('Create Card'));
+    userEvent.click(screen.getByText('Create Card'));
     await waitFor(() => {
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
