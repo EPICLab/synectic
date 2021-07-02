@@ -1,7 +1,7 @@
 import React from 'react';
 import mock from 'mock-fs';
 import { Provider } from 'react-redux';
-import { cleanup, render, act } from '@testing-library/react';
+import { cleanup, render, act, screen } from '@testing-library/react';
 import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import * as path from 'path';
 import { homedir } from 'os';
@@ -51,37 +51,37 @@ describe('CanvasComponent', () => {
   it('Canvas renders correctly', async () => {
     await act(async () => {
       const [WrappedComponent] = wrapWithTestBackend(CanvasComponent);
-      const { getByTestId } = render(
+      render(
         <Provider store={store}>
           <WrappedComponent {...fullCanvas} />
         </Provider>
       );
-      expect(getByTestId('canvas-component')).toBeInTheDocument();
+      expect(screen.getByTestId('canvas-component')).toBeInTheDocument();
     })
   });
 
   it('Canvas resolves props to render Cards', async () => {
     await act(async () => {
       const [WrappedComponent] = wrapWithTestBackend(CanvasComponent);
-      const { getAllByTestId } = render(
+      render(
         <Provider store={store}>
           <WrappedComponent {...fullCanvas} />
         </Provider>
       );
       const cardsInStacks = flattenArray(extractFieldArray(store.getState().stacks).map(s => s.cards));
-      expect(getAllByTestId('card-component')).toHaveLength(fullCanvas.cards.length + cardsInStacks.length);
+      expect(screen.getAllByTestId('card-component')).toHaveLength(fullCanvas.cards.length + cardsInStacks.length);
     });
   });
 
   it('Canvas resolves props to render Stacks', async () => {
     await act(async () => {
       const [WrappedComponent] = wrapWithTestBackend(CanvasComponent);
-      const { getAllByTestId } = render(
+      render(
         <Provider store={store}>
           <WrappedComponent {...fullCanvas} />
         </Provider>
       );
-      expect(getAllByTestId('stack-component')).toHaveLength(fullCanvas.stacks.length);
+      expect(screen.getAllByTestId('stack-component')).toHaveLength(fullCanvas.stacks.length);
     });
   });
 
