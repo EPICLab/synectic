@@ -77,31 +77,20 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog validates filename and filetype', async () => {
-    const { getByTestId, getByLabelText, getByText } = render(
+    render(
       <Provider store={store}>
         <NewCardDialog {...newCardModal} />
       </Provider>
     )
 
     // open the editor portion of dialog
-    userEvent.click(getByTestId('editor-button'));
+    userEvent.click(screen.getByTestId('editor-button'));
     // enter a filename with an invalid filetype
-    fireEvent.change(getByLabelText('Filename'), {
+    fireEvent.change(screen.getByLabelText('Filename'), {
       target: { value: 'test.jsxw' }
     });
-    expect(getByText('Invalid Filename')).toBeInTheDocument();
-
-    // click to attempt to create a card
-    userEvent.click(getByText('Create Card'));
-    await waitFor(() => {
-      expect(store.getActions()).not.toStrictEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            type: ActionKeys.ADD_METAFILE | ActionKeys.ADD_CARD
-          })
-        ])
-      )
-    });
+    expect(screen.getByText('Invalid Filename')).toBeInTheDocument();
+    expect(screen.getByText('Create Card').closest('button')).toBeDisabled();
   });
 
   it('NewCardDialog populates filetype on valid filename entry', async () => {
@@ -114,9 +103,7 @@ describe('NewCardDialog', () => {
     // open the editor portion of dialog
     userEvent.click(screen.getByTestId('editor-button'));
     // enter a filename with a valid filetype
-    fireEvent.change(screen.getByLabelText('Filename'), {
-      target: { value: 'test.js' }
-    });
+    userEvent.type(screen.getByLabelText('Filename'), 'test.js');
     expect(screen.getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
     expect(screen.getByText('Create Card').closest('button')).toBeEnabled();
 
