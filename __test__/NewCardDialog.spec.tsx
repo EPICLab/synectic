@@ -19,22 +19,22 @@ describe('NewCardDialog', () => {
   });
 
   it('NewCardDialog renders correctly', () => {
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <NewCardDialog {...newCardModal} />
       </Provider>
     );
-    expect(getByTestId('new-card-dialog')).toBeInTheDocument();
+    expect(screen.getByTestId('new-card-dialog')).toBeInTheDocument();
   });
 
   it('NewCardDialog generates REMOVAL_MODAL action when escape key is pressed', async () => {
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <NewCardDialog {...newCardModal} />
       </Provider>
     );
 
-    fireEvent.keyDown(getByTestId('new-card-dialog'), {
+    fireEvent.keyDown(screen.getByTestId('new-card-dialog'), {
       key: 'Escape',
       code: 'Escape',
       keyCode: 27,
