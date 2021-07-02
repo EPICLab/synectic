@@ -1,7 +1,7 @@
 import React from 'react';
 import mock from 'mock-fs';
 import { Provider } from 'react-redux';
-import { cleanup, render, act, waitFor } from '@testing-library/react';
+import { cleanup, render, act, waitFor, screen } from '@testing-library/react';
 import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import userEvent from '@testing-library/user-event';
 
@@ -32,22 +32,22 @@ describe('CardComponent', () => {
 
   it('Card resolves props into React Component for Editor handler', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...firstEditorCard} />
       </Provider>
     );
-    expect(getByTestId('card-component')).toBeInTheDocument();
+    expect(screen.getByTestId('card-component')).toBeInTheDocument();
   });
 
   it('Card resolves props into React Component for Diff handler', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...diffCard} />
       </Provider>
     );
-    expect(getByTestId('card-component')).toBeInTheDocument();
+    expect(screen.getByTestId('card-component')).toBeInTheDocument();
   });
 
   it('Card resolves props into React Component for Explorer handler', async () => {
@@ -60,46 +60,46 @@ describe('CardComponent', () => {
     });
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
     await act(async () => {
-      const { getByTestId } = render(
+      render(
         <Provider store={store}>
           <WrappedComponent {...explorerCard} />
         </Provider>
       );
-      expect(getByTestId('card-component')).toBeInTheDocument();
+      expect(screen.getByTestId('card-component')).toBeInTheDocument();
     });
   });
 
   it('Card resolves props into React Component for Browser handler', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...browserCard} />
       </Provider>
     );
-    expect(getByTestId('card-component')).toBeInTheDocument();
+    expect(screen.getByTestId('card-component')).toBeInTheDocument();
   });
 
   it('Card resolves props into React Component for Tracker handler', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...trackerCard} />
       </Provider>
     );
-    expect(getByTestId('card-component')).toBeInTheDocument();
+    expect(screen.getByTestId('card-component')).toBeInTheDocument();
   });
 
   it('Editor Card renders a reverse side when the flip button is clicked', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByText, getByRole } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...firstEditorCard} />
       </Provider>
     );
 
-    userEvent.click(getByRole('button', { name: /flip/i }));
+    userEvent.click(screen.getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/ID:/)).toBeInTheDocument();
+    expect(screen.getByText(/ID:/)).toBeInTheDocument();
   });
 
   it('Explorer Card renders a reverse side when the flip button is clicked', async () => {
@@ -112,55 +112,55 @@ describe('CardComponent', () => {
     });
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
     await act(async () => {
-      const { getByText, getByRole } = render(
+      render(
         <Provider store={store}>
           <WrappedComponent {...explorerCard} />
         </Provider>
       );
 
-      userEvent.click(getByRole('button', { name: /flip/i }));
+      userEvent.click(screen.getByRole('button', { name: /flip/i }));
       await waitFor(() => {
-        expect(getByText(/Name:/)).toBeInTheDocument();
+        expect(screen.getByText(/Name:/)).toBeInTheDocument();
       });
     });
   });
 
   it('Diff Card renders a reverse side when the flip button is clicked', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByText, getByRole } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...diffCard} />
       </Provider>
     );
 
-    userEvent.click(getByRole('button', { name: /flip/i }));
+    userEvent.click(screen.getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/Name:/)).toBeInTheDocument();
+    expect(screen.getByText(/Name:/)).toBeInTheDocument();
   });
 
   it('Browser Card renders a reverse side when the flip button is clicked', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByText, getByRole } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...browserCard} />
       </Provider>
     );
 
-    userEvent.click(getByRole('button', { name: /flip/i }));
+    userEvent.click(screen.getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/ID:/)).toBeInTheDocument();
+    expect(screen.getByText(/ID:/)).toBeInTheDocument();
   });
 
   it('Tracker Card renders a reverse side when the flip button is clicked', async () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
-    const { getByText, getByRole } = render(
+    render(
       <Provider store={store}>
         <WrappedComponent {...browserCard} />
       </Provider>
     );
 
-    userEvent.click(getByRole('button', { name: /flip/i }));
+    userEvent.click(screen.getByRole('button', { name: /flip/i }));
 
-    expect(getByText(/ID:/)).toBeInTheDocument();
+    expect(screen.getByText(/ID:/)).toBeInTheDocument();
   });
 });
