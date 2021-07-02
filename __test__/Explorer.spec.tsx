@@ -2,7 +2,7 @@ import React from 'react';
 import mock from 'mock-fs';
 import { Provider } from 'react-redux';
 import TreeView from '@material-ui/lab/TreeView';
-import { render, cleanup, act } from '@testing-library/react';
+import { render, cleanup, act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { mockStore } from './__mocks__/reduxStoreMock';
@@ -29,29 +29,29 @@ describe('DirectoryComponent', () => {
   });
 
   it('DirectoryComponent initially renders without expanding to display children', () => {
-    const { getByRole, queryByText } = render(
+    render(
       <Provider store={store}>
         <TreeView><DirectoryComponent root={'foo'} /></TreeView>
       </Provider>
     );
 
-    expect(getByRole('treeitem')).toBeInTheDocument();
-    expect(queryByText('bar.js')).not.toBeInTheDocument();
+    expect(screen.getByRole('treeitem')).toBeInTheDocument();
+    expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
   });
 
   it('DirectoryComponent expands to display child files and directories', async () => {
-    const { queryByText, getByText } = render(
+    render(
       <Provider store={store}>
         <TreeView><DirectoryComponent root={'foo'} /></TreeView>
       </Provider>
     );
-    expect(queryByText('bar.js')).not.toBeInTheDocument();
+    expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
 
     await act(async () => {
-      userEvent.click(getByText('foo'));
+      userEvent.click(screen.getByText('foo'));
     });
 
-    expect(queryByText('bar.js')).toBeInTheDocument();
+    expect(screen.queryByText('bar.js')).toBeInTheDocument();
   });
 
 });
