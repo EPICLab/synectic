@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor, screen } from '@testing-library/react';
 import { act } from '@testing-library/react/pure';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
@@ -30,22 +30,22 @@ describe('DiffPickerDialog', () => {
    * https://github.com/mui-org/material-ui/blob/next/packages/material-ui/test/integration/Select.test.js)
    */
   it('DiffPickerDialog renders correctly', () => {
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <DiffPickerDialog {...diffPickerModal} />
       </Provider>
     );
-    expect(getByTestId('diff-picker-dialog')).toBeInTheDocument();
+    expect(screen.getByTestId('diff-picker-dialog')).toBeInTheDocument();
   });
 
   it('DiffPickerDialog generates REMOVE_MODAL action when escape key is pressed', async () => {
-    const { getByTestId } = render(
+    render(
       <Provider store={store}>
         <DiffPickerDialog {...diffPickerModal} />
       </Provider>
     );
 
-    fireEvent.keyDown(getByTestId('diff-picker-dialog'), {
+    fireEvent.keyDown(screen.getByTestId('diff-picker-dialog'), {
       key: 'Escape',
       code: 'Escape',
       keyCode: 27,
@@ -88,16 +88,16 @@ describe('DiffPickerDialog', () => {
   });
 
   it('DiffPickerDialog tracks selection updates', async () => {
-    const { getAllByRole } = render(
+    render(
       <Provider store={store}>
         <DiffPickerDialog {...diffPickerModal} />
       </Provider>
     );
-    const trigger = getAllByRole('button')[0];
+    const trigger = screen.getAllByRole('button')[0];
     // open the select component
     fireEvent.mouseDown(trigger);
 
-    const options = getAllByRole('option');
+    const options = screen.getAllByRole('option');
     expect(options[0]).toHaveFocus();
 
     // // make a selection and close the select component
@@ -112,18 +112,18 @@ describe('DiffPickerDialog', () => {
   });
 
   it('DiffPickerDialog returns UUIDs for selected cards on run', async () => {
-    const { getAllByRole, queryByText } = render(
+    render(
       <Provider store={store}>
         <DiffPickerDialog {...diffPickerModal} />
       </Provider>
     );
-    const leftSelector = getAllByRole('button')[0];
-    const rightSelector = getAllByRole('button')[1];
-    const runButton = queryByText(/Run Diff/i);
+    const leftSelector = screen.getAllByRole('button')[0];
+    const rightSelector = screen.getAllByRole('button')[1];
+    const runButton = screen.queryByText(/Run Diff/i);
 
     // open the left select component
     fireEvent.mouseDown(leftSelector);
-    const leftOptions = getAllByRole('option');
+    const leftOptions = screen.getAllByRole('option');
     expect(leftOptions[0]).toHaveFocus();
     // make selection and close left component
     act(() => {
@@ -132,7 +132,7 @@ describe('DiffPickerDialog', () => {
 
     // open the right select component
     fireEvent.mouseDown(rightSelector);
-    const rightOptions = getAllByRole('option');
+    const rightOptions = screen.getAllByRole('option');
     expect(rightOptions[0]).toHaveFocus();
     // make selection and close right component
     act(() => {
