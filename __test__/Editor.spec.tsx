@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import Editor from '../src/components/Editor';
@@ -27,12 +27,12 @@ describe('Editor', () => {
   });
 
   it('Editor tracks content updates', () => {
-    const { queryByRole } = render(
+    render(
       <Provider store={store}>
         <Editor metafileId={virtualMetafile.id} />
       </Provider>
     );
-    const textBox = queryByRole('textbox');
+    const textBox = screen.queryByRole('textbox');
     expect(textBox).toHaveValue('');
 
     // update the content of the editor
@@ -41,7 +41,7 @@ describe('Editor', () => {
       fireEvent.change(textBox, { target: { value: 'var foo = 5;' } });
     }
 
-    expect(queryByRole('textbox')).toHaveValue('var foo = 5;');
+    expect(screen.queryByRole('textbox')).toHaveValue('var foo = 5;');
   });
 
 });

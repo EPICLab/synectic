@@ -7,8 +7,8 @@ import Browser from '../src/components/Browser';
 describe('Browser', () => {
 
   it('Browser allows the user to enter/edit a URL', async () => {
-    const { getByRole } = render(<Browser />);
-    const textBox = getByRole('textbox');
+    render(<Browser />);
+    const textBox = screen.getByRole('textbox');
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
 
@@ -23,10 +23,10 @@ describe('Browser', () => {
   });
 
   it('Browser allows the user to navigate backwards and forwards in history', async () => {
-    const { getByRole, getAllByRole } = render(<Browser />);
-    const textBox = getByRole('textbox');
-    const backButton = getAllByRole('button')[0];
-    const forwardButton = getAllByRole('button')[1];
+    render(<Browser />);
+    const textBox = screen.getByRole('textbox');
+    const backButton = screen.getAllByRole('button')[0];
+    const forwardButton = screen.getAllByRole('button')[1];
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
     textBox.focus();
@@ -49,9 +49,9 @@ describe('Browser', () => {
   });
 
   it('Browser does not change the page URL when the refresh button is clicked', async () => {
-    const { getByRole, getAllByRole } = render(<Browser />);
-    const textBox = getByRole('textbox');
-    const refreshButton = getAllByRole('button')[2];
+    render(<Browser />);
+    const textBox = screen.getByRole('textbox');
+    const refreshButton = screen.getAllByRole('button')[2];
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
     fireEvent.click(refreshButton);
