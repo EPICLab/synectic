@@ -1,28 +1,27 @@
 import React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
-import Editor from '../src/components/Editor';
-import { mockStore } from './__mocks__/reduxStoreMock';
-import { testStore } from './__fixtures__/ReduxStore';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { virtualMetafile } from './__fixtures__/Metafile';
-
-const store = mockStore(testStore);
+import { testStore } from './__fixtures__/ReduxStore';
+import { mockStore } from './__mocks__/reduxStoreMock';
+import Editor from '../src/components/Editor';
 
 describe('Editor', () => {
 
+  const store = mockStore(testStore);
+
   afterEach(() => {
     cleanup;
-    jest.resetAllMocks();
+    jest.restoreAllMocks();
   });
 
-  it('Editor renders correctly', () => {
+  it('Editor renders in the DOM', () => {
     const { container } = render(
       <Provider store={store}>
         <Editor metafileId={virtualMetafile.id} />
       </Provider>
     );
-    // using DOM selector method instead of RTL
     expect(container.querySelector('.ace_editor')).toBeInTheDocument();
   });
 
@@ -43,5 +42,4 @@ describe('Editor', () => {
 
     expect(screen.queryByRole('textbox')).toHaveValue('var foo = 5;');
   });
-
 });
