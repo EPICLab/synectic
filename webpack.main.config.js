@@ -5,6 +5,11 @@ module.exports = {
    */
   entry: './src/main.js',
   target: 'electron-main',
+  node: {
+    // Webpack needs to provide a working '__dirname' value
+    // (ref: https://webpack.js.org/configuration/node/#node-__dirname)
+    __dirname: false
+  },
   devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json']
