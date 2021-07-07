@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDrop } from 'react-dnd';
+import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 
 import type { Canvas } from '../types';
@@ -16,6 +16,15 @@ import { addModal } from '../containers/modals';
 import { fileOpenDialog } from '../containers/dialogs';
 import { loadBranchVersions } from '../containers/branch-tracker';
 import { GitGraphSelect } from './GitGraphSelect';
+
+const DnDItemType = {
+  CARD: 'CARD',
+  STACK: 'STACK'
+}
+type DragObject = {
+  id: string,
+  type: string
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,13 +50,14 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
 
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
-    accept: ['CARD', 'STACK'],
-    canDrop: (_item, monitor) => {
-      return !monitor.getItem().captured;
+    accept: [DnDItemType.CARD, DnDItemType.STACK],
+    canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
+      if (item.type === DnDItemType.CARD) return !cards[monitor.getItem().id].captured ? true : false;
+      return true;
     },
-    drop: (item, monitor) => {
+    drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
       switch (item.type) {
-        case 'CARD': {
+        case DnDItemType.CARD: {
           const card = cards[monitor.getItem().id];
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
@@ -58,7 +68,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
           }
           break;
         }
-        case 'STACK': {
+        case DnDItemType.STACK: {
           const stack = stacks[monitor.getItem().id];
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!delta) return; // no dragging is occurring, perhaps a stack was picked up and dropped without dragging
