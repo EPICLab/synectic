@@ -3818,13 +3818,13 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@^11.3.0:
-  version "11.4.10"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-11.4.10.tgz#7bcbca82810b82c2f2765824c5e11e3061272ea4"
-  integrity sha512-aQTRgRdHwCW68gxz9qvGCfOUvR4NBbdecLB/mEWX8fMncDFvPMmm+dq2D6zSWWVEKywmsj3+wMMVn3UV2Cl2CQ==
+electron@^13.1.6:
+  version "13.1.6"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-13.1.6.tgz#6ecaf969255d62ce82cc0b5c948bf26e7dfb489b"
+  integrity sha512-XiB55/JTaQpDFQrD9pulYnOGwaWeMyRIub5ispvoE2bWBvM5zVMLptwMLb0m3KTMrfSkzhedZvOu7fwYvR7L7Q==
   dependencies:
     "@electron/get" "^1.0.1"
-    "@types/node" "^12.0.12"
+    "@types/node" "^14.6.2"
     extract-zip "^1.0.3"
 
 emittery@^0.8.1:
