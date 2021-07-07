@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ConnectableElement, useDrag, useDrop } from 'react-dnd';
+import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 
 import SaveIcon from '@material-ui/icons/Save';
@@ -23,6 +23,14 @@ import { writeFileAsync } from '../containers/io';
 import { updateGitInfo } from '../containers/metafiles';
 import { fileSaveDialog } from '../containers/dialogs';
 
+const DnDItemType = {
+  CARD: 'CARD',
+  STACK: 'STACK'
+}
+type DragObject = {
+  id: string,
+  type: string
+}
 
 export const useStyles = makeStyles({
   root: {
@@ -83,26 +91,27 @@ const CardComponent: React.FunctionComponent<Card> = props => {
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
   const [{ isDragging }, drag] = useDrag({
-    item: { type: 'CARD', id: props.id },
+    type: DnDItemType.CARD,
+    item: () => ({ id: props.id, type: DnDItemType.CARD }),
     collect: monitor => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  });
+      isDragging: !!monitor.isDragging()
+    })
+  }, [props.id]);
 
   // Enable CardComponent as a drop target (i.e. allow other elements to be dropped on this card)
   const [{ isOver }, drop] = useDrop({
-    accept: ['CARD', 'STACK'],
-    canDrop: (item, monitor) => {
+    accept: [DnDItemType.CARD, DnDItemType.STACK],
+    canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
       const dropTarget = cards[props.id];
-      const dropSource = item.type === 'CARD' ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
+      const dropSource = item.type === DnDItemType.CARD ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
       return dropTarget.id !== dropSource.id; // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
     },
-    drop: (item, monitor) => {
+    drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
       const dropTarget = cards[props.id];
       const delta = monitor.getDifferenceFromInitialOffset();
       if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
       switch (item.type) {
-        case 'CARD': {
+        case DnDItemType.CARD: {
           const dropSource = cards[monitor.getItem().id];
           if (dropSource.captured) {
             dispatch(popCard(stacks[dropSource.captured], dropSource, delta));
@@ -111,12 +120,12 @@ const CardComponent: React.FunctionComponent<Card> = props => {
             const actions = pushCards(stacks[dropTarget.captured], [dropSource]);
             actions.map(action => dispatch(action));
           } else {
-            const actions = addStack('test', [dropTarget, dropSource], 'go get some testing');
+            const actions = addStack('New Stack', [dropTarget, dropSource], 'Contains a new stack of items.');
             actions.map(action => dispatch(action));
           }
           break;
         }
-        case 'STACK': {
+        case DnDItemType.STACK: {
           if (!props.captured) {
             const dropSource = stacks[monitor.getItem().id];
             const actions = pushCards(dropSource, [dropTarget]);
@@ -129,7 +138,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     collect: monitor => ({
       isOver: !!monitor.isOver() // return isOver prop to highlight drop sources that accept hovered item
     })
-  })
+  }, [cards, stacks, props.id]);
 
   const dragAndDrop = (elementOrNode: ConnectableElement) => {
     drag(elementOrNode);
