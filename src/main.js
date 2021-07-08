@@ -1,7 +1,11 @@
 /* eslint-disable no-undef */
 import { app, BrowserWindow, Menu } from 'electron';
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import * as path from 'path';
 import menu from './menu';
+
+// Checking prod/dev environment based on packaging (ref: https://github.com/electron/electron/issues/7714)
+const isDev = () => app.isPackaged();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -13,6 +17,8 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 let mainWindow;
 
 const createWindow = () => {
+
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -31,7 +37,7 @@ const createWindow = () => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (isDev) mainWindow.webContents.openDevTools();
 
   // Add an application menu.
   Menu.setApplicationMenu(menu);
@@ -48,7 +54,15 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  // Electron extension currently not working until _metadata filename is allowed
+  // ref: https://github.com/MarshallOfSound/electron-devtools-installer/pull/177#issuecomment-863266261
+  // if (isDev) installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS],
+  //   { loadExtensionOptions: { allowFileAccess: true }, forceDownload: false })
+  //   .then(name => console.log(`Added extension: ${name}`))
+  //   .catch(err => console.log('An error occurred: ', err));
+  createWindow();
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
