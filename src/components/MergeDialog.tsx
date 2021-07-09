@@ -1,12 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
-import * as MUI from '@material-ui/core';
-import * as MUILab from '@material-ui/lab';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import { green, red } from '@material-ui/core/colors';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import type { Modal, UUID } from '../types';
 import { Action, ActionKeys } from '../store/actions';
@@ -15,36 +10,8 @@ import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 import { merge } from '../containers/git-porcelain';
 import { branchLog } from '../containers/git-plumbing';
-
-const StyledCheckIcon = withStyles({
-  root: {
-    height: 22,
-    width: 22,
-    margin: 4,
-    padding: 0,
-    verticalAlign: 'middle',
-    color: green[500]
-  }
-})(CheckIcon);
-
-const StyledClearIcon = withStyles({
-  root: {
-    height: 22,
-    width: 22,
-    padding: 0,
-    margin: 4,
-    verticalAlign: 'middle',
-    color: red[500]
-  }
-})(ClearIcon);
-
-const StyledCircularProgress = withStyles({
-  root: {
-    margin: 4,
-    padding: 2,
-    verticalAlign: 'middle'
-  }
-})(MUI.CircularProgress);
+import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
+import TimelineComponent from './MergeTimeline';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,6 +19,10 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       maxWidth: 530,
       backgroundColor: theme.palette.background.paper,
+    },
+    formControl: {
+      margin: theme.spacing(1),
+      minWidth: 120
     },
     formControl1: {
       margin: theme.spacing(1),
@@ -96,83 +67,6 @@ type CheckState =
   | 'Failing';
 
 type MissingGitConfigs = string[] | undefined;
-
-const StatusIcon = (state: CheckState) => {
-  switch (state) {
-    case 'Running':
-      return <StyledCircularProgress size={18} />;
-    case 'Passing':
-      return <StyledCheckIcon />;
-    case 'Failing':
-      return <StyledClearIcon />;
-    default:
-      return null;
-  }
-}
-
-type TimelineProps = {
-  commitCountDelta: CheckState,
-  branchConflicts: [CheckState, MissingGitConfigs],
-  buildStatus: CheckState
-}
-
-const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
-  const classes = useStyles();
-  const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
-  const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
-  const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
-
-  useEffect(() => {
-    setCommitCountDelta(props.commitCountDelta);
-    setBranchConflicts(props.branchConflicts);
-    setBuildStatus(props.buildStatus);
-  }, [branchConflicts, buildStatus, commitCountDelta, props]);
-
-  return (
-    <MUILab.Timeline align='left' className={classes.timeline} >
-      { commitCountDelta != 'Unchecked' ?
-        <MUILab.TimelineItem className={classes.tl_item} >
-          <MUILab.TimelineSeparator>
-            {StatusIcon(props.commitCountDelta)}
-            {branchConflicts[0] != 'Unchecked' ? <MUILab.TimelineConnector /> : null}
-          </MUILab.TimelineSeparator>
-          <MUILab.TimelineContent className={classes.tl_content} >
-            <MUI.Typography>Checking branches for new commits...</MUI.Typography>
-
-          </MUILab.TimelineContent>
-        </MUILab.TimelineItem>
-        : null
-      }
-      { branchConflicts[0] != 'Unchecked' ?
-        <MUILab.TimelineItem className={classes.tl_item} >
-          <MUILab.TimelineSeparator>
-            {StatusIcon(props.branchConflicts[0])}
-            {buildStatus != 'Unchecked' ? <MUILab.TimelineConnector /> : null}
-          </MUILab.TimelineSeparator>
-          <MUILab.TimelineContent className={classes.tl_content} >
-            <MUI.Typography>Checking for merge conflicts...</MUI.Typography>
-            {(branchConflicts[1] !== undefined) ?
-              <MUI.Typography color='secondary' variant='body2'>
-                Missing git-config: {JSON.stringify(branchConflicts[1])}
-              </MUI.Typography> : null}
-          </MUILab.TimelineContent>
-        </MUILab.TimelineItem>
-        : null
-      }
-      { buildStatus != 'Unchecked' ?
-        <MUILab.TimelineItem className={classes.tl_item} >
-          <MUILab.TimelineSeparator>
-            {StatusIcon(props.buildStatus)}
-          </MUILab.TimelineSeparator>
-          <MUILab.TimelineContent className={classes.tl_content} >
-            <MUI.Typography>Checking for build failures...</MUI.Typography>
-          </MUILab.TimelineContent>
-        </MUILab.TimelineItem>
-        : null
-      }
-    </MUILab.Timeline>
-  );
-}
 
 const MergeDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
@@ -228,85 +122,98 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   }
 
   return (
-    <MUI.Dialog id='dialog' open={true} onClose={() => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id })}>
+    <Dialog id='dialog' open={true} onClose={() => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id })}>
       <div className={classes.root}>
         <div className={classes.section1}>
-          <MUI.Grid container alignItems='center'>
-            <MUI.Grid item xs>
-              <MUI.Typography gutterBottom variant='h4'>
+          <Grid container alignItems='center'>
+            <Grid item xs>
+              <Typography gutterBottom variant='h4'>
                 Merge
-            </MUI.Typography>
-            </MUI.Grid>
-            <MUI.Grid item>
-            </MUI.Grid>
-          </MUI.Grid>
-          <MUI.Typography color='textSecondary' variant='body2'>
+              </Typography>
+            </Grid>
+            <Grid item>
+            </Grid>
+          </Grid>
+          <Typography color='textSecondary' variant='body2'>
             Select the repository, base, and compare branches to merge.
-        </MUI.Typography>
+          </Typography>
         </div>
-        <MUI.Divider variant='middle' />
+        <Divider variant='middle' />
         <div className={classes.section2}>
-          <MUI.FormControl variant='outlined' className={classes.formControl1}>
-            <MUI.InputLabel id='repo-select-label'>Repository</MUI.InputLabel>
-            <MUI.Select
+          <FormControl variant='outlined' className={classes.formControl1}>
+            <InputLabel id='repo-select-label'>Repository</InputLabel>
+            <Select
               labelId='repo-select-label'
               id='repo-select'
               value={repo}
               onChange={repoChange}
               label='Repository'
             >
-              <MUI.MenuItem value=''>
+              <MenuItem value='None' />
+              {repos.map(repo => <MenuItem key={repo.id} value={repo.id}>{repo.name}</MenuItem>)}
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" className={classes.formControl}>
+            <InputLabel id="demo-simple-select-outlined-label">Age</InputLabel>
+            <Select
+              labelId="demo-simple-select-outlined-label"
+              id="demo-simple-select-outlined"
+              value={base}
+              onChange={baseChange}
+              label="Age"
+            >
+              <MenuItem value="">
                 <em>None</em>
-              </MUI.MenuItem>
-              {repos.map(repo => <MUI.MenuItem key={repo.id} value={repo.id}>{repo.name}</MUI.MenuItem>)}
-            </MUI.Select>
-          </MUI.FormControl>
-          <MUI.FormControl variant='outlined' className={classes.formControl2}>
-            <MUI.InputLabel id='base-branch-select-label'>Base</MUI.InputLabel>
-            <MUI.Select
+              </MenuItem>
+              <MenuItem value={10}>Ten</MenuItem>
+              <MenuItem value={20}>Twenty</MenuItem>
+              <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl variant='outlined' className={classes.formControl2}>
+            <InputLabel id='base-branch-select-label'>Base</InputLabel>
+            <Select
               labelId='base-branch-select-label'
               id='base-branch-select'
               value={base}
               onChange={baseChange}
               label='Base'
             >
-              <MUI.MenuItem value=''>
-                <em>None</em>
-              </MUI.MenuItem>
-              {repo ? repos.find(r => r.id === repo)?.local.map(opt => <MUI.MenuItem key={opt} value={opt}>{opt}</MUI.MenuItem>) : null}
-            </MUI.Select>
-          </MUI.FormControl>
-          <MUI.FormControl variant='outlined' className={classes.formControl2}>
-            <MUI.InputLabel id='compare-branch-select-label'>Compare</MUI.InputLabel>
-            <MUI.Select
+              <MenuItem value='None' />
+              {repo ? repos.find(r => r.id === repo)?.local.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>) : null}
+            </Select>
+          </FormControl>
+          <FormControl variant='outlined' className={classes.formControl2}>
+            <InputLabel id='compare-branch-select-label'>Compare</InputLabel>
+            <Select
               labelId='compare-branch-select-label'
               id='compare-branch-select'
               value={compare}
               onChange={compareChange}
               label='Compare'
             >
-              <MUI.MenuItem value=''>
+              <MenuItem value=''>
                 <em>None</em>
-              </MUI.MenuItem>
-              {repo ? repos.find(r => r.id === repo)?.local.map(opt => <MUI.MenuItem key={opt} value={opt}>{opt}</MUI.MenuItem>) : null}
-            </MUI.Select>
-          </MUI.FormControl>
+              </MenuItem>
+              {repo ? repos.find(r => r.id === repo)?.local.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>) : null}
+            </Select>
+          </FormControl>
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
 
         </div>
-        {(branchConflicts[1] && branchConflicts[1].length > 0) ? <MUI.Divider variant='middle' /> : null}
+        {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}
         <div className={classes.section2}>
           <GitConfigForm
             open={(branchConflicts[1] && branchConflicts[1].length > 0) ? true : false}
           />
         </div>
         <div className={classes.section2}>
-          <MUI.Button variant='outlined' color='primary' className={classes.button} onClick={check}>Check</MUI.Button>
-          <MUI.Button variant='outlined' color='primary' className={classes.button} onClick={branchCheck}>Check Branches</MUI.Button>
-          <MUI.Button variant='outlined' color='primary' className={classes.button}>Merge</MUI.Button>
+          <Button variant='outlined' color='primary' className={classes.button} onClick={check}>Check</Button>
+          <Button variant='outlined' color='primary' className={classes.button} onClick={branchCheck}>Check Branches</Button>
+          <Button variant='outlined' color='primary' className={classes.button}>Merge</Button>
         </div>
       </div>
-    </MUI.Dialog>
+    </Dialog>
   );
 }
 
