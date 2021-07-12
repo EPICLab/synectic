@@ -33,7 +33,7 @@
     "@types/diff": "^5.0.0",
     "@types/fs-extra": "^9.0.10",
     "@types/hidefile": "^3.0.0",
-    "@types/luxon": "^1.27.0",
+    "@types/luxon": "^1.27.1",
     "@types/pako": "^1.0.1",
     "@types/parse-path": "^4.0.0",
     "@types/react": "^17.0.13",
