@@ -10,7 +10,7 @@ import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 import { merge } from '../containers/git-porcelain';
 import { branchLog } from '../containers/git-plumbing';
-import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@material-ui/core';
+import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import TimelineComponent from './MergeTimeline';
 import SimpleSelect from './SimpleSelect';
 import BaseBranchSelect from './BaseBranchSelect';
@@ -65,10 +65,6 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
   const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
-
-  const repoChange = (event: React.ChangeEvent<{ value: unknown }>) => setRepo(event.target.value as UUID);
-  const baseChange = (event: React.ChangeEvent<{ value: unknown }>) => setBase(event.target.value as string);
-  const compareChange = (event: React.ChangeEvent<{ value: unknown }>) => setCompare(event.target.value as string);
 
   const branchCheck = async () => {
     const fullRepo = repos.find(r => r.id === repo);
