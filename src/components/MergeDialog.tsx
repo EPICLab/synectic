@@ -10,8 +10,9 @@ import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 import { merge } from '../containers/git-porcelain';
 import { branchLog } from '../containers/git-plumbing';
-import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
+import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@material-ui/core';
 import TimelineComponent from './MergeTimeline';
+import SimpleSelect from './SimpleSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,36 +21,19 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: 530,
       backgroundColor: theme.palette.background.paper,
     },
-    formControl: {
+    formControl_lg: {
       margin: theme.spacing(1),
-      minWidth: 120
+      minWidth: 496,
     },
-    formControl1: {
-      margin: theme.spacing(1),
-      minWidth: 496
-    },
-    formControl2: {
+    formControl_sm: {
       margin: theme.spacing(1),
       minWidth: 240,
     },
+    formItem: {
+      padding: 10,
+    },
     button: {
       margin: theme.spacing(1),
-    },
-    timeline: {
-      margin: theme.spacing(1),
-      '& > :last-child .MuiTimelineItem-content': {
-        height: 28
-      }
-    },
-    tl_item: {
-      padding: theme.spacing(0, 2),
-      '&:before': {
-        flex: 0,
-        padding: theme.spacing(0)
-      }
-    },
-    tl_content: {
-      padding: theme.spacing(0.5, 1, 0),
     },
     section1: {
       margin: theme.spacing(3, 2, 1),
@@ -139,8 +123,9 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
           </Typography>
         </div>
         <Divider variant='middle' />
+        <SimpleSelect />
         <div className={classes.section2}>
-          <FormControl variant='outlined' className={classes.formControl1}>
+          <FormControl variant='outlined' className={classes.formControl_lg} size='small'>
             <InputLabel id='repo-select-label'>Repository</InputLabel>
             <Select
               labelId='repo-select-label'
@@ -148,29 +133,13 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
               value={repo}
               onChange={repoChange}
               label='Repository'
+              input={<OutlinedInput margin='dense' />}
             >
-              <MenuItem value='None' />
-              {repos.map(repo => <MenuItem key={repo.id} value={repo.id}>{repo.name}</MenuItem>)}
+              <MenuItem value='None' className={classes.formItem}>None</MenuItem>
+              {repos.map(repo => <MenuItem key={repo.id} value={repo.id} className={classes.formItem}>{repo.name}</MenuItem>)}
             </Select>
           </FormControl>
-          <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="demo-simple-select-outlined-label">Age</InputLabel>
-            <Select
-              labelId="demo-simple-select-outlined-label"
-              id="demo-simple-select-outlined"
-              value={base}
-              onChange={baseChange}
-              label="Age"
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl variant='outlined' className={classes.formControl2}>
+          <FormControl variant='outlined' className={classes.formControl_sm} size='small'>
             <InputLabel id='base-branch-select-label'>Base</InputLabel>
             <Select
               labelId='base-branch-select-label'
@@ -179,11 +148,13 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
               onChange={baseChange}
               label='Base'
             >
-              <MenuItem value='None' />
-              {repo ? repos.find(r => r.id === repo)?.local.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>) : null}
+              <MenuItem value='None' className={classes.formItem}>None</MenuItem>
+              {repo ? repos.find(r => r.id === repo)?.local.map(opt =>
+                <MenuItem key={opt} value={opt} className={classes.formItem}>{opt}</MenuItem>) : null
+              }
             </Select>
           </FormControl>
-          <FormControl variant='outlined' className={classes.formControl2}>
+          <FormControl variant='outlined' className={classes.formControl_sm} size='small'>
             <InputLabel id='compare-branch-select-label'>Compare</InputLabel>
             <Select
               labelId='compare-branch-select-label'
@@ -199,7 +170,6 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
             </Select>
           </FormControl>
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
-
         </div>
         {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}
         <div className={classes.section2}>

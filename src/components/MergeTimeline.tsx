@@ -43,21 +43,6 @@ const useStyles = makeStyles((theme: Theme) =>
             maxWidth: 530,
             backgroundColor: theme.palette.background.paper,
         },
-        formControl: {
-            margin: theme.spacing(1),
-            minWidth: 120
-        },
-        formControl1: {
-            margin: theme.spacing(1),
-            minWidth: 496
-        },
-        formControl2: {
-            margin: theme.spacing(1),
-            minWidth: 240,
-        },
-        button: {
-            margin: theme.spacing(1),
-        },
         timeline: {
             margin: theme.spacing(1),
             '& > :last-child .MuiTimelineItem-content': {
@@ -73,12 +58,6 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         tl_content: {
             padding: theme.spacing(0.5, 1, 0),
-        },
-        section1: {
-            margin: theme.spacing(3, 2, 1),
-        },
-        section2: {
-            margin: theme.spacing(1, 1),
         },
     }),
 );
