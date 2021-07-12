@@ -14,6 +14,8 @@ import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Outli
 import TimelineComponent from './MergeTimeline';
 import SimpleSelect from './SimpleSelect';
 import BaseBranchSelect from './BaseBranchSelect';
+import CompareBranchSelect from './CompareBranchSelect';
+import RepoSelect from './RepoSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -126,36 +128,9 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         <Divider variant='middle' />
         <SimpleSelect />
         <div className={classes.section2}>
-          <FormControl variant='outlined' className={classes.formControl_lg} size='small'>
-            <InputLabel id='repo-select-label'>Repository</InputLabel>
-            <Select
-              labelId='repo-select-label'
-              id='repo-select'
-              value={repo}
-              onChange={repoChange}
-              label='Repository'
-              input={<OutlinedInput margin='dense' />}
-            >
-              <MenuItem value='None' className={classes.formItem}>None</MenuItem>
-              {repos.map(repo => <MenuItem key={repo.id} value={repo.id} className={classes.formItem}>{repo.name}</MenuItem>)}
-            </Select>
-          </FormControl>
+          <RepoSelect repo={repo} setRepo={setRepo} />
           <BaseBranchSelect repo={repo} base={base} setBase={setBase} />
-          <FormControl variant='outlined' className={classes.formControl_sm} size='small'>
-            <InputLabel id='compare-branch-select-label'>Compare</InputLabel>
-            <Select
-              labelId='compare-branch-select-label'
-              id='compare-branch-select'
-              value={compare}
-              onChange={compareChange}
-              label='Compare'
-            >
-              <MenuItem value=''>
-                <em>None</em>
-              </MenuItem>
-              {repo ? repos.find(r => r.id === repo)?.local.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>) : null}
-            </Select>
-          </FormControl>
+          <CompareBranchSelect repo={repo} compare={compare} setCompare={setCompare} />
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
         </div>
         {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}
