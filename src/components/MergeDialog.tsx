@@ -13,6 +13,7 @@ import { branchLog } from '../containers/git-plumbing';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@material-ui/core';
 import TimelineComponent from './MergeTimeline';
 import SimpleSelect from './SimpleSelect';
+import BaseBranchSelect from './BaseBranchSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -139,21 +140,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
               {repos.map(repo => <MenuItem key={repo.id} value={repo.id} className={classes.formItem}>{repo.name}</MenuItem>)}
             </Select>
           </FormControl>
-          <FormControl variant='outlined' className={classes.formControl_sm} size='small'>
-            <InputLabel id='base-branch-select-label'>Base</InputLabel>
-            <Select
-              labelId='base-branch-select-label'
-              id='base-branch-select'
-              value={base}
-              onChange={baseChange}
-              label='Base'
-            >
-              <MenuItem value='None' className={classes.formItem}>None</MenuItem>
-              {repo ? repos.find(r => r.id === repo)?.local.map(opt =>
-                <MenuItem key={opt} value={opt} className={classes.formItem}>{opt}</MenuItem>) : null
-              }
-            </Select>
-          </FormControl>
+          <BaseBranchSelect repo={repo} base={base} setBase={setBase} />
           <FormControl variant='outlined' className={classes.formControl_sm} size='small'>
             <InputLabel id='compare-branch-select-label'>Compare</InputLabel>
             <Select
