@@ -10,9 +10,9 @@ import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 import { merge } from '../containers/git-porcelain';
 import { branchLog } from '../containers/git-plumbing';
-import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@material-ui/core';
+import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import TimelineComponent from './MergeTimeline';
-import SimpleSelect from './SimpleSelect';
+import DropSelect from './DropSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -21,17 +21,6 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: 530,
       backgroundColor: theme.palette.background.paper,
     },
-    formControl_lg: {
-      margin: theme.spacing(1),
-      minWidth: 496,
-    },
-    formControl_sm: {
-      margin: theme.spacing(1),
-      minWidth: 240,
-    },
-    formItem: {
-      padding: 10,
-    },
     button: {
       margin: theme.spacing(1),
     },
@@ -39,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(3, 2, 1),
     },
     section2: {
+      // flexGrow: 1,
       margin: theme.spacing(1, 1),
     },
   }),
@@ -62,10 +52,6 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
   const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
-
-  const repoChange = (event: React.ChangeEvent<{ value: unknown }>) => setRepo(event.target.value as UUID);
-  const baseChange = (event: React.ChangeEvent<{ value: unknown }>) => setBase(event.target.value as string);
-  const compareChange = (event: React.ChangeEvent<{ value: unknown }>) => setCompare(event.target.value as string);
 
   const branchCheck = async () => {
     const fullRepo = repos.find(r => r.id === repo);
@@ -105,6 +91,8 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     setBuildStatus(buildStatus);
   }
 
+  const branches = repos.find(r => r.id === repo)?.local.map(b => ({ key: b, value: b }));
+
   return (
     <Dialog id='dialog' open={true} onClose={() => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id })}>
       <div className={classes.root}>
@@ -123,52 +111,18 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
           </Typography>
         </div>
         <Divider variant='middle' />
-        <SimpleSelect />
         <div className={classes.section2}>
-          <FormControl variant='outlined' className={classes.formControl_lg} size='small'>
-            <InputLabel id='repo-select-label'>Repository</InputLabel>
-            <Select
-              labelId='repo-select-label'
-              id='repo-select'
-              value={repo}
-              onChange={repoChange}
-              label='Repository'
-              input={<OutlinedInput margin='dense' />}
-            >
-              <MenuItem value='None' className={classes.formItem}>None</MenuItem>
-              {repos.map(repo => <MenuItem key={repo.id} value={repo.id} className={classes.formItem}>{repo.name}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <FormControl variant='outlined' className={classes.formControl_sm} size='small'>
-            <InputLabel id='base-branch-select-label'>Base</InputLabel>
-            <Select
-              labelId='base-branch-select-label'
-              id='base-branch-select'
-              value={base}
-              onChange={baseChange}
-              label='Base'
-            >
-              <MenuItem value='None' className={classes.formItem}>None</MenuItem>
-              {repo ? repos.find(r => r.id === repo)?.local.map(opt =>
-                <MenuItem key={opt} value={opt} className={classes.formItem}>{opt}</MenuItem>) : null
-              }
-            </Select>
-          </FormControl>
-          <FormControl variant='outlined' className={classes.formControl_sm} size='small'>
-            <InputLabel id='compare-branch-select-label'>Compare</InputLabel>
-            <Select
-              labelId='compare-branch-select-label'
-              id='compare-branch-select'
-              value={compare}
-              onChange={compareChange}
-              label='Compare'
-            >
-              <MenuItem value=''>
-                <em>None</em>
-              </MenuItem>
-              {repo ? repos.find(r => r.id === repo)?.local.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>) : null}
-            </Select>
-          </FormControl>
+          <Grid container alignItems='center' justifyContent='center'>
+            <Grid item xs={12}>
+              <DropSelect label='Repo' target={repo} setTarget={setRepo} options={repos.map(r => ({ key: r.id, value: r.name }))} />
+            </Grid>
+            <Grid item xs={6}>
+              <DropSelect label='Base' target={base} setTarget={setBase} options={branches ? branches : []} />
+            </Grid>
+            <Grid item xs={6}>
+              <DropSelect label='Compare' target={compare} setTarget={setCompare} options={branches ? branches : []} />
+            </Grid>
+          </Grid>
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
         </div>
         {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}
