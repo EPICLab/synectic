@@ -13,9 +13,7 @@ import { branchLog } from '../containers/git-plumbing';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import TimelineComponent from './MergeTimeline';
 import SimpleSelect from './SimpleSelect';
-import BaseBranchSelect from './BaseBranchSelect';
-import CompareBranchSelect from './CompareBranchSelect';
-import RepoSelect from './RepoSelect';
+import DropSelect from './DropSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -104,6 +102,8 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     setBuildStatus(buildStatus);
   }
 
+  const branches = repos.find(r => r.id === repo)?.local.map(b => ({ key: b, value: b }));
+
   return (
     <Dialog id='dialog' open={true} onClose={() => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id })}>
       <div className={classes.root}>
@@ -124,9 +124,9 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         <Divider variant='middle' />
         <SimpleSelect />
         <div className={classes.section2}>
-          <RepoSelect repo={repo} setRepo={setRepo} />
-          <BaseBranchSelect repo={repo} base={base} setBase={setBase} />
-          <CompareBranchSelect repo={repo} compare={compare} setCompare={setCompare} />
+          <DropSelect label='Repo' target={repo} setTarget={setRepo} options={branches ? branches : []} />
+          <DropSelect label='Base' target={base} setTarget={setBase} options={branches ? branches : []} />
+          <DropSelect label='Compare' target={compare} setTarget={setCompare} options={branches ? branches : []} />
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
         </div>
         {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}

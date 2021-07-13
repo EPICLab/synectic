@@ -5,15 +5,19 @@ import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 const useStyles = makeStyles({
     root: {
         height: 32,
-        padding: 3
+        padding: 5,
+        margin: 7
     },
     select: {
+        padding: 2,
         margin: 5,
+        paddingLeft: 8,
         width: 250,
         height: 32
     },
     selectItem: {
-
+        padding: 2,
+        margin: 2
     }
 });
 
