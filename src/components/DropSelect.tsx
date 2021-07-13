@@ -22,10 +22,6 @@ type DropSelectProps = {
     options: { key: string, value: string }[];
 }
 
-/*
-
-*/
-
 const DropSelect: React.FunctionComponent<DropSelectProps> = props => {
     const classes = useStyles();
 
@@ -34,14 +30,8 @@ const DropSelect: React.FunctionComponent<DropSelectProps> = props => {
             <InputLabel id={`${props.label}-select-label`} className={classes.input}>{props.label}</InputLabel>
             <Select
                 MenuProps={{
-                    anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'left'
-                    },
-                    transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'left'
-                    },
+                    anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                    transformOrigin: { vertical: 'top', horizontal: 'left' },
                     getContentAnchorEl: null
                 }}
                 labelId={`${props.label}-select-label`}
