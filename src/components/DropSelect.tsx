@@ -1,25 +1,26 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { createStyles, FormControl, InputLabel, MenuItem, Select, Theme } from '@material-ui/core';
 
-const useStyles = makeStyles({
-    root: {
-        margin: 7
-    },
-    input: {
-        backgroundColor: 'white',
-        padding: 3
-    },
-    select: {
-        minWidth: 250,
-    }
-});
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        root: {
+            margin: theme.spacing(1),
+            width: `calc(100% - ${theme.spacing(2)}px)`
+        },
+        input: {
+            backgroundColor: theme.palette.background.paper,
+            padding: 3
+        },
+    }),
+);
 
 type DropSelectProps = {
     label: string;
     target: string;
     setTarget: React.Dispatch<React.SetStateAction<string>>;
     options: { key: string, value: string }[];
+    width?: number | undefined;
 }
 
 const DropSelect: React.FunctionComponent<DropSelectProps> = props => {
@@ -36,8 +37,8 @@ const DropSelect: React.FunctionComponent<DropSelectProps> = props => {
                 }}
                 labelId={`${props.label}-select-label`}
                 id={`${props.label}-select`}
-                className={classes.select}
                 value={props.target}
+                fullWidth={true}
                 onChange={(event) => props.setTarget(event.target.value as string)}
             >
                 <MenuItem value='None' dense={true}>None</MenuItem>

@@ -21,17 +21,6 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: 530,
       backgroundColor: theme.palette.background.paper,
     },
-    formControl_lg: {
-      margin: theme.spacing(1),
-      minWidth: 496,
-    },
-    formControl_sm: {
-      margin: theme.spacing(1),
-      minWidth: 240,
-    },
-    formItem: {
-      padding: 10,
-    },
     button: {
       margin: theme.spacing(1),
     },
@@ -39,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(3, 2, 1),
     },
     section2: {
+      // flexGrow: 1,
       margin: theme.spacing(1, 1),
     },
   }),
@@ -122,9 +112,17 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         </div>
         <Divider variant='middle' />
         <div className={classes.section2}>
-          <DropSelect label='Repo' target={repo} setTarget={setRepo} options={repos.map(r => ({ key: r.id, value: r.name }))} />
-          <DropSelect label='Base' target={base} setTarget={setBase} options={branches ? branches : []} />
-          <DropSelect label='Compare' target={compare} setTarget={setCompare} options={branches ? branches : []} />
+          <Grid container alignItems='center' justifyContent='center'>
+            <Grid item xs={12}>
+              <DropSelect label='Repo' target={repo} setTarget={setRepo} options={repos.map(r => ({ key: r.id, value: r.name }))} />
+            </Grid>
+            <Grid item xs={6}>
+              <DropSelect label='Base' target={base} setTarget={setBase} options={branches ? branches : []} />
+            </Grid>
+            <Grid item xs={6}>
+              <DropSelect label='Compare' target={compare} setTarget={setCompare} options={branches ? branches : []} />
+            </Grid>
+          </Grid>
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
         </div>
         {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}
