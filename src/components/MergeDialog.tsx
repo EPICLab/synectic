@@ -124,7 +124,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         <Divider variant='middle' />
         <SimpleSelect />
         <div className={classes.section2}>
-          <DropSelect label='Repo' target={repo} setTarget={setRepo} options={branches ? branches : []} />
+          <DropSelect label='Repo' target={repo} setTarget={setRepo} options={repos.map(r => ({key:r.id, value: r.name}))} />
           <DropSelect label='Base' target={base} setTarget={setBase} options={branches ? branches : []} />
           <DropSelect label='Compare' target={compare} setTarget={setCompare} options={branches ? branches : []} />
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
