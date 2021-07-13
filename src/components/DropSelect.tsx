@@ -4,20 +4,14 @@ import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 const useStyles = makeStyles({
     root: {
-        height: 32,
-        padding: 5,
         margin: 7
     },
-    select: {
-        padding: 2,
-        margin: 5,
-        paddingLeft: 8,
-        width: 250,
-        height: 32
+    input: {
+        backgroundColor: 'white',
+        padding: 3
     },
-    selectItem: {
-        padding: 2,
-        margin: 2
+    select: {
+        minWidth: 250,
     }
 });
 
@@ -28,22 +22,39 @@ type DropSelectProps = {
     options: { key: string, value: string }[];
 }
 
+/*
+
+*/
+
 const DropSelect: React.FunctionComponent<DropSelectProps> = props => {
     const classes = useStyles();
+
     return (
-        <FormControl variant='outlined' className={classes.root}>
-            <InputLabel id={`${props.label}-select-label`}>{props.label}</InputLabel>
+        <FormControl variant='outlined' className={classes.root} margin='dense'>
+            <InputLabel id={`${props.label}-select-label`} className={classes.input}>{props.label}</InputLabel>
             <Select
+                MenuProps={{
+                    anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left'
+                    },
+                    transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left'
+                    },
+                    getContentAnchorEl: null
+                }}
                 labelId={`${props.label}-select-label`}
                 id={`${props.label}-select`}
                 className={classes.select}
                 value={props.target}
                 onChange={(event) => props.setTarget(event.target.value as string)}
             >
-                <MenuItem value='None' className={classes.selectItem}>None</MenuItem>
-                {props.options.map(opt => <MenuItem key={opt.key} value={opt.key} className={classes.selectItem}>{opt.value}</MenuItem>)}
+                <MenuItem value='None' dense={true}>None</MenuItem>
+                {props.options.map(opt => <MenuItem key={opt.key} value={opt.key} dense={true}>{opt.value}</MenuItem>)}
             </Select>
-        </FormControl>
+        </FormControl >
+
     );
 }
 
