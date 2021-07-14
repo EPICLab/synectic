@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { InsertDriveFile, Add, Remove } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
 
 import type { Card, Repository, UUID } from '../types';
+import { Action, ActionKeys } from '../store/actions';
 import { RootState } from '../store/root';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { HookEntry, MatrixStatus, useDirectory } from '../store/hooks/useDirectory';
 import { MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
-import { add, matrixToStatus, remove } from '../containers/git-plumbing';
+// import { add, matrixToStatus, remove } from '../containers/git-plumbing';
+import { matrixToStatus } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
 
 const modifiedCheck = (status: MatrixStatus | undefined): boolean => {
@@ -35,6 +38,8 @@ type SourceFileProps = {
 }
 
 const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> = props => {
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
+  // const modifiedStatus = useState<boolean>(modifiedCheck(props.status) ? modifiedCheck(props.status) : false);
 
   const colorFilter = (status: MatrixStatus | undefined) =>
   (status && stagedCheck(status) ? '#61aeee'
@@ -44,8 +49,38 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
   (status && stagedCheck(status) ? Remove
     : (status && changedCheck(status) ? Add : undefined));
 
+  const updateCheck = () => {
+    if (!props.status || !props.repo || !props.branch) {
+      return;
+    }
+    if (stagedCheck(props.status)) {
+      console.log(`unstaging ${extractFilename(props.path)}...`);
+      dispatch({
+        type: ActionKeys.REMOVE_REPO,
+        id: props.repo.id
+      })
+      dispatch({
+        type: ActionKeys.UPDATE_REPO,
+        id: props.repo.id,
+        repo: props.repo
+      })
+    } else if (modifiedCheck(props.status)) {
+      console.log(`staging ${extractFilename(props.path)}...`);
+      dispatch({
+        type: ActionKeys.ADD_REPO,
+        id: props.repo.id,
+        repo: props.repo
+      })
+      dispatch({
+        type: ActionKeys.UPDATE_REPO,
+        id: props.repo.id,
+        repo: props.repo
+      })
+    }
+  }
+    
   return (
-    <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()}
+    <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()} onChange={updateCheck}
       color={colorFilter(props.status)}
       labelText={extractFilename(props.path)}
       labelIcon={InsertDriveFile}
@@ -58,12 +93,27 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
         }
         if (stagedCheck(props.status)) {
           console.log(`unstaging ${extractFilename(props.path)}...`);
-          await remove(props.path, props.repo, props.branch);
-          await props.update();
+          dispatch({
+            type: ActionKeys.REMOVE_REPO,
+            id: props.repo.id
+          })
+          dispatch({
+            type: ActionKeys.UPDATE_REPO,
+            id: props.repo.id,
+            repo: props.repo
+          })
         } else if (modifiedCheck(props.status)) {
           console.log(`staging ${extractFilename(props.path)}...`);
-          await add(props.path, props.repo, props.branch);
-          await props.update();
+          dispatch({
+            type: ActionKeys.ADD_REPO,
+            id: props.repo.id,
+            repo: props.repo
+          })
+          dispatch({
+            type: ActionKeys.UPDATE_REPO,
+            id: props.repo.id,
+            repo: props.repo
+          })
         }
       }}
     />
