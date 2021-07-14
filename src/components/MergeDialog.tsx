@@ -17,7 +17,7 @@ import DropSelect from './DropSelect';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      width: '100%',
+      fullWidth: true,
       maxWidth: 530,
       backgroundColor: theme.palette.background.paper,
     },
@@ -25,10 +25,11 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(1),
     },
     section1: {
+      width: 450,
       margin: theme.spacing(3, 2, 1),
     },
     section2: {
-      // flexGrow: 1,
+      maxWidth: 530,
       margin: theme.spacing(1, 1),
     },
   }),
