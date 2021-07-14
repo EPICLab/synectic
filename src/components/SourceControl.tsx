@@ -12,7 +12,6 @@ import { StyledTreeItem } from './StyledTreeComponent';
 import { HookEntry, MatrixStatus, useDirectory } from '../store/hooks/useDirectory';
 import { MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
-// import { add, matrixToStatus, remove } from '../containers/git-plumbing';
 import { add, matrixToStatus, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
 
@@ -48,41 +47,9 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
   const iconFilter = (status: MatrixStatus | undefined) =>
   (status && stagedCheck(status) ? Remove
     : (status && changedCheck(status) ? Add : undefined));
-
-  const updateCheck = () => {
-    if (!props.status || !props.repo || !props.branch) {
-      return;
-    }
-    if (stagedCheck(props.status)) {
-      console.log(`unstaging ${extractFilename(props.path)}...`);
-      remove(props.path, props.repo, props.branch);
-      dispatch({
-        type: ActionKeys.REMOVE_REPO,
-        id: props.repo.id
-      })
-      dispatch({
-        type: ActionKeys.UPDATE_REPO,
-        id: props.repo.id,
-        repo: props.repo
-      })
-    } else if (modifiedCheck(props.status)) {
-      console.log(`staging ${extractFilename(props.path)}...`);
-      add(props.path, props.repo, props.branch);
-      dispatch({
-        type: ActionKeys.ADD_REPO,
-        id: props.repo.id,
-        repo: props.repo
-      })
-      dispatch({
-        type: ActionKeys.UPDATE_REPO,
-        id: props.repo.id,
-        repo: props.repo
-      })
-    }
-  }
     
   return (
-    <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()} onChange={updateCheck}
+    <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()}
       color={colorFilter(props.status)}
       labelText={extractFilename(props.path)}
       labelIcon={InsertDriveFile}
@@ -95,11 +62,8 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
         }
         if (stagedCheck(props.status)) {
           console.log(`unstaging ${extractFilename(props.path)}...`);
-          remove(props.path, props.repo, props.branch);
-          dispatch({
-            type: ActionKeys.REMOVE_REPO,
-            id: props.repo.id
-          })
+          await remove(props.path, props.repo, props.branch);
+          await props.update();
           dispatch({
             type: ActionKeys.UPDATE_REPO,
             id: props.repo.id,
@@ -107,12 +71,8 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
           })
         } else if (modifiedCheck(props.status)) {
           console.log(`staging ${extractFilename(props.path)}...`);
-          add(props.path, props.repo, props.branch);
-          dispatch({
-            type: ActionKeys.ADD_REPO,
-            id: props.repo.id,
-            repo: props.repo
-          })
+          await add(props.path, props.repo, props.branch);
+          await props.update();
           dispatch({
             type: ActionKeys.UPDATE_REPO,
             id: props.repo.id,
