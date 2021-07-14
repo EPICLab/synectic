@@ -13,7 +13,7 @@ import { HookEntry, MatrixStatus, useDirectory } from '../store/hooks/useDirecto
 import { MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
 // import { add, matrixToStatus, remove } from '../containers/git-plumbing';
-import { matrixToStatus } from '../containers/git-plumbing';
+import { add, matrixToStatus, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
 
 const modifiedCheck = (status: MatrixStatus | undefined): boolean => {
@@ -55,6 +55,7 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
     }
     if (stagedCheck(props.status)) {
       console.log(`unstaging ${extractFilename(props.path)}...`);
+      remove(props.path, props.repo, props.branch);
       dispatch({
         type: ActionKeys.REMOVE_REPO,
         id: props.repo.id
@@ -66,6 +67,7 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
       })
     } else if (modifiedCheck(props.status)) {
       console.log(`staging ${extractFilename(props.path)}...`);
+      add(props.path, props.repo, props.branch);
       dispatch({
         type: ActionKeys.ADD_REPO,
         id: props.repo.id,
@@ -93,6 +95,7 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
         }
         if (stagedCheck(props.status)) {
           console.log(`unstaging ${extractFilename(props.path)}...`);
+          remove(props.path, props.repo, props.branch);
           dispatch({
             type: ActionKeys.REMOVE_REPO,
             id: props.repo.id
@@ -104,6 +107,7 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
           })
         } else if (modifiedCheck(props.status)) {
           console.log(`staging ${extractFilename(props.path)}...`);
+          add(props.path, props.repo, props.branch);
           dispatch({
             type: ActionKeys.ADD_REPO,
             id: props.repo.id,
