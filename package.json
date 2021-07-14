@@ -54,7 +54,7 @@
     "immutability-helper": "^3.1.1",
     "ini": "^2.0.0",
     "isomorphic-git": "^1.8.8",
-    "luxon": "^1.26.0",
+    "luxon": "^2.0.1",
     "pako": "^2.0.3",
     "parse-path": "^4.0.3",
     "react": "^17.0.2",
