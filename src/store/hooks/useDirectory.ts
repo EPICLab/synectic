@@ -110,6 +110,8 @@ export const useDirectory = (root: PathLike): useDirectoryHook => {
       }
     }
 
+    // edits to navigate to root directory, cycle through all metafiles, and then find GitStatus
+
   }, [directories, files, root]);
 
   return { root, directories, files, update };
