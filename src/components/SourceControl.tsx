@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
+import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { InsertDriveFile, Add, Remove } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
 
-import type { Card, Repository, UUID } from '../types';
+import type { Card, Metafile, Repository, UUID } from '../types';
 import { Action, ActionKeys } from '../store/actions';
 import { RootState } from '../store/root';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { HookEntry, MatrixStatus, useDirectory } from '../store/hooks/useDirectory';
+import { HookEntry, MatrixStatus } from '../store/hooks/useDirectory';
 import { MetafileWithPath } from '../containers/metafiles';
-import { extractFilename } from '../containers/io';
+import { extractFilename, isDirectory, readDirAsyncDepth } from '../containers/io';
 import { add, matrixToStatus, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
+import { PathLike } from 'fs-extra';
+import path from 'path';
+import { flattenArray } from '../containers/flatten';
 
 const modifiedCheck = (status: MatrixStatus | undefined): boolean => {
   if (!status) return false;
@@ -47,7 +50,7 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
   const iconFilter = (status: MatrixStatus | undefined) =>
   (status && stagedCheck(status) ? Remove
     : (status && changedCheck(status) ? Add : undefined));
-    
+
   return (
     <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()}
       color={colorFilter(props.status)}
@@ -84,17 +87,41 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
   );
 }
 
+// splits filepaths into directory and file entry lists
+const filterPaths = async (filepaths: PathLike[]): Promise<{ directories: PathLike[], files: PathLike[] }> => {
+  return await filepaths.reduce(async (previousPromise: Promise<{ directories: PathLike[], files: PathLike[] }>, filepath: PathLike) => {
+    const collection = await previousPromise;
+    if (await isDirectory(filepath)) collection.directories.push(filepath);
+    else collection.files.push(filepath);
+    return collection;
+  }, Promise.resolve({ directories: [], files: [] }));
+};
+
+const descendDirectory = (rootMetafile: MetafileWithPath):
+  ThunkAction<Promise<{ files: Metafile[], directories: Metafile[] }>, RootState, undefined, Action> => {
+  return async (_, getState) => {
+    const filepaths = (await readDirAsyncDepth(rootMetafile.path, 1)).filter(p => p !== rootMetafile.path); // filter root filepath from results
+    const currPaths = await filterPaths(filepaths);
+    const findMetafile = (targetPath: PathLike) => Object.values(getState().metafiles)
+      .filter(m => m.path !== undefined)
+      .filter(m => m.path ? path.relative(m.path.toString(), targetPath.toString()) === '' : false);
+    const files = flattenArray(currPaths.files.map(f => findMetafile(f)));
+    const directories = flattenArray(currPaths.directories.map(d => findMetafile(d)));
+    return new Promise((resolve) => resolve({ files: files, directories: directories }));
+  }
+}
+
 const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
+  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const metafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
-  const { files, update } = useDirectory((metafile as MetafileWithPath).path);
+  const { files, directories } = await dispatch(descendDirectory(metafile as MetafileWithPath));
+
   const [staged, setStaged] = useState<HookEntry[]>([]);
   const [changed, setChanged] = useState<HookEntry[]>([]);
   const [modified, setModified] = useState<HookEntry[]>([]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { update() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
   useEffect(() => { setModified(files.filter(f => modifiedCheck(f.status))) }, [files]);
   useEffect(() => { setStaged(files.filter(f => stagedCheck(f.status))) }, [files]);
   useEffect(() => { setChanged(files.filter(f => changedCheck(f.status))) }, [files]);
@@ -143,3 +170,7 @@ export const SourceControlReverse: React.FunctionComponent<Card> = props => {
 }
 
 export default SourceControl;
+
+function dispatch(arg0: ThunkAction<Promise<{ files: Metafile[]; directories: Metafile[]; }>, import("redux").CombinedState<{ canvas: import("../types").Canvas; stacks: { [id: string]: import("../types").Stack; }; cards: { [id: string]: Card; }; filetypes: { ...; }; metafiles: { ...; }; repos: { ...; }; modals: { ...; }; }>, undefined, Action >): { files: any; directories: any; } {
+  throw new Error('Function not implemented.');
+}
