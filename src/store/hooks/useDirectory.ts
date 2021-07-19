@@ -6,7 +6,6 @@ import { removeDuplicates } from '../../containers/format';
 import { getRepoRoot } from '../../containers/git-porcelain';
 import { statusMatrix } from '../../containers/git-plumbing';
 import { join } from 'path';
-import { getRepository } from '../../containers/repos';
 
 export type FileState = 'added' | 'deleted' | 'modified' | 'unmodified' | undefined;
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -110,35 +109,6 @@ export const useDirectory = (root: PathLike): useDirectoryHook => {
         setFiles(currPaths.files);
       }
     }
-
-    // edits to navigate to root directory, cycle through all metafiles, and then find GitStatus
-    console.log('dir: ' + dir);
-    console.log('root: ' + root);
-    const rootRepo = await getRepository(root);
-    // loop through files in directories
-    console.log('rootRepo: ' + rootRepo);
-    console.log('rootRepo.name: ' + rootRepo.name);
-
-    // logic for metafile check
-    // if metafile.GitStatus === '*modified'
-    // indicate file has been modified
-
-    // if metafile.GitStatus === '*deleted'
-    // indicate file is deleted, not yet staged
-
-    // if metafile.GitStatus === '*added'
-    // indicate file is untracked, not yet staged
-
-    // if metafile.GitStatus === '*unmodified'
-    // return
-    
-    // if metafile.GitStatus === '*absent'
-    // indicate file is not present in working dir or HEAD, but in index
-
-    // if metafile.GitStatus === '*undeleted'
-    // indicate file is deleted from index but still in working dir
-
-    // if metafile.GitStatus == '*undeletedmodified'
 
   }, [directories, files, root]);
 
