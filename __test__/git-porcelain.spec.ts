@@ -8,7 +8,7 @@ import * as io from '../src/containers/io';
 
 describe('git.currentBranch', () => {
 
-  beforeAll(() => {
+  beforeEach(() => {
     mock({
       baseRepo: {
         '.git': {
@@ -83,8 +83,10 @@ describe('git.currentBranch', () => {
     });
   });
 
-  afterAll(mock.restore);
-  afterEach(jest.clearAllMocks);
+  afterEach(() => {
+    mock.restore();
+    jest.clearAllMocks();
+  });
 
   it('currentBranch resolves to Git branch name on a tracked worktree', async () => {
     jest.spyOn(io, 'isDirectory').mockResolvedValue(true); // mock-fs struggles to mock async IO calls, like io.isDirectory()
@@ -109,7 +111,7 @@ describe('git.currentBranch', () => {
 
 describe('git.getConfig', () => {
 
-  beforeAll(() => {
+  beforeEach(() => {
     mock({
       [path.join(homedir(), '.gitconfig')]: mock.file({
         content: `[user]
@@ -133,7 +135,10 @@ describe('git.getConfig', () => {
     }, { createCwd: false });
   });
 
-  afterAll(mock.restore);
+  afterEach(() => {
+    mock.restore();
+    jest.clearAllMocks();
+  });
 
   it('getConfig resolves global git-config value', async () => {
     return expect(git.getConfig('user.name', true)).resolves.toStrictEqual({ scope: 'global', value: 'Sandy Updates' });
@@ -173,7 +178,10 @@ describe('git.setConfig', () => {
     }, { createCwd: false });
   });
 
-  afterAll(mock.restore);
+  afterEach(() => {
+    mock.restore();
+    jest.clearAllMocks();
+  });
 
   it('setConfig adds value to global git-config', async () => {
     const updated = await git.setConfig('global', 'user.username', 'supdate');
