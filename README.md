@@ -20,7 +20,7 @@ Downloads: [https://nomatic.dev/synectic/](https://nomatic.dev/synectic/)
 # Install
 
 1. Install [Node.js](https://nodejs.org/en/).
-2. Install [Yarn](https://yarnpkg.com/lang/en/) Package Manager (or use `npm` which is installed with `Node.js`).
+2. Install [Yarn](https://yarnpkg.com/lang/en/) Package Manager (note: Yarn 2 is per-project and has been configured; if errors see https://github.com/yarnpkg/yarn/issues/8460#issuecomment-729565545).
 3. Clone this repository:
     ```bash
     git clone git@github.com:EPICLab/synectic.git
