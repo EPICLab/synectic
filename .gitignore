@@ -27,11 +27,18 @@ build/
 local.properties
 *.iml
 
-# node.js
+# NPM
 node_modules/
 npm-debug.log
-yarn-error.log
-.yarn
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
 
 # Bundle artifact
 *.jsbundle
