@@ -100,7 +100,10 @@ describe('git-worktree.list', () => {
     });
   });
 
-  afterEach(mock.restore);
+  afterEach(() => {
+    mock.restore();
+    jest.clearAllMocks();
+  });
 
   it('list returns list of worktrees from the main worktree directory', () => {
     return expect(worktree.list('baseRepo/')).resolves.toStrictEqual(

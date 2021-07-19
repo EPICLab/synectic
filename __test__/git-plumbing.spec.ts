@@ -6,7 +6,7 @@ import * as io from '../src/containers/io';
 
 describe('git.resolveRef', () => {
 
-  beforeAll(() => {
+  beforeEach(() => {
     mock({
       baseRepo: {
         '.git': {
@@ -72,7 +72,10 @@ describe('git.resolveRef', () => {
     });
   });
 
-  afterAll(mock.restore);
+  afterEach(() => {
+    mock.restore();
+    jest.clearAllMocks();
+  });
 
   it('resolveRef resolves to SHA-1 hash on a main worktree ref', async () => {
     jest.spyOn(io, 'isDirectory').mockResolvedValue(true); // mock-fs struggles to mock async IO calls, like io.isDirectory()

@@ -13,6 +13,7 @@ import { HookEntry, MatrixStatus } from '../store/hooks/useDirectory';
 import { extractFilename } from '../containers/io';
 import { add, matrixToStatus, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
+import { getMetafilesByRoot } from '../store/selectors/metafiles';
 import { MetafileWithPath } from '../containers/metafiles';
 
 const modifiedCheck = (status: MatrixStatus | undefined): boolean => {
@@ -47,8 +48,7 @@ const stagedValidate = (status: GitStatus | undefined): boolean => {
 
 type SourceFileProps = {
   repo?: Repository,
-  branch?: string,
-  update: () => Promise<void>
+  branch?: string
 }
 
 export const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> = props => {
@@ -62,7 +62,7 @@ export const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFile
   const iconFilter = (status: MatrixStatus | undefined) =>
   (status && stagedCheck(status) ? Remove
     : (status && changedCheck(status) ? Add : undefined));
-    
+
   return (
     <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()}
       color={colorFilter(props.status)}
@@ -78,7 +78,6 @@ export const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFile
         if (stagedCheck(props.status)) {
           console.log(`unstaging ${extractFilename(props.path)}...`);
           await remove(props.path, props.repo, props.branch);
-          await props.update();
           dispatch({
             type: ActionKeys.UPDATE_REPO,
             id: props.repo.id,
@@ -87,7 +86,6 @@ export const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFile
         } else if (modifiedCheck(props.status)) {
           console.log(`staging ${extractFilename(props.path)}...`);
           await add(props.path, props.repo, props.branch);
-          await props.update();
           dispatch({
             type: ActionKeys.UPDATE_REPO,
             id: props.repo.id,
@@ -99,25 +97,29 @@ export const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFile
   );
 }
 
+
+
 const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
   const metafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
   const repos = useSelector((state: RootState) => state.repos);
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
-  // const { files, directories } = await dispatch(descendDirectory(metafile as MetafileWithPath));
-
+  
   // const [staged, setStaged] = useState<HookEntry[]>([]);
   // const [changed, setChanged] = useState<HookEntry[]>([]);
   // const [modified, setModified] = useState<HookEntry[]>([]);
 
-  // useEffect(() => { setModified(files.filter(f => modifiedValidate(f.status))) }, [files]);
-  // useEffect(() => { setStaged(files.filter(f => stagedValidate(f.status))) }, [files]);
-  // useEffect(() => { setChanged(files.filter(f => changedValidate(f.status))) }, [files]);
+  // useEffect(() => { setModified(files.filter(f => modifiedCheck(f.status))) }, [files]);
+  // useEffect(() => { setStaged(files.filter(f => stagedCheck(f.status))) }, [files]);
+  // useEffect(() => { setChanged(files.filter(f => changedCheck(f.status))) }, [files]);
 
   return (
     <div className='file-explorer'>
       <BranchRibbon branch={metafile.branch} onClick={() => {
-        // console.log({ metafile, files, modified });
+        dispatch(getMetafilesByRoot((metafile as MetafileWithPath).path))
+          .unwrap()
+          .then(res => console.log(JSON.stringify(res)))
+          .catch(err => console.error(err));
       }} />
       <TreeView>
         <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile.branch}-staged`}
@@ -127,7 +129,7 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
           labelIcon={GitBranchIcon}
         >
           {/* {staged.map(file =>
-            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} update={update} {...file} />)
+            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} {...file} />)
           } */}
         </StyledTreeItem>
         <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile.branch}-changed`}
@@ -137,7 +139,7 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
           labelIcon={GitBranchIcon}
         >
           {/* {changed.map(file =>
-            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} update={update} {...file} />)} */}
+            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} {...file} />)} */}
         </StyledTreeItem>
       </TreeView>
     </div>
@@ -157,3 +159,4 @@ export const SourceControlReverse: React.FunctionComponent<Card> = props => {
 }
 
 export default SourceControl;
+
