@@ -27,15 +27,6 @@ module.exports = [
   },
   {
     test: /\.(png|jpe?g|gif|svg|ico|icns)$/i,
-    use: [{
-      loader: 'file-loader',
-      options: {
-        // Electron-Forge requires these options for packaging static assets with correct paths, solution found here:
-        // https://github.com/electron-userland/electron-forge/issues/1196
-        name: '[path][name].[ext]',
-        publicPath: '..', // move up from 'main_window'
-        context: 'src' // set relative working folder to src
-      }
-    }]
+    type: `asset/resource`
   }
 ];
