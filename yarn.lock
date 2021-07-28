@@ -485,25 +485,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dword-design/chdir@npm:^2.0.0":
-  version: 2.0.6
-  resolution: "@dword-design/chdir@npm:2.0.6"
-  checksum: 3829e99614ffd121df651faff2e3b972e14c25ee93c9d4984d3a52bcedf79821d38924b9758c8e71c2cd5e1b3197e7e9e13c53d99890faa80203206534f19a52
-  languageName: node
-  linkType: hard
-
-"@dword-design/functions@npm:^4.0.0":
-  version: 4.0.6
-  resolution: "@dword-design/functions@npm:4.0.6"
-  dependencies:
-    delay: ^5.0.0
-    endent: "github:dword-design/endent#fork"
-    lodash: ^4.17.15
-    tinycolor2: ^1.4.1
-  checksum: ca35983116987a8b3b78c1a2ed87899b83615bf104ef37916191efc435e9c4abf95a636de7d9a63159aa1b7d1c710b3d5986404f515da253f9257ee65dd9333d
-  languageName: node
-  linkType: hard
-
 "@electron-forge/async-ora@npm:6.0.0-beta.57":
   version: 6.0.0-beta.57
   resolution: "@electron-forge/async-ora@npm:6.0.0-beta.57"
@@ -3228,13 +3209,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-add-module-exports@npm:^1.0.2":
-  version: 1.0.4
-  resolution: "babel-plugin-add-module-exports@npm:1.0.4"
-  checksum: 80bd414662f53639adfccc57db750567828b5a7bd5702be2a18540f4410aae5117ed41be1a4e74ede04800dff5011eac90b347e08b1b9c3b7fbc8abba9bf12fa
-  languageName: node
-  linkType: hard
-
 "babel-plugin-istanbul@npm:^6.0.0":
   version: 6.0.0
   resolution: "babel-plugin-istanbul@npm:6.0.0"
@@ -4558,15 +4532,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dedent@dword-design/dedent#fork":
-  version: 0.7.0
-  resolution: "dedent@https://github.com/dword-design/dedent.git#commit=c8d46e5017d60504657c2d01b59082c0329a12a7"
-  dependencies:
-    babel-plugin-add-module-exports: ^1.0.2
-  checksum: 2a05aa5b53872874f7974a310246db2fd3406a9e11eabd576bf6dc2ecb55f8c6e6f9640a4586c385eed214afc117e8ce4c6d6b8ad85435626a88dfa84a699771
-  languageName: node
-  linkType: hard
-
 "dedent@npm:^0.7.0":
   version: 0.7.0
   resolution: "dedent@npm:0.7.0"
@@ -4670,13 +4635,6 @@ __metadata:
     rimraf: ^3.0.2
     slash: ^3.0.0
   checksum: da72707c9221154db6d6b05890ac1ae771d1b4ffc2759a6b8fca58e8a8289e07d22b68f68666a6c540dd99f1021b29ef77918dcaf4dbfeb9f99f49bd7fcc6fb5
-  languageName: node
-  linkType: hard
-
-"delay@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "delay@npm:5.0.0"
-  checksum: 404b4dd8e60f9fe869dbbd502696cdf4da2b4f3b5b4c10d3345bdec7a3af896ebbb175e16e3aeef7b2063a8ffbb446a04b97218fb276233c90c103b8676c83a0
   languageName: node
   linkType: hard
 
@@ -5209,17 +5167,6 @@ __metadata:
   dependencies:
     once: ^1.4.0
   checksum: 7da60e458bdb5e16c006a45e85ef3bc1e3791db5ba275b0913258ccddc8899acb9252c4ddbcce87bd1b46e2a3f97315aafb9f0c0330e8aac44defb504a9d3ccd
-  languageName: node
-  linkType: hard
-
-"endent@github:dword-design/endent#fork":
-  version: 1.4.0
-  resolution: "endent@https://github.com/dword-design/endent.git#commit=be5433db67eaec07c6c9d00ba3bed2ed946dc664"
-  dependencies:
-    dedent: "dword-design/dedent#fork"
-    fast-json-parse: ^1.0.3
-    objectorarray: ^1.0.3
-  checksum: d45dd3bc75dcbd054cc161611f3d8186766289f1c7ff1be27875121924b8bb35b18ba751d3724a72d2145eb9307d5849e9c636e51d88faad04cd738b66b94589
   languageName: node
   linkType: hard
 
@@ -9837,7 +9784,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"objectorarray@npm:^1.0.3, objectorarray@npm:^1.0.5":
+"objectorarray@npm:^1.0.5":
   version: 1.0.5
   resolution: "objectorarray@npm:1.0.5"
   checksum: 0527d6f754cfeac66b416abd2e0682ebff599a8e68fe37abb193f0be9b421fa0dfaa5382f2afa2f61f9fb267cc46dcec3b2e2c5c9feccc55e444f6b40e48cb03
@@ -9962,16 +9909,6 @@ __metadata:
     os-homedir: ^1.0.0
     os-tmpdir: ^1.0.0
   checksum: 1c7462808c5ff0c2816b11f2f46265a98c395586058f98d73a6deac82955744484b277baedceeb962c419f3b75d0831a77ce7cf38b9e4f20729943ba79d72b08
-  languageName: node
-  linkType: hard
-
-"output-files@npm:^2.0.8":
-  version: 2.0.8
-  resolution: "output-files@npm:2.0.8"
-  dependencies:
-    "@dword-design/functions": ^4.0.0
-    fs-extra: ^10.0.0
-  checksum: 9553705bc9ca5a32ff9a039a1ce3bda400bb10cc6a965e3ae21361c1f12b140401fca90558ed552e90fae3107908f795f4155bde71fb32d698a67f68cd7a06af
   languageName: node
   linkType: hard
 
@@ -12622,7 +12559,6 @@ resolve@^2.0.0-next.3:
     memfs: ^3.2.2
     mock-fs: ^5.0.0
     node-loader: ^2.0.0
-    output-files: ^2.0.8
     pako: ^2.0.3
     parse-path: ^4.0.3
     react: ^17.0.2
@@ -12651,7 +12587,6 @@ resolve@^2.0.0-next.3:
     valid-url: ^1.0.9
     validator: ^13.5.2
     webpack: ^5.44.0
-    with-local-tmp-dir: ^4.0.8
   languageName: unknown
   linkType: soft
 
@@ -12854,13 +12789,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tinycolor2@npm:^1.4.1":
-  version: 1.4.2
-  resolution: "tinycolor2@npm:1.4.2"
-  checksum: cf33d084cb378d2988fad1b214e62f38be75ba1a9a6df98d4dadf77c31f82796d40822100e6d3e1973c9233ddf0ddbbbfdcac40e2288c958bca3c6d310e2ccb4
-  languageName: node
-  linkType: hard
-
 "tmp-promise@npm:^1.0.5":
   version: 1.1.0
   resolution: "tmp-promise@npm:1.1.0"
@@ -12871,7 +12799,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tmp-promise@npm:^3.0.0, tmp-promise@npm:^3.0.2":
+"tmp-promise@npm:^3.0.2":
   version: 3.0.2
   resolution: "tmp-promise@npm:3.0.2"
   dependencies:
@@ -13739,16 +13667,6 @@ typescript@^4.2.4:
   dependencies:
     fswin: ^3.18.918
   checksum: 156ae74fc89ca6480b99fb5b9b8903f4af681b50cfbff2be85ccce88fbc62804031b5a8d6d70b1b9a2635ac28e32cb81dfce54f2d47c9280783872b8c5abea54
-  languageName: node
-  linkType: hard
-
-"with-local-tmp-dir@npm:^4.0.8":
-  version: 4.0.8
-  resolution: "with-local-tmp-dir@npm:4.0.8"
-  dependencies:
-    "@dword-design/chdir": ^2.0.0
-    tmp-promise: ^3.0.0
-  checksum: 9d204f361e11ea43c43d6060953a83a7a82585f708790480a14364f107a7ee3d536271556d385c53afcbcfd5dcf3c323bc3381ab65f4af8e666243950b035a08
   languageName: node
   linkType: hard
 
