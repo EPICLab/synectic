@@ -1,4 +1,3 @@
-import mock from 'mock-fs';
 import parsePath from 'parse-path';
 import { normalize } from 'path';
 import { v4 } from 'uuid';
@@ -10,6 +9,8 @@ import { ActionKeys } from '../src/store/actions';
 import * as metafiles from '../src/containers/metafiles';
 import * as repos from '../src/containers/repos';
 import * as git from '../src/containers/git-porcelain';
+import { mock, file } from './__mocks__/mock-fs-promise';
+import type { MockInstance } from './__mocks__/mock-fs-promise';
 
 describe('metafiles.addMetafile', () => {
 
@@ -71,6 +72,8 @@ describe('metafiles.updateMetafile', () => {
 });
 
 describe('metafiles.updateFileStats', () => {
+  let mockedInstance: MockInstance;
+
   const store = mockStore({
     canvas: {
       id: v4(),
@@ -118,13 +121,14 @@ describe('metafiles.updateFileStats', () => {
     modals: {}
   });
 
-  beforeAll(() => {
-    mock({
-      'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
+  beforeAll(async () => {
+    const instance = await mock({
+      'foo/bar.js': file({ content: 'file contents', mtime: new Date(1) })
     });
+    return mockedInstance = instance;
   });
   afterEach(store.clearActions);
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset);
 
   it('updateFileStats resolves filetype and handler on existing file', async () => {
     await store.dispatch(metafiles.updateFileStats('3'));
@@ -170,6 +174,7 @@ describe('metafiles.updateFileStats', () => {
 });
 
 describe('metafiles.updateGitInfo', () => {
+
   const store = mockStore({
     canvas: {
       id: v4(),
@@ -219,7 +224,6 @@ describe('metafiles.updateGitInfo', () => {
     store.clearActions();
     jest.clearAllMocks();
   });
-  afterAll(mock.restore);
 
   it('updateGitInfo resolves repo, branch, and status on existing file', async () => {
     const repo: Repository = {
@@ -276,6 +280,8 @@ describe('metafiles.updateGitInfo', () => {
 });
 
 describe('metafiles.updateContents', () => {
+  let mockedInstance: MockInstance;
+
   const store = mockStore({
     canvas: {
       id: v4(),
@@ -324,13 +330,14 @@ describe('metafiles.updateContents', () => {
     modals: {}
   });
 
-  beforeAll(() => {
-    mock({
-      'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
+  beforeAll(async () => {
+    const instance = await mock({
+      'foo/bar.js': file({ content: 'file contents', mtime: new Date(1) })
     });
+    return mockedInstance = instance;
   });
   afterEach(store.clearActions);
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   it('updateContents resolves UTF-8 content for existing file', async () => {
     await store.dispatch(metafiles.updateContents('3'));
@@ -446,13 +453,16 @@ describe('metafiles.getMetafile', () => {
     modals: {}
   });
 
-  beforeAll(() => {
-    mock({
-      'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
+  let mockedInstance: MockInstance;
+
+  beforeAll(async () => {
+    const instance = await mock({
+      'foo/bar.js': file({ content: 'file contents', mtime: new Date(1) })
     });
+    return mockedInstance = instance;
   });
   afterEach(store.clearActions);
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   it('getMetafile by UUID resolves to updated metafile for existing file', async () => {
     await store.dispatch(metafiles.getMetafile({ id: '3' }));

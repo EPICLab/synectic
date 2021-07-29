@@ -1,5 +1,4 @@
 import React from 'react';
-import mock from 'mock-fs';
 import parsePath from 'parse-path';
 import { renderHook } from '@testing-library/react-hooks';
 import { Provider } from 'react-redux';
@@ -9,8 +8,11 @@ import { v4 } from 'uuid';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { useBranchStatus } from '../src/store/hooks/useBranchStatus';
 import * as git from '../src/containers/git-porcelain';
+import type { MockInstance } from './__mocks__/mock-fs-promise';
+import { mock, file } from './__mocks__/mock-fs-promise';
 
 describe('useBranchStatus', () => {
+  let mockedInstance: MockInstance;
 
   const store = mockStore({
     canvas: {
@@ -89,16 +91,17 @@ describe('useBranchStatus', () => {
   });
   const wrapper = ({ children }: { children: React.ReactNode }) => <Provider store={store}>{children}</Provider>;
 
-  beforeAll(() => {
-    mock({
-      'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
+  beforeAll(async () => {
+    const instance = await mock({
+      'foo/bar.js': file({ content: 'file contents', mtime: new Date(1) })
     });
+    return mockedInstance = instance;
   });
   afterEach(() => {
     store.clearActions();
     jest.clearAllMocks();
   });
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   it('useBranchStatus hook maintains list of cards associated with the specific repo and branch', async () => {
     jest.spyOn(git, 'getStatus').mockResolvedValue('*modified');

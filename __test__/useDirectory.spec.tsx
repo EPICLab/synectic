@@ -1,5 +1,4 @@
 import React from 'react';
-import mock from 'mock-fs';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { Provider } from 'react-redux';
 import { DateTime } from 'luxon';
@@ -8,8 +7,11 @@ import { v4 } from 'uuid';
 import { useDirectory } from '../src/store/hooks/useDirectory';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { writeFileAsync } from '../src/containers/io';
+import type { MockInstance } from './__mocks__/mock-fs-promise';
+import { mock, file } from './__mocks__/mock-fs-promise';
 
 describe('useDirectory', () => {
+  let mockedInstance: MockInstance;
 
   const store = mockStore({
     canvas: {
@@ -61,12 +63,13 @@ describe('useDirectory', () => {
   });
   const wrapper = ({ children }: { children: React.ReactNode }) => <Provider store={store}>{children}</Provider>;
 
-  beforeAll(() => {
-    mock({
-      'foo/bar.js': mock.file({ content: 'file contents', ctime: new Date(1), mtime: new Date(1) })
+  beforeAll(async () => {
+    const instance = await mock({
+      'foo/bar.js': file({ content: 'file contents', mtime: new Date(1) })
     });
+    return mockedInstance = instance;
   });
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   afterEach(() => {
     store.clearActions();
