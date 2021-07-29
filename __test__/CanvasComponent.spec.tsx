@@ -1,5 +1,5 @@
 import React from 'react';
-import mock from 'mock-fs';
+// import mock2 from 'mock-fs';
 import { Provider } from 'react-redux';
 import { cleanup, render, act, screen } from '@testing-library/react';
 import { wrapWithTestBackend } from 'react-dnd-test-utils';
@@ -11,25 +11,29 @@ import { mockStore, extractFieldArray } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 import { fullCanvas } from './__fixtures__/Canvas';
 import { flattenArray } from '../src/containers/flatten';
+import type { MockInstance } from './__mocks__/mock-fs-promise';
+import { mock, file } from './__mocks__/mock-fs-promise';
+import endent from 'endent';
 
 const store = mockStore(testStore);
 
 describe('CanvasComponent', () => {
+  let mockedInstance: MockInstance;
 
   // mocks for git config are required; ReduxStore fixture contains MergeDialog components which check for config values
-  beforeEach(() => {
-    mock({
+  beforeAll(async () => {
+    const instance = await mock({
       'foo': {},
-      [path.join(homedir(), '.gitconfig')]: mock.file({
-        content: `[user]
+      [path.join(homedir(), '.gitconfig')]: file({
+        content: endent`[user]
   name = Sandy Updates
   email = supdate@oregonstate.edu
 [core]
   editor = vim
   whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol`,
       }),
-      '.git/config': mock.file({
-        content: `[user]
+      '.git/config': file({
+        content: endent`[user]
   name = Bobby Tables
   email = bdrop@oregonstate.edu
 [credential]
@@ -39,13 +43,15 @@ describe('CanvasComponent', () => {
 [alias]
   last = log -1 HEAD`,
       }),
-    }, { createCwd: false });
+    });
+    return mockedInstance = instance;
   });
+  
+  afterAll(() => mockedInstance.reset());
 
   afterEach(() => {
     cleanup;
     jest.clearAllMocks();
-    mock.restore();
   });
 
   it('Canvas renders correctly', async () => {
