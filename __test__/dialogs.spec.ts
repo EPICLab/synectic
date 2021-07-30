@@ -1,9 +1,9 @@
 import { remote } from 'electron'; // imports the mocked dependency to allow access to the spies
 
 import { mockStore } from './__mocks__/reduxStoreMock';
-import { basicMetafile } from './__fixtures__/Metafile';
+// import { basicMetafile } from './__fixtures__/Metafile';
 import { testStore } from './__fixtures__/ReduxStore';
-import { fileOpenDialog, fileSaveDialog } from '../src/containers/dialogs';
+import { fileOpenDialog } from '../src/containers/dialogs';
 
 const store = mockStore(testStore);
 
