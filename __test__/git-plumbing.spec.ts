@@ -1,13 +1,15 @@
 /* eslint-disable jest/no-commented-out-tests */
-import mock from 'mock-fs';
 
+import type { MockInstance } from './__mocks__/mock-fs-promise';
 import * as git from '../src/containers/git-plumbing';
 import * as io from '../src/containers/io';
+import { mock } from './__mocks__/mock-fs-promise';
 
 describe('git.resolveRef', () => {
+  let mockedInstance: MockInstance;
 
-  beforeAll(() => {
-    mock({
+  beforeAll(async () => {
+    const instance = await mock({
       baseRepo: {
         '.git': {
           HEAD: 'ref: refs/heads/master\n',
@@ -70,9 +72,10 @@ describe('git.resolveRef', () => {
         'sample.txt': 'non-tracked file and directory'
       }
     });
+    return mockedInstance = instance;
   });
 
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   it('resolveRef resolves to SHA-1 hash on a main worktree ref', async () => {
     jest.spyOn(io, 'isDirectory').mockResolvedValue(true); // mock-fs struggles to mock async IO calls, like io.isDirectory()

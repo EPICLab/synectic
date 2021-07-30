@@ -1,7 +1,6 @@
 import * as handlers from '../src/containers/handlers';
 import { ActionKeys } from '../src/store/actions';
 import { mock, MockInstance } from './__mocks__/mock-fs-promise';
-import mock2 from 'mock-fs';
 
 let mockedInstance: MockInstance;
 
@@ -15,12 +14,10 @@ beforeAll(async () => {
 });
 afterAll(() => mockedInstance.reset());
 
-afterEach(mock2.restore);
-
 describe('handlers.importFiletypes', () => {
   it('importFiletypes returns Redux actions for adding filetypes', async () => {
     const filetypes = await handlers.importFiletypes();
-    mock2.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    // mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(filetypes.length > 1).toBe(true);
     expect(filetypes[0].type).toBe(ActionKeys.ADD_FILETYPE);
   });
