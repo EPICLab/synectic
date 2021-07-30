@@ -2,10 +2,10 @@
 
 *[Briefly describe the overall purpose of the included changes and their effect on the overall project.]*
 
-This PR resolves #*[XXXX]*, and signifies the following version changes:
-* [ ] MAJOR version increase
-* [ ] MINOR version increase
-* [ ] PATCH version increase
+This PR resolves #*[XXXX]*, and signifies the following version changes (per [Semantic Version](https://semver.org/)):
+* **MAJOR** version increase
+* **MINOR** version increase
+* **PATCH** version increase
 
 ### **Changes**:
 
@@ -19,7 +19,6 @@ Before submitting this PR, I have verified that my code:
 * [ ] Resides on a `fix/` or `feature/` branch that was initially branched off from `development`.
 * [ ] Passes code linting (`yarn lint`) and unit testing (`yarn test`).
 * [ ] Successfully builds a distribution package (`yarn package`).
-
-Additionally, I have verified that:
-* [ ] My name is listed in the [Contributors](README.md#contributors) section, or this PR includes a request to add my name.
 * [ ] I have read and am aware of the [CONTRIBUTING](CONTRIBUTING.md) guide for this project.
+* [ ] My name is listed in the [Contributors](README.md#contributors) section, or this PR includes a request to add my name.
+
