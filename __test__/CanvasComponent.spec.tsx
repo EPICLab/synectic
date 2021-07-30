@@ -1,5 +1,4 @@
 import React from 'react';
-// import mock2 from 'mock-fs';
 import { Provider } from 'react-redux';
 import { cleanup, render, act, screen } from '@testing-library/react';
 import { wrapWithTestBackend } from 'react-dnd-test-utils';
