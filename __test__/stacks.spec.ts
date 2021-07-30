@@ -1,4 +1,3 @@
-import mock from 'mock-fs';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -135,7 +134,7 @@ afterEach(() => {
   store.clearActions();
   jest.clearAllMocks();
 });
-afterAll(mock.restore);
+// afterAll(mock.restore);
 
 describe('stacks.addStack', () => {
   it('addStack resolves ADD_STACK and UPDATE_CARD actions for each child Card', () => {

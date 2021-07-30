@@ -1,15 +1,17 @@
 /* eslint-disable jest/no-commented-out-tests */
-import mock from 'mock-fs';
 import * as path from 'path';
 import { homedir } from 'os';
 
 import * as git from '../src/containers/git-porcelain';
 import * as io from '../src/containers/io';
+import type { MockInstance } from './__mocks__/mock-fs-promise';
+import { mock, file } from './__mocks__/mock-fs-promise';
 
 describe('git.currentBranch', () => {
+  let mockedInstance: MockInstance;
 
-  beforeAll(() => {
-    mock({
+  beforeAll(async () => {
+    const instance = await mock({
       baseRepo: {
         '.git': {
           HEAD: 'ref: refs/heads/master\n',
@@ -55,14 +57,13 @@ describe('git.currentBranch', () => {
       },
       foo: {
         '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
-        bar: mock.file({
+        bar: file({
           content: 'file contents',
-          ctime: new Date(1),
           mtime: new Date(1)
         }),
         yez: {
           tam: {
-            'som.js': mock.file({ content: 'other information' })
+            'som.js': file({ content: 'other information' })
           }
         }
       },
@@ -81,9 +82,10 @@ describe('git.currentBranch', () => {
         'sample.txt': 'non-tracked file and directory'
       }
     });
+    return mockedInstance = instance;
   });
 
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
   afterEach(jest.clearAllMocks);
 
   it('currentBranch resolves to Git branch name on a tracked worktree', async () => {
@@ -108,10 +110,11 @@ describe('git.currentBranch', () => {
 });
 
 describe('git.getConfig', () => {
+  let mockedInstance: MockInstance;
 
-  beforeAll(() => {
-    mock({
-      [path.join(homedir(), '.gitconfig')]: mock.file({
+  beforeAll(async () => {
+    const instance = await mock({
+      [path.join(homedir(), '.gitconfig')]: file({
         content: `[user]
   name = Sandy Updates
   email = supdate@oregonstate.edu
@@ -119,7 +122,7 @@ describe('git.getConfig', () => {
   editor = vim
   whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol`,
       }),
-      '.git/config': mock.file({
+      '.git/config': file({
         content: `[user]
   name = Bobby Tables
   email = bdrop@oregonstate.edu
@@ -130,10 +133,11 @@ describe('git.getConfig', () => {
 [alias]
   last = log -1 HEAD`,
       }),
-    }, { createCwd: false });
+    });
+    return mockedInstance = instance;
   });
 
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   it('getConfig resolves global git-config value', async () => {
     return expect(git.getConfig('user.name', true)).resolves.toStrictEqual({ scope: 'global', value: 'Sandy Updates' });
@@ -153,43 +157,45 @@ describe('git.getConfig', () => {
 });
 
 describe('git.setConfig', () => {
+  let mockedInstance: MockInstance;
 
-  beforeEach(() => {
-    mock({
-      [path.join(homedir(), '.gitconfig')]: mock.file({
+  beforeEach(async () => {
+    const instance = await mock({
+      [path.join(homedir(), '.gitconfig')]: file({
         content: `[user]
   name = Sandy Updates
   email = supdate@oregonstate.edu
 [core]
   editor = vim`,
       }),
-      '.git/config': mock.file({
+      '.git/config': file({
         content: `[user]
   name = Bobby Tables
   email = bdrop@oregonstate.edu
 [credential]
   helper = osxkeychain`,
       }),
-    }, { createCwd: false });
+    });
+    return mockedInstance = instance;
   });
 
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   it('setConfig adds value to global git-config', async () => {
     const updated = await git.setConfig('global', 'user.username', 'supdate');
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    // mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(updated).toMatchSnapshot();
   });
 
   it('setConfig updates values to local git-config', async () => {
     const updated = await git.setConfig('local', 'user.name', 'John Smith');
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    // mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(updated).toMatchSnapshot();
   });
 
   it('setConfig deletes values from local git-config', async () => {
     const updated = await git.setConfig('local', 'user.name', undefined);
-    mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
+    // mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(updated).toMatchSnapshot();
   });
 });
