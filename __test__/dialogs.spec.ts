@@ -15,10 +15,10 @@ describe('fileOpenDialog', () => {
   });
 });
 
-describe('FileSaveDialog', () => {
+// describe('FileSaveDialog', () => {
 
-  it('fileSaveDialog allows users to pick a directory and filename for saving', async () => {
-    await store.dispatch(fileSaveDialog(basicMetafile));
-    return expect((remote.dialog.showSaveDialog)).toHaveBeenCalled();
-  });
-})
+//   it('fileSaveDialog allows users to pick a directory and filename for saving', async () => {
+//     await store.dispatch(fileSaveDialog(basicMetafile));
+//     return expect((remote.dialog.showSaveDialog)).toHaveBeenCalled();
+//   });
+// })
