@@ -1,36 +1,20 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import Block from './components/Block';
+import './index.css';
 
-import './assets/style.css';
-import { rootReducer } from './store/root';
-import CanvasComponent from './components/CanvasComponent';
-import { importFiletypes } from './containers/handlers';
-
-export const store = createStore(rootReducer, applyMiddleware(thunk));
+/**
+ * This file will automatically be loaded by webpack and run in the "renderer" context.
+ * To learn more about the differences between the "main" and the "renderer" context in
+ * Electron, visit:
+ *
+ * https://electronjs.org/docs/tutorial/application-architecture#main-and-renderer-processes
+ */
 
 const App = (): JSX.Element => {
 
-  useEffect(() => {
-    async function fetchData() {
-      const actions = await importFiletypes();
-      actions.map(action => store.dispatch(action)); // load all supported filetype handlers into Redux store
-    }
-    fetchData();
-  }, []); // run the effect only after the first render
-
   return (
-    <Provider store={store}>
-      <DndProvider backend={HTML5Backend}>
-        <React.Fragment>
-          <CanvasComponent {...store.getState().canvas} />
-        </React.Fragment>
-      </DndProvider>
-    </Provider>
+    <Block />
   );
 };
 

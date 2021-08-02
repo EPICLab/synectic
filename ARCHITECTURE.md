@@ -21,7 +21,6 @@ The [`electron-devtools-installer`](https://github.com/MarshallOfSound/electron-
   * `@electron-forge/maker-squirrel`
   * `@electron-forge/maker-zip`
   * `@electron-forge/plugin-webpack`
-  * `@vercel/webpack-asset-relocator-loader`
   * `electron-devtools-installer`
 
 **Configuration:**
@@ -36,58 +35,68 @@ Synectic uses the [`Webpack Template`](https://www.electronforge.io/templates/we
 
 Several Webpack Loaders are include in Synectic:
 * [`style-loader`](https://webpack.js.org/loaders/style-loader/): Injects CSS into the DOM as a style block.
-* [`css-modules-typescript-loader`](https://github.com/seek-oss/css-modules-typescript-loader): Generates TypeScript declaration files (`*.css.d.ts`) for [CSS Modules](https://github.com/css-modules/css-modules).
 * [`css-loader`](https://webpack.js.org/loaders/css-loader/): Converts the resulting CSS (after CSS style and CSS module loading) to JavaScript prior to bundling.
-* [`file-loader`](https://webpack.js.org/loaders/file-loader/): Resolves `import`/`require()` on a file into a `url` and emits the file into the output directory.
 * [`node-loader`](https://webpack.js.org/loaders/node-loader/): A [Node.js add-ons](https://nodejs.org/dist/latest/docs/api/addons.html) loader for `enhanced-require`, this loader executes add-ons in [`enhanced-require`](https://github.com/webpack/enhanced-require).
+
+Additionally, we take advantage of [Asset Modules](https://webpack.js.org/guides/asset-modules/) for using asset files (fonts, icons, etc.) without configuring additional loaders.
 
 
 **Packages:**
 * *`devDependencies`*
   * `@electron-forge/plugin-webpack`
-  * `@marshallofsound/webpack-asset-relocator-loader`
+  * `@vercel/webpack-asset-relocator-loader`
   * `css-loader`
-  * `css-modules-typescript-loader`
-  * `file-loader`
   * `node-loader`
   * `style-loader`
-  * `wepback`
+  * `webpack`
 
 # TypeScript
 
-[TypeScript](https://www.typescriptlang.org/) is an open-source programming language developed and maintained by Microsoft. It is a strict syntatical superset of JavaScript, and adds optional static typing to the language.
+[TypeScript](https://www.typescriptlang.org/) is an open-source programming language developed and maintained by Microsoft. It is a strict syntactical superset of JavaScript, and adds optional static typing to the language.
 
 Synectic uses TypeScript as the programming language for application logic and source files. Since Electron is not natively capable of loading TypeScript files, we use [`ts-loader`](https://github.com/TypeStrong/ts-loader) to allow `webpack` to compile all TypeScript files into JavaScript files prior to loading into Electron.
+
+The [`fork-ts-checker-webpack-plugin`](https://github.com/TypeStrong/fork-ts-checker-webpack-plugin) is a Webpack plugin that runs the TypeScript type checker on a separate process.
 
 **Packages:**
 * *`devDependencies`*
   * `ts-loader`
   * `typescript`
+  * `fork-ts-checker-webpack-plugin`
 
 **Configuration:**
 
 Synectic has the following `CompilerOptions` set in `tsconfig.json`:
 | Setting                            | Value                               | Description  |
 | ---------------------------------- |:-----------------------------------:| ------------:|
-| `target`                           | `ES2017`                            | Specify output ECMAScript version to be ES2017 (ES8) |
-| `lib`                              | `["dom", "dom.iterable", "esnext"]` | Injects library definitions for DOM, DOM.Iterable, and ESNext |
-| `allowJs`                          | `true`                              | Allow JavaScript files to be compiled |
-| `skipLibCheck`                     | `true`                              | Skip type checking of all `.d.ts` files (type definition files) |
-| `esModuleInterop`                  | `true`                              | Imports CommonJS modules in compliance with ES6 module specs |
-| `allowSyntheticDefaultImports`     | `true`                              | Allows for simplified syntax for importing defaults |
-| `strict`                           | `true`                              | Enables strict type checking |
-| `forceConsistentCasingInFileNames` | `true`                              | Disallows inconsistently-cased references to the same file |
+| `target`                           | `ES2020`                            | Specify output ECMAScript version to be ES2020 (ES11) |
+| `lib`                              | `["DOM", "DOM.Iterable", "ESNext"]` | Injects library definitions for DOM, DOM.Iterable, and ESNext |
 | `module`                           | `esnext`                            | Allows for resolving ESNext import syntax (e.g. `import()` and `import.meta`) |
 | `moduleResolution`                 |  `node`                             | Determine that modules get resolved consistently with Node.js system |
-| `resolveJsonModule`                | `true`                              | Includes modules imported with `.json` extension |
-| `noEmit`                           | `true`                              | Prevent `tsc` from emitting `.js` outputs (i.e. `webpack` create outputs instead) |
+| `esModuleInterop`                  | `true`                              | Imports CommonJS modules in compliance with ES6 module specs |
+| `allowJs`                          | `true`                              | Allow JavaScript files to be compiled |
+| `checkJs`                          | `true`                              | Errors are reported in JavaScript files based on type-checking; works in tandem with `allowJs`. |
+| `strict`                           | `true`                              | Enables strict type checking |
+| `jsx`                              | `react`                             | Emit React elements as JavaScript code with `.js` file extension |
+| `skipLibCheck`                     | `true`                              | Skip type checking of all `.d.ts` files (type definition files) |
+| `noImplicitAny`                    | `true`                              | Prevent TypeScript fallback to `any` for variables when it cannot infer the type |
+| `importsNotUsedAsValues`           | `preserve`                          | Preserve all `import` statements whose values or types are never used |
+| `allowSyntheticDefaultImports`     | `true`                              | Allows for simplified syntax for importing defaults |
+| `forceConsistentCasingInFileNames` | `true`                              | Disallows inconsistently-cased references to the same file |
 | `noUnusedLocals`                   | `true`                              | Report errors if local variables are unused |
 | `noUnusedParameters`               | `true`                              | Report errors if parameters are unused |
-| `jsx`                              | `react`                             | Emit React elements as JavaScript code with `.js` file extension |
+| `resolveJsonModule`                | `true`                              | Includes modules imported with `.json` extension |
+| `isolateModules`                   | `true`                              | TypeScript warns if code cannot be correctly interpreted by a single-file transpilation process |
+| `noEmit`                           | `true`                              | Prevent `tsc` from emitting `.js` outputs (i.e. `webpack` create outputs instead) |
+| `sourceMap`                        | `true`                              | Enable the generation of sourcemap files for debuggers and other tools to display the original TypeScript source code when working with the emitted JavaScript files |
+| `outDir`                           | `"dist"`                            | Emit `.js`, `.d.ts`, and `.js.map` files into this directory |
+| `baseUrl`                          | `"."`                               | Base directory to resolve non-absolute module names |
+| `paths`                            | `{"*"" ["node_modules/*]}`          | A series of entries which re-map imports to lookup locations relative to the `baseUrl` |
+
 
 # React
 
-[React](https://reactjs.org/) is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies. React is a declarative, component-based langugage that works with JSX and TSX formats to manage state, route applications, and render HTML injections.
+[React](https://reactjs.org/) is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies. React is a declarative, component-based framework that works with JSX and TSX formats to manage state, route applications, and render HTML injections.
 
 The [`react-dnd`](https://react-dnd.github.io/react-dnd/) module provides a drag and drop library that works with React components and resembles the [Redux](https://github.com/reactjs/react-redux) architecture. The [`react-dnd-html5-backend`](https://react-dnd.github.io/react-dnd/docs/backends/html5) module adds a backend to React-DnD, and uses the [HTML5 drag and drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) under the hood to provide a widely supported base and hide some of [the quirks](http://quirksmode.org/blog/archives/2009/09/the_html5_drag.html).
 
@@ -107,23 +116,24 @@ The [`react-hot-loader`](https://gaearon.github.io/react-hot-loader/) module is 
 * *`devDependencies`*
   * `react-dnd-test-backend`
 
+**Configuration:**
+
+Synectic includes [Node.js intergration](https://electronjs.org/docs/tutorial/security), via `webPreferences: { nodeIntegration: true }` in the `electron.BrowserWindow`, to allow React to load and unload components from the DOM render tree.
+
 # Redux
 
 [Redux](https://redux.js.org/) is a predictable state container for JavaScript apps. Redux is a small library with a simple, limited API designed to be a predictable container for application state. It operates in a similar fashion to a [reducing function](https://en.m.wikipedia.org/wiki/Fold_(higher-order_function)) (a functional programming concept). Redux combines with React to allow for separation between state and user interface, with Redux handling state management and React resolving the presentation of state within a user interface. 
 
-Synectic uses Redux to manage stateful data about content that is displayed within React components in the user interface. For example, the state of code in a Code Editor card is managed through Redux and displayed in a React component element.
+Synectic uses Redux to manage stateful data about content that is displayed within React components in the user interface. For example, the state of code in a Code Editor card is managed through Redux and displayed in a React component element. Synectic also uses the `redux-thunk` middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
 
-The [`redux-devtools`](https://github.com/reduxjs/redux-devtools) module provides a Redux tab in Chrome DevTools for hot reloading, action replay, and a customizable UI for Redux state debugging.
-
-The [`redux-thunk`](https://github.com/reduxjs/redux-thunk) module provides a Redux middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
+The [`@reduxjs/toolkit`] includes the [`redux`](https://github.com/reduxjs/redux) core, [`redux-thunk`](https://github.com/reduxjs/redux-thunk), [`reselect`](https://github.com/reduxjs/reselect), and [`immer`](https://github.com/mweststrate/immer). The [`redux-devtools`](https://github.com/reduxjs/redux-devtools) module provides a Redux tab in Chrome DevTools for hot reloading, action replay, and a customizable UI for Redux state debugging.
 
 The [`@jedmao/redux-mock-store`](https://github.com/jedmao/redux-mock-store) module is a TypeScript fork of [`reduxjs/redux-mock-store`](https://github.com/reduxjs/redux-mock-store), which provides a mock store for testing Redux async action creators and middleware. The mock store will create an array of dispatched actions which serve as an action log for tests.
 
 **Packages:**
 * *`dependencies`*
+  * `@reduxjs/toolkit`
   * `react-redux`
-  * `redux`
-  * `redux-thunk`
 * *`devDependencies`*
   * `@jedmao/redux-mock-store`
   * `redux-devtools`

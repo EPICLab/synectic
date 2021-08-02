@@ -100,6 +100,3 @@ const template: (Electron.MenuItemConstructorOptions | Electron.MenuItem)[] = [
 
 const menu = Menu.buildFromTemplate(template);
 export default menu;
-
-// const menu = Menu.buildFromTemplate(template);
-// Menu.setApplicationMenu(menu);

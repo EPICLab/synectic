@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`format.deserialize deserialize to parse a JSON string into a TypeScript object 1`] = `
-Object {
-  "count": 42,
-  "result": true,
-}
-`;
