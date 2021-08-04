@@ -18,14 +18,15 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-      - uses: actions/setup-node@v2
+      - name: Checkout repository code
+        uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
         with:
-          node-version: '12.x'
           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+          node-version: '12'
       - name: Install dependencies
-      - run: yarn ci:install
-      # See security recommendations for Yarn 2 at https://yarnpkg.com/features/zero-installs#does-it-have-security-implications
+        # See security recommendations for Yarn 2 at https://yarnpkg.com/features/zero-installs#does-it-have-security-implications
+        run: yarn ci:install
       - run: yarn lint
       - run: yarn test
