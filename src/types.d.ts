@@ -1,7 +1,7 @@
 // Type definitions for synectic 1.0.0
 // Project: https://github.com/EPICLab/synectic
 // Definitions by: Nicholas Nelson <https://github.com/nelsonni>
-// TypeScript Version: 4.2
+// TypeScript Version: 4.3
 
 import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
@@ -11,6 +11,7 @@ import parsePath from 'parse-path';
 
 export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
+export type Timestamp = ReturnType<DateTime['valueOf']>;
 
 export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge' | 'SourceControl';
 export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'SourcePicker' | 'BranchList' | 'MergeSelector' | 'Error' | 'GitGraph';
@@ -47,7 +48,7 @@ export type Canvas = {
   /** The UUID for Canvas object. */
   readonly id: UUID;
   /** The timestamp when canvas was created. */
-  readonly created: DateTime;
+  readonly created: Timestamp;
   /** An array with all Repository object UUIDs contained on canvas. */
   readonly repos: UUID[];
   /** An array with all Card object UUIDs contained on canvas. */
@@ -67,9 +68,9 @@ export type Card = {
   /** The UUID for related Metafile object. */
   readonly metafile: UUID;
   /** The timestamp when card was created. */
-  readonly created: DateTime;
+  readonly created: Timestamp;
   /** The timestamp for last update to card properties. */
-  readonly modified: DateTime;
+  readonly modified: Timestamp;
   /** The UUID for capturing Stack object, or undefined if not captured. */
   readonly captured?: UUID;
   /** The horizontal position of card relative to parent object. */
@@ -85,9 +86,9 @@ export type Stack = {
   /** The name of stack. */
   readonly name: string;
   /** The timestamp when stack was created. */
-  readonly created: DateTime;
+  readonly created: Timestamp;
   /** The timestamp for last update to stack properties (including contained cards). */
-  readonly modified: DateTime;
+  readonly modified: Timestamp;
   /** The notes displayed on the  */
   readonly note: string;
   /** An array with all Card object UUIDs contained in stack. */
@@ -117,7 +118,7 @@ export type Metafile = {
   /** The name of metafile (e.g. `data.php` for files, `tests/` for directories, `local/data.php<>remote/data.php` for diffs). */
   readonly name: string;
   /** The timestamp for last update to metafile properties (not directly associated with filesystem `mtime` or `ctime`). */
-  readonly modified: DateTime;
+  readonly modified: Timestamp;
   /** The filetype format for encoding/decoding contents (same as `Filetype.filetype`, but this allows for virtual metafiles). */
   readonly filetype?: string;
   /** The type of card that can load the content of this metafile. */

@@ -124,9 +124,11 @@ Synectic includes [Node.js intergration](https://electronjs.org/docs/tutorial/se
 
 [Redux](https://redux.js.org/) is a predictable state container for JavaScript apps. Redux is a small library with a simple, limited API designed to be a predictable container for application state. It operates in a similar fashion to a [reducing function](https://en.m.wikipedia.org/wiki/Fold_(higher-order_function)) (a functional programming concept). Redux combines with React to allow for separation between state and user interface, with Redux handling state management and React resolving the presentation of state within a user interface. 
 
-Synectic uses Redux to manage stateful data about content that is displayed within React components in the user interface. For example, the state of code in a Code Editor card is managed through Redux and displayed in a React component element. Synectic also uses the `redux-thunk` middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
+Synectic uses Redux to manage stateful data about content that is displayed within React components in the user interface. For example, the state of code in a Code Editor card is managed through Redux and displayed in a React component element. Synectic follows the [Redux Toolkit](https://redux-toolkit.js.org/), which bundles the [`redux`](https://github.com/reduxjs/redux) core, [`redux-thunk`](https://github.com/reduxjs/redux-thunk), [`reselect`](https://github.com/reduxjs/reselect), and [`immer`](https://github.com/mweststrate/immer) modules and default configurations to simplify store setup, creating reducers, immutable update logic, combined as a strongly-typed infrastructure library.
 
-The [`@reduxjs/toolkit`] includes the [`redux`](https://github.com/reduxjs/redux) core, [`redux-thunk`](https://github.com/reduxjs/redux-thunk), [`reselect`](https://github.com/reduxjs/reselect), and [`immer`](https://github.com/mweststrate/immer). The [`redux-devtools`](https://github.com/reduxjs/redux-devtools) module provides a Redux tab in Chrome DevTools for hot reloading, action replay, and a customizable UI for Redux state debugging.
+Synectic also uses the `redux-thunk` middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
+
+The [`redux-devtools`](https://github.com/reduxjs/redux-devtools) module provides a Redux tab in Chrome DevTools for hot reloading, action replay, and a customizable UI for Redux state debugging.
 
 The [`@jedmao/redux-mock-store`](https://github.com/jedmao/redux-mock-store) module is a TypeScript fork of [`reduxjs/redux-mock-store`](https://github.com/reduxjs/redux-mock-store), which provides a mock store for testing Redux async action creators and middleware. The mock store will create an array of dispatched actions which serve as an action log for tests.
 
@@ -135,8 +137,10 @@ The [`@jedmao/redux-mock-store`](https://github.com/jedmao/redux-mock-store) mod
   * `@reduxjs/toolkit`
   * `react-redux`
 * *`devDependencies`*
-  * `@jedmao/redux-mock-store`
+  * `@types/redux-mock-store`
   * `redux-devtools`
+  * `redux-mock-store`
+  * `@jedmao/redux-mock-store` __THIS MIGHT NOT BE NEEDED ANYMORE__
 
 # ESLint
 
@@ -172,7 +176,7 @@ The [`eslint-plugin-jest-dom`](https://www.npmjs.com/package/eslint-plugin-jest-
 
 **Configuration:**
 
-Synectic has the following ESLint options set in `.eslintrc.js`:
+Synectic has the following ESLint options set in `.eslintrc.json`:
 | Setting                                    | Value                          | Description                                          |
 | ------------------------------------------ |:------------------------------:| ----------------------------------------------------:|
 | `env` : `node`                             | `true`                         | Enables Node.js global variables and Node.js scoping |
@@ -219,7 +223,6 @@ The [`react-test-renderer`](https://reactjs.org/docs/test-renderer.html) module 
   * `@types/jest`
   * `identity-obj-proxy`
   * `jest`
-  * `react-test-renderer`
   * `ts-jest`
 
 
@@ -243,7 +246,7 @@ Synectic has the following [Jest](#Jest) options set in `jest.config.js`:
 
 Synectic uses React Testing Library to render React components within tests written using Jest's custom assertions and convenience functions in order to verify UI interactions. The configuration of RTL was inspired by a detailed blog post from Robert Cooper, ["Testing Stateful React Function Components with React Testing Library"](https://www.robertcooper.me/testing-stateful-react-function-components-with-react-testing-library) (published 2019.04.08). In particular, the blog posting provides examples of testing React function components using [React Testing Library](#React-Testing-Library-(RTL)), and finds that there are less chances of test suites that produce false negatives (tests that fail when the underlying implementation changes) and false positives (tests that continue to pass when the underlying implementation is broken) when adhering what Kent C. Dodds calls [_"implementation detail free testing"_](https://kentcdodds.com/blog/testing-implementation-details).
 
-The [`@testing-library/jest-dom`](https://testing-library.com/docs/ecosystem-jest-dom) module provides custom DOM element matchers for Jest.
+The [`@testing-library/jest-dom`](https://testing-library.com/docs/ecosystem-jest-dom) module provides custom DOM element matchers for Jest. It recommends the use of [`eslint-plugin-jest-dom`](https://github.com/testing-library/eslint-plugin-jest-dom), which provides auto-fixable lint rules that prevent false positive tests and improves test readability by ensuring you are using the right matchers in your tests ([ESLint](#ESLint) for related configuration options).
 
 The [`react-select-event`](https://testing-library.com/docs/ecosystem-react-select-event) module is a companion library for `React Testing Library` that provides helper methods for interacting with [`react-select`](https://github.com/JedWatson/react-select) elements.
 
@@ -256,3 +259,4 @@ The [`@testing-library/react-hooks`](https://github.com/testing-library/react-ho
   * `@testing-library/react`
   * `@testing-library/react-hooks`
   * `react-select-event`
+  * `react-test-renderer`
