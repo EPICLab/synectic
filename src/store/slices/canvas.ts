@@ -7,7 +7,7 @@ import { addCard, removeCard } from './cards';
 import { addRepo, removeRepo } from './repos';
 import { addStack, removeStack } from './stacks';
 
-interface CanvasState {
+export interface CanvasState {
     id: string,
     created: Timestamp,
     repos: UUID[],
@@ -29,12 +29,12 @@ export const canvasSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(addRepo, (state, action) => { addItemInArray<UUID>(state.repos, action.payload.id) })
-            .addCase(removeRepo, (state, action) => { removeItemInArray(state.repos, action.payload) })
-            .addCase(addCard, (state, action) => { addItemInArray<UUID>(state.cards, action.payload.id) })
-            .addCase(removeCard, (state, action) => { removeItemInArray(state.cards, action.payload) })
-            .addCase(addStack, (state, action) => { addItemInArray<UUID>(state.stacks, action.payload.id) })
-            .addCase(removeStack, (state, action) => { removeItemInArray(state.stacks, action.payload) })
+            .addCase(addRepo, (state, action) => { return { ...state, repos: addItemInArray<UUID>(state.repos, action.payload.id) } })
+            .addCase(removeRepo, (state, action) => { return { ...state, repos: removeItemInArray(state.repos, action.payload) } })
+            .addCase(addCard, (state, action) => { return { ...state, cards: addItemInArray<UUID>(state.cards, action.payload.id) } })
+            .addCase(removeCard, (state, action) => { return { ...state, cards: removeItemInArray(state.cards, action.payload) } })
+            .addCase(addStack, (state, action) => { return { ...state, stacks: addItemInArray<UUID>(state.stacks, action.payload.id) } })
+            .addCase(removeStack, (state, action) => { return { ...state, stacks: removeItemInArray(state.stacks, action.payload) } })
     }
 })
 
