@@ -91,7 +91,7 @@ Synectic has the following `CompilerOptions` set in `tsconfig.json`:
 | `sourceMap`                        | `true`                              | Enable the generation of sourcemap files for debuggers and other tools to display the original TypeScript source code when working with the emitted JavaScript files |
 | `outDir`                           | `"dist"`                            | Emit `.js`, `.d.ts`, and `.js.map` files into this directory |
 | `baseUrl`                          | `"."`                               | Base directory to resolve non-absolute module names |
-| `paths`                            | `{"*"" ["node_modules/*]}`          | A series of entries which re-map imports to lookup locations relative to the `baseUrl` |
+| `paths`                            | `{"*": ["node_modules/*"]}`         | A series of entries which re-map imports to lookup locations relative to the `baseUrl` |
 
 
 # React
@@ -106,14 +106,14 @@ The [`react-hot-loader`](https://gaearon.github.io/react-hot-loader/) module is 
 
 **Packages:**
 * *`dependencies`*
-  * `@types/react`
-  * `@types/react-dom`
   * `react`
   * `react-dnd`
   * `react-dnd-html5-backend`
   * `react-dom`
-  * `react-hot-loader`
+  * `react-hot-loader` __THIS MIGHT NOT BE NEEDED ANYMORE__
 * *`devDependencies`*
+  * `@types/react`
+  * `@types/react-dom`
   * `react-dnd-test-backend`
 
 **Configuration:**

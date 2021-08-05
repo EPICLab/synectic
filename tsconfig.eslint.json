@@ -1,9 +1,0 @@
-{
-    "extends": "./tsconfig.json",
-    "include": [
-        ".eslintrc.js",
-        "src/**/*.+(ts|tsx|js|jsx)",
-        "src/types.d.ts",
-        "__test__/**/*.+(ts|tsx|js|jsx)"
-    ]
-}
