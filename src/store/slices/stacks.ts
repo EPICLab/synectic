@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { DateTime } from 'luxon';
 import type { Stack, UUID } from '../../types';
 import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
 
@@ -14,8 +15,10 @@ export const stacksSlice = createSlice({
     reducers: {
         addStack: (state, action: PayloadAction<Stack>) => addItemInMap(state, action.payload),
         removeStack: (state, action: PayloadAction<UUID>) => removeItemInMap(state, action.payload),
-        updateStack: (state, action: PayloadAction<{id: UUID, stack: Partial<Stack>}>) =>
-            updateItemInMapById(state, action.payload.id, (stack => updateObject<Stack>(stack, action.payload.stack)))
+        updateStack: (state, action: PayloadAction<{ id: UUID, stack: Partial<Stack> }>) =>
+            updateItemInMapById(state, action.payload.id, (stack => updateObject<Stack>(stack, {
+                ...action.payload.stack, modified: DateTime.local().valueOf()
+            })))
     }
 })
 

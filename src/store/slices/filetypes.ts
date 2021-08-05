@@ -14,7 +14,7 @@ export const filetypesSlice = createSlice({
     reducers: {
         addFiletype: (state, action: PayloadAction<Filetype>) => addItemInMap(state, action.payload),
         removeFiletype: (state, action: PayloadAction<UUID>) => removeItemInMap(state, action.payload),
-        updateFiletype: (state, action: PayloadAction<{id: UUID, filetype: Partial<Filetype>}>) => 
+        updateFiletype: (state, action: PayloadAction<{ id: UUID, filetype: Partial<Filetype> }>) =>
             updateItemInMapById(state, action.payload.id, (filetype => updateObject(filetype, action.payload.filetype)))
     }
 })
