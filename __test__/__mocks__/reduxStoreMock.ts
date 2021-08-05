@@ -1,16 +1,15 @@
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureMockStore from 'redux-mock-store';
 import type { RootState, AppDispatch } from '../../src/store/store';
-import store from '../../src/store/store';
 
-import { createStore, DeepPartial } from 'redux';
+import { DeepPartial } from 'redux';
 
 // Conditional type for extracting the type of values in a key-value map object, 
 // inspired by: https://mariusschulz.com/articles/conditional-types-in-typescript
 type KeyVal<T> = T extends { [x: string]: infer U } ? U : never;
 
 const middlewares = getDefaultMiddleware();
-const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
+export const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
 
 /** 
  * The mocked Redux store does not execute any reducers, and therefore `getActions()` only provides the unexecuted actions 
@@ -22,7 +21,7 @@ const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
  *   * https://github.com/reduxjs/redux-mock-store/issues/71
  *   * https://github.com/reduxjs/redux-mock-store/issues/71#issuecomment-515209822
  */
-const createState = (initialState: RootState) => (actions: Action[]) => actions.reduce(store.dispatch, initialState);
+// export const createState = (initialState: RootState) => (actions: AnyAction[]) => actions.reduce(store.dispatch, { type: 'empty' });
 
 /**
  * Creates a mocked Redux store for testing purposes. The resulting store can be interacted with using:
@@ -34,7 +33,7 @@ const createState = (initialState: RootState) => (actions: Action[]) => actions.
  * @param initialState A JavaScript object containing an initial Redux store state that mimicks the shape of `RootState`.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const mockStore = (initialState: RootState) => createMockStore(createStore(store.));
+// export const mockStore = (initialState: RootState) => createMockStore(createStore(initialState));
 
 /**
  * Exposes an array of field objects found in the state of a mocked Redux store composed on key-value map objects, using 
