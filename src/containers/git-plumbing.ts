@@ -6,6 +6,7 @@ import isUUID from 'validator/lib/isUUID';
 import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
+import { isHiddenFile } from 'is-hidden-file';
 
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
@@ -320,7 +321,7 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
 
   return isLinked
     ? worktree.statusMatrix(dirpath)
-    : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !io.isHidden(f) });
+    : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !isHiddenFile(f) });
 }
 
 /**

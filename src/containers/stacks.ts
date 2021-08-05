@@ -52,19 +52,19 @@ export const createStack = createAsyncThunk<UUID, { name: string, cards: Card[],
  */
 export const pushCards = createAsyncThunk<void, { stack: Stack, cards: Card[] }, AppThunkAPI>(
   'stacks/pushCards',
-  async (payload, thunkAPI) => {
+  async (param, thunkAPI) => {
     thunkAPI.dispatch(updateStack({
-      id: payload.stack.id,
-      stack: { ...payload.stack, cards: [...payload.stack.cards, ...payload.cards.map(card => card.id)] }
+      id: param.stack.id,
+      stack: { ...param.stack, cards: [...param.stack.cards, ...param.cards.map(card => card.id)] }
     }));
-    payload.cards.map((card, index) => thunkAPI.dispatch(
+    param.cards.map((card, index) => thunkAPI.dispatch(
       updateCard({
         id: card.id,
         card: {
           ...card,
-          captured: payload.stack.id,
-          top: (10 * (payload.stack.cards.length + index) + 50),
-          left: (10 * (payload.stack.cards.length + index) + 10)
+          captured: param.stack.id,
+          top: (10 * (param.stack.cards.length + index) + 50),
+          left: (10 * (param.stack.cards.length + index) + 10)
         }
       })
     ))
@@ -86,43 +86,43 @@ export const pushCards = createAsyncThunk<void, { stack: Stack, cards: Card[] },
  */
 export const popCard = createAsyncThunk<void, { stack: Stack, card: Card, delta?: XYCoord }, AppThunkAPI>(
   'stacks/popCard',
-  async (payload, thunkAPI) => {
-    if (payload.stack.cards.length <= 2) {
+  async (param, thunkAPI) => {
+    if (param.stack.cards.length <= 2) {
       // remove the stack, and uncapture the remaining card
-      const bottomCardId = payload.stack.cards.find(c => c !== payload.card.id);
+      const bottomCardId = param.stack.cards.find(c => c !== param.card.id);
       const bottomCard = bottomCardId ? thunkAPI.getState().cards[bottomCardId] : undefined;
       if (bottomCard) thunkAPI.dispatch(updateCard({
         id: bottomCard.id,
         card: {
           ...bottomCard,
           captured: undefined,
-          left: Math.round(payload.stack.left + bottomCard.left),
-          top: Math.round(payload.stack.top + bottomCard.top)
+          left: Math.round(param.stack.left + bottomCard.left),
+          top: Math.round(param.stack.top + bottomCard.top)
         }
       }));
-      thunkAPI.dispatch(removeStack(payload.stack.id));
+      thunkAPI.dispatch(removeStack(param.stack.id));
     } else {
       // only remove the indicated card from the stack, don't remove the stack
       thunkAPI.dispatch(updateStack({
-        id: payload.stack.id,
+        id: param.stack.id,
         stack: {
-          ...payload.stack,
-          cards: removeItemInArray(payload.stack.cards, payload.card.id)
+          ...param.stack,
+          cards: removeItemInArray(param.stack.cards, param.card.id)
         }
       }))
     }
-    if (payload.delta) {
+    if (param.delta) {
       thunkAPI.dispatch(updateCard({
-        id: payload.card.id,
+        id: param.card.id,
         card: {
-          ...payload.card,
+          ...param.card,
           captured: undefined,
-          left: Math.round(payload.stack.left + payload.card.left + payload.delta.x),
-          top: Math.round(payload.stack.top + payload.card.top + payload.delta.y)
+          left: Math.round(param.stack.left + param.card.left + param.delta.x),
+          top: Math.round(param.stack.top + param.card.top + param.delta.y)
         }
       }));
     } else {
-      thunkAPI.dispatch(removeCard(payload.card.id));
+      thunkAPI.dispatch(removeCard(param.card.id));
     }
   }
 )

@@ -16,6 +16,9 @@ import { extractFilename, isDirectory, readFileAsync } from './io';
 import { getRepoRoot } from './git-porcelain';
 import { isValidRepository, extractRepoName, extractFromURL } from './git-plumbing';
 import { updateCard } from './cards';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { addRepo } from '../store/slices/repos';
+import { AppThunkAPI } from '../store/store';
 
 type AddRepoAction = NarrowActionType<ActionKeys.ADD_REPO>;
 type UpdateRepoAction = NarrowActionType<ActionKeys.UPDATE_REPO>;
@@ -31,6 +34,32 @@ type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
  * @param token The authentication token associated with an account on the remote-hosting service.
  * @return An `AddRepoAction` object that can be dispatched via Redux.
  */
+const appendRepository = createAsyncThunk<void, {
+  root: string, protocol: Partial<ReturnType<typeof extractFromURL>>,
+  username?: string, password?: string, token?: string
+}, AppThunkAPI>(
+  'repos/appendRepository',
+  async (param, thunkAPI) => {
+    const repo: Repository = {
+      id: v4(),
+      name: param.protocol.url ? extractRepoName(param.protocol.url.href) : extractFilename(param.root),
+      root: param.root,
+      corsProxy: new URL('https://cors-anywhere.herokuapp.com'), // TODO: This is just a stubbed URL for now, but eventually we need to support Cross-Origin Resource Sharing (CORS) since isomorphic-git requires it
+      url: param.protocol.url ? param.protocol.url : parsePath(''),
+      local: [],
+      remote: [],
+      oauth: param.protocol.oauth ? param.protocol.oauth : 'github',
+      username: param.username ? param.username : '',
+      password: param.password ? param.password : '',
+      token: param.token ? param.token : ''
+    };
+    const valid = param.protocol.url ? isValidRepository(repo) : true;
+    if (valid) {
+      thunkAPI.dispatch(addRepo(repo));
+    }
+  }
+);
+
 const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>,
   username?: string, password?: string, token?: string):
   AddRepoAction | AddModalAction => {
@@ -172,6 +201,7 @@ export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, p
 
     // update the metafile details (including file content) for the card
     dispatch(switchCardMetafile(card, updated));
+
     if (progress) console.log('checkout complete...');
     return getState().metafiles[updated.id];
   };
