@@ -14,8 +14,8 @@ import { removeItemInArray } from '../store/immutables';
  * @param name Name of the new Stack object.
  * @param cards Array of at least two Card objects to be contained with the new Stack.
  * @param note (Optional) Note field related to the new Stack.
- * @return A Thunk that can be executed to dispatch Redux updates for creating a new stack and updating cards.
- * Updated are wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
 export const createStack = createAsyncThunk<UUID, { name: string, cards: Card[], note?: string }, AppThunkAPI>(
@@ -46,8 +46,8 @@ export const createStack = createAsyncThunk<UUID, { name: string, cards: Card[],
  * becomes relative to the bounds of the stack and order of insertion.
  * @param stack The target `Stack` object that should receive the new cards.
  * @param cards An array of `Card` objects to be added to the stack.
- * @return A Thunk that can be executed to dispatch Redux updates for updating the stack and cards.
- * Updated are wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
 export const pushCards = createAsyncThunk<void, { stack: Stack, cards: Card[] }, AppThunkAPI>(
@@ -82,7 +82,9 @@ export const pushCards = createAsyncThunk<void, { stack: Stack, cards: Card[] },
  * @param delta The { x, y } difference between the last recorded client offset of the pointer and the client offset when the
  * current drag operation has started (gathered from `DropTargetMonitor.getDifferenceFromInitialOffset()`); if undefined, then the
  * card will be removed from the Redux state as well as from the stack.
- * @return A Thunk that can be executed to read Redux state and dispatch Redux updates for removing a card from a stack.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
 export const popCard = createAsyncThunk<void, { stack: Stack, card: Card, delta?: XYCoord }, AppThunkAPI>(
   'stacks/popCard',
