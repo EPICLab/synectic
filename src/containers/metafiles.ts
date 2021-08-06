@@ -1,16 +1,19 @@
 import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import type { Metafile, UUID } from '../types';
+import { createAsyncThunk, unwrapResult } from '@reduxjs/toolkit';
+import type { Metafile, Repository, UUID } from '../types';
 import * as io from './io';
 import { AppThunkAPI } from '../store/store';
 import { getRepository } from './repos';
 import { asyncFilter } from './format';
 import { currentBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { resolveHandler } from './handlers';
-import { updateMetafile, addMetafile } from '../store/slices/metafiles';
+import { updateMetafile, addMetafile, metafileUpdated } from '../store/slices/metafiles';
 import { DateTime } from 'luxon';
 import { isHiddenFile } from 'is-hidden-file';
+import { getMetafileByFilepath, getMetafileByBranch, getMetafileByVirtual } from '../store/selectors/metafiles';
+
+
 
 export type MetafileWithPath = Metafile & Required<Pick<Metafile, 'path'>>;
 export type MetafileWithContent = Metafile & Required<Pick<Metafile, 'content'>>;
@@ -46,95 +49,96 @@ export const filterDirectoryContainsTypes = async (metafile: MetafileWithContain
 };
 
 /**
- * Thunk Action Creator for examining and updating the file system properties associated with a Metafile in the Redux store.
- * Any previously known file system properties for the given Metafile will be updated in the Redux store.
+ * Async Thunk action creator for updating the file stats properties (i.e. `filetype` and `handler`) of a metafile
+ * based on the filetype extension and the associated entry in `filetypes.json`.
  * @param id The UUID corresponding to the metafile that should be updated.
- * @return A Thunk that can be executed to get file system properties and dispatch Redux updates.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
 export const updateFileStats = createAsyncThunk<void, UUID, AppThunkAPI>(
   'metafiles/updateFileStats',
   async (id, thunkAPI) => {
-    const metafile = thunkAPI.getState().metafiles[id];
-    if (!metafile.path) return thunkAPI.rejectWithValue(metafile);
+    const metafile = thunkAPI.getState().metafiles.entities[id];
+    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile);
     const handler = await thunkAPI.dispatch(resolveHandler(metafile.path));
-    thunkAPI.dispatch(updateMetafile({
-      id: metafile.id,
-      metafile: {
-        ...metafile,
-        filetype: handler?.filetype,
-        handler: handler?.handler
-      }
-    }))
+    thunkAPI.dispatch(metafileUpdated({
+      ...metafile,
+      filetype: handler?.filetype,
+      handler: handler?.handler
+    }));
   }
 )
 
 /**
-* Thunk Action Creator for examining and updating git information for the associated Metafile in the Redux store. If the
-* Metafile is not associated with a git repository, then no valid git information can be extracted and dispatching this
-* action will not result in any changes in the Redux store state. If the branch has previously been updated from within 
-* Synectic (e.g. through switching the branch of a card), then this method is destructive to those changes and will 
-* trigger a file content update that might also be destructive.
+* Async Thunk action creator for updating the git information of a metafile based on the associated repository and
+* branch; this function is worktree-aware and can handle linked worktrees.
 * @param id The UUID corresponding to the metafile that should be updated.
-* @return A Thunk that can be executed to read git information and dispatch Redux updates.
+* @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
 */
 export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI>(
   'metafiles/updateGitInfo',
   async (id, thunkAPI) => {
-    const metafile = thunkAPI.getState().metafiles[id];
-    if (!metafile.path) return thunkAPI.rejectWithValue(metafile);
-    const repo = await thunkAPI.dispatch(getRepository(metafile.path));
-    const root = await getRepoRoot(metafile.path);
-    const branch = repo ? (await currentBranch({
-      dir: root ? root : repo.root.toString(),
-      fullname: false
-    })) : undefined;
-    const status = await getStatus(metafile.path);
-    thunkAPI.dispatch(updateMetafile({
-      id: metafile.id,
-      metafile: {
+    const metafile = thunkAPI.getState().metafiles.entities[id];
+    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile);
+    try {
+      const repo = unwrapResult(await thunkAPI.dispatch(getRepository(metafile.path)));
+      const root = await getRepoRoot(metafile.path);
+      const branch = repo ? (await currentBranch({
+        dir: root ? root : repo.root.toString(),
+        fullname: false
+      })) : undefined;
+      const status = await getStatus(metafile.path);
+      thunkAPI.dispatch(metafileUpdated({
         ...metafile,
         repo: repo?.id,
         branch: branch ? branch : 'HEAD',
         status: status
-      }
-    }))
+      }));
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
   }
 )
 
 /**
- * Thunk Action Creator for examining and updating either the file or directory contents into the associated Metafile in the
- * Redux store. If the metafile is associated with a directory, then the paths of direct child files and directories are added 
- * to the `contains` field. If the metafile is associated with a file, then the file content is read and added to the `content` 
- * field. If either the `contains` or `content` fields have been updated (but not saved) from within Synectic, then this 
- * method is destructive to those changes. Those fields will be forecfully updated to reflect the version according to the 
- * file system.
+ * Async Thunk action creator for updating the contents of a metafile based on the associated file content, or the
+ * subfiles and subdirectories contained within an associated directory. If the metafile is associated with a 
+ * directory, then the paths of direct child files and directories are added to the `contains` field. If the metafile 
+ * is associated with a file, then the file content is read and added to the `content` field.
  * @param id The UUID corresponding to the metafile that should be updated.
- * @return A Thunk that can be executed to asynchronously read content and dispatch Redux updates.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
 export const updateContents = createAsyncThunk<void, UUID, AppThunkAPI>(
   'metafiles/updateContents',
   async (id, thunkAPI) => {
-    const metafile = thunkAPI.getState().metafiles[id];
-    if (!metafile.path) return thunkAPI.rejectWithValue(metafile);
-    thunkAPI.dispatch(updateMetafile({
-      id: metafile.id,
-      metafile: (metafile.filetype === 'Directory') ?
+    const metafile = thunkAPI.getState().metafiles.entities[id];
+    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile);
+    thunkAPI.dispatch(metafileUpdated(
+      (metafile.filetype === 'Directory') ?
         { ...metafile, contains: (await io.readDirAsyncDepth(metafile.path, 1)).filter(p => p !== metafile.path) } :
         { ...metafile, content: await io.readFileAsync(metafile.path, { encoding: 'utf-8' }), state: 'unmodified' }
-    }))
+    ));
   }
 )
 
 /**
- * Thunk Action Creator for updating all fields of the metafile existing in the Redux store.
+ * Async Thunk action creator for updating all fields (file stats, git information, and contents) of a metafile.
  * @param id The UUID corresponding to the metafile that should be updated.
- * @return A Thunk that can be executed to asynchronously execute all of the metafile-related update actions and 
- * returns true afterwards, or false if no updates could be executed because the UUID has no matches in the Redux store.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Executes all metafile update actions and
+ * returns `true` if all succeed, otherwise `false` is returned (including if the UUID does not match a current metafile
+ * entry in the Redux store).
  */
 export const updateAll = createAsyncThunk<boolean, UUID, AppThunkAPI>(
   'metafiles/updateAll',
   async (id, thunkAPI) => {
-    const existing = thunkAPI.getState().metafiles[id];
+    const existing = thunkAPI.getState().metafiles.entities[id];
     if (!existing) return false;
     await thunkAPI.dispatch(updateFileStats(id));
     await thunkAPI.dispatch(updateGitInfo(id));
@@ -154,19 +158,23 @@ type MetafileGettableFields =
   };
 
 /**
- * Thunk Action Creator for retrieving a `Metafile` object associated with one of three different paremeter sets: (1) retrieve existing 
- * metafile by UUID, (2) get a existing or new metafile associated with a particular file path, or (3) get a new or existing virtual 
- * metafile by name and handler.
+ * Async Thunk action creator for simplifying the process of obtaining an updated metafile from the Redux store.
+ * The Thunk handles three different scenarios:
+ *      (1) retrieving and updating an existing metafile by UUID, 
+ *      (2) retrieving an existing (or creating a new) metafile by filepath, or 
+ *      (3) retrieving an existing (or creating a new) virtual metafile by name and handler.
  * 
- * If no existing metafile is found under (1), then a `MetafileMissingError` error is thrown and undefined is returned. A `Metafile` object
- * is always returned under (2) and (3), since either an existing metafile is returned or a new metafile is created and returned. All 
- * fields within the metafile are updated in the Redux store before being returned.
+ * If there is no existing metafile associated with a particular UUID under scenario (1), then a `rejected` action will
+ * be returned. Both scenario (2) and (3) are guaranteed to return a metafile, since a new metafile can be created when
+ * no existing entry is found in the Redux store. This function will trigger Redux state updates as needed.
  * @param id The UUID corresponding to the metafile that should be updated and returned.
  * @param filepath The relative or absolute path to a file or directory that should be represented by an updated metafile.
  * @param virtual A named object containing at least the `name` and `handler` fields of a valid metafile (existing or new), and any other 
  * metafile fields except for `id` and `modified` (which are auto-generated on metafile creation).
- * @return A Thunk that can be executed to simultaneously dispatch Redux updates and retrieve a `Metafile` object, if the
- * metafile cannot be added or retrieved from the Redux store then `undefined` is returned instead.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a metafile that was either created or retrieved
+ * and updated based on the filesystem.
  */
 export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, AppThunkAPI>(
   'metafiles/getMetafile',
@@ -174,15 +182,20 @@ export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, Ap
     if (retrieveBy.id) {
       const existing = await thunkAPI.dispatch(updateAll(retrieveBy.id));
       if (!existing) return thunkAPI.rejectWithValue(existing);
-      return thunkAPI.getState().metafiles[retrieveBy.id];
+      return thunkAPI.getState().metafiles.entities[retrieveBy.id];
     }
     if (retrieveBy.filepath) {
       const root = await getRepoRoot(retrieveBy.filepath);
       const branch = root ? (await currentBranch({ dir: root.toString(), fullname: false })) : undefined;
-      const metafiles = Object.values(thunkAPI.getState().metafiles);
-      const existing = branch ?
-        metafiles.find(m => m.path == retrieveBy.filepath && m.branch == branch) :
-        metafiles.find(m => m.path == retrieveBy.filepath);
+
+
+      let prom: string | undefined;
+      thunkAPI.dispatch(getMetafileByFilepath(retrieveBy.filepath))
+        .unwrap()
+        .then(res => prom = res);
+      const existing = (branch ?
+        await thunkAPI.dispatch(getMetafileByFilepath(retrieveBy.filepath)) :
+        await thunkAPI.dispatch(getMetafileByBranch(retrieveBy.filepath, branch)));
       const id = existing ? existing.id : v4();
       if (!existing) {
         thunkAPI.dispatch(addMetafile({
@@ -196,14 +209,13 @@ export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, Ap
       return thunkAPI.getState().metafiles[id];
     }
     if (retrieveBy.virtual) {
-      const metafiles = Object.values(thunkAPI.getState().metafiles);
-      const existing = metafiles.find(m => m.name == retrieveBy.virtual.name && m.handler == retrieveBy.virtual.handler);
+      const existing = await thunkAPI.dispatch(getMetafileByVirtual(retrieveBy.virtual.name, retrieveBy.virtual.handler));
       const id = existing ? existing.id : v4();
       if (!existing) {
         thunkAPI.dispatch(addMetafile({ id: id, modified: DateTime.local().valueOf(), ...retrieveBy.virtual }));
       }
       return thunkAPI.getState().metafiles[id];
     }
-    return thunkAPI.rejectWithValue('Failed to match any case');
+    return thunkAPI.rejectWithValue('Failed to match any containers/metafiles/getMetafile parameter types');
   }
 )
