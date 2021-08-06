@@ -1,7 +1,7 @@
 import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 
-import { RootState } from '../store/root';
+import { RootState } from '../store/store';
 import { loadCard } from './handlers';
 import { getMetafile } from './metafiles';
 
