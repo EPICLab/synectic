@@ -1,13 +1,13 @@
-import { Action } from 'redux';
-import { ThunkAction } from 'redux-thunk';
-
-import { RootState } from '../store/store';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { AppThunkAPI } from '../store/store';
 import { loadCard } from './handlers';
 import { getMetafile } from './metafiles';
 
-export const loadBranchVersions = (): ThunkAction<Promise<void>, RootState, undefined, Action> => {
-  return async (dispatch) => {
-    const metafile = await dispatch(getMetafile({ virtual: { name: 'Version Tracker', handler: 'Tracker' } }));
-    if (metafile) dispatch(loadCard({ metafile: metafile }));
-  };
-}
+export const loadBranchVersions = createAsyncThunk<void, void, AppThunkAPI>(
+  'cards/loadBranchVersion',
+  async (_, thunkAPI) => {
+    thunkAPI.dispatch(getMetafile({ virtual: { name: 'Version Tracker', handler: 'Tracker' } }))
+      .unwrap()
+      .then(metafile => thunkAPI.dispatch(loadCard({ metafile: metafile })));
+  }
+)
