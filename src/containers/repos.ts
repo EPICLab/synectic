@@ -7,7 +7,7 @@ import { v4 } from 'uuid';
 import parsePath from 'parse-path';
 import * as path from 'path';
 
-import type { Repository, Card, Metafile, Modal, UUID } from '../types';
+import type { Repository, Card, Metafile, UUID } from '../types';
 import * as worktree from './git-worktree';
 import { RootState } from '../store/root';
 import { ActionKeys, NarrowActionType, Action } from '../store/actions';
@@ -19,20 +19,18 @@ import { updateCard } from './cards';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { addRepo } from '../store/slices/repos';
 import { AppThunkAPI } from '../store/store';
-
-type AddRepoAction = NarrowActionType<ActionKeys.ADD_REPO>;
-type UpdateRepoAction = NarrowActionType<ActionKeys.UPDATE_REPO>;
-type AddModalAction = NarrowActionType<ActionKeys.ADD_MODAL>;
-type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
+import { getRepoByName } from 'src/store/selectors/repos';
 
 /**
- * Action Creator for composing a valid ADD_REPO Redux Action.
+ * Async Thunk action creator for composing and validating a new Repository object before adding to the Redux store.
  * @param root The relative or absolute path to the git root directory.
  * @param {url, oauth} urlProtocol The URL and type of OAuth authentication required based on remote-hosting service.
  * @param username The authentication username associated with an account on the remote-hosting service.
  * @param password The authentication password associated with an account on the remote-hosting service.
  * @param token The authentication token associated with an account on the remote-hosting service.
- * @return An `AddRepoAction` object that can be dispatched via Redux.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
 const appendRepository = createAsyncThunk<void, {
   root: string, protocol: Partial<ReturnType<typeof extractFromURL>>,
@@ -59,66 +57,6 @@ const appendRepository = createAsyncThunk<void, {
     }
   }
 );
-
-const addRepository = (root: string, { url, oauth }: Partial<ReturnType<typeof extractFromURL>>,
-  username?: string, password?: string, token?: string):
-  AddRepoAction | AddModalAction => {
-  const repo: Repository = {
-    id: v4(),
-    name: url ? extractRepoName(url.href) : extractFilename(root),
-    root: root,
-    corsProxy: new URL('https://cors-anywhere.herokuapp.com'), // TODO: This is just a stubbed URL for now, but eventually we need to support Cross-Origin Resource Sharing (CORS) since isomorphic-git requires it
-    url: url ? url : parsePath(''),
-    local: [],
-    remote: [],
-    oauth: oauth ? oauth : 'github',
-    username: username ? username : '',
-    password: password ? password : '',
-    token: token ? token : ''
-  };
-  if (url && !isValidRepository(repo)) return reposError(repo.id, `Malformed repository '${repo.name}' cannot be added to the Redux store`);
-  return {
-    type: ActionKeys.ADD_REPO,
-    id: repo.id,
-    repo: repo
-  };
-}
-
-/**
- * Action Creator for composing a valid UPDATE_REPO Redux Action. If the current Redux store does not contain a 
- * matching repository (based on UUID) for the passed parameter, then dispatching this action will not result in any
- * changes in the Redux store state.
- * @param repo A Repository object containing new field values to be updated.
- * @return An `UpdateRepoAction` object that can be dispatched via Redux.
- */
-const updateRepository = (repo: Repository): UpdateRepoAction => {
-  return {
-    type: ActionKeys.UPDATE_REPO,
-    id: repo.id,
-    repo: repo
-  }
-}
-
-/**
- * Action Creator for composing a valid ADD_ERROR Redux Action.
- * @param target Corresponds to the object or field originating the error.
- * @param message The error message to be displayed to the user.
- * @return An `AddModalAction` object that can be dispatched via Redux.
- */
-export const reposError = (target: string, message: string): AddModalAction => {
-  const modal: Modal = {
-    id: v4(),
-    type: 'Error',
-    subtype: 'ReposError',
-    target: target,
-    options: { message: message }
-  };
-  return {
-    type: ActionKeys.ADD_MODAL,
-    id: modal.id,
-    modal: modal
-  };
-}
 
 /**
 * Action Creator for composing a valid UPDATE_CARD Redux Action which changes the Metafile associated with the card.
@@ -214,6 +152,31 @@ export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, p
  * @return  A Thunk that can be executed to simultaneously dispatch Redux updates (as needed) and retrieve a `Repository` object, if
  * the filepath is untracked or results in a malformed Git repository then `undefined` will be returned instead.
  */
+export const getRepository = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
+  'repos/getRepository',
+  async (filepath, thunkAPI) => {
+    let root = await getRepoRoot(filepath);
+    if (!root) thunkAPI.rejectWithValue(root); // if there is no root, then filepath is not under version control
+
+    if (!(await isDirectory(`${root}/.git`))) {
+      // root points to a linked worktree, so root needs to be updated to point to the main worktree path
+      const gitdir = (await readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+      root = await getRepoRoot(gitdir);
+      if (!root) thunkAPI.rejectWithValue(root); // if there is no root, then the main worktree path is corrupted
+    }
+
+    const remoteOriginUrls: string[] | undefined = root ?
+      await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
+    const { url, oauth } = (remoteOriginUrls && remoteOriginUrls.length > 0) ? extractFromURL(remoteOriginUrls[0]) : { url: undefined, oauth: undefined };
+    const name = url ? Object.values(url.href) : extractFilename(root);
+    const existing = await thunkAPI.dispatch(getRepoByName(name, url));
+    if (existing) {
+      console.log('yeah' + oauth);
+    }
+    thunkAPI.dispatch(appendRepository());
+  }
+)
+
 export const getRepository = (filepath: PathLike): ThunkAction<Promise<Repository | undefined>, RootState, undefined, Action> =>
   async (dispatch, getState) => {
     let root = await getRepoRoot(filepath);
