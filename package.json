@@ -85,7 +85,6 @@
     "electron-squirrel-startup": "^1.0.0",
     "fs-extra": "^10.0.0",
     "ignore": "^5.1.8",
-    "is-hidden-file": "^1.1.2",
     "isomorphic-git": "^1.9.2",
     "luxon": "^2.0.1",
     "parse-path": "^4.0.3",
