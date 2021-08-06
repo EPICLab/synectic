@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
 
-import type { Repository, UUID } from '../types';
+import { v4 } from 'uuid';
+import type { Modal, Repository, UUID } from '../types';
 import { RootState } from '../store/root';
-import { addModal } from '../containers/modals';
+import { addModal } from '../store/slices/modals';
 import { ActionKeys } from '../store/actions';
 
 const StyledInput = withStyles((theme: Theme) =>
@@ -47,9 +48,14 @@ export const GitGraphSelect: React.FunctionComponent = () => {
 
   const repoChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const foundRepo = repos.find(r => r.id === event.target.value as UUID);
+    const gitGraphModal: Modal = {
+      id: v4(),
+      type: 'GitGraph',
+      target: foundRepo.id
+    }
     if (foundRepo) {
-      const addModalAction = addModal({ type: 'GitGraph', target: foundRepo.id });
-      setModal(addModalAction.id); // track the modal UUID so that we can remove the modal later
+      const addModalAction = addModal(gitGraphModal);
+      setModal(addModalAction.payload.id); // track the modal UUID so that we can remove the modal later
       dispatch(addModalAction);
       setRepo(foundRepo); // update the select menu
     }

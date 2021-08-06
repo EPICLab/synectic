@@ -2,7 +2,8 @@ import React from 'react';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
 
-import type { Canvas } from '../types';
+import { v4 } from 'uuid';
+import type { Modal, Canvas } from '../types';
 import { RootState } from '../store/root';
 import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
@@ -13,7 +14,7 @@ import { updateCard } from '../containers/cards';
 import { NavMenu } from './NavMenu';
 import { NavItemProps } from './NavItem';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { addModal } from '../containers/modals';
+import { addModal } from '../store/slices/modals';
 import { fileOpenDialog } from '../containers/dialogs';
 import { loadBranchVersions } from '../containers/branch-tracker';
 import { GitGraphSelect } from './GitGraphSelect';
@@ -101,18 +102,34 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     console.log({ modals });
   }
 
+  const newCardDialogModal: Modal = {
+    id: v4(),
+    type: 'NewCardDialog'
+  }
   const fileMenu: NavItemProps[] = [
-    { label: 'New...', click: () => dispatch(addModal({ type: 'NewCardDialog' })) },
+    { label: 'New...', click: () => dispatch(addModal(newCardDialogModal)) },
     ...(isMac ? [{ label: 'Open...', click: () => dispatch(fileOpenDialog()) }] : [
       { label: 'Open File...', click: () => dispatch(fileOpenDialog('openFile')) },
       { label: 'Open Directory...', click: () => dispatch(fileOpenDialog('openDirectory')) }
     ])
   ];
 
+  const diffPickerModal: Modal = {
+    id: v4(),
+    type: 'DiffPicker'
+  }
+  const mergeSelectorModal: Modal = {
+    id: v4(),
+    type: 'MergeSelector'
+  }
+  const sourcePickerModal: Modal = {
+    id: v4(),
+    type: 'SourcePicker'
+  }
   const actionMenu: NavItemProps[] = [
-    { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(addModal({ type: 'DiffPicker' })) },
-    { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal({ type: 'MergeSelector' })) },
-    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal({ type: 'SourcePicker' })) },
+    { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(addModal(diffPickerModal)) },
+    { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal(mergeSelectorModal)) },
+    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal(sourcePickerModal)) },
   ];
 
   const viewMenu: NavItemProps[] = [
