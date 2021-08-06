@@ -1,25 +1,24 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
-import type { Metafile, UUID } from '../../types';
-import { addItemInMap, removeItemInMap, updateItemInMapById, updateMatchesInMap, updateObject } from '../immutables';
+import { PathLike } from 'fs-extra';
+import type { Metafile } from '../../types';
+import { updateMatchesInMap, updateObject } from '../immutables';
 import { removeRepo } from './repos';
+import { AppThunkAPI } from '../store';
 
-export interface MetafilesState {
-    [id: string]: Metafile
-}
-
-const initialState: MetafilesState = {}
+export const metafilesAdapter = createEntityAdapter<Metafile>();
 
 export const metafilesSlice = createSlice({
     name: 'metafiles',
-    initialState,
+    initialState: metafilesAdapter.getInitialState(),
     reducers: {
-        addMetafile: (state, action: PayloadAction<Metafile>) => addItemInMap(state, action.payload),
-        removeMetafile: (state, action: PayloadAction<UUID>) => removeItemInMap(state, action.payload),
-        updateMetafile: (state, action: PayloadAction<{ id: UUID, metafile: Partial<Metafile> }>) =>
-            updateItemInMapById(state, action.payload.id, (metafile => updateObject<Metafile>(metafile, {
-                ...action.payload.metafile, modified: DateTime.local().valueOf()
-            })))
+        metafileAdded: metafilesAdapter.addOne,
+        metafileRemoved: metafilesAdapter.removeOne,
+        metafileUpdated: (state, action: PayloadAction<Metafile>) => {
+            metafilesAdapter.upsertOne(state, {
+                ...action.payload, modified: DateTime.local().valueOf()
+            })
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -30,6 +29,14 @@ export const metafilesSlice = createSlice({
     }
 })
 
-export const { addMetafile, removeMetafile, updateMetafile } = metafilesSlice.actions;
+export const getMetafileByFilepath = createAsyncThunk<Metafile | undefined, PathLike, AppThunkAPI>(
+    'metafiles/getMetafileByFilepath',
+    async (filepath, thunkAPI) => {
+        return Object.values(thunkAPI.getState().metafiles.entities)
+            .find(m => m && (m.path === filepath));
+    }
+)
+
+export const { metafileAdded, metafileRemoved, metafileUpdated } = metafilesSlice.actions;
 
 export default metafilesSlice.reducer;
