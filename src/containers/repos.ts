@@ -1,25 +1,18 @@
 import * as fs from 'fs-extra';
 import * as isogit from 'isomorphic-git';
 import { PathLike } from 'fs-extra';
-import { ThunkAction } from 'redux-thunk';
-import { AnyAction } from 'redux';
 import { v4 } from 'uuid';
-import parsePath from 'parse-path';
 import * as path from 'path';
-
 import type { Repository, Card, Metafile, UUID } from '../types';
 import * as worktree from './git-worktree';
-import { RootState } from '../store/root';
-import { ActionKeys, NarrowActionType, Action } from '../store/actions';
 import { getMetafile } from './metafiles';
 import { extractFilename, isDirectory, readFileAsync } from './io';
 import { getRepoRoot } from './git-porcelain';
 import { isValidRepository, extractRepoName, extractFromURL } from './git-plumbing';
-import { updateCard } from './cards';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { addRepo } from '../store/slices/repos';
-import { AppThunkAPI } from '../store/store';
-import { getRepoByName } from 'src/store/selectors/repos';
+import { getRepoByName, repoAdded, repoUpdated } from '../store/slices/repos';
+import { AppThunkAPI } from '../store/hooks';
+import { cardUpdated } from '../store/slices/cards';
 
 /**
  * Async Thunk action creator for composing and validating a new Repository object before adding to the Redux store.
@@ -32,7 +25,7 @@ import { getRepoByName } from 'src/store/selectors/repos';
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-const appendRepository = createAsyncThunk<void, {
+const appendRepository = createAsyncThunk<UUID, {
   root: string, protocol: Partial<ReturnType<typeof extractFromURL>>,
   username?: string, password?: string, token?: string
 }, AppThunkAPI>(
@@ -42,8 +35,8 @@ const appendRepository = createAsyncThunk<void, {
       id: v4(),
       name: param.protocol.url ? extractRepoName(param.protocol.url.href) : extractFilename(param.root),
       root: param.root,
-      corsProxy: new URL('https://cors-anywhere.herokuapp.com'), // TODO: This is just a stubbed URL for now, but eventually we need to support Cross-Origin Resource Sharing (CORS) since isomorphic-git requires it
-      url: param.protocol.url ? param.protocol.url : parsePath(''),
+      corsProxy: 'https://cors-anywhere.herokuapp.com', // TODO: This is just a stubbed URL for now, but eventually we need to support Cross-Origin Resource Sharing (CORS) since isomorphic-git requires it
+      url: param.protocol.url ? param.protocol.url.href : '',
       local: [],
       remote: [],
       oauth: param.protocol.oauth ? param.protocol.oauth : 'github',
@@ -53,8 +46,10 @@ const appendRepository = createAsyncThunk<void, {
     };
     const valid = param.protocol.url ? isValidRepository(repo) : true;
     if (valid) {
-      thunkAPI.dispatch(addRepo(repo));
+      thunkAPI.dispatch(repoAdded(repo));
+      return repo.id;
     }
+    return '';
   }
 );
 
@@ -64,14 +59,17 @@ const appendRepository = createAsyncThunk<void, {
 * @param metafile: A `Metafile` object that represents the new metafile information for the card.
 * @return An `UpdateCardAction` object that can be dispatched via Redux.
 */
-const switchCardMetafile = (card: Card, metafile: Metafile): UpdateCardAction => {
-  return updateCard({
-    ...card,
-    name: metafile.name,
-    modified: metafile.modified,
-    metafile: metafile.id
-  });
-}
+const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile: Metafile }, AppThunkAPI>(
+  'repos/switchCardMetafile',
+  async (param, thunkAPI) => {
+    thunkAPI.dispatch(cardUpdated({
+      ...param.card,
+      name: param.metafile.name,
+      modified: param.metafile.modified,
+      metafile: param.metafile.id
+    }))
+  }
+)
 
 /**
  * Thunk Action Creator for examining and updating the list of Git branch refs associated with a Repository
@@ -82,14 +80,22 @@ const switchCardMetafile = (card: Card, metafile: Metafile): UpdateCardAction =>
  * @return A Thunk that can be executed to simultaneously dispatch Redux updates and return the updated `Repository` object 
  * from the Redux store.
  */
-export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction | AddModalAction>, RootState, undefined, Action> =>
-  async (dispatch, getState) => {
-    const repo = getState().repos[id];
-    if (!repo) return dispatch(reposError(id, `Cannot update non-existing repo for id:'${id}'`));
-    const localBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString() });
-    const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
-    return dispatch(updateRepository({ ...repo, local: localBranches, remote: remoteBranches }));
-  };
+export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejectValue: string }>(
+  'repos/updateBranches',
+  async (id, thunkAPI) => {
+    const repo = thunkAPI.getState().repos.entities[id];
+    if (!repo) thunkAPI.rejectWithValue(`Cannot update non-existing repo for id:'${id}'`);
+    else {
+      const localBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString() });
+      const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
+      thunkAPI.dispatch(repoUpdated({
+        ...repo,
+        local: localBranches,
+        remote: remoteBranches
+      }));
+    }
+  }
+)
 
 /**
 * Thunk Action Creator for switching Git branches (or commit hash) and updating the associated metafile and card. Multiple cards
@@ -103,46 +109,46 @@ export const updateBranches = (id: UUID): ThunkAction<Promise<UpdateRepoAction |
 * @param update Enable changing the branch for the main worktree; will prevent any new linked worktrees from being created.
 * @return A Thunk that can be executed to get a Metafile associated with a new Git branch and updates the card.
 */
-export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, progress?: boolean, update?: boolean)
-  : ThunkAction<Promise<Metafile | undefined>, RootState, undefined, AnyAction> =>
-  async (dispatch, getState) => {
+export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
+  cardId: UUID, metafileId: UUID, branch: string, progress?: boolean, update?: boolean
+}, AppThunkAPI>(
+  'repos/checkoutBranch',
+  async (param, thunkAPI) => {
     // verify card, metafile, and repo exist in Redux store before proceeding
-    const card = getState().cards[cardId];
-    const metafile = getState().metafiles[metafileId];
-    const repo = (metafile && metafile.repo) ? getState().repos[metafile.repo] : undefined;
-    if (!card) dispatch(reposError(metafileId, `Cannot update non-existing card for id:'${cardId}'`));
-    if (!metafile) dispatch(reposError(metafileId, `Cannot update non-existing metafile for id:'${metafileId}'`));
-    if (!repo) dispatch(reposError(metafileId, `Repository missing for metafile id:'${metafileId}'`));
+    const card = thunkAPI.getState().cards.entities[param.cardId];
+    const metafile = thunkAPI.getState().metafiles.entities[param.metafileId];
+    const repo = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.id] : undefined;
+    if (!card) thunkAPI.rejectWithValue(`Cannot update non-existing card for id:'${param.cardId}'`);
+    if (!metafile) thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${param.metafileId}'`);
+    if (!repo) thunkAPI.rejectWithValue(`Repository missing for metafile id:'${param.metafileId}'`);
     if (!card || !metafile || !repo) return undefined;
     if (!metafile.path) return undefined; // metafile cannot be virtual
 
     let updated: Metafile | undefined;
-    if (update) {
+    if (param.update) {
       // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
-      if (progress) await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: branch, onProgress: (e) => console.log(e.phase) });
-      else await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: branch });
-      updated = await dispatch(getMetafile({ filepath: metafile.path }));
+      if (param.progress) await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch, onProgress: (e) => console.log(e.phase) });
+      else await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch });
+      updated = await thunkAPI.dispatch(getMetafile({ filepath: metafile.path })).unwrap();
     } else {
       // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
       const oldWorktree = metafile.branch ? await worktree.resolveWorktree(repo, metafile.branch) : undefined;
-      const newWorktree = await worktree.resolveWorktree(repo, branch);
+      const newWorktree = await worktree.resolveWorktree(repo, param.branch);
       if (!oldWorktree || !newWorktree) return undefined; // no worktree could be resolved for either current or new worktree
 
       const relative = path.relative(oldWorktree.path.toString(), metafile.path.toString());
-      updated = await dispatch(getMetafile({ filepath: path.join(newWorktree.path.toString(), relative) }));
+      updated = await thunkAPI.dispatch(getMetafile({ filepath: path.join(newWorktree.path.toString(), relative) })).unwrap();
     }
     // get an updated metafile based on the updated worktree path
-    if (!updated) {
-      dispatch(reposError(metafile.id, `Cannot locate updated metafile with new branch for path:'${metafile.path}'`));
-      return undefined;
-    }
+    if (!updated) thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path:'${metafile.path}'`);
 
     // update the metafile details (including file content) for the card
-    dispatch(switchCardMetafile(card, updated));
+    thunkAPI.dispatch(switchCardMetafile({ card: card, metafile: updated }));
 
-    if (progress) console.log('checkout complete...');
-    return getState().metafiles[updated.id];
-  };
+    if (param.progress) console.log('checkout complete...');
+    return thunkAPI.getState().metafiles.entities[updated.id];
+  }
+)
 
 /**
  * Thunk Action Creator for retrieving a `Repository` object associated with the given filepath. If the filepath is not under version
@@ -152,63 +158,40 @@ export const checkoutBranch = (cardId: UUID, metafileId: UUID, branch: string, p
  * @return  A Thunk that can be executed to simultaneously dispatch Redux updates (as needed) and retrieve a `Repository` object, if
  * the filepath is untracked or results in a malformed Git repository then `undefined` will be returned instead.
  */
-export const getRepository = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
+export const getRepository = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'repos/getRepository',
   async (filepath, thunkAPI) => {
     let root = await getRepoRoot(filepath);
-    if (!root) thunkAPI.rejectWithValue(root); // if there is no root, then filepath is not under version control
+    if (!root) thunkAPI.rejectWithValue('No root found'); // if there is no root, then filepath is not under version control
 
     if (!(await isDirectory(`${root}/.git`))) {
       // root points to a linked worktree, so root needs to be updated to point to the main worktree path
       const gitdir = (await readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
       root = await getRepoRoot(gitdir);
-      if (!root) thunkAPI.rejectWithValue(root); // if there is no root, then the main worktree path is corrupted
+      if (!root) thunkAPI.rejectWithValue('No root found'); // if there is no root, then the main worktree path is corrupted
     }
 
     const remoteOriginUrls: string[] | undefined = root ?
       await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
-    const { url, oauth } = (remoteOriginUrls && remoteOriginUrls.length > 0) ? extractFromURL(remoteOriginUrls[0]) : { url: undefined, oauth: undefined };
-    const name = url ? Object.values(url.href) : extractFilename(root);
-    const existing = await thunkAPI.dispatch(getRepoByName(name, url));
+    const { url, oauth } = (remoteOriginUrls && remoteOriginUrls.length > 0) ?
+      extractFromURL(remoteOriginUrls[0]) :
+      { url: undefined, oauth: undefined };
+    const name = url ? url.href : (root ? extractFilename(root) : '');
+    const existing = url ?
+      await thunkAPI.dispatch(getRepoByName({ name: name, url: url.href })).unwrap() :
+      await thunkAPI.dispatch(getRepoByName({ name: name })).unwrap();
     if (existing) {
-      console.log('yeah' + oauth);
-    }
-    thunkAPI.dispatch(appendRepository());
-  }
-)
-
-export const getRepository = (filepath: PathLike): ThunkAction<Promise<Repository | undefined>, RootState, undefined, Action> =>
-  async (dispatch, getState) => {
-    let root = await getRepoRoot(filepath);
-    if (!root) return undefined; // if there is no root, then filepath is not under version control
-
-    if (!(await isDirectory(`${root}/.git`))) {
-      // root points to a linked worktree, so we update root to point to the main worktree path
-      const gitdir = (await readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-      root = await getRepoRoot(gitdir);
-      if (!root) return undefined; // if there is no root, then the main worktree path is corrupted
-    }
-
-    const remoteOriginUrls: string[] | undefined = root ?
-      await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
-    const { url, oauth } = (remoteOriginUrls && remoteOriginUrls?.length > 0) ?
-      extractFromURL(remoteOriginUrls[0]) : { url: undefined, oauth: undefined };
-    const name = url ? extractRepoName(url.href) : extractFilename(root);
-    const existing = url ? Object.values(getState().repos).find(r => r.name === name && r.url.href === url.href)
-      : Object.values(getState().repos).find(r => r.name === name);
-    if (existing) {
-      // the associated repository is already available in the Redux store
-      await dispatch(updateBranches(existing.id));
-      return getState().repos[existing.id];
+      thunkAPI.dispatch(updateBranches(existing.id));
+      return thunkAPI.getState().repos.entities[existing.id];
     }
     const username = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'user.name' }) : undefined;
     const password = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'credential.helper' }) : undefined;
-
-    const action = addRepository(root, { url, oauth }, username, password);
-    dispatch(action); // dispatches either AddRepoAction or AddError
-    if (action.type === ActionKeys.ADD_REPO) {
-      await dispatch(updateBranches(action.id));
-      return getState().repos[action.id];
+    const id = root ? await thunkAPI.dispatch(appendRepository({ root: root, protocol: { url: url, oauth: oauth }, username: username, password: password })).unwrap() : undefined;
+    if (id) {
+      await thunkAPI.dispatch(updateBranches(id));
+      return thunkAPI.getState().repos.entities[id];
+    } else {
+      thunkAPI.rejectWithValue('Unable to generate new repository');
     }
-    return undefined; // the constructed repository was malformed and not added to the Redux store
-  };
+  }
+)

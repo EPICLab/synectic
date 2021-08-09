@@ -1,4 +1,4 @@
 import { RootState } from '../store';
-import { FiletypesState } from '../slices/filetypes';
+import { filetypesAdapter } from '../slices/filetypes';
 
-export const selectFiletypes = (state: RootState): FiletypesState => state.filetypes;
+export const selectAllFiletypes = filetypesAdapter.getSelectors<RootState>(state => state.filetypes);

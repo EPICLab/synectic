@@ -1,4 +1,4 @@
 import { RootState } from '../store';
-import { ModalsState } from '../slices/modals';
+import { modalsAdapter } from '../slices/modals';
 
-export const selectModals = (state: RootState): ModalsState => state.modals;
+export const selectAllModals = modalsAdapter.getSelectors<RootState>(state => state.modals);

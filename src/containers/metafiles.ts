@@ -1,19 +1,16 @@
 import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import { createAsyncThunk, unwrapResult } from '@reduxjs/toolkit';
-import type { Metafile, Repository, UUID } from '../types';
+import type { Metafile, UUID } from '../types';
 import * as io from './io';
-import { AppThunkAPI } from '../store/store';
+import { AppThunkAPI } from '../store/hooks';
 import { getRepository } from './repos';
 import { asyncFilter } from './format';
 import { currentBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { resolveHandler } from './handlers';
-import { updateMetafile, addMetafile, metafileUpdated } from '../store/slices/metafiles';
+import { getMetafileByBranch, getMetafileByFilepath, getMetafileByVirtual, metafileAdded, metafileUpdated } from '../store/slices/metafiles';
 import { DateTime } from 'luxon';
-import { isHiddenFile } from 'is-hidden-file';
-import { getMetafileByFilepath, getMetafileByBranch, getMetafileByVirtual } from '../store/selectors/metafiles';
-
-
+// import { isHiddenFile } from 'is-hidden-file';
 
 export type MetafileWithPath = Metafile & Required<Pick<Metafile, 'path'>>;
 export type MetafileWithContent = Metafile & Required<Pick<Metafile, 'content'>>;
@@ -30,6 +27,11 @@ export const isMetafileDirectory = (metafile: Metafile): metafile is MetafileWit
 
 export const isMetafileDiff = (metafile: Metafile): metafile is MetafileWithTargets => {
   return (metafile as MetafileWithTargets).targets !== undefined;
+}
+
+/* TEMPORARY SHIM!!! Remove after is-hidden-file is fixed. */
+const isHiddenFile = (path: PathLike): boolean => {
+  return /(^|\/)\.[^/.]/g.test(path.toString());
 }
 
 /**
@@ -56,11 +58,11 @@ export const filterDirectoryContainsTypes = async (metafile: MetafileWithContain
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-export const updateFileStats = createAsyncThunk<void, UUID, AppThunkAPI>(
+export const updateFileStats = createAsyncThunk<void, UUID, AppThunkAPI & { rejectValue: string }>(
   'metafiles/updateFileStats',
   async (id, thunkAPI) => {
     const metafile = thunkAPI.getState().metafiles.entities[id];
-    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile);
+    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? metafile.id : 'unknown');
     const handler = await thunkAPI.dispatch(resolveHandler(metafile.path));
     thunkAPI.dispatch(metafileUpdated({
       ...metafile,
@@ -78,11 +80,11 @@ export const updateFileStats = createAsyncThunk<void, UUID, AppThunkAPI>(
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
 */
-export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI>(
+export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI & { rejectValue: string }>(
   'metafiles/updateGitInfo',
   async (id, thunkAPI) => {
     const metafile = thunkAPI.getState().metafiles.entities[id];
-    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile);
+    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? metafile.id : 'unknown');
     try {
       const repo = unwrapResult(await thunkAPI.dispatch(getRepository(metafile.path)));
       const root = await getRepoRoot(metafile.path);
@@ -98,7 +100,7 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI>(
         status: status
       }));
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      return thunkAPI.rejectWithValue(`${error}`);
     }
   }
 )
@@ -113,11 +115,11 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI>(
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-export const updateContents = createAsyncThunk<void, UUID, AppThunkAPI>(
+export const updateContents = createAsyncThunk<void, UUID, AppThunkAPI & { rejectValue: string }>(
   'metafiles/updateContents',
   async (id, thunkAPI) => {
     const metafile = thunkAPI.getState().metafiles.entities[id];
-    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile);
+    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? metafile.id : 'unknown');
     thunkAPI.dispatch(metafileUpdated(
       (metafile.filetype === 'Directory') ?
         { ...metafile, contains: (await io.readDirAsyncDepth(metafile.path, 1)).filter(p => p !== metafile.path) } :
@@ -176,29 +178,26 @@ type MetafileGettableFields =
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a metafile that was either created or retrieved
  * and updated based on the filesystem.
  */
-export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, AppThunkAPI>(
+export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, AppThunkAPI & { rejectValue: string }>(
   'metafiles/getMetafile',
   async (retrieveBy, thunkAPI) => {
     if (retrieveBy.id) {
-      const existing = await thunkAPI.dispatch(updateAll(retrieveBy.id));
-      if (!existing) return thunkAPI.rejectWithValue(existing);
-      return thunkAPI.getState().metafiles.entities[retrieveBy.id];
+      const existing = await thunkAPI.dispatch(updateAll(retrieveBy.id)).unwrap();
+      if (!existing) return thunkAPI.rejectWithValue(`${existing}`);
+      const metafile = thunkAPI.getState().metafiles.entities[retrieveBy.id];
+      if (!metafile) return thunkAPI.rejectWithValue('unknown');
+      return metafile;
     }
     if (retrieveBy.filepath) {
       const root = await getRepoRoot(retrieveBy.filepath);
       const branch = root ? (await currentBranch({ dir: root.toString(), fullname: false })) : undefined;
-
-
-      let prom: string | undefined;
-      thunkAPI.dispatch(getMetafileByFilepath(retrieveBy.filepath))
-        .unwrap()
-        .then(res => prom = res);
-      const existing = (branch ?
-        await thunkAPI.dispatch(getMetafileByFilepath(retrieveBy.filepath)) :
-        await thunkAPI.dispatch(getMetafileByBranch(retrieveBy.filepath, branch)));
+      const existing = await (branch ?
+        thunkAPI.dispatch(getMetafileByBranch({ filepath: retrieveBy.filepath, branch: branch })) :
+        thunkAPI.dispatch(getMetafileByFilepath(retrieveBy.filepath))
+      ).unwrap();
       const id = existing ? existing.id : v4();
       if (!existing) {
-        thunkAPI.dispatch(addMetafile({
+        thunkAPI.dispatch(metafileAdded({
           id: id,
           name: io.extractFilename(retrieveBy.filepath),
           modified: DateTime.local().valueOf(),
@@ -206,15 +205,22 @@ export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, Ap
         }));
       }
       await thunkAPI.dispatch(updateAll(id));
-      return thunkAPI.getState().metafiles[id];
+      const metafile = thunkAPI.getState().metafiles.entities[id];
+      if (!metafile) return thunkAPI.rejectWithValue('unknown');
+      return metafile;
     }
     if (retrieveBy.virtual) {
-      const existing = await thunkAPI.dispatch(getMetafileByVirtual(retrieveBy.virtual.name, retrieveBy.virtual.handler));
+      const existing = await (thunkAPI.dispatch(getMetafileByVirtual({
+        name: retrieveBy.virtual.name,
+        handler: retrieveBy.virtual.handler
+      })).unwrap());
       const id = existing ? existing.id : v4();
       if (!existing) {
-        thunkAPI.dispatch(addMetafile({ id: id, modified: DateTime.local().valueOf(), ...retrieveBy.virtual }));
+        thunkAPI.dispatch(metafileAdded({ id: id, modified: DateTime.local().valueOf(), ...retrieveBy.virtual }));
       }
-      return thunkAPI.getState().metafiles[id];
+      const metafile = thunkAPI.getState().metafiles.entities[id];
+      if (!metafile) return thunkAPI.rejectWithValue('unknown');
+      return metafile;
     }
     return thunkAPI.rejectWithValue('Failed to match any containers/metafiles/getMetafile parameter types');
   }

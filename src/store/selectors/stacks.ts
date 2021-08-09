@@ -1,4 +1,4 @@
-import { StacksState } from '../slices/stacks';
+import { stacksAdapter } from '../slices/stacks';
 import { RootState } from '../store';
 
-export const selectStacks = (state: RootState): StacksState => state.stacks;
+export const selectAllStacks = stacksAdapter.getSelectors<RootState>(state => state.stacks);

@@ -1,27 +1,23 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
-import type { Card, UUID } from '../../types';
-import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
+import type { Card } from '../../types';
 
-export interface CardsState {
-    [id: string]: Card
-}
-
-const initialState: CardsState = {}
+export const cardsAdapter = createEntityAdapter<Card>();
 
 export const cardsSlice = createSlice({
     name: 'cards',
-    initialState,
+    initialState: cardsAdapter.getInitialState(),
     reducers: {
-        addCard: (state, action: PayloadAction<Card>) => addItemInMap(state, action.payload),
-        removeCard: (state, action: PayloadAction<UUID>) => removeItemInMap(state, action.payload),
-        updateCard: (state, action: PayloadAction<{ id: UUID, card: Partial<Card> }>) =>
-            updateItemInMapById(state, action.payload.id, (card => updateObject<Card>(card, {
-                ...action.payload.card, modified: DateTime.local().valueOf()
-            })))
+        cardAdded: cardsAdapter.addOne,
+        cardRemoved: cardsAdapter.removeOne,
+        cardUpdated: (state, action: PayloadAction<Card>) => {
+            cardsAdapter.upsertOne(state, {
+                ...action.payload, modified: DateTime.local().valueOf()
+            })
+        }
     }
 })
 
-export const { addCard, removeCard, updateCard } = cardsSlice.actions;
+export const { cardAdded, cardRemoved, cardUpdated } = cardsSlice.actions;
 
 export default cardsSlice.reducer;

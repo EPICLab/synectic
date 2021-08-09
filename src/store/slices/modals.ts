@@ -1,22 +1,17 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { Modal, UUID } from '../../types';
-import { addItemInMap, removeItemInMap } from '../immutables';
+import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import type { Modal } from '../../types';
 
-export interface ModalsState {
-    [id: string]: Modal
-}
-
-const initialState: ModalsState = {}
+export const modalsAdapter = createEntityAdapter<Modal>();
 
 export const modalsSlice = createSlice({
     name: 'modals',
-    initialState,
+    initialState: modalsAdapter.getInitialState(),
     reducers: {
-        addModal: (state, action: PayloadAction<Modal>) => addItemInMap(state, action.payload),
-        removeModal: (state, action: PayloadAction<UUID>) => removeItemInMap(state, action.payload)
+        modalAdded: modalsAdapter.addOne,
+        modalRemoved: modalsAdapter.removeOne
     }
 })
 
-export const { addModal, removeModal } = modalsSlice.actions;
+export const { modalAdded, modalRemoved } = modalsSlice.actions;
 
 export default modalsSlice.reducer;

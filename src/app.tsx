@@ -1,4 +1,6 @@
 import React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import Block from './components/Block';
@@ -17,7 +19,9 @@ const App = (): JSX.Element => {
 
   return (
     <Provider store={store}>
-      <Block />
+      <DndProvider backend={HTML5Backend}>
+        <Block />
+      </DndProvider>
     </Provider>
   );
 };

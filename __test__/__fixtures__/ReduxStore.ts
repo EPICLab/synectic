@@ -4,22 +4,6 @@ import { RootState } from '../../src/store/store';
 // Note: All UUIDs are unique and were generated to pass 'validator/lib/isUUID'
 
 export const testStore: RootState = {
-  canvas: {
-    id: 'd9f89535-eec7-42b6-ae55-0f94b9ad0836',
-    created: DateTime.fromISO('1991-12-26T08:00:00.000-08:00').valueOf(),
-    repos: [],
-    cards: [
-      '67406095-fd01-4441-8e52-b0fdbad3327a',
-      '6e84b210-f148-43bd-8364-c8710e70a9ef',
-      '43c3c447-da0d-4299-a006-57344beb77da',
-      'f1a1fb16-cb06-4fb7-9b10-29ad95032d51',
-      '4efdbe23-c938-4eb1-b29b-50bf76bdb44e'
-    ],
-    stacks: [
-      '254fa11a-6e7e-4fd3-bc08-e97c5409719b',
-      '1942z532-e7ab-190a-d1d3-385a2295de62'
-    ]
-  },
   stacks: {
     '254fa11a-6e7e-4fd3-bc08-e97c5409719b': {
       id: '254fa11a-6e7e-4fd3-bc08-e97c5409719b',
@@ -135,33 +119,53 @@ export const testStore: RootState = {
     }
   },
   metafiles: {
-    '821c9159-292b-4639-b90e-e84fc12740ee': {
-      id: '821c9159-292b-4639-b90e-e84fc12740ee',
-      name: 'test.js',
-      modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00').valueOf(),
-      content: 'var rand: number = Math.floor(Math.random() * 6) + 1;'
-    },
-    '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71': {
-      id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
-      name: 'example.ts',
-      modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-      content: 'const rand = Math.floor(Math.random() * 6) + 1;'
-    },
-    'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8': {
-      id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
-      name: 'turtle.asp',
-      modified: DateTime.fromISO('2017-01-05T19:09:22.744-08:00').valueOf(),
-    },
-    '28': {
-      id: '28',
-      name: 'foo',
-      path: 'foo',
-      modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
-      filetype: 'Directory',
-      contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71']
+    ids: ['821c9159-292b-4639-b90e-e84fc12740ee', '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71', 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8', '28'],
+    entities: {
+      '821c9159-292b-4639-b90e-e84fc12740ee': {
+        id: '821c9159-292b-4639-b90e-e84fc12740ee',
+        name: 'test.js',
+        modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00').valueOf(),
+        content: 'var rand: number = Math.floor(Math.random() * 6) + 1;'
+      },
+      '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71': {
+        id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
+        name: 'example.ts',
+        modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+        content: 'const rand = Math.floor(Math.random() * 6) + 1;'
+      },
+      'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8': {
+        id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
+        name: 'turtle.asp',
+        modified: DateTime.fromISO('2017-01-05T19:09:22.744-08:00').valueOf(),
+      },
+      '28': {
+        id: '28',
+        name: 'foo',
+        path: 'foo',
+        modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
+        filetype: 'Directory',
+        contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71']
+      }
     }
   },
-  repos: {},
+  repos: {
+    ids: ['23'],
+    entities: {
+      '23': {
+        id: '23',
+        name: 'sampleUser/myRepo',
+        root: 'sampleUser/',
+        corsProxy: 'http://www.oregonstate.edu',
+        url: 'https://github.com/sampleUser/myRepo',
+        local: ['master', 'sample', 'test'],
+        remote: [],
+        oauth: 'github',
+        username: 'sampleUser',
+        password: '12345',
+        token: '584n29dkj1683a67f302x009q164'
+      }
+    }
+  },
   modals: {
     '97fa02bc-596c-46d6-b025-2968f0d32b91': {
       id: '97fa02bc-596c-46d6-b025-2968f0d32b91',

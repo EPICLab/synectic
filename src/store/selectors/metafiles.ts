@@ -1,21 +1,21 @@
-import { EntityState } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import type { Metafile } from '../../types';
+import { metafilesAdapter } from '../slices/metafiles';
 import { RootState } from '../store';
 
-export const selectMetafiles = (state: RootState): EntityState<Metafile> => state.metafiles;
+export const selectAllMetafiles = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
 
-export const getMetafileByFilepath = (filepath: PathLike) => (state: RootState): Metafile | undefined => {
+export const selectMetafileByFilepath = (filepath: PathLike) => (state: RootState): Metafile | undefined => {
     return Object.values(state.metafiles)
         .find(m => m.path === filepath);
 }
 
-export const getMetafileByBranch = (filepath: PathLike, branch: string) => (state: RootState): Metafile | undefined => {
+export const selectMetafileByBranch = (filepath: PathLike, branch: string) => (state: RootState): Metafile | undefined => {
     return Object.values(state.metafiles)
         .find(m => m.path === filepath && m.branch === branch);
 }
 
-export const getMetafileByVirtual = (name: string, handler: string) => (state: RootState): Metafile | undefined => {
+export const selectMetafileByVirtual = (name: string, handler: string) => (state: RootState): Metafile | undefined => {
     return Object.values(state.metafiles)
         .find(m => m.name === name && m.handler === handler);
 }

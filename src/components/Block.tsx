@@ -1,14 +1,13 @@
 import React from 'react';
-import { selectCards } from '../store/selectors/cards';
+import { selectAllCards } from '../store/selectors/cards';
 import type { Card } from '../types';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { useAppDispatch } from '../store/hooks';
 import { DateTime } from 'luxon';
-import { addCard } from '../store/slices/cards';
-import { selectCanvas } from '../store/selectors/canvas';
+import { cardAdded } from '../store/slices/cards';
+import store from '../store/store';
 
 const Block: React.FunctionComponent = props => {
-    const cards = useAppSelector(selectCards);
-    const canvas = useAppSelector(selectCanvas);
+    const cards = selectAllCards.selectTotal(store.getState());
     const dispatch = useAppDispatch();
 
     const newCard: Card = {
@@ -24,14 +23,12 @@ const Block: React.FunctionComponent = props => {
     const handleClick = () => {
         console.log('adding a new card...');
         console.log(JSON.stringify(cards));
-        dispatch(addCard(newCard));
+        dispatch(cardAdded(newCard));
     }
 
     return (
         <div >
             <button onClick={() => handleClick()}>Add Card</button>
-            <div>CANVAS:</div>
-            <div>{JSON.stringify(canvas.cards)}</div>
             <div>CARDS:</div>
             {Object.values(cards).map(card => <span key={card.id}>{card.id}</span>)}
             {props.children}

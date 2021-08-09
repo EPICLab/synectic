@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { AppThunkAPI } from '../store/store';
+import { AppThunkAPI } from '../store/hooks';
 import { loadCard } from './handlers';
 import { getMetafile } from './metafiles';
 

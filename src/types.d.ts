@@ -152,9 +152,9 @@ export type Repository = {
   readonly root: PathLike;
   /** The URL for a CORS proxy service that enables User-Agent Header requests that meet same-origin policies on web services
    * (including GitHub). */
-  readonly corsProxy: URL;
+  readonly corsProxy: string;
   /** The URL associated with any remote-hosted instances of this repository, or a local path URL in the case of local-only repositories. */
-  readonly url: parsePath.ParsedPath;
+  readonly url: string;
   /** An array with all local branch refs associated with this repository. */
   readonly local: string[];
   /** An array with all remote branch refs associated with this repository. */

@@ -1,24 +1,27 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { Repository, UUID } from '../../types';
-import { addItemInMap, removeItemInMap, updateItemInMapById, updateObject } from '../immutables';
+import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import type { Repository } from '../../types';
+import { AppThunkAPI } from '../hooks';
 
-export interface ReposState {
-    [id: string]: Repository
-}
-
-const initialState: ReposState = {}
+export const reposAdapter = createEntityAdapter<Repository>();
 
 export const reposSlice = createSlice({
     name: 'repos',
-    initialState,
+    initialState: reposAdapter.getInitialState(),
     reducers: {
-        addRepo: (state, action: PayloadAction<Repository>) => addItemInMap(state, action.payload),
-        removeRepo: (state, action: PayloadAction<UUID>) => removeItemInMap(state, action.payload),
-        updateRepo: (state, action: PayloadAction<{id: UUID, repo: Partial<Repository>}>) =>
-            updateItemInMapById(state, action.payload.id, (repo => updateObject<Repository>(repo, action.payload.repo)))
+        repoAdded: reposAdapter.addOne,
+        repoRemoved: reposAdapter.removeOne,
+        repoUpdated: reposAdapter.upsertOne
     }
-})
+});
 
-export const { addRepo, removeRepo, updateRepo } = reposSlice.actions;
+export const getRepoByName = createAsyncThunk<Repository | undefined, { name: string, url?: string }, AppThunkAPI>(
+    'repos/getRepoByName',
+    async (param, thunkAPI) => {
+        return param.url ? Object.values(thunkAPI.getState().repos.entities).find(r => r && r.name === param.name && r.url === param.url) :
+            Object.values(thunkAPI.getState().repos.entities).find(r => r && r.name === param.name);
+    }
+)
+
+export const { repoAdded, repoRemoved, repoUpdated } = reposSlice.actions;
 
 export default reposSlice.reducer;

@@ -1,4 +1,4 @@
 import { RootState } from '../store';
-import { CardsState } from '../slices/cards';
+import { cardsAdapter } from '../slices/cards';
 
-export const selectCards = (state: RootState): CardsState => state.cards;
+export const selectAllCards = cardsAdapter.getSelectors<RootState>(state => state.cards);
