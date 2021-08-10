@@ -93,7 +93,7 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
     return;
   }
   return isogit.clone({
-    fs: fs, http: http, dir: dir.toString(), url: repo.url.href, singleBranch: singleBranch, noCheckout: noCheckout,
+    fs: fs, http: http, dir: dir.toString(), url: repo.url, singleBranch: singleBranch, noCheckout: noCheckout,
     noTags: noTags, depth: depth, exclude: exclude,
     onProgress: (progress: isogit.GitProgressEvent) => console.log(`cloning objects: ${progress.loaded}/${progress.total}`)
   });
