@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import 'ace-builds';
 import AceEditor, { IMarker } from 'react-ace';
 import 'ace-builds/src-noconflict/theme-github';
@@ -8,8 +7,11 @@ import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
 import type { UUID, Card } from '../types';
-import { RootState } from '../store/root';
+import { RootState } from '../store/store';
 import { diff } from '../containers/diff';
+import { useAppSelector } from '../store/hooks';
+import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { selectAllCards } from '../store/selectors/cards';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
   const markers: IMarker[] = [];
@@ -24,11 +26,11 @@ const extractMarkers = (diffOutput: string): IMarker[] => {
 };
 
 const Diff: React.FunctionComponent<{ metafileId: UUID }> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
-  const original = useSelector((state: RootState) => (metafile.targets ?
-    state.metafiles[state.cards[metafile.targets[0]]?.metafile] : undefined));
-  const updated = useSelector((state: RootState) => (metafile.targets ?
-    state.metafiles[state.cards[metafile.targets[1]]?.metafile] : undefined));
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafileId));
+  const originalCard = useAppSelector((state: RootState) => selectAllCards.selectById(state, metafile?.targets?.[0] ? metafile.targets[0] : ''));
+  const original = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, originalCard ? originalCard.metafile : ''));
+  const updatedCard = useAppSelector((state: RootState) => selectAllCards.selectById(state, metafile?.targets?.[1] ? metafile.targets[1] : ''));
+  const updated = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, updatedCard ? updatedCard.metafile : ''));
 
   const [diffOutput, setDiffOutput] = useState(diff(original?.content ? original.content : '', updated?.content ? updated.content : ''));
   const [markers, setMarkers] = useState(extractMarkers(diffOutput));
@@ -49,13 +51,13 @@ const Diff: React.FunctionComponent<{ metafileId: UUID }> = props => {
 };
 
 export const DiffReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
-  const original = useSelector((state: RootState) => (metafile.targets ? state.cards[metafile.targets[0]] : undefined));
-  const updated = useSelector((state: RootState) => (metafile.targets ? state.cards[metafile.targets[1]] : undefined));
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafile));
+  const original = useAppSelector((state: RootState) => selectAllCards.selectById(state, metafile?.targets?.[0] ? metafile.targets[0] : ''));
+  const updated = useAppSelector((state: RootState) => selectAllCards.selectById(state, metafile?.targets?.[1] ? metafile.targets[1] : ''));
 
   return (
     <>
-      <span>Name:</span><span className='field'>{metafile.name}</span>
+      <span>Name:</span><span className='field'>{metafile ? metafile.name : ''}</span>
       <span>Original:</span><span className='field'>{original ? original.name :
         '[Cannot locate original card]'} (...{original ? original.id.slice(-5) : '[uuid]'})</span>
       <span>Updated:</span><span className='field'>{updated ? updated.name :
