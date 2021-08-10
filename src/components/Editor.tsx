@@ -31,7 +31,7 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   };
 
   return (
-    <AceEditor mode={metafile && metafile.filetype?.toLowerCase()} theme='monokai' onChange={onChange} name={metafile && metafile.id + '-editor'} value={code}
+    <AceEditor mode={metafile?.filetype?.toLowerCase()} theme='monokai' onChange={onChange} name={metafile?.id + '-editor'} value={code}
       ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
@@ -40,7 +40,7 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
 export const EditorReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
+  const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : { name: 'Untracked' });
 
   return (
     <>
@@ -48,9 +48,9 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
-      <span>Repo:</span><span className='field'>{repo.name}</span>
-      <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} />
-      <span>Status:</span><span className='field'>{metafile.status}</span>
+      <span>Repo:</span><span className='field'>{repo ? repo.name : ''}</span>
+      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
+      <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
     </>
   );
 };
