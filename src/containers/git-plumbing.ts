@@ -1,12 +1,13 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
+import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
 import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
-import { isHiddenFile } from 'is-hidden-file';
+// import { isHiddenFile } from 'is-hidden-file';
 
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
@@ -17,6 +18,11 @@ import { MatrixStatus } from '../store/hooks/useDirectory';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 type Unpromisify<T> = T extends Promise<infer U> ? U : T;
+
+/* TEMPORARY SHIM!!! Remove after is-hidden-file is fixed. */
+export const isHiddenFile = (path: PathLike): boolean => {
+  return /(^|\/)\.[^/.]/g.test(path.toString());
+}
 
 /**
  * Asynchronous check for presence of .git within directory to validate Git version control.
@@ -78,8 +84,8 @@ export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; 
 export const isValidRepository = (repo: Repository): boolean => (
   isUUID(repo.id, 4)
   && repo.name.length > 0
-  && (isWebUri(repo.corsProxy.href) ? true : false)
-  && ((isWebUri(repo.url.href) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url.href)))
+  && (isWebUri(repo.corsProxy) ? true : false)
+  && ((isWebUri(repo.url) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url)))
 );
 
 /**

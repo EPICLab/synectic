@@ -10,6 +10,7 @@ import { currentBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { resolveHandler } from './handlers';
 import { getMetafileByBranch, getMetafileByFilepath, getMetafileByVirtual, metafileAdded, metafileUpdated } from '../store/slices/metafiles';
 import { DateTime } from 'luxon';
+import { isHiddenFile } from './git-plumbing';
 // import { isHiddenFile } from 'is-hidden-file';
 
 export type MetafileWithPath = Metafile & Required<Pick<Metafile, 'path'>>;
@@ -27,11 +28,6 @@ export const isMetafileDirectory = (metafile: Metafile): metafile is MetafileWit
 
 export const isMetafileDiff = (metafile: Metafile): metafile is MetafileWithTargets => {
   return (metafile as MetafileWithTargets).targets !== undefined;
-}
-
-/* TEMPORARY SHIM!!! Remove after is-hidden-file is fixed. */
-const isHiddenFile = (path: PathLike): boolean => {
-  return /(^|\/)\.[^/.]/g.test(path.toString());
 }
 
 /**
