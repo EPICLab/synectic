@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { InsertDriveFile, Add, Remove } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
-
 import type { Card, Repository, UUID } from '../types';
-import { RootState } from '../store/root';
+import { RootState } from '../store/store';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { HookEntry, MatrixStatus, useDirectory } from '../store/hooks/useDirectory';
@@ -12,6 +10,9 @@ import { MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
 import { add, matrixToStatus, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
+import { useAppSelector } from '../store/hooks';
+import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { selectAllRepos } from '../store/selectors/repos';
 
 const modifiedCheck = (status: MatrixStatus | undefined): boolean => {
   if (!status) return false;
@@ -71,9 +72,9 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
 }
 
 const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.rootId));
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const [repo] = useState(metafile ? repos.find(r => r.id === metafile.repo) : undefined);
   const { files, update } = useDirectory((metafile as MetafileWithPath).path);
   const [staged, setStaged] = useState<HookEntry[]>([]);
   const [changed, setChanged] = useState<HookEntry[]>([]);
@@ -87,29 +88,29 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
 
   return (
     <div className='file-explorer'>
-      <BranchRibbon branch={metafile.branch} onClick={() => {
+      <BranchRibbon branch={metafile?.branch} onClick={() => {
         console.log({ metafile, files, modified });
         update();
       }} />
       <TreeView>
-        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile.branch}-staged`}
-          nodeId={`${repo ? repo.name : ''}-${metafile.branch}-staged`}
+        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
+          nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
           labelText='Staged'
           labelInfoText={`${staged.length}`}
           labelIcon={GitBranchIcon}
         >
           {staged.map(file =>
-            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} update={update} {...file} />)
+            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile?.branch} update={update} {...file} />)
           }
         </StyledTreeItem>
-        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile.branch}-changed`}
-          nodeId={`${repo ? repo.name : ''}-${metafile.branch}-changed`}
+        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
+          nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
           labelText='Changed'
           labelInfoText={`${changed.length}`}
           labelIcon={GitBranchIcon}
         >
           {changed.map(file =>
-            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} update={update} {...file} />)}
+            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile?.branch} update={update} {...file} />)}
         </StyledTreeItem>
       </TreeView>
     </div>
@@ -117,13 +118,13 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
 }
 
 export const SourceControlReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafile));
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const [repo = { name: 'Untracked' }] = useState(repos.find(r => r.id === metafile?.repo) || { name: 'Untracked' });
   return (
     <>
       <span>Repo:</span><span className='field'>{repo.name}</span>
-      <span>Branch:</span><span className='field'>{metafile.branch ? metafile.branch : 'untracked'}</span>
+      <span>Branch:</span><span className='field'>{metafile?.branch ? metafile.branch : 'untracked'}</span>
     </>
   )
 }
