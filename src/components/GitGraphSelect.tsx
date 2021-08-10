@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
 
 import { v4 } from 'uuid';
 import type { Modal, Repository, UUID } from '../types';
 import { RootState } from '../store/store';
-import { addModal } from '../store/slices/modals';
 import { ActionKeys } from '../store/actions';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectAllRepos } from '../store/selectors/repos';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({
@@ -40,10 +40,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const GitGraphSelect: React.FunctionComponent = () => {
-  const repos = useSelector((state: RootState) => Object.values(state.repos));
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
   const [repo, setRepo] = useState<Repository>();
   const [modal, setModal] = useState<UUID>();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const classes = useStyles();
 
   const repoChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -51,7 +51,7 @@ export const GitGraphSelect: React.FunctionComponent = () => {
     const gitGraphModal: Modal = {
       id: v4(),
       type: 'GitGraph',
-      target: foundRepo.id
+      target: foundRepo?.id
     }
     if (foundRepo) {
       const addModalAction = addModal(gitGraphModal);
