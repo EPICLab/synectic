@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 
@@ -15,7 +14,7 @@ import Explorer, { ExplorerReverse } from './Explorer';
 import SourceControl, { SourceControlReverse } from './SourceControl';
 import Browser, { BrowserReverse } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
-import ActionKeys, { RootState } from '../store/store';
+import { RootState } from '../store/store';
 import { createStack, pushCards, popCard } from '../containers/stacks';
 import { StyledIconButton } from './StyledIconButton';
 import { writeFileAsync } from '../containers/io';
@@ -24,7 +23,9 @@ import { fileSaveDialog } from '../containers/dialogs';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectAllMetafiles } from '../store/selectors/metafiles';
 import { selectAllCards } from '../store/selectors/cards';
-import { selectAllStacks } from 'src/store/selectors/stacks';
+import { selectAllStacks } from '../store/selectors/stacks';
+import { metafileUpdated } from '../store/slices/metafiles';
+import { cardRemoved } from '../store/slices/cards';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -105,34 +106,34 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [{ isOver }, drop] = useDrop({
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      const dropTarget = cards[props.id];
-      const dropSource = item.type === DnDItemType.CARD ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
-      return dropTarget.id !== dropSource.id; // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
+      const dropTarget = cards.find(c => c.id === props.id);
+      const dropSource = item.type === DnDItemType.CARD ? cards.find(c => c.id === monitor.getItem().id) : stacks.find(s => s.id === monitor.getItem().id);
+      return (dropTarget && dropSource) ? (dropTarget.id !== dropSource.id) : false; // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
     },
     drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
-      const dropTarget = cards[props.id];
+      const dropTarget = cards.find(c => c.id === props.id);
       const delta = monitor.getDifferenceFromInitialOffset();
       if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
       switch (item.type) {
         case DnDItemType.CARD: {
-          const dropSource = cards[monitor.getItem().id];
-          if (dropSource.captured) {
-            dispatch(popCard(stacks[dropSource.captured], dropSource, delta));
+          const dropSource = cards.find(c => c.id === monitor.getItem().id);
+          if (dropSource && dropSource.captured) {
+            const captureStack = stacks.find(s => s.id === dropSource.captured);
+            if (captureStack) dispatch(popCard({ stack: captureStack, card: dropSource, delta: delta }));
           }
-          if (dropTarget.captured) {
-            const actions = pushCards(stacks[dropTarget.captured], [dropSource]);
-            actions.map(action => dispatch(action));
+          if (dropTarget && dropTarget.captured) {
+            const capturingStack = stacks.find(s => s.id === dropTarget.captured);
+            if (capturingStack && dropSource) dispatch(pushCards({ stack: capturingStack, cards: [dropSource] }))
           } else {
-            const actions = createStack('New Stack', [dropTarget, dropSource], 'Contains a new stack of items.');
-            actions.map(action => dispatch(action));
+            if (dropTarget && dropSource)
+              dispatch(createStack({ name: 'New Stack', cards: [dropTarget, dropSource], note: 'Contains a new stack of items.' }));
           }
           break;
         }
         case DnDItemType.STACK: {
           if (!props.captured) {
-            const dropSource = stacks[monitor.getItem().id];
-            const actions = pushCards(dropSource, [dropTarget]);
-            actions.map(action => dispatch(action));
+            const dropSource = stacks.find(s => s.id === monitor.getItem().id);
+            if (dropTarget && dropSource) dispatch(pushCards({ stack: dropSource, cards: [dropTarget] }));
           }
           break;
         }
@@ -150,23 +151,25 @@ const CardComponent: React.FunctionComponent<Card> = props => {
 
   const flip = () => setFlipped(!flipped);
   const save = async () => {
-    dispatch({
-      type: ActionKeys.UPDATE_METAFILE,
-      id: metafile.id,
-      metafile: { ...metafile, state: 'unmodified' }
-    });
-    if (metafile.path && metafile.content) {
-      console.log(`saving ${props.name}...`);
-      console.log({ metafile });
-      await writeFileAsync(metafile.path, metafile.content);
-      dispatch(updateGitInfo(metafile.id));
-    } else {
-      dispatch(fileSaveDialog(metafile));
+    if (metafile) {
+      dispatch(metafileUpdated({ ...metafile, state: 'unmodified' }));
+      if (metafile.path && metafile.content) {
+        console.log(`saving ${props.name}...`);
+        console.log({ metafile });
+        await writeFileAsync(metafile.path, metafile.content);
+        dispatch(updateGitInfo(metafile.id));
+      } else {
+        dispatch(fileSaveDialog(metafile));
+      }
     }
   }
   const close = () => {
-    if (props.captured) dispatch(popCard(stacks[props.captured], cards[props.id]));
-    dispatch({ type: ActionKeys.REMOVE_CARD, id: props.id });
+    if (props.captured) {
+      const captureStack = stacks.find(s => s.id === props.captured);
+      const dropSource = cards.find(c => c.id === props.id);
+      if (captureStack && dropSource) dispatch(popCard({ stack: captureStack, card: dropSource }));
+      if (dropSource) dispatch(cardRemoved(props.id));
+    }
   }
 
   return (
@@ -175,7 +178,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
-        {metafile.state &&
+        {(metafile && metafile.state) &&
           <StyledIconButton aria-label='save' disabled={metafile.state === 'unmodified'} onClick={save} ><SaveIcon /></StyledIconButton>
         }
         <StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton>
