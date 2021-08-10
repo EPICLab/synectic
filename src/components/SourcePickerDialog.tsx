@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 
 import type { Modal, UUID } from '../types';
-import { Action, ActionKeys } from '../store/actions';
-import { RootState } from '../store/root';
+import { RootState } from '../store/store';
 import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectAllRepos } from '../store/selectors/repos';
+import { modalRemoved } from '../store/slices/modals';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,23 +37,24 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
-  const repos = useSelector((state: RootState) => state.repos);
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const dispatch = useAppDispatch();
   const [selectedRepo, setSelectedRepo] = useState<UUID>('');
   const [selectedBranch, setSelectedBranch] = useState('');
 
-  const handleClose = () => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id });
+  const handleClose = () => dispatch(modalRemoved(props.id));
 
   const handleClick = async () => {
+    const repo = repos.find(r => r.id === selectedRepo);
     const metafile = await dispatch(getMetafile({
       virtual: {
         name: 'Source Control',
         handler: 'SourceControl',
         repo: selectedRepo,
         branch: selectedBranch,
-        path: await getBranchRoot(repos[selectedRepo], selectedBranch)
+        path: repo ? await getBranchRoot(repo, selectedBranch) : ''
       }
-    }));
+    })).unwrap();
     if (metafile) dispatch(loadCard({ metafile: metafile }));
     handleClose();
   }
@@ -105,7 +106,7 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
               onChange={(e) => setSelectedBranch(e.target.value as string)}
               label='Branch'
             >
-              {selectedRepo ? repos[selectedRepo].local.map(branch =>
+              {selectedRepo ? repos.find(r => r.id === selectedRepo)?.local.map(branch =>
                 <MenuItem key={branch} value={branch}>{branch}</MenuItem>)
                 : <MenuItem value=''><em>None</em></MenuItem>
               }
@@ -122,7 +123,7 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
             onClick={() => handleClick()}
           >
             Open Source Control
-      </Button>
+          </Button>
         </div>
       </div>
     </Dialog>

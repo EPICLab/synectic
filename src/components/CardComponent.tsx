@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
-
 import SaveIcon from '@material-ui/icons/Save';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core';
-
 import type { Card } from '../types';
 import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
@@ -107,8 +105,11 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
       const dropTarget = cards.find(c => c.id === props.id);
-      const dropSource = item.type === DnDItemType.CARD ? cards.find(c => c.id === monitor.getItem().id) : stacks.find(s => s.id === monitor.getItem().id);
-      return (dropTarget && dropSource) ? (dropTarget.id !== dropSource.id) : false; // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
+      const dropSource = item.type === DnDItemType.CARD ?
+        cards.find(c => c.id === monitor.getItem().id) :
+        stacks.find(s => s.id === monitor.getItem().id);
+      // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
+      return (dropTarget && dropSource) ? (dropTarget.id !== dropSource.id) : false;
     },
     drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
       const dropTarget = cards.find(c => c.id === props.id);
