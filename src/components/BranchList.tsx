@@ -5,6 +5,7 @@ import { checkoutBranch } from '../containers/repos';
 import { useStyles } from './CardComponent';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { selectAllRepos } from '../store/selectors/repos';
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 
@@ -16,8 +17,8 @@ import { selectAllMetafiles } from '../store/selectors/metafiles';
  */
 export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; update?: boolean; }> = props => {
   const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafileId));
-  const repos = useAppSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile?.repo ? repos.entities[metafile.repo] : undefined);
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
   const [branch, updateBranch] = useState(metafile?.branch ? metafile.branch : 'untracked');
   const dispatch = useAppDispatch();
   const cssClasses = useStyles();

@@ -9,19 +9,22 @@ import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core';
 
 import type { Card } from '../types';
-import { ActionKeys } from '../store/actions';
 import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
 import Explorer, { ExplorerReverse } from './Explorer';
 import SourceControl, { SourceControlReverse } from './SourceControl';
 import Browser, { BrowserReverse } from './Browser';
 import { VersionStatusComponent } from './RepoBranchList';
-import { RootState } from '../store/root';
+import ActionKeys, { RootState } from '../store/store';
 import { createStack, pushCards, popCard } from '../containers/stacks';
 import { StyledIconButton } from './StyledIconButton';
 import { writeFileAsync } from '../containers/io';
 import { updateGitInfo } from '../containers/metafiles';
 import { fileSaveDialog } from '../containers/dialogs';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { selectAllCards } from '../store/selectors/cards';
+import { selectAllStacks } from 'src/store/selectors/stacks';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -84,10 +87,10 @@ const ContentBack: React.FunctionComponent<Card> = props => {
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
-  const cards = useSelector((state: RootState) => state.cards);
-  const stacks = useSelector((state: RootState) => state.stacks);
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
-  const dispatch = useDispatch();
+  const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
+  const stacks = useAppSelector((state: RootState) => selectAllStacks.selectAll(state));
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.id));
+  const dispatch = useAppDispatch();
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
   const [{ isDragging }, drag] = useDrag({
