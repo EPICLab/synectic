@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import 'ace-builds';
 import AceEditor from 'react-ace';
 /* webpack-resolver incorrectly resolves basePath for file-loader unless at least one mode has already been loaded, 
@@ -11,35 +10,36 @@ import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
 import type { UUID, Card } from '../types';
-import { RootState } from '../store/root';
-import { ActionKeys } from '../store/actions';
+import { RootState } from '../store/store';
 import { BranchList } from './BranchList';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { metafileUpdated } from '../store/slices/metafiles';
+import { selectAllRepos } from '../store/selectors/repos';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
-  const [code, setCode] = useState<string>(metafile.content ? metafile.content : '');
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafileId));
+  const [code, setCode] = useState<string>(metafile?.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const onChange = (newCode: string) => {
     setCode(newCode);
-    dispatch({
-      type: ActionKeys.UPDATE_METAFILE,
-      id: metafile.id,
-      metafile: { ...metafile, content: newCode, state: 'modified' }
-    });
+    if (metafile) {
+      dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
+    }
   };
 
   return (
-    <AceEditor mode={metafile.filetype?.toLowerCase()} theme='monokai' onChange={onChange} name={metafile.id + '-editor'} value={code}
+    <AceEditor mode={metafile && metafile.filetype?.toLowerCase()} theme='monokai' onChange={onChange} name={metafile && metafile.id + '-editor'} value={code}
       ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
 }
 
 export const EditorReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
-  const repos = useSelector((state: RootState) => state.repos);
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafile));
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
   const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
 
   return (
