@@ -9,6 +9,7 @@ import { modalRemoved } from '../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectAllCards } from '../store/selectors/cards';
 import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { DateTime } from 'luxon';
 
 const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
   const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
@@ -46,7 +47,7 @@ const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
             autoWidth={true} onChange={(e) => setSelectedLeft(e.target.value as UUID)} input={<MUI.Input />}>
             {Object.values(cards).filter(card => card.type === 'Editor').map(card => (
               <MUI.MenuItem key={card.id} value={card.id}>
-                {card.name} (uuid: ...{card.id.slice(-5)}, modified {card.modified.toRelative()})
+                {card.name} (uuid: ...{card.id.slice(-5)}, modified {DateTime.fromMillis(card.modified).toRelative()})
               </MUI.MenuItem>
             ))}
           </MUI.Select>
@@ -58,7 +59,7 @@ const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
             autoWidth={true} onChange={(e) => setSelectedRight(e.target.value as UUID)} input={<MUI.Input />}>
             {Object.values(cards).filter(card => card.type === 'Editor').map(card => (
               <MUI.MenuItem key={card.id} value={card.id}>
-                {card.name} (uuid: ...{card.id.slice(-5)}, modified {card.modified.toRelative()})
+                {card.name} (uuid: ...{card.id.slice(-5)}, modified {DateTime.fromMillis(card.modified).toRelative()})
               </MUI.MenuItem>
             ))}
           </MUI.Select>
