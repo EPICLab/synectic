@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { PathLike, remove } from 'fs-extra';
 import TreeView from '@material-ui/lab/TreeView';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
@@ -10,8 +10,7 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
 import type { UUID, Card } from '../types';
-import { RootState } from '../store/root';
-import { Action } from '../store/actions';
+import { RootState } from '../store/store';
 import { loadCard, resolveHandler } from '../containers/handlers';
 import { extractFilename, writeFileAsync } from '../containers/io';
 import { FileState, HookEntry, useDirectory } from '../store/hooks/useDirectory';
@@ -23,6 +22,9 @@ import { BranchRibbon } from './BranchRibbon';
 import { BranchList } from './BranchList';
 import { Button } from '@material-ui/core';
 import { getBranchRoot } from '../containers/git-porcelain';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { selectAllRepos } from '../store/selectors/repos';
 
 const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise<void> }> = props => {
   const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
@@ -51,7 +53,7 @@ const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise
         case 'added': {
           console.log('added file, so removing file to discard changes');
           remove(filepath.toString(), (error) => console.log(error));
-          const handler = await dispatch(resolveHandler(filepath));
+          const handler = dispatch(resolveHandler(filepath));
           if (handler) dispatch(getMetafile({ virtual: { name: extractFilename(filepath), handler: handler.handler } }));
           props.update();
           break;
@@ -116,7 +118,7 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
 };
 
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
-  const rootMetafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
+  const rootMetafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.rootId));
   const { directories, files, update } = useDirectory((rootMetafile as MetafileWithPath).path);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -124,7 +126,7 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
 
   return (
     <div className='file-explorer'>
-      <BranchRibbon branch={rootMetafile.branch} />
+      <BranchRibbon branch={rootMetafile?.branch} />
       <TreeView
         defaultCollapseIcon={<ArrowDropDownIcon />}
         defaultExpandIcon={<ArrowRightIcon />}
@@ -138,13 +140,13 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
 };
 
 export const ExplorerReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafile));
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
+  const dispatch = useAppDispatch();
 
   const handleVersionsClick = async () => {
-    if (!repo || !metafile.branch) return;
+    if (!repo || !metafile?.branch) return;
     const sourceControlMetafile = await dispatch(getMetafile({
       virtual: {
         name: 'Source Control',
@@ -153,7 +155,7 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
         branch: metafile.branch,
         path: await getBranchRoot(repo, metafile.branch)
       }
-    }));
+    })).unwrap();
     if (sourceControlMetafile) dispatch(loadCard({ metafile: sourceControlMetafile }));
   }
 
@@ -166,8 +168,8 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
-      <span>Branch:</span><BranchList metafileId={metafile.id} cardId={props.id} update={true} />
-      <span>Status:</span><span className='field'>{metafile.status}</span>
+      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} update={true} /> : undefined}
+      <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
       <span>Versions:</span><Button onClick={handleVersionsClick}>Source Control</Button>
     </>
   );
