@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store/root';
+import { RootState } from '../store/store';
 import { FormControl, Select, MenuItem, Input } from '@material-ui/core';
 import { checkoutBranch } from '../containers/repos';
 import { useStyles } from './CardComponent';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectAllMetafiles } from '../store/selectors/metafiles';
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 
@@ -14,17 +15,17 @@ import { useStyles } from './CardComponent';
  * update boolean flag indicates whether all checkouts should update the main worktree (instead of using linked worktrees).
  */
 export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; update?: boolean; }> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafileId]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
-  const [branch, updateBranch] = useState(metafile.branch ? metafile.branch : 'untracked');
-  const dispatch = useDispatch();
+  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafileId));
+  const repos = useAppSelector((state: RootState) => state.repos);
+  const [repo] = useState(metafile?.repo ? repos.entities[metafile.repo] : undefined);
+  const [branch, updateBranch] = useState(metafile?.branch ? metafile.branch : 'untracked');
+  const dispatch = useAppDispatch();
   const cssClasses = useStyles();
 
   const checkout = (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
     updateBranch(newBranch);
-    dispatch(checkoutBranch(props.cardId, metafile.id, newBranch, undefined, props.update));
+    if (metafile) dispatch(checkoutBranch( { cardId: props.cardId, metafileId: metafile.id, branch: newBranch, update: props.update } ));
   };
 
   return (

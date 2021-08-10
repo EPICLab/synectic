@@ -5,7 +5,7 @@ import InputBase from '@material-ui/core/InputBase';
 
 import { v4 } from 'uuid';
 import type { Modal, Repository, UUID } from '../types';
-import { RootState } from '../store/root';
+import { RootState } from '../store/store';
 import { addModal } from '../store/slices/modals';
 import { ActionKeys } from '../store/actions';
 
