@@ -1,23 +1,27 @@
 import React from 'react';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
-import { useSelector, useDispatch } from 'react-redux';
-
 import { v4 } from 'uuid';
 import type { Modal, Canvas } from '../types';
-import { RootState } from '../store/root';
 import CardComponent from './CardComponent';
 import StackComponent from './StackComponent';
 import ModalComponent from './ModalComponent';
 import { popCard } from '../containers/stacks';
-import { updateStack } from '../store/slices/stacks';
-import { updateCard } from '../containers/cards';
+import { stackUpdated } from '../store/slices/stacks';
 import { NavMenu } from './NavMenu';
 import { NavItemProps } from './NavItem';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { addModal } from '../store/slices/modals';
 import { fileOpenDialog } from '../containers/dialogs';
 import { loadBranchVersions } from '../containers/branch-tracker';
 import { GitGraphSelect } from './GitGraphSelect';
+import { cardUpdated } from '../store/slices/cards';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { selectAllCards } from '../store/selectors/cards';
+import { RootState } from '../store/store';
+import { selectAllStacks } from '../store/selectors/stacks';
+import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { selectAllFiletypes } from '../store/selectors/filetypes';
+import { selectAllRepos } from '../store/selectors/repos';
+import { selectAllModals } from '../store/selectors/modals';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -41,40 +45,44 @@ const useStyles = makeStyles((theme: Theme) =>
 const isMac = process.platform === 'darwin';
 
 const CanvasComponent: React.FunctionComponent<Canvas> = props => {
-  const cards = useSelector((state: RootState) => state.cards);
-  const stacks = useSelector((state: RootState) => state.stacks);
-  const metafiles = useSelector((state: RootState) => Object.values(state.metafiles));
-  const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
-  const repos = useSelector((state: RootState) => Object.values(state.repos));
-  const modals = useSelector((state: RootState) => Object.values(state.modals));
-  const dispatch = useDispatch();
+  const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
+  const stacks = useAppSelector((state: RootState) => selectAllStacks.selectAll(state));
+  const metafiles = useAppSelector((state: RootState) => selectAllMetafiles.selectAll(state));
+  const filetypes = useAppSelector((state: RootState) => selectAllFiletypes.selectAll(state));
+  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const modals = useAppSelector((state: RootState) => selectAllModals.selectAll(state));
+  const dispatch = useAppDispatch();
   const classes = useStyles();
 
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      if (item.type === DnDItemType.CARD) return !cards[monitor.getItem().id].captured ? true : false;
+      const target = cards.find(c => c.id === monitor.getItem().id);
+      if (item.type === DnDItemType.CARD) return !target?.captured ? true : false;
       return true;
     },
     drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
       switch (item.type) {
         case DnDItemType.CARD: {
-          const card = cards[monitor.getItem().id];
+          const card = cards.find(c => c.id === monitor.getItem().id);
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
-          if (card.captured) {
-            dispatch(popCard(stacks[card.captured], card, delta));
-          } else {
-            dispatch(updateCard({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
+          if (card) {
+            if (card.captured) {
+              const captureStack = stacks.find(s => s.id === card.captured);
+              if (captureStack) dispatch(popCard({ stack: captureStack, card: card, delta: delta }));
+            } else {
+              dispatch(cardUpdated({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
+            }
           }
           break;
         }
         case DnDItemType.STACK: {
-          const stack = stacks[monitor.getItem().id];
+          const stack = stacks.find(s => s.id === monitor.getItem().id);
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!delta) return; // no dragging is occurring, perhaps a stack was picked up and dropped without dragging
-          dispatch(updateStack({ id: stack.id, stack: { ...stack, left: Math.round(stack.left + delta.x), top: Math.round(stack.top + delta.y) } }));
+          if (stack) dispatch(stackUpdated({ ...stack, left: Math.round(stack.left + delta.x), top: Math.round(stack.top + delta.y) }));
           break;
         }
         default: {
