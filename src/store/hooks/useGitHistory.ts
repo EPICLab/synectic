@@ -35,11 +35,12 @@ const resolveRemote = async (branch: string) => {
  * @return The states of `commits`, `heads`, and the `update` function. Both `commits` and `heads` are maps, where `commits` maps SHA-1 
  * commit hashes to commits and `heads` maps scoped branch names to the SHA-1 hash of the commit pointed to by HEAD on that branch.
  */
-export const useGitHistory = (repo: Repository): useGitHistoryHook => {
+export const useGitHistory = (repo: Repository | undefined): useGitHistoryHook => {
   const [commits, setCommits] = useState(new Map<string, CommitInfo>());
   const [heads, setHeads] = useState(new Map<string, string>());
 
   const update = useCallback(async () => {
+    if (!repo) return;
     const commitsCache = new Map<string, CommitInfo>();
     const headsCache = new Map<string, string>();
 
@@ -64,7 +65,7 @@ export const useGitHistory = (repo: Repository): useGitHistoryHook => {
     // replace the `commits` and `heads` states every time, since deep comparisons for all commits is computationally expensive
     setCommits(commitsCache);
     setHeads(headsCache);
-  }, [repo.local, repo.remote, repo.root]);
+  }, [repo]);
 
   return { commits, heads, update };
 }

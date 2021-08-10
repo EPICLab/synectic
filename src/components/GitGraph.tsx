@@ -28,7 +28,7 @@ export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
 
   useEffect(() => {
     console.log('generating graph...');
-    const asyncFetchGraph = async () => setElements(await graphConstruction(commits, heads, repo));
+    const asyncFetchGraph = async () => setElements(repo ? await graphConstruction(commits, heads, repo) : []);
     asyncFetchGraph();
   }, [commits, heads, repo]);
 
