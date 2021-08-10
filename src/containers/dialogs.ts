@@ -1,14 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { remote } from 'electron';
 import { join } from 'path';
-import { metafileUpdated } from 'src/store/slices/metafiles';
-import { AppThunkAPI } from '../store/hooks';
-// import { Action } from 'redux';
-// import { ThunkAction } from 'redux-thunk';
-// import { ActionKeys } from '../store/actions';
-// import { RootState } from '../store/root';
-
 import type { Metafile } from '../types';
+import { AppThunkAPI } from '../store/hooks';
+import { metafileUpdated } from '../store/slices/metafiles';
 import { loadCard } from './handlers';
 import { writeFileAsync } from './io';
 import { updateGitInfo } from './metafiles';
