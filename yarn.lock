@@ -1417,6 +1417,11 @@
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.8.tgz#30744afdb385e2945e22f3b033f897f76b1f12ca"
   integrity sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==
 
+"@types/git-config-path@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@types/git-config-path/-/git-config-path-2.0.1.tgz#df05973122deb797830c21583c98f02d6d14f8b4"
+  integrity sha512-qhb3UEKONDUSJIHJCyZwZ2pgzWhzfu1NECfs8j/Kw+XJzK08EZI7Pel/3OBoD/b6LI5nWOkXk+AaQES/t1J1Iw==
+
 "@types/glob@^7.1.1":
   version "7.1.4"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.1.4.tgz#ea59e21d2ee5c517914cb4bc8e4153b99e566672"
@@ -1456,6 +1461,11 @@
   integrity sha512-9hdj6iXH64tHSLTY+Vt2eYOGzSogC+JQ2H7bdPWkuh7KXP5qLllWx++t+K9Wk556c3dkDdPws/SpMRi0sdCT1w==
   dependencies:
     "@types/node" "*"
+
+"@types/ini@^1.3.30":
+  version "1.3.30"
+  resolved "https://registry.yarnpkg.com/@types/ini/-/ini-1.3.30.tgz#d1485459c9fad84e937414b832a2adb649eab379"
+  integrity sha512-2+iF8zPSbpU83UKE+PNd4r/MhwNAdyGpk3H+VMgEH3EhjFZq1kouLgRoZrmIcmoGX97xFvqdS44DkICR5Nz3tQ==
 
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0", "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.3"
@@ -4549,6 +4559,11 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
+git-config-path@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/git-config-path/-/git-config-path-2.0.0.tgz#62633d61af63af4405a5024efd325762f58a181b"
+  integrity sha512-qc8h1KIQbJpp+241id3GuAtkdyJ+IK+LIVtkiFTRKRrmddDzs3SI9CvP1QYmWBFvm1I/PWRwj//of8bgAc0ltA==
+
 git-remote-protocol@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/git-remote-protocol/-/git-remote-protocol-0.1.0.tgz#1ed4d7a85cf221effc8535b201d3c44eb0b96eaf"
@@ -5051,6 +5066,11 @@ ini@^1.3.4, ini@~1.3.0:
   version "1.3.8"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
+
+ini@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-2.0.0.tgz#e5fd556ecdd5726be978fa1001862eacb0a94bc5"
+  integrity sha512-7PnF4oN3CvZF23ADhA5wRaYEQpJ8qygSkbtTXWBeXWXmEVRXK+1ITciHWwHhsjv1TmW0MgacIv6hEi5pX5NQdA==
 
 inquirer@^8.0.0:
   version "8.1.2"
@@ -9032,6 +9052,13 @@ trim-repeated@^1.0.0:
   dependencies:
     escape-string-regexp "^1.0.2"
 
+ts-dot-prop@^1.4.3:
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/ts-dot-prop/-/ts-dot-prop-1.4.3.tgz#1d24818baf1021a679e8c9caeff5ae92b89311ab"
+  integrity sha512-1msDawk2hmHBetEGw1uQiZS1o5dKfZNiT/8j/qZYVNZFs7HwPlz57elvFc3BNFg7DKCoVb/o5IGXsC+ptr6D5w==
+  dependencies:
+    ts-util-is "^1.2.1"
+
 ts-jest@^27.0.4:
   version "27.0.4"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.4.tgz#df49683535831560ccb58f94c023d831b1b80df0"
@@ -9057,6 +9084,11 @@ ts-loader@^9.2.2:
     enhanced-resolve "^5.0.0"
     micromatch "^4.0.0"
     semver "^7.3.4"
+
+ts-util-is@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/ts-util-is/-/ts-util-is-1.2.1.tgz#00c205c67b0120aba7dba36f17ab48f3583c6331"
+  integrity sha512-OLukOZykUt2BsN3Qu1ptEiXbz6afpUSryVkMhupk3gv23cwyYWHhg0MONhkBnVCjJ4E8y4xG+cBWxMoYuXdQLA==
 
 tsconfig-paths@^3.9.0:
   version "3.10.1"
