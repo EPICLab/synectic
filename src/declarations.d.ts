@@ -9,4 +9,4 @@ declare module '*.css';
 
 declare module 'git-remote-protocol';
 
-// declare module 'binarnia';
+declare module 'binarnia';
