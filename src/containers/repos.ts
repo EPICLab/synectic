@@ -161,7 +161,6 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
 export const getRepository = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'repos/getRepository',
   async (filepath, thunkAPI) => {
-    console.log(`getRepository.filepath: ${filepath}`);
     let root = await getRepoRoot(filepath);
     if (!root) {
       thunkAPI.rejectWithValue('No root found'); // if there is no root, then filepath is not under version control
@@ -176,14 +175,12 @@ export const getRepository = createAsyncThunk<Repository | undefined, PathLike, 
         return undefined;
       }
     }
-    console.log(`getRepository.root: ${JSON.stringify(root, undefined, 2)}`);
-
     const remoteOriginUrls: string[] | undefined = root ?
       await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
     const { url, oauth } = (remoteOriginUrls && remoteOriginUrls.length > 0) ?
       extractFromURL(remoteOriginUrls[0]) :
       { url: undefined, oauth: undefined };
-    const name = url ? url.href : (root ? extractFilename(root) : '');
+    const name = url ? extractRepoName(url.href) : (root ? extractFilename(root) : '');
     const existing = url ?
       await thunkAPI.dispatch(getRepoByName({ name: name, url: url.href })).unwrap() :
       await thunkAPI.dispatch(getRepoByName({ name: name })).unwrap();

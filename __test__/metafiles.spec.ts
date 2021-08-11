@@ -4,6 +4,7 @@ import * as metafiles from '../src/containers/metafiles';
 import type { MockInstance } from './__mocks__/mock-fs-promise';
 import { mock, file } from './__mocks__/mock-fs-promise';
 import * as git from '../src/containers/git-porcelain';
+import * as isogit from 'isomorphic-git';
 
 describe('containers/metafiles', () => {
     let mockedInstance: MockInstance;
@@ -154,13 +155,13 @@ describe('metafiles.updateGitInfo', () => {
                 28: {
                     id: '28',
                     name: 'foo',
-                    path: 'sample/foo',
+                    path: 'sample/myRepo/foo',
                     modified: DateTime.fromISO('2019-04-14T20:05:14.543-08:00').valueOf()
                 },
                 3: {
                     id: '3',
                     name: 'bar.js',
-                    path: 'sampleUser/foo/bar.js',
+                    path: 'sampleUser/myRepo/foo/bar.js',
                     modified: DateTime.fromISO('2010-01-15T11:19:23.810-08:00').valueOf()
                 },
                 21: {
@@ -186,7 +187,7 @@ describe('metafiles.updateGitInfo', () => {
                     name: 'sampleUser/myRepo',
                     root: 'sampleUser/',
                     corsProxy: 'http://www.oregonstate.edu',
-                    url: 'https://github.com/sampleUser/myRepo',
+                    url: 'https://github.com/sampleUser/myRepo.git',
                     local: ['master', 'sample', 'test'],
                     remote: [],
                     oauth: 'github',
@@ -205,9 +206,9 @@ describe('metafiles.updateGitInfo', () => {
 
     beforeAll(async () => {
         const instance = await mock({
-            'sampleUser/.git': {},
-            'sampleUser/foo/bar.js': file({ content: 'file contents', mtime: new Date(1) }),
-            'sampleUser/.gitconfig': {}
+            'sampleUser/myRepo/.git': {},
+            'sampleUser/myRepo/foo/bar.js': file({ content: 'file contents', mtime: new Date(1) }),
+            'sampleUser/myRepo/.gitconfig': {}
         });
         return mockedInstance = instance;
     });
@@ -217,6 +218,7 @@ describe('metafiles.updateGitInfo', () => {
     it('updateGitInfo resolves repo, branch, and status on existing file', async () => {
         jest.spyOn(git, 'getStatus').mockResolvedValue('unmodified');
         jest.spyOn(git, 'currentBranch').mockResolvedValue('master');
+        jest.spyOn(isogit, 'getConfigAll').mockResolvedValue(new Promise((resolve) => resolve(['git@github.com:sampleUser/myRepo.git'])));
         await store.dispatch(metafiles.updateGitInfo('3'));
         expect(store.getActions()).toEqual(
             expect.arrayContaining([
@@ -225,8 +227,8 @@ describe('metafiles.updateGitInfo', () => {
                     payload: expect.objectContaining({
                         id: '3',
                         name: 'bar.js',
-                        path: 'foo/bar.js',
-                        repo: '23',
+                        path: 'sampleUser/myRepo/foo/bar.js',
+                        repo: '392d34w31',
                         branch: 'master',
                         status: 'unmodified'
                     })

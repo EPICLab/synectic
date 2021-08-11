@@ -1,4 +1,5 @@
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { extractFromURL } from '../../containers/git-plumbing';
 import type { Repository } from '../../types';
 import { AppThunkAPI } from '../hooks';
 
@@ -17,8 +18,10 @@ export const reposSlice = createSlice({
 export const getRepoByName = createAsyncThunk<Repository | undefined, { name: string, url?: string }, AppThunkAPI>(
     'repos/getRepoByName',
     async (param, thunkAPI) => {
-        return param.url ? Object.values(thunkAPI.getState().repos.entities).find(r => r && r.name === param.name && r.url === param.url) :
-            Object.values(thunkAPI.getState().repos.entities).find(r => r && r.name === param.name);
+        const matcher = (repo: Repository, name: string, url?: string | undefined): boolean => {
+            return url ? (repo.name === name && repo.url === extractFromURL(url).url.href) : (repo.name === name);
+        }
+        return Object.values(thunkAPI.getState().repos.entities).find(r => r && matcher(r, param.name, param.url));
     }
 )
 
