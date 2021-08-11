@@ -55,7 +55,9 @@ describe('containers/stacks', () => {
 
     it('popCard resolves to remove a stack when two or less cards are captured', async () => {
         const card = store.getState().cards.entities['17734ae2-f8da-40cf-be86-993dc21b4079'];
-        await store.dispatch(popCard({ stack: basicStack, card: card }));
+        if (card) {
+            await store.dispatch(popCard({ stack: basicStack, card: card }));
+        }
         expect(store.getActions()).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ type: 'stacks/removeStack' }),
@@ -67,7 +69,9 @@ describe('containers/stacks', () => {
 
     it('popCards resolves to remove cards from stack when more than two cards are captured', async () => {
         const card = store.getState().cards.entities['4efdbe23-c938-4eb1-b29b-50bf76bdb44e'];
-        await store.dispatch(popCard({ stack: biggerStack, card: card }));
+        if (card) {
+            await store.dispatch(popCard({ stack: biggerStack, card: card }));
+        }
         expect(store.getActions()).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({ type: 'stacks/updateStack' }),
