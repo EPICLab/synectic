@@ -47,8 +47,8 @@ describe('containers/stacks', () => {
         await store.dispatch(pushCards({ stack: basicStack, cards: [card1] }))
         expect(store.getActions()).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ type: 'stacks/updateStack' }),
-                expect.objectContaining({ type: 'cards/updateCard' })
+                expect.objectContaining({ type: 'stacks/stackUpdated' }),
+                expect.objectContaining({ type: 'cards/cardUpdated' })
             ])
         );
     });
@@ -60,9 +60,9 @@ describe('containers/stacks', () => {
         }
         expect(store.getActions()).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ type: 'stacks/removeStack' }),
-                expect.objectContaining({ type: 'cards/removeCard' }),
-                expect.objectContaining({ type: 'cards/updateCard' })
+                expect.objectContaining({ type: 'stacks/stackRemoved' }),
+                expect.objectContaining({ type: 'cards/cardRemoved' }),
+                expect.objectContaining({ type: 'cards/cardUpdated' })
             ])
         );
     });
@@ -74,8 +74,8 @@ describe('containers/stacks', () => {
         }
         expect(store.getActions()).toEqual(
             expect.arrayContaining([
-                expect.objectContaining({ type: 'stacks/updateStack' }),
-                expect.objectContaining({ type: 'cards/removeCard' })
+                expect.objectContaining({ type: 'stacks/stackUpdated' }),
+                expect.objectContaining({ type: 'cards/cardRemoved' })
             ])
         );
     });
