@@ -161,15 +161,22 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
 export const getRepository = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'repos/getRepository',
   async (filepath, thunkAPI) => {
+    console.log(`getRepository.filepath: ${filepath}`);
     let root = await getRepoRoot(filepath);
-    if (!root) thunkAPI.rejectWithValue('No root found'); // if there is no root, then filepath is not under version control
-
+    if (!root) {
+      thunkAPI.rejectWithValue('No root found'); // if there is no root, then filepath is not under version control
+      return undefined;
+    }
     if (!(await isDirectory(`${root}/.git`))) {
       // root points to a linked worktree, so root needs to be updated to point to the main worktree path
       const gitdir = (await readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
       root = await getRepoRoot(gitdir);
-      if (!root) thunkAPI.rejectWithValue('No root found'); // if there is no root, then the main worktree path is corrupted
+      if (!root) {
+        thunkAPI.rejectWithValue('No root found'); // if there is no root, then the main worktree path is corrupted
+        return undefined;
+      }
     }
+    console.log(`getRepository.root: ${JSON.stringify(root, undefined, 2)}`);
 
     const remoteOriginUrls: string[] | undefined = root ?
       await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
