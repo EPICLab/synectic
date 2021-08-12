@@ -39,7 +39,7 @@ export const importFiletypes = createAsyncThunk<void, void, AppThunkAPI>(
 )
 
 
-export const resolveHandler = createAsyncThunk<Filetype | undefined, PathLike, AppThunkAPI>(
+export const resolveHandler = createAsyncThunk<Filetype | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'handlers/resolveHandler',
   async (filepath, thunkAPI) => {
     const stats = await io.extractStats(filepath);
@@ -52,6 +52,7 @@ export const resolveHandler = createAsyncThunk<Filetype | undefined, PathLike, A
       handler = filetypes.find(filetype => filetype?.extensions.some(ext => ext === extension));
       if (!handler) handler = filetypes.find(filetype => filetype?.filetype === 'Text');
     }
+    if (!handler) thunkAPI.rejectWithValue(`No handler found for '${filepath.toString()}'`);
     return handler;
   }
 )
