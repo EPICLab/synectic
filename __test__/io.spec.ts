@@ -3,8 +3,6 @@ import type { MockInstance } from './__mocks__/mock-fs-promise';
 import type { Filetype } from '../src/types';
 import { mock, file } from './__mocks__/mock-fs-promise';
 import * as io from '../src/containers/io';
-import { createMockStore } from './__mocks__/reduxStoreMock';
-import { testStore } from './__fixtures__/ReduxStore';
 
 describe('io.extractStats', () => {
     let mockedInstance: MockInstance;
