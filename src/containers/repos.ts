@@ -57,7 +57,9 @@ const appendRepository = createAsyncThunk<UUID, {
 * Action Creator for composing a valid UPDATE_CARD Redux Action which changes the Metafile associated with the card.
 * @param card A `Card` object containing new field values to be updated.
 * @param metafile: A `Metafile` object that represents the new metafile information for the card.
-* @return An `UpdateCardAction` object that can be dispatched via Redux.
+* @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
 */
 const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile: Metafile }, AppThunkAPI>(
   'repos/switchCardMetafile',
@@ -75,10 +77,10 @@ const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile: Metafi
  * Thunk Action Creator for examining and updating the list of Git branch refs associated with a Repository
  * in the Redux store. Any local or remote branches are captured and added to the associated fields in the
  *  Repository, and the Redux store is updated to reflect these changes.
- * @param root The root Git directory path associated with the `Repository` object.
- * @param repo The `Repository` object that needs to be updated with the latest branch `refs` list.
- * @return A Thunk that can be executed to simultaneously dispatch Redux updates and return the updated `Repository` object 
- * from the Redux store.
+ * @param id The UUID of a valid `Repository` object that needs to be updated with the latest branch `refs` list.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
 export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejectValue: string }>(
   'repos/updateBranches',
@@ -107,7 +109,9 @@ export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejec
 * @param branch Git branch name or commit hash; defaults to 'master'.
 * @param progress Enable printing progress information from `isomorphic-git.checkout()` to console.
 * @param update Enable changing the branch for the main worktree; will prevent any new linked worktrees from being created.
-* @return A Thunk that can be executed to get a Metafile associated with a new Git branch and updates the card.
+* @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
 */
 export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
   cardId: UUID, metafileId: UUID, branch: string, progress?: boolean, update?: boolean
@@ -155,8 +159,10 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
  * control (i.e. not contained within a Git repository), or the associated Git repository is malformed, then no valid response can be 
  * given. Otherwise, the correct Repository object is returned and the Redux store is updated with the latest set of branches.
  * @param filepath The relative or absolute path to evaluate.
- * @return  A Thunk that can be executed to simultaneously dispatch Redux updates (as needed) and retrieve a `Repository` object, if
- * the filepath is untracked or results in a malformed Git repository then `undefined` will be returned instead.
+ * @return  A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a repository that was either created or retrieved
+ * and updated based on the filesystem and version control system.
  */
 export const getRepository = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'repos/getRepository',
