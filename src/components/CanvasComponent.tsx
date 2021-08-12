@@ -22,6 +22,7 @@ import { selectAllMetafiles } from '../store/selectors/metafiles';
 import { selectAllFiletypes } from '../store/selectors/filetypes';
 import { selectAllRepos } from '../store/selectors/repos';
 import { selectAllModals } from '../store/selectors/modals';
+import { modalAdded } from '../store/slices/modals';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -115,7 +116,7 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     type: 'NewCardDialog'
   }
   const fileMenu: NavItemProps[] = [
-    { label: 'New...', click: () => dispatch(addModal(newCardDialogModal)) },
+    { label: 'New...', click: () => dispatch(modalAdded(newCardDialogModal)) },
     ...(isMac ? [{ label: 'Open...', click: () => dispatch(fileOpenDialog()) }] : [
       { label: 'Open File...', click: () => dispatch(fileOpenDialog('openFile')) },
       { label: 'Open Directory...', click: () => dispatch(fileOpenDialog('openDirectory')) }
@@ -135,9 +136,9 @@ const CanvasComponent: React.FunctionComponent<Canvas> = props => {
     type: 'SourcePicker'
   }
   const actionMenu: NavItemProps[] = [
-    { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(addModal(diffPickerModal)) },
-    { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal(mergeSelectorModal)) },
-    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(addModal(sourcePickerModal)) },
+    { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(modalAdded(diffPickerModal)) },
+    { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
+    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
   ];
 
   const viewMenu: NavItemProps[] = [

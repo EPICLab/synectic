@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { PathLike, remove } from 'fs-extra';
 import TreeView from '@material-ui/lab/TreeView';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
@@ -8,7 +7,6 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-
 import type { UUID, Card } from '../types';
 import { RootState } from '../store/store';
 import { loadCard, resolveHandler } from '../containers/handlers';
@@ -17,7 +15,6 @@ import { FileState, HookEntry, useDirectory } from '../store/hooks/useDirectory'
 import { StyledTreeItem } from './StyledTreeComponent';
 import { getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { discardChanges } from '../containers/git-plumbing';
-import { ThunkDispatch } from 'redux-thunk';
 import { BranchRibbon } from './BranchRibbon';
 import { BranchList } from './BranchList';
 import { Button } from '@material-ui/core';
@@ -27,7 +24,7 @@ import { selectAllMetafiles } from '../store/selectors/metafiles';
 import { selectAllRepos } from '../store/selectors/repos';
 
 const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise<void> }> = props => {
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
+  const dispatch = useAppDispatch();
 
   const colorFilter = (fileStatus: FileState) => {
     switch (fileStatus) {
@@ -53,7 +50,7 @@ const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise
         case 'added': {
           console.log('added file, so removing file to discard changes');
           remove(filepath.toString(), (error) => console.log(error));
-          const handler = dispatch(resolveHandler(filepath));
+          const handler = await dispatch(resolveHandler(filepath)).unwrap();
           if (handler) dispatch(getMetafile({ virtual: { name: extractFilename(filepath), handler: handler.handler } }));
           props.update();
           break;
@@ -111,8 +108,8 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
       labelIcon={expanded ? FolderOpenIcon : FolderIcon}
       onClick={clickHandle}
     >
-      { directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
-      { files.map(file => <FileComponent key={file.path.toString()} {...file} update={update} />)}
+      {directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
+      {files.map(file => <FileComponent key={file.path.toString()} {...file} update={update} />)}
     </StyledTreeItem >
   );
 };

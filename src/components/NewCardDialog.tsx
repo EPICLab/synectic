@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@material-ui/core';
 
 import type { CardType, Modal } from '../types';
-import { RootState } from '../store/root';
-import { Action, ActionKeys } from '../store/actions';
+import { RootState } from '../store/store';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
 import { flattenArray } from '../containers/flatten';
 import { getMetafile } from '../containers/metafiles';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectAllFiletypes } from '../store/selectors/filetypes';
+import { modalRemoved } from '../store/slices/modals';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,8 +60,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const NewCardDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
-  const filetypes = useSelector((state: RootState) => Object.values(state.filetypes));
+  const dispatch = useAppDispatch();
+  const filetypes = useAppSelector((state: RootState) => selectAllFiletypes.selectAll(state));
   const exts: string[] = flattenArray(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
   // configExts is a list of all .config extensions found within exts:
   const configExts: string[] = flattenArray((filetypes.map(filetype =>
@@ -131,16 +131,16 @@ const NewCardDialog: React.FunctionComponent<Modal> = props => {
     }
   };
 
-  const handleClose = () => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id });
+  const handleClose = () => dispatch(modalRemoved(props.id));
 
   const handleClick = async () => {
     if (category === 'Editor' && isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
-      const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', filetype: filetype } }));
+      const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', filetype: filetype } })).unwrap();
       if (metafile) await dispatch(loadCard({ metafile: metafile }));
       handleClose();
     }
     if (category === 'Browser') {
-      const metafile = await dispatch(getMetafile({ virtual: { name: 'Browser', handler: 'Browser' } }));
+      const metafile = await dispatch(getMetafile({ virtual: { name: 'Browser', handler: 'Browser' } })).unwrap();
       if (metafile) dispatch(loadCard({ metafile: metafile }));
       handleClose();
     }

@@ -1,9 +1,10 @@
 import type { Card, UUID, GitStatus } from '../../types';
 import { useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { getCardsByRepo } from '../selectors/repos';
 import { getStatus } from '../../containers/git-porcelain';
 import { RootState } from '../store';
+import { useAppSelector } from '../hooks';
+import { selectAllMetafiles } from '../selectors/metafiles';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 
@@ -14,13 +15,13 @@ type useGitStatusHook = {
 };
 
 export const useBranchStatus = (repo: UUID, branch: string): useGitStatusHook => {
-  const metafiles = useSelector((state: RootState) => state.metafiles);
-  const cards = useSelector(getCardsByRepo(repo, branch));
+  const metafiles = useAppSelector((state: RootState) => selectAllMetafiles.selectAll(state));
+  const cards = useAppSelector(getCardsByRepo(repo, branch));
   const [modified, setModified] = useState<Card[]>([]);
 
   const status = useCallback(async (card: Card) => {
-    const metafile = metafiles[card.metafile];
-    const updatedStatus: GitStatus | undefined = metafile.path ? await getStatus(metafile.path.toString()) : undefined;
+    const metafile = metafiles.find(m => m.id === card.metafile);
+    const updatedStatus: GitStatus | undefined = metafile && metafile.path ? await getStatus(metafile.path.toString()) : undefined;
     if (updatedStatus && modifiedStatuses.includes(updatedStatus)) {
       setModified([...modified, card]);
     } else {

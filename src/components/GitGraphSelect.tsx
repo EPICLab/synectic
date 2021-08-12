@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
 
-import { v4 } from 'uuid';
-import type { Modal, Repository, UUID } from '../types';
+import type { Repository, UUID } from '../types';
 import { RootState } from '../store/store';
-import { ActionKeys } from '../store/actions';
+import { modalAdded, modalRemoved } from '../store/slices/modals';
+import { v4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { selectAllRepos } from '../store/selectors/repos';
 
@@ -46,21 +46,16 @@ export const GitGraphSelect: React.FunctionComponent = () => {
   const dispatch = useAppDispatch();
   const classes = useStyles();
 
-  const repoChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const repoChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
     const foundRepo = repos.find(r => r.id === event.target.value as UUID);
-    const gitGraphModal: Modal = {
-      id: v4(),
-      type: 'GitGraph',
-      target: foundRepo?.id
-    }
     if (foundRepo) {
-      const addModalAction = addModal(gitGraphModal);
-      setModal(addModalAction.payload.id); // track the modal UUID so that we can remove the modal later
-      dispatch(addModalAction);
+      const modalId = v4();
+      setModal(modalId); // track the modal UUID so that we can remove the modal later
+      dispatch(modalAdded({ id: modalId, type: 'GitGraph', target: foundRepo.id }));
       setRepo(foundRepo); // update the select menu
     }
     if (!foundRepo && modal) {
-      dispatch({ type: ActionKeys.REMOVE_MODAL, id: modal });
+      dispatch(modalRemoved(modal));
       setModal(undefined);
       setRepo(undefined);
     }
