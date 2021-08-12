@@ -3,8 +3,8 @@ import type { MockInstance } from './__mocks__/mock-fs-promise';
 import type { Filetype } from '../src/types';
 import { mock, file } from './__mocks__/mock-fs-promise';
 import * as io from '../src/containers/io';
-
-// process.stdout.write('done setting up the mocked instance...');
+import { createMockStore } from './__mocks__/reduxStoreMock';
+import { testStore } from './__fixtures__/ReduxStore';
 
 describe('io.extractStats', () => {
     let mockedInstance: MockInstance;
@@ -32,7 +32,6 @@ describe('io.extractStats', () => {
         await expect(io.extractStats('foo/baz')).resolves.toBeUndefined();
     });
 });
-
 
 describe('io.extractFilename', () => {
     it('extractFilename to extract filename from Linux/MacOS paths', () => {
@@ -99,7 +98,7 @@ describe('io.extractExtension', () => {
     });
 });
 
-describe('io.readFileAsync', () => {
+describe('io.readFileAsync', () => {    
     let mockedInstance: MockInstance;
     beforeAll(async () => {
         const instance = await mock({
