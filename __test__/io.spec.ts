@@ -316,36 +316,39 @@ describe('io.readDirAsyncDepth', () => {
 });
 
 describe('io.filterReadArray', () => {
-let mockedInstance: MockInstance;
-beforeAll(async () => {
-const instance = await mock({
-foo: {
-bar: file({ content: 'file contents', mtime: new Date(1) }),
-baz: file({ content: 'file contents', mtime: new Date(1) }),
-zap: {
-zed: {
-beq: file({ content: 'file contents', mtime: new Date(1) }),
-bup: file({ content: 'file contents', mtime: new Date(1) })
-},
-zip: file({ content: 'file contents', mtime: new Date(1) }),
-}
-}
-});
-return mockedInstance = instance;
-});
-afterAll(() => mockedInstance.reset());
-it('filterReadArray returns only child directories', () => {
-expect.assertions(1);
-const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
-'foo/zap/zip', 'foo/zap', 'foo'];
-return expect(io.filterReadArray(paths)).resolves.toHaveLength(3);
-});
-it('filterReadArray returns only child files', () => {
-expect.assertions(1);
-const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
-'foo/zap/zip', 'foo/zap', 'foo'];
-return expect(io.filterReadArray(paths, true)).resolves.toHaveLength(5);
-});
+    let mockedInstance: MockInstance;
+    beforeAll(async () => {
+        const instance = await mock({
+            foo: {
+                bar: file({ content: 'file contents', mtime: new Date(1) }),
+                baz: file({ content: 'file contents', mtime: new Date(1) }),
+                zap: {
+                    zed: {
+                        beq: file({ content: 'file contents', mtime: new Date(1) }),
+                        bup: file({ content: 'file contents', mtime: new Date(1) })
+                    },
+                    zip: file({ content: 'file contents', mtime: new Date(1) }),
+                }
+            }
+        });
+        return mockedInstance = instance;
+    });
+
+    afterAll(() => mockedInstance.reset());
+
+    it('filterReadArray returns only child directories', () => {
+        expect.assertions(1);
+        const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
+        'foo/zap/zip', 'foo/zap', 'foo'];
+        return expect(io.filterReadArray(paths)).resolves.toHaveLength(3);
+    });
+    
+    it('filterReadArray returns only child files', () => {
+        expect.assertions(1);
+        const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
+        'foo/zap/zip', 'foo/zap', 'foo'];
+        return expect(io.filterReadArray(paths, true)).resolves.toHaveLength(5);
+    });
 });
 
 describe('io.writeFileAsync', () => {
