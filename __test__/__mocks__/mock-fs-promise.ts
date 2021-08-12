@@ -8,6 +8,7 @@ type Mode = `${Octal}${Octal}${Octal}`;
 type Flag = 'a' | 'ax' | 'a+' | 'ax+' | 'as' | 'as+' | 'r' | 'r+' | 'rs+' | 'w' | 'wx' | 'w+' | 'wx+';
 
 export type MockInstance = {
+    getRoot(): string;
     reset(): void;
 }
 
@@ -66,6 +67,7 @@ export const mock = async (config: DirectoryItems): Promise<MockInstance> => {
     for (const entry of Object.entries(config)) await create(entry);
 
     return {
+        getRoot: () => root.path,
         reset: () => {
             root.cleanup();
             process.chdir(cwd);
