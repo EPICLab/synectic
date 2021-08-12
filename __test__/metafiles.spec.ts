@@ -105,7 +105,10 @@ describe('containers/metafiles', () => {
     });
 
     afterAll(() => mockedInstance.reset);
-    afterEach(store.clearActions);
+    afterEach(() => {
+        store.clearActions();
+        jest.clearAllMocks();
+    });
 
     it('updateFileStats resolves filetype and handler on existing file', async () => {
         await store.dispatch(metafiles.updateFileStats('3'));

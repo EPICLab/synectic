@@ -8,7 +8,7 @@ import { basicStack, biggerStack } from './__fixtures__/Stack';
 describe('containers/stacks', () => {
     const store = createMockStore(testStore);
 
-    afterEach(() => store.clearActions())
+    afterEach(() => store.clearActions());
 
     it('createStack resolves a stack creation and card updating actions', async () => {
         const card1: Card = {
