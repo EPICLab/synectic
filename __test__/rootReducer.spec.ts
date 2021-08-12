@@ -10,6 +10,5 @@ describe('addCard', () => {
     it('addCard kicks off multiple reducers', () => {
         expect(store.getState().repos.ids).toHaveLength(1);
         store.dispatch(repoRemoved('23'));
-        console.log(JSON.stringify(store.getActions(), undefined, 2));
     });
 });
