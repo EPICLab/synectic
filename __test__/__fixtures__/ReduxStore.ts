@@ -139,8 +139,11 @@ export const testStore: RootState = {
       '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71': {
         id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
         name: 'example.ts',
+        path: 'foo/example.ts',
         modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-        content: 'const rand = Math.floor(Math.random() * 6) + 1;'
+        content: 'const rand = Math.floor(Math.random() * 6) + 1;',
+        repo: '23',
+        branch: 'master'
       },
       'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8': {
         id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',

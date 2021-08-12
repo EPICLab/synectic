@@ -54,7 +54,7 @@ const appendRepository = createAsyncThunk<UUID, {
 );
 
 /**
-* Action Creator for composing a valid UPDATE_CARD Redux Action which changes the Metafile associated with the card.
+* Async Thunk action creator for changing the Metafile associated with a card.
 * @param card A `Card` object containing new field values to be updated.
 * @param metafile: A `Metafile` object that represents the new metafile information for the card.
 * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
@@ -74,7 +74,7 @@ const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile: Metafi
 )
 
 /**
- * Thunk Action Creator for examining and updating the list of Git branch refs associated with a Repository
+ * Async Thunk action creator for examining and updating the list of Git branch refs associated with a Repository
  * in the Redux store. Any local or remote branches are captured and added to the associated fields in the
  *  Repository, and the Redux store is updated to reflect these changes.
  * @param id The UUID of a valid `Repository` object that needs to be updated with the latest branch `refs` list.
@@ -86,7 +86,7 @@ export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejec
   'repos/updateBranches',
   async (id, thunkAPI) => {
     const repo = thunkAPI.getState().repos.entities[id];
-    if (!repo) thunkAPI.rejectWithValue(`Cannot update non-existing repo for id:'${id}'`);
+    if (!repo) return thunkAPI.rejectWithValue(`Cannot update non-existing repo for id:'${id}'`);
     else {
       const localBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString() });
       const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
@@ -100,7 +100,7 @@ export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejec
 )
 
 /**
-* Thunk Action Creator for switching Git branches (or commit hash) and updating the associated metafile and card. Multiple cards
+* Async Thunk action creator for switching Git branches (or commit hash) and updating the associated metafile and card. Multiple cards
 * can be associated with a single metafile, therefore switching branches requires a new (or at least different) metafile that
 * refers to a new combination of `Repository` and `ref`. Since `isomorphic-git.checkout()` switches all files within a repository,
 * we switch to the target branch and read the specific file, before switching back to the original branch.
@@ -121,12 +121,12 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
     // verify card, metafile, and repo exist in Redux store before proceeding
     const card = thunkAPI.getState().cards.entities[param.cardId];
     const metafile = thunkAPI.getState().metafiles.entities[param.metafileId];
-    const repo = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.id] : undefined;
-    if (!card) thunkAPI.rejectWithValue(`Cannot update non-existing card for id:'${param.cardId}'`);
-    if (!metafile) thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${param.metafileId}'`);
-    if (!repo) thunkAPI.rejectWithValue(`Repository missing for metafile id:'${param.metafileId}'`);
+    const repo = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
+    if (!card) return thunkAPI.rejectWithValue(`Cannot update non-existing card for id:'${param.cardId}'`);
+    if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${param.metafileId}'`);
+    if (!repo) return thunkAPI.rejectWithValue(`Repository missing for metafile id:'${param.metafileId}'`);
     if (!card || !metafile || !repo) return undefined;
-    if (!metafile.path) return undefined; // metafile cannot be virtual
+    if (!metafile.path) return thunkAPI.rejectWithValue(`Cannot checkout branches for virtual metafile:'${param.metafileId}'`);
 
     let updated: Metafile | undefined;
     if (param.update) {
@@ -138,13 +138,14 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
       // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
       const oldWorktree = metafile.branch ? await worktree.resolveWorktree(repo, metafile.branch) : undefined;
       const newWorktree = await worktree.resolveWorktree(repo, param.branch);
-      if (!oldWorktree || !newWorktree) return undefined; // no worktree could be resolved for either current or new worktree
+      if (!oldWorktree || !newWorktree)
+        return thunkAPI.rejectWithValue(`No worktree could be resolved for either current or new worktree: repo='${repo.name}', old/new branch='${metafile.branch}'/'${param.branch}'`);
 
       const relative = path.relative(oldWorktree.path.toString(), metafile.path.toString());
       updated = await thunkAPI.dispatch(getMetafile({ filepath: path.join(newWorktree.path.toString(), relative) })).unwrap();
     }
     // get an updated metafile based on the updated worktree path
-    if (!updated) thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path:'${metafile.path}'`);
+    if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path:'${metafile.path}'`);
 
     // update the metafile details (including file content) for the card
     thunkAPI.dispatch(switchCardMetafile({ card: card, metafile: updated }));
@@ -155,7 +156,7 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
 )
 
 /**
- * Thunk Action Creator for retrieving a `Repository` object associated with the given filepath. If the filepath is not under version
+ * Async Thunk action creator for retrieving a `Repository` object associated with the given filepath. If the filepath is not under version
  * control (i.e. not contained within a Git repository), or the associated Git repository is malformed, then no valid response can be 
  * given. Otherwise, the correct Repository object is returned and the Redux store is updated with the latest set of branches.
  * @param filepath The relative or absolute path to evaluate.
@@ -191,7 +192,7 @@ export const getRepository = createAsyncThunk<Repository | undefined, PathLike, 
       await thunkAPI.dispatch(getRepoByName({ name: name, url: url.href })).unwrap() :
       await thunkAPI.dispatch(getRepoByName({ name: name })).unwrap();
     if (existing) {
-      thunkAPI.dispatch(updateBranches(existing.id));
+      await thunkAPI.dispatch(updateBranches(existing.id));
       return thunkAPI.getState().repos.entities[existing.id];
     }
     const username = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'user.name' }) : undefined;
