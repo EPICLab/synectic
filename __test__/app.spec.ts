@@ -21,13 +21,15 @@ describe('App', () => {
 
   it('Redux store dispatches to resolvers', () => {
     const store = createMockStore(testStore);
-    store.dispatch(cardAdded(card))
-    expect(Object.keys(store.getState().cards)).toHaveLength(2);
-    expect(store.getState().cards).toEqual(
+    store.dispatch(cardAdded(card));
+    expect(store.getActions()).toEqual(
         expect.arrayContaining([
             expect.objectContaining({
-                id: 't829w0351',
-                name: 'card2'
+                type: 'cards/cardAdded',
+                payload: expect.objectContaining({
+                    id: 't829w0351',
+                    name: 'card2'
+                })
             })
         ])
     );
