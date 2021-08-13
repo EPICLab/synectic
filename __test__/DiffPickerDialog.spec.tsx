@@ -141,15 +141,14 @@ describe('DiffPickerDialog', () => {
     if (runButton) fireEvent.click(runButton);
 
     await waitFor(() => {
+      console.log(JSON.stringify(store.getActions(), undefined, 2));
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            meta: expect.objectContaining({
-                arg: expect.objectContaining({
-                        handler: 'Diff',
-                        name: 'Δ undefined/turtle.asp -> master/test.js',
-                        targets: [secondEditorCard.id, firstEditorCard.id]
-                })
+            payload: expect.objectContaining({
+                handler: 'Diff',
+                name: 'Δ undefined/turtle.asp -> master/test.js',
+                targets: [secondEditorCard.id, firstEditorCard.id]
             })
           })
         ])
