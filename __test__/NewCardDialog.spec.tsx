@@ -3,12 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { cleanup, fireEvent, render, waitFor, screen } from '@testing-library/react';
 
 import NewCardDialog from '../src/components/NewCardDialog';
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import { Provider } from 'react-redux';
 import { newCardModal } from './__fixtures__/Modal';
 import { testStore } from './__fixtures__/ReduxStore';
 
-const store = createMockStore(testStore);
+const store = mockStore(testStore);
 
 describe('NewCardDialog', () => {
 

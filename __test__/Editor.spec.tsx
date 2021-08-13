@@ -4,12 +4,12 @@ import { Provider } from 'react-redux';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { virtualMetafile } from './__fixtures__/Metafile';
 import { testStore } from './__fixtures__/ReduxStore';
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import Editor from '../src/components/Editor';
 
 describe('Editor', () => {
 
-  const store = createMockStore(testStore);
+  const store = mockStore(testStore);
 
   afterEach(() => {
     cleanup;

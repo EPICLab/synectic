@@ -1,12 +1,12 @@
 import { createStack, popCard, pushCards } from '../src/containers/stacks';
 import type { Card } from '../src/types';
 import { DateTime } from 'luxon';
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 import { basicStack, biggerStack } from './__fixtures__/Stack';
 
 describe('containers/stacks', () => {
-    const store = createMockStore(testStore);
+    const store = mockStore(testStore);
 
     afterEach(() => store.clearActions());
 

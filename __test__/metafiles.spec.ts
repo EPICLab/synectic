@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import { normalize } from 'path';
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import * as metafiles from '../src/containers/metafiles';
 import type { MockInstance } from './__mocks__/mock-fs-promise';
 import { mock, file } from './__mocks__/mock-fs-promise';
@@ -10,7 +10,7 @@ import * as isogit from 'isomorphic-git';
 describe('containers/metafiles', () => {
     let mockedInstance: MockInstance;
 
-    const store = createMockStore({
+    const store = mockStore({
         filetypes: {
             ids: ['91', '101'],
             entities: {

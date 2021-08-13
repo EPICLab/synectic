@@ -1,7 +1,7 @@
 import * as handlers from '../src/containers/handlers';
 import { testStore } from './__fixtures__/ReduxStore';
 import { mock, MockInstance } from './__mocks__/mock-fs-promise';
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 
 let mockedInstance: MockInstance;
 
@@ -16,19 +16,18 @@ beforeAll(async () => {
 afterAll(() => mockedInstance.reset());
 
 describe('handlers.importFiletypes', () => {
-  const store = createMockStore(testStore);
-    
+  const store = mockStore(testStore);
+
   it('importFiletypes returns Redux actions for adding filetypes', async () => {
     const filetypes = handlers.importFiletypes();
-    // mock.restore(); // required to prevent snapshot rewriting because of file watcher race conditions in Jest
     expect(filetypes.length > 1).toBe(true);
     await store.dispatch(filetypes);
     expect(store.getActions()).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            type: 'filetypes/filetypeAdded'
-          })
-        ])
-      );
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'filetypes/filetypeAdded'
+        })
+      ])
+    );
   });
 });

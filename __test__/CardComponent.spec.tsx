@@ -4,7 +4,7 @@ import { render, act, waitFor, screen } from '@testing-library/react';
 import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import CardComponent from '../src/components/CardComponent';
 import { testStore } from './__fixtures__/ReduxStore';
 import { browserCard, diffCard, explorerCard, firstEditorCard, trackerCard } from './__fixtures__/Card';
@@ -12,7 +12,7 @@ import * as useDirectoryHook from '../src/store/hooks/useDirectory';
 import type { MockInstance } from './__mocks__/mock-fs-promise';
 import { mock, file } from './__mocks__/mock-fs-promise';
 
-const store = createMockStore(testStore);
+const store = mockStore(testStore);
 
 describe('CardComponent', () => {
   let mockedInstance: MockInstance;

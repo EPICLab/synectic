@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 
 import type { Card } from '../src/types';
 import { cardAdded } from '../src/store/slices/cards';
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 
 describe('App', () => {
@@ -20,18 +20,18 @@ describe('App', () => {
   };
 
   it('Redux store dispatches to resolvers', () => {
-    const store = createMockStore(testStore);
+    const store = mockStore(testStore);
     store.dispatch(cardAdded(card));
     expect(store.getActions()).toEqual(
-        expect.arrayContaining([
-            expect.objectContaining({
-                type: 'cards/cardAdded',
-                payload: expect.objectContaining({
-                    id: 't829w0351',
-                    name: 'card2'
-                })
-            })
-        ])
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'cards/cardAdded',
+          payload: expect.objectContaining({
+            id: 't829w0351',
+            name: 'card2'
+          })
+        })
+      ])
     );
   });
 })

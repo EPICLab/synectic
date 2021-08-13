@@ -3,7 +3,7 @@
 // import { DateTime } from 'luxon';
 import * as isogit from 'isomorphic-git';
 
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import * as repos from '../src/containers/repos';
 import * as git from '../src/containers/git-porcelain';
 import * as worktree from '../src/containers/git-worktree';
@@ -15,7 +15,7 @@ import { file, mock, MockInstance } from './__mocks__/mock-fs-promise';
 describe('containers/repos', () => {
     let mockedInstance: MockInstance;
 
-    const store = createMockStore(testStore);
+    const store = mockStore(testStore);
 
     beforeAll(async () => {
         const instance = await mock({
