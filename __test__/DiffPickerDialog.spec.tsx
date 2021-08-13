@@ -5,13 +5,13 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import DiffPickerDialog from '../src/components/DiffPickerDialog';
-import { createMockStore } from './__mocks__/reduxStoreMock';
+import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 import { diffPickerModal } from './__fixtures__/Modal';
 import { firstEditorCard, secondEditorCard } from './__fixtures__/Card';
 
 describe('DiffPickerDialog', () => {
-  const store = createMockStore(testStore);
+  const store = mockStore(testStore);
 
   afterEach(() => {
     cleanup;
