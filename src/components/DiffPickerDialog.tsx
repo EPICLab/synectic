@@ -19,22 +19,17 @@ const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
   const [selectedRight, setSelectedRight] = useState<UUID>('');
 
   const handleClose = async (canceled: boolean, selected: [UUID, UUID]) => {
-    if (canceled || !selected[0] || !selected[1]) {
-      dispatch(modalRemoved(props.id));
-      return;
-    }
-    const [left, right] = [cards.find(c => c.id === selected[0]), cards.find(c => c.id === selected[1])];
-    if (!left || !right) {
-      dispatch(modalRemoved(props.id));
-      return;
-    }
+    if (canceled || selected[0] === '' || selected[1] === '') return dispatch(modalRemoved(props.id));
+    const left = cards.find(c => c.id === selected[0]);
+    const right = cards.find(c => c.id === selected[1]);
+    if (!left || !right) return dispatch(modalRemoved(props.id));
 
     const leftMetafile = metafiles.find(m => m.id === left.metafile);
     const rightMetafile = metafiles.find(m => m.id === right.metafile);
     const diffCardName = `Δ ${leftMetafile?.branch}/${left.name} -> ${rightMetafile?.branch}/${right.name}`;
     const diffMetafile = await dispatch(getMetafile({ virtual: { name: diffCardName, handler: 'Diff', targets: [left.id, right.id] } })).unwrap();
     if (diffMetafile && diffMetafile.handler && leftMetafile && rightMetafile) dispatch(loadCard({ metafile: diffMetafile }));
-    dispatch(modalRemoved(props.id));
+    return dispatch(modalRemoved(props.id));
   };
 
   return (

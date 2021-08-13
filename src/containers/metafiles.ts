@@ -172,16 +172,16 @@ type MetafileGettableFields =
  * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a metafile that was either created or retrieved
- * and updated based on the filesystem.
+ * and updated based on the filesystem, or `undefined` if unable to find the new/existing metafile from the Redux store.
  */
-export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, AppThunkAPI & { rejectValue: string }>(
+export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettableFields, AppThunkAPI & { rejectValue: string }>(
   'metafiles/getMetafile',
   async (retrieveBy, thunkAPI) => {
     if (retrieveBy.id) {
       const existing = await thunkAPI.dispatch(updateAll(retrieveBy.id)).unwrap();
-      if (!existing) return thunkAPI.rejectWithValue(`${existing}`);
+      if (!existing) return undefined;
       const metafile = thunkAPI.getState().metafiles.entities[retrieveBy.id];
-      if (!metafile) return thunkAPI.rejectWithValue('unknown');
+      if (!metafile) return undefined;
       return metafile;
     }
     if (retrieveBy.filepath) {
@@ -202,7 +202,7 @@ export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, Ap
       }
       await thunkAPI.dispatch(updateAll(id));
       const metafile = thunkAPI.getState().metafiles.entities[id];
-      if (!metafile) return thunkAPI.rejectWithValue('unknown');
+      if (!metafile) return undefined;
       return metafile;
     }
     if (retrieveBy.virtual) {
@@ -215,7 +215,7 @@ export const getMetafile = createAsyncThunk<Metafile, MetafileGettableFields, Ap
         thunkAPI.dispatch(metafileAdded({ id: id, modified: DateTime.local().valueOf(), ...retrieveBy.virtual }));
       }
       const metafile = thunkAPI.getState().metafiles.entities[id];
-      if (!metafile) return thunkAPI.rejectWithValue('unknown');
+      if (!metafile) return undefined;
       return metafile;
     }
     return thunkAPI.rejectWithValue('Failed to match any containers/metafiles/getMetafile parameter types');

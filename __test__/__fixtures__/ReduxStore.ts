@@ -37,7 +37,7 @@ export const testStore: RootState = {
     }
   },
   cards: {
-    ids: ['f6b3f2a3-9145-4b59-a4a1-bf414214f30b', '67406095-fd01-4441-8e52-b0fdbad3327a', '17734ae2-f8da-40cf-be86-993dc21b4079', '6e84b210-f148-43bd-8364-c8710e70a9ef', '43c3c447-da0d-4299-a006-57344beb77da', 'f1a1fb16-cb06-4fb7-9b10-29ad95032d51', '4efdbe23-c938-4eb1-b29b-50bf76bdb44e'],
+    ids: ['f6b3f2a3-9145-4b59-a4a1-bf414214f30b', '67406095-fd01-4441-8e52-b0fdbad3327a', '17734ae2-f8da-40cf-be86-993dc21b4079', '6e84b210-f148-43bd-8364-c8710e70a9ef', '43c3c447-da0d-4299-a006-57344beb77da', 'f1a1fb16-cb06-4fb7-9b10-29ad95032d51', '4efdbe23-c938-4eb1-b29b-50bf76bdb44e', '3e712d11-6cee-8f56-3152-bb64710dd033'],
     entities: {
       'f6b3f2a3-9145-4b59-a4a1-bf414214f30b': {
         id: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
@@ -113,6 +113,16 @@ export const testStore: RootState = {
         left: 10,
         top: 10,
         captured: '1942z532-e7ab-190a-d1d3-385a2295de62'
+      },
+      '3e712d11-6cee-8f56-3152-bb64710dd033': {
+        id: '3e712d11-6cee-8f56-3152-bb64710dd033',
+        name: 'Δ undefined/turtle.asp -> master/test.js',
+        type: 'Diff',
+        metafile: 'bb64710d-6cee-8f56-3152-d0333e712d11',
+        created: DateTime.fromISO('2020-01-05T11:32:01:003-08:00').valueOf(),
+        modified: DateTime.fromISO('2020-01-05T11:32:01:144-08:00').valueOf(),
+        left: 10,
+        top: 10
       }
     }
   },
@@ -128,7 +138,7 @@ export const testStore: RootState = {
     }
   },
   metafiles: {
-    ids: ['821c9159-292b-4639-b90e-e84fc12740ee', '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71', 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8', '28'],
+    ids: ['821c9159-292b-4639-b90e-e84fc12740ee', '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71', 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8', '28', 'bb64710d-6cee-8f56-3152-d0333e712d11'],
     entities: {
       '821c9159-292b-4639-b90e-e84fc12740ee': {
         id: '821c9159-292b-4639-b90e-e84fc12740ee',
@@ -157,6 +167,13 @@ export const testStore: RootState = {
         modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
         filetype: 'Directory',
         contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71']
+      },
+      'bb64710d-6cee-8f56-3152-d0333e712d11': {
+        id: 'bb64710d-6cee-8f56-3152-d0333e712d11',
+        name: 'Δ undefined/turtle.asp -> master/test.js',
+        modified: DateTime.fromISO('2021-01-31T11:24:54.539-08:00').valueOf(),
+        handler: 'Diff',
+        targets: ['67406095-fd01-4441-8e52-b0fdbad3327a', 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b']
       }
     }
   },
