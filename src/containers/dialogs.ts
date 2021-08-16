@@ -16,7 +16,7 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | undefined, App
     const isMac = process.platform === 'darwin';
     const properties: ('openFile' | 'openDirectory')[] = pickerType ? [pickerType] : (isMac ? ['openFile', 'openDirectory'] : ['openFile']);
     const paths = await remote.dialog.showOpenDialog({ properties: [...properties, 'multiSelections'] });
-    if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => thunkAPI.dispatch(loadCard({ filepath: filePath })));
+    if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => await thunkAPI.dispatch(loadCard({ filepath: filePath })));
   }
 );
 
