@@ -1,10 +1,10 @@
 import type { Card, UUID, GitStatus } from '../../types';
 import { useCallback, useState } from 'react';
-import { getCardsByRepo } from '../selectors/repos';
-import { getStatus } from '../../containers/git-porcelain';
-import { RootState } from '../store';
-import { useAppSelector } from '../hooks';
-import { selectAllMetafiles } from '../selectors/metafiles';
+import { getCardsByRepo } from '../../store/selectors/repos';
+import { getStatus } from '../git-porcelain';
+import { RootState } from '../../store/store';
+import { useAppSelector } from '../../store/hooks';
+import { selectAllMetafiles } from '../../store/selectors/metafiles';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 

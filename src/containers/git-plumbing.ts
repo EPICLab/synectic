@@ -14,7 +14,7 @@ import * as io from './io';
 import * as worktree from './git-worktree';
 import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
 import { AtLeastOne } from './format';
-import { MatrixStatus } from '../store/hooks/useDirectory';
+import { MatrixStatus } from './hooks/useDirectory';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 type Unpromisify<T> = T extends Promise<infer U> ? U : T;

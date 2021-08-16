@@ -3,7 +3,7 @@ import ReactFlow, { addEdge, Connection, Edge, FlowElement, OnLoadFunc, OnLoadPa
 
 import type { UUID } from '../types';
 import { nodeTypes } from './GitNode';
-import { useGitHistory } from '../store/hooks/useGitHistory';
+import { useGitHistory } from '../containers/hooks/useGitHistory';
 import { RootState } from '../store/store';
 import { graphConstruction } from '../containers/git-graph';
 import { selectAllRepos } from '../store/selectors/repos';

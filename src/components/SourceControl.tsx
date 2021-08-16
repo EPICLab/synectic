@@ -5,7 +5,7 @@ import type { Card, Repository, UUID } from '../types';
 import { RootState } from '../store/store';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { HookEntry, MatrixStatus, useDirectory } from '../store/hooks/useDirectory';
+import { HookEntry, MatrixStatus, useDirectory } from '../containers/hooks/useDirectory';
 import { MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
 import { add, matrixToStatus, remove } from '../containers/git-plumbing';

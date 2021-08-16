@@ -11,7 +11,7 @@ import type { UUID, Card } from '../types';
 import { RootState } from '../store/store';
 import { loadCard, resolveHandler } from '../containers/handlers';
 import { extractFilename, writeFileAsync } from '../containers/io';
-import { FileState, HookEntry, useDirectory } from '../store/hooks/useDirectory';
+import { FileState, HookEntry, useDirectory } from '../containers/hooks/useDirectory';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { discardChanges } from '../containers/git-plumbing';
@@ -95,7 +95,6 @@ const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise
 export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
   const { directories, files, update } = useDirectory(props.root);
   const [expanded, setExpanded] = useState(false);
-
 
   const clickHandle = async () => {
     if (!expanded) await update();

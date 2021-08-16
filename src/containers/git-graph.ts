@@ -3,7 +3,7 @@ import { ArrowHeadType, Edge, FlowElement, Node, isNode, isEdge } from 'react-fl
 
 import type { Repository } from '../types';
 import { getStatus } from '../containers/git-porcelain';
-import { CommitInfo } from '../store/hooks/useGitHistory';
+import { CommitInfo } from './hooks/useGitHistory';
 import { flattenArray } from '../containers/flatten';
 import { colorSets } from '../containers/colors';
 

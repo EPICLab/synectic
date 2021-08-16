@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 import { PathLike } from 'fs-extra';
 
-import * as io from '../../containers/io';
-import { removeDuplicates } from '../../containers/format';
-import { getRepoRoot } from '../../containers/git-porcelain';
-import { statusMatrix } from '../../containers/git-plumbing';
+import * as io from '../io';
+import { removeDuplicates } from '../format';
+import { getRepoRoot } from '../git-porcelain';
+import { statusMatrix } from '../git-plumbing';
 import { join } from 'path';
 
 export type FileState = 'added' | 'deleted' | 'modified' | 'unmodified' | undefined;

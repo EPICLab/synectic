@@ -9,7 +9,7 @@ import { RootState } from '../store/store';
 import { removeDuplicates } from '../containers/format';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { GitRepoIcon, GitBranchIcon } from './GitIcons';
-import { useBranchStatus } from '../store/hooks/useBranchStatus';
+import { useBranchStatus } from '../containers/hooks/useBranchStatus';
 import { useAppSelector } from '../store/hooks';
 import { selectAllRepos } from '../store/selectors/repos';
 
