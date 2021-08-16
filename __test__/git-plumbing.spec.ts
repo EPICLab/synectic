@@ -1,9 +1,9 @@
 /* eslint-disable jest/no-commented-out-tests */
 
-import type { MockInstance } from './__mocks__/mock-fs-promise';
+import { file, mock, MockInstance } from './__mocks__/mock-fs-promise';
 import * as git from '../src/containers/git-plumbing';
 import * as io from '../src/containers/io';
-import { mock } from './__mocks__/mock-fs-promise';
+// import { mock } from './__mocks__/mock-fs-promise';
 
 describe('git.resolveRef', () => {
   let mockedInstance: MockInstance;
@@ -55,7 +55,6 @@ describe('git.resolveRef', () => {
       },
       foo: {
         '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
-        bar: 'file contents'
       },
       qux: {
         '.git': {
@@ -66,10 +65,16 @@ describe('git.resolveRef', () => {
               master: 'b204b02bac07x4419809fe9768e9593509d68341\n',
             }
           }
-        }
+        },
+        'another-file.ts': file({
+          content: 'directory is tracked by git, but the git repo is currently in a detached HEAD state'
+        })
       },
       baz: {
-        'sample.txt': 'non-tracked file and directory'
+        bar: file({
+          content: 'file contents',
+          mtime: new Date(1)
+        })
       }
     });
     return mockedInstance = instance;
@@ -122,24 +127,85 @@ describe('git.extractRepoName', () => {
   });
 });
 
-// describe('git.isGitRepo', () => {
-//   it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/baz/`)).resolves.toBe(true);
-//   });
+describe('git.isGitRepo', () => {
+  let mockedInstance: MockInstance;
 
-//   it('isGitRepo resolves directory path ending in .git directory to true', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/baz/.git`)).resolves.toBe(true);
-//   });
+  beforeAll(async () => {
+    const instance = await mock({
+      foo: {
+        '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
+        bar: file({
+          content: 'file contents',
+          mtime: new Date(1)
+        }),
+        yez: {
+          tam: {
+            'som.js': file({ content: 'other information' })
+          }
+        }, 
+        pez: {
+          '.git': {
+            'HEAD': 'ref: refs/heads/feature/test',
+            'config': '[core]\nrepositoryformatversion = 0\nfilemode = true\nbare = false\nlogallrefupdates = true\nignorecase = true\nprecomposeunicode = true\n[remote "origin"]\nurl = git@github.com:test/test.git\nfetch = +refs / heads/*:refs/remotes/origin/*\n[branch "master"]\nremote = origin\nmerge = refs/heads/master',
+            objects: {
+              'e2': {
+                '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
+              },
+              '42': {
+                '2a8a27eebd3798c661f2c0788dc8d6dfe597a1': 'blob 26\x00My data fits on line line\n'
+              }
+            },
+            refs: {
+              heads: {
+                feature: {
+                  'test': '4c40253aace4ffa46c943311d77232cb5d4ffe93'
+                },
+                'master': '4c40253aace4ffa46c943311d77232cb5d4ffe93',
+                'remote-only': 'a81c46a181052b4bbb0037b7ab192540c4234054'
+              },
+            }
+          }
+        }
+      },
+      qux: {
+        '.git': {
+          HEAD: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+          objects: {},
+          refs: {
+            heads: {
+              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+            }
+          }, 
+          'tracked-file.js': 'directory is tracked by git',
+          'another-file.ts': 'directory is tracked by git, but the git repo is currently in a detached HEAD state'
+        }
+      },
+      baz: {
+        'sample.txt': 'non-tracked file and directory'
+      }
+    });
+    return mockedInstance = instance;
+  });
 
-//   it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/baz/another-file.ts`)).resolves.toBe(true);
-//   });
+  afterAll(() => mockedInstance.reset());
 
-//   it('isGitRepo resolves directory path without a .git directory to false', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/bar/`)).resolves.toBe(false);
-//   });
+  it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
+    return expect(git.isGitRepo('qux/')).resolves.toBe(true);
+  });
 
-//   it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/bar/.git`)).resolves.toBe(false);
-//   });
-// });
+  it('isGitRepo resolves directory path ending in .git directory to true', async () => {
+    return expect(git.isGitRepo('qux/.git')).resolves.toBe(true);
+  });
+
+  it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
+    return expect(git.isGitRepo('qux/another-file.ts')).resolves.toBe(true);
+  });
+
+  it('isGitRepo resolves directory path without a .git directory to false', async () => {
+    return expect(git.isGitRepo('baz/')).resolves.toBe(false);
+  });
+
+  it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
+    return expect(git.isGitRepo('baz/.git')).resolves.toBe(false);
+  });
+});

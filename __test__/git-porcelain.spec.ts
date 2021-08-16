@@ -200,36 +200,104 @@ describe('git.setConfig', () => {
   });
 });
 
-// describe('git.getRepoRoot', () => {
-//   it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
-//     return expect(git.getRepoRoot('foo/yez/tam/som.js')).resolves.toBe('foo/');
-//   });
+describe('git.getRepoRoot', () => {
+  let mockedInstance: MockInstance;
 
-//   it('getRepoRoot resolves to undefined on file in untracked directory', async () => {
-//     mock(mockGitProj);
-//     await expect(git.getRepoRoot('foo/bar/untracked-file.js')).resolves.toBeUndefined();
-//     mock.restore();
-//   });
-// });
+  beforeAll(async () => {
+    const instance = await mock({
+      foo: {
+        '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
+        bar: file({
+          content: 'file contents',
+          mtime: new Date(1)
+        }),
+        yez: {
+          tam: {
+            'som.js': file({ content: 'other information' })
+          }
+        }
+      },
+      qux: {
+        '.git': {
+          HEAD: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+          objects: {},
+          refs: {
+            heads: {
+              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+            }
+          }
+        }
+      },
+      baz: {
+        'sample.txt': 'non-tracked file and directory'
+      }
+    });
+    return mockedInstance = instance;
+  });
 
-// describe('git.getStatus', () => {
-//   it('getStatus resolves Git status on tracked file', async () => {
-//     await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz/tracked-file.js.md'))).resolves.toBe('unmodified');
-//   });
+  afterAll(() => mockedInstance.reset());
 
-//   it('getStatus resolves Git status on tracked directory', async () => {
-//     await expect(git.getStatus(path.resolve(mockGitPath, 'foo/baz'))).resolves.toBe('unmodified');
-//   });
+  it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
+    return expect(git.getRepoRoot('foo/yez/tam/som.js')).resolves.toBe('foo');
+  });
 
-//   it('getStatus resolves to undefined on untracked file', async () => {
-//     mock(mockGitProj);
-//     await expect(git.getStatus('foo/bar/untracked-file.js')).resolves.toBeUndefined();
-//     mock.restore();
-//   });
+  it('getRepoRoot resolves to undefined on file in untracked directory', async () => {
+    await expect(git.getRepoRoot('baz/')).resolves.toBeUndefined();
+  });
+});
 
-//   it('getStatus resolves to undefined on untracked directory', async () => {
-//     mock(mockGitProj);
-//     await expect(git.getStatus('foo/bar/')).resolves.toBeUndefined();
-//     mock.restore();
-//   });
-// });
+describe('git.getStatus', () => {
+  let mockedInstance: MockInstance;
+
+  beforeAll(async () => {
+    const instance = await mock({
+      foo: {
+        '.git': 'gitdir: baseRepo/.git/worktrees/foo\n',
+        bar: file({
+          content: 'file contents',
+          mtime: new Date(1)
+        }),
+        yez: {
+          tam: {
+            'som.js': file({ content: 'other information' })
+          }
+        }
+      },
+      qux: {
+        '.git': {
+          HEAD: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+          objects: {},
+          refs: {
+            heads: {
+              master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
+            }
+          }, 
+          'tracked-file.js': 'directory is tracked by git',
+          'another-file.ts': 'directory is tracked by git, but the git repo is currently in a detached HEAD state'
+        }
+      },
+      baz: {
+        'sample.txt': 'non-tracked file and directory'
+      }
+    });
+    return mockedInstance = instance;
+  });
+
+  afterAll(() => mockedInstance.reset());
+
+  // it('getStatus resolves Git status on tracked file', async () => {
+  //   await expect(git.getStatus('foo/bar')).resolves.toBe('unmodified');
+  // });
+
+  // it('getStatus resolves Git status on tracked directory', async () => {
+  //   await expect(git.getStatus(path.resolve('foo/yez/tam'))).resolves.toBe('unmodified');
+  // });
+
+  it('getStatus resolves to undefined on untracked file', async () => {
+    await expect(git.getStatus('baz/sample.txt')).resolves.toBeUndefined();
+  });
+
+  it('getStatus resolves to undefined on untracked directory', async () => {
+    await expect(git.getStatus('baz/')).resolves.toBeUndefined();
+  });
+});
