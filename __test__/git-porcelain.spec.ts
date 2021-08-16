@@ -261,29 +261,6 @@ describe('git.getStatus', () => {
           tam: {
             'som.js': file({ content: 'other information' })
           }
-        }, 
-        pez: {
-          '.git': {
-            'HEAD': 'ref: refs/heads/feature/test',
-            'config': '[core]\nrepositoryformatversion = 0\nfilemode = true\nbare = false\nlogallrefupdates = true\nignorecase = true\nprecomposeunicode = true\n[remote "origin"]\nurl = git@github.com:test/test.git\nfetch = +refs / heads/*:refs/remotes/origin/*\n[branch "master"]\nremote = origin\nmerge = refs/heads/master',
-            objects: {
-              'e2': {
-                '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116, 97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
-              },
-              '42': {
-                '2a8a27eebd3798c661f2c0788dc8d6dfe597a1': 'blob 26\x00My data fits on line line\n'
-              }
-            },
-            refs: {
-              heads: {
-                feature: {
-                  'test': '4c40253aace4ffa46c943311d77232cb5d4ffe93'
-                },
-                'master': '4c40253aace4ffa46c943311d77232cb5d4ffe93',
-                'remote-only': 'a81c46a181052b4bbb0037b7ab192540c4234054'
-              },
-            }
-          }
         }
       },
       qux: {
@@ -309,11 +286,11 @@ describe('git.getStatus', () => {
   afterAll(() => mockedInstance.reset());
 
   // it('getStatus resolves Git status on tracked file', async () => {
-  //   await expect(git.getStatus('foo/yez/tam/som.js')).resolves.toBe('unmodified');
+  //   await expect(git.getStatus('foo/bar')).resolves.toBe('unmodified');
   // });
 
   // it('getStatus resolves Git status on tracked directory', async () => {
-  //   await expect(git.getStatus(path.resolve('foo/yez/tam/'))).resolves.toBe('unmodified');
+  //   await expect(git.getStatus(path.resolve('foo/yez/tam'))).resolves.toBe('unmodified');
   // });
 
   it('getStatus resolves to undefined on untracked file', async () => {
