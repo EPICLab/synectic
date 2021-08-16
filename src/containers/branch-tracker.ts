@@ -8,6 +8,8 @@ export const loadBranchVersions = createAsyncThunk<void, void, AppThunkAPI>(
   async (_, thunkAPI) => {
     thunkAPI.dispatch(getMetafile({ virtual: { name: 'Version Tracker', handler: 'Tracker' } }))
       .unwrap()
-      .then(metafile => thunkAPI.dispatch(loadCard({ metafile: metafile })));
+      .then(metafile => {
+        if (metafile) thunkAPI.dispatch(loadCard({ metafile: metafile }));
+      });
   }
 )
