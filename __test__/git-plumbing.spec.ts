@@ -66,7 +66,8 @@ describe('git.resolveRef', () => {
               master: 'b204b02bac07x4419809fe9768e9593509d68341\n',
             }
           }
-        }
+        },
+        'another-file.ts': 'directory is tracked by git, but the git repo is currently in a detached HEAD state'
       },
       baz: {
         'sample.txt': 'non-tracked file and directory'
@@ -122,24 +123,24 @@ describe('git.extractRepoName', () => {
   });
 });
 
-// describe('git.isGitRepo', () => {
-//   it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/baz/`)).resolves.toBe(true);
-//   });
+describe('git.isGitRepo', () => {
+  it('isGitRepo resolves direct parent directory of .git directory to true', async () => {
+    return expect(git.isGitRepo('qux/')).resolves.toBe(true);
+  });
 
-//   it('isGitRepo resolves directory path ending in .git directory to true', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/baz/.git`)).resolves.toBe(true);
-//   });
+  it('isGitRepo resolves directory path ending in .git directory to true', async () => {
+    return expect(git.isGitRepo('qux/.git')).resolves.toBe(true);
+  });
 
-//   it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/baz/another-file.ts`)).resolves.toBe(true);
-//   });
+  it('isGitRepo resolves file path containing an adjacent .git directory to true', async () => {
+    return expect(git.isGitRepo('qux/another-file.ts')).resolves.toBe(true);
+  });
 
-//   it('isGitRepo resolves directory path without a .git directory to false', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/bar/`)).resolves.toBe(false);
-//   });
+  it('isGitRepo resolves directory path without a .git directory to false', async () => {
+    return expect(git.isGitRepo('foo/bar/')).resolves.toBe(false);
+  });
 
-//   it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
-//     return expect(git.isGitRepo(`${mockGitPath}/foo/bar/.git`)).resolves.toBe(false);
-//   });
-// });
+  it('isGitRepo resolves nonexistent path ending in .git directory to false', async () => {
+    return expect(git.isGitRepo('foo/bar/.git')).resolves.toBe(false);
+  });
+});
