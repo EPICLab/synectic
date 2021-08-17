@@ -11,32 +11,36 @@ import { isDirectory, readDirAsyncDepth } from '../io';
  * should be passed as an object.
  */
 const useFSWatcher = (filename: PathLike, handler: WatchListener<PathLike>, options?: WatchOptions): void => {
-    // Create a ref that stores handler
+    // Create a ref that stores handler, and ref to prevent race conditions in async requests
     const savedHandler = useRef<WatchListener<PathLike>>();
+    const active = useRef<boolean>(true);
 
     useEffect(() => {
         const watchers = new Map<string, FSWatcher>();
         const fetchWatchers = async () => {
             // Update saved handler if necessary
             if (savedHandler.current !== handler) {
-                savedHandler.current = handler
+                savedHandler.current = handler;
             }
 
-            // Create watchers for all subfiles and directories if necessary
-            const isDir = await isDirectory(filename);
-            if (isDir) {
-                const subpaths = await readDirAsyncDepth(filename);
-                for (const subpath of subpaths) {
-                    watchers.set(subpath, watch(filename, options, savedHandler?.current));
+            if (active) {
+                // Create watchers for all subfiles and directories if necessary
+                const isDir = await isDirectory(filename);
+                if (isDir) {
+                    const subpaths = await readDirAsyncDepth(filename);
+                    for (const subpath of subpaths) {
+                        watchers.set(subpath, watch(filename, options, savedHandler?.current));
+                    }
+                } else {
+                    watchers.set(filename.toString(), watch(filename, options, savedHandler?.current));
                 }
-            } else {
-                watchers.set(filename.toString(), watch(filename, options, savedHandler?.current));
             }
         }
 
         fetchWatchers();
         // Remove event listener on cleanup
         return () => {
+            active.current = false;
             watchers.forEach(watcher => watcher.close());
         }
     }, [filename, handler, options])
