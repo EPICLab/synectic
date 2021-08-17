@@ -23,7 +23,7 @@ const useFSWatcher = (filename: PathLike, handler: WatchListener<PathLike>, opti
                 savedHandler.current = handler;
             }
 
-            if (active) {
+            if (active.current) {
                 // Create watchers for all subfiles and directories if necessary
                 const isDir = await isDirectory(filename);
                 if (isDir) {
@@ -41,7 +41,10 @@ const useFSWatcher = (filename: PathLike, handler: WatchListener<PathLike>, opti
         // Remove event listener on cleanup
         return () => {
             active.current = false;
-            watchers.forEach(watcher => watcher.close());
+            watchers.forEach((watcher, filename) => {
+                console.log(`closing watcher for ${filename}`);
+                watcher.close();
+            });
         }
     }, [filename, handler, options])
 }

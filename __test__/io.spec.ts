@@ -96,7 +96,7 @@ describe('io.extractExtension', () => {
     });
 });
 
-describe('io.readFileAsync', () => {    
+describe('io.readFileAsync', () => {
     let mockedInstance: MockInstance;
     beforeAll(async () => {
         const instance = await mock({
@@ -114,7 +114,7 @@ describe('io.readFileAsync', () => {
     });
 
     afterAll(() => mockedInstance.reset());
-        
+
     it('readFileAsync resolves to string for text file content', async () => {
         expect.assertions(1);
         await expect(io.readFileAsync('foo/bar/some-file.txt', { encoding: 'utf-8' })).resolves.toBe('file contents');
@@ -129,7 +129,7 @@ describe('io.readFileAsync', () => {
         expect.assertions(1);
         await expect(io.readFileAsync('foo/bar/empty-dir/nonexist.js')).rejects.toThrow(/ENOENT/);
     });
-    
+
     it('readFileAsync fails with error on directory paths', async () => {
         expect.assertions(1);
         await expect(io.readFileAsync('foo/bar')).rejects.toThrow(/EISDIR/);
@@ -143,7 +143,7 @@ describe('io.decompressBinaryObject', () => {
             'plainfile.txt': 'no compression was used',
             'e2': {
                 '7bb34b0807ebf1b91bb66a4c147430cde4f08f': Buffer.from([98, 108, 111, 98, 32, 50, 53, 0, 77, 121, 32, 100, 97, 116,
-                97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
+                    97, 32, 102, 105, 116, 115, 32, 111, 110, 32, 111, 110, 101, 32, 108, 105, 110, 101, 10]),
             }
         });
         return mockedInstance = instance;
@@ -336,14 +336,14 @@ describe('io.filterReadArray', () => {
     it('filterReadArray returns only child directories', () => {
         expect.assertions(1);
         const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
-        'foo/zap/zip', 'foo/zap', 'foo'];
+            'foo/zap/zip', 'foo/zap', 'foo'];
         return expect(io.filterReadArray(paths)).resolves.toHaveLength(3);
     });
-    
+
     it('filterReadArray returns only child files', () => {
         expect.assertions(1);
         const paths: fs.PathLike[] = ['foo/bar', 'foo/baz', 'foo/zap/zed/beq', 'foo/zap/zed/bup', 'foo/zap/zed',
-        'foo/zap/zip', 'foo/zap', 'foo'];
+            'foo/zap/zip', 'foo/zap', 'foo'];
         return expect(io.filterReadArray(paths, true)).resolves.toHaveLength(5);
     });
 });

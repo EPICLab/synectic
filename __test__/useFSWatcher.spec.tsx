@@ -7,8 +7,6 @@ import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 import { writeFileAsync } from '../src/containers/io';
 import { rename, unlink } from 'fs-extra';
-// import { dirname } from 'path';
-// import { asyncFilter } from '../src/containers/format';
 
 describe('containers/hooks/useFSWatcher', () => {
     let mockedInstance: MockInstance;
@@ -54,5 +52,16 @@ describe('containers/hooks/useFSWatcher', () => {
         await rename('sampleUser/myRepo/foo/baz.js', filePath);
 
         return Promise.resolve(100).then(() => expect(handlerMock).toHaveBeenCalled());
+    });
+
+    it('useFSWatcher hook tracks filesystem updates through multiple render cycles', async () => {
+        const handlerMock = jest.fn();
+        renderHook(() => useFSWatcher('sampleUser/myRepo/foo/bar.js', handlerMock), { wrapper });
+
+        expect(handlerMock).not.toHaveBeenCalled();
+        await writeFileAsync('sampleUser/myRepo/foo/bar.js', 'content update 1');
+        expect(handlerMock).toHaveBeenCalledTimes(1);
+        await writeFileAsync('sampleUser/myRepo/foo/bar.js', 'content update 2');
+        expect(handlerMock).toHaveBeenCalledTimes(3);
     });
 });
