@@ -1,11 +1,7 @@
 import React from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
 import Block from './components/Block';
+import ReactDOM from 'react-dom';
 import './index.css';
-import store from './store/store';
 
 /**
  * This file will automatically be loaded by webpack and run in the "renderer" context.
@@ -18,11 +14,7 @@ import store from './store/store';
 const App = (): JSX.Element => {
 
   return (
-    <Provider store={store}>
-      <DndProvider backend={HTML5Backend}>
         <Block />
-      </DndProvider>
-    </Provider>
   );
 };
 
