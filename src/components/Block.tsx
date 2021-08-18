@@ -1,8 +1,14 @@
 import React from 'react';
 import type { Card } from '../types';
 import { DateTime } from 'luxon';
+import { cardAdded } from '../store/slices/cards';
+import { selectAllCards } from '../store/selectors/cards';
+import { RootState } from '../store/store';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 const Block: React.FunctionComponent = props => {
+    const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
+    const dispatch = useAppDispatch();
 
     const newCard: Card = {
         id: 't829w0351',
@@ -16,8 +22,8 @@ const Block: React.FunctionComponent = props => {
 
     const handleClick = () => {
         console.log('adding a new card...');
-        console.log(JSON.stringify(newCard));
-        // dispatch(cardAdded(newCard));
+        console.log(JSON.stringify(cards));
+        dispatch(cardAdded(newCard));
     }
 
     // const handleClick = async () => {
@@ -29,7 +35,7 @@ const Block: React.FunctionComponent = props => {
         <div >
             <button onClick={() => handleClick()}>Add Card</button>
             <div>CARDS:</div>
-            {/* {Object.values(cards).map(card => <span key={card.id}>{card.id}</span>)} */}
+            {Object.values(cards).map(card => <span key={card.id}>{card.id}</span>)}
             {props.children}
         </div>
     );

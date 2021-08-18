@@ -2,6 +2,8 @@ import React from 'react';
 import Block from './components/Block';
 import ReactDOM from 'react-dom';
 import './index.css';
+import { Provider } from 'react-redux';
+import store from './store/store';
 
 /**
  * This file will automatically be loaded by webpack and run in the "renderer" context.
@@ -14,7 +16,9 @@ import './index.css';
 const App = (): JSX.Element => {
 
   return (
-        <Block />
+    <Provider store={store}>
+      <Block />
+    </Provider>
   );
 };
 
