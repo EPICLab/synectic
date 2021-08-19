@@ -5,6 +5,7 @@ import { cardAdded } from '../store/slices/cards';
 import { selectAllCards } from '../store/selectors/cards';
 import { RootState } from '../store/store';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { writeFileAsync } from '../containers/io';
 
 const Block: React.FunctionComponent = props => {
     const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
@@ -26,14 +27,15 @@ const Block: React.FunctionComponent = props => {
         dispatch(cardAdded(newCard));
     }
 
-    // const handleClick = async () => {
-    //     await dispatch(loadCard({ filepath: '/Users/nelsonni/Workspace/test/example.ts' })).unwrap();
-    //     await writeFileAsync('/Users/nelsonni/Workspace/test/example.ts', 'asdfadsfdsa');
-    // }
+    const handleClickTwo = async () => {
+        // await dispatch(loadCard({ filepath: '/Users/nelsonni/Workspace/test/example.ts' })).unwrap();
+        await writeFileAsync('/Users/nelsonni/Workspace/test/example.ts', 'asdfadsfdsa', { encoding: 'utf-8'});
+    }
 
     return (
         <div >
             <button onClick={() => handleClick()}>Add Card</button>
+            <button onClick={() => handleClickTwo()}>Write File</button>
             <div>CARDS:</div>
             {Object.values(cards).map(card => <span key={card.id}>{card.id}</span>)}
             {props.children}
