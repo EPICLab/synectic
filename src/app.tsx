@@ -1,23 +1,25 @@
-import React from 'react';
-import Block from './components/Block';
-import ReactDOM from 'react-dom';
-import './index.css';
+import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
+import ReactDOM from 'react-dom';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import './index.css';
+import './assets/style.css';
 import store from './store/store';
-
-/**
- * This file will automatically be loaded by webpack and run in the "renderer" context.
- * To learn more about the differences between the "main" and the "renderer" context in
- * Electron, visit:
- *
- * https://electronjs.org/docs/tutorial/application-architecture#main-and-renderer-processes
- */
+import CanvasComponent from './components/CanvasComponent';
+import { importFiletypes } from './containers/handlers';
 
 const App = (): JSX.Element => {
 
+  useEffect(() => {
+    store.dispatch(importFiletypes()); // load all supported filetype handlers into Redux store
+  }, []); // run the effect only once; after the first render
+
   return (
     <Provider store={store}>
-      <Block />
+      <DndProvider backend={HTML5Backend}>
+        <CanvasComponent />
+      </DndProvider>
     </Provider>
   );
 };

@@ -7,7 +7,6 @@ import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import sha1 from 'sha1';
-import parsePath from 'parse-path';
 
 export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;

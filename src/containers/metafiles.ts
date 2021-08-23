@@ -60,6 +60,7 @@ export const updateFileStats = createAsyncThunk<void, UUID, AppThunkAPI & { reje
     const metafile = thunkAPI.getState().metafiles.entities[id];
     if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? metafile.id : 'unknown');
     const handler = await thunkAPI.dispatch(resolveHandler(metafile.path)).unwrap();
+    console.log(JSON.stringify(handler));
     thunkAPI.dispatch(metafileUpdated({
       ...metafile,
       filetype: handler?.filetype,

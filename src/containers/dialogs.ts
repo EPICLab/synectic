@@ -10,12 +10,16 @@ import { updateGitInfo } from './metafiles';
 
 type PickerType = 'openFile' | 'openDirectory';
 
-export const fileOpenDialog = createAsyncThunk<void, PickerType | undefined, AppThunkAPI>(
+export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunkAPI>(
   'dialogs/fileOpenDialog',
   async (pickerType, thunkAPI) => {
     const isMac = process.platform === 'darwin';
+    const isPickerTypeUndefined = pickerType ? true : false;
+    console.log(`isPickerTypeUndefined: ${isPickerTypeUndefined}`);
     const properties: ('openFile' | 'openDirectory')[] = pickerType ? [pickerType] : (isMac ? ['openFile', 'openDirectory'] : ['openFile']);
+    console.log(`properties: ${JSON.stringify(properties)}`);
     const paths = await remote.dialog.showOpenDialog({ properties: [...properties, 'multiSelections'] });
+    console.log(`paths: ${JSON.stringify(paths)}`);
     if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => await thunkAPI.dispatch(loadCard({ filepath: filePath })));
   }
 );

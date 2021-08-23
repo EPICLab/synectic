@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`git.setConfig setConfig adds value to global git-config 1`] = `
+"[user]
+name = Sandy Updates
+email = supdate@oregonstate.edu
+username = supdate
+
+[core]
+editor = vim
+"
+`;
+
+exports[`git.setConfig setConfig deletes values from local git-config 1`] = `
+"[user]
+email = bdrop@oregonstate.edu
+
+[credential]
+helper = osxkeychain
+"
+`;
+
+exports[`git.setConfig setConfig updates values to local git-config 1`] = `
+"[user]
+name = John Smith
+email = bdrop@oregonstate.edu
+
+[credential]
+helper = osxkeychain
+"
+`;
