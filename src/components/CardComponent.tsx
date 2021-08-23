@@ -165,12 +165,12 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     }
   }
   const close = () => {
+    const dropSource = cards.find(c => c.id === props.id);
     if (props.captured) {
       const captureStack = stacks.find(s => s.id === props.captured);
-      const dropSource = cards.find(c => c.id === props.id);
       if (captureStack && dropSource) dispatch(popCard({ stack: captureStack, card: dropSource }));
-      if (dropSource) dispatch(cardRemoved(props.id));
     }
+    if (dropSource) dispatch(cardRemoved(props.id));
   }
 
   return (

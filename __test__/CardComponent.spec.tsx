@@ -32,6 +32,24 @@ describe('CardComponent', () => {
     jest.clearAllMocks();
   });
 
+  it('Card removes from Redux store on close button', () => {
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    render(
+      <Provider store={store}>
+        <WrappedComponent {...firstEditorCard} />
+      </Provider>
+    );
+    userEvent.click(screen.getByRole('button', { name: /close/i }));
+
+    expect(store.getActions()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'cards/cardRemoved'
+        })
+      ])
+    )
+  });
+
   it('Card resolves props into React Component for Editor handler', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
     render(
