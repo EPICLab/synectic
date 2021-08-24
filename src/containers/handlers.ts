@@ -6,9 +6,9 @@ import filetypesJson from './filetypes.json';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { cardAdded } from '../store/slices/cards';
 import { DateTime } from 'luxon';
-import { getMetafileByFilepath } from '../store/slices/metafiles';
 import type { AppThunkAPI } from '../store/hooks';
 import { filetypeAdded } from '../store/slices/filetypes';
+import { getMetafile } from './metafiles';
 
 export type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 
@@ -78,7 +78,7 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
   async (param, thunkAPI) => {
     if (param.metafile) {
       if (isHandlerRequiredMetafile(param.metafile)) {
-        await thunkAPI.dispatch(cardAdded({
+        thunkAPI.dispatch(cardAdded({
           id: v4(),
           name: param.metafile.name,
           created: DateTime.local().valueOf(),
@@ -93,7 +93,7 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
       }
     }
     if (param.filepath) {
-      const metafile = await thunkAPI.dispatch(getMetafileByFilepath(param.filepath)).unwrap();
+      const metafile = await thunkAPI.dispatch(getMetafile({ filepath: param.filepath })).unwrap();
       if (metafile) {
         if (isHandlerRequiredMetafile(metafile)) {
           thunkAPI.dispatch(cardAdded({

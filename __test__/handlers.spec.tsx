@@ -32,12 +32,22 @@ describe('handlers.importFiletypes', () => {
     );
   });
 
-  it('resolveHandler returns Filetype from valid path', async () => {
+  it('resolveHandler returns Filetype from valid file path', async () => {
     await store.dispatch(handlers.importFiletypes());
     expect(await store.dispatch(handlers.resolveHandler('foo/data.php')).unwrap()).toEqual(
       expect.objectContaining({
         filetype: 'PHP',
         handler: 'Editor'
+      })
+    )
+  });
+
+  it('resolveHandler returns Filetype from valid directory path', async () => {
+    await store.dispatch(handlers.importFiletypes());
+    expect(await store.dispatch(handlers.resolveHandler('foo')).unwrap()).toEqual(
+      expect.objectContaining({
+        filetype: 'Directory',
+        handler: 'Explorer'
       })
     )
   });
