@@ -3,7 +3,7 @@ import type { Metafile } from '../../types';
 import { metafilesAdapter } from '../slices/metafiles';
 import { RootState } from '../store';
 
-export const selectAllMetafiles = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
+export const metafileSelectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
 
 export const selectMetafileByFilepath = (filepath: PathLike) => (state: RootState): Metafile | undefined => {
     return Object.values(state.metafiles)

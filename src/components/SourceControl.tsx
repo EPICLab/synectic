@@ -11,8 +11,8 @@ import { extractFilename } from '../containers/io';
 import { add, matrixToStatus, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
 import { useAppSelector } from '../store/hooks';
-import { selectAllMetafiles } from '../store/selectors/metafiles';
-import { selectAllRepos } from '../store/selectors/repos';
+import { metafileSelectors } from '../store/selectors/metafiles';
+import { repoSelectors } from '../store/selectors/repos';
 
 const modifiedCheck = (status: MatrixStatus | undefined): boolean => {
   if (!status) return false;
@@ -72,8 +72,8 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
 }
 
 const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
-  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.rootId));
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile ? repos.find(r => r.id === metafile.repo) : undefined);
   const { files, update } = useDirectory((metafile as MetafileWithPath).path);
   const [staged, setStaged] = useState<HookEntry[]>([]);
@@ -118,8 +118,8 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
 }
 
 export const SourceControlReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafile));
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo = { name: 'Untracked' }] = useState(repos.find(r => r.id === metafile?.repo) || { name: 'Untracked' });
   return (
     <>

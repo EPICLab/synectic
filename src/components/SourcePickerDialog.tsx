@@ -8,7 +8,7 @@ import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllRepos } from '../store/selectors/repos';
+import { repoSelectors } from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const [selectedRepo, setSelectedRepo] = useState<UUID>('');
   const [selectedBranch, setSelectedBranch] = useState('');

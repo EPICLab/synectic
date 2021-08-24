@@ -11,7 +11,7 @@ import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import TimelineComponent from './MergeTimeline';
 import DropSelect from './DropSelect';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllRepos } from '../store/selectors/repos';
+import { repoSelectors } from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -44,7 +44,7 @@ type MissingGitConfigs = string[] | undefined;
 
 const MergeDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo, setRepo] = useState<UUID>('');
   const [base, setBase] = useState<string>('');
   const [compare, setCompare] = useState<string>('');

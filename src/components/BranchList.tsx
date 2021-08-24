@@ -4,8 +4,8 @@ import { FormControl, Select, MenuItem, Input } from '@material-ui/core';
 import { checkoutBranch } from '../containers/repos';
 import { useStyles } from './CardComponent';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllMetafiles } from '../store/selectors/metafiles';
-import { selectAllRepos } from '../store/selectors/repos';
+import { metafileSelectors } from '../store/selectors/metafiles';
+import { repoSelectors } from '../store/selectors/repos';
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 
@@ -16,8 +16,8 @@ import { selectAllRepos } from '../store/selectors/repos';
  * update boolean flag indicates whether all checkouts should update the main worktree (instead of using linked worktrees).
  */
 export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; update?: boolean; }> = props => {
-  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafileId));
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
   const [branch, updateBranch] = useState(metafile?.branch ? metafile.branch : 'untracked');
   const dispatch = useAppDispatch();
@@ -26,7 +26,7 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
   const checkout = (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
     updateBranch(newBranch);
-    if (metafile) dispatch(checkoutBranch( { cardId: props.cardId, metafileId: metafile.id, branch: newBranch, update: props.update } ));
+    if (metafile) dispatch(checkoutBranch({ cardId: props.cardId, metafileId: metafile.id, branch: newBranch, update: props.update }));
   };
 
   return (

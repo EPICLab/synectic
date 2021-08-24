@@ -3,7 +3,7 @@ import type { UUID, Card, Repository } from '../../types';
 import { RootState } from '../store';
 import { reposAdapter } from '../slices/repos';
 
-export const selectAllRepos = reposAdapter.getSelectors<RootState>(state => state.repos);
+export const repoSelectors = reposAdapter.getSelectors<RootState>(state => state.repos);
 
 export const selectRepoByName = (name: string, url?: parsePath.ParsedPath) => (state: RootState): Repository | undefined => {
     return url ? Object.values(state.repos).find(r => r.name === name && r.url.href === url.href) :

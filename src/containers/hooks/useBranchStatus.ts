@@ -4,7 +4,7 @@ import { getCardsByRepo } from '../../store/selectors/repos';
 import { getStatus } from '../git-porcelain';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
-import { selectAllMetafiles } from '../../store/selectors/metafiles';
+import { metafileSelectors } from '../../store/selectors/metafiles';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 
@@ -15,7 +15,7 @@ type useGitStatusHook = {
 };
 
 export const useBranchStatus = (repo: UUID, branch: string): useGitStatusHook => {
-  const metafiles = useAppSelector((state: RootState) => selectAllMetafiles.selectAll(state));
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const cards = useAppSelector(getCardsByRepo(repo, branch));
   const [modified, setModified] = useState<Card[]>([]);
 

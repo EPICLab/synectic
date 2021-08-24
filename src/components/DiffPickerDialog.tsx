@@ -7,13 +7,13 @@ import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 import { modalRemoved } from '../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllCards } from '../store/selectors/cards';
-import { selectAllMetafiles } from '../store/selectors/metafiles';
+import { cardSelectors } from '../store/selectors/cards';
+import { metafileSelectors } from '../store/selectors/metafiles';
 import { DateTime } from 'luxon';
 
 const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
-  const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
-  const metafiles = useAppSelector((state: RootState) => selectAllMetafiles.selectAll(state));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const [selectedLeft, setSelectedLeft] = useState<UUID>('');
   const [selectedRight, setSelectedRight] = useState<UUID>('');

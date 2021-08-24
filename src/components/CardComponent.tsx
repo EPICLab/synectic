@@ -19,9 +19,9 @@ import { writeFileAsync } from '../containers/io';
 import { updateGitInfo } from '../containers/metafiles';
 import { fileSaveDialog } from '../containers/dialogs';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllMetafiles } from '../store/selectors/metafiles';
-import { selectAllCards } from '../store/selectors/cards';
-import { selectAllStacks } from '../store/selectors/stacks';
+import { metafileSelectors } from '../store/selectors/metafiles';
+import { cardSelectors } from '../store/selectors/cards';
+import { stackSelectors } from '../store/selectors/stacks';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { cardRemoved } from '../store/slices/cards';
 
@@ -86,9 +86,9 @@ const ContentBack: React.FunctionComponent<Card> = props => {
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
-  const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => selectAllStacks.selectAll(state));
-  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.id));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+  const stacks = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.id));
   const dispatch = useAppDispatch();
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)

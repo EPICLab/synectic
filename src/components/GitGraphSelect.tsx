@@ -7,7 +7,7 @@ import { RootState } from '../store/store';
 import { modalAdded, modalRemoved } from '../store/slices/modals';
 import { v4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllRepos } from '../store/selectors/repos';
+import { repoSelectors } from '../store/selectors/repos';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const GitGraphSelect: React.FunctionComponent = () => {
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo, setRepo] = useState<Repository>();
   const [modal, setModal] = useState<UUID>();
   const dispatch = useAppDispatch();

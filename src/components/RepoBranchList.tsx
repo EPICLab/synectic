@@ -11,7 +11,7 @@ import { StyledTreeItem } from './StyledTreeComponent';
 import { GitRepoIcon, GitBranchIcon } from './GitIcons';
 import { useBranchStatus } from '../containers/hooks/useBranchStatus';
 import { useAppSelector } from '../store/hooks';
-import { selectAllRepos } from '../store/selectors/repos';
+import { repoSelectors } from '../store/selectors/repos';
 
 const BranchStatus: React.FunctionComponent<{ repo: UUID, branch: string }> = props => {
   const { cards, modified, status } = useBranchStatus(props.repo, props.branch);
@@ -25,7 +25,7 @@ const BranchStatus: React.FunctionComponent<{ repo: UUID, branch: string }> = pr
 };
 
 const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => {
-  const repo = useAppSelector((state: RootState) => selectAllRepos.selectById(state, props.repoId));
+  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
   const branches = repo ? removeDuplicates([...repo.local, ...repo.remote], (a: string, b: string) => a === b) : [];
 
   return repo ? (
@@ -36,7 +36,7 @@ const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => 
 }
 
 export const VersionStatusComponent: React.FunctionComponent = () => {
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
 
   return (
     <div className='version-tracker'>

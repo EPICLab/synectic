@@ -5,8 +5,8 @@ import { RootState } from '../store/store';
 import CardComponent from './CardComponent';
 import { pushCards, popCard } from '../containers/stacks';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllCards } from '../store/selectors/cards';
-import { selectAllStacks } from '../store/selectors/stacks';
+import { cardSelectors } from '../store/selectors/cards';
+import { stackSelectors } from '../store/selectors/stacks';
 import { stackRemoved } from '../store/slices/stacks';
 
 const DnDItemType = {
@@ -19,8 +19,8 @@ type DragObject = {
 }
 
 const StackComponent: React.FunctionComponent<Stack> = props => {
-  const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => selectAllStacks.selectAll(state));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+  const stacks = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
   const dispatch = useAppDispatch();
 
   // Enable StackComponent as a drop source (i.e. allowing this stack to be draggable)

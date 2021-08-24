@@ -9,7 +9,7 @@ import * as io from '../containers/io';
 import { flattenArray } from '../containers/flatten';
 import { getMetafile } from '../containers/metafiles';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllFiletypes } from '../store/selectors/filetypes';
+import { filetypeSelectors } from '../store/selectors/filetypes';
 import { modalRemoved } from '../store/slices/modals';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const NewCardDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
-  const filetypes = useAppSelector((state: RootState) => selectAllFiletypes.selectAll(state));
+  const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
   const exts: string[] = flattenArray(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
   // configExts is a list of all .config extensions found within exts:
   const configExts: string[] = flattenArray((filetypes.map(filetype =>

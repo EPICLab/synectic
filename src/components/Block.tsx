@@ -2,13 +2,13 @@ import React from 'react';
 import type { Card } from '../types';
 import { DateTime } from 'luxon';
 import { cardAdded } from '../store/slices/cards';
-import { selectAllCards } from '../store/selectors/cards';
+import { cardSelectors } from '../store/selectors/cards';
 import { RootState } from '../store/store';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { writeFileAsync } from '../containers/io';
 
 const Block: React.FunctionComponent = props => {
-    const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
+    const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
     const dispatch = useAppDispatch();
 
     const newCard: Card = {
@@ -29,7 +29,7 @@ const Block: React.FunctionComponent = props => {
 
     const handleClickTwo = async () => {
         // await dispatch(loadCard({ filepath: '/Users/nelsonni/Workspace/test/example.ts' })).unwrap();
-        await writeFileAsync('/Users/nelsonni/Workspace/test/example.ts', 'asdfadsfdsa', { encoding: 'utf-8'});
+        await writeFileAsync('/Users/nelsonni/Workspace/test/example.ts', 'asdfadsfdsa', { encoding: 'utf-8' });
     }
 
     return (

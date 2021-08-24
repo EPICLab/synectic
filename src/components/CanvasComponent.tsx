@@ -15,13 +15,13 @@ import { loadBranchVersions } from '../containers/branch-tracker';
 import { GitGraphSelect } from './GitGraphSelect';
 import { cardUpdated } from '../store/slices/cards';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllCards } from '../store/selectors/cards';
+import { cardSelectors } from '../store/selectors/cards';
 import { RootState } from '../store/store';
-import { selectAllStacks } from '../store/selectors/stacks';
-import { selectAllMetafiles } from '../store/selectors/metafiles';
-import { selectAllFiletypes } from '../store/selectors/filetypes';
-import { selectAllRepos } from '../store/selectors/repos';
-import { selectAllModals } from '../store/selectors/modals';
+import { stackSelectors } from '../store/selectors/stacks';
+import { metafileSelectors } from '../store/selectors/metafiles';
+import { filetypeSelectors } from '../store/selectors/filetypes';
+import { repoSelectors } from '../store/selectors/repos';
+import { modalSelectors } from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
 
 const DnDItemType = {
@@ -46,12 +46,12 @@ const useStyles = makeStyles((theme: Theme) =>
 const isMac = process.platform === 'darwin';
 
 const CanvasComponent: React.FunctionComponent = props => {
-  const cards = useAppSelector((state: RootState) => selectAllCards.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => selectAllStacks.selectAll(state));
-  const metafiles = useAppSelector((state: RootState) => selectAllMetafiles.selectAll(state));
-  const filetypes = useAppSelector((state: RootState) => selectAllFiletypes.selectAll(state));
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
-  const modals = useAppSelector((state: RootState) => selectAllModals.selectAll(state));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+  const stacks = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
+  const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const classes = useStyles();
 

@@ -20,8 +20,8 @@ import { BranchList } from './BranchList';
 import { Button } from '@material-ui/core';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { selectAllMetafiles } from '../store/selectors/metafiles';
-import { selectAllRepos } from '../store/selectors/repos';
+import { metafileSelectors } from '../store/selectors/metafiles';
+import { repoSelectors } from '../store/selectors/repos';
 
 const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise<void> }> = props => {
   const dispatch = useAppDispatch();
@@ -114,7 +114,7 @@ export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = p
 };
 
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
-  const rootMetafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.rootId));
+  const rootMetafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
   const { directories, files, update } = useDirectory((rootMetafile as MetafileWithPath).path);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,8 +136,8 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
 };
 
 export const ExplorerReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useAppSelector((state: RootState) => selectAllMetafiles.selectById(state, props.metafile));
-  const repos = useAppSelector((state: RootState) => selectAllRepos.selectAll(state));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
   const dispatch = useAppDispatch();
 

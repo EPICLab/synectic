@@ -6,7 +6,7 @@ import { nodeTypes } from './GitNode';
 import { useGitHistory } from '../containers/hooks/useGitHistory';
 import { RootState } from '../store/store';
 import { graphConstruction } from '../containers/git-graph';
-import { selectAllRepos } from '../store/selectors/repos';
+import { repoSelectors } from '../store/selectors/repos';
 import { useAppSelector } from '../store/hooks';
 
 export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
@@ -14,10 +14,9 @@ export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
   const [reactFlowState, setReactFlowState] = useState<OnLoadParams>();
   const onConnect = (params: Edge | Connection) => setElements((els) => addEdge(params, els));
   const onLoad: OnLoadFunc = (rf) => { setReactFlowState(rf) };
-  const repo = useAppSelector((state: RootState) => selectAllRepos.selectById(state, props.repo));
+  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repo));
   const { commits, heads, update } = useGitHistory(repo);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { update() }, [props.repo]);
 
   useEffect(() => {
