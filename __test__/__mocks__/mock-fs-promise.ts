@@ -1,6 +1,7 @@
 import { dir } from 'tmp-promise';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { MockedRepository, mockGit, MockInstanceEnhanced } from './mock-git-promise';
 
 type Encoding = 'ascii' | 'base64' | 'hex' | 'ucs2' | 'ucs-2' | 'utf16le' | 'utf-16le' | 'utf8' | 'utf-8' | 'binary' | 'latin1';
 type Octal = 0o0 | 0o1 | 0o2 | 0o3 | 0o4 | 0o5 | 0o6 | 0o7;
@@ -9,6 +10,7 @@ type Flag = 'a' | 'ax' | 'a+' | 'ax+' | 'as' | 'as+' | 'r' | 'r+' | 'rs+' | 'w' 
 
 export type MockInstance = {
     getRoot(): string;
+    addItem(filename: string, item: DirectoryItem): Promise<void>;
     reset(): void;
 }
 
@@ -59,20 +61,25 @@ export type SymbolicLink = {
     birthtime?: Date | undefined;
 }
 
-export const mock = async (config: DirectoryItems): Promise<MockInstance> => {
+export async function mock(config: DirectoryItems, gitRepo: MockedRepository): Promise<MockInstanceEnhanced>;
+export async function mock(config: DirectoryItems): Promise<MockInstance>;
+export async function mock(config: DirectoryItems, gitRepo?: MockedRepository | undefined): Promise<MockInstance | MockInstanceEnhanced> {
     const root = await dir({ unsafeCleanup: true });
     const cwd = process.cwd();
 
     process.chdir(root.path);
     for (const entry of Object.entries(config)) await create(entry);
 
-    return {
+    const instance = {
         getRoot: () => root.path,
+        addItem: (filename: string, item: DirectoryItem) => create([filename, item]),
         reset: () => {
             root.cleanup();
             process.chdir(cwd);
         }
     };
+    if (gitRepo) return mockGit(instance, gitRepo);
+    else return instance;
 }
 
 export const create = async ([filename, config]: [string, DirectoryItem]): Promise<void> => {
@@ -100,7 +107,6 @@ export const create = async ([filename, config]: [string, DirectoryItem]): Promi
         } else {
             await writeDir(filename);
         }
-
     }
 }
 

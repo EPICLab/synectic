@@ -6,27 +6,27 @@ import { RootState } from '../../src/store/store';
 export const emptyStore: RootState = {
   stacks: {
     ids: [],
-    entities: {}
+    entities: { }
   },
   cards: {
     ids: [],
-    entities: {}
+    entities: { }
   },
   filetypes: {
     ids: [],
-    entities: {}
+    entities: { }
   },
   metafiles: {
     ids: [],
-    entities: {}
+    entities: { }
   },
   repos: {
     ids: [],
-    entities: {}
+    entities: { }
   },
   modals: {
     ids: [],
-    entities: {}
+    entities: { }
   }
 }
 
@@ -155,7 +155,7 @@ export const testStore: RootState = {
     }
   },
   metafiles: {
-    ids: ['821c9159-292b-4639-b90e-e84fc12740ee', '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71', 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8', '28'],
+    ids: ['821c9159-292b-4639-b90e-e84fc12740ee', '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71', '88e2gd50-3a5q-6401-b5b3-203c6710e35c', 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8', '28'],
     entities: {
       '821c9159-292b-4639-b90e-e84fc12740ee': {
         id: '821c9159-292b-4639-b90e-e84fc12740ee',
@@ -172,6 +172,13 @@ export const testStore: RootState = {
         repo: '23',
         branch: 'master'
       },
+      '88e2gd50-3a5q-6401-b5b3-203c6710e35c': {
+        id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
+        name: 'bar.js',
+        path: 'foo/bar.js',
+        modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+        content: 'file contents',
+      },
       'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8': {
         id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
         name: 'turtle.asp',
@@ -183,7 +190,14 @@ export const testStore: RootState = {
         path: 'foo',
         modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
         filetype: 'Directory',
-        contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71']
+        contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71', '88e2gd50-3a5q-6401-b5b3-203c6710e35c']
+      },
+      'h8114d71-b100-fg9a-0c1d3516d991': {
+        id: 'h8114d71-b100-fg9a-0c1d3516d991',
+        name: 'virtual.js',
+        handler: 'Editor',
+        modified: DateTime.fromISO('2018-11-14T02:01:31.382-08:00').valueOf(),
+        content: 'virtual file with content, but no file associated'
       }
     }
   },

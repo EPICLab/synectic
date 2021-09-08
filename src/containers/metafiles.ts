@@ -60,12 +60,12 @@ export const updateFileStats = createAsyncThunk<void, UUID, AppThunkAPI & { reje
     const metafile = thunkAPI.getState().metafiles.entities[id];
     if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? metafile.id : 'unknown');
     const handler = await thunkAPI.dispatch(resolveHandler(metafile.path)).unwrap();
-    console.log(JSON.stringify(handler));
-    thunkAPI.dispatch(metafileUpdated({
+    const payload = {
       ...metafile,
       filetype: handler?.filetype,
       handler: handler?.handler
-    }));
+    };
+    thunkAPI.dispatch(metafileUpdated(payload));
   }
 )
 
@@ -81,7 +81,7 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI & { reject
   'metafiles/updateGitInfo',
   async (id, thunkAPI) => {
     const metafile = thunkAPI.getState().metafiles.entities[id];
-    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? metafile.id : 'unknown');
+    if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? `metafile: ${metafile.id}` : 'metafile: unknown');
     try {
       const repo = unwrapResult(await thunkAPI.dispatch(getRepository(metafile.path)));
       const root = await getRepoRoot(metafile.path);
