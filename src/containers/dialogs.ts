@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import { join } from 'path';
 import type { Metafile } from '../types';
 import { AppThunkAPI } from '../store/hooks';
@@ -14,12 +14,8 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
   'dialogs/fileOpenDialog',
   async (pickerType, thunkAPI) => {
     const isMac = process.platform === 'darwin';
-    const isPickerTypeUndefined = pickerType ? true : false;
-    console.log(`isPickerTypeUndefined: ${isPickerTypeUndefined}`);
     const properties: ('openFile' | 'openDirectory')[] = pickerType ? [pickerType] : (isMac ? ['openFile', 'openDirectory'] : ['openFile']);
-    console.log(`properties: ${JSON.stringify(properties)}`);
-    const paths = await remote.dialog.showOpenDialog({ properties: [...properties, 'multiSelections'] });
-    console.log(`paths: ${JSON.stringify(paths)}`);
+    const paths: Electron.OpenDialogReturnValue = await ipcRenderer.invoke('fileOpenDialog', properties);
     if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => await thunkAPI.dispatch(loadCard({ filepath: filePath })));
   }
 );
@@ -29,8 +25,8 @@ export const fileSaveDialog = createAsyncThunk<void, Metafile, AppThunkAPI>(
   async (metafile, thunkAPI) => {
     const isMac = process.platform === 'darwin';
     const properties: ('showHiddenFiles' | 'createDirectory')[] = isMac ? ['showHiddenFiles', 'createDirectory'] : ['showHiddenFiles'];
-
-    const response = await remote.dialog.showSaveDialog({ defaultPath: join(process.cwd(), metafile.name), properties: properties });
+    const response: Electron.SaveDialogReturnValue = await ipcRenderer.invoke('fileSaveDialog', { defaultPath: join(process.cwd(), metafile.name), properties: properties });
+    // const response = await remote.dialog.showSaveDialog({ defaultPath: join(process.cwd(), metafile.name), properties: properties });
     if (!response.canceled && response.filePath && metafile.content) {
       // update metafile
       thunkAPI.dispatch(metafileUpdated({ ...metafile, path: response.filePath, state: 'unmodified' }));
