@@ -88,7 +88,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.id));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const dispatch = useAppDispatch();
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
