@@ -18,7 +18,7 @@ export const metafilesSlice = createSlice({
                 ...action.payload, modified: DateTime.local().valueOf()
             })
         },
-        metafilesUpdates: metafilesAdapter.updateMany
+        metafilesUpdated: metafilesAdapter.updateMany
     },
     extraReducers: (builder) => {
         builder
@@ -29,7 +29,7 @@ export const metafilesSlice = createSlice({
                     .map(m => {
                         return { id: m.id, changes: { repo: undefined } };
                     })
-                metafilesSlice.actions.metafilesUpdates(updatedMetafiles);
+                metafilesSlice.actions.metafilesUpdated(updatedMetafiles);
             })
     }
 })

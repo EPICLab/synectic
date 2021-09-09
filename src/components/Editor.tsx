@@ -17,7 +17,6 @@ import { metafileSelectors } from '../store/selectors/metafiles';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
 import { DateTime } from 'luxon';
-import { getMetafile } from '../containers/metafiles';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
@@ -27,13 +26,7 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
 
   const onChange = async (newCode: string) => {
     setCode(newCode);
-    if (metafile) {
-      console.log(`Editor.onChange for metafile: ${metafile.id}`);
-      await dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
-      const newMetafile = await dispatch(getMetafile({ id: metafile.id }));
-      console.log(`OLD: ${JSON.stringify(metafile, undefined, 2)}`);
-      console.log(`NEW: ${JSON.stringify(newMetafile, undefined, 2)}`);
-    }
+    if (metafile) dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
   };
 
   return (
