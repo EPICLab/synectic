@@ -1,5 +1,6 @@
 import { createAsyncThunk, createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
+import * as path from 'path';
 import { PathLike } from 'fs-extra';
 import type { Metafile, UUID } from '../../types';
 import { repoRemoved } from './repos';
@@ -38,7 +39,7 @@ export const getMetafileByFilepath = createAsyncThunk<Metafile | undefined, Path
     'metafiles/getMetafileByFilepath',
     async (filepath, thunkAPI) => {
         return Object.values(thunkAPI.getState().metafiles.entities)
-            .find(m => m && (m.path === filepath));
+            .find(m => m && path.relative(m.path.toString(), filepath.toString()).length === 0);
     }
 )
 
