@@ -5,21 +5,20 @@ import { testStore } from './__fixtures__/ReduxStore';
 import { mock, MockInstance } from './__mocks__/mock-fs-promise';
 import { mockStore } from './__mocks__/reduxStoreMock';
 
-let mockedInstance: MockInstance;
-const store = mockStore(testStore);
+describe('containers/handlers', () => {
+  let mockedInstance: MockInstance;
+  const store = mockStore(testStore);
 
-beforeAll(async () => {
-  const instance = await mock({
-    'foo/data.php': 'sample data for supported filetype',
-    'foo/data.azi': 'sample data for unsupported filetype',
-    'foo/example.ts': 'sample data tied to a metafile'
+  beforeAll(async () => {
+    const instance = await mock({
+      'foo/data.php': 'sample data for supported filetype',
+      'foo/data.azi': 'sample data for unsupported filetype',
+      'foo/example.ts': 'sample data tied to a metafile'
+    });
+    return mockedInstance = instance;
   });
-  return mockedInstance = instance;
-});
-afterAll(() => mockedInstance.reset());
-afterEach(() => store.clearActions());
-
-describe('handlers.importFiletypes', () => {
+  afterAll(() => mockedInstance.reset());
+  afterEach(() => store.clearActions());
 
   it('importFiletypes resolves filetypes from config file', async () => {
     await store.dispatch(handlers.importFiletypes());
@@ -63,6 +62,7 @@ describe('handlers.importFiletypes', () => {
   });
 
   it('loadCard resolves new card on valid filepath', async () => {
+    await store.dispatch(handlers.importFiletypes());
     await store.dispatch(handlers.loadCard({ filepath: 'foo/data.php' }));
     expect(store.getActions()).toEqual(
       expect.arrayContaining([
