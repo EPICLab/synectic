@@ -276,7 +276,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
  * @param headers Additional headers to include in the HTTP requests, similar to the `extraHeader` config in canonical git.
  * @returns 
  */
-export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', corsProxy, forPush = false, headers = { } }: {
+export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', corsProxy, forPush = false, headers = {} }: {
   onAuth?: isogit.AuthCallback;
   onAuthFailure?: isogit.AuthFailureCallback;
   onAuthSuccess?: isogit.AuthSuccessCallback;

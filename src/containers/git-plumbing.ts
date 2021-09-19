@@ -14,9 +14,9 @@ import * as io from './io';
 import * as worktree from './git-worktree';
 import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
 import { AtLeastOne } from './format';
-import { MatrixStatus } from './hooks/useDirectory';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
+export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
 type Unpromisify<T> = T extends Promise<infer U> ? U : T;
 
 /* TEMPORARY SHIM!!! Remove after is-hidden-file is fixed. */
@@ -267,7 +267,7 @@ export const add = async (filepath: fs.PathLike, repo: Repository, branch: strin
 /**
  * Remove a file from the git index (aka staging area) for a specific repository and branch. If the branch is a linked worktree,
  * then index updates will occur on the index file in the `{main-worktree-root}/.git/worktrees/{linked-worktree}` directory. This
- * operation does not delete the file in the working directory.
+ * operation does not delete the file in the working directory, but does reset the index to discard any previously staged changes.
  * @param filepath The relative or absolute path to add.
  * @param repo A Repository object.
  * @param branch The name of a branch contained within the local branches of the indicated repository.
@@ -283,9 +283,11 @@ export const remove = async (filepath: fs.PathLike, repo: Repository, branch: st
     if (!worktreeRoot) return undefined; // not a part of a linked worktree
     console.log({ isLinked, worktreeRoot });
     const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    return isogit.remove({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) });
+    return isogit.remove({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) })
+      .then(() => isogit.resetIndex({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) }));
   }
-  return isogit.remove({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) });
+  return isogit.remove({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) })
+    .then(() => isogit.resetIndex({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) }));
 }
 
 /**
@@ -352,8 +354,8 @@ export const parseStatusMatrix = async (file: fs.PathLike, matrix: Unpromisify<R
 }
 
 type statusMatrixTypes = {
-  matrixEntry: [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3],
-  status: MatrixStatus
+  matrixEntry: [string, ...MatrixStatus],
+  status: [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3]
 }
 
 export const matrixToStatus = (entry: AtLeastOne<statusMatrixTypes>): GitStatus | undefined => {
