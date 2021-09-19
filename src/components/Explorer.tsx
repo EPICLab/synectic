@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { PathLike, remove } from 'fs-extra';
+import React, { useState } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
 import ReplayIcon from '@material-ui/icons/Replay';
@@ -7,14 +6,12 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import type { UUID, Card } from '../types';
+import type { UUID, Card, Metafile, GitStatus } from '../types';
 import { RootState } from '../store/store';
-import { loadCard, resolveHandler } from '../containers/handlers';
-import { extractFilename, writeFileAsync } from '../containers/io';
-import { FileState, HookEntry, useDirectory } from '../containers/hooks/useDirectory';
+import { loadCard } from '../containers/handlers';
+import { extractFilename } from '../containers/io';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { getMetafile, MetafileWithPath } from '../containers/metafiles';
-import { discardChanges } from '../containers/git-plumbing';
+import { discardMetafileChanges, getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { BranchRibbon } from './BranchRibbon';
 import { BranchList } from './BranchList';
 import { Button } from '@material-ui/core';
@@ -22,103 +19,61 @@ import { getBranchRoot } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
+import useDirectory from '../containers/hooks/useDirectory';
 
-const FileComponent: React.FunctionComponent<HookEntry & { update: () => Promise<void> }> = props => {
+const FileComponent: React.FunctionComponent<Metafile> = props => {
   const dispatch = useAppDispatch();
 
-  const colorFilter = (fileStatus: FileState) => {
-    switch (fileStatus) {
+  const colorFilter = (status: GitStatus) => {
+    switch (status) {
+      case '*added': // Fallthrough
       case 'added':
         return '#95bf77'; // green
+      case '*deleted': // Fallthrough
       case 'deleted':
         return '#da6473'; // red
+      case '*modified': // Fallthrough
       case 'modified':
         return '#d19a66'; // orange
-      case 'unmodified':
-        return undefined;
       default:
         return undefined;
     }
   }
 
-  const discardChangesHandler = (filepath: PathLike, fileState: FileState) =>
-    async (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      switch (fileState) {
-        case 'added': {
-          console.log('added file, so removing file to discard changes');
-          remove(filepath.toString(), (error) => console.log(error));
-          const handler = await dispatch(resolveHandler(filepath)).unwrap();
-          if (handler) dispatch(getMetafile({ virtual: { name: extractFilename(filepath), handler: handler.handler } }));
-          props.update();
-          break;
-        }
-        case 'modified': {
-          console.log('modified file, checking for changed content before doing anything')
-          const updatedContent = await discardChanges(filepath);
-          if (updatedContent) {
-            console.log('  changed content => overwriting with original content')
-            await writeFileAsync(filepath, updatedContent);
-            dispatch(getMetafile({ filepath: filepath }));
-            props.update();
-          }
-          break;
-        }
-        case 'deleted': {
-          console.log('deleted file, so rewriting file content to discard changes');
-          const content = await discardChanges(filepath);
-          if (content) {
-            await writeFileAsync(filepath, content);
-            dispatch(getMetafile({ filepath: filepath }));
-            props.update();
-          }
-          break;
-        }
-      }
-    }
-
-  return (
-    <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()}
-      color={colorFilter(props.fileState)}
+  return (props.path ?
+    <StyledTreeItem key={props.id} nodeId={props.id}
+      color={colorFilter(props.status)}
       labelText={extractFilename(props.path)}
-      labelInfo={(props.fileState && props.fileState !== 'unmodified') ? ReplayIcon : undefined}
-      labelInfoClickHandler={discardChangesHandler(props.path, props.fileState)}
+      labelInfo={['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? ReplayIcon : undefined}
+      labelInfoClickHandler={() => discardMetafileChanges(props)}
       labelIcon={InsertDriveFileIcon}
       enableHover={true}
-      onClick={() => (props.fileState === 'deleted') ? null : dispatch(loadCard({ filepath: props.path }))}
-    />
+      onClick={() => ['*deleted', 'deleted'].includes(props.status) ? null : dispatch(loadCard({ filepath: props.path }))}
+    /> : null
   );
 }
 
-export const DirectoryComponent: React.FunctionComponent<{ root: PathLike }> = props => {
-  const { directories, files, update } = useDirectory(props.root);
+export const DirectoryComponent: React.FunctionComponent<Metafile> = props => {
+  const { directories, files } = useDirectory(props.path);
   const [expanded, setExpanded] = useState(false);
 
-  const clickHandle = async () => {
-    if (!expanded) await update();
-    setExpanded(!expanded);
-  }
+  const clickHandle = async () => setExpanded(!expanded);
 
   return (
-    < StyledTreeItem key={props.root.toString()} nodeId={props.root.toString()}
-      labelText={extractFilename(props.root)}
+    < StyledTreeItem key={props.id} nodeId={props.id}
+      labelText={props.name}
       labelIcon={expanded ? FolderOpenIcon : FolderIcon}
       onClick={clickHandle}
     >
-      {directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
-      {files.map(file => <FileComponent key={file.path.toString()} {...file} update={update} />)}
+      {directories.map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
+      {files.map(file => <FileComponent key={file.id} {...file} />)}
     </StyledTreeItem >
   );
 };
 
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const rootMetafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
-  const { directories, files, update } = useDirectory((rootMetafile as MetafileWithPath).path);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { update() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
+  const { directories, files } = useDirectory((rootMetafile as MetafileWithPath).path);
 
   return (
     <div className='file-explorer'>
@@ -128,8 +83,8 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
         defaultExpandIcon={<ArrowRightIcon />}
         defaultEndIcon={<div style={{ width: 8 }} />}
       >
-        {directories.map(dir => <DirectoryComponent key={dir.path.toString()} root={dir.path} />)}
-        {files.map(file => <FileComponent key={file.path.toString()} {...file} update={update} />)}
+        {directories.map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
+        {files.map(file => <FileComponent key={file.id} {...file} />)}
       </TreeView>
     </div>
   );
@@ -154,10 +109,6 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
     })).unwrap();
     if (sourceControlMetafile) dispatch(loadCard({ metafile: sourceControlMetafile }));
   }
-
-  /**
-   * TODO: Need to update the metafile.status for the directory when an underlying file changes
-   */
 
   return (
     <>

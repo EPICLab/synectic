@@ -1,6 +1,8 @@
-import { PathLike } from 'fs-extra';
+import { PathLike, remove } from 'fs-extra';
 import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 import { createAsyncThunk, unwrapResult } from '@reduxjs/toolkit';
+
 import type { Metafile, UUID } from '../types';
 import * as io from './io';
 import { AppThunkAPI } from '../store/hooks';
@@ -9,8 +11,7 @@ import { asyncFilter } from './format';
 import { currentBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { resolveHandler } from './handlers';
 import { getMetafileByBranch, getMetafileByFilepath, getMetafileByVirtual, metafileAdded, metafileUpdated } from '../store/slices/metafiles';
-import { DateTime } from 'luxon';
-import { isHiddenFile } from './git-plumbing';
+import { isHiddenFile, discardChanges } from './git-plumbing';
 // import { isHiddenFile } from 'is-hidden-file';
 
 export type MetafileWithPath = Metafile & Required<Pick<Metafile, 'path'>>;
@@ -222,3 +223,40 @@ export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettab
     return thunkAPI.rejectWithValue('Failed to match any containers/metafiles/getMetafile parameter types');
   }
 )
+
+export const discardMetafileChanges = createAsyncThunk<undefined, Metafile, AppThunkAPI & { rejectValue: Error }>(
+  'metafiles/discardMetafileChanges',
+  async (metafile, thunkAPI) => {
+    switch (metafile.status) {
+      case '*added': // Fallthrough
+      case 'added': {
+        // added file; removing file and refetch to dischard changes
+        remove(metafile.path.toString(), (error) => thunkAPI.rejectWithValue(error));
+        const handler = await thunkAPI.dispatch(resolveHandler(metafile.path)).unwrap();
+        if (handler) thunkAPI.dispatch(getMetafile({ virtual: { name: metafile.name, handler: handler.handler } }));
+        break;
+      }
+      case '*modified': // Fallthrough
+      case 'modified': {
+        // modified; overwrite metafile with original content from file (if changed)
+        const updatedContent = await discardChanges(metafile.path);
+        if (updatedContent) {
+          await io.writeFileAsync(metafile.path, updatedContent);
+          thunkAPI.dispatch(getMetafile({ filepath: metafile.path }));
+        }
+        break;
+      }
+      case '*deleted': // Fallthrough
+      case 'deleted': {
+        // deleted; rewrite file content to discard changes
+        const content = await discardChanges(metafile.path);
+        if (content) {
+          await io.writeFileAsync(metafile.path, content);
+          thunkAPI.dispatch(getMetafile({ filepath: metafile.path }));
+        }
+        break;
+      }
+    }
+    return thunkAPI.rejectWithValue(new Error('Failed to discard changes; unknown git status.'));
+  }
+);
