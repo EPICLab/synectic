@@ -72,7 +72,7 @@ describe('CardComponent', () => {
 
   it('Card resolves props into React Component for Explorer handler', async () => {
     // Explorer component automatically loads files and directories through async calls to the useDirectory hook
-    jest.spyOn(useDirectoryHook, 'useDirectory').mockReturnValue({
+    jest.spyOn(useDirectoryHook, 'default').mockReturnValue({
       root: 'foo',
       directories: [],
       files: [],
@@ -124,7 +124,7 @@ describe('CardComponent', () => {
 
   it('Explorer Card renders a reverse side when the flip button is clicked', async () => {
     // Explorer component automatically loads files and directories through async calls to the useDirectory hook
-    jest.spyOn(useDirectoryHook, 'useDirectory').mockReturnValue({
+    jest.spyOn(useDirectoryHook, 'default').mockReturnValue({
       root: 'foo',
       directories: [],
       files: [],
