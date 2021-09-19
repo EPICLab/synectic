@@ -1,32 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
     "allowJs": true,
+    "module": "commonjs",
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "jsx": "react",
+    "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "importsNotUsedAsValues": "preserve",
-    "isolatedModules": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "jsx": "react"
+    "paths": {
+      "*": ["node_modules/*"]
+    }
   },
   "include": [
-    "src",
-    "__test__"
-  ],
-  "exclude": [
-    "node_modules"
+    "src/**/*"
   ]
 }

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import type { Modal, UUID } from '../types';
-import { Action, ActionKeys } from '../store/actions';
-import { RootState } from '../store/root';
+import { RootState } from '../store/store';
 import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 import { merge } from '../containers/git-porcelain';
@@ -13,6 +10,9 @@ import { branchLog } from '../containers/git-plumbing';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import TimelineComponent from './MergeTimeline';
 import DropSelect from './DropSelect';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { repoSelectors } from '../store/selectors/repos';
+import { modalRemoved } from '../store/slices/modals';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,14 +44,14 @@ type MissingGitConfigs = string[] | undefined;
 
 const MergeDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
-  const repos = useSelector((state: RootState) => Object.values(state.repos));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo, setRepo] = useState<UUID>('');
   const [base, setBase] = useState<string>('');
   const [compare, setCompare] = useState<string>('');
   const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
   const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
   const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
+  const dispatch = useAppDispatch();
 
   const branchCheck = async () => {
     const fullRepo = repos.find(r => r.id === repo);
@@ -94,7 +94,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const branches = repos.find(r => r.id === repo)?.local.map(b => ({ key: b, value: b }));
 
   return (
-    <Dialog id='dialog' open={true} onClose={() => dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id })}>
+    <Dialog id='dialog' open={true} onClose={() => dispatch(modalRemoved(props.id))}>
       <div className={classes.root}>
         <div className={classes.section1}>
           <Grid container alignItems='center'>

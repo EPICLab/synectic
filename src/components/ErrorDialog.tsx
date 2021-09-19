@@ -3,14 +3,14 @@ import { useDispatch } from 'react-redux';
 import { Dialog, DialogTitle, Button, DialogContent, DialogContentText } from '@material-ui/core';
 
 import type { Modal } from '../types';
-import { ActionKeys } from '../store/actions';
+import { metafileRemoved } from '../store/slices/metafiles';
 
 const ErrorDialog: React.FunctionComponent<Modal> = props => {
   const dispatch = useDispatch();
   const message = props.options && props.options['message'] as string;
 
   const close = () => {
-    dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id })
+    dispatch(metafileRemoved(props.id))
   };
 
   return (

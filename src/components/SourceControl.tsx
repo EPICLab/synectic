@@ -1,46 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { InsertDriveFile, Add, Remove } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
-
-import type { Card, Repository, UUID } from '../types';
-import { RootState } from '../store/root';
+import type { Card, GitStatus, Metafile, Repository, UUID } from '../types';
+import { RootState } from '../store/store';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { HookEntry, MatrixStatus, useDirectory } from '../store/hooks/useDirectory';
 import { MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
-import { add, matrixToStatus, remove } from '../containers/git-plumbing';
+import { add, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
+import { useAppSelector } from '../store/hooks';
+import { metafileSelectors } from '../store/selectors/metafiles';
+import { repoSelectors } from '../store/selectors/repos';
+import useDirectory from '../containers/hooks/useDirectory';
 
-const modifiedCheck = (status: MatrixStatus | undefined): boolean => {
+const modifiedCheck = (status: GitStatus | undefined): boolean => {
   if (!status) return false;
-  return !(status[0] === status[1] && status[1] === status[2]);
+  // should be same as MatrixStatus results from:
+  //    !(status[0] === status[1] && status[1] === status[2]);
+  return !['absent', 'unmodified', 'ignored'].includes(status);
 }
 
-const changedCheck = (status: MatrixStatus | undefined): boolean => {
+const changedCheck = (status: GitStatus | undefined): boolean => {
   if (!status) return false;
-  return matrixToStatus({ status: status })?.charAt(0) === '*';
+  // should be same as MatrixStatus results from:
+  //    matrixToStatus({ status: status })?.charAt(0) === '*';
+  return ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(status);
 }
 
-const stagedCheck = (status: MatrixStatus | undefined): boolean => {
+const stagedCheck = (status: GitStatus | undefined): boolean => {
   if (!status) return false;
   return modifiedCheck(status) && !changedCheck(status);
 }
 
 type SourceFileProps = {
-  repo?: Repository,
-  branch?: string,
+  repository: Repository,
   update: () => Promise<void>
 }
 
-const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> = props => {
+const SourceFileComponent: React.FunctionComponent<Metafile & SourceFileProps> = props => {
 
-  const colorFilter = (status: MatrixStatus | undefined) =>
+  const colorFilter = (status: GitStatus | undefined) =>
   (status && stagedCheck(status) ? '#61aeee'
     : (status && changedCheck(status) ? '#d19a66' : undefined));
 
-  const iconFilter = (status: MatrixStatus | undefined) =>
+  const iconFilter = (status: GitStatus | undefined) =>
   (status && stagedCheck(status) ? Remove
     : (status && changedCheck(status) ? Add : undefined));
 
@@ -58,11 +62,11 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
         }
         if (stagedCheck(props.status)) {
           console.log(`unstaging ${extractFilename(props.path)}...`);
-          await remove(props.path, props.repo, props.branch);
+          await remove(props.path, props.repository, props.branch);
           await props.update();
         } else if (modifiedCheck(props.status)) {
           console.log(`staging ${extractFilename(props.path)}...`);
-          await add(props.path, props.repo, props.branch);
+          await add(props.path, props.repository, props.branch);
           await props.update();
         }
       }}
@@ -71,45 +75,42 @@ const SourceFileComponent: React.FunctionComponent<HookEntry & SourceFileProps> 
 }
 
 const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.rootId]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : undefined);
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const [repo] = useState(metafile ? repos.find(r => r.id === metafile.repo) : undefined);
   const { files, update } = useDirectory((metafile as MetafileWithPath).path);
-  const [staged, setStaged] = useState<HookEntry[]>([]);
-  const [changed, setChanged] = useState<HookEntry[]>([]);
-  const [modified, setModified] = useState<HookEntry[]>([]);
+  const [staged, setStaged] = useState<Metafile[]>([]);
+  const [changed, setChanged] = useState<Metafile[]>([]);
+  const [modified, setModified] = useState<Metafile[]>([]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { update() }, []); // initial async call to load/filter sub-directories & files via useDirectory hook
   useEffect(() => { setModified(files.filter(f => modifiedCheck(f.status))) }, [files]);
   useEffect(() => { setStaged(files.filter(f => stagedCheck(f.status))) }, [files]);
   useEffect(() => { setChanged(files.filter(f => changedCheck(f.status))) }, [files]);
 
   return (
     <div className='file-explorer'>
-      <BranchRibbon branch={metafile.branch} onClick={() => {
+      <BranchRibbon branch={metafile?.branch} onClick={() => {
         console.log({ metafile, files, modified });
-        update();
       }} />
       <TreeView>
-        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile.branch}-staged`}
-          nodeId={`${repo ? repo.name : ''}-${metafile.branch}-staged`}
+        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
+          nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
           labelText='Staged'
           labelInfoText={`${staged.length}`}
           labelIcon={GitBranchIcon}
         >
           {staged.map(file =>
-            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} update={update} {...file} />)
+            <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)
           }
         </StyledTreeItem>
-        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile.branch}-changed`}
-          nodeId={`${repo ? repo.name : ''}-${metafile.branch}-changed`}
+        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
+          nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
           labelText='Changed'
           labelInfoText={`${changed.length}`}
           labelIcon={GitBranchIcon}
         >
           {changed.map(file =>
-            <SourceFileComponent key={file.path.toString()} repo={repo} branch={metafile.branch} update={update} {...file} />)}
+            <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)}
         </StyledTreeItem>
       </TreeView>
     </div>
@@ -117,13 +118,13 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
 }
 
 export const SourceControlReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useSelector((state: RootState) => state.metafiles[props.metafile]);
-  const repos = useSelector((state: RootState) => state.repos);
-  const [repo] = useState(metafile.repo ? repos[metafile.repo] : { name: 'Untracked' });
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const [repo = { name: 'Untracked' }] = useState(repos.find(r => r.id === metafile?.repo) || { name: 'Untracked' });
   return (
     <>
       <span>Repo:</span><span className='field'>{repo.name}</span>
-      <span>Branch:</span><span className='field'>{metafile.branch ? metafile.branch : 'untracked'}</span>
+      <span>Branch:</span><span className='field'>{metafile?.branch ? metafile.branch : 'untracked'}</span>
     </>
   )
 }

@@ -19,12 +19,11 @@ type ObjectElementType<T> = T extends Record<string, infer U> ? ObjectElementTyp
  * @param arr Array containing primitive values, objects, and other arrays.
  * @return Array of depth 1, containing all sub-array elements.
  */
-
 export const flattenArray = <T extends unknown[]>(arr: T): ArrayElementType<T>[] => {
   const reducer = (prev: ArrayElementType<T>[], curr: unknown): ArrayElementType<T>[] => {
     return Array.isArray(curr) ? (curr as ArrayElementType<T>[]).reduce(reducer, prev) : [...prev, curr as ArrayElementType<T>];
   }
-  return arr.reduce(reducer, []);
+  return arr.reduce<ArrayElementType<T>[]>(reducer, []);
 }
 
 /**

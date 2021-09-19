@@ -1,21 +1,28 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
+import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
 import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
+// import { isHiddenFile } from 'is-hidden-file';
 
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
 import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
 import { AtLeastOne } from './format';
-import { MatrixStatus } from '../store/hooks/useDirectory';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
+export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
 type Unpromisify<T> = T extends Promise<infer U> ? U : T;
+
+/* TEMPORARY SHIM!!! Remove after is-hidden-file is fixed. */
+export const isHiddenFile = (path: PathLike): boolean => {
+  return /(^|\/)\.[^/.]/g.test(path.toString());
+}
 
 /**
  * Asynchronous check for presence of .git within directory to validate Git version control.
@@ -77,8 +84,8 @@ export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; 
 export const isValidRepository = (repo: Repository): boolean => (
   isUUID(repo.id, 4)
   && repo.name.length > 0
-  && (isWebUri(repo.corsProxy.href) ? true : false)
-  && ((isWebUri(repo.url.href) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url.href)))
+  && (isWebUri(repo.corsProxy) ? true : false)
+  && ((isWebUri(repo.url) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url)))
 );
 
 /**
@@ -260,7 +267,7 @@ export const add = async (filepath: fs.PathLike, repo: Repository, branch: strin
 /**
  * Remove a file from the git index (aka staging area) for a specific repository and branch. If the branch is a linked worktree,
  * then index updates will occur on the index file in the `{main-worktree-root}/.git/worktrees/{linked-worktree}` directory. This
- * operation does not delete the file in the working directory.
+ * operation does not delete the file in the working directory, but does reset the index to discard any previously staged changes.
  * @param filepath The relative or absolute path to add.
  * @param repo A Repository object.
  * @param branch The name of a branch contained within the local branches of the indicated repository.
@@ -276,9 +283,11 @@ export const remove = async (filepath: fs.PathLike, repo: Repository, branch: st
     if (!worktreeRoot) return undefined; // not a part of a linked worktree
     console.log({ isLinked, worktreeRoot });
     const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    return isogit.remove({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) });
+    return isogit.remove({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) })
+      .then(() => isogit.resetIndex({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) }));
   }
-  return isogit.remove({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) });
+  return isogit.remove({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) })
+    .then(() => isogit.resetIndex({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) }));
 }
 
 /**
@@ -320,7 +329,7 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
 
   return isLinked
     ? worktree.statusMatrix(dirpath)
-    : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !io.isHidden(f) });
+    : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !isHiddenFile(f) });
 }
 
 /**
@@ -345,8 +354,8 @@ export const parseStatusMatrix = async (file: fs.PathLike, matrix: Unpromisify<R
 }
 
 type statusMatrixTypes = {
-  matrixEntry: [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3],
-  status: MatrixStatus
+  matrixEntry: [string, ...MatrixStatus],
+  status: [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3]
 }
 
 export const matrixToStatus = (entry: AtLeastOne<statusMatrixTypes>): GitStatus | undefined => {

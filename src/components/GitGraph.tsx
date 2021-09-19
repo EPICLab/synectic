@@ -3,20 +3,20 @@ import ReactFlow, { addEdge, Connection, Edge, FlowElement, OnLoadFunc, OnLoadPa
 
 import type { UUID } from '../types';
 import { nodeTypes } from './GitNode';
-import { useGitHistory } from '../store/hooks/useGitHistory';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store/root';
+import { useGitHistory } from '../containers/hooks/useGitHistory';
+import { RootState } from '../store/store';
 import { graphConstruction } from '../containers/git-graph';
+import { repoSelectors } from '../store/selectors/repos';
+import { useAppSelector } from '../store/hooks';
 
 export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
   const [elements, setElements] = useState<Array<FlowElement>>([]);
   const [reactFlowState, setReactFlowState] = useState<OnLoadParams>();
   const onConnect = (params: Edge | Connection) => setElements((els) => addEdge(params, els));
   const onLoad: OnLoadFunc = (rf) => { setReactFlowState(rf) };
-  const repo = useSelector((state: RootState) => state.repos[props.repo]);
+  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repo));
   const { commits, heads, update } = useGitHistory(repo);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { update() }, [props.repo]);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
 
   useEffect(() => {
     console.log('generating graph...');
-    const asyncFetchGraph = async () => setElements(await graphConstruction(commits, heads, repo));
+    const asyncFetchGraph = async () => setElements(repo ? await graphConstruction(commits, heads, repo) : []);
     asyncFetchGraph();
   }, [commits, heads, repo]);
 

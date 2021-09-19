@@ -1,16 +1,17 @@
-import { configureMockStore } from '@jedmao/redux-mock-store';
-import thunk, { ThunkDispatch } from 'redux-thunk';
-import { DeepPartial } from 'redux';
+import { getDefaultMiddleware } from '@reduxjs/toolkit';
+import configureMockStore from 'redux-mock-store';
+import { RootState, AppDispatch, rootReducer } from '../../src/store/store';
 
-import { RootState, rootReducer } from '../../src/store/root';
-import { Action } from '../../src/store/actions';
+import { AnyAction, DeepPartial } from 'redux';
 
 // Conditional type for extracting the type of values in a key-value map object, 
 // inspired by: https://mariusschulz.com/articles/conditional-types-in-typescript
 type KeyVal<T> = T extends { [x: string]: infer U } ? U : never;
 
-const middlewares = [thunk];
-const createMockStore = configureMockStore<RootState, Action, ThunkDispatch<RootState, undefined, Action>>(middlewares);
+const middlewares = getDefaultMiddleware({
+    immutableCheck: false
+});
+const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
 
 /** 
  * The mocked Redux store does not execute any reducers, and therefore `getActions()` only provides the unexecuted actions 
@@ -22,7 +23,7 @@ const createMockStore = configureMockStore<RootState, Action, ThunkDispatch<Root
  *   * https://github.com/reduxjs/redux-mock-store/issues/71
  *   * https://github.com/reduxjs/redux-mock-store/issues/71#issuecomment-515209822
  */
-const createState = (initialState: RootState) => (actions: Action[]) => actions.reduce(rootReducer, initialState);
+export const createState = (initialState: RootState) => (actions: AnyAction[]): RootState => actions.reduce(rootReducer, initialState);
 
 /**
  * Creates a mocked Redux store for testing purposes. The resulting store can be interacted with using:
@@ -46,8 +47,8 @@ export const mockStore = (initialState: RootState) => createMockStore(createStat
  * @return A typed array of values stored in the field within the mocked Redux store.
  */
 export const extractFieldArray = <T extends Record<string, KeyVal<T>>>(map: DeepPartial<T> | undefined): KeyVal<T>[] => {
-  if (map) return Object.values(map as T);
-  throw new Error('exposeFieldArray() cannot resolve undefined');
+    if (map) return Object.values(map as T);
+    throw new Error('exposeFieldArray() cannot resolve undefined');
 }
 
 /**
@@ -60,6 +61,6 @@ export const extractFieldArray = <T extends Record<string, KeyVal<T>>>(map: Deep
  * @return A typed map stored in the field within the mocked Redux store.
  */
 export const extractFieldMap = <T extends Record<string, KeyVal<T>>>(map: DeepPartial<T> | undefined): Record<string, KeyVal<T>> => {
-  if (map) return (map as T);
-  throw new Error('exposeFieldMap() cannot resolve undefined');
+    if (map) return (map as T);
+    throw new Error('exposeFieldMap() cannot resolve undefined');
 }

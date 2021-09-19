@@ -3,7 +3,7 @@ import { ArrowHeadType, Edge, FlowElement, Node, isNode, isEdge } from 'react-fl
 
 import type { Repository } from '../types';
 import { getStatus } from '../containers/git-porcelain';
-import { CommitInfo } from '../store/hooks/useGitHistory';
+import { CommitInfo } from './hooks/useGitHistory';
 import { flattenArray } from '../containers/flatten';
 import { colorSets } from '../containers/colors';
 
@@ -80,7 +80,7 @@ export const layoutOptimizer = (rfGraph: Array<FlowElement>): Array<FlowElement>
 
 export const graphConstruction = async (commits: Map<string, CommitInfo>, heads: Map<string, string>, repo: Repository)
   : Promise<Array<FlowElement>> => {
-  const currentCommits = [...commits.values()]
+  const currentCommits = Array.from(commits.values())
     .sort((a, b) => a.commit.author.timestamp - b.commit.author.timestamp)  // sort by commit timestamp
     .slice(Math.max(commits.size - 80, 0))                                  // limited to 80 most recent commits
 
@@ -91,7 +91,7 @@ export const graphConstruction = async (commits: Map<string, CommitInfo>, heads:
     return [node, ...prev, ...edges];
   }, []);
 
-  const headsHashes = [...heads.values()];
+  const headsHashes = Array.from(heads.values());
   const headCommits = currentCommits.filter(commit => headsHashes.includes(commit.oid));
   const staged = flattenArray(await Promise.all(headCommits.map(currentBranchCommit => getGitStaged(currentBranchCommit, repo))));
 

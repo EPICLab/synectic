@@ -7,7 +7,6 @@ import { mockStore } from './__mocks__/reduxStoreMock';
 import { Provider } from 'react-redux';
 import { newCardModal } from './__fixtures__/Modal';
 import { testStore } from './__fixtures__/ReduxStore';
-import { ActionKeys } from '../src/store/actions';
 
 const store = mockStore(testStore);
 
@@ -45,8 +44,8 @@ describe('NewCardDialog', () => {
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            type: ActionKeys.REMOVE_MODAL,
-            id: newCardModal.id
+            type: 'modals/modalRemoved',
+            payload: newCardModal.id
           })
         ])
       )
@@ -68,8 +67,8 @@ describe('NewCardDialog', () => {
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            type: ActionKeys.REMOVE_MODAL,
-            id: newCardModal.id
+            type: 'modals/modalRemoved',
+            payload: newCardModal.id
           })
         ])
       )
@@ -113,7 +112,7 @@ describe('NewCardDialog', () => {
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            type: ActionKeys.ADD_METAFILE
+            type: 'metafiles/metafileAdded'
           })
         ])
       )

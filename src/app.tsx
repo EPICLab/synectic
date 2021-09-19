@@ -1,34 +1,24 @@
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
+import ReactDOM from 'react-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-
+import './index.css';
 import './assets/style.css';
-import { rootReducer } from './store/root';
+import store from './store/store';
 import CanvasComponent from './components/CanvasComponent';
 import { importFiletypes } from './containers/handlers';
-
-export const store = createStore(rootReducer, applyMiddleware(thunk));
 
 const App = (): JSX.Element => {
 
   useEffect(() => {
-    async function fetchData() {
-      const actions = await importFiletypes();
-      actions.map(action => store.dispatch(action)); // load all supported filetype handlers into Redux store
-    }
-    fetchData();
-  }, []); // run the effect only after the first render
+    store.dispatch(importFiletypes()); // load all supported filetype handlers into Redux store
+  }, []); // run the effect only once; after the first render
 
   return (
     <Provider store={store}>
       <DndProvider backend={HTML5Backend}>
-        <React.Fragment>
-          <CanvasComponent {...store.getState().canvas} />
-        </React.Fragment>
+        <CanvasComponent />
       </DndProvider>
     </Provider>
   );

@@ -1,38 +1,35 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { ThunkDispatch } from 'redux-thunk';
 import * as MUI from '@material-ui/core';
 
 import type { UUID, Modal } from '../types';
-import { RootState } from '../store/root';
-import { Action, ActionKeys } from '../store/actions';
+import { RootState } from '../store/store';
 import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
+import { modalRemoved } from '../store/slices/modals';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { cardSelectors } from '../store/selectors/cards';
+import { metafileSelectors } from '../store/selectors/metafiles';
+import { DateTime } from 'luxon';
 
 const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
-  const cards = useSelector((state: RootState) => state.cards);
-  const metafiles = useSelector((state: RootState) => state.metafiles);
-  const dispatch = useDispatch<ThunkDispatch<RootState, undefined, Action>>();
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
+  const dispatch = useAppDispatch();
   const [selectedLeft, setSelectedLeft] = useState<UUID>('');
   const [selectedRight, setSelectedRight] = useState<UUID>('');
 
   const handleClose = async (canceled: boolean, selected: [UUID, UUID]) => {
-    if (canceled || !selected[0] || !selected[1]) {
-      dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id });
-      return;
-    }
-    const [left, right] = [cards[selected[0]], cards[selected[1]]];
-    if (!left || !right) {
-      dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id });
-      return;
-    }
+    if (canceled || selected[0] === '' || selected[1] === '') return dispatch(modalRemoved(props.id));
+    const left = cards.find(c => c.id === selected[0]);
+    const right = cards.find(c => c.id === selected[1]);
+    if (!left || !right) return dispatch(modalRemoved(props.id));
 
-    const leftMetafile = metafiles[left.metafile];
-    const rightMetafile = metafiles[right.metafile];
+    const leftMetafile = metafiles.find(m => m.id === left.metafile);
+    const rightMetafile = metafiles.find(m => m.id === right.metafile);
     const diffCardName = `Δ ${leftMetafile?.branch}/${left.name} -> ${rightMetafile?.branch}/${right.name}`;
-    const diffMetafile = await dispatch(getMetafile({ virtual: { name: diffCardName, handler: 'Diff', targets: [left.id, right.id] } }));
+    const diffMetafile = await dispatch(getMetafile({ virtual: { name: diffCardName, handler: 'Diff', targets: [left.id, right.id] } })).unwrap();
     if (diffMetafile && diffMetafile.handler && leftMetafile && rightMetafile) dispatch(loadCard({ metafile: diffMetafile }));
-    dispatch({ type: ActionKeys.REMOVE_MODAL, id: props.id });
+    return dispatch(modalRemoved(props.id));
   };
 
   return (
@@ -45,7 +42,7 @@ const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
             autoWidth={true} onChange={(e) => setSelectedLeft(e.target.value as UUID)} input={<MUI.Input />}>
             {Object.values(cards).filter(card => card.type === 'Editor').map(card => (
               <MUI.MenuItem key={card.id} value={card.id}>
-                {card.name} (uuid: ...{card.id.slice(-5)}, modified {card.modified.toRelative()})
+                {card.name} (uuid: ...{card.id.slice(-5)}, modified {DateTime.fromMillis(card.modified).toRelative()})
               </MUI.MenuItem>
             ))}
           </MUI.Select>
@@ -57,7 +54,7 @@ const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
             autoWidth={true} onChange={(e) => setSelectedRight(e.target.value as UUID)} input={<MUI.Input />}>
             {Object.values(cards).filter(card => card.type === 'Editor').map(card => (
               <MUI.MenuItem key={card.id} value={card.id}>
-                {card.name} (uuid: ...{card.id.slice(-5)}, modified {card.modified.toRelative()})
+                {card.name} (uuid: ...{card.id.slice(-5)}, modified {DateTime.fromMillis(card.modified).toRelative()})
               </MUI.MenuItem>
             ))}
           </MUI.Select>

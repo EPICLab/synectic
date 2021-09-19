@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import DiffPickerDialog from '../src/components/DiffPickerDialog';
-import { ActionKeys } from '../src/store/actions';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 import { diffPickerModal } from './__fixtures__/Modal';
@@ -16,6 +15,7 @@ describe('DiffPickerDialog', () => {
 
   afterEach(() => {
     cleanup;
+    store.clearActions();
     jest.resetAllMocks();
   });
 
@@ -56,8 +56,8 @@ describe('DiffPickerDialog', () => {
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            type: ActionKeys.REMOVE_MODAL,
-            id: diffPickerModal.id
+            type: 'modals/modalRemoved',
+            payload: diffPickerModal.id
           })
         ])
       )
@@ -79,8 +79,8 @@ describe('DiffPickerDialog', () => {
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            type: ActionKeys.REMOVE_MODAL,
-            id: diffPickerModal.id
+            type: 'modals/modalRemoved',
+            payload: diffPickerModal.id
           })
         ])
       )
@@ -145,9 +145,10 @@ describe('DiffPickerDialog', () => {
       expect(store.getActions()).toStrictEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            metafile: expect.objectContaining({
+            type: 'metafiles/getMetafile/fulfilled',
+            payload: expect.objectContaining({
               handler: 'Diff',
-              name: expect.stringMatching(/^.*turtle\.asp.*test\.js/i),
+              name: 'Δ undefined/turtle.asp -> master/test.js',
               targets: [secondEditorCard.id, firstEditorCard.id]
             })
           })

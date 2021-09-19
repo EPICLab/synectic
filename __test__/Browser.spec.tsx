@@ -14,7 +14,7 @@ describe('Browser', () => {
 
     // Type URL into text box
     userEvent.clear(screen.getByRole('textbox'));
-    await userEvent.type(screen.getByRole('textbox'), 'https://google.com');
+    userEvent.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Hit Enter button
     fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
@@ -33,7 +33,7 @@ describe('Browser', () => {
 
     // Type URL into text box
     userEvent.clear(screen.getByRole('textbox'));
-    await userEvent.type(screen.getByRole('textbox'), 'https://google.com');
+    userEvent.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Press Enter key
     fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
@@ -61,7 +61,7 @@ describe('Browser', () => {
 
     // Type URL into text box
     userEvent.clear(screen.getByRole('textbox'));
-    await userEvent.type(screen.getByRole('textbox'), 'https://google.com');
+    userEvent.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Press Enter key
     fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });

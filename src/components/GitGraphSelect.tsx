@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
 
 import type { Repository, UUID } from '../types';
-import { RootState } from '../store/root';
-import { addModal } from '../containers/modals';
-import { ActionKeys } from '../store/actions';
+import { RootState } from '../store/store';
+import { modalAdded, modalRemoved } from '../store/slices/modals';
+import { v4 } from 'uuid';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { repoSelectors } from '../store/selectors/repos';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({
@@ -39,22 +40,22 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export const GitGraphSelect: React.FunctionComponent = () => {
-  const repos = useSelector((state: RootState) => Object.values(state.repos));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo, setRepo] = useState<Repository>();
   const [modal, setModal] = useState<UUID>();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const classes = useStyles();
 
-  const repoChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const repoChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
     const foundRepo = repos.find(r => r.id === event.target.value as UUID);
     if (foundRepo) {
-      const addModalAction = addModal({ type: 'GitGraph', target: foundRepo.id });
-      setModal(addModalAction.id); // track the modal UUID so that we can remove the modal later
-      dispatch(addModalAction);
+      const modalId = v4();
+      setModal(modalId); // track the modal UUID so that we can remove the modal later
+      dispatch(modalAdded({ id: modalId, type: 'GitGraph', target: foundRepo.id }));
       setRepo(foundRepo); // update the select menu
     }
     if (!foundRepo && modal) {
-      dispatch({ type: ActionKeys.REMOVE_MODAL, id: modal });
+      dispatch(modalRemoved(modal));
       setModal(undefined);
       setRepo(undefined);
     }

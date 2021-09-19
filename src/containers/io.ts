@@ -12,7 +12,6 @@ import { TextDecoder } from 'util';
 
 import type { Filetype } from '../types';
 import { flattenArray } from './flatten';
-import { shouldBeHiddenSync } from 'hidefile';
 
 /**
  * Encoding formats that adhere to the name of 
@@ -47,15 +46,6 @@ export const extractStats = (filepath: fs.PathLike): Promise<fs.Stats | undefine
       .catch(() => resolve(undefined));
   });
 };
-
-export const isHidden = (filepath: fs.PathLike): boolean => {
-  const isWindows = process.platform === 'win32';
-  if (isWindows) {
-    return extractFilename(filepath).startsWith('.');
-  } else {
-    return shouldBeHiddenSync(filepath.toString());
-  }
-}
 
 /**
  * Extract the file basename from the path. Returns the filename, including extension, after the last 
@@ -279,7 +269,7 @@ export const filterReadArray = async (filepaths: fs.PathLike[], fileOnly = false
  * @return A Promise object for the file write operation; where errors cause a rejection.
  */
 export const writeFileAsync = (
-  filepath: fs.PathLike, data: string | Buffer, options?: { encoding?: string; flag?: string; mode?: number }
+  filepath: fs.PathLike, data: string | Buffer, options?: { encoding?: nodeEncoding; flag?: string; mode?: number }
 ): Promise<void> => {
   const fullPath = path.resolve(filepath.toString());
   if (options) return fs.writeFile(fullPath, data, options);

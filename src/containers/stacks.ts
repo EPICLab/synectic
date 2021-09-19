@@ -1,118 +1,116 @@
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
-
-import type { Card, Stack } from '../types';
-import { Action, ActionKeys, NarrowActionType } from '../store/actions';
-import { updateCard } from './cards';
-import { removeItemInArray } from '../store/immutables';
 import { XYCoord } from 'react-dnd';
-import { ThunkAction } from 'redux-thunk';
-import { RootState } from '../store/root';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import type { UUID, Card, Stack } from '../types';
+import type { AppThunkAPI } from '../store/hooks';
+import { stackAdded, stackRemoved, stackUpdated } from '../store/slices/stacks';
+import { removeItemInArray } from '../store/immutables';
+import { cardUpdated, cardRemoved } from '../store/slices/cards';
 
-type AddStackAction = NarrowActionType<ActionKeys.ADD_STACK>;
-type UpdateStackAction = NarrowActionType<ActionKeys.UPDATE_STACK>;
-type RemoveStackAction = NarrowActionType<ActionKeys.REMOVE_STACK>;
-type UpdateCardAction = NarrowActionType<ActionKeys.UPDATE_CARD>;
-type RemoveCardAction = NarrowActionType<ActionKeys.REMOVE_CARD>;
-type RemoveMinStackActions = (UpdateStackAction | RemoveStackAction | UpdateCardAction | RemoveCardAction)[];
 
 /**
- * Action Creator for composing a valid ADD_STACK Redux Action, which requires additional UPDATE_CARD Redux Actions for updating all 
- * child cards captured within the new Stack.
+ * Async Thunk action creator for creating a new stack, appending all captured child cards, and updating state 
+ * accordingly.
  * @param name Name of the new Stack object.
  * @param cards Array of at least two Card objects to be contained with the new Stack.
  * @param note (Optional) Note field related to the new Stack.
- * @return An array of `AddStackAction` and `UpdateCardAction` objects that can be dispatched via Redux.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-export const addStack = (name: string, cards: Card[], note?: string): (AddStackAction | UpdateCardAction)[] => {
-  const stack: Stack = {
-    id: v4(),
-    name: name,
-    created: DateTime.local(),
-    modified: DateTime.local(),
-    note: note ? note : '',
-    cards: cards.map(card => card.id),
-    left: cards[0].left,
-    top: cards[0].top
-  };
-  const actions: (AddStackAction | UpdateCardAction)[] = [{ type: ActionKeys.ADD_STACK, id: stack.id, stack: stack }];
-  cards.map((card, index) => actions.push(updateCard({ ...card, captured: stack.id, top: (10 * index + 50), left: (10 * index + 10) })));
-  return actions;
-}
+export const createStack = createAsyncThunk<UUID, { name: string, cards: Card[], note?: string }, AppThunkAPI>(
+  'stacks/createStack',
+  async (stack, thunkAPI) => {
+    const newStack = thunkAPI.dispatch(stackAdded({
+      id: v4(),
+      name: stack.name,
+      created: DateTime.local().valueOf(),
+      modified: DateTime.local().valueOf(),
+      note: stack.note ? stack.note : '',
+      cards: stack.cards.map(card => card.id),
+      left: stack.cards[0].left,
+      top: stack.cards[0].top
+    }));
+    stack.cards.map((card, index) => thunkAPI.dispatch(
+      cardUpdated({ ...card, captured: newStack.payload.id, top: (10 * index + 50), left: (10 * index + 10) })
+    ));
+    return newStack.payload.id;
+  }
+)
 
 /**
- * Action Creator for composing a valid UPDATE_STACK Redux Action. If the current Redux store does not contain a matching stack 
- * (based on UUID) for the passed parameter, then dispatching this action will not result in any changes in the Redux store state.
- * @param stack A `Stack` object containing new field values to be updated.
- * @return An `UpdateStackAction` object that can be dispatched via Redux, including an updated timestamp in the `modified` field.
- */
-export const updateStack = (stack: Stack): UpdateStackAction => {
-  return {
-    type: ActionKeys.UPDATE_STACK,
-    id: stack.id,
-    stack: { ...stack, modified: DateTime.local() }
-  };
-};
-
-/**
- * Action Creator for composing a valid UPDATE_STACK and UPDATE_CARD Redux actions for capturing child cards and appending them to be
- * contained within a stack. Positioning of the cards becomes relative to the bounds of the stack and order of insertion.
+ * Async Thunk action creator for appending newly captured child cards to an existing stack. Positioning of the cards 
+ * becomes relative to the bounds of the stack and order of insertion.
  * @param stack The target `Stack` object that should receive the new cards.
  * @param cards An array of `Card` objects to be added to the stack.
- * @return An array of `UpdateStackAction` and `UpdateCardAction` objects that can be dispatched via Redux.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-export const pushCards = (stack: Stack, cards: Card[]): (UpdateStackAction | UpdateCardAction)[] => {
-  return [
-    updateStack({ ...stack, cards: [...stack.cards, ...cards.map(card => card.id)] }),
-    ...cards.map((card, index) => updateCard({
-      ...card,
-      captured: stack.id,
-      top: (10 * (stack.cards.length + index) + 50),
-      left: (10 * (stack.cards.length + index) + 10)
-    }))
-  ];
-}
+export const pushCards = createAsyncThunk<void, { stack: Stack, cards: Card[] }, AppThunkAPI>(
+  'stacks/pushCards',
+  async (param, thunkAPI) => {
+    thunkAPI.dispatch(stackUpdated({
+      ...param.stack,
+      cards: [...param.stack.cards, ...param.cards.map(card => card.id)]
+    }));
+    param.cards.map((card, index) => thunkAPI.dispatch(
+      cardUpdated({
+        ...card,
+        captured: param.stack.id,
+        top: (10 * (param.stack.cards.length + index) + 50),
+        left: (10 * (param.stack.cards.length + index) + 10)
+      })
+    ))
+  }
+)
 
 /**
- * Thunk Action Creator for composing valid UPDATE_STACK, REMOVE_STACK, UPDATE_CARD, and REMOVE_CARD Redux actions for removing a child 
- * card contained  within a stack. If the current Redux store does not contain a matching card (based on UUID) contained in the stack 
- * passed as a parameter, then dispatching this action will not result in any changes in the Redux store state. Positioning of the 
- * card becomes relative to the bounds of the canvas, unless no `delta` parameter is provide (in which case the card is deleted from 
+ * Thunk Action Creator for composing valid UPDATE_STACK, REMOVE_STACK, UPDATE_CARD, and REMOVE_CARD Redux actions for removing a child
+ * card contained  within a stack. If the current Redux store does not contain a matching card (based on UUID) contained in the stack
+ * passed as a parameter, then dispatching this action will not result in any changes in the Redux store state. Positioning of the
+ * card becomes relative to the bounds of the canvas, unless no `delta` parameter is provide (in which case the card is deleted from
  * the Redux store as well as from the stack).
  * @param stack The target `Stack` object that contains the card to be removed.
  * @param card The `Card` object to be removed from the stack.
  * @param delta The { x, y } difference between the last recorded client offset of the pointer and the client offset when the
- * current drag operation has started (gathered from `DropTargetMonitor.getDifferenceFromInitialOffset()`); if undefined, then the 
+ * current drag operation has started (gathered from `DropTargetMonitor.getDifferenceFromInitialOffset()`); if undefined, then the
  * card will be removed from the Redux state as well as from the stack.
- * @return A Thunk that can be executed to read Redux state and dispatch Redux updates for removing a card from a stack.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-export const popCard = (stack: Stack, card: Card, delta?: XYCoord): ThunkAction<RemoveMinStackActions, RootState, undefined, Action> =>
-  (dispatch, getState) => {
-    const actions: RemoveMinStackActions = [];
-    if (stack.cards.length <= 2) {
-      // remove the stack, and update all related cards
-      actions.push({ type: ActionKeys.REMOVE_STACK, id: stack.id });
-      const bottomCardId = stack.cards.find(c => c !== card.id);
-      const bottomCard = bottomCardId ? getState().cards[bottomCardId] : undefined;
-      if (bottomCard) actions.push(updateCard({
+export const popCard = createAsyncThunk<void, { stack: Stack, card: Card, delta?: XYCoord }, AppThunkAPI>(
+  'stacks/popCard',
+  async (param, thunkAPI) => {
+    if (param.stack.cards.length <= 2) {
+      // remove the stack, and uncapture the remaining card
+      const bottomCardId = param.stack.cards.find(c => c !== param.card.id);
+      const bottomCard = bottomCardId ? thunkAPI.getState().cards.entities[bottomCardId] : undefined;
+      if (bottomCard) thunkAPI.dispatch(cardUpdated({
         ...bottomCard,
         captured: undefined,
-        left: Math.round(stack.left + bottomCard.left),
-        top: Math.round(stack.top + bottomCard.top)
+        left: Math.round(param.stack.left + bottomCard.left),
+        top: Math.round(param.stack.top + bottomCard.top)
       }));
+      thunkAPI.dispatch(stackRemoved(param.stack.id));
     } else {
-      // only remove the item from the stack, don't remove the stack
-      actions.push(updateStack({ ...stack, cards: removeItemInArray(stack.cards, card.id) }));
+      // only remove the indicated card from the stack, don't remove the stack
+      thunkAPI.dispatch(stackUpdated({
+        ...param.stack,
+        cards: removeItemInArray(param.stack.cards, param.card.id)
+      }))
     }
-    if (delta) {
-      actions.push(updateCard({
-        ...card,
+    if (param.delta) {
+      thunkAPI.dispatch(cardUpdated({
+        ...param.card,
         captured: undefined,
-        left: Math.round(stack.left + card.left + delta.x),
-        top: Math.round(stack.top + card.top + delta.y)
+        left: Math.round(param.stack.left + param.card.left + param.delta.x),
+        top: Math.round(param.stack.top + param.card.top + param.delta.y)
       }));
     } else {
-      actions.push({ type: ActionKeys.REMOVE_CARD, id: card.id });
+      thunkAPI.dispatch(cardRemoved(param.card.id));
     }
-    return actions.map(action => dispatch(action));
-  };
+  }
+)

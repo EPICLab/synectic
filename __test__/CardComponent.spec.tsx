@@ -1,7 +1,6 @@
 import React from 'react';
-import mock from 'mock-fs';
 import { Provider } from 'react-redux';
-import { cleanup, render, act, waitFor, screen } from '@testing-library/react';
+import { render, act, waitFor, screen } from '@testing-library/react';
 import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import userEvent from '@testing-library/user-event';
 
@@ -9,25 +8,46 @@ import { mockStore } from './__mocks__/reduxStoreMock';
 import CardComponent from '../src/components/CardComponent';
 import { testStore } from './__fixtures__/ReduxStore';
 import { browserCard, diffCard, explorerCard, firstEditorCard, trackerCard } from './__fixtures__/Card';
-import * as useDirectoryHook from '../src/store/hooks/useDirectory';
+import * as useDirectoryHook from '../src/containers/hooks/useDirectory';
+import type { MockInstance } from './__mocks__/mock-fs-promise';
+import { mock, file } from './__mocks__/mock-fs-promise';
 
 const store = mockStore(testStore);
 
 describe('CardComponent', () => {
+  let mockedInstance: MockInstance;
 
-  beforeAll(() => {
-    mock({
-      'foo/example.ts': mock.file({ content: 'var rand = Math.floor(Math.random() * 6) + 1;', ctime: new Date(1), mtime: new Date(1) }),
-      'test.js': mock.file({ content: 'var rand: number = Math.floor(Math.random() * 6) + 1;', ctime: new Date(1), mtime: new Date(1) }),
-      'example.ts': mock.file({ content: 'const rand = Math.floor(Math.random() * 6) + 1;', ctime: new Date(1), mtime: new Date(1) })
+  beforeAll(async () => {
+    const instance = await mock({
+      'foo/example.ts': file({ content: 'var rand = Math.floor(Math.random() * 6) + 1;', mtime: new Date(1) }),
+      'test.js': file({ content: 'var rand: number = Math.floor(Math.random() * 6) + 1;', mtime: new Date(1) }),
+      'example.ts': file({ content: 'const rand = Math.floor(Math.random() * 6) + 1;', mtime: new Date(1) })
     });
+    return mockedInstance = instance;
   });
-  afterAll(mock.restore);
+  afterAll(() => mockedInstance.reset());
 
   afterEach(() => {
-    cleanup;
     store.clearActions();
     jest.clearAllMocks();
+  });
+
+  it('Card removes from Redux store on close button', () => {
+    const [WrappedComponent] = wrapWithTestBackend(CardComponent);
+    render(
+      <Provider store={store}>
+        <WrappedComponent {...firstEditorCard} />
+      </Provider>
+    );
+    userEvent.click(screen.getByRole('button', { name: /close/i }));
+
+    expect(store.getActions()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'cards/cardRemoved'
+        })
+      ])
+    )
   });
 
   it('Card resolves props into React Component for Editor handler', () => {
@@ -52,7 +72,7 @@ describe('CardComponent', () => {
 
   it('Card resolves props into React Component for Explorer handler', async () => {
     // Explorer component automatically loads files and directories through async calls to the useDirectory hook
-    jest.spyOn(useDirectoryHook, 'useDirectory').mockReturnValue({
+    jest.spyOn(useDirectoryHook, 'default').mockReturnValue({
       root: 'foo',
       directories: [],
       files: [],
@@ -104,7 +124,7 @@ describe('CardComponent', () => {
 
   it('Explorer Card renders a reverse side when the flip button is clicked', async () => {
     // Explorer component automatically loads files and directories through async calls to the useDirectory hook
-    jest.spyOn(useDirectoryHook, 'useDirectory').mockReturnValue({
+    jest.spyOn(useDirectoryHook, 'default').mockReturnValue({
       root: 'foo',
       directories: [],
       files: [],

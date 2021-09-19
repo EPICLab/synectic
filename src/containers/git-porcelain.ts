@@ -14,6 +14,26 @@ import { matrixEntry, statusMatrix } from './git-plumbing';
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
 /**
+ * Get the value of a symbolic ref or resolve a ref to its SHA1 object id; this function is a wrapper to the 
+ * *isomorphic-git/resolveRef* function to inject the `fs` parameter and extend with additional special identifier
+ * support (i.e. `HEAD` for the current commit, `HEAD~1` for the previous commit).
+ * Ref: https://github.com/isomorphic-git/isomorphic-git/issues/1238#issuecomment-871220830
+ * @param dir The relative or absolute path to the git root (i.e. `/Users/nelsonni/scratch/project`).
+ * @param ref The git ref or symbolic-ref (i.e. `HEAD` or `HEAD~1`) to resolve against the current branch.
+ * @returns A Promise object containing the SHA1 commit resolved from the provided ref.
+ */
+export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string> => {
+  const re = /^HEAD~([0-9]+)$/;
+  const match = ref.match(re);
+  if (match) {
+    const count = +match[1];
+    const commits = await isogit.log({ dir: dir.toString(), fs, depth: count + 1 });
+    return commits.pop().oid;
+  }
+  return isogit.resolveRef({ dir: dir.toString(), fs, ref });
+}
+
+/**
  * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a *.git* subdirectory. In the 
  * case of separate working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)), this will find and return a directory that 
  * contains a *.git* file instead.
@@ -93,7 +113,7 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
     return;
   }
   return isogit.clone({
-    fs: fs, http: http, dir: dir.toString(), url: repo.url.href, singleBranch: singleBranch, noCheckout: noCheckout,
+    fs: fs, http: http, dir: dir.toString(), url: repo.url, singleBranch: singleBranch, noCheckout: noCheckout,
     noTags: noTags, depth: depth, exclude: exclude,
     onProgress: (progress: isogit.GitProgressEvent) => console.log(`cloning objects: ${progress.loaded}/${progress.total}`)
   });
