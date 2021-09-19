@@ -39,7 +39,7 @@ export const getMetafileByFilepath = createAsyncThunk<Metafile | undefined, Path
     'metafiles/getMetafileByFilepath',
     async (filepath, thunkAPI) => {
         return Object.values(thunkAPI.getState().metafiles.entities)
-            .find(m => m && path.relative(m.path.toString(), filepath.toString()).length === 0);
+            .find(m => (m && m.path) && path.relative(m.path.toString(), filepath.toString()).length === 0);
     }
 )
 
