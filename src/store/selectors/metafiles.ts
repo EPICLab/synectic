@@ -5,17 +5,17 @@ import { RootState } from '../store';
 
 export const metafileSelectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
 
-export const selectMetafileByFilepath = (filepath: PathLike) => (state: RootState): Metafile | undefined => {
+export const selectMetafileByFilepath = (state: RootState, filepath: PathLike): Metafile | undefined => {
     return Object.values(state.metafiles)
         .find(m => m.path === filepath);
 }
 
-export const selectMetafileByBranch = (filepath: PathLike, branch: string) => (state: RootState): Metafile | undefined => {
+export const selectMetafileByBranch = (state: RootState, filepath: PathLike, branch: string): Metafile | undefined => {
     return Object.values(state.metafiles)
         .find(m => m.path === filepath && m.branch === branch);
 }
 
-export const selectMetafileByVirtual = (name: string, handler: string) => (state: RootState): Metafile | undefined => {
+export const selectMetafileByVirtual = (state: RootState, name: string, handler: string): Metafile | undefined => {
     return Object.values(state.metafiles)
         .find(m => m.name === name && m.handler === handler);
 }
