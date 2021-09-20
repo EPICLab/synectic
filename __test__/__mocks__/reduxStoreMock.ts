@@ -9,6 +9,7 @@ import { AnyAction, DeepPartial } from 'redux';
 type KeyVal<T> = T extends { [x: string]: infer U } ? U : never;
 
 const middlewares = getDefaultMiddleware({
+    serializableCheck: false,
     immutableCheck: false
 });
 const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);

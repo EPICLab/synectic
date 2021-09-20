@@ -22,8 +22,8 @@ const Block: React.FunctionComponent = props => {
     }
 
     const handleClick = () => {
-        console.log('adding a new card...');
-        console.log(JSON.stringify(cards));
+        // console.log('adding a new card...');
+        // console.log(JSON.stringify(cards));
         dispatch(cardAdded(newCard));
     }
 
