@@ -1,0 +1,21 @@
+name: Development Test Check
+on:
+  pull_request:
+    branches: [ development ]
+    types: [ opened, synchronize, reopened, ready_for_review ]
+jobs:
+  test_pull_request:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v2
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2
+        with:
+          # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+          node-version: '12'
+      - name: Install dependencies
+        run: yarn install
+      - name: Run tests
+        run: yarn test
