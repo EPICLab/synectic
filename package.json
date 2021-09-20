@@ -1,6 +1,6 @@
 {
   "name": "synectic",
-  "productName": "synectic",
+  "productName": "Synectic",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
