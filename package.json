@@ -58,7 +58,7 @@
     "@types/valid-url": "^1.0.3",
     "@types/validator": "^13.6.3",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
-    "@typescript-eslint/parser": "^4.0.1",
+    "@typescript-eslint/parser": "^4.31.2",
     "@vercel/webpack-asset-relocator-loader": "1.6.0",
     "casual": "^1.6.2",
     "css-loader": "^6.0.0",
