@@ -6,6 +6,7 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import { Button } from '@material-ui/core';
 import type { UUID, Card, Metafile, GitStatus } from '../types';
 import { RootState } from '../store/store';
 import { loadCard } from '../containers/handlers';
@@ -14,7 +15,6 @@ import { StyledTreeItem } from './StyledTreeComponent';
 import { discardMetafileChanges, getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { BranchRibbon } from './BranchRibbon';
 import { BranchList } from './BranchList';
-import { Button } from '@material-ui/core';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
@@ -45,7 +45,7 @@ const FileComponent: React.FunctionComponent<Metafile> = props => {
       color={colorFilter(props.status)}
       labelText={extractFilename(props.path)}
       labelInfo={['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? ReplayIcon : undefined}
-      labelInfoClickHandler={() => discardMetafileChanges(props)}
+      labelInfoClickHandler={async () => await dispatch(discardMetafileChanges(props))}
       labelIcon={InsertDriveFileIcon}
       enableHover={true}
       onClick={() => ['*deleted', 'deleted'].includes(props.status) ? null : dispatch(loadCard({ filepath: props.path }))}
