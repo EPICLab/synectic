@@ -23,10 +23,12 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
   const dispatch = useAppDispatch();
   const cssClasses = useStyles();
 
-  const checkout = (newBranch: string) => {
+  const checkout = async (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
-    updateBranch(newBranch);
-    if (metafile) dispatch(checkoutBranch({ cardId: props.cardId, metafileId: metafile.id, branch: newBranch, update: props.update }));
+    if (metafile) {
+      await dispatch(checkoutBranch({ cardId: props.cardId, metafileId: metafile.id, branch: newBranch, update: props.update })).unwrap();
+      updateBranch(newBranch);
+    }
   };
 
   return (
