@@ -224,16 +224,16 @@ export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettab
   }
 )
 
-export const discardMetafileChanges = createAsyncThunk<undefined, Metafile, AppThunkAPI & { rejectValue: Error }>(
+export const discardMetafileChanges = createAsyncThunk<undefined, Metafile, AppThunkAPI & { rejectValue: string }>(
   'metafiles/discardMetafileChanges',
   async (metafile, thunkAPI) => {
     switch (metafile.status) {
       case '*added': // Fallthrough
       case 'added': {
         // added file; removing file and refetch to dischard changes
-        remove(metafile.path.toString(), (error) => thunkAPI.rejectWithValue(error));
+        remove(metafile.path.toString(), (error) => thunkAPI.rejectWithValue(`${error.name}: ${error.message}`));
         const handler = await thunkAPI.dispatch(resolveHandler(metafile.path)).unwrap();
-        if (handler) thunkAPI.dispatch(getMetafile({ virtual: { name: metafile.name, handler: handler.handler } }));
+        if (handler) await thunkAPI.dispatch(getMetafile({ virtual: { name: metafile.name, handler: handler.handler } }));
         break;
       }
       case '*modified': // Fallthrough
@@ -242,7 +242,7 @@ export const discardMetafileChanges = createAsyncThunk<undefined, Metafile, AppT
         const updatedContent = await discardChanges(metafile.path);
         if (updatedContent) {
           await io.writeFileAsync(metafile.path, updatedContent);
-          thunkAPI.dispatch(getMetafile({ filepath: metafile.path }));
+          await thunkAPI.dispatch(getMetafile({ filepath: metafile.path }));
         }
         break;
       }
@@ -252,11 +252,11 @@ export const discardMetafileChanges = createAsyncThunk<undefined, Metafile, AppT
         const content = await discardChanges(metafile.path);
         if (content) {
           await io.writeFileAsync(metafile.path, content);
-          thunkAPI.dispatch(getMetafile({ filepath: metafile.path }));
+          await thunkAPI.dispatch(getMetafile({ filepath: metafile.path }));
         }
         break;
       }
     }
-    return thunkAPI.rejectWithValue(new Error('Failed to discard changes; unknown git status.'));
+    return thunkAPI.rejectWithValue('Error: Failed to discard changes; unknown git status.');
   }
 );
