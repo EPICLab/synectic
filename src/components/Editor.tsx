@@ -50,7 +50,7 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{DateTime.fromMillis(props.modified).toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo ? repo.name : ''}</span>
-      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
+      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} update={true} /> : undefined}
       <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
     </>
   );
