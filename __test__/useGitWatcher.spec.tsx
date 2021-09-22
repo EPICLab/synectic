@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 // import { writeFileAsync } from '../src/containers/io';
-import useGitDirectory from '../src/containers/hooks/useGitDirectory';
+import useGitWatcher from '../src/containers/hooks/useGitWatcher';
 
 describe('containers/hooks/useGitDirectory', () => {
     let mockedInstance: MockInstance;
@@ -33,7 +33,7 @@ describe('containers/hooks/useGitDirectory', () => {
     });
 
     it('useFSWatcher hook tracks filesystem updates to individual files', async () => {
-        renderHook(() => useGitDirectory('sampleUser/myRepo/foo'), { wrapper });
+        renderHook(() => useGitWatcher('sampleUser/myRepo/foo'), { wrapper });
 
         // TODO: Fix the following test to correctly mimic FS events and capture them via the useGitDirectory hook
         //
