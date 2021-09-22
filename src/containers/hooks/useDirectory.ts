@@ -18,7 +18,7 @@ const useDirectory = (root: PathLike): useDirectoryHook => {
     const dispatch = useAppDispatch();
     const [directories, setDirectories] = useState<Metafile[]>([]);
     const [files, setFiles] = useState<Metafile[]>([]);
-    const eventHandler = async (event: WatchEventType) => ['unlink', 'unlinkDir'].includes(event) ? update() : null;
+    const eventHandler = async (event: WatchEventType) => ['add', 'addDir', 'change', 'unlink', 'unlinkDir'].includes(event) ? update() : null;
     useGitDirectory(root, eventHandler);
 
     const update = useCallback(async () => {
