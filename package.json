@@ -97,11 +97,11 @@
     "git-config-path": "^2.0.0",
     "ignore": "^5.1.8",
     "ini": "^2.0.0",
-    "isomorphic-git": "^1.9.2",
+    "isomorphic-git": "^1.10.1",
     "luxon": "^2.0.2",
     "parse-path": "^4.0.3",
     "react": "^17.0.2",
-    "react-ace": "^9.4.3",
+    "react-ace": "^9.4.4",
     "react-dnd": "^14.0.3",
     "react-dnd-html5-backend": "^14.0.1",
     "react-dom": "^17.0.2",
@@ -109,7 +109,7 @@
     "react-redux": "^7.2.4",
     "react-transition-group": "^4.4.2",
     "sha1": "^1.1.1",
-    "ts-dot-prop": "^1.4.3",
+    "ts-dot-prop": "^1.5.1",
     "uuid": "^8.3.2"
   }
 }
