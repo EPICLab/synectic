@@ -45,7 +45,10 @@ const FileComponent: React.FunctionComponent<Metafile> = props => {
       color={colorFilter(props.status)}
       labelText={extractFilename(props.path)}
       labelInfo={['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? ReplayIcon : undefined}
-      labelInfoClickHandler={async () => await dispatch(discardMetafileChanges(props))}
+      labelInfoClickHandler={async (e) => {
+        e.stopPropagation(); // prevent propogating the click event to the StyleTreeItem onClick method
+        await dispatch(discardMetafileChanges(props));
+      }}
       labelIcon={InsertDriveFileIcon}
       enableHover={true}
       onClick={() => ['*deleted', 'deleted'].includes(props.status) ? null : dispatch(loadCard({ filepath: props.path }))}
