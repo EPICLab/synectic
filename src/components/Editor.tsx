@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'ace-builds';
 import AceEditor from 'react-ace';
 /* webpack-resolver incorrectly resolves basePath for file-loader unless at least one mode has already been loaded, 
@@ -26,9 +26,13 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   useGitWatcher(metafile?.path);
   const dispatch = useAppDispatch();
 
+  useEffect(() => { onChange(metafile.content) }, [metafile]);
+
   const onChange = async (newCode: string) => {
-    setCode(newCode);
-    if (metafile) dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
+    if (metafile && code !== newCode) {
+      setCode(newCode);
+      dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
+    }
   };
 
   return (
