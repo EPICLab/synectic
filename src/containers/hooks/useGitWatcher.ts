@@ -16,7 +16,7 @@ import useWatcher, { WatchEventType, WatchListener } from './useWatcher';
  * @param additionalEventHandler An optional additional event handler for bubbling up specific events from
  * the underlying `useWatcher` hooks.
  */
-const useGitDirectory = (root: PathLike, additionalEventHandler?: WatchListener<PathLike>): void => {
+const useGitWatcher = (root: PathLike, additionalEventHandler?: WatchListener<PathLike>): void => {
     const dispatch = useAppDispatch();
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
@@ -34,4 +34,4 @@ const useGitDirectory = (root: PathLike, additionalEventHandler?: WatchListener<
     if (additionalEventHandler) useWatcher(root, additionalEventHandler);
 }
 
-export default useGitDirectory;
+export default useGitWatcher;

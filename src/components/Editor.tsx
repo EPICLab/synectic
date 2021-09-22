@@ -17,13 +17,13 @@ import { metafileSelectors } from '../store/selectors/metafiles';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
 import { DateTime } from 'luxon';
-import useGitDirectory from '../containers/hooks/useGitDirectory';
+import useGitWatcher from '../containers/hooks/useGitWatcher';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
   const [code, setCode] = useState<string>(metafile?.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
-  useGitDirectory(metafile?.path);
+  useGitWatcher(metafile?.path);
   const dispatch = useAppDispatch();
 
   const onChange = async (newCode: string) => {

@@ -4,7 +4,7 @@ import * as io from '../io';
 import type { Metafile } from '../../types';
 import { useAppDispatch } from '../../store/hooks';
 import { getMetafile } from '../metafiles';
-import useGitDirectory from './useGitDirectory';
+import useGitWatcher from './useGitWatcher';
 import { WatchEventType } from './useWatcher';
 
 export type useDirectoryHook = {
@@ -19,7 +19,7 @@ const useDirectory = (root: PathLike): useDirectoryHook => {
     const [directories, setDirectories] = useState<Metafile[]>([]);
     const [files, setFiles] = useState<Metafile[]>([]);
     const eventHandler = async (event: WatchEventType) => ['add', 'addDir', 'change', 'unlink', 'unlinkDir'].includes(event) ? update() : null;
-    useGitDirectory(root, eventHandler);
+    useGitWatcher(root, eventHandler);
 
     const update = useCallback(async () => {
         const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
