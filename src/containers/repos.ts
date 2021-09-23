@@ -61,7 +61,7 @@ const appendRepository = createAsyncThunk<UUID, {
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
 */
-const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile: Metafile }, AppThunkAPI>(
+export const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile: Metafile }, AppThunkAPI>(
   'repos/switchCardMetafile',
   async (param, thunkAPI) => {
     thunkAPI.dispatch(cardUpdated({
@@ -100,11 +100,12 @@ export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejec
 )
 
 /**
-* Async Thunk action creator for switching Git branches (or commit hash) and updating the associated metafile and card. Multiple cards
+* Async Thunk action creator for switching Git branches (or commit hash) and updating the associated metafile. Multiple cards
 * can be associated with a single metafile, therefore switching branches requires a new (or at least different) metafile that
 * refers to a new combination of `Repository` and `ref`. Since `isomorphic-git.checkout()` switches all files within a repository,
-* we switch to the target branch and read the specific file, before switching back to the original branch.
-* @param cardId The UUID associated with the card that will display the updated content.
+* we switch to the target branch and read the specific file, before switching back to the original branch. Returns a Metafile
+* that can be used to switch with an existing card (via `switchCardMetafile`) or loaded into a new card 
+* (via `containers/handlers.loadCard`).
 * @param metafileId The UUID associated with the original metafile.
 * @param branch Git branch name or commit hash; defaults to 'master'.
 * @param progress Enable printing progress information from `isomorphic-git.checkout()` to console.
@@ -114,18 +115,15 @@ export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejec
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
 */
 export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
-  cardId: UUID, metafileId: UUID, branch: string, progress?: boolean, update?: boolean
+  metafileId: UUID, branch: string, progress?: boolean, update?: boolean
 }, AppThunkAPI>(
   'repos/checkoutBranch',
   async (param, thunkAPI) => {
-    // verify card, metafile, and repo exist in Redux store before proceeding
-    const card = thunkAPI.getState().cards.entities[param.cardId];
     const metafile = thunkAPI.getState().metafiles.entities[param.metafileId];
     const repo = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
-    if (!card) return thunkAPI.rejectWithValue(`Cannot update non-existing card for id:'${param.cardId}'`);
     if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${param.metafileId}'`);
     if (!repo) return thunkAPI.rejectWithValue(`Repository missing for metafile id:'${param.metafileId}'`);
-    if (!card || !metafile || !repo) return undefined;
+    if (!metafile || !repo) return undefined;
     if (!metafile.path) return thunkAPI.rejectWithValue(`Cannot checkout branches for virtual metafile:'${param.metafileId}'`);
 
     let updated: Metafile | undefined;
@@ -146,9 +144,6 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
     }
     // get an updated metafile based on the updated worktree path
     if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path:'${metafile.path}'`);
-
-    // update the metafile details (including file content) for the card
-    thunkAPI.dispatch(switchCardMetafile({ card: card, metafile: updated }));
 
     if (param.progress) console.log('checkout complete...');
     return thunkAPI.getState().metafiles.entities[updated.id];
