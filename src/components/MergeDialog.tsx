@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 
 import type { Modal, UUID } from '../types';
+import { branchLog } from '../containers/git-plumbing';
+import TimelineComponent from './MergeTimeline';
+import DropSelect from './DropSelect';
 import { RootState } from '../store/store';
 import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 import { merge } from '../containers/git-porcelain';
-import { branchLog } from '../containers/git-plumbing';
-import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
-import TimelineComponent from './MergeTimeline';
-import DropSelect from './DropSelect';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { repoSelectors } from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
@@ -53,6 +53,8 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
   const dispatch = useAppDispatch();
 
+  const branches = repos.find(r => r.id === repo)?.local.map(b => ({ key: b, value: b }));
+
   const branchCheck = async () => {
     const fullRepo = repos.find(r => r.id === repo);
     if (!fullRepo) return;
@@ -72,6 +74,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
       setCommitCountDelta('Unchecked');
       return;
     }
+    // check to verify that new commits exist between the target branches
     const repoLog = fullRepo ? (await branchLog(fullRepo.root, base, compare)) : undefined;
     const commitStatus = repoLog ? (repoLog.length > 0 ? 'Passing' : 'Failing') : 'Unchecked';
     setCommitCountDelta(commitStatus);
@@ -79,6 +82,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     if (commitStatus == 'Failing') return;
     setBranchConflicts(['Running', undefined]);
 
+    // check for merge conflicts by running merge with dryRun option enabled
     const conflictCheck = await merge(fullRepo.root, base, compare, true);
     const conflictStatus = conflictCheck.mergeCommit || conflictCheck.fastForward ? 'Passing' : 'Failing';
     setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
@@ -86,12 +90,11 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
 
+    // check for build failures by running build scripts from target project
     const buildResults = await build(fullRepo, base, compare);
     const buildStatus = (buildResults.installCode === 0 && buildResults.buildCode === 0) ? 'Passing' : 'Failing';
     setBuildStatus(buildStatus);
   }
-
-  const branches = repos.find(r => r.id === repo)?.local.map(b => ({ key: b, value: b }));
 
   return (
     <Dialog id='dialog' open={true} onClose={() => dispatch(modalRemoved(props.id))}>

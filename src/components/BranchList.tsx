@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { RootState } from '../store/store';
 import { FormControl, Select, MenuItem, Input } from '@material-ui/core';
-import { checkoutBranch } from '../containers/repos';
+import { checkoutBranch, switchCardMetafile } from '../containers/repos';
 import { useStyles } from './CardComponent';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
+import { cardSelectors } from '../store/selectors/cards';
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 
@@ -16,6 +17,7 @@ import { repoSelectors } from '../store/selectors/repos';
  * update boolean flag indicates whether all checkouts should update the main worktree (instead of using linked worktrees).
  */
 export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; update?: boolean; }> = props => {
+  const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, props.cardId));
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
@@ -26,7 +28,8 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
   const checkout = async (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
     if (metafile) {
-      await dispatch(checkoutBranch({ cardId: props.cardId, metafileId: metafile.id, branch: newBranch, update: props.update })).unwrap();
+      const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: newBranch, update: props.update })).unwrap();
+      await dispatch(switchCardMetafile({ card: card, metafile: updated }));
       updateBranch(newBranch);
     }
   };

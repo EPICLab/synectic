@@ -160,9 +160,9 @@ type MetafileGettableFields =
 /**
  * Async Thunk action creator for simplifying the process of obtaining an updated metafile from the Redux store.
  * The Thunk handles three different scenarios:
- *      (1) retrieving and updating an existing metafile by UUID, 
- *      (2) retrieving an existing (or creating a new) metafile by filepath, or 
- *      (3) retrieving an existing (or creating a new) virtual metafile by name and handler.
+ *  * retrieving and updating an existing metafile by UUID, or
+ *  * retrieving an existing (or creating a new) metafile by filepath, or 
+ *  * retrieving an existing (or creating a new) virtual metafile by name and handler.
  * 
  * If there is no existing metafile associated with a particular UUID under scenario (1), then a `rejected` action will
  * be returned. Both scenario (2) and (3) are guaranteed to return a metafile, since a new metafile can be created when
