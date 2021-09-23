@@ -30,7 +30,7 @@ type WorktreePaths = {
 }
 
 /**
- * Utility function for compiling all necessary information for working with either linked and main working trees 
+ * Utility function for compiling all necessary information for working with either linked or main working trees 
  * (see [git-worktree](https://git-scm.com/docs/git-worktree)).
  * @param dir The working tre directory path.
  * @param gitdir The git directory path (typicallyg ends in `.git`).
@@ -306,11 +306,13 @@ export const list = async (dir: fs.PathLike): Promise<Worktree[] | undefined> =>
   const worktrees = path.join(root, '.git/worktrees');
   // .git/worktrees directory will only exist if a linked worktree has been added (even if it was later deleted), so verify it exists
   const exists = (await io.extractStats(worktrees)) ? true : false;
-  const linked = exists ? await Promise.all((await io.readDirAsync(worktrees)).map(async worktree => {
-    const gitdir = (await io.readFileAsync(`${root}/.git/worktrees/${worktree}/gitdir`, { encoding: 'utf-8' })).trim();
-    const dir = path.normalize(`${gitdir}/..`);
-    return await createWorktree(dir);
-  })) : [];
+  const linked = exists ? await Promise.all((await io.readDirAsync(worktrees))
+    .filter(a => !a.startsWith('.')) // filter for hidden files (i.e. avoid reading .DS_Store on MacOS platform)
+    .map(async worktree => {
+      const gitdir = (await io.readFileAsync(`${root}/.git/worktrees/${worktree}/gitdir`, { encoding: 'utf-8' })).trim();
+      const dir = path.normalize(`${gitdir}/..`);
+      return await createWorktree(dir);
+    })) : [];
 
   /**
    * LIST OUTPUT FORMAT
