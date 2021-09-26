@@ -84,7 +84,7 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
           created: DateTime.local().valueOf(),
           modified: param.metafile.modified,
           left: 10,
-          top: 50,
+          top: 70,
           type: param.metafile.handler,
           metafile: param.metafile.id
         }))
@@ -102,7 +102,7 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
             created: DateTime.local().valueOf(),
             modified: metafile.modified,
             left: 10,
-            top: 50,
+            top: 70,
             type: metafile.handler,
             metafile: metafile.id
           }));
