@@ -9,10 +9,11 @@ import DropSelect from './DropSelect';
 import { RootState } from '../store/store';
 import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
-import { merge } from '../containers/git-porcelain';
+import { merge as isomerge } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { repoSelectors } from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
+import { merge } from '../containers/merges';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -58,7 +59,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const branchCheck = async () => {
     const fullRepo = repos.find(r => r.id === repo);
     if (!fullRepo) return;
-    const result = await merge(fullRepo.root, base, compare, true);
+    const result = await isomerge(fullRepo.root, base, compare, true);
     console.log(`merge dryRun: ${base}...${compare}`);
     console.log(result);
   }
@@ -83,9 +84,17 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     setBranchConflicts(['Running', undefined]);
 
     // check for merge conflicts by running merge with dryRun option enabled
-    const conflictCheck = await merge(fullRepo.root, base, compare, true);
-    const conflictStatus = conflictCheck.mergeCommit || conflictCheck.fastForward ? 'Passing' : 'Failing';
-    setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
+
+    // git-porcelain/merge version =>
+    // const conflictCheck = await merge(fullRepo.root, base, compare, true);
+
+    // containers/merges version =>
+    const conflictCheck = await merge(fullRepo.root, base, compare);
+    console.log(`MergeDialog.conflictCheck: ${JSON.stringify(conflictCheck.mergeStatus, undefined, 2)}`);
+    // const conflictStatus = conflictCheck.mergeCommit || conflictCheck.fastForward ? 'Passing' : 'Failing';
+    const conflictStatus = 'Failing';
+    // setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
+    setBranchConflicts([conflictStatus, []]);
 
     if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
