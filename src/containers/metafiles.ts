@@ -1,7 +1,7 @@
 import { PathLike, remove } from 'fs-extra';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { createAsyncThunk, unwrapResult } from '@reduxjs/toolkit';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 
 import type { Metafile, UUID } from '../types';
 import * as io from './io';
@@ -84,7 +84,7 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI & { reject
     const metafile = thunkAPI.getState().metafiles.entities[id];
     if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? `metafile: ${metafile.id}` : 'metafile: unknown');
     try {
-      const repo = unwrapResult(await thunkAPI.dispatch(getRepository(metafile.path)));
+      const repo = await thunkAPI.dispatch(getRepository(metafile.path)).unwrap();
       const root = await getRepoRoot(metafile.path);
       const branch = repo ? (await currentBranch({
         dir: root ? root : repo.root.toString(),
@@ -193,32 +193,31 @@ export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettab
         thunkAPI.dispatch(getMetafileByBranch({ filepath: retrieveBy.filepath, branch: branch })) :
         thunkAPI.dispatch(getMetafileByFilepath(retrieveBy.filepath))
       ).unwrap();
-      const id = existing ? existing.id : v4();
-      if (!existing) {
+      const metafile = existing ?
+        thunkAPI.getState().metafiles.entities[existing.id] :
         thunkAPI.dispatch(metafileAdded({
-          id: id,
+          id: v4(),
           name: io.extractFilename(retrieveBy.filepath),
           modified: DateTime.local().valueOf(),
           path: retrieveBy.filepath
-        }));
-      }
-      await thunkAPI.dispatch(updateAll(id));
-      const metafile = thunkAPI.getState().metafiles.entities[id];
-      if (!metafile) return undefined;
-      return metafile;
+        })).payload;
+      const updated = await thunkAPI.dispatch(updateAll(metafile.id)).unwrap();
+      if (!updated) return undefined;
+      return thunkAPI.getState().metafiles.entities[metafile.id];
     }
     if (retrieveBy.virtual) {
       const existing = await (thunkAPI.dispatch(getMetafileByVirtual({
         name: retrieveBy.virtual.name,
         handler: retrieveBy.virtual.handler
       })).unwrap());
-      const id = existing ? existing.id : v4();
-      if (!existing) {
-        thunkAPI.dispatch(metafileAdded({ id: id, modified: DateTime.local().valueOf(), ...retrieveBy.virtual }));
-      }
-      const metafile = thunkAPI.getState().metafiles.entities[id];
-      if (!metafile) return undefined;
-      return metafile;
+      const metafile = existing ?
+        thunkAPI.getState().metafiles.entities[existing.id] :
+        thunkAPI.dispatch(metafileAdded({
+          id: v4(),
+          modified: DateTime.local().valueOf(),
+          ...retrieveBy.virtual
+        })).payload;
+      return thunkAPI.getState().metafiles.entities[metafile.id];
     }
     return thunkAPI.rejectWithValue('Failed to match any containers/metafiles/getMetafile parameter types');
   }
