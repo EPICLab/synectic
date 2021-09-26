@@ -107,7 +107,7 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
 
   // parse the appropriate git index file for evaluating staged tree status
   const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-  const indexBuffer = await io.readFileAsync(path.join(gitdir.toString(), 'index'))
+  const indexBuffer = await io.readFileAsync(path.join(gitdir.toString(), 'index'));
   const index = parse(indexBuffer);
 
   const result = await isogit.walk({
