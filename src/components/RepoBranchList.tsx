@@ -30,12 +30,12 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
     const branchRoot = await getBranchRoot(props.repo, props.branch);
 
     // undefined branchRoot indicates the main worktree, and any linked worktrees, are not associated with that branch
-    if (!branchRoot) {
+    if (branchRoot) {
+      dispatch(loadCard({ filepath: branchRoot }));
+    } else {
       const metafile = await dispatch(getMetafile({ filepath: props.repo.root })).unwrap();
       const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: props.branch })).unwrap();
       dispatch(loadCard({ metafile: updated }));
-    } else {
-      dispatch(loadCard({ filepath: branchRoot }));
     }
   }
 
