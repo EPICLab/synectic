@@ -83,7 +83,6 @@ describe('containers/repos', () => {
         });
 
         await store.dispatch(repos.checkoutBranch({
-            cardId: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
             metafileId: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
             branch: 'sample'
         }));
@@ -94,7 +93,6 @@ describe('containers/repos', () => {
                     payload: expect.objectContaining({ id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71' }),
                     meta: expect.objectContaining({
                         arg: expect.objectContaining({
-                            cardId: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
                             metafileId: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
                             branch: 'sample'
                         })
@@ -104,24 +102,8 @@ describe('containers/repos', () => {
         );
     });
 
-    it('checkoutBranch rejects on card UUID with no match in the Redux store', async () => {
-        await store.dispatch(repos.checkoutBranch({
-            cardId: '41',
-            metafileId: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
-            branch: 'sample'
-        }));
-        expect(store.getActions()).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    type: 'repos/checkoutBranch/rejected'
-                })
-            ])
-        );
-    });
-
     it('checkoutBranch rejects on metafile UUID with no match in the Redux store', async () => {
         await store.dispatch(repos.checkoutBranch({
-            cardId: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
             metafileId: '9',
             branch: 'sample'
         }));
