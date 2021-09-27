@@ -3,7 +3,7 @@ import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
 import type { Modal } from '../types';
 import CardComponent from './CardComponent';
-// import StackComponent from './StackComponent';
+import StackComponent from './StackComponent';
 import ModalComponent from './ModalComponent';
 import { popCard } from '../containers/stacks';
 import { stackUpdated } from '../store/slices/stacks';
@@ -154,10 +154,8 @@ const CanvasComponent: React.FunctionComponent = props => {
         <NavMenu label='View' submenu={viewMenu} />
         <GitGraphSelect />
       </div>
-      {stacks.map(stack => <span key={stack.id}>{stack.name}</span>)}
-      {/* {cards.map(card => <span key={card.id}>{card.name}</span>)} */}
       {modals.map(modal => <span key={modal.id}>{modal.type}</span>)}
-      {/* {stacks.map(stack => <StackComponent key={stack.id} {...stack} />)} */}
+      {stacks.map(stack => <StackComponent key={stack.id} {...stack} />)}
       {cards.filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {modals.map(modal => <ModalComponent key={modal.id} {...modal} />)}
       {props.children}
