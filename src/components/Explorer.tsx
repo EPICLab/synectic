@@ -6,20 +6,19 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import { Button } from '@material-ui/core';
 import type { UUID, Card, Metafile, GitStatus } from '../types';
 import { RootState } from '../store/store';
 import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { discardMetafileChanges, getMetafile, MetafileWithPath } from '../containers/metafiles';
+import { discardMetafileChanges, MetafileWithPath } from '../containers/metafiles';
 import { BranchRibbon } from './BranchRibbon';
 import { BranchList } from './BranchList';
-import { getBranchRoot } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
+import { SourceControlButton } from './SourceControl';
 
 const FileComponent: React.FunctionComponent<Metafile> = props => {
   const dispatch = useAppDispatch();
@@ -97,30 +96,15 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
-  const dispatch = useAppDispatch();
-
-  const handleVersionsClick = async () => {
-    if (!repo || !metafile?.branch) return;
-    const sourceControlMetafile = await dispatch(getMetafile({
-      virtual: {
-        name: 'Source Control',
-        handler: 'SourceControl',
-        repo: repo.id,
-        branch: metafile.branch,
-        path: await getBranchRoot(repo, metafile.branch)
-      }
-    })).unwrap();
-    if (sourceControlMetafile) dispatch(loadCard({ metafile: sourceControlMetafile }));
-  }
 
   return (
     <>
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
-      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} update={true} /> : undefined}
+      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
       <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
-      <span>Versions:</span><Button onClick={handleVersionsClick}>Source Control</Button>
+      <span>Versions:</span><SourceControlButton repoId={repo.id} metafileId={metafile.id} />
     </>
   );
 };

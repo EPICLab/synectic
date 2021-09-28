@@ -14,9 +14,9 @@ import { cardSelectors } from '../store/selectors/cards';
  * point (without concern for whether there are changes on a particular branch). Checkouts will only affect 
  * the contents of the indicated card.
  * @param props Metafile UUID and Card UUID required for determining correct repository and display target. Optional
- * update boolean flag indicates whether all checkouts should update the main worktree (instead of using linked worktrees).
+ * overwrite boolean flag indicates whether all checkouts should update the main worktree (instead of using linked worktrees).
  */
-export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; update?: boolean; }> = props => {
+export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: string; overwrite?: boolean; }> = props => {
   const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, props.cardId));
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
@@ -28,7 +28,7 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
   const checkout = async (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
     if (metafile) {
-      const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: newBranch, update: props.update })).unwrap();
+      const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: newBranch, overwrite: props.overwrite })).unwrap();
       await dispatch(switchCardMetafile({ card: card, metafile: updated }));
       updateBranch(newBranch);
     }

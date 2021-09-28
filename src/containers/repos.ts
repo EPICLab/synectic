@@ -109,25 +109,25 @@ export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejec
 * @param metafileId The UUID associated with the original metafile.
 * @param branch Git branch name or commit hash; defaults to 'master'.
 * @param progress Enable printing progress information from `isomorphic-git.checkout()` to console.
-* @param update Enable changing the branch for the main worktree; will prevent any new linked worktrees from being created.
+* @param overwrite Enable changing the branch for the main worktree; will prevent any new linked worktrees from being created.
 * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
 */
 export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
-  metafileId: UUID, branch: string, progress?: boolean, update?: boolean
+  metafileId: UUID, branch: string, progress?: boolean, overwrite?: boolean
 }, AppThunkAPI>(
   'repos/checkoutBranch',
   async (param, thunkAPI) => {
     const metafile = thunkAPI.getState().metafiles.entities[param.metafileId];
     const repo = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
     if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${param.metafileId}'`);
+    if (!metafile.path) return thunkAPI.rejectWithValue(`Cannot checkout branches for virtual metafile:'${param.metafileId}'`);
     if (!repo) return thunkAPI.rejectWithValue(`Repository missing for metafile id:'${param.metafileId}'`);
     if (!metafile || !repo) return undefined;
-    if (!metafile.path) return thunkAPI.rejectWithValue(`Cannot checkout branches for virtual metafile:'${param.metafileId}'`);
 
     let updated: Metafile | undefined;
-    if (param.update) {
+    if (param.overwrite) {
       // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
       if (param.progress) await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch, onProgress: (e) => console.log(e.phase) });
       else await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch });
