@@ -53,10 +53,15 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{DateTime.fromMillis(props.modified).toLocaleString()}</span>
-      <span>Repo:</span><span className='field'>{repo ? repo.name : ''}</span>
-      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
-      <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
-      <span>Versions:</span><SourceControlButton repoId={repo.id} metafileId={metafile.id} />
+      <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
+      {repo ?
+        <>
+          <span>Branch:</span>
+          <BranchList metafileId={metafile.id} cardId={props.id} />
+          <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
+          <span>Versions:</span><SourceControlButton repoId={repo.id} metafileId={metafile.id} />
+        </>
+        : undefined}
     </>
   );
 };
