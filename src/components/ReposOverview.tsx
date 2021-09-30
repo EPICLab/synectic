@@ -58,7 +58,7 @@ const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => 
   ) : null;
 }
 
-export const VersionStatusComponent: React.FunctionComponent = () => {
+export const ReposOverview: React.FunctionComponent = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [expanded, setExpanded] = React.useState(repos.length > 0 ? [repos[0].id] : []); // initial state; expand first listed repo
 
@@ -85,4 +85,4 @@ export const VersionStatusComponent: React.FunctionComponent = () => {
   );
 };
 
-export default VersionStatusComponent;
+export default ReposOverview;

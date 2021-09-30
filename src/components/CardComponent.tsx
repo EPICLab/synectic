@@ -11,7 +11,7 @@ import Diff, { DiffReverse } from './Diff';
 import Explorer, { ExplorerReverse } from './Explorer';
 import SourceControl, { SourceControlReverse } from './SourceControl';
 import Browser, { BrowserReverse } from './Browser';
-import { VersionStatusComponent } from './RepoBranchList';
+import { ReposOverview } from './ReposOverview';
 import { RootState } from '../store/store';
 import { createStack, pushCards, popCard } from '../containers/stacks';
 import { StyledIconButton } from './StyledIconButton';
@@ -59,8 +59,8 @@ const ContentFront: React.FunctionComponent<Card> = props => {
       return (<SourceControl rootId={props.metafile} />);
     case 'Browser':
       return (<Browser />);
-    case 'Tracker':
-      return (<VersionStatusComponent />);
+    case 'ReposTracker':
+      return (<ReposOverview />);
     case 'ConflictManager':
       return (<ConflictManager rootId={props.metafile} />)
     default:
@@ -80,7 +80,7 @@ const ContentBack: React.FunctionComponent<Card> = props => {
       return (<SourceControlReverse {...props} />);
     case 'Browser':
       return (<BrowserReverse {...props} />);
-    case 'Tracker':
+    case 'ReposTracker':
       return null;
     case 'ConflictManager':
       return null;

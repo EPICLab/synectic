@@ -12,7 +12,7 @@ export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 export type Timestamp = ReturnType<DateTime['valueOf']>;
 
-export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge' | 'SourceControl' | 'ConflictManager';
+export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'ReposTracker' | 'Merge' | 'SourceControl' | 'ConflictManager';
 export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'SourcePicker' | 'BranchList' | 'MergeSelector' | 'Error' | 'GitGraph';
 /**
  * | status                | description                                                                           |
