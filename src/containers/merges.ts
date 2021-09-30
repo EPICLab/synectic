@@ -61,7 +61,9 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
     } catch (error) {
         mergeError = error as ExecError;
         const conflictPattern = /(?<=content conflict in ).*?(?=\n)/gm;
-        const conflicts = mergeError.stderr.match(conflictPattern);
+        const conflicts = mergeError.stderr
+            .match(conflictPattern)
+            .map(filename => path.resolve(baseDir, filename));
         return {
             mergeStatus: {
                 oid: await resolveRef(baseDir, 'HEAD'),
