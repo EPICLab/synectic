@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { PathLike } from 'fs-extra';
 import * as io from '../io';
-import { getIgnore } from '../git-plumbing';
 import * as path from 'path';
-import { asyncFilter } from '../format';
+import { getIgnore } from '../git-plumbing';
+import useDirectory from './useDirectory';
 
 type Conflict = {
     filepath: PathLike,
@@ -18,7 +18,7 @@ export type useGitConflictsHook = {
 
 const useGitConflicts = (root: PathLike): useGitConflictsHook => {
     const [conflicts, setConflicts] = useState<Conflict[]>([]);
-
+    const { files } = useDirectory(root);
 
     const check = useCallback(async () => {
         const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
@@ -29,23 +29,23 @@ const useGitConflicts = (root: PathLike): useGitConflictsHook => {
         // so the 'node_module' directory will not be ignored. See: https://github.com/kaelzhang/node-ignore#2-filenames-and-dirnames
         ignore.add('node_modules');
 
-        const filepaths = (await io.readDirAsyncDepth(root))
-            .filter(p => p !== root)                                            // filter root filepath from results
-            .filter(p => !ignore.ignores(path.relative(root.toString(), p)));   // filter ignored files and directories
-        const directories = await asyncFilter(filepaths, async (e: string) => io.isDirectory(e));
-        const files = filepaths.filter(f => !directories.includes(f));
+        const filepaths = files
+            .map(metafile => metafile.path)
+            .filter(f => !ignore.ignores(path.relative(root.toString(), f.toString())));   // filter ignored files
 
-        const matching = await Promise.all(files.map(async f => {
+        const matching = await Promise.all(filepaths.map(async f => {
             const content = await io.readFileAsync(f, { encoding: 'utf-8' });
             const matches = content.match(conflictPattern);
             return { filepath: f, conflicts: matches ? matches.length : 0 };
         }));
+
         const conflicting = matching.filter(match => match.conflicts > 0);
 
         setConflicts(conflicting);
-    }, [root]);
+    }, [root, files]);
 
-    useEffect(() => { check() }, []);
+    // trigger checks based on updates to files within the project directory
+    useEffect(() => { check() }, [files]);
 
     return { root, conflicts, check };
 }
