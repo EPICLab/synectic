@@ -88,11 +88,13 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
   useEffect(() => { setChanged(files.filter(f => changedCheck(f.status))) }, [files]);
 
   return (
-    <div className='file-explorer'>
+    <div className='list-component'>
       <BranchRibbon branch={metafile?.branch} onClick={() => {
         console.log({ metafile, files, modified });
       }} />
-      <TreeView>
+      <TreeView
+        expanded={[`${repo ? repo.name : ''}-${metafile?.branch}-staged`, `${repo ? repo.name : ''}-${metafile?.branch}-changed`]}
+      >
         <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
           nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
           labelText='Staged'

@@ -176,7 +176,7 @@ img.diff_icon {
   width: 20px;
 }
 
-.file-explorer {
+.list-component {
   color: rgba(30, 30, 30, 1);
   background: rgba(235, 235, 235, 1);
   /* width: 100%; */
@@ -188,7 +188,7 @@ img.diff_icon {
   text-overflow: ellipsis;
 }
 
-.file-explorer::-webkit-scrollbar {
+.list-component::-webkit-scrollbar {
   visibility: hidden;
   width: 0px;
 }

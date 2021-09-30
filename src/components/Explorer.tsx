@@ -78,7 +78,7 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const { directories, files } = useDirectory((rootMetafile as MetafileWithPath).path);
 
   return (
-    <div className='file-explorer'>
+    <div className='list-component'>
       <BranchRibbon branch={rootMetafile?.branch} />
       <TreeView
         defaultCollapseIcon={<ArrowDropDownIcon />}
