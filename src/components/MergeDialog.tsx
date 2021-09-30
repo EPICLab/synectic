@@ -14,6 +14,8 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { repoSelectors } from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
 import { merge } from '../containers/merges';
+import { loadCard } from '../containers/handlers';
+import { getMetafile } from '../containers/metafiles';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -91,6 +93,10 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     const conflictStatus = mergeCheck.mergeConflicts ? 'Failing' : 'Passing';
     setBranchConflicts([conflictStatus, []]);
 
+    if (conflictStatus == 'Failing') {
+      const conflictMetafile = await dispatch(getMetafile({ virtual: { name: `Conflicts: ${base}<>${compare}`, handler: 'ConflictManager', repo: fullRepo.id, path: fullRepo.root } })).unwrap();
+      dispatch(loadCard({ metafile: conflictMetafile }));
+    }
     if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
 

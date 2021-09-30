@@ -24,6 +24,7 @@ import { cardSelectors } from '../store/selectors/cards';
 import { stackSelectors } from '../store/selectors/stacks';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { cardRemoved } from '../store/slices/cards';
+import ConflictManager from './ConflictManager';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -60,6 +61,8 @@ const ContentFront: React.FunctionComponent<Card> = props => {
       return (<Browser />);
     case 'Tracker':
       return (<VersionStatusComponent />);
+    case 'ConflictManager':
+      return (<ConflictManager rootId={props.metafile} />)
     default:
       return null;
   }
@@ -78,6 +81,8 @@ const ContentBack: React.FunctionComponent<Card> = props => {
     case 'Browser':
       return (<BrowserReverse {...props} />);
     case 'Tracker':
+      return null;
+    case 'ConflictManager':
       return null;
     default:
       return null;
