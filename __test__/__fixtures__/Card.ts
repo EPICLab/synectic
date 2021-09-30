@@ -7,5 +7,5 @@ export const thirdEditorCard = testStore.cards.entities['17734ae2-f8da-40cf-be86
 export const diffCard = testStore.cards.entities['6e84b210-f148-43bd-8364-c8710e70a9ef'] as Card;
 export const explorerCard = testStore.cards.entities['43c3c447-da0d-4299-a006-57344beb77da'] as Card;
 export const browserCard = testStore.cards.entities['f1a1fb16-cb06-4fb7-9b10-29ad95032d51'] as Card;
-export const trackerCard = testStore.cards.entities['4efdbe23-c938-4eb1-b29b-50bf76bdb44e'] as Card;
+export const reposTrackerCard = testStore.cards.entities['4efdbe23-c938-4eb1-b29b-50bf76bdb44e'] as Card;
 
