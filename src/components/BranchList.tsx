@@ -39,7 +39,7 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
       <Select labelId='branch-selection-name-label' id='branch-name' value={branch}
         className={cssClasses.root} autoWidth={true} input={<Input className={cssClasses.root} />}
         onChange={(e) => checkout(e.target.value as string)}>
-        {repo && Object.values(repo.local).map(local => (<MenuItem key={local} value={local}>{local}</MenuItem>)
+        {repo && Object.values(repo.local).filter(local => local !== 'HEAD').map(local => (<MenuItem key={local} value={local}>{local}</MenuItem>)
         )}
         {branch == 'untracked' && <MenuItem key={branch} value={branch}>{branch}</MenuItem>}
       </Select>

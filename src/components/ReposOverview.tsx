@@ -53,7 +53,7 @@ const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => 
 
   return repo ? (
     <StyledTreeItem key={repo.id} nodeId={repo.id} labelText={repo.name} labelIcon={GitRepoIcon}>
-      {branches.map(branch => <BranchStatus key={v4()} repo={repo} branch={branch} />)}
+      {branches.filter(branch => branch !== 'HEAD').map(branch => <BranchStatus key={v4()} repo={repo} branch={branch} />)}
     </StyledTreeItem >
   ) : null;
 }
