@@ -7,7 +7,7 @@ import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 
-type NavItemProps = {
+export type NavItemProps = {
   label: string;
   disabled?: boolean;
   click: (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
