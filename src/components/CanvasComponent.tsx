@@ -134,10 +134,15 @@ const CanvasComponent: React.FunctionComponent = props => {
     id: v4(),
     type: 'SourcePicker'
   }
+  const cloneSelectorModal: Modal = {
+    id: v4(),
+    type: 'CloneSelector'
+  }
   const actionMenu: NavItemProps[] = [
     { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(modalAdded(diffPickerModal)) },
     { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
     { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
+    { label: 'Clone...', click: () => dispatch(modalAdded(cloneSelectorModal)) },
   ];
 
   const viewMenu: NavItemProps[] = [
