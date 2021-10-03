@@ -37,9 +37,9 @@ ipcMain.handle('fileOpenDialog', async (_event, properties) => {
   return await dialog.showOpenDialog({ properties: [...properties, 'multiSelections'] });
 });
 
-// Handle renderer requests for the Electron `showSaveDialog` and returns filepath results.
-ipcMain.handle('fileSaveDialog', async (_event, { defaultPath, properties }) => {
-  const result = await dialog.showSaveDialog({ defaultPath, properties });
+// Handle renderer requests for the Electron `showSaveDialog` and returns the results value.
+ipcMain.handle('fileSaveDialog', async (_event, { defaultPath, buttonLabel, properties }) => {
+  const result = await dialog.showSaveDialog({ defaultPath, buttonLabel, properties });
   return result;
 });
 
