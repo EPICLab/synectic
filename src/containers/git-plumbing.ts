@@ -71,7 +71,7 @@ export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; 
       break;
   }
   // TODO: Eventually, url should directly return parsedPath when git:// and ssh:// protocols are supported in isomorphic-git
-  return { url: parsePath(resolveURL(parsedPath)), oauth: oauth };
+  return { url: parsePath(resolveURL(parsedPath.href)), oauth: oauth };
 }
 
 /**
@@ -85,8 +85,17 @@ export const isValidRepository = (repo: Repository): boolean => (
   isUUID(repo.id, 4)
   && repo.name.length > 0
   && (isWebUri(repo.corsProxy) ? true : false)
-  && ((isWebUri(repo.url) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(repo.url)))
+  && isValidRepositoryURL(repo.url)
 );
+
+/**
+ * Checks for valid URL that is a well-formed HTTP or HTTPS URI (RFC3986), or valid SSH URI (Provisional IANA 
+ * format standard).
+ * @param url A repository URL string.
+ * @returns A boolean indicating a well-formed repository URL on true, and false otherwise.
+ */
+export const isValidRepositoryURL = (url: string): boolean =>
+  ((isWebUri(url) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(url)));
 
 /**
  * Checks for ssh or git protocols in use within a URL and converts to http/https. This is directly needed in order
@@ -95,9 +104,9 @@ export const isValidRepository = (repo: Repository): boolean => (
  * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
  * @returns A string containing an https protocol URL that matches to the incoming URL variant.
  */
-export const resolveURL = (url: parsePath.ParsedPath): string => {
-  const isSSH = /((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(url.href);
-  return isSSH ? toHTTPS(url.href) : url.href;
+export const resolveURL = (url: string): string => {
+  const isSSH = /((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(url);
+  return isSSH ? toHTTPS(url) : url;
 };
 
 /**
