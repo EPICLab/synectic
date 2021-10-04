@@ -1,40 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { createStyles, makeStyles, Theme, withStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Timeline, TimelineConnector, TimelineContent, TimelineItem, TimelineSeparator } from '@material-ui/lab';
-import { CircularProgress, Typography } from '@material-ui/core';
-import { green, red } from '@material-ui/core/colors';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-
-const StyledCheckIcon = withStyles({
-    root: {
-        height: 22,
-        width: 22,
-        margin: 4,
-        padding: 0,
-        verticalAlign: 'middle',
-        color: green[500]
-    }
-})(CheckIcon);
-
-const StyledClearIcon = withStyles({
-    root: {
-        height: 22,
-        width: 22,
-        padding: 0,
-        margin: 4,
-        verticalAlign: 'middle',
-        color: red[500]
-    }
-})(ClearIcon);
-
-const StyledCircularProgress = withStyles({
-    root: {
-        margin: 4,
-        padding: 2,
-        verticalAlign: 'middle'
-    }
-})(CircularProgress);
+import { Typography } from '@material-ui/core';
+import StatusIcon, { Status } from './StatusIcon';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -62,38 +30,19 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-type CheckState =
-    | 'Unchecked'
-    | 'Running'
-    | 'Passing'
-    | 'Failing';
-
 type MissingGitConfigs = string[] | undefined;
 
-const StatusIcon = (state: CheckState) => {
-    switch (state) {
-        case 'Running':
-            return <StyledCircularProgress size={18} />;
-        case 'Passing':
-            return <StyledCheckIcon />;
-        case 'Failing':
-            return <StyledClearIcon />;
-        default:
-            return null;
-    }
-}
-
 type TimelineProps = {
-    commitCountDelta: CheckState,
-    branchConflicts: [CheckState, MissingGitConfigs],
-    buildStatus: CheckState
+    commitCountDelta: Status,
+    branchConflicts: [Status, MissingGitConfigs],
+    buildStatus: Status
 }
 
 const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
     const classes = useStyles();
-    const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
-    const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
-    const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
+    const [commitCountDelta, setCommitCountDelta] = useState<Status>('Unchecked');
+    const [branchConflicts, setBranchConflicts] = useState<[Status, MissingGitConfigs]>(['Unchecked', undefined]);
+    const [buildStatus, setBuildStatus] = useState<Status>('Unchecked');
 
     useEffect(() => {
         setCommitCountDelta(props.commitCountDelta);
@@ -106,7 +55,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
             {commitCountDelta != 'Unchecked' ?
                 <TimelineItem className={classes.tl_item} >
                     <TimelineSeparator>
-                        {StatusIcon(props.commitCountDelta)}
+                        <StatusIcon status={props.commitCountDelta} />
                         {branchConflicts[0] != 'Unchecked' ? <TimelineConnector /> : null}
                     </TimelineSeparator>
                     <TimelineContent className={classes.tl_content} >
@@ -119,7 +68,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
             {branchConflicts[0] != 'Unchecked' ?
                 <TimelineItem className={classes.tl_item} >
                     <TimelineSeparator>
-                        {StatusIcon(props.branchConflicts[0])}
+                        <StatusIcon status={props.branchConflicts[0]} />
                         {buildStatus != 'Unchecked' ? <TimelineConnector /> : null}
                     </TimelineSeparator>
                     <TimelineContent className={classes.tl_content} >
@@ -135,7 +84,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
             {buildStatus != 'Unchecked' ?
                 <TimelineItem className={classes.tl_item} >
                     <TimelineSeparator>
-                        {StatusIcon(props.buildStatus)}
+                        <StatusIcon status={props.buildStatus} />
                     </TimelineSeparator>
                     <TimelineContent className={classes.tl_content} >
                         <Typography>Checking for build failures...</Typography>
