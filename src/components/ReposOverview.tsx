@@ -53,13 +53,16 @@ const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => 
 
   return repo ? (
     <StyledTreeItem key={repo.id} nodeId={repo.id} labelText={repo.name} labelIcon={GitRepoIcon}>
-      {branches.map(branch => <BranchStatus key={v4()} repo={repo} branch={branch} />)}
+      {branches.filter(branch => branch !== 'HEAD').map(branch => <BranchStatus key={v4()} repo={repo} branch={branch} />)}
     </StyledTreeItem >
   ) : null;
 }
 
-export const VersionStatusComponent: React.FunctionComponent = () => {
+export const ReposOverview: React.FunctionComponent = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const [expanded, setExpanded] = React.useState(repos.length > 0 ? [repos[0].id] : []); // initial state; expand first listed repo
+
+  const handleToggle = (_event: React.ChangeEvent<Record<string, unknown>>, nodeIds: string[]) => setExpanded(nodeIds);
 
   return (
     <div className='version-tracker'>
@@ -67,6 +70,8 @@ export const VersionStatusComponent: React.FunctionComponent = () => {
         defaultCollapseIcon={<ArrowDropDownIcon />}
         defaultExpandIcon={<ArrowRightIcon />}
         defaultEndIcon={<div style={{ width: 8 }} />}
+        expanded={expanded}
+        onNodeToggle={handleToggle}
       >
         {repos.length == 0 &&
           <StyledTreeItem key={'no-repo'} nodeId={'no-repo'}
@@ -80,4 +85,4 @@ export const VersionStatusComponent: React.FunctionComponent = () => {
   );
 };
 
-export default VersionStatusComponent;
+export default ReposOverview;

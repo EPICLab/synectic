@@ -3,12 +3,11 @@ import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
 import type { Modal } from '../types';
 import CardComponent from './CardComponent';
-// import StackComponent from './StackComponent';
+import StackComponent from './StackComponent';
 import ModalComponent from './ModalComponent';
 import { popCard } from '../containers/stacks';
 import { stackUpdated } from '../store/slices/stacks';
-import { NavMenu } from './NavMenu';
-import { NavItemProps } from './NavItem';
+import { NavMenu, NavItemProps } from './NavMenu';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { fileOpenDialog } from '../containers/dialogs';
 import { loadBranchVersions } from '../containers/branch-tracker';
@@ -135,10 +134,15 @@ const CanvasComponent: React.FunctionComponent = props => {
     id: v4(),
     type: 'SourcePicker'
   }
+  const cloneSelectorModal: Modal = {
+    id: v4(),
+    type: 'CloneSelector'
+  }
   const actionMenu: NavItemProps[] = [
     { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(modalAdded(diffPickerModal)) },
     { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
     { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
+    { label: 'Clone...', click: () => dispatch(modalAdded(cloneSelectorModal)) },
   ];
 
   const viewMenu: NavItemProps[] = [
@@ -154,10 +158,8 @@ const CanvasComponent: React.FunctionComponent = props => {
         <NavMenu label='View' submenu={viewMenu} />
         <GitGraphSelect />
       </div>
-      {stacks.map(stack => <span key={stack.id}>{stack.name}</span>)}
-      {/* {cards.map(card => <span key={card.id}>{card.name}</span>)} */}
       {modals.map(modal => <span key={modal.id}>{modal.type}</span>)}
-      {/* {stacks.map(stack => <StackComponent key={stack.id} {...stack} />)} */}
+      {stacks.map(stack => <StackComponent key={stack.id} {...stack} />)}
       {cards.filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {modals.map(modal => <ModalComponent key={modal.id} {...modal} />)}
       {props.children}

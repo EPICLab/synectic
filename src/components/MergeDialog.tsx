@@ -14,6 +14,8 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { repoSelectors } from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
 import { merge } from '../containers/merges';
+import { loadCard } from '../containers/handlers';
+import { getMetafile } from '../containers/metafiles';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -83,19 +85,18 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     if (commitStatus == 'Failing') return;
     setBranchConflicts(['Running', undefined]);
 
-    // check for merge conflicts by running merge with dryRun option enabled
+    // check for merge conflicts by running merge with dryRun option enabled (at least when using git-porcelain/merge)
+    // >>>      const conflictCheck = await merge(fullRepo.root, base, compare, true);
 
-    // git-porcelain/merge version =>
-    // const conflictCheck = await merge(fullRepo.root, base, compare, true);
-
-    // containers/merges version =>
-    const conflictCheck = await merge(fullRepo.root, base, compare);
-    console.log(`MergeDialog.conflictCheck: ${JSON.stringify(conflictCheck.mergeStatus, undefined, 2)}`);
-    // const conflictStatus = conflictCheck.mergeCommit || conflictCheck.fastForward ? 'Passing' : 'Failing';
-    const conflictStatus = 'Failing';
-    // setBranchConflicts([conflictStatus, conflictCheck.missingConfigs]);
+    const mergeCheck = await merge(fullRepo.root, base, compare);
+    console.log(`MergeDialog conflictCheck: ${JSON.stringify(mergeCheck, undefined, 2)}`);
+    const conflictStatus = mergeCheck.mergeConflicts ? 'Failing' : 'Passing';
     setBranchConflicts([conflictStatus, []]);
 
+    if (conflictStatus == 'Failing') {
+      const conflictMetafile = await dispatch(getMetafile({ virtual: { name: `Conflicts: ${base}<>${compare}`, handler: 'ConflictManager', repo: fullRepo.id, path: fullRepo.root } })).unwrap();
+      dispatch(loadCard({ metafile: conflictMetafile }));
+    }
     if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
 
@@ -137,7 +138,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
           </Grid>
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
         </div>
-        {(branchConflicts[1] && branchConflicts[1].length > 0) ? <Divider variant='middle' /> : null}
+        {(branchConflicts[0] === 'Failing') ? <Divider variant='middle' /> : null}
         <div className={classes.section2}>
           <GitConfigForm
             open={(branchConflicts[1] && branchConflicts[1].length > 0) ? true : false}

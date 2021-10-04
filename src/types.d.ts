@@ -12,8 +12,8 @@ export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 export type Timestamp = ReturnType<DateTime['valueOf']>;
 
-export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Tracker' | 'Merge' | 'SourceControl';
-export type ModalType = 'NewCardDialog' | 'DiffPicker' | 'SourcePicker' | 'BranchList' | 'MergeSelector' | 'Error' | 'GitGraph';
+export type CardType = 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'ReposTracker' | 'Merge' | 'SourceControl' | 'ConflictManager';
+export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewCardDialog' | 'SourcePicker';
 /**
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |
@@ -110,7 +110,7 @@ export type Filetype = {
   readonly extensions: string[];
 }
 
-/** A metafile representing specifications and state for files, directories, and diffs loaded into Synectic. */
+/** A metafile representing specifications and state for files, directories, diffs, and virtual content loaded into Synectic. */
 export type Metafile = {
   /** The UUID for Metafile object. */
   readonly id: UUID;

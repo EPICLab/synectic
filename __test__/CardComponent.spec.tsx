@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import CardComponent from '../src/components/CardComponent';
 import { testStore } from './__fixtures__/ReduxStore';
-import { browserCard, diffCard, explorerCard, firstEditorCard, trackerCard } from './__fixtures__/Card';
+import { browserCard, diffCard, explorerCard, firstEditorCard, reposTrackerCard } from './__fixtures__/Card';
 import * as useDirectoryHook from '../src/containers/hooks/useDirectory';
 import type { MockInstance } from './__mocks__/mock-fs-promise';
 import { mock, file } from './__mocks__/mock-fs-promise';
@@ -103,7 +103,7 @@ describe('CardComponent', () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
     render(
       <Provider store={store}>
-        <WrappedComponent {...trackerCard} />
+        <WrappedComponent {...reposTrackerCard} />
       </Provider>
     );
     expect(screen.getByTestId('card-component')).toBeInTheDocument();
@@ -171,7 +171,7 @@ describe('CardComponent', () => {
     expect(screen.getByText(/ID:/)).toBeInTheDocument();
   });
 
-  it('Tracker Card renders a reverse side when the flip button is clicked', async () => {
+  it('RepoTracker Card renders a reverse side when the flip button is clicked', async () => {
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
     render(
       <Provider store={store}>

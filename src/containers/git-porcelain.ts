@@ -9,7 +9,7 @@ import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
 import { isLinkedWorktree } from './git-worktree';
-import { matrixEntry, statusMatrix } from './git-plumbing';
+import { isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
 
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
@@ -104,7 +104,7 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   depth?: number;
   exclude?: string[];
 }): Promise<void> => {
-  const existingBranch = await currentBranch({ dir: repo.root.toString(), fullname: false });
+  const existingBranch = (await isGitRepo(repo.root)) ? await currentBranch({ dir: repo.root.toString(), fullname: false }) : undefined;
   const targetBranch = ref ? ref : existingBranch;
   if (targetBranch && !repo.remote.includes(targetBranch)) {
     await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) });

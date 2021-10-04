@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { InsertDriveFile, Add, Remove } from '@material-ui/icons';
+import { Button } from '@material-ui/core';
 import { TreeView } from '@material-ui/lab';
-import type { Card, GitStatus, Metafile, Repository, UUID } from '../types';
+import { PathLike } from 'fs-extra';
+import type { Card, CardType, GitStatus, Metafile, Repository, UUID } from '../types';
 import { RootState } from '../store/store';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { MetafileWithPath } from '../containers/metafiles';
+import { getMetafile, MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
 import { add, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
-import { useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
+import { getBranchRoot } from '../containers/git-porcelain';
+import { loadCard } from '../containers/handlers';
 
 const modifiedCheck = (status: GitStatus | undefined): boolean => {
   if (!status) return false;
-  // should be same as MatrixStatus results from:
-  //    !(status[0] === status[1] && status[1] === status[2]);
   return !['absent', 'unmodified', 'ignored'].includes(status);
 }
 
 const changedCheck = (status: GitStatus | undefined): boolean => {
   if (!status) return false;
-  // should be same as MatrixStatus results from:
-  //    matrixToStatus({ status: status })?.charAt(0) === '*';
   return ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(status);
 }
 
@@ -88,11 +88,13 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
   useEffect(() => { setChanged(files.filter(f => changedCheck(f.status))) }, [files]);
 
   return (
-    <div className='file-explorer'>
+    <div className='list-component'>
       <BranchRibbon branch={metafile?.branch} onClick={() => {
         console.log({ metafile, files, modified });
       }} />
-      <TreeView>
+      <TreeView
+        expanded={[`${repo ? repo.name : ''}-${metafile?.branch}-staged`, `${repo ? repo.name : ''}-${metafile?.branch}-changed`]}
+      >
         <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
           nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
           labelText='Staged'
@@ -120,13 +122,50 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
 export const SourceControlReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [repo = { name: 'Untracked' }] = useState(repos.find(r => r.id === metafile?.repo) || { name: 'Untracked' });
+  const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
   return (
     <>
-      <span>Repo:</span><span className='field'>{repo.name}</span>
+      <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
       <span>Branch:</span><span className='field'>{metafile?.branch ? metafile.branch : 'untracked'}</span>
     </>
   )
+}
+
+export const SourceControlButton: React.FunctionComponent<{ repoId?: UUID, metafileId: UUID }> = props => {
+  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
+  const dispatch = useAppDispatch();
+
+  const loadSourceControl = async () => {
+    if (!repo) {
+      console.log(`Repository missing for metafile id:'${props.metafileId}'`);
+      return;
+    }
+    if (!metafile.branch) {
+      console.log(`Cannot load source control for untracked metafile:'${props.metafileId}'`);
+      return;
+    }
+    const virtualMetafile: {
+      name: string,
+      handler: CardType,
+      repo: UUID,
+      branch: string,
+      path: PathLike
+    } = {
+      name: 'Source Control',
+      handler: 'SourceControl',
+      repo: repo.id,
+      branch: metafile.branch,
+      path: await getBranchRoot(repo, metafile.branch)
+    };
+
+    console.log(`loading Source Control for: repo= ${repo.name}, branch= ${metafile.branch}\n${JSON.stringify(virtualMetafile)}`);
+    const sourceControlMetafile = await dispatch(getMetafile({ virtual: virtualMetafile })).unwrap();
+    console.log(`sourceControlMetafile:${JSON.stringify(sourceControlMetafile, undefined, 2)}`);
+    if (sourceControlMetafile) dispatch(loadCard({ metafile: sourceControlMetafile }));
+  }
+
+  return (<Button onClick={loadSourceControl}>Source Control</Button>)
 }
 
 export default SourceControl;
