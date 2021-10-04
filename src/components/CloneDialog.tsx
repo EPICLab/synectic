@@ -5,8 +5,12 @@ import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-
 import type { Modal } from '../types';
 import { useAppDispatch } from '../store/hooks';
 import { modalRemoved } from '../store/slices/modals';
-import { extractRepoName, isValidRepositoryURL, resolveURL } from '../containers/git-plumbing';
+import { extractRepoName, isGitRepo, isValidRepositoryURL, resolveURL } from '../containers/git-plumbing';
 import { cloneDirectoryDialog } from '../containers/dialogs';
+import { cloneRepository } from '../containers/repos';
+import StatusIcon, { Status } from './StatusIcon';
+import { loadBranchVersions } from '../containers/branch-tracker';
+
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -29,7 +33,6 @@ const useStyles = makeStyles((theme: Theme) =>
             margin: theme.spacing(3, 2, 1),
         },
         section2: {
-            // flexGrow: 1,
             margin: theme.spacing(1, 1),
         },
     }),
@@ -40,22 +43,37 @@ const CloneDialog: React.FunctionComponent<Modal> = props => {
     const [url, setUrl] = useState('');
     const [invalid, setInvalid] = useState(false);
     const [targetPath, setTargetPath] = useState('');
+    const [status, setStatus] = useState<Status>('Unchecked');
     const dispatch = useAppDispatch();
+
+    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInvalid(!isValidRepositoryURL(event.target.value));
         setUrl(resolveURL(event.target.value));
     }
 
-    const clone = async () => {
-        const path: string | null = await dispatch(cloneDirectoryDialog(extractRepoName(url))).unwrap();
+    const getTargetPath = async () => {
+        const path = await dispatch(cloneDirectoryDialog(extractRepoName(url))).unwrap();
         if (path) setTargetPath(path);
     }
 
     useEffect(() => {
-        if (targetPath !== '' && !invalid) {
-            console.log(`cloning: ${url}\ninto: ${targetPath}`);
+        const initiateCloning = async () => {
+            const existing = await isGitRepo(targetPath);
+            if (!existing) {
+                setStatus('Running');
+                await dispatch(cloneRepository({ url: url, root: targetPath }));
+                setStatus('Passing');
+                await dispatch(loadBranchVersions());
+                await delay(2000);
+                dispatch(modalRemoved(props.id));
+            } else {
+                setStatus('Failing');
+            }
         }
+
+        if (targetPath !== '' && !invalid) initiateCloning();
     }, [targetPath]);
 
     return (
@@ -84,9 +102,18 @@ const CloneDialog: React.FunctionComponent<Modal> = props => {
                         </Grid>
                     </Grid>
                 </div>
+                {(targetPath !== '' && !invalid) ?
+                    <div className={classes.section1}>
+                        <StatusIcon status={status} />
+                        <Typography color='textSecondary' variant='body2'>
+                            {status === 'Passing' ? `Clone completed from '${url}' to '${targetPath}'` : null}
+                            {status === 'Failing' ? `Existing repository at ${targetPath}` : null}
+                        </Typography>
+                    </div>
+                    : null}
                 <div className={classes.section2}>
                     <Button variant='outlined' color='primary' className={classes.button}
-                        onClick={clone} disabled={invalid}>Clone</Button>
+                        onClick={getTargetPath} disabled={invalid}>Clone</Button>
                 </div>
             </div>
         </Dialog>
