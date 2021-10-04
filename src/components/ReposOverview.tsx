@@ -25,7 +25,7 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
   const modified = cards.map(c => metafiles.find(m => m.id === c.metafile)).filter(m => modifiedStatuses.includes(m.status));
   const dispatch = useAppDispatch();
 
-  // load a new Explorer card containing the root of of the repository at the specified branch
+  // load a new Explorer card containing the root of the repository at the specified branch
   const clickHandle = async () => {
     const branchRoot = await getBranchRoot(props.repo, props.branch);
 
@@ -33,8 +33,10 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
     if (branchRoot) {
       dispatch(loadCard({ filepath: branchRoot }));
     } else {
+      console.log(`branchRoot '${branchRoot}' not associated with any worktrees, gathering new metafile and checking out the branch`);
       const metafile = await dispatch(getMetafile({ filepath: props.repo.root })).unwrap();
       const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: props.branch })).unwrap();
+      console.log(`checkoutBranch updated metafile: ${JSON.stringify(updated, undefined, 2)}`);
       dispatch(loadCard({ metafile: updated }));
     }
   }
