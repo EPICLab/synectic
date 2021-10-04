@@ -92,9 +92,10 @@ export const getBranchRoot = async (repo: Repository, branch: string): Promise<s
  * @param depth Set the maximum depth to retrieve from the git repository's history.
  * @param exclude A list of branches or tags which should be excluded from remote server responses; specifically any commits reachable
  * from these refs will be excluded.
+ * @param onProgress Callback for listening to GitProgressEvent occurrences during cloning.
  * @return A Promise object for the clone operation.
  */
-export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout = false, noTags = false, depth, exclude }: {
+export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout = false, noTags = false, depth, exclude, onProgress }: {
   repo: Repository;
   dir: fs.PathLike;
   ref?: string;
@@ -103,19 +104,20 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   noTags?: boolean;
   depth?: number;
   exclude?: string[];
+  onProgress?: isogit.ProgressCallback;
 }): Promise<void> => {
   const existingBranch = (await isGitRepo(repo.root)) ? await currentBranch({ dir: repo.root.toString(), fullname: false }) : undefined;
   const targetBranch = ref ? ref : existingBranch;
+
   if (targetBranch && !repo.remote.includes(targetBranch)) {
-    await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) });
+    await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) }); // do not copy node_modules/ directory
     if (targetBranch !== existingBranch)
       await checkout({ dir: dir, ref: targetBranch, noCheckout: noCheckout });
     return;
   }
   return isogit.clone({
     fs: fs, http: http, dir: dir.toString(), url: repo.url, singleBranch: singleBranch, noCheckout: noCheckout,
-    noTags: noTags, depth: depth, exclude: exclude,
-    onProgress: (progress: isogit.GitProgressEvent) => console.log(`cloning objects: ${progress.loaded}/${progress.total}`)
+    noTags: noTags, depth: depth, exclude: exclude, onProgress
   });
 };
 
