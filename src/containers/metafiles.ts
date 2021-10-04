@@ -86,6 +86,10 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI & { reject
     try {
       const repo = await thunkAPI.dispatch(getRepository(metafile.path)).unwrap();
       const root = await getRepoRoot(metafile.path);
+      if (!root) {
+        console.log(`updateGitInfo root: ${root}`);
+        return;
+      }
       const branch = repo ? (await currentBranch({
         dir: root ? root : repo.root.toString(),
         fullname: false
@@ -98,6 +102,7 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI & { reject
         status: status
       }));
     } catch (error) {
+      console.log(`updateGitInfo error: ${error}`);
       return thunkAPI.rejectWithValue(`${error}`);
     }
   }
