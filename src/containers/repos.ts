@@ -7,8 +7,8 @@ import type { Repository, Card, Metafile, UUID } from '../types';
 import * as worktree from './git-worktree';
 import { getMetafile } from './metafiles';
 import { extractFilename, isDirectory, readFileAsync } from './io';
-import { getRepoRoot } from './git-porcelain';
-import { isValidRepository, extractRepoName, extractFromURL } from './git-plumbing';
+import { clone, getConfig, getRemoteInfo, getRepoRoot } from './git-porcelain';
+import { isValidRepository, extractRepoName, extractFromURL, isGitRepo } from './git-plumbing';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getRepoByName, repoAdded, repoUpdated } from '../store/slices/repos';
 import { AppThunkAPI } from '../store/hooks';
@@ -100,6 +100,49 @@ export const updateBranches = createAsyncThunk<void, UUID, AppThunkAPI & { rejec
 )
 
 /**
+ * Async Thunk action creator for creating a local repository by cloning a remote repository.
+ * @param url A repository URL string.
+ * @param root The relative or absolute path to clone into.
+ * @return  A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a repository that was cloned and 
+ * updated based on the filesystem and version control system.
+ */
+export const cloneRepository = createAsyncThunk<Repository | undefined, { url: URL | string, root: PathLike }, AppThunkAPI>(
+  'repos/cloneRepository',
+  async (param, thunkAPI) => {
+    const existing = await isGitRepo(param.root);
+    if (existing) { // if root points to a current repository, do not clone over it
+      thunkAPI.rejectWithValue(`Existing repository found at '${param.root.toString()}', use getRepository() to retrieve`);
+      return undefined;
+    }
+    const { url, oauth } = extractFromURL(param.url);
+    const username = await getConfig('user.name', true);
+    const password = await getConfig('credential.helper', true);
+    const id = await thunkAPI.dispatch(appendRepository({
+      root: param.root.toString(),
+      protocol: { url: url, oauth: oauth },
+      username: username.scope !== 'none' ? username.value : '',
+      password: password.scope !== 'none' ? password.value : ''
+    })).unwrap();
+    if (id) {
+      const repo = thunkAPI.getState().repos.entities[id];
+      const info = await getRemoteInfo({ url: repo.url });
+      const defaultBranch = info.HEAD.substring(info.HEAD.lastIndexOf('/') + 1);
+      thunkAPI.dispatch(repoUpdated({
+        ...repo,
+        remote: [defaultBranch]
+      }));
+      await clone({ repo: repo, dir: repo.root });
+      await thunkAPI.dispatch(updateBranches(id));
+      return thunkAPI.getState().repos.entities[id];
+    } else {
+      thunkAPI.rejectWithValue('Unable to clone and generate new repository');
+    }
+  }
+);
+
+/**
 * Async Thunk action creator for switching Git branches (or commit hash) and updating the associated metafile. Multiple cards
 * can be associated with a single metafile, therefore switching branches requires a new (or at least different) metafile that
 * refers to a new combination of `Repository` and `ref`. Since `isomorphic-git.checkout()` switches all files within a repository,
@@ -151,14 +194,15 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
 )
 
 /**
- * Async Thunk action creator for retrieving a `Repository` object associated with the given filepath. If the filepath is not under version
- * control (i.e. not contained within a Git repository), or the associated Git repository is malformed, then no valid response can be 
- * given. Otherwise, the correct Repository object is returned and the Redux store is updated with the latest set of branches.
+ * Async Thunk action creator for simplifying the process of obtaining an updated repository from the Redux store.
+ * If the filepath is not under version control (i.e. not contained within a Git repository), or the associated Git repository 
+ * is malformed, then no valid response can be given. Otherwise, the correct Repository object is returned and the Redux 
+ * store is updated with the latest set of branches.
  * @param filepath The relative or absolute path to evaluate.
  * @return  A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
- * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a repository that was either created or retrieved
- * and updated based on the filesystem and version control system.
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a repository that was either created or 
+ * retrieved and updated based on the filesystem and version control system.
  */
 export const getRepository = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'repos/getRepository',
