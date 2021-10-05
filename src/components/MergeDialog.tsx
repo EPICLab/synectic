@@ -9,7 +9,7 @@ import DropSelect from './DropSelect';
 import { RootState } from '../store/store';
 import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
-import { merge as isomerge } from '../containers/git-porcelain';
+// import { merge as isomerge } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { repoSelectors } from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
@@ -58,13 +58,15 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
 
   const branches = repos.find(r => r.id === repo)?.local.map(b => ({ key: b, value: b }));
 
-  const branchCheck = async () => {
-    const fullRepo = repos.find(r => r.id === repo);
-    if (!fullRepo) return;
-    const result = await isomerge(fullRepo.root, base, compare, true);
-    console.log(`merge dryRun: ${base}...${compare}`);
-    console.log(result);
-  }
+  const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+  // const branchCheck = async () => {
+  //   const fullRepo = repos.find(r => r.id === repo);
+  //   if (!fullRepo) return;
+  //   const result = await isomerge(fullRepo.root, base, compare, true);
+  //   console.log(`merge dryRun: ${base}...${compare}`);
+  //   console.log(result);
+  // }
 
   const check = async () => {
     console.log(`<<MERGE CHECK>>\nbase: ${base} => compare: ${compare}`);
@@ -95,7 +97,9 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
 
     if (conflictStatus == 'Failing') {
       const conflictMetafile = await dispatch(getMetafile({ virtual: { name: `Conflicts: ${base}<>${compare}`, handler: 'ConflictManager', repo: fullRepo.id, path: fullRepo.root } })).unwrap();
-      dispatch(loadCard({ metafile: conflictMetafile }));
+      await dispatch(loadCard({ metafile: conflictMetafile }));
+      await delay(3000);
+      dispatch(modalRemoved(props.id));
     }
     if (conflictStatus == 'Failing') return;
     setBuildStatus('Running');
@@ -145,9 +149,9 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
           />
         </div>
         <div className={classes.section2}>
-          <Button variant='outlined' color='primary' className={classes.button} onClick={check}>Check</Button>
-          <Button variant='outlined' color='primary' className={classes.button} onClick={branchCheck}>Check Branches</Button>
-          <Button variant='outlined' color='primary' className={classes.button}>Merge</Button>
+          <Button variant='outlined' color='primary' className={classes.button} onClick={check}>Merge</Button>
+          {/* <Button variant='outlined' color='primary' className={classes.button} onClick={branchCheck}>Check Branches</Button>
+          <Button variant='outlined' color='primary' className={classes.button}>Merge</Button> */}
         </div>
       </div>
     </Dialog>
