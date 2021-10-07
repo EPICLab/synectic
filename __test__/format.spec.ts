@@ -1,6 +1,7 @@
 import * as format from '../src/containers/format';
 
-describe('format.deserialize', () => {
+describe('containers/format', () => {
+
   it('deserialize to parse a JSON string into a TypeScript object', () => {
     const json = '{"result":true, "count":42}';
     type typedJson = { result: boolean; count: number };
@@ -15,9 +16,7 @@ describe('format.deserialize', () => {
     const malformedJson = '{ "key": "Something \\\\"Name\\\\" something\", "anotherkey": "value" }';
     expect(() => format.deserialize(malformedJson)).toThrow(SyntaxError);
   });
-});
 
-describe('format.removeUndefined', () => {
   it('removeUndefined removes undefined from array of Primitive types', () => {
     const arr = [3, 'a', undefined, true];
     expect(format.removeUndefined(arr)).toStrictEqual([3, 'a', true]);
@@ -32,9 +31,7 @@ describe('format.removeUndefined', () => {
     const arr = [{ a: 3 }, 'a', { b: 7 }, true];
     expect(format.removeUndefined(arr)).toStrictEqual(arr);
   });
-});
 
-describe('format.removeDuplicates', () => {
   it('removeDuplicates removes duplicates from array of Primitive types', () => {
     const arr = [3, 4, 1, 0, 3, 3];
     const comparator = (a: number, b: number) => (a === b);
@@ -52,9 +49,7 @@ describe('format.removeDuplicates', () => {
     const comparator = (a: number, b: number) => (a === b);
     expect(format.removeDuplicates(arr, comparator)).toStrictEqual(arr);
   });
-});
 
-describe('format.asyncFilter', () => {
   it('asyncFilter evaluates and returns array of async Primitive types', async () => {
     const arr = [3, 4, 1, 0, 2, 3];
     const predicate = async (e: number) => (e % 2 == 0);
@@ -70,9 +65,7 @@ describe('format.asyncFilter', () => {
     };
     return expect(format.asyncFilter(arr, predicate)).resolves.toStrictEqual([4, 0, 2]);
   });
-});
 
-describe('format.filterObject', () => {
   it('filterObject recursively filters objects and returns homogenously-typed values', () => {
     const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
     return expect(format.filterObject(obj, ['c', 'e'])).toStrictEqual(['rose', 'tulip']);
@@ -82,17 +75,12 @@ describe('format.filterObject', () => {
     const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
     return expect(format.filterObject(obj, ['e', 'a'])).toStrictEqual([13, 'tulip']);
   });
-});
-
-describe('format.objectifyPath', () => {
 
   it('objectifyPath converts array of path elements into object with value', () => {
     const expected = { user: { name: 3 } };
     expect(format.objectifyPath(['user', 'name'], 3)).toStrictEqual(expected);
   });
-});
 
-describe('format.equalArrayBuffers', () => {
   it('equalArrayBuffers identifies equal and non-equal Buffers containing UTF-8 string data', () => {
     const buf1 = Buffer.from('test content');
     const buf2 = Buffer.from('test content');
@@ -127,9 +115,7 @@ describe('format.equalArrayBuffers', () => {
     expect(format.equalArrayBuffers(buf1, arr1)).toBe(true);
     expect(format.equalArrayBuffers(buf2, arr2)).toBe(false);
   });
-});
 
-describe('format.toArrayBuffer', () => {
   it('toArrayBuffer converts Buffer containing UTF-8 string data', () => {
     const buf1 = Buffer.from('test content');
     const arr1 = format.toArrayBuffer(buf1);

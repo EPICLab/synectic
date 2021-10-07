@@ -5,6 +5,12 @@ import { flattenObject } from './flatten';
  */
 export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K>; }> = Partial<T> & U[keyof U];
 
+/** Requires exactly one type property in an object, no more and no less.
+ * Insipred by: https://github.com/sindresorhus/type-fest/blob/main/source/require-exactly-one.d.ts
+ */
+export type ExactlyOne<T, U extends keyof T = keyof T> =
+  { [K in U]: (Required<Pick<T, K>> & Partial<Record<Exclude<U, K>, never>>) }[U] & Omit<T, U>;
+
 /**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.
  * @param json A valid JSON string.
