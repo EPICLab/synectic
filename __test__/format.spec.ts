@@ -68,12 +68,12 @@ describe('containers/format', () => {
 
   it('filterObject recursively filters objects and returns homogenously-typed values', () => {
     const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
-    return expect(format.filterObject(obj, ['c', 'e'])).toStrictEqual(['rose', 'tulip']);
+    return expect(format.filterObject(obj, ['c', 'e'])).toStrictEqual({ c: 'rose', e: 'tulip' });
   });
 
   it('filterObject recursively filters objects and returns heterogenously-typed values', () => {
     const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
-    return expect(format.filterObject(obj, ['e', 'a'])).toStrictEqual([13, 'tulip']);
+    return expect(format.filterObject(obj, ['e', 'a'])).toStrictEqual({ a: 13, e: 'tulip' });
   });
 
   it('objectifyPath converts array of path elements into object with value', () => {

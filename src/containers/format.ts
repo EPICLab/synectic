@@ -100,10 +100,10 @@ export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<bool
  * @param filter An array of key strings that indicate which key-value pairs should included.
  * @return The resulting object devoid of key-value fields that did not match the key filter.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const filterObject = <T extends { [key: string]: any }>(obj: T, filter: string[]): T[] => {
-  const flattenedObj = flattenObject(obj);
-  return Object.entries(flattenedObj).filter(([key, _]) => filter.includes(key)).map(([_, value]) => value);
+export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: string[]): Partial<T> => {
+  return Object.entries(flattenObject(obj))
+    .filter(([key]) => filter.includes(key))
+    .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
 }
 
 /**
