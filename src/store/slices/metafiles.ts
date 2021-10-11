@@ -5,6 +5,7 @@ import { PathLike } from 'fs-extra';
 import type { Metafile, UUID } from '../../types';
 import { repoRemoved } from './repos';
 import { AppThunkAPI } from '../hooks';
+import { filterObject } from '../../containers/format';
 
 export const metafilesAdapter = createEntityAdapter<Metafile>();
 
@@ -25,10 +26,10 @@ export const metafilesSlice = createSlice({
         builder
             .addCase(repoRemoved, (state, action) => {
                 const updatedMetafiles = Object.values(state.entities)
-                    .filter((m): m is Metafile => m != undefined)
+                    .filter((m): m is Metafile => m !== undefined)
                     .filter(m => m.repo === action.payload)
                     .map(m => {
-                        return { id: m.id, changes: { repo: undefined } };
+                        return { id: m.id, changes: filterObject(m, ['repo']) };
                     })
                 metafilesSlice.actions.metafilesUpdated(updatedMetafiles);
             })
