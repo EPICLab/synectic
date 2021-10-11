@@ -1,12 +1,20 @@
 import { flattenObject } from './flatten';
 
+/** Requires properties to be defined, or excluded from the type otherwise.
+ * Inspired by: https://stackoverflow.com/a/60574436
+ */
+export type NoUndefinedField<T> = {
+  [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
+};
+
 /** Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
  * Inspired by: https://stackoverflow.com/questions/48230773/how-to-create-a-partial-like-that-requires-a-single-property-to-be-set/48244432#48244432
  */
-export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K>; }> = Partial<T> & U[keyof U];
+export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K>; }> =
+  Partial<T> & U[keyof U];
 
 /** Requires exactly one type property in an object, no more and no less.
- * Insipred by: https://github.com/sindresorhus/type-fest/blob/main/source/require-exactly-one.d.ts
+ * Inspired by: https://github.com/sindresorhus/type-fest/blob/main/source/require-exactly-one.d.ts
  */
 export type ExactlyOne<T, U extends keyof T = keyof T> =
   { [K in U]: (Required<Pick<T, K>> & Partial<Record<Exclude<U, K>, never>>) }[U] & Omit<T, U>;
