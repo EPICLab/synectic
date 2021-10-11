@@ -20,6 +20,36 @@ export type ExactlyOne<T, U extends keyof T = keyof T> =
   { [K in U]: (Required<Pick<T, K>> & Partial<Record<Exclude<U, K>, never>>) }[U] & Omit<T, U>;
 
 /**
+ * Removes `undefined` and `null` values from an Array or Object type via a `filter` and type guard.
+ * Lifted from: https://github.com/robertmassaioli/ts-is-present
+ * @param t Object that includes at least one of `undefined`, `null` or `void` in the type signature.
+ * @returns A type narrowed version of the same `t` object.
+ */
+export const isPresent = <T>(t: T | undefined | null | void): t is T => {
+  return t !== undefined && t !== null;
+}
+
+/**
+ * Removes `undefined` values from an Array or Object type via a `filter` and type guard.
+ * Lifted from: https://github.com/robertmassaioli/ts-is-present
+ * @param t Object that includes `undefined` in the type signature.
+ * @returns A type narrowed version of the same `t` object.
+ */
+export const isDefined = <T>(t: T | undefined): t is T => {
+  return t !== undefined;
+}
+
+/**
+ * Removes `null` values from an Array or Object type via a `filter` and type guard.
+ * Lifted from: https://github.com/robertmassaioli/ts-is-present
+ * @param t Object that includes `null` in the type signature.
+ * @returns A type narrowed version of the same `t` object.
+ */
+export const isFilled = <T>(t: T | null): t is T => {
+  return t !== null;
+}
+
+/**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.
  * @param json A valid JSON string.
  * @return A typed object (or nested array of objects).
