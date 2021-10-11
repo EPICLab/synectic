@@ -71,7 +71,7 @@ export type Card = {
   /** The timestamp for last update to card properties. */
   readonly modified: Timestamp;
   /** The UUID for capturing Stack object, or undefined if not captured. */
-  readonly captured?: UUID;
+  readonly captured?: UUID | undefined;
   /** The horizontal position of card relative to parent object. */
   readonly left: number;
   /** The vertical position of card relative to parent object. */
