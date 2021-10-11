@@ -29,7 +29,7 @@ export const selectRepoByName = (state: RootState, name: string, url?: parsePath
  */
 export const getCardsByRepo = (state: RootState, repo: UUID, branch?: string): Card[] => {
     return Object.values(state.cards.entities)
-        .filter(c => c.metafile !== undefined)
+        .filter((c): c is Card => c !== undefined && c.metafile !== undefined)
         .filter(c => state.metafiles.entities[c.metafile] ? (state.metafiles.entities[c.metafile]?.repo === repo) : false)
         .filter(c => branch ? (state.metafiles.entities[c.metafile]?.branch === branch) : true);
 };
