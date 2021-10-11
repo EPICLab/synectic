@@ -4,6 +4,8 @@
     "module": "commonjs",
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true,
     "noImplicitAny": true,
     "sourceMap": true,
     "baseUrl": ".",
@@ -12,7 +14,9 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
-      "*": ["node_modules/*"]
+      "*": [
+        "node_modules/*"
+      ]
     }
   },
   "include": [
