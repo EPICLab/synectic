@@ -2,6 +2,63 @@ import * as format from '../src/containers/format';
 
 describe('containers/format', () => {
 
+  it('isPresent returns true on present', () => {
+    expect(format.isPresent({ data: 'hello world' })).toBeTruthy();
+  });
+
+  it('isPresent returns false on undefined', () => {
+    expect(format.isPresent(undefined)).toBeFalsy();
+  });
+
+  it('isPresent returns false on null', () => {
+    expect(format.isPresent(null)).toBeFalsy();
+  });
+
+  it('isPresent returns false on void with undefined', () => {
+    const voidVal: void = undefined;
+    expect(format.isPresent(voidVal)).toBeFalsy();
+  });
+
+  it('isPresent filters out only present values from an array', () => {
+    const results: Array<{ data: string } | undefined | null> = [
+      { data: 'hello' }, null, { data: 'world' }, undefined, { data: 'wow' }
+    ];
+    const presentResults: Array<{ data: string }> = results.filter(format.isPresent);
+    expect(presentResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
+  });
+
+  it('isDefined returns true on defined', () => {
+    expect(format.isDefined({ data: 'hello world' })).toBeTruthy();
+  });
+
+  it('isDefined returns false on undefined', () => {
+    expect(format.isDefined(undefined)).toBeFalsy();
+  });
+
+  it('isDefined filters out only defined values from an array', () => {
+    const results: Array<{ data: string } | undefined> = [
+      { data: 'hello' }, { data: 'world' }, undefined, { data: 'wow' }
+    ];
+    const definedResults: Array<{ data: string }> = results.filter(format.isDefined);
+    expect(definedResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
+  });
+
+  it('isFilled returns true on filled', () => {
+    expect(format.isFilled({ data: 'hello world' })).toBeTruthy();
+  });
+
+  it('isFilled returns false on null', () => {
+    expect(format.isFilled(null)).toBeFalsy();
+  });
+
+  it('isFilled filters out only filled values from an array', () => {
+    const results: Array<{ data: string } | null> = [
+      { data: 'hello' }, { data: 'world' }, null, { data: 'wow' }
+    ];
+    const filledResults: Array<{ data: string }> = results.filter(format.isFilled);
+    expect(filledResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
+  });
+
   it('deserialize to parse a JSON string into a TypeScript object', () => {
     const json = '{"result":true, "count":42}';
     type typedJson = { result: boolean; count: number };
@@ -28,6 +85,21 @@ describe('containers/format', () => {
   });
 
   it('removeUndefined returns original array when no undefined are present', () => {
+    const arr = [{ a: 3 }, 'a', { b: 7 }, true];
+    expect(format.removeUndefined(arr)).toStrictEqual(arr);
+  });
+
+  it('removeUndefinedFields removes undefined from Object of Primitive types', () => {
+    const obj = { a: 3, b: 'a', c: undefined, d: true };
+    expect(format.removeUndefinedFields(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
+  });
+
+  it('removeUndefinedFields removes top-level undefined from Object with nested Objects', () => {
+    const obj = { a: undefined, b: { c: 3 }, d: { e: undefined }, f: { g: 7 } };
+    expect(format.removeUndefinedFields(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
+  });
+
+  it('removeUndefinedFields returns original array when no undefined are present', () => {
     const arr = [{ a: 3 }, 'a', { b: 7 }, true];
     expect(format.removeUndefined(arr)).toStrictEqual(arr);
   });

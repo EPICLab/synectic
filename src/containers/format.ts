@@ -1,11 +1,11 @@
 import { flattenObject } from './flatten';
 
-/** Requires properties to be defined, or excluded from the type otherwise.
+/** Requires properties to be defined, or excluded from the type otherwise. Allows for empty object.
  * Inspired by: https://stackoverflow.com/a/60574436
  */
 export type NoUndefinedField<T> = {
   [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
-};
+} | Record<string, never>;
 
 /** Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
  * Inspired by: https://stackoverflow.com/questions/48230773/how-to-create-a-partial-like-that-requires-a-single-property-to-be-set/48244432#48244432
@@ -21,7 +21,7 @@ export type ExactlyOne<T, U extends keyof T = keyof T> =
 
 /**
  * Removes `undefined` and `null` values from an Array or Object type via a `filter` and type guard.
- * Lifted from: https://github.com/robertmassaioli/ts-is-present
+ * Reused from: https://github.com/robertmassaioli/ts-is-present
  * @param t Object that includes at least one of `undefined`, `null` or `void` in the type signature.
  * @returns A type narrowed version of the same `t` object.
  */
@@ -31,7 +31,7 @@ export const isPresent = <T>(t: T | undefined | null | void): t is T => {
 
 /**
  * Removes `undefined` values from an Array or Object type via a `filter` and type guard.
- * Lifted from: https://github.com/robertmassaioli/ts-is-present
+ * Reused from: https://github.com/robertmassaioli/ts-is-present
  * @param t Object that includes `undefined` in the type signature.
  * @returns A type narrowed version of the same `t` object.
  */
@@ -41,7 +41,7 @@ export const isDefined = <T>(t: T | undefined): t is T => {
 
 /**
  * Removes `null` values from an Array or Object type via a `filter` and type guard.
- * Lifted from: https://github.com/robertmassaioli/ts-is-present
+ * Reused from: https://github.com/robertmassaioli/ts-is-present
  * @param t Object that includes `null` in the type signature.
  * @returns A type narrowed version of the same `t` object.
  */
@@ -64,6 +64,17 @@ export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
 export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
   return array.filter((item): item is T => typeof item !== 'undefined');
 };
+
+/**
+ * Filters an object and removes any properties with undefined values.
+ * @param obj The given object containing key-value properties that should be filtered for undefined.
+ * @returns The resulting object devoid of any undefined values.
+ */
+export const removeUndefinedFields = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NoUndefinedField<T> => {
+  return Object.entries(obj)
+    .filter((e): e is [string, V] => isPresent(e[1]))
+    .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
+}
 
 /**
  * Generic for deduplicating array of elements given a comparator function that
@@ -98,9 +109,9 @@ export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<bool
  * Generic for filtering an object given a set of filtering keys for inclusion in the resulting object.
  * @param obj An object containing key-value indexed fields.
  * @param filter An array of key strings that indicate which key-value pairs should included.
- * @return The resulting object devoid of key-value fields that did not match the key filter.
+ * @return The resulting object devoid of key-value fields that did not match the key filter, or an empty object.
  */
-export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: string[]): Partial<T> => {
+export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: string[]): T | Record<string, never> => {
   return Object.entries(flattenObject(obj))
     .filter(([key]) => filter.includes(key))
     .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
