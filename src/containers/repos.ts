@@ -4,6 +4,7 @@ import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import * as path from 'path';
 import type { Repository, Card, Metafile, UUID } from '../types';
+import type { Nullable } from './format';
 import * as worktree from './git-worktree';
 import { getMetafile } from './metafiles';
 import { extractFilename, isDirectory, readFileAsync } from './io';
@@ -25,8 +26,8 @@ import { cardUpdated } from '../store/slices/cards';
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-const appendRepository = createAsyncThunk<UUID, {
-  root: string, protocol: Partial<ReturnType<typeof extractFromURL>>,
+const appendRepository = createAsyncThunk<UUID | undefined, {
+  root: string, protocol: Nullable<Partial<ReturnType<typeof extractFromURL>>>,
   username?: string, password?: string, token?: string
 }, AppThunkAPI>(
   'repos/appendRepository',
@@ -49,7 +50,7 @@ const appendRepository = createAsyncThunk<UUID, {
       thunkAPI.dispatch(repoAdded(repo));
       return repo.id;
     }
-    return '';
+    return undefined;
   }
 );
 
@@ -127,9 +128,10 @@ export const cloneRepository = createAsyncThunk<Repository | undefined, { url: U
       username: username.scope !== 'none' ? username.value : '',
       password: password.scope !== 'none' ? password.value : ''
     })).unwrap();
-    if (id) {
-      const repo = thunkAPI.getState().repos.entities[id];
+    const repo = id ? thunkAPI.getState().repos.entities[id] : undefined;
+    if (id && repo) {
       const info = await getRemoteInfo({ url: repo.url });
+      if (!info.HEAD) return thunkAPI.rejectWithValue('Repository not configured; HEAD is disconnected or not configured');
       const defaultBranch = info.HEAD.substring(info.HEAD.lastIndexOf('/') + 1);
       thunkAPI.dispatch(repoUpdated({
         ...repo,
