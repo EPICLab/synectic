@@ -7,7 +7,7 @@ import type { Metafile, UUID } from '../types';
 import * as io from './io';
 import { AppThunkAPI } from '../store/hooks';
 import { getRepository } from './repos';
-import { asyncFilter } from './format';
+import { asyncFilter, removeUndefinedProperties } from './format';
 import { currentBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { resolveHandler } from './handlers';
 import { getMetafileByBranch, getMetafileByFilepath, getMetafileByVirtual, metafileAdded, metafileUpdated } from '../store/slices/metafiles';
@@ -61,12 +61,8 @@ export const updateFileStats = createAsyncThunk<void, UUID, AppThunkAPI & { reje
     const metafile = thunkAPI.getState().metafiles.entities[id];
     if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? metafile.id : 'unknown');
     const handler = await thunkAPI.dispatch(resolveHandler(metafile.path)).unwrap();
-    const payload = {
-      ...metafile,
-      filetype: handler?.filetype,
-      handler: handler?.handler
-    };
-    thunkAPI.dispatch(metafileUpdated(payload));
+    const fileStats = removeUndefinedProperties({ filetype: handler?.filetype, handler: handler?.handler });
+    if (fileStats.filetype || fileStats.handler) thunkAPI.dispatch(metafileUpdated({ ...metafile, ...fileStats }));
   }
 )
 
@@ -95,12 +91,8 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI & { reject
         fullname: false
       })) : undefined;
       const status = await getStatus(metafile.path);
-      thunkAPI.dispatch(metafileUpdated({
-        ...metafile,
-        repo: repo?.id,
-        branch: branch ? branch : 'HEAD',
-        status: status
-      }));
+      const gitInfo = removeUndefinedProperties({ repo: repo?.id, branch: branch ? branch : 'HEAD', status: status });
+      if (gitInfo.repo && gitInfo.status) thunkAPI.dispatch(metafileUpdated({ ...metafile, ...gitInfo }));
     } catch (error) {
       console.log(`updateGitInfo error: ${error}`);
       return thunkAPI.rejectWithValue(`${error}`);
@@ -206,8 +198,8 @@ export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettab
           modified: DateTime.local().valueOf(),
           path: retrieveBy.filepath
         })).payload;
-      const updated = await thunkAPI.dispatch(updateAll(metafile.id)).unwrap();
-      if (!updated) return undefined;
+      const updated = metafile ? await thunkAPI.dispatch(updateAll(metafile.id)).unwrap() : undefined;
+      if (!updated || !metafile) return undefined;
       return thunkAPI.getState().metafiles.entities[metafile.id];
     }
     if (retrieveBy.virtual) {
@@ -222,7 +214,7 @@ export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettab
           modified: DateTime.local().valueOf(),
           ...retrieveBy.virtual
         })).payload;
-      return thunkAPI.getState().metafiles.entities[metafile.id];
+      return metafile ? thunkAPI.getState().metafiles.entities[metafile.id] : undefined;
     }
     return thunkAPI.rejectWithValue('Failed to match any containers/metafiles/getMetafile parameter types');
   }
@@ -231,6 +223,7 @@ export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettab
 export const discardMetafileChanges = createAsyncThunk<undefined, Metafile, AppThunkAPI & { rejectValue: string }>(
   'metafiles/discardMetafileChanges',
   async (metafile, thunkAPI) => {
+    if (!metafile.path) return thunkAPI.rejectWithValue('Error: Failed to discard changes for undefined filepath');
     switch (metafile.status) {
       case '*added': // Fallthrough
       case 'added': {
