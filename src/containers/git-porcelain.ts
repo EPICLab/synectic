@@ -10,6 +10,7 @@ import type { Repository, GitStatus } from '../types';
 import * as io from './io';
 import { isLinkedWorktree } from './git-worktree';
 import { isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
+import { removeUndefinedFields } from './format';
 
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
@@ -20,15 +21,15 @@ type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string 
  * Ref: https://github.com/isomorphic-git/isomorphic-git/issues/1238#issuecomment-871220830
  * @param dir The relative or absolute path to the git root (i.e. `/Users/nelsonni/scratch/project`).
  * @param ref The git ref or symbolic-ref (i.e. `HEAD` or `HEAD~1`) to resolve against the current branch.
- * @returns A Promise object containing the SHA1 commit resolved from the provided ref.
+ * @returns A Promise object containing the SHA1 commit resolved from the provided ref, or undefined if no commit found.
  */
-export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string> => {
+export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string | undefined> => {
   const re = /^HEAD~([0-9]+)$/;
   const match = ref.match(re);
   if (match) {
     const count = +match[1];
     const commits = await isogit.log({ dir: dir.toString(), fs, depth: count + 1 });
-    return commits.pop().oid;
+    return commits.pop()?.oid;
   }
   return isogit.resolveRef({ dir: dir.toString(), fs, ref });
 }
@@ -104,8 +105,9 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   noTags?: boolean;
   depth?: number;
   exclude?: string[];
-  onProgress?: isogit.ProgressCallback;
+  onProgress?: isogit.ProgressCallback | undefined;
 }): Promise<void> => {
+  const optionals = removeUndefinedFields({ depth: depth, exclude: exclude, onProgress: onProgress });
   const existingBranch = (await isGitRepo(repo.root)) ? await currentBranch({ dir: repo.root.toString(), fullname: false }) : undefined;
   const targetBranch = ref ? ref : existingBranch;
 
@@ -117,7 +119,7 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   }
   return isogit.clone({
     fs: fs, http: http, dir: dir.toString(), url: repo.url, singleBranch: singleBranch, noCheckout: noCheckout,
-    noTags: noTags, depth: depth, exclude: exclude, onProgress
+    noTags: noTags, ...optionals
   });
 };
 
@@ -149,9 +151,10 @@ export const checkout = async ({
   dryRun?: boolean;
   force?: boolean;
 }): Promise<void> => {
+  const optionals = removeUndefinedFields({ filepaths: filepaths });
   return isogit.checkout({
-    fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, filepaths: filepaths,
-    remote: remote, noCheckout: noCheckout, noUpdateHead: noUpdateHead, dryRun: dryRun, force: force
+    fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
+    noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, ...optionals
   });
 }
 
@@ -172,11 +175,12 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => {
+  const optionals = removeUndefinedFields({ fullname: fullname, test: test });
   if (await isLinkedWorktree({ gitdir: gitdir })) {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    return await isogit.currentBranch({ fs: fs, dir: worktreedir, gitdir: worktreedir, fullname: fullname, test: test });
+    return await isogit.currentBranch({ fs: fs, dir: worktreedir, gitdir: worktreedir, ...optionals });
   } else {
-    return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), fullname: fullname, test: test });
+    return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ...optionals });
   }
 }
 
@@ -209,7 +213,10 @@ export const log = ({ dir, ref = 'HEAD', depth, since }: {
   ref?: string;
   depth?: number;
   since?: Date;
-}): Promise<isogit.ReadCommitResult[]> => isogit.log({ fs: fs, dir: dir.toString(), ref: ref, depth: depth, since: since });
+}): Promise<isogit.ReadCommitResult[]> => {
+  const optionals = removeUndefinedFields({ since: since });
+  return isogit.log({ fs: fs, dir: dir.toString(), ref: ref, depth: depth, ...optionals });
+}
 
 /**
  * Merge two branches; this function is a wrapper to inject the fs parameter in to the *isomorphic-git/merge* function. The
@@ -240,8 +247,8 @@ export const merge = async (
       email: email.value ? email.value : 'mrtest@example.com',
     }
   });
-  const final = { missingConfigs: missing.length > 0 ? missing : undefined, ...mergeResult };
-  return final;
+  const optionals = removeUndefinedFields({ missingConfigs: missing.length > 0 ? missing : undefined });
+  return { ...mergeResult, ...optionals };
 }
 
 /**
@@ -287,9 +294,9 @@ export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', 
   forPush?: boolean;
   headers?: Record<string, string>;
 }): Promise<isogit.GetRemoteInfoResult> => {
+  const optionals = removeUndefinedFields({ onAuth: onAuth, onAuthFailure: onAuthFailure, onAuthSuccess: onAuthSuccess, corsProxy: corsProxy });
   return isogit.getRemoteInfo({
-    http: http, onAuth: onAuth, onAuthFailure: onAuthFailure, onAuthSuccess: onAuthSuccess,
-    url: url, corsProxy: corsProxy, forPush: forPush, headers: headers
+    http: http, url: url, forPush: forPush, headers: headers, ...optionals
   })
 }
 
