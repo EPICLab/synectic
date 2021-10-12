@@ -1,9 +1,16 @@
 import { flattenObject } from './flatten';
 
+/** Requires all properties to be nullable (i.e. `null` or `undefined` or `void`).
+ * Inspired by: https://javascript.plainenglish.io/typescript-advanced-mapped-and-conditional-types-2d10c96042fe
+ */
+export type Nullable<T> = {
+  [P in keyof T]: T[P] | null | undefined;
+};
+
 /** Requires properties to be defined, or excluded from the type otherwise. Allows for empty object.
  * Inspired by: https://stackoverflow.com/a/60574436
  */
-export type NoUndefinedField<T> = {
+export type NonUndefinedProperties<T> = {
   [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
 } | Record<string, never>;
 
@@ -70,7 +77,7 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
  * @param obj The given object containing key-value properties that should be filtered for undefined.
  * @returns The resulting object devoid of any undefined values.
  */
-export const removeUndefinedFields = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NoUndefinedField<T> => {
+export const removeUndefinedFields = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NonUndefinedProperties<T> => {
   return Object.entries(obj)
     .filter((e): e is [string, V] => isPresent(e[1]))
     .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
