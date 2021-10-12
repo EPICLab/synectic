@@ -77,7 +77,7 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
  * @param obj The given object containing key-value properties that should be filtered for undefined.
  * @returns The resulting object devoid of any undefined values.
  */
-export const removeUndefinedFields = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NonUndefinedProperties<T> => {
+export const removeUndefinedProperties = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NonUndefinedProperties<T> => {
   return Object.entries(obj)
     .filter((e): e is [string, V] => isPresent(e[1]))
     .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});

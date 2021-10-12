@@ -10,7 +10,7 @@ import type { Repository, GitStatus } from '../types';
 import * as io from './io';
 import { isLinkedWorktree } from './git-worktree';
 import { isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
-import { removeUndefinedFields } from './format';
+import { removeUndefinedProperties } from './format';
 
 type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
@@ -107,7 +107,7 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   exclude?: string[];
   onProgress?: isogit.ProgressCallback | undefined;
 }): Promise<void> => {
-  const optionals = removeUndefinedFields({ depth: depth, exclude: exclude, onProgress: onProgress });
+  const optionals = removeUndefinedProperties({ depth: depth, exclude: exclude, onProgress: onProgress });
   const existingBranch = (await isGitRepo(repo.root)) ? await currentBranch({ dir: repo.root.toString(), fullname: false }) : undefined;
   const targetBranch = ref ? ref : existingBranch;
 
@@ -151,7 +151,7 @@ export const checkout = async ({
   dryRun?: boolean;
   force?: boolean;
 }): Promise<void> => {
-  const optionals = removeUndefinedFields({ filepaths: filepaths });
+  const optionals = removeUndefinedProperties({ filepaths: filepaths });
   return isogit.checkout({
     fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
     noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, ...optionals
@@ -175,7 +175,7 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => {
-  const optionals = removeUndefinedFields({ fullname: fullname, test: test });
+  const optionals = removeUndefinedProperties({ fullname: fullname, test: test });
   if (await isLinkedWorktree({ gitdir: gitdir })) {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
     return await isogit.currentBranch({ fs: fs, dir: worktreedir, gitdir: worktreedir, ...optionals });
@@ -214,7 +214,7 @@ export const log = ({ dir, ref = 'HEAD', depth, since }: {
   depth?: number;
   since?: Date;
 }): Promise<isogit.ReadCommitResult[]> => {
-  const optionals = removeUndefinedFields({ since: since });
+  const optionals = removeUndefinedProperties({ since: since });
   return isogit.log({ fs: fs, dir: dir.toString(), ref: ref, depth: depth, ...optionals });
 }
 
@@ -247,7 +247,7 @@ export const merge = async (
       email: email.value ? email.value : 'mrtest@example.com',
     }
   });
-  const optionals = removeUndefinedFields({ missingConfigs: missing.length > 0 ? missing : undefined });
+  const optionals = removeUndefinedProperties({ missingConfigs: missing.length > 0 ? missing : undefined });
   return { ...mergeResult, ...optionals };
 }
 
@@ -294,7 +294,7 @@ export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', 
   forPush?: boolean;
   headers?: Record<string, string>;
 }): Promise<isogit.GetRemoteInfoResult> => {
-  const optionals = removeUndefinedFields({ onAuth: onAuth, onAuthFailure: onAuthFailure, onAuthSuccess: onAuthSuccess, corsProxy: corsProxy });
+  const optionals = removeUndefinedProperties({ onAuth: onAuth, onAuthFailure: onAuthFailure, onAuthSuccess: onAuthSuccess, corsProxy: corsProxy });
   return isogit.getRemoteInfo({
     http: http, url: url, forPush: forPush, headers: headers, ...optionals
   })
