@@ -6,7 +6,7 @@ import ErrorIcon from '@material-ui/icons/Error';
 import { v4 } from 'uuid';
 import type { UUID, Repository } from '../types';
 import { RootState } from '../store/store';
-import { removeDuplicates } from '../containers/format';
+import { isDefined, removeDuplicates } from '../containers/format';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { GitRepoIcon, GitBranchIcon } from './GitIcons';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -22,7 +22,7 @@ const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added
 const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }> = props => {
   const cards = useAppSelector((state: RootState) => getCardsByRepo(state, props.repo.id, props.branch));
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
-  const modified = cards.map(c => metafiles.find(m => m.id === c.metafile)).filter(m => modifiedStatuses.includes(m.status));
+  const modified = cards.map(c => metafiles.find(m => m.id === c.metafile)).filter(isDefined).filter(m => m.status && modifiedStatuses.includes(m.status));
   const dispatch = useAppDispatch();
 
   // load a new Explorer card containing the root of the repository at the specified branch
@@ -35,9 +35,11 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
     } else {
       console.log(`branchRoot '${branchRoot}' not associated with any worktrees, gathering new metafile and checking out the branch`);
       const metafile = await dispatch(getMetafile({ filepath: props.repo.root })).unwrap();
-      const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: props.branch })).unwrap();
-      console.log(`checkoutBranch updated metafile: ${JSON.stringify(updated, undefined, 2)}`);
-      dispatch(loadCard({ metafile: updated }));
+      const updated = metafile ? await dispatch(checkoutBranch({ metafileId: metafile.id, branch: props.branch })).unwrap() : undefined;
+      if (updated) {
+        console.log(`checkoutBranch updated metafile: ${JSON.stringify(updated, undefined, 2)}`);
+        dispatch(loadCard({ metafile: updated }));
+      }
     }
   }
 

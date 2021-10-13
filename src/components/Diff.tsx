@@ -12,6 +12,7 @@ import { diff } from '../containers/diff';
 import { useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { cardSelectors } from '../store/selectors/cards';
+import { removeUndefinedProperties } from '../containers/format';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
   const markers: IMarker[] = [];
@@ -43,8 +44,10 @@ const Diff: React.FunctionComponent<{ metafileId: UUID }> = props => {
     setMarkers(extractMarkers(diffOutput));
   }, [diffOutput]);
 
+  const mode = removeUndefinedProperties({ mode: original?.filetype?.toLowerCase() });
+
   return (
-    <AceEditor mode={original?.filetype?.toLowerCase()} theme='github' name={original?.id + '-diff'} value={diffOutput}
+    <AceEditor {...mode} theme='github' name={original?.id + '-diff'} value={diffOutput}
       className='editor' height='100%' width='100%' readOnly={true} markers={markers} showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );

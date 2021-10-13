@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
 import { ColorSet } from '../containers/colors';
+import { removeUndefinedProperties } from '../containers/format';
 import { OutlinedCard } from './GitGraphTag';
 
-const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => ({
+const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => removeUndefinedProperties({
   borderRadius: '50%',
   borderStyle: border,
   borderWidth: 'thin',
@@ -29,8 +30,8 @@ export const GitNode: React.FunctionComponent<GitNodeProps> = props => {
 
   return (
     <>
-      { props.data.branch ? <OutlinedCard content={props.data.branch} placement='right' /> : null}
-      { isHovering ? <OutlinedCard content={props.id} placement='bottom' /> : null}
+      {props.data.branch ? <OutlinedCard content={props.data.branch} placement='right' /> : null}
+      {isHovering ? <OutlinedCard content={props.id} placement='bottom' /> : null}
       <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}
         onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}
       >

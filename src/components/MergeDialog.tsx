@@ -97,7 +97,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
 
     if (conflictStatus == 'Failing') {
       const conflictMetafile = await dispatch(getMetafile({ virtual: { name: `Conflicts: ${base}<>${compare}`, handler: 'ConflictManager', repo: fullRepo.id, path: fullRepo.root } })).unwrap();
-      await dispatch(loadCard({ metafile: conflictMetafile }));
+      if (conflictMetafile) await dispatch(loadCard({ metafile: conflictMetafile }));
       await delay(3000);
       dispatch(modalRemoved(props.id));
     }

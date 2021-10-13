@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
 import { cardSelectors } from '../store/selectors/cards';
+import { removeUndefinedProperties } from '../containers/format';
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 
@@ -27,9 +28,10 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
 
   const checkout = async (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
-    if (metafile) {
-      const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: newBranch, overwrite: props.overwrite })).unwrap();
-      await dispatch(switchCardMetafile({ card: card, metafile: updated }));
+    if (card && metafile) {
+      const overwrite = removeUndefinedProperties({ overwrite: props.overwrite })
+      const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branch: newBranch, ...overwrite })).unwrap();
+      if (updated) await dispatch(switchCardMetafile({ card: card, metafile: updated }));
       updateBranch(newBranch);
     }
   };

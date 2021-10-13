@@ -16,7 +16,7 @@ const ConflictManager: React.FunctionComponent<{ rootId: UUID }> = props => {
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
     const [repo] = useState(metafile ? repos.find(r => r.id === metafile.repo) : undefined);
-    const { conflicts } = useGitConflicts(repo.root);
+    const { conflicts } = useGitConflicts(repo ? repo.root : '');
     const dispatch = useAppDispatch();
 
     return (

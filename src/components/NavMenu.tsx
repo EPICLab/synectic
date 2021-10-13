@@ -6,6 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
+import { removeUndefinedProperties } from '../containers/format';
 
 export type NavItemProps = {
   label: string;
@@ -15,7 +16,7 @@ export type NavItemProps = {
 
 export const NavItem: React.FunctionComponent<NavItemProps> = ({ label, click, disabled }) => {
   return (
-    <MenuItem onClick={click} disabled={disabled}>{label}</ MenuItem>
+    <MenuItem onClick={click} {...removeUndefinedProperties({ disabled: disabled })}>{label}</ MenuItem>
   );
 }
 
@@ -57,7 +58,7 @@ export const NavMenu: React.FunctionComponent<NavMenuProps> = ({ label, submenu 
                 <MenuList autoFocusItem={open} id={`${label}-menu-list`} onKeyDown={handleListKeyDown}>
                   {submenu.map(item => <NavItem key={item.label}
                     label={item.label}
-                    disabled={item.disabled}
+                    {...removeUndefinedProperties({ disabled: item.disabled })}
                     click={(event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
                       item.click(event);
                       setOpen(false);
