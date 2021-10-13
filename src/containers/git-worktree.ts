@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
 
 import type { GitStatus, Repository, SHA1, UUID } from '../types';
-import type { AtLeastOne } from './format';
+import { AtLeastOne, removeUndefinedProperties } from './format';
 import * as io from './io';
 import { checkout, clone, currentBranch, deleteBranch, getRepoRoot, getStatus } from './git-porcelain';
 import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
@@ -41,14 +41,15 @@ const createWorktree = async (dir: fs.PathLike, gitdir = path.join(dir.toString(
   const branch = await currentBranch({ dir: dir.toString(), gitdir: gitdir });
   const commit = await resolveRef({ dir: dir, ref: 'HEAD' });
   const isMain = await isLinkedWorktree({ dir: dir });
+  const ref = removeUndefinedProperties({ ref: branch ? branch : undefined });
   return {
     id: v4(),
     path: path.resolve(dir.toString()),
     bare: bare,
     detached: branch ? false : true,
     main: isMain,
-    ref: branch ? branch : undefined,
-    rev: commit
+    rev: commit,
+    ...ref,
   };
 }
 

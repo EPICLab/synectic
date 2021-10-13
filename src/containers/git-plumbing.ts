@@ -13,7 +13,7 @@ import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
 import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
-import { AtLeastOne } from './format';
+import { AtLeastOne, removeUndefinedProperties } from './format';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -129,14 +129,16 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   depth?: number;
 }): Promise<string> => {
   if (await io.isDirectory(gitdir)) {
-    return isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, depth: depth });
+    const optional = removeUndefinedProperties({ depth: depth });
+    return isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, ...optional });
   } else {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
     const commondir = (await io.readFileAsync(path.join(worktreedir, 'commondir'), { encoding: 'utf-8' })).trim();
     const linkedgitdir = path.normalize(`${worktreedir}/${commondir}`);
     const linkeddir = path.normalize(`${gitdir}/..`);
     const updatedRef = (ref === 'HEAD') ? (await io.readFileAsync(`${worktreedir}/HEAD`, { encoding: 'utf-8' })).trim() : ref;
-    return isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: updatedRef, depth: depth });
+    const optional = removeUndefinedProperties({ depth: depth });
+    return isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: updatedRef, ...optional });
   }
 }
 
