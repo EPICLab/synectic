@@ -4,6 +4,7 @@ import * as io from '../io';
 import * as path from 'path';
 import { getIgnore } from '../git-plumbing';
 import useDirectory from './useDirectory';
+import { isDefined } from '../format';
 
 type Conflict = {
     filepath: PathLike,
@@ -31,6 +32,7 @@ const useGitConflicts = (root: PathLike): useGitConflictsHook => {
 
         const filepaths = files
             .map(metafile => metafile.path)
+            .filter(isDefined)
             .filter(f => !ignore.ignores(path.relative(root.toString(), f.toString())));   // filter ignored files
 
         const matching = await Promise.all(filepaths.map(async f => {

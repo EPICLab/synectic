@@ -6,6 +6,7 @@ import { useAppDispatch } from '../../store/hooks';
 import { getMetafile } from '../metafiles';
 import useGitWatcher from './useGitWatcher';
 import { WatchEventType } from './useWatcher';
+import { isDefined } from '../format';
 
 export type useDirectoryHook = {
     root: PathLike,
@@ -25,8 +26,9 @@ const useDirectory = (root: PathLike): useDirectoryHook => {
         const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
         const metafiles = await Promise.all(filepaths.map(async f => await dispatch(getMetafile({ filepath: f })).unwrap()));
 
-        const directoryMetafiles = metafiles.filter(m => 'filetype' in m && m.filetype === 'Directory');
+        const directoryMetafiles = metafiles.filter(isDefined).filter(m => 'filetype' in m && m.filetype === 'Directory');
         const fileMetafiles = metafiles
+            .filter(isDefined)
             .filter(m => 'filetype' in m && 'handler' in m)
             .filter(m => m.filetype !== 'Directory' && m.handler !== 'Diff');
 

@@ -38,7 +38,7 @@ const useWatcher = (filepath: PathLike, eventHandler: WatchListener<PathLike>, o
         // remove all watchers on cleanup; called just before component unmount
         return () => {
             active.current = false;
-            if (filepath !== undefined) watcher.close();
+            if (filepath !== undefined && watcher) watcher.close();
         }
     }, []);
 }
