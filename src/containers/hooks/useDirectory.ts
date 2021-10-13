@@ -7,13 +7,13 @@ import useGitWatcher from './useGitWatcher';
 import { WatchEventType } from './useWatcher';
 
 export type useDirectoryHook = {
-    root: PathLike,
+    root: PathLike | undefined,
     directories: MetafileWithPath[],
     files: MetafileWithPath[],
     update: () => Promise<void>
 }
 
-const useDirectory = (root: PathLike): useDirectoryHook => {
+const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     const dispatch = useAppDispatch();
     const [directories, setDirectories] = useState<MetafileWithPath[]>([]);
     const [files, setFiles] = useState<MetafileWithPath[]>([]);
@@ -21,17 +21,19 @@ const useDirectory = (root: PathLike): useDirectoryHook => {
     useGitWatcher(root, eventHandler);
 
     const update = useCallback(async () => {
-        const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
-        const metafiles = await Promise.all(filepaths.map(async f => await dispatch(getMetafile({ filepath: f })).unwrap()));
+        if (root) {
+            const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
+            const metafiles = await Promise.all(filepaths.map(async f => await dispatch(getMetafile({ filepath: f })).unwrap()));
 
-        const directoryMetafiles = metafiles.filter(isMetafilePathed).filter(m => 'filetype' in m && m.filetype === 'Directory');
-        const fileMetafiles = metafiles
-            .filter(isMetafilePathed)
-            .filter(m => 'filetype' in m && 'handler' in m)
-            .filter(m => m.filetype !== 'Directory' && m.handler !== 'Diff');
+            const directoryMetafiles = metafiles.filter(isMetafilePathed).filter(m => 'filetype' in m && m.filetype === 'Directory');
+            const fileMetafiles = metafiles
+                .filter(isMetafilePathed)
+                .filter(m => 'filetype' in m && 'handler' in m)
+                .filter(m => m.filetype !== 'Directory' && m.handler !== 'Diff');
 
-        setDirectories(directoryMetafiles);
-        setFiles(fileMetafiles);
+            setDirectories(directoryMetafiles);
+            setFiles(fileMetafiles);
+        }
     }, [root]);
 
     useEffect(() => { update() }, []);

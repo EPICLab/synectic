@@ -15,7 +15,7 @@ export type WatchListener<T> = (event: WatchEventType, filename: T) => void;
  * @param eventHandler The event callback function that should be called on all detected change events.
  * @param options Additional watcher options; see https://github.com/paulmillr/chokidar#api.
  */
-const useWatcher = (filepath: PathLike, eventHandler: WatchListener<PathLike>, options?: WatchOptions): void => {
+const useWatcher = (filepath: PathLike | undefined, eventHandler: WatchListener<PathLike>, options?: WatchOptions): void => {
     // create a ref that caches the handler callback, and a ref to prevent race conditions on async requests
     const savedHandler = useRef<WatchListener<PathLike>>();
     const active = useRef(true);
