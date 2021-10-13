@@ -7,6 +7,7 @@ import { join } from 'path';
 import type { Repository } from '../types';
 import { clone, merge } from '../containers/git-porcelain';
 import { readDirAsync } from './io';
+import { removeUndefinedProperties } from './format';
 
 const promiseExec = util.promisify(exec);
 
@@ -21,9 +22,10 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
   await checkout({ fs: fs, dir: cloneRoot, ref: base });
 
   const mergeResult = await merge(cloneRoot, base, compare);
+  const ref = removeUndefinedProperties({ ref: mergeResult.oid });
   // this next step seems unnecessary, but isomorphic-git.merge stages a reversal changeset that negates the results of the merge
   // reverting the target branch back to the merged commit (via checkout) allows these reversal changesets to be removed
-  await checkout({ fs: fs, dir: cloneRoot, ref: mergeResult.oid });
+  await checkout({ fs: fs, dir: cloneRoot, ...ref });
 
   const rootFiles = await readDirAsync(cloneRoot);
   const packageManager = rootFiles.find(file => file === 'yarn.lock') ? 'yarn' : 'npm';

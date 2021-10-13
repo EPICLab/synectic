@@ -42,16 +42,30 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
         (await readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim()
         : (await getRepoRoot(dir));
 
-    const commitDelta = await branchLog(baseDir, base, compare);
-    if (commitDelta.length == 0) return {
+    if (!baseDir) return {
         mergeStatus: {
-            oid: await resolveRef(baseDir, 'HEAD'),
-            alreadyMerged: true,
+            oid: '',
+            alreadyMerged: false,
             fastForward: false,
-            mergeCommit: false
+            mergeCommit: false,
         },
         stdout: '',
         stderr: ''
+    }
+
+    const commitDelta = await branchLog(baseDir, base, compare);
+    if (baseDir && commitDelta.length == 0) {
+        const oid = await resolveRef(baseDir, 'HEAD');
+        return {
+            mergeStatus: {
+                oid: oid ? oid : '',
+                alreadyMerged: true,
+                fastForward: false,
+                mergeCommit: false
+            },
+            stdout: '',
+            stderr: ''
+        }
     }
 
     let mergeResults: { stdout: string; stderr: string; } = { stdout: '', stderr: '' };
@@ -61,24 +75,24 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
     } catch (error) {
         mergeError = error as ExecError;
         const conflictPattern = /(?<=content conflict in ).*?(?=\n)/gm;
-        const conflicts = mergeError.stderr
-            .match(conflictPattern)
-            .map(filename => path.resolve(baseDir, filename));
+        const conflicts = mergeError ? mergeError.stderr.match(conflictPattern)?.map(filename => path.resolve(baseDir, filename)) : [];
+        const oid = await resolveRef(baseDir, 'HEAD');
         return {
             mergeStatus: {
-                oid: await resolveRef(baseDir, 'HEAD'),
+                oid: oid ? oid : '',
                 alreadyMerged: false,
                 fastForward: mergeError ? false : true,
                 mergeCommit: mergeError ? false : true,
             },
-            mergeConflicts: conflicts,
+            mergeConflicts: conflicts ? conflicts : [],
             stdout: mergeError.stdout,
             stderr: mergeError.stderr
         };
     }
+    const oid = await resolveRef(baseDir, 'HEAD');
     return {
         mergeStatus: {
-            oid: await resolveRef(baseDir, 'HEAD'),
+            oid: oid ? oid : '',
             alreadyMerged: false,
             fastForward: mergeError ? false : true,
             mergeCommit: mergeError ? false : true,
