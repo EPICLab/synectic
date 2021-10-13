@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TreeItem, { TreeItemProps } from '@material-ui/lab/TreeItem';
 import { createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 import { SvgIconProps } from '@material-ui/core/SvgIcon';
+import { removeUndefinedProperties } from '../containers/format';
 
 declare module 'csstype' {
   interface Properties {
@@ -42,9 +43,9 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       borderTopRightRadius: theme.spacing(2),
       borderBottomRightRadius: theme.spacing(2),
       // paddingRight: theme.spacing(1),
-      fontWeight: theme.typography.fontWeightMedium,
+      ...removeUndefinedProperties({ fontWeight: theme.typography.fontWeightMedium }),
       '$expanded > &': {
-        fontWeight: theme.typography.fontWeightRegular,
+        ...removeUndefinedProperties({ fontWeight: theme.typography.fontWeightRegular }),
       },
     },
     group: {
@@ -101,7 +102,7 @@ export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = prop
       }
       style={{
         '--tree-view-color': color,
-        '--tree-view-bg-color': bgColor,
+        ...removeUndefinedProperties({ '--tree-view-bg-color': bgColor }),
       }}
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

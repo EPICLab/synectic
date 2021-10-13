@@ -7,7 +7,7 @@ import type { Card, CardType, GitStatus, Metafile, Repository, UUID } from '../t
 import { RootState } from '../store/store';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { getMetafile, MetafileWithPath } from '../containers/metafiles';
+import { getMetafile, isMetafilePathed, MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
 import { add, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
@@ -17,6 +17,7 @@ import { repoSelectors } from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { loadCard } from '../containers/handlers';
+import { removeUndefinedProperties } from '../containers/format';
 
 const modifiedCheck = (status: GitStatus | undefined): boolean => {
   if (!status) return false;
@@ -48,29 +49,36 @@ const SourceFileComponent: React.FunctionComponent<Metafile & SourceFileProps> =
   (status && stagedCheck(status) ? Remove
     : (status && changedCheck(status) ? Add : undefined));
 
+  const optionals = removeUndefinedProperties({ color: colorFilter(props.status), labelInfo: iconFilter(props.status) });
+
   return (
-    <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()}
-      color={colorFilter(props.status)}
-      labelText={extractFilename(props.path)}
-      labelIcon={InsertDriveFile}
-      labelInfo={iconFilter(props.status)}
-      enableHover={true}
-      labelInfoClickHandler={async () => {
-        if (!props.status || !props.repo || !props.branch) {
-          console.log('cannot do anything with an unmodified file');
-          return;
-        }
-        if (stagedCheck(props.status)) {
-          console.log(`unstaging ${extractFilename(props.path)}...`);
-          await remove(props.path, props.repository, props.branch);
-          await props.update();
-        } else if (modifiedCheck(props.status)) {
-          console.log(`staging ${extractFilename(props.path)}...`);
-          await add(props.path, props.repository, props.branch);
-          await props.update();
-        }
-      }}
-    />
+    <>
+      {props.path ? <StyledTreeItem key={props.path.toString()} nodeId={props.path.toString()}
+        labelText={extractFilename(props.path)}
+        labelIcon={InsertDriveFile}
+        {...optionals}
+        enableHover={true}
+        labelInfoClickHandler={async () => {
+          if (!props.status || !props.repo || !props.branch || !props.path) {
+            console.log('cannot do anything with an unmodified file');
+            return;
+          }
+          if (stagedCheck(props.status)) {
+            console.log(`unstaging ${extractFilename(props.path)}...`);
+            await remove(props.path, props.repository, props.branch);
+            await props.update();
+          } else if (modifiedCheck(props.status)) {
+            console.log(`staging ${extractFilename(props.path)}...`);
+            await add(props.path, props.repository, props.branch);
+            await props.update();
+          }
+        }}
+      />
+        : null}
+    </>
+
+
+
   );
 }
 
@@ -88,34 +96,41 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
   useEffect(() => { setChanged(files.filter(f => changedCheck(f.status))) }, [files]);
 
   return (
-    <div className='list-component'>
-      <BranchRibbon branch={metafile?.branch} onClick={() => {
-        console.log({ metafile, files, modified });
-      }} />
-      <TreeView
-        expanded={[`${repo ? repo.name : ''}-${metafile?.branch}-staged`, `${repo ? repo.name : ''}-${metafile?.branch}-changed`]}
-      >
-        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
-          nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
-          labelText='Staged'
-          labelInfoText={`${staged.length}`}
-          labelIcon={GitBranchIcon}
-        >
-          {staged.map(file =>
-            <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)
-          }
-        </StyledTreeItem>
-        <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
-          nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
-          labelText='Changed'
-          labelInfoText={`${changed.length}`}
-          labelIcon={GitBranchIcon}
-        >
-          {changed.map(file =>
-            <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)}
-        </StyledTreeItem>
-      </TreeView>
-    </div>
+    <>
+      {metafile && metafile.branch ?
+        <div className='list-component'>
+          <BranchRibbon branch={metafile.branch} onClick={() => {
+            console.log({ metafile, files, modified });
+          }} />
+          <TreeView
+            expanded={[`${repo ? repo.name : ''}-${metafile?.branch}-staged`, `${repo ? repo.name : ''}-${metafile?.branch}-changed`]}
+          >
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
+              nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
+              labelText='Staged'
+              labelInfoText={`${staged.length}`}
+              labelIcon={GitBranchIcon}
+            >
+              {repo ? staged.filter(isMetafilePathed).map(file =>
+                <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)
+                : null
+              }
+            </StyledTreeItem>
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
+              nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
+              labelText='Changed'
+              labelInfoText={`${changed.length}`}
+              labelIcon={GitBranchIcon}
+            >
+              {repo ? changed.filter(isMetafilePathed).map(file =>
+                <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)
+                : null
+              }
+            </StyledTreeItem>
+          </TreeView>
+        </div>
+        : null}
+    </>
   );
 }
 
@@ -131,7 +146,7 @@ export const SourceControlReverse: React.FunctionComponent<Card> = props => {
   )
 }
 
-export const SourceControlButton: React.FunctionComponent<{ repoId?: UUID, metafileId: UUID }> = props => {
+export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafileId: UUID }> = props => {
   const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
   const dispatch = useAppDispatch();
@@ -141,10 +156,11 @@ export const SourceControlButton: React.FunctionComponent<{ repoId?: UUID, metaf
       console.log(`Repository missing for metafile id:'${props.metafileId}'`);
       return;
     }
-    if (!metafile.branch) {
+    if (!metafile || !metafile.branch) {
       console.log(`Cannot load source control for untracked metafile:'${props.metafileId}'`);
       return;
     }
+    const branchRoot = await getBranchRoot(repo, metafile.branch);
     const virtualMetafile: {
       name: string,
       handler: CardType,
@@ -156,7 +172,7 @@ export const SourceControlButton: React.FunctionComponent<{ repoId?: UUID, metaf
       handler: 'SourceControl',
       repo: repo.id,
       branch: metafile.branch,
-      path: await getBranchRoot(repo, metafile.branch)
+      path: branchRoot ? branchRoot : ''
     };
 
     console.log(`loading Source Control for: repo= ${repo.name}, branch= ${metafile.branch}\n${JSON.stringify(virtualMetafile)}`);

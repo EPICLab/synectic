@@ -46,13 +46,14 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
 
   const handleClick = async () => {
     const repo = repos.find(r => r.id === selectedRepo);
+    const branchRoot = repo ? await getBranchRoot(repo, selectedBranch) : '';
     const metafile = await dispatch(getMetafile({
       virtual: {
         name: 'Source Control',
         handler: 'SourceControl',
         repo: selectedRepo,
         branch: selectedBranch,
-        path: repo ? await getBranchRoot(repo, selectedBranch) : ''
+        path: branchRoot ? branchRoot : ''
       }
     })).unwrap();
     if (metafile) dispatch(loadCard({ metafile: metafile }));
