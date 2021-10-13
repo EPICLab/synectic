@@ -75,18 +75,20 @@ export const mockGit = async (instance: MockInstance, repo: MockedRepository): P
     // check if a git repository already exists
     if (!(await fs.pathExists(gitdir))) {
         await git.init({ fs, dir, defaultBranch: repo.default });
-        await git.setConfig({
-            fs,
-            dir,
-            path: 'user.name',
-            value: repo.config['user.name'] ? repo.config['user.name'] : casual.full_name
-        });
-        await git.setConfig({
-            fs,
-            dir,
-            path: 'user.email',
-            value: repo.config['user.email'] ? repo.config['user.email'] : casual.email
-        });
+        if (repo.config) {
+            await git.setConfig({
+                fs,
+                dir,
+                path: 'user.name',
+                value: repo.config['user.name'] ? repo.config['user.name'] : casual.full_name
+            });
+            await git.setConfig({
+                fs,
+                dir,
+                path: 'user.email',
+                value: repo.config['user.email'] ? repo.config['user.email'] : casual.email
+            });
+        }
         if (repo.url) {
             await git.addRemote({
                 fs,
@@ -196,7 +198,7 @@ const gitReset = async (dir: string, ref: string, branch: string, hard = false) 
             if (commits.length < count + 1) {
                 return reject('Not enough commits');
             }
-            const commit = commits.pop().oid;
+            const commit = commits.pop()?.oid;
             fs.writeFile(`${dir}/.git/refs/heads/${branch}`, commit + '\n', (err) => {
                 if (err) {
                     return reject(err);

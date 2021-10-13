@@ -1,5 +1,3 @@
-/* eslint-disable jest/no-commented-out-tests */
-
 import { file, mock, MockInstance } from './__mocks__/mock-fs-promise';
 import * as git from '../src/containers/git-plumbing';
 import * as io from '../src/containers/io';
@@ -142,7 +140,7 @@ describe('git.isGitRepo', () => {
           tam: {
             'som.js': file({ content: 'other information' })
           }
-        }, 
+        },
         pez: {
           '.git': {
             'HEAD': 'ref: refs/heads/feature/test',
@@ -175,7 +173,7 @@ describe('git.isGitRepo', () => {
             heads: {
               master: 'f204b02baf1322ee079fe9768e9593509d683412\n',
             }
-          }, 
+          },
           'tracked-file.js': 'directory is tracked by git',
           'another-file.ts': 'directory is tracked by git, but the git repo is currently in a detached HEAD state'
         }

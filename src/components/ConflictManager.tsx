@@ -29,7 +29,7 @@ const ConflictManager: React.FunctionComponent<{ rootId: UUID }> = props => {
                         labelIcon={InfoIcon}
                     />
                 }
-                {conflicts.length > 0 && conflicts.map(conflict =>
+                {metafile && repo && conflicts.length > 0 && conflicts.map(conflict =>
                     <StyledTreeItem key={`${repo.id}-${metafile.branch}-${conflict.filepath}`}
                         nodeId={`${repo.id}-${metafile.branch}-${conflict.filepath}`}
                         color={'#da6473'} // red
