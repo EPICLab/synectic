@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import useGitWatcher from '../containers/hooks/useGitWatcher';
 import { BranchList } from './BranchList';
 import { SourceControlButton } from './SourceControl';
+import { removeUndefinedProperties } from '../containers/format';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
@@ -26,17 +27,19 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const [editorRef] = useState(React.createRef<AceEditor>());
   const dispatch = useAppDispatch();
   useGitWatcher(metafile?.path);
-  useEffect(() => { onChange(metafile.content) }, [metafile]);
+  useEffect(() => { onChange(metafile?.content) }, [metafile]);
 
-  const onChange = async (newCode: string) => {
-    if (metafile && code !== newCode) {
+  const onChange = async (newCode: string | undefined) => {
+    if (metafile && newCode && code !== newCode) {
       setCode(newCode);
       dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
     }
   };
 
+  const mode = removeUndefinedProperties({ mode: metafile?.filetype?.toLowerCase() });
+
   return (
-    <AceEditor mode={metafile?.filetype?.toLowerCase()} theme='monokai' onChange={onChange} name={metafile?.id + '-editor'} value={code}
+    <AceEditor {...mode} theme='monokai' onChange={onChange} name={metafile?.id + '-editor'} value={code}
       ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
@@ -56,10 +59,9 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
       {repo ?
         <>
-          <span>Branch:</span>
-          <BranchList metafileId={metafile.id} cardId={props.id} />
+          <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
           <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
-          <span>Versions:</span><SourceControlButton repoId={repo.id} metafileId={metafile.id} />
+          <span>Versions:</span>{metafile ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
         </>
         : undefined}
     </>

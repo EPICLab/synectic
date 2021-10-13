@@ -6,7 +6,7 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import type { UUID, Card, Metafile, GitStatus } from '../types';
+import type { UUID, Card, GitStatus } from '../types';
 import { RootState } from '../store/store';
 import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
@@ -19,11 +19,12 @@ import { metafileSelectors } from '../store/selectors/metafiles';
 import { repoSelectors } from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
 import { SourceControlButton } from './SourceControl';
+import { removeUndefinedProperties } from '../containers/format';
 
-const FileComponent: React.FunctionComponent<Metafile> = props => {
+const FileComponent: React.FunctionComponent<MetafileWithPath> = props => {
   const dispatch = useAppDispatch();
 
-  const colorFilter = (status: GitStatus) => {
+  const colorFilter = (status: GitStatus | undefined) => {
     switch (status) {
       case '*added': // Fallthrough
       case 'added':
@@ -38,24 +39,27 @@ const FileComponent: React.FunctionComponent<Metafile> = props => {
         return undefined;
     }
   }
+  const optionals = removeUndefinedProperties({
+    color: colorFilter(props.status),
+    labelInfo: (props.status && ['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status)) ? ReplayIcon : undefined
+  });
 
-  return (props.path ?
+  return (
     <StyledTreeItem key={props.id} nodeId={props.id}
-      color={colorFilter(props.status)}
       labelText={extractFilename(props.path)}
-      labelInfo={['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? ReplayIcon : undefined}
+      {...optionals}
       labelInfoClickHandler={async (e) => {
         e.stopPropagation(); // prevent propogating the click event to the StyleTreeItem onClick method
         await dispatch(discardMetafileChanges(props));
       }}
       labelIcon={InsertDriveFileIcon}
       enableHover={true}
-      onClick={() => ['*deleted', 'deleted'].includes(props.status) ? null : dispatch(loadCard({ filepath: props.path }))}
-    /> : null
+      onClick={() => (props.status && ['*deleted', 'deleted'].includes(props.status)) ? null : dispatch(loadCard({ filepath: props.path }))}
+    />
   );
 }
 
-export const DirectoryComponent: React.FunctionComponent<Metafile> = props => {
+export const DirectoryComponent: React.FunctionComponent<MetafileWithPath> = props => {
   const { directories, files } = useDirectory(props.path);
   const [expanded, setExpanded] = useState(false);
 
@@ -78,17 +82,19 @@ const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const { directories, files } = useDirectory((rootMetafile as MetafileWithPath).path);
 
   return (
-    <div className='list-component'>
-      <BranchRibbon branch={rootMetafile?.branch} />
-      <TreeView
-        defaultCollapseIcon={<ArrowDropDownIcon />}
-        defaultExpandIcon={<ArrowRightIcon />}
-        defaultEndIcon={<div style={{ width: 8 }} />}
-      >
-        {directories.map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
-        {files.map(file => <FileComponent key={file.id} {...file} />)}
-      </TreeView>
-    </div>
+    <>
+      {rootMetafile && rootMetafile.branch ? <div className='list-component'>
+        <BranchRibbon branch={rootMetafile.branch} />
+        <TreeView
+          defaultCollapseIcon={<ArrowDropDownIcon />}
+          defaultExpandIcon={<ArrowRightIcon />}
+          defaultEndIcon={<div style={{ width: 8 }} />}
+        >
+          {directories.map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
+          {files.map(file => <FileComponent key={file.id} {...file} />)}
+        </TreeView>
+      </div> : null}
+    </>
   );
 };
 
@@ -102,9 +108,13 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
       <span>Name:</span><span className='field'>{props.name}</span>
       <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
       <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
-      <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
-      <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
-      <span>Versions:</span><SourceControlButton repoId={repo.id} metafileId={metafile.id} />
+      {repo ?
+        <>
+          <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
+          <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
+          <span>Versions:</span>{metafile ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
+        </>
+        : undefined}
     </>
   );
 };

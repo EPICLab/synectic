@@ -14,10 +14,15 @@ import { getMetafileByBranch, getMetafileByFilepath, getMetafileByVirtual, metaf
 import { isHiddenFile, discardChanges } from './git-plumbing';
 // import { isHiddenFile } from 'is-hidden-file';
 
+// Type-narrowed utility types for Metafile
 export type MetafileWithPath = Metafile & Required<Pick<Metafile, 'path'>>;
 export type MetafileWithContent = Metafile & Required<Pick<Metafile, 'content'>>;
 export type MetafileWithContains = Metafile & Required<Pick<Metafile, 'contains'>>;
 export type MetafileWithTargets = Metafile & Required<Pick<Metafile, 'targets'>>;
+
+export const isMetafilePathed = (metafile: Metafile): metafile is MetafileWithPath => {
+  return (metafile as MetafileWithPath).path !== undefined;
+}
 
 export const isMetafileFile = (metafile: Metafile): metafile is MetafileWithContent => {
   return (metafile as MetafileWithContent).content !== undefined;
