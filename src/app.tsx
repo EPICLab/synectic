@@ -5,21 +5,24 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.css';
 import './assets/style.css';
-import store from './store/store';
+import redux from './store/store';
 import CanvasComponent from './components/CanvasComponent';
 import { importFiletypes } from './containers/handlers';
+import { PersistGate } from 'redux-persist/integration/react';
 
 const App = (): JSX.Element => {
 
   useEffect(() => {
-    store.dispatch(importFiletypes()); // load all supported filetype handlers into Redux store
+    redux.store.dispatch(importFiletypes()); // load all supported filetype handlers into Redux store
   }, []); // run the effect only once; after the first render
 
   return (
-    <Provider store={store}>
-      <DndProvider backend={HTML5Backend}>
-        <CanvasComponent />
-      </DndProvider>
+    <Provider store={redux.store}>
+      <PersistGate loading={null} persistor={redux.persistor}>
+        <DndProvider backend={HTML5Backend}>
+          <CanvasComponent />
+        </DndProvider>
+      </PersistGate>
     </Provider>
   );
 };

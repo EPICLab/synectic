@@ -5,6 +5,8 @@ import filetypesReducer from './slices/filetypes';
 import metafilesReducer from './slices/metafiles';
 import reposReducer from './slices/repos';
 import modalsReducer from './slices/modals';
+import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 export const rootReducer = combineReducers({
     stacks: stacksReducer,
@@ -15,9 +17,27 @@ export const rootReducer = combineReducers({
     modals: modalsReducer
 });
 
-const store = configureStore({ reducer: rootReducer });
+const persistConfig = {
+    key: 'root',
+    storage: storage,
+    blacklist: ['filetypes']
+}
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+const store = configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) => [
+        ...getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+            }
+        }),
+    ]
+});
+const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-export default store;
+export default ({ store: store, persistor: persistor });
