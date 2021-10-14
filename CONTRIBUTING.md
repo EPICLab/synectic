@@ -26,6 +26,7 @@ React and Redux:
 * [Idiomatic Redux: Why use action creators?](https://blog.isquaredsoftware.com/2016/10/idiomatic-redux-why-use-action-creators/)
 * [ES6 Map with React.useState](https://medium.com/@jalalazimi/es6-map-with-react-usestate-9175cd7b409b)
 * [Understanding the React useMemo Hook](https://www.digitalocean.com/community/tutorials/react-usememo)
+* [How to Persist Your Redux Store](https://www.cloudsavvyit.com/9778/how-to-persist-your-redux-store/)
 
 Jest Testing:
 * [Taking Advantage of Jest Matchers (Part 1)](https://benmccormick.org/2017/08/15/jest-matchers-1/)
