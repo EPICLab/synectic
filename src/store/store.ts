@@ -20,6 +20,7 @@ export const rootReducer = combineReducers({
 const persistConfig = {
     key: 'root',
     storage: storage,
+    version: 0,
     blacklist: ['filetypes']
 }
 
