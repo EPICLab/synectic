@@ -15,7 +15,7 @@ import { GitGraphSelect } from './GitGraphSelect';
 import { cardUpdated } from '../store/slices/cards';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { cardSelectors } from '../store/selectors/cards';
-import { RootState } from '../store/store';
+import redux, { RootState } from '../store/store';
 import { stackSelectors } from '../store/selectors/stacks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { filetypeSelectors } from '../store/selectors/filetypes';
@@ -150,12 +150,17 @@ const CanvasComponent: React.FunctionComponent = props => {
     { label: 'Show All...', click: () => showState() },
   ];
 
+  const helpMenu: NavItemProps[] = [
+    { label: 'Clear Cache...', click: async () => redux.persistor.purge() },
+  ];
+
   return (
     <div className='canvas' ref={drop} data-testid='canvas-component'>
       <div className={classes.root} >
         <NavMenu label='File' submenu={fileMenu} />
         <NavMenu label='Action' submenu={actionMenu} />
         <NavMenu label='View' submenu={viewMenu} />
+        <NavMenu label='Help' submenu={helpMenu} />
         <GitGraphSelect />
       </div>
       {modals.map(modal => <span key={modal.id}>{modal.type}</span>)}

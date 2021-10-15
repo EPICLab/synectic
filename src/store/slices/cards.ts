@@ -1,6 +1,7 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import type { Card } from '../../types';
+import { PURGE } from 'redux-persist';
 
 export const cardsAdapter = createEntityAdapter<Card>();
 
@@ -15,6 +16,12 @@ export const cardsSlice = createSlice({
                 ...action.payload, modified: DateTime.local().valueOf()
             })
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(PURGE, (state) => {
+                cardsAdapter.removeAll(state);
+            })
     }
 })
 
