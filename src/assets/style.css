@@ -45,31 +45,38 @@ body {
 .card-header {
   height: 29px;
   width: 100%;
-  background: rgba(89, 87, 90, 1);
   box-sizing: border-box;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-end;
-  align-items: center;
-  align-content: flex-start;
+  background: rgba(89, 87, 90, 1);
   cursor: move;
   border-radius: 5px 5px 0 0;
   transform-style: preserve-3d;
   font-family: 'Lato', Georgia, Serif;
   font-weight: bold;
+  display: grid;
+  grid-template-columns: [title] auto [buttons];
+  align-items: center;
+}
+
+.card-header .title {
+  grid-column-start: title;
+  margin-left: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.card-header .buttons {
+  grid-column-start: buttons;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
 }
 
 .card-header button {
   height: 15px;
   width: 15px;
   border: 0;
-  margin-right: 5px;
   z-index: 9999;
-}
-
-.card-header span {
-  flex-basis: 100%;
-  margin-left: 5px;
 }
 
 .card-front,

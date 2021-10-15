@@ -4,7 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 import SaveIcon from '@material-ui/icons/Save';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import CloseIcon from '@material-ui/icons/Close';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import type { Card } from '../types';
 import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
@@ -44,7 +44,10 @@ export const useStyles = makeStyles({
 });
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
-  return <div className='card-header'><span>{props.title}</span>{props.children}</div>;
+  return <div className='card-header'>
+    <div className='title'><Typography>{props.title}</Typography></div>
+    <div className='buttons'>{props.children}</div>
+  </div>;
 };
 
 const ContentFront: React.FunctionComponent<Card> = props => {
