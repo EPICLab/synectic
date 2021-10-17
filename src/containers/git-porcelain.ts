@@ -159,6 +159,46 @@ export const checkout = async ({
 }
 
 /**
+ * Create a new commit; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/checkout* function.
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path.
+ * @param message The commit message to use.
+ * @param author The details about the author (i.e. the `name`, `email`, `timestamp`, and `timezoneOffset`); defaults to the
+ * config fields in the local git config file, or the global git config file (if no local is set).
+ * @param committer The details about the commit committer, in the same format as the `author` parameter. If not specified,
+ * the `author` details are used.
+ * @param signingKey Sign the tag object using this private PGP key.
+ * @param dryRun If true, simulates making a commit in order to test whether it would succeed. Implies `noUpdateBranch` be set to true.
+ * @param noUpdateBranch If true, does not update the branch pointer after creating the commit.
+ * @param ref The fully expanded name of the branch to commit to. Default is the current branch pointed to by `HEAD`. Currently has a limitation
+ * in that it cannot expand branch names without throwing if the branch doesn't exist yet.
+ * @param parent The SHA-1 object ids of the commits to use as parents. If not specified, the commit pointed to by `ref` is used.
+ * @param tree The SHA-1 object id of the tree to use. If not specified, a new tree object is created from the current git index.
+ * @returns A Promise object containing the SHA-1 object id of the newly created commit.
+ */
+export const commit = async ({ dir, gitdir = path.join(dir.toString(), '.git'), message, author = {
+  timestamp: Math.floor(Date.now() / 1000),
+  timezoneOffset: (new Date()).getTimezoneOffset()
+}, committer = author, signingKey, dryRun = false, noUpdateBranch = false, ref, parent, tree }: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
+  message: string;
+  author?: { name?: string; email?: string; timestamp?: number; timezoneOffset?: number };
+  committer?: { name?: string; email?: string; timestamp?: number; timezoneOffset?: number };
+  signingKey?: string;
+  dryRun?: boolean;
+  noUpdateBranch?: boolean;
+  ref?: string;
+  parent?: Array<string>;
+  tree?: string;
+}): Promise<string> => {
+  const optionals = removeUndefinedProperties({ author: author, committer: committer, signingKey: signingKey, ref: ref, parent: parent, tree: tree });
+  return isogit.commit({
+    fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), message: message, dryRun, noUpdateBranch, ...optionals
+  });
+}
+
+/**
  * Get the name of the branch currently pointed to by *.git/HEAD*; this function is a wrapper to the *isomorphic-git/currentBranch* 
  * function to inject the `fs` parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a 
  * file, then `.git` points to a file containing updated pathing to translate from the linked worktree to the `.git/worktree` directory in 
