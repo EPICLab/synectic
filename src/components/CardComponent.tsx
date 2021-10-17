@@ -25,6 +25,9 @@ import { stackSelectors } from '../store/selectors/stacks';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { cardRemoved } from '../store/slices/cards';
 import ConflictManager from './ConflictManager';
+import { GitCommitIcon } from './GitIcons';
+import { modalAdded } from '../store/slices/modals';
+import { v4 } from 'uuid';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -159,6 +162,13 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   }
 
   const flip = () => setFlipped(!flipped);
+  const commit = () => {
+    if (metafile && metafile.status) {
+      const commitable = ['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(metafile.status);
+      console.log(`${metafile.name} metafile is capable of committing: ${commitable}`);
+      dispatch(modalAdded({ id: v4(), type: 'CommitDialog', target: metafile.id }));
+    }
+  }
   const save = async () => {
     if (metafile) {
       dispatch(metafileUpdated({ ...metafile, state: 'unmodified' }));
@@ -187,6 +197,10 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
+        {(metafile && metafile.status) &&
+          <StyledIconButton aria-label='commit' disabled={!(['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(metafile.status))}
+            onClick={commit} ><GitCommitIcon /></StyledIconButton>
+        }
         {(metafile && metafile.state) &&
           <StyledIconButton aria-label='save' disabled={metafile.state === 'unmodified'} onClick={save} ><SaveIcon /></StyledIconButton>
         }

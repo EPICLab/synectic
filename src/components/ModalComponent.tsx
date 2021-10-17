@@ -2,6 +2,7 @@ import React from 'react';
 
 import type { Modal } from '../types';
 import CloneDialog from './CloneDialog';
+import CommitDialog from './CommitDialog';
 import DiffPickerDialog from './DiffPickerDialog';
 import ErrorDialog from './ErrorDialog';
 import { GitGraph } from './GitGraph';
@@ -25,6 +26,8 @@ const ModalComponent: React.FunctionComponent<Modal> = props => {
       return (<NewCardDialog {...props} />);
     case 'SourcePicker':
       return (<SourcePickerDialog {...props} />);
+    case 'CommitDialog':
+      return props.target ? (<CommitDialog {...props} parent={props.target} />) : null;
     default:
       return null;
   }

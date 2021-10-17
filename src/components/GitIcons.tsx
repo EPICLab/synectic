@@ -15,6 +15,21 @@ export const GitBranchIcon = (props: SvgIconProps) => {
     </SvgIcon>
   );
 }
+export const GitCommitIcon = (props: SvgIconProps) => {
+  return (
+    <SvgIcon titleAccess='git-commit' {...props}>
+      <path fill="currentColor" d="M17,12C17,14.42 15.28,16.44 13,16.9V21H11V16.9C8.72,16.44 7,14.42 7,12C7,9.58 8.72,7.56 11,7.1V3H13V7.1C15.28,7.56 17,9.58 17,12M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" />
+    </SvgIcon >
+  );
+}
+
+export const GitMergeIcon = (props: SvgIconProps) => {
+  return (
+    <SvgIcon titleAccess='git-merge' {...props}>
+      <path fill="currentColor" d="M7,3A3,3 0 0,1 10,6C10,7.29 9.19,8.39 8.04,8.81C8.58,13.81 13.08,14.77 15.19,14.96C15.61,13.81 16.71,13 18,13A3,3 0 0,1 21,16A3,3 0 0,1 18,19C16.69,19 15.57,18.16 15.16,17C10.91,16.8 9.44,15.19 8,13.39V15.17C9.17,15.58 10,16.69 10,18A3,3 0 0,1 7,21A3,3 0 0,1 4,18C4,16.69 4.83,15.58 6,15.17V8.83C4.83,8.42 4,7.31 4,6A3,3 0 0,1 7,3M7,5A1,1 0 0,0 6,6A1,1 0 0,0 7,7A1,1 0 0,0 8,6A1,1 0 0,0 7,5M7,17A1,1 0 0,0 6,18A1,1 0 0,0 7,19A1,1 0 0,0 8,18A1,1 0 0,0 7,17M18,15A1,1 0 0,0 17,16A1,1 0 0,0 18,17A1,1 0 0,0 19,16A1,1 0 0,0 18,15Z" />
+    </SvgIcon>
+  );
+}
 
 export const GitRepoIcon = (props: SvgIconProps) => {
   return (

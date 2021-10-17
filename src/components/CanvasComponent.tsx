@@ -163,7 +163,6 @@ const CanvasComponent: React.FunctionComponent = props => {
         <NavMenu label='Help' submenu={helpMenu} />
         <GitGraphSelect />
       </div>
-      {modals.map(modal => <span key={modal.id}>{modal.type}</span>)}
       {stacks.map(stack => <StackComponent key={stack.id} {...stack} />)}
       {cards.filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {modals.map(modal => <ModalComponent key={modal.id} {...modal} />)}
