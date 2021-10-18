@@ -76,9 +76,6 @@ const SourceFileComponent: React.FunctionComponent<Metafile & SourceFileProps> =
       />
         : null}
     </>
-
-
-
   );
 }
 

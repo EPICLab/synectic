@@ -10,7 +10,7 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
-import type { UUID, Card } from '../types';
+import type { UUID, Card, Metafile } from '../types';
 import { RootState } from '../store/store';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { metafileSelectors } from '../store/selectors/metafiles';
@@ -18,8 +18,10 @@ import { repoSelectors } from '../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import useGitWatcher from '../containers/hooks/useGitWatcher';
 import { BranchList } from './BranchList';
-import { SourceControlButton } from './SourceControl';
 import { removeUndefinedProperties } from '../containers/format';
+import { Button } from '@material-ui/core';
+import { discardMetafileChanges } from '../containers/metafiles';
+import { SourceControlButton } from './SourceControl';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
@@ -45,6 +47,13 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   );
 }
 
+export const RevertButton: React.FunctionComponent<Metafile> = props => {
+  const dispatch = useAppDispatch();
+  const revert = async () => await dispatch(discardMetafileChanges(props));
+  const changes = props.path && props.status && ['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? true : false;
+  return (<Button onClick={revert} disabled={!changes}>Undo Changes</Button>)
+}
+
 export const EditorReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
@@ -55,7 +64,8 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span>ID:</span><span className='field'>...{props.id.slice(-10)}</span>
       <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
       <span>Name:</span><span className='field'>{props.name}</span>
-      <span>Update:</span><span className='field'>{DateTime.fromMillis(props.modified).toLocaleString()}</span>
+      <span>Update:</span><span className='field'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</span>
+      <span>Changes:</span>{metafile ? <RevertButton {...metafile} /> : undefined}
       <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
       {repo ?
         <>
