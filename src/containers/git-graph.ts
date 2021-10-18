@@ -33,7 +33,7 @@ const getGitEdge = (commit: CommitInfo): Edge[] => {
 
 const getGitStaged = async (commit: CommitInfo, repo: Repository): Promise<(Node | Edge)[]> => {
   const currentBranchStatus = await getStatus(repo.root);
-  if (currentBranchStatus && !(currentBranchStatus in ['ignored', 'unmodified'])) {
+  if (currentBranchStatus && !(['ignored', 'unmodified'].includes(currentBranchStatus))) {
     return [{
       id: `${commit.oid}*`,
       type: 'gitNode',
