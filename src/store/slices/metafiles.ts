@@ -6,6 +6,7 @@ import type { Metafile, UUID } from '../../types';
 import { repoRemoved } from './repos';
 import { AppThunkAPI } from '../hooks';
 import { filterObject } from '../../containers/format';
+import { PURGE } from 'redux-persist';
 
 export const metafilesAdapter = createEntityAdapter<Metafile>();
 
@@ -32,6 +33,9 @@ export const metafilesSlice = createSlice({
                         return { id: m.id, changes: filterObject(m, ['repo']) };
                     })
                 metafilesSlice.actions.metafilesUpdated(updatedMetafiles);
+            })
+            .addCase(PURGE, (state) => {
+                metafilesAdapter.removeAll(state);
             })
     }
 })
