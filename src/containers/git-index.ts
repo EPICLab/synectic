@@ -3,7 +3,8 @@
 // Developed by: coderaiser <https://github.com/coderaiser>
 // Typed version by: Nicholas Nelson <https://github.com/nelsonni>
 
-import * as binarnia from 'binarnia';
+// import * as binarnia from 'binarnia';
+const binarnia = require('binarnia');
 
 export type IndexEntry = {
   dev: number,
