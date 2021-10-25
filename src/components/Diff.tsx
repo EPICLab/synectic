@@ -11,7 +11,7 @@ import { RootState } from '../store/store';
 import { diff } from '../containers/diff';
 import { useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
-import { cardSelectors } from '../store/selectors/cards';
+import cardSelectors from '../store/selectors/cards';
 import { removeUndefinedProperties } from '../containers/format';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {

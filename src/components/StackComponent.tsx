@@ -5,7 +5,7 @@ import { RootState } from '../store/store';
 import CardComponent from './CardComponent';
 import { pushCards, popCard } from '../containers/stacks';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { cardSelectors } from '../store/selectors/cards';
+import cardSelectors from '../store/selectors/cards';
 import { stackSelectors } from '../store/selectors/stacks';
 import { stackRemoved } from '../store/slices/stacks';
 

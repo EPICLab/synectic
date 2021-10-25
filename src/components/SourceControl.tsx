@@ -13,7 +13,7 @@ import { add, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { loadCard } from '../containers/handlers';

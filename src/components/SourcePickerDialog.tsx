@@ -8,7 +8,7 @@ import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
 
 const useStyles = makeStyles((theme: Theme) =>

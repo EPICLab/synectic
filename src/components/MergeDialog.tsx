@@ -11,7 +11,7 @@ import { build } from '../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 // import { merge as isomerge } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
 import { merge } from '../containers/merges';
 import { loadCard } from '../containers/handlers';

@@ -10,7 +10,8 @@ import { isDefined, removeDuplicates } from '../containers/format';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { GitRepoIcon, GitBranchIcon } from './GitIcons';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { getCardsByRepo, repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
+import cardSelectors from '../store/selectors/cards';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { loadCard } from '../containers/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
@@ -20,7 +21,7 @@ import { checkoutBranch } from '../containers/repos';
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 
 const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }> = props => {
-  const cards = useAppSelector((state: RootState) => getCardsByRepo(state, props.repo.id, props.branch));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectByRepo(state, props.repo.id, props.branch));
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const modified = cards.map(c => metafiles.find(m => m.id === c.metafile)).filter(isDefined).filter(m => m.status && modifiedStatuses.includes(m.status));
   const dispatch = useAppDispatch();

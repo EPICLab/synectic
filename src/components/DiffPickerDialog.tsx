@@ -7,7 +7,7 @@ import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 import { modalRemoved } from '../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { cardSelectors } from '../store/selectors/cards';
+import cardSelectors from '../store/selectors/cards';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { DateTime } from 'luxon';
 

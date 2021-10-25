@@ -7,7 +7,7 @@ import { RootState } from '../store/store';
 import { modalAdded, modalRemoved } from '../store/slices/modals';
 import { v4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({

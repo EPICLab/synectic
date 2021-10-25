@@ -5,9 +5,9 @@ import { checkoutBranch, switchCardMetafile } from '../containers/repos';
 import { useStyles } from './CardComponent';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
-import { repoSelectors } from '../store/selectors/repos';
-import { cardSelectors } from '../store/selectors/cards';
+import cardSelectors from '../store/selectors/cards';
 import { removeUndefinedProperties } from '../containers/format';
+import repoSelectors from '../store/selectors/repos';
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 

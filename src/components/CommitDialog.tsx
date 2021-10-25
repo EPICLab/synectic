@@ -8,6 +8,9 @@ import { modalRemoved } from '../store/slices/modals';
 import { commit, getConfig, getRepoRoot } from '../containers/git-porcelain';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { RootState } from '../store/store';
+import { updateAll } from '../containers/metafiles';
+import { updateBranches } from '../containers/repos';
+import repoSelectors from '../store/selectors/repos';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -52,6 +55,8 @@ const CommitDialog: React.FunctionComponent<Modal & { parent: UUID }> = props =>
     const classes = useStyles();
     const [message, setMessage] = useState('');
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.parent));
+    const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+    const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
     const dispatch = useAppDispatch();
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,10 +73,13 @@ const CommitDialog: React.FunctionComponent<Modal & { parent: UUID }> = props =>
                 dir: dir, message: message, author: {
                     name: username.scope !== 'none' ? username.value : '',
                     email: email.scope !== 'none' ? email.value : ''
-                }, dryRun: true
+                }
             });
             console.log(`commit result: ${result}`);
+            if (metafile) await dispatch(updateAll(metafile.id));
+            if (repo) await dispatch(updateBranches(repo.id));
         }
+        dispatch(modalRemoved(props.id));
     }
 
     return (

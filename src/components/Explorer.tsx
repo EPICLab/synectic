@@ -17,7 +17,7 @@ import { BranchList } from './BranchList';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { add, remove } from '../containers/git-plumbing';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
 import { SourceControlButton } from './SourceControl';
 import { removeUndefinedProperties } from '../containers/format';

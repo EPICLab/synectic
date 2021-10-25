@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TreeView } from '@material-ui/lab';
 import InfoIcon from '@material-ui/icons/Info';
 import WarningIcon from '@material-ui/icons/Warning';
@@ -6,7 +6,7 @@ import type { UUID } from '../types';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { RootState } from '../store/store';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
 import { metafileSelectors } from '../store/selectors/metafiles';
@@ -18,6 +18,10 @@ const ConflictManager: React.FunctionComponent<{ rootId: UUID }> = props => {
     const [repo] = useState(metafile ? repos.find(r => r.id === metafile.repo) : undefined);
     const { conflicts } = useGitConflicts(repo ? repo.root : '');
     const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        console.log(`repo: ${repo ? repo.name : '[repo is missing]'}, conflicts: ${JSON.stringify(conflicts)}`);
+    }, []);
 
     return (
         <div className='list-component'>

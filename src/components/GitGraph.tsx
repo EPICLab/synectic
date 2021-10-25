@@ -5,9 +5,10 @@ import type { UUID } from '../types';
 import { nodeTypes } from './GitNode';
 import { useGitHistory } from '../containers/hooks/useGitHistory';
 import { RootState } from '../store/store';
-import { graphConstruction } from '../containers/git-graph';
-import { repoSelectors } from '../store/selectors/repos';
+import { generateGraph, graphConstruction } from '../containers/git-graph';
+import repoSelectors from '../store/selectors/repos';
 import { useAppSelector } from '../store/hooks';
+
 
 export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
   const [elements, setElements] = useState<Array<FlowElement>>([]);
@@ -27,7 +28,10 @@ export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
 
   useEffect(() => {
     console.log('generating graph...');
-    const asyncFetchGraph = async () => setElements(repo ? await graphConstruction(commits, heads, repo) : []);
+    const asyncFetchGraph = async () => {
+      setElements(repo ? await graphConstruction(commits, heads, repo) : []);
+      // if (repo) await generateGraph(elements, commits, heads, repo);
+    };
     asyncFetchGraph();
   }, [commits, heads, repo]);
 

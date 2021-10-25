@@ -14,12 +14,12 @@ import { loadBranchVersions } from '../containers/branch-tracker';
 import { GitGraphSelect } from './GitGraphSelect';
 import { cardUpdated } from '../store/slices/cards';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { cardSelectors } from '../store/selectors/cards';
+import cardSelectors from '../store/selectors/cards';
 import redux, { RootState } from '../store/store';
 import { stackSelectors } from '../store/selectors/stacks';
 import { metafileSelectors } from '../store/selectors/metafiles';
 import { filetypeSelectors } from '../store/selectors/filetypes';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 import { modalSelectors } from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
 

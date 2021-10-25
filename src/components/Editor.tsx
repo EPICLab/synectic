@@ -14,7 +14,7 @@ import type { UUID, Card, Metafile } from '../types';
 import { RootState } from '../store/store';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { metafileSelectors } from '../store/selectors/metafiles';
-import { repoSelectors } from '../store/selectors/repos';
+import repoSelectors from '../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import useGitWatcher from '../containers/hooks/useGitWatcher';
 import { BranchList } from './BranchList';
