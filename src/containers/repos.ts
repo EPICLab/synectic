@@ -197,55 +197,71 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
   }
 )
 
+// Descriminated union type for emulating a `mutually exclusive or` (XOR) operation between parameter types
+// Ref: https://github.com/microsoft/TypeScript/issues/14094#issuecomment-344768076
+type RepositoryGettableFields =
+  { id: UUID, filepath?: never } |
+  { id?: never, filepath: PathLike };
+
 /**
  * Async Thunk action creator for simplifying the process of obtaining an updated repository from the Redux store.
  * If the filepath is not under version control (i.e. not contained within a Git repository), or the associated Git repository 
  * is malformed, then no valid response can be given. Otherwise, the correct Repository object is returned and the Redux 
  * store is updated with the latest set of branches.
- * @param filepath The relative or absolute path to evaluate.
+ * @param id The UUID corresponding to the repository that should be updated and returned.
+ * @param filepath The relative or absolute path to a git-tracked file or directory that is associated with a repository.
  * @return  A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed. Returns a repository that was either created or 
- * retrieved and updated based on the filesystem and version control system.
+ * retrieved and updated based on the filesystem and version control system, or `undefined` if unable to find the new/existing
+ * repository from the Redux store.
  */
-export const getRepository = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
+export const getRepository = createAsyncThunk<Repository | undefined, RepositoryGettableFields, AppThunkAPI & { rejectValue: string }>(
   'repos/getRepository',
-  async (filepath, thunkAPI) => {
-    let root = await getRepoRoot(filepath);
-    if (!root) {
-      thunkAPI.rejectWithValue('No root found'); // if there is no root, then filepath is not under version control
-      return undefined;
+  async (retrieveBy, thunkAPI) => {
+    console.log(`getRepository for ${JSON.stringify(retrieveBy)}`);
+    if (retrieveBy.id) {
+      const existing = await thunkAPI.dispatch(updateBranches(retrieveBy.id));
+      return existing ? thunkAPI.getState().repos.entities[retrieveBy.id] : undefined;
     }
-    if (!(await isDirectory(`${root}/.git`))) {
-      // root points to a linked worktree, so root needs to be updated to point to the main worktree path
-      const gitdir = (await readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-      root = await getRepoRoot(gitdir);
+    if (retrieveBy.filepath) {
+      let root = await getRepoRoot(retrieveBy.filepath);
       if (!root) {
-        thunkAPI.rejectWithValue('No root found'); // if there is no root, then the main worktree path is corrupted
+        thunkAPI.rejectWithValue('No root found'); // if there is no root, then filepath is not under version control
         return undefined;
       }
+      if (!(await isDirectory(`${root}/.git`))) {
+        // root points to a linked worktree, so root needs to be updated to point to the main worktree path
+        const gitdir = (await readFileAsync(`${root}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+        root = await getRepoRoot(gitdir);
+        if (!root) {
+          thunkAPI.rejectWithValue('No root found'); // if there is no root, then the main worktree path is corrupted
+          return undefined;
+        }
+      }
+      const remoteOriginUrls: string[] | undefined = root ?
+        await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
+      const { url, oauth } = (remoteOriginUrls && remoteOriginUrls.length > 0) ?
+        extractFromURL(remoteOriginUrls[0]) :
+        { url: undefined, oauth: undefined };
+      const name = url ? extractRepoName(url.href) : (root ? extractFilename(root) : '');
+      const existing = url ?
+        await thunkAPI.dispatch(getRepoByName({ name: name, url: url.href })).unwrap() :
+        await thunkAPI.dispatch(getRepoByName({ name: name })).unwrap();
+      if (existing) {
+        await thunkAPI.dispatch(updateBranches(existing.id));
+        return thunkAPI.getState().repos.entities[existing.id];
+      }
+      const username = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'user.name' }) : undefined;
+      const password = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'credential.helper' }) : undefined;
+      const id = root ? await thunkAPI.dispatch(appendRepository({ root: root, protocol: { url: url, oauth: oauth }, username: username, password: password })).unwrap() : undefined;
+      if (id) {
+        await thunkAPI.dispatch(updateBranches(id));
+        return thunkAPI.getState().repos.entities[id];
+      } else {
+        thunkAPI.rejectWithValue('Unable to generate new repository');
+      }
     }
-    const remoteOriginUrls: string[] | undefined = root ?
-      await isogit.getConfigAll({ fs: fs, dir: root, path: 'remote.origin.url' }) : undefined;
-    const { url, oauth } = (remoteOriginUrls && remoteOriginUrls.length > 0) ?
-      extractFromURL(remoteOriginUrls[0]) :
-      { url: undefined, oauth: undefined };
-    const name = url ? extractRepoName(url.href) : (root ? extractFilename(root) : '');
-    const existing = url ?
-      await thunkAPI.dispatch(getRepoByName({ name: name, url: url.href })).unwrap() :
-      await thunkAPI.dispatch(getRepoByName({ name: name })).unwrap();
-    if (existing) {
-      await thunkAPI.dispatch(updateBranches(existing.id));
-      return thunkAPI.getState().repos.entities[existing.id];
-    }
-    const username = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'user.name' }) : undefined;
-    const password = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'credential.helper' }) : undefined;
-    const id = root ? await thunkAPI.dispatch(appendRepository({ root: root, protocol: { url: url, oauth: oauth }, username: username, password: password })).unwrap() : undefined;
-    if (id) {
-      await thunkAPI.dispatch(updateBranches(id));
-      return thunkAPI.getState().repos.entities[id];
-    } else {
-      thunkAPI.rejectWithValue('Unable to generate new repository');
-    }
+    return thunkAPI.rejectWithValue('Failed to match any containers/repos/getRepository parameter types');
   }
 )

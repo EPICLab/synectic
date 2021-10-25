@@ -85,7 +85,8 @@ export const updateGitInfo = createAsyncThunk<void, UUID, AppThunkAPI & { reject
     const metafile = thunkAPI.getState().metafiles.entities[id];
     if (!metafile || !metafile.path) return thunkAPI.rejectWithValue(metafile ? `metafile: ${metafile.id}` : 'metafile: unknown');
     try {
-      const repo = await thunkAPI.dispatch(getRepository(metafile.path)).unwrap();
+      let repo = metafile.repo ? await thunkAPI.dispatch(getRepository({ id: metafile.repo })).unwrap() : undefined;
+      if (!repo) repo = await thunkAPI.dispatch(getRepository({ filepath: metafile.path })).unwrap();
       const root = await getRepoRoot(metafile.path);
       if (!root) {
         console.log(`updateGitInfo root: ${root}`);
@@ -181,12 +182,10 @@ type MetafileGettableFields =
 export const getMetafile = createAsyncThunk<Metafile | undefined, MetafileGettableFields, AppThunkAPI & { rejectValue: string }>(
   'metafiles/getMetafile',
   async (retrieveBy, thunkAPI) => {
+    console.log(`getMetafile for ${JSON.stringify(retrieveBy)}`);
     if (retrieveBy.id) {
       const existing = await thunkAPI.dispatch(updateAll(retrieveBy.id)).unwrap();
-      if (!existing) return undefined;
-      const metafile = thunkAPI.getState().metafiles.entities[retrieveBy.id];
-      if (!metafile) return undefined;
-      return metafile;
+      return existing ? thunkAPI.getState().metafiles.entities[retrieveBy.id] : undefined;
     }
     if (retrieveBy.filepath) {
       const root = await getRepoRoot(retrieveBy.filepath);
