@@ -13,6 +13,15 @@ export type useDirectoryHook = {
     update: () => Promise<void>
 }
 
+/**
+ * Custom React Hook for monitoring directories and files for changes based on either Git repository updates or filesystem
+ * updates being detected. Uses `useGitWatcher` hook under the hood for managing `useWatcher` hooks, which becomes a pass-through
+ * operation when a root path is not under version control (and only file stats and content changes can be observed). Triggers 
+ * Redux updates on metafiles when changes are detected.
+ * @param root The relative or absolute path to the git root directory.
+ * @returns A `useDirectoryHook` object containing the root path, metafiles separated into directory and file lists, and a `update` function 
+ * for manually triggering updates. 
+ */
 const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     const dispatch = useAppDispatch();
     const [directories, setDirectories] = useState<MetafileWithPath[]>([]);
@@ -23,6 +32,7 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     const update = useCallback(async () => {
         if (root) {
             const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
+            console.log(`useDirectory for ${root.toString()} [${filepaths.length}]: ${JSON.stringify(filepaths)}`);
             const metafiles = await Promise.all(filepaths.map(async f => await dispatch(getMetafile({ filepath: f })).unwrap()));
 
             const directoryMetafiles = metafiles.filter(isMetafilePathed).filter(m => 'filetype' in m && m.filetype === 'Directory');

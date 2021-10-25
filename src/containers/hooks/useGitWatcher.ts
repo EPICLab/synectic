@@ -7,7 +7,7 @@ import useWatcher, { WatchEventType, WatchListener } from './useWatcher';
 
 /**
  * Custom React Hook for monitoring Git repository files and triggering Redux updates on metafiles
- * when changes are detected. If a target path is not under version control, then updates will only
+ * when changes are detected. If a root path is not under version control, then updates will only
  * reflect changes in the file stats and content (i.e. `containers/git-porcelain.getStatus` will return
  * undefined on non-versioned filepaths). Uses `useWatcher` hooks under the hood for opening and closing
  * FS watchers, which drive subsequent status checks, based on the context closure of the component

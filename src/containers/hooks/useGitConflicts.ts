@@ -17,6 +17,13 @@ export type useGitConflictsHook = {
     check: () => Promise<void>
 }
 
+/**
+ * Custom React Hook for monitoring for merge conflicts on the current branch of a git repository. 
+ * when cha
+ * @param root The relative or absolute path to the git root directory.
+ * @returns A `useGitConflictsHook` object containing the root path, a list of conflicting files detected, and a `check` function 
+ * for manually triggering conflict checks.
+ */
 const useGitConflicts = (root: PathLike | undefined): useGitConflictsHook => {
     const [conflicts, setConflicts] = useState<Conflict[]>([]);
     const { files } = useDirectory(root);
