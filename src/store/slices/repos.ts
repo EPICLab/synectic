@@ -2,6 +2,7 @@ import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/too
 // import { extractFromURL } from '../../containers/git-plumbing';
 import type { Repository } from '../../types';
 import { AppThunkAPI } from '../hooks';
+import { PURGE } from 'redux-persist';
 
 export const reposAdapter = createEntityAdapter<Repository>();
 
@@ -12,6 +13,12 @@ export const reposSlice = createSlice({
         repoAdded: reposAdapter.addOne,
         repoRemoved: reposAdapter.removeOne,
         repoUpdated: reposAdapter.upsertOne
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(PURGE, (state) => {
+                reposAdapter.removeAll(state);
+            })
     }
 });
 
