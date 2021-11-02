@@ -27,6 +27,10 @@ export const emptyStore: RootState = {
   modals: {
     ids: [],
     entities: {}
+  },
+  _persist: {
+    version: 0,
+    rehydrated: true
   }
 }
 
@@ -246,5 +250,9 @@ export const testStore: RootState = {
         options: { message: 'Failed to load file.' }
       }
     }
+  },
+  _persist: {
+    version: 0,
+    rehydrated: true
   }
 };

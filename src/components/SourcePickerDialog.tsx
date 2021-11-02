@@ -4,12 +4,14 @@ import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Selec
 
 import type { Modal, UUID } from '../types';
 import { RootState } from '../store/store';
-import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import repoSelectors from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
+import { fetchMetafile } from '../store/thunks/metafiles';
+import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,8 +49,10 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
   const handleClick = async () => {
     const repo = repos.find(r => r.id === selectedRepo);
     const branchRoot = repo ? await getBranchRoot(repo, selectedBranch) : '';
-    const metafile = await dispatch(getMetafile({
+    const metafile = await dispatch(fetchMetafile({
       virtual: {
+        id: v4(),
+        modified: DateTime.local().valueOf(),
         name: 'Source Control',
         handler: 'SourceControl',
         repo: selectedRepo,

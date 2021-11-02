@@ -2,22 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { InsertDriveFile, Add, Remove } from '@material-ui/icons';
 import { Button } from '@material-ui/core';
 import { TreeView } from '@material-ui/lab';
-import { PathLike } from 'fs-extra';
-import type { Card, CardType, GitStatus, Metafile, Repository, UUID } from '../types';
+import type { Card, GitStatus, Metafile, Repository, UUID } from '../types';
 import { RootState } from '../store/store';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { getMetafile, isMetafilePathed, MetafileWithPath } from '../containers/metafiles';
 import { extractFilename } from '../containers/io';
 import { add, remove } from '../containers/git-plumbing';
 import { GitBranchIcon } from './GitIcons';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import repoSelectors from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { loadCard } from '../containers/handlers';
 import { removeUndefinedProperties } from '../containers/format';
+import { fetchMetafile, FilebasedMetafile, isFilebasedMetafile } from '../store/thunks/metafiles';
+import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 
 const modifiedCheck = (status: GitStatus | undefined): boolean => {
   if (!status) return false;
@@ -83,7 +84,7 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile ? repos.find(r => r.id === metafile.repo) : undefined);
-  const { files, update } = useDirectory((metafile as MetafileWithPath).path);
+  const { files, update } = useDirectory((metafile as FilebasedMetafile).path);
   const [staged, setStaged] = useState<Metafile[]>([]);
   const [changed, setChanged] = useState<Metafile[]>([]);
   const [modified, setModified] = useState<Metafile[]>([]);
@@ -108,7 +109,7 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
               labelInfoText={`${staged.length}`}
               labelIcon={GitBranchIcon}
             >
-              {repo ? staged.filter(isMetafilePathed).map(file =>
+              {repo ? staged.filter(isFilebasedMetafile).map(file =>
                 <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)
                 : null
               }
@@ -119,7 +120,7 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
               labelInfoText={`${changed.length}`}
               labelIcon={GitBranchIcon}
             >
-              {repo ? changed.filter(isMetafilePathed).map(file =>
+              {repo ? changed.filter(isFilebasedMetafile).map(file =>
                 <SourceFileComponent key={file.path.toString()} repository={repo} update={update} {...file} />)
                 : null
               }
@@ -158,24 +159,21 @@ export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafi
       return;
     }
     const branchRoot = await getBranchRoot(repo, metafile.branch);
-    const virtualMetafile: {
-      name: string,
-      handler: CardType,
-      repo: UUID,
-      branch: string,
-      path: PathLike
-    } = {
-      name: 'Source Control',
-      handler: 'SourceControl',
-      repo: repo.id,
-      branch: metafile.branch,
-      path: branchRoot ? branchRoot : ''
-    };
+    const sourceControl = await dispatch(fetchMetafile({
+      virtual: {
+        id: v4(),
+        modified: DateTime.local().valueOf(),
+        name: 'Source Control',
+        handler: 'SourceControl',
+        repo: repo.id,
+        branch: metafile.branch,
+        path: branchRoot ? branchRoot : ''
+      }
+    })).unwrap();
 
-    console.log(`loading Source Control for: repo= ${repo.name}, branch= ${metafile.branch}\n${JSON.stringify(virtualMetafile)}`);
-    const sourceControlMetafile = await dispatch(getMetafile({ virtual: virtualMetafile })).unwrap();
-    console.log(`sourceControlMetafile:${JSON.stringify(sourceControlMetafile, undefined, 2)}`);
-    if (sourceControlMetafile) dispatch(loadCard({ metafile: sourceControlMetafile }));
+    console.log(`loading Source Control for: repo= ${repo.name}, branch= ${metafile.branch}\n${JSON.stringify(sourceControl)}`);
+    console.log(`sourceControlMetafile:${JSON.stringify(sourceControl, undefined, 2)}`);
+    dispatch(loadCard({ metafile: sourceControl }));
   }
 
   return (<Button onClick={loadSourceControl}>Source Control</Button>)

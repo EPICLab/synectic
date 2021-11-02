@@ -7,10 +7,12 @@ import { RootState } from '../store/store';
 import { loadCard } from '../containers/handlers';
 import * as io from '../containers/io';
 import { flattenArray } from '../containers/flatten';
-import { getMetafile } from '../containers/metafiles';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { filetypeSelectors } from '../store/selectors/filetypes';
 import { modalRemoved } from '../store/slices/modals';
+import { v4 } from 'uuid';
+import { fetchMetafile } from '../store/thunks/metafiles';
+import { DateTime } from 'luxon';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -135,12 +137,27 @@ const NewCardDialog: React.FunctionComponent<Modal> = props => {
 
   const handleClick = async () => {
     if (category === 'Editor' && isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
-      const metafile = await dispatch(getMetafile({ virtual: { name: fileName, handler: 'Editor', filetype: filetype } })).unwrap();
+      const metafile = await dispatch(fetchMetafile({
+        virtual: {
+          id: v4(),
+          modified: DateTime.local().valueOf(),
+          name: fileName,
+          handler: 'Editor',
+          filetype: filetype
+        }
+      })).unwrap();
       if (metafile) await dispatch(loadCard({ metafile: metafile }));
       handleClose();
     }
     if (category === 'Browser') {
-      const metafile = await dispatch(getMetafile({ virtual: { name: 'Browser', handler: 'Browser' } })).unwrap();
+      const metafile = await dispatch(fetchMetafile({
+        virtual: {
+          id: v4(),
+          modified: DateTime.local().valueOf(),
+          name: 'Browser',
+          handler: 'Browser'
+        }
+      })).unwrap();
       if (metafile) dispatch(loadCard({ metafile: metafile }));
       handleClose();
     }

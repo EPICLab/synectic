@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { RootState } from '../store/store';
-import { FormControl, Select, MenuItem, Input } from '@material-ui/core';
-import { checkoutBranch, switchCardMetafile } from '../containers/repos';
+import { FormControl, Select, MenuItem, Input, Typography } from '@material-ui/core';
+import { checkoutBranch, switchCardMetafile } from '../containers/repos-old';
 import { useStyles } from './CardComponent';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import cardSelectors from '../store/selectors/cards';
 import { removeUndefinedProperties } from '../containers/format';
 import repoSelectors from '../store/selectors/repos';
@@ -41,9 +41,9 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
       <Select labelId='branch-selection-name-label' id='branch-name' value={branch}
         className={cssClasses.root} autoWidth={true} input={<Input className={cssClasses.root} />}
         onChange={(e) => checkout(e.target.value as string)}>
-        {repo && Object.values(repo.local).filter(local => local !== 'HEAD').map(local => (<MenuItem key={local} value={local}>{local}</MenuItem>)
+        {repo && Object.values(repo.local).filter(local => local !== 'HEAD').map(local => (<MenuItem key={local} value={local}><Typography variant='body2'>{local}</Typography></MenuItem>)
         )}
-        {branch == 'untracked' && <MenuItem key={branch} value={branch}>{branch}</MenuItem>}
+        {branch == 'untracked' && <MenuItem key={branch} value={branch}><Typography variant='body2'>{branch}</Typography></MenuItem>}
       </Select>
     </FormControl>
   );

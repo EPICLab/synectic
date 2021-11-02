@@ -3,17 +3,17 @@ import * as MUI from '@material-ui/core';
 
 import type { UUID, Modal } from '../types';
 import { RootState } from '../store/store';
-import { getMetafile } from '../containers/metafiles';
 import { loadCard } from '../containers/handlers';
 import { modalRemoved } from '../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import cardSelectors from '../store/selectors/cards';
-import { metafileSelectors } from '../store/selectors/metafiles';
 import { DateTime } from 'luxon';
+import { fetchMetafileById } from '../store/slices/metafiles';
+import { v4 } from 'uuid';
+import { fetchMetafile } from '../store/thunks/metafiles';
 
 const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const [selectedLeft, setSelectedLeft] = useState<UUID>('');
   const [selectedRight, setSelectedRight] = useState<UUID>('');
@@ -24,11 +24,19 @@ const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
     const right = cards.find(c => c.id === selected[1]);
     if (!left || !right) return dispatch(modalRemoved(props.id));
 
-    const leftMetafile = metafiles.find(m => m.id === left.metafile);
-    const rightMetafile = metafiles.find(m => m.id === right.metafile);
+    const leftMetafile = await dispatch(fetchMetafileById(left.metafile)).unwrap();
+    const rightMetafile = await dispatch(fetchMetafileById(right.metafile)).unwrap();
     const diffCardName = `Δ ${leftMetafile?.branch}/${left.name} -> ${rightMetafile?.branch}/${right.name}`;
-    const diffMetafile = await dispatch(getMetafile({ virtual: { name: diffCardName, handler: 'Diff', targets: [left.id, right.id] } })).unwrap();
-    if (diffMetafile && diffMetafile.handler && leftMetafile && rightMetafile) dispatch(loadCard({ metafile: diffMetafile }));
+    const diffMetafile = await dispatch(fetchMetafile({
+      virtual: {
+        id: v4(),
+        modified: DateTime.local().valueOf(),
+        name: diffCardName,
+        handler: 'Diff',
+        targets: [left.id, right.id]
+      }
+    })).unwrap();
+    if (diffMetafile && leftMetafile && rightMetafile) dispatch(loadCard({ metafile: diffMetafile }));
     return dispatch(modalRemoved(props.id));
   };
 

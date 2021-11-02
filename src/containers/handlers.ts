@@ -8,7 +8,8 @@ import { cardAdded } from '../store/slices/cards';
 import { DateTime } from 'luxon';
 import type { AppThunkAPI } from '../store/hooks';
 import { filetypeAdded } from '../store/slices/filetypes';
-import { getMetafile } from './metafiles';
+import { fetchMetafile } from '../store/thunks/metafiles';
+import { metafileAdded } from '../store/slices/metafiles';
 
 export type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 
@@ -37,7 +38,6 @@ export const importFiletypes = createAsyncThunk<void, void, AppThunkAPI>(
     });
   }
 )
-
 
 export const resolveHandler = createAsyncThunk<Filetype | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'handlers/resolveHandler',
@@ -93,24 +93,21 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
       }
     }
     if (param.filepath) {
-      const metafile = await thunkAPI.dispatch(getMetafile({ filepath: param.filepath })).unwrap();
-      if (metafile) {
-        if (isHandlerRequiredMetafile(metafile)) {
-          thunkAPI.dispatch(cardAdded({
-            id: v4(),
-            name: metafile.name,
-            created: DateTime.local().valueOf(),
-            modified: metafile.modified,
-            left: 10,
-            top: 70,
-            type: metafile.handler,
-            metafile: metafile.id
-          }));
-        } else {
-          thunkAPI.rejectWithValue(`Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`);
-        }
+      const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: param.filepath })).unwrap();
+      thunkAPI.dispatch(metafileAdded(metafile));
+      if (isHandlerRequiredMetafile(metafile)) {
+        thunkAPI.dispatch(cardAdded({
+          id: v4(),
+          name: metafile.name,
+          created: DateTime.local().valueOf(),
+          modified: metafile.modified,
+          left: 10,
+          top: 70,
+          type: metafile.handler,
+          metafile: metafile.id
+        }));
       } else {
-        thunkAPI.rejectWithValue(`Cannot update non-existing metafile for filepath: '${param.filepath.toString()}'`);
+        thunkAPI.rejectWithValue(`Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`);
       }
     }
   }

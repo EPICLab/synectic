@@ -9,10 +9,10 @@ import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
 import { isLinkedWorktree } from './git-worktree';
-import { isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
+import { getIgnore, isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
 import { removeUndefinedProperties } from './format';
 
-type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
+export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
 
 /**
  * Get the value of a symbolic ref or resolve a ref to its SHA1 object id; this function is a wrapper to the 
@@ -300,6 +300,7 @@ export const merge = async (
  * status indicator (see `GitStatus` type definition for all possible status values).
  */
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
+  console.log(`git.getStatus for ${filepath.toString()}`);
   if (await io.isDirectory(filepath)) {
     const statuses = await statusMatrix(filepath);
     const changed = statuses ? statuses

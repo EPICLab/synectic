@@ -13,15 +13,15 @@ import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes,
 import type { UUID, Card, Metafile } from '../types';
 import { RootState } from '../store/store';
 import { metafileUpdated } from '../store/slices/metafiles';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import repoSelectors from '../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import useGitWatcher from '../containers/hooks/useGitWatcher';
 import { BranchList } from './BranchList';
 import { removeUndefinedProperties } from '../containers/format';
-import { Button } from '@material-ui/core';
-import { discardMetafileChanges } from '../containers/metafiles';
+import { Button, Typography } from '@material-ui/core';
 import { SourceControlButton } from './SourceControl';
+import { isFilebasedMetafile, revertStagedChanges } from '../store/thunks/metafiles';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
@@ -49,7 +49,7 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
 
 export const RevertButton: React.FunctionComponent<Metafile> = props => {
   const dispatch = useAppDispatch();
-  const revert = async () => await dispatch(discardMetafileChanges(props));
+  const revert = async () => isFilebasedMetafile(props) ? await dispatch(revertStagedChanges(props)) : undefined;
   const changes = props.path && props.status && ['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? true : false;
   return (<Button onClick={revert} disabled={!changes}>Undo Changes</Button>)
 }
@@ -61,16 +61,16 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
 
   return (
     <>
-      <span>ID:</span><span className='field'>...{props.id.slice(-10)}</span>
-      <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
-      <span>Name:</span><span className='field'>{props.name}</span>
-      <span>Update:</span><span className='field'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</span>
-      <span>Changes:</span>{metafile ? <RevertButton {...metafile} /> : undefined}
-      <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
+      <span><Typography variant='body2'>ID:</Typography></span><span className='field'><Typography variant='body2'>...{props.id.slice(-10)}</Typography></span>
+      <span><Typography variant='body2'>Metafile:</Typography></span><span className='field'><Typography variant='body2'>...{props.metafile.slice(-10)}</Typography></span>
+      <span><Typography variant='body2'>Name:</Typography></span><span className='field'><Typography variant='body2'>{props.name}</Typography></span>
+      <span><Typography variant='body2'>Update:</Typography></span><span className='field'><Typography variant='body2'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</Typography></span>
+      <span><Typography variant='body2'>Changes:</Typography></span>{metafile ? <RevertButton {...metafile} /> : undefined}
+      <span><Typography variant='body2'>Repo:</Typography></span><span className='field'><Typography variant='body2'>{repo ? repo.name : 'Untracked'}</Typography></span>
       {repo ?
         <>
           <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
-          <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
+          <span>Status:</span><span className='field'><Typography variant='body2'>{metafile ? metafile.status : ''}</Typography></span>
           <span>Versions:</span>{metafile ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
         </>
         : undefined}

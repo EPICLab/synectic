@@ -11,22 +11,22 @@ import { RootState } from '../store/store';
 import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
 import { StyledTreeItem } from './StyledTreeComponent';
-import { MetafileWithPath } from '../containers/metafiles';
 import { BranchRibbon } from './BranchRibbon';
 import { BranchList } from './BranchList';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import { add, remove } from '../containers/git-plumbing';
 import repoSelectors from '../store/selectors/repos';
 import useDirectory from '../containers/hooks/useDirectory';
 import { SourceControlButton } from './SourceControl';
 import { removeUndefinedProperties } from '../containers/format';
+import { FilebasedMetafile } from '../store/thunks/metafiles';
 
 type SourceFileProps = {
   update: () => Promise<void>
 }
 
-const FileComponent: React.FunctionComponent<MetafileWithPath & SourceFileProps> = props => {
+const FileComponent: React.FunctionComponent<FilebasedMetafile & SourceFileProps> = props => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(repos.find(r => r.id === props.repo));
   const dispatch = useAppDispatch();
@@ -102,7 +102,7 @@ const FileComponent: React.FunctionComponent<MetafileWithPath & SourceFileProps>
   );
 }
 
-export const DirectoryComponent: React.FunctionComponent<MetafileWithPath> = props => {
+export const DirectoryComponent: React.FunctionComponent<FilebasedMetafile> = props => {
   const { directories, files, update } = useDirectory(props.path);
   const [expanded, setExpanded] = useState(false);
 
@@ -122,7 +122,7 @@ export const DirectoryComponent: React.FunctionComponent<MetafileWithPath> = pro
 
 const Explorer: React.FunctionComponent<{ rootId: UUID }> = props => {
   const rootMetafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
-  const { directories, files, update } = useDirectory((rootMetafile as MetafileWithPath).path);
+  const { directories, files, update } = useDirectory((rootMetafile as FilebasedMetafile).path);
 
   return (
     <>

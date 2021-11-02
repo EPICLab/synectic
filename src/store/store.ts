@@ -24,7 +24,7 @@ const persistConfig = {
     blacklist: ['filetypes']
 }
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+export const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
     reducer: persistedReducer,

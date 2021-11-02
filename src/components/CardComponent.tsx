@@ -13,13 +13,12 @@ import SourceControl, { SourceControlReverse } from './SourceControl';
 import Browser, { BrowserReverse } from './Browser';
 import { ReposOverview } from './ReposOverview';
 import { RootState } from '../store/store';
-import { createStack, pushCards, popCard } from '../containers/stacks';
+import { createStack, pushCards, popCard } from '../containers/stacks-old';
 import { StyledIconButton } from './StyledIconButton';
 import { writeFileAsync } from '../containers/io';
-import { updateGitInfo } from '../containers/metafiles';
 import { fileSaveDialog } from '../containers/dialogs';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import cardSelectors from '../store/selectors/cards';
 import { stackSelectors } from '../store/selectors/stacks';
 import { metafileUpdated } from '../store/slices/metafiles';
@@ -28,6 +27,7 @@ import ConflictManager from './ConflictManager';
 import { GitCommitIcon } from './GitIcons';
 import { modalAdded } from '../store/slices/modals';
 import { v4 } from 'uuid';
+import { fetchVersionControl, isFileMetafile } from '../store/thunks/metafiles';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -173,11 +173,12 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const save = async () => {
     if (metafile) {
       dispatch(metafileUpdated({ ...metafile, state: 'unmodified' }));
-      if (metafile.path && metafile.content) {
+      if (isFileMetafile(metafile)) {
         console.log(`saving ${props.name}...`);
         console.log({ metafile });
         await writeFileAsync(metafile.path, metafile.content);
-        dispatch(updateGitInfo(metafile.id));
+        const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+        dispatch(metafileUpdated({ ...metafile, ...vcs }));
       } else {
         dispatch(fileSaveDialog(metafile));
       }

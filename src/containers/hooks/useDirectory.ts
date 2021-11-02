@@ -1,15 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { PathLike } from 'fs-extra';
 import * as io from '../io';
 import { useAppDispatch } from '../../store/hooks';
-import { getMetafile, isMetafilePathed, MetafileWithPath } from '../metafiles';
+import useMap from './useMap';
 import useGitWatcher from './useGitWatcher';
 import { WatchEventType } from './useWatcher';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { DirectoryMetafile, fetchContains, fetchContent, fetchMetafile, fetchVersionControl, FileMetafile, isDirectoryMetafile, isFileMetafile } from '../../store/thunks/metafiles';
 
 export type useDirectoryHook = {
     root: PathLike | undefined,
-    directories: MetafileWithPath[],
-    files: MetafileWithPath[],
+    directories: DirectoryMetafile[],
+    files: FileMetafile[],
     update: () => Promise<void>
 }
 
@@ -19,36 +21,61 @@ export type useDirectoryHook = {
  * operation when a root path is not under version control (and only file stats and content changes can be observed). Triggers 
  * Redux updates on metafiles when changes are detected.
  * @param root The relative or absolute path to the git root directory.
- * @returns A `useDirectoryHook` object containing the root path, metafiles separated into directory and file lists, and a `update` function 
+ * @returns A `useDirectoryHook` object containing the root path, metafiles separated into directory and file lists, and an `update` function 
  * for manually triggering updates. 
  */
 const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     const dispatch = useAppDispatch();
-    const [directories, setDirectories] = useState<MetafileWithPath[]>([]);
-    const [files, setFiles] = useState<MetafileWithPath[]>([]);
-    const eventHandler = async (event: WatchEventType) => ['add', 'addDir', 'change', 'unlink', 'unlinkDir'].includes(event) ? update() : null;
+    const [directories, directoryActions] = useMap<string, DirectoryMetafile>([]);
+    const [files, fileActions] = useMap<string, FileMetafile>([]);
+    const eventHandler = async (event: WatchEventType, filename: PathLike) => update(event, filename);
     useGitWatcher(root, eventHandler);
 
-    const update = useCallback(async () => {
+    const updateFileMetafile = async (metafile: FileMetafile) => {
+        const content = await dispatch(fetchContent({ filepath: metafile.path })).unwrap();
+        const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+        dispatch(metafileUpdated({ ...metafile, ...content, ...vcs }));
+        fileActions.set(metafile.path.toString(), metafile);
+    }
+
+    const updateDirectoryMetafile = async (metafile: DirectoryMetafile) => {
+        const contains = await dispatch(fetchContains(metafile.path)).unwrap();
+        const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+        dispatch(metafileUpdated({ ...metafile, ...contains, ...vcs }));
+        directoryActions.set(metafile.path.toString(), metafile);
+    }
+
+    const update = useCallback(async (event: WatchEventType, filename: PathLike) => {
+        switch (event) {
+            case 'unlink': {
+                fileActions.remove(filename.toString());
+                break;
+            }
+            case 'unlinkDir': {
+                directoryActions.remove(filename.toString());
+                break;
+            }
+            case 'add':    // Fallthrough
+            case 'addDir': // Fallthrough
+            case 'change': {
+                const metafile = await dispatch(fetchMetafile({ filepath: filename })).unwrap();
+                if (isDirectoryMetafile(metafile)) await updateDirectoryMetafile(metafile);
+                if (isFileMetafile(metafile)) await updateFileMetafile(metafile);
+                break;
+            }
+        }
+    }, []);
+
+    const updateAll = useCallback(async () => {
         if (root) {
             const filepaths = (await io.readDirAsyncDepth(root, 1)).filter(p => p !== root); // filter root filepath from results
-            console.log(`useDirectory for ${root.toString()} [${filepaths.length}]: ${JSON.stringify(filepaths)}`);
-            const metafiles = await Promise.all(filepaths.map(async f => await dispatch(getMetafile({ filepath: f })).unwrap()));
-
-            const directoryMetafiles = metafiles.filter(isMetafilePathed).filter(m => 'filetype' in m && m.filetype === 'Directory');
-            const fileMetafiles = metafiles
-                .filter(isMetafilePathed)
-                .filter(m => 'filetype' in m && 'handler' in m)
-                .filter(m => m.filetype !== 'Directory' && m.handler !== 'Diff');
-
-            setDirectories(directoryMetafiles);
-            setFiles(fileMetafiles);
+            await Promise.all(filepaths.map(f => update('add', f)));
         }
     }, [root]);
 
-    useEffect(() => { update() }, []);
+    useEffect(() => { updateAll() }, []);
 
-    return { root, directories, files, update };
+    return { root, directories: Array.from(directories.values()), files: Array.from(files.values()), update: updateAll };
 }
 
 export default useDirectory;

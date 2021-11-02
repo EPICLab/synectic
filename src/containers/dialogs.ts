@@ -6,7 +6,8 @@ import { AppThunkAPI } from '../store/hooks';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { loadCard } from './handlers';
 import { writeFileAsync } from './io';
-import { updateGitInfo } from './metafiles';
+import { removeUndefined } from './format';
+import { fetchVersionControl, isFilebasedMetafile } from '../store/thunks/metafiles';
 
 type PickerType = 'openFile' | 'openDirectory';
 
@@ -33,9 +34,15 @@ export const fileSaveDialog = createAsyncThunk<void, Metafile, AppThunkAPI>(
       // write file
       await writeFileAsync(response.filePath, metafile.content);
       // update git info
-      Object.values(thunkAPI.getState().metafiles)
-        .filter(m => m.path?.toString() === response.filePath)
-        .map(m => thunkAPI.dispatch(updateGitInfo(m.id)));
+      await Promise.all(
+        removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
+          .filter(m => m.path?.toString() === response.filePath)
+          .filter(isFilebasedMetafile)
+          .map(async m => {
+            const vcs = await thunkAPI.dispatch(fetchVersionControl(m)).unwrap();
+            thunkAPI.dispatch(metafileUpdated({ ...m, ...vcs }));
+          })
+      );
     }
   }
 );

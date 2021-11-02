@@ -3,7 +3,7 @@ import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-d
 import type { Card, Stack } from '../types';
 import { RootState } from '../store/store';
 import CardComponent from './CardComponent';
-import { pushCards, popCard } from '../containers/stacks';
+import { pushCards, popCard } from '../containers/stacks-old';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import cardSelectors from '../store/selectors/cards';
 import { stackSelectors } from '../store/selectors/stacks';

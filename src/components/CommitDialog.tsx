@@ -6,11 +6,12 @@ import type { Modal, UUID } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { modalRemoved } from '../store/slices/modals';
 import { commit, getConfig, getRepoRoot } from '../containers/git-porcelain';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import { RootState } from '../store/store';
-import { updateAll } from '../containers/metafiles';
-import { updateBranches } from '../containers/repos';
+import { updateBranches } from '../containers/repos-old';
 import repoSelectors from '../store/selectors/repos';
+import { metafileUpdated } from '../store/slices/metafiles';
+import { fetchContains, fetchContent, fetchVersionControl, isDirectoryMetafile, isFilebasedMetafile } from '../store/thunks/metafiles';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -76,7 +77,17 @@ const CommitDialog: React.FunctionComponent<Modal & { parent: UUID }> = props =>
                 }
             });
             console.log(`commit result: ${result}`);
-            if (metafile) await dispatch(updateAll(metafile.id));
+            if (metafile && isFilebasedMetafile(metafile)) {
+                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+                const contentOrContains = await (isDirectoryMetafile(metafile) ?
+                    dispatch(fetchContains(metafile.path)) :
+                    dispatch(fetchContent({ filepath: metafile.path }))).unwrap();
+                dispatch(metafileUpdated({
+                    ...metafile,
+                    ...contentOrContains,
+                    ...vcs
+                }))
+            }
             if (repo) await dispatch(updateBranches(repo.id));
         }
         dispatch(modalRemoved(props.id));

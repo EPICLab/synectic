@@ -9,7 +9,7 @@ import { RootState } from '../store/store';
 import repoSelectors from '../store/selectors/repos';
 import { loadCard } from '../containers/handlers';
 import { extractFilename } from '../containers/io';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import useGitConflicts from '../containers/hooks/useGitConflicts';
 
 const ConflictManager: React.FunctionComponent<{ rootId: UUID }> = props => {

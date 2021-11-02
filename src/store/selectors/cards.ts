@@ -2,9 +2,9 @@ import { RootState } from '../store';
 import { cardsAdapter } from '../slices/cards';
 import { createDraftSafeSelector } from '@reduxjs/toolkit';
 import { UUID } from '../../types';
-import { metafileSelectors } from './metafiles';
+import metafileSelectors from './metafiles';
 
-export const selectors = cardsAdapter.getSelectors<RootState>(state => state.cards);
+const selectors = cardsAdapter.getSelectors<RootState>(state => state.cards);
 
 /**
  * Custom Redux selector for locating cards that:

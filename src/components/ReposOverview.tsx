@@ -12,11 +12,11 @@ import { GitRepoIcon, GitBranchIcon } from './GitIcons';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import repoSelectors from '../store/selectors/repos';
 import cardSelectors from '../store/selectors/cards';
-import { metafileSelectors } from '../store/selectors/metafiles';
+import metafileSelectors from '../store/selectors/metafiles';
 import { loadCard } from '../containers/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
-import { getMetafile } from '../containers/metafiles';
-import { checkoutBranch } from '../containers/repos';
+import { checkoutBranch } from '../containers/repos-old';
+import { fetchMetafilesByFilepath } from '../store/slices/metafiles';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 
@@ -35,8 +35,8 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
       dispatch(loadCard({ filepath: branchRoot }));
     } else {
       console.log(`branchRoot '${branchRoot}' not associated with any worktrees, gathering new metafile and checking out the branch`);
-      const metafile = await dispatch(getMetafile({ filepath: props.repo.root })).unwrap();
-      const updated = metafile ? await dispatch(checkoutBranch({ metafileId: metafile.id, branch: props.branch })).unwrap() : undefined;
+      const metafiles = await dispatch(fetchMetafilesByFilepath(props.repo.root)).unwrap();
+      const updated = metafiles ? await dispatch(checkoutBranch({ metafileId: metafiles[0].id, branch: props.branch })).unwrap() : undefined;
       if (updated) {
         console.log(`checkoutBranch updated metafile: ${JSON.stringify(updated, undefined, 2)}`);
         dispatch(loadCard({ metafile: updated }));

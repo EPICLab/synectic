@@ -6,14 +6,15 @@ import * as path from 'path';
 import type { Repository, Card, Metafile, UUID } from '../types';
 import type { Nullable } from './format';
 import * as worktree from './git-worktree';
-import { getMetafile } from './metafiles';
 import { extractFilename, isDirectory, readFileAsync } from './io';
 import { clone, getConfig, getRemoteInfo, getRepoRoot } from './git-porcelain';
 import { isValidRepository, extractRepoName, extractFromURL, isGitRepo } from './git-plumbing';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getRepoByName, repoAdded, repoUpdated } from '../store/slices/repos';
+import { repoAdded, repoUpdated } from '../store/slices/repos';
 import { AppThunkAPI } from '../store/hooks';
 import { cardUpdated } from '../store/slices/cards';
+import { fetchMetafileById, fetchMetafilesByFilepath } from '../store/slices/metafiles';
+import { fetchReposByName } from '../store/thunks/repos';
 
 /**
  * Async Thunk action creator for composing and validating a new Repository object before adding to the Redux store.
@@ -178,7 +179,8 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
       // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
       if (param.progress) await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch, onProgress: (e) => console.log(e.phase) });
       else await isogit.checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch });
-      updated = await thunkAPI.dispatch(getMetafile({ filepath: metafile.path })).unwrap();
+
+      updated = await thunkAPI.dispatch(fetchMetafileById(metafile.id)).unwrap();
     } else {
       // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
       const oldWorktree = metafile.branch ? await worktree.resolveWorktree(repo, metafile.branch) : undefined;
@@ -187,7 +189,8 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, {
         return thunkAPI.rejectWithValue(`No worktree could be resolved for either current or new worktree: repo='${repo.name}', old/new branch='${metafile.branch}'/'${param.branch}'`);
 
       const relative = path.relative(oldWorktree.path.toString(), metafile.path.toString());
-      updated = await thunkAPI.dispatch(getMetafile({ filepath: path.join(newWorktree.path.toString(), relative) })).unwrap();
+      const updates = await thunkAPI.dispatch(fetchMetafilesByFilepath(path.join(newWorktree.path.toString(), relative))).unwrap();
+      if (updates.length > 0) updated = updates[0];
     }
     // get an updated metafile based on the updated worktree path
     if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path:'${metafile.path}'`);
@@ -219,7 +222,7 @@ type RepositoryGettableFields =
 export const getRepository = createAsyncThunk<Repository | undefined, RepositoryGettableFields, AppThunkAPI & { rejectValue: string }>(
   'repos/getRepository',
   async (retrieveBy, thunkAPI) => {
-    console.log(`getRepository for ${JSON.stringify(retrieveBy)}`);
+    console.log(`[${retrieveBy.id ? 'cheap' : 'EXPENSIVE'}] Repository for ${JSON.stringify(retrieveBy)}`);
     if (retrieveBy.id) {
       const existing = await thunkAPI.dispatch(updateBranches(retrieveBy.id));
       return existing ? thunkAPI.getState().repos.entities[retrieveBy.id] : undefined;
@@ -246,11 +249,11 @@ export const getRepository = createAsyncThunk<Repository | undefined, Repository
         { url: undefined, oauth: undefined };
       const name = url ? extractRepoName(url.href) : (root ? extractFilename(root) : '');
       const existing = url ?
-        await thunkAPI.dispatch(getRepoByName({ name: name, url: url.href })).unwrap() :
-        await thunkAPI.dispatch(getRepoByName({ name: name })).unwrap();
-      if (existing) {
-        await thunkAPI.dispatch(updateBranches(existing.id));
-        return thunkAPI.getState().repos.entities[existing.id];
+        await thunkAPI.dispatch(fetchReposByName({ name: name, url: url.href })).unwrap() :
+        await thunkAPI.dispatch(fetchReposByName({ name: name })).unwrap();
+      if (existing.length > 0) {
+        await thunkAPI.dispatch(updateBranches(existing[0].id));
+        return thunkAPI.getState().repos.entities[existing[0].id];
       }
       const username = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'user.name' }) : undefined;
       const password = root ? await isogit.getConfig({ fs: fs, dir: root.toString(), path: 'credential.helper' }) : undefined;

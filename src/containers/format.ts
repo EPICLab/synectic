@@ -26,17 +26,15 @@ export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K>; }> =
 export type ExactlyOne<T, U extends keyof T = keyof T> =
   { [K in U]: (Required<Pick<T, K>> & Partial<Record<Exclude<U, K>, never>>) }[U] & Omit<T, U>;
 
-/** Sets specified properties to be required in an object.
- * Reused from: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
+/** From T, set as required all properties whose keys are in the union K
+ * Inspired by: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
  */
-export type WithRequired<T, K extends keyof T> = Omit<Partial<T>, K> &
-  Required<Pick<T, K>>;
+export type WithRequired<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
-/** Sets specified properties to be optional in an object.
- * Reused from: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
+/** From T, set as optional all properties whose keys are in the union K
+ * Inspired by: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
  */
-export type WithOptional<T, K extends keyof T> = Omit<T, K> &
-  Partial<Pick<T, K>>;
+export type WithOptional<T, K extends keyof T> = T & Partial<Pick<T, K>>;
 
 /**
  * Removes `undefined` and `null` values from an Array or Object type via a `filter` and type guard.

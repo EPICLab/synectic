@@ -1,21 +1,38 @@
+import { createDraftSafeSelector } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import type { Metafile } from '../../types';
+import { relative } from 'path';
+import type { UUID } from '../../types';
 import { metafilesAdapter } from '../slices/metafiles';
 import { RootState } from '../store';
 
-export const metafileSelectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
+const selectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
 
-export const selectMetafileByFilepath = (state: RootState, filepath: PathLike): Metafile | undefined => {
-    return Object.values(state.metafiles)
-        .find(m => m.path === filepath);
-}
+export const selectByFilepath = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, filepath: PathLike) => filepath,
+    (metafiles, filepath) => metafiles.filter(m => (m && m.path) && relative(m.path.toString(), filepath.toString()).length === 0)
+);
 
-export const selectMetafileByBranch = (state: RootState, filepath: PathLike, branch: string): Metafile | undefined => {
-    return Object.values(state.metafiles)
-        .find(m => m.path === filepath && m.branch === branch);
-}
+export const selectByRepo = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, repo: UUID) => repo,
+    (metafiles, repo) => metafiles.filter(m => m.repo === repo)
+)
 
-export const selectMetafileByVirtual = (state: RootState, name: string, handler: string): Metafile | undefined => {
-    return Object.values(state.metafiles)
-        .find(m => m.name === name && m.handler === handler);
-}
+export const selectByBranch = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, filepath: PathLike) => filepath,
+    (_state, _filepath, branch: string) => branch,
+    (metafiles, filepath, branch) => metafiles.filter(m => m.path === filepath && m.branch === branch)
+);
+
+export const selectByVirtual = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, name: string) => name,
+    (_state, _name, handler: string) => handler,
+    (metafiles, name, handler) => metafiles.filter(m => m.name === name && m.handler === handler)
+);
+
+const metafileSelectors = { ...selectors, selectByFilepath, selectByBranch, selectByVirtual };
+
+export default metafileSelectors;

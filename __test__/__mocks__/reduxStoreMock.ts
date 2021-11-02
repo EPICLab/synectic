@@ -1,6 +1,6 @@
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureMockStore from 'redux-mock-store';
-import { RootState, AppDispatch, rootReducer } from '../../src/store/store';
+import { RootState, AppDispatch, persistedReducer } from '../../src/store/store';
 
 import { AnyAction, DeepPartial } from 'redux';
 
@@ -24,7 +24,7 @@ const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
  *   * https://github.com/reduxjs/redux-mock-store/issues/71
  *   * https://github.com/reduxjs/redux-mock-store/issues/71#issuecomment-515209822
  */
-export const createState = (initialState: RootState) => (actions: AnyAction[]): RootState => actions.reduce(rootReducer, initialState);
+export const createState = (initialState: RootState) => (actions: AnyAction[]): RootState => actions.reduce(persistedReducer, initialState);
 
 /**
  * Creates a mocked Redux store for testing purposes. The resulting store can be interacted with using:

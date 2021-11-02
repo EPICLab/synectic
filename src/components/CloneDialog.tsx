@@ -7,7 +7,7 @@ import { useAppDispatch } from '../store/hooks';
 import { modalRemoved } from '../store/slices/modals';
 import { extractRepoName, isValidRepositoryURL, resolveURL } from '../containers/git-plumbing';
 import { cloneDirectoryDialog } from '../containers/dialogs';
-import { cloneRepository } from '../containers/repos';
+import { cloneRepository } from '../containers/repos-old';
 import StatusIcon, { Status } from './StatusIcon';
 import { loadBranchVersions } from '../containers/branch-tracker';
 

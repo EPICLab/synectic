@@ -15,7 +15,9 @@ import repoSelectors from '../store/selectors/repos';
 import { modalRemoved } from '../store/slices/modals';
 import { merge } from '../containers/merges';
 import { loadCard } from '../containers/handlers';
-import { getMetafile } from '../containers/metafiles';
+import { fetchMetafile } from '../store/thunks/metafiles';
+import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -96,7 +98,16 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     setBranchConflicts([conflictStatus, []]);
 
     if (conflictStatus == 'Failing') {
-      const conflictMetafile = await dispatch(getMetafile({ virtual: { name: `Conflicts: ${base}<>${compare}`, handler: 'ConflictManager', repo: fullRepo.id, path: fullRepo.root } })).unwrap();
+      const conflictMetafile = await dispatch(fetchMetafile({
+        virtual: {
+          id: v4(),
+          modified: DateTime.local().valueOf(),
+          name: `Conflicts: ${base}<>${compare}`,
+          handler: 'ConflictManager',
+          repo: fullRepo.id,
+          path: fullRepo.root
+        }
+      })).unwrap();
       if (conflictMetafile) await dispatch(loadCard({ metafile: conflictMetafile }));
       await delay(3000);
       dispatch(modalRemoved(props.id));

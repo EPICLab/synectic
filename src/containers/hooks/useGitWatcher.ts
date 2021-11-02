@@ -1,8 +1,7 @@
 import { PathLike } from 'fs-extra';
 import { useAppDispatch } from '../../store/hooks';
 import { getStatus } from '../git-porcelain';
-import { metafileUpdated } from '../../store/slices/metafiles';
-import { getMetafile } from '../metafiles';
+import { fetchMetafilesByFilepath, metafileUpdated } from '../../store/slices/metafiles';
 import useWatcher, { WatchEventType, WatchListener } from './useWatcher';
 
 /**
@@ -23,10 +22,8 @@ const useGitWatcher = (root: PathLike | undefined, additionalEventHandler?: Watc
         console.log(`useGitDirectory eventHandler: '${event}' for '${filename.toString()}'`)
         if (!['unlink', 'unlinkDir'].includes(event)) {
             const status = await getStatus(filename);
-            if (status) {
-                const metafile = await dispatch(getMetafile({ filepath: filename })).unwrap();
-                if (metafile) dispatch(metafileUpdated(metafile));
-            }
+            const metafiles = status ? await dispatch(fetchMetafilesByFilepath(filename)).unwrap() : undefined;
+            if (status && metafiles && metafiles.length > 0) dispatch(metafileUpdated({ ...metafiles[0], status: status }));
         }
     }
 
