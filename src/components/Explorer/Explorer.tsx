@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import InfoIcon from '@material-ui/icons/Info';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
