@@ -19,7 +19,6 @@ const useGitWatcher = (root: PathLike | undefined, additionalEventHandler?: Watc
     const dispatch = useAppDispatch();
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
-        console.log(`useGitDirectory eventHandler: '${event}' for '${filename.toString()}'`)
         if (!['unlink', 'unlinkDir'].includes(event)) {
             const status = await getStatus(filename);
             const metafiles = status ? await dispatch(fetchMetafilesByFilepath(filename)).unwrap() : undefined;

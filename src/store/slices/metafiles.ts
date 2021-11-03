@@ -7,7 +7,7 @@ import { repoRemoved } from './repos';
 import { AppThunkAPI } from '../hooks';
 import { filterObject, removeUndefined } from '../../containers/format';
 import { PURGE } from 'redux-persist';
-import { fetchNewMetafile } from '../thunks/metafiles';
+import { fetchNewMetafile, FilebasedMetafile, isFilebasedMetafile, isVirtualMetafile, VirtualMetafile } from '../thunks/metafiles';
 
 export const metafilesAdapter = createEntityAdapter<Metafile>();
 
@@ -55,12 +55,12 @@ export const fetchMetafileById = createAsyncThunk<Metafile | undefined, UUID, Ap
     }
 );
 
-export const fetchMetafilesByFilepath = createAsyncThunk<Metafile[], PathLike, AppThunkAPI>(
+export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], PathLike, AppThunkAPI>(
     'metafiles/fetchByPath',
     async (metafileFilepath, thunkAPI) => {
         return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
-            .filter(metafile => (metafile && metafile.path) &&
-                path.relative(metafile.path.toString(), metafileFilepath.toString()).length === 0);
+            .filter(isFilebasedMetafile)
+            .filter(metafile => path.relative(metafile.path.toString(), metafileFilepath.toString()).length === 0);
     }
 )
 
@@ -80,10 +80,11 @@ export const fetchMetafilesByBranch = createAsyncThunk<Metafile[], string, AppTh
     }
 )
 
-export const fetchMetafilesByVirtual = createAsyncThunk<Metafile[], { name: string, handler: string }, AppThunkAPI>(
+export const fetchMetafilesByVirtual = createAsyncThunk<VirtualMetafile[], { name: string, handler: string }, AppThunkAPI>(
     'metafiles/fetchByVirtual',
     async (virtual, thunkAPI) => {
         return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
+            .filter(isVirtualMetafile)
             .filter(metafile => metafile.name === virtual.name && metafile.handler === virtual.handler);
     }
 )

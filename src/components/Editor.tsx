@@ -10,7 +10,7 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
-import type { UUID, Card, Metafile } from '../types';
+import type { Card, Metafile } from '../types';
 import { RootState } from '../store/store';
 import { metafileUpdated } from '../store/slices/metafiles';
 import metafileSelectors from '../store/selectors/metafiles';
@@ -23,25 +23,24 @@ import { Button, Typography } from '@material-ui/core';
 import { SourceControlButton } from './SourceControl';
 import { isFilebasedMetafile, revertStagedChanges } from '../store/thunks/metafiles';
 
-const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
-  const [code, setCode] = useState<string>(metafile?.content ? metafile.content : '');
+const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
+  const [code, setCode] = useState<string>(props.metafile.content ? props.metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
   const dispatch = useAppDispatch();
-  useGitWatcher(metafile?.path);
-  useEffect(() => { onChange(metafile?.content) }, [metafile]);
+  useGitWatcher(props.metafile.path);
+  useEffect(() => { onChange(props.metafile.content) }, [props.metafile]);
 
   const onChange = async (newCode: string | undefined) => {
-    if (metafile && newCode && code !== newCode) {
+    if (newCode && code !== newCode) {
       setCode(newCode);
-      dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
+      dispatch(metafileUpdated({ ...props.metafile, content: newCode, state: 'modified' }));
     }
   };
 
-  const mode = removeUndefinedProperties({ mode: metafile?.filetype?.toLowerCase() });
+  const mode = removeUndefinedProperties({ mode: props.metafile.filetype?.toLowerCase() });
 
   return (
-    <AceEditor {...mode} theme='monokai' onChange={onChange} name={metafile?.id + '-editor'} value={code}
+    <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafile.id + '-editor'} value={code}
       ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );

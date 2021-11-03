@@ -16,7 +16,7 @@ import useDirectory from '../containers/hooks/useDirectory';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { loadCard } from '../containers/handlers';
 import { removeUndefinedProperties } from '../containers/format';
-import { fetchMetafile, FilebasedMetafile, isFilebasedMetafile } from '../store/thunks/metafiles';
+import { fetchMetafile, isFilebasedMetafile } from '../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 
@@ -80,11 +80,10 @@ const SourceFileComponent: React.FunctionComponent<Metafile & SourceFileProps> =
   );
 }
 
-const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootId));
+const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [repo] = useState(metafile ? repos.find(r => r.id === metafile.repo) : undefined);
-  const { files, update } = useDirectory((metafile as FilebasedMetafile).path);
+  const [repo] = useState(repos.find(r => r.id === props.root.repo));
+  const { files, update } = useDirectory(isFilebasedMetafile(props.root) ? props.root.path : undefined);
   const [staged, setStaged] = useState<Metafile[]>([]);
   const [changed, setChanged] = useState<Metafile[]>([]);
   const [modified, setModified] = useState<Metafile[]>([]);
@@ -95,16 +94,16 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
 
   return (
     <>
-      {metafile && metafile.branch ?
+      {props.root.branch ?
         <div className='list-component'>
-          <BranchRibbon branch={metafile.branch} onClick={() => {
-            console.log({ metafile, files, modified });
+          <BranchRibbon branch={props.root.branch} onClick={() => {
+            console.log({ props, files, modified });
           }} />
           <TreeView
-            expanded={[`${repo ? repo.name : ''}-${metafile?.branch}-staged`, `${repo ? repo.name : ''}-${metafile?.branch}-changed`]}
+            expanded={[`${repo ? repo.name : ''}-${props.root.branch}-staged`, `${repo ? repo.name : ''}-${props.root.branch}-changed`]}
           >
-            <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
-              nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-staged`}
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${props.root.branch}-staged`}
+              nodeId={`${repo ? repo.name : ''}-${props.root.branch}-staged`}
               labelText='Staged'
               labelInfoText={`${staged.length}`}
               labelIcon={GitBranchIcon}
@@ -114,8 +113,8 @@ const SourceControl: React.FunctionComponent<{ rootId: UUID }> = props => {
                 : null
               }
             </StyledTreeItem>
-            <StyledTreeItem key={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
-              nodeId={`${repo ? repo.name : ''}-${metafile?.branch}-changed`}
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${props.root.branch}-changed`}
+              nodeId={`${repo ? repo.name : ''}-${props.root.branch}-changed`}
               labelText='Changed'
               labelInfoText={`${changed.length}`}
               labelIcon={GitBranchIcon}

@@ -29,12 +29,12 @@ export type ExactlyOne<T, U extends keyof T = keyof T> =
 /** From T, set as required all properties whose keys are in the union K
  * Inspired by: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
  */
-export type WithRequired<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
 /** From T, set as optional all properties whose keys are in the union K
  * Inspired by: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
  */
-export type WithOptional<T, K extends keyof T> = T & Partial<Pick<T, K>>;
+export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /**
  * Removes `undefined` and `null` values from an Array or Object type via a `filter` and type guard.

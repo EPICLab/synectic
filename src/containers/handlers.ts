@@ -93,6 +93,7 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
       }
     }
     if (param.filepath) {
+      console.log(`loadCard for filepath: ${param.filepath.toString()}`);
       const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: param.filepath })).unwrap();
       thunkAPI.dispatch(metafileAdded(metafile));
       if (isHandlerRequiredMetafile(metafile)) {

@@ -8,7 +8,7 @@ import { makeStyles, Typography } from '@material-ui/core';
 import type { Card } from '../types';
 import Editor, { EditorReverse } from './Editor';
 import Diff, { DiffReverse } from './Diff';
-import Explorer, { ExplorerReverse } from './Explorer';
+import Explorer, { ExplorerReverse } from './Explorer/Explorer';
 import SourceControl, { SourceControlReverse } from './SourceControl';
 import Browser, { BrowserReverse } from './Browser';
 import { ReposOverview } from './ReposOverview';
@@ -54,21 +54,23 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
 };
 
 const ContentFront: React.FunctionComponent<Card> = props => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+  if (!metafile) return null;
   switch (props.type) {
     case 'Editor':
-      return (<Editor metafileId={props.metafile} />);
+      return (<Editor metafile={metafile} />);
     case 'Diff':
-      return (<Diff metafileId={props.metafile} />);
+      return (<Diff metafile={metafile} />);
     case 'Explorer':
-      return (<Explorer rootId={props.metafile} />);
+      return (<Explorer root={metafile} />);
     case 'SourceControl':
-      return (<SourceControl rootId={props.metafile} />);
+      return (<SourceControl root={metafile} />);
     case 'Browser':
       return (<Browser />);
     case 'ReposTracker':
       return (<ReposOverview />);
     case 'ConflictManager':
-      return (<ConflictManager rootId={props.metafile} />)
+      return (<ConflictManager root={metafile} />)
     default:
       return null;
   }

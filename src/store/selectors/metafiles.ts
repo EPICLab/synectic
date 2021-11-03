@@ -33,6 +33,6 @@ export const selectByVirtual = createDraftSafeSelector(
     (metafiles, name, handler) => metafiles.filter(m => m.name === name && m.handler === handler)
 );
 
-const metafileSelectors = { ...selectors, selectByFilepath, selectByBranch, selectByVirtual };
+const metafileSelectors = { ...selectors, selectByFilepath, selectByRepo, selectByBranch, selectByVirtual };
 
 export default metafileSelectors;

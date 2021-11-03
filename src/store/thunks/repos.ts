@@ -36,7 +36,7 @@ export const fetchReposByFilepath = createAsyncThunk<Repository[], PathLike, App
 );
 
 /** Transitive potential to trigger the reposSlice.extraReducers to update Redux state */
-export const fetchRepo = createAsyncThunk<Repository, FilebasedMetafile, AppThunkAPI>(
+export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetafile, AppThunkAPI>(
     'repos/fetchRepo',
     async (metafile, thunkAPI) => {
         // if metafile already has a repo UUID, return the matching repository
@@ -53,7 +53,8 @@ export const fetchRepo = createAsyncThunk<Repository, FilebasedMetafile, AppThun
         }
 
         // if no existing repo can be found, create and return a new repository
-        return await thunkAPI.dispatch(fetchNewRepo(metafile.path)).unwrap();
+        const root = await getRepoRoot(metafile.path);
+        return root ? await thunkAPI.dispatch(fetchNewRepo(root)).unwrap() : undefined;
     }
 );
 

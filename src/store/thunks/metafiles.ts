@@ -7,10 +7,11 @@ import { AppThunkAPI } from '../hooks';
 import { fetchMetafilesByFilepath, fetchMetafilesByVirtual, metafilesSlice } from '../slices/metafiles';
 import { removeUndefinedProperties, WithRequired } from '../../containers/format';
 import { resolveHandler } from '../../containers/handlers';
-import { extractDirname, extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
+import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { currentBranch, getRepoRoot, getStatus } from '../../containers/git-porcelain';
 import { fetchRepo } from './repos';
 import { discardChanges } from '../../containers/git-plumbing';
+import { dirname } from 'path';
 
 export type FileMetafile = WithRequired<Metafile, 'content' | 'path'>;
 export type DirectoryMetafile = WithRequired<Metafile, 'contains' | 'path'>;
@@ -25,8 +26,8 @@ export const isDirectoryMetafile = (metafile: Metafile): metafile is DirectoryMe
     return (metafile as DirectoryMetafile).contains !== undefined;
 };
 
-export const isFilebasedMetafile = (metafile: Metafile): metafile is WithRequired<Metafile, 'path'> => {
-    return (metafile as WithRequired<Metafile, 'path'>).path !== undefined;
+export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMetafile => {
+    return (metafile as FilebasedMetafile).path !== undefined;
 }
 
 export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafile => {
@@ -54,12 +55,14 @@ export const fetchNewMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThu
         const contentOrContains = await (input.filepath && filetype.filetype === 'Directory' ?
             thunkAPI.dispatch(fetchContains(input.filepath)) :
             thunkAPI.dispatch(fetchContent(input))).unwrap();
+        const filepath = removeUndefinedProperties({ path: input.filepath ? input.filepath : undefined });
         return {
             id: v4(),
             name: input.virtual ?
                 input.virtual.name :
                 extractFilename(input.filepath),
             modified: DateTime.local().valueOf(),
+            ...filepath,
             ...filetype,
             ...contentOrContains
         };
@@ -69,7 +72,7 @@ export const fetchNewMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThu
 export const fetchParentMetafile = createAsyncThunk<DirectoryMetafile | undefined, FilebasedMetafile, AppThunkAPI>(
     'metafiles/fetchParent',
     async (metafile, thunkAPI) => {
-        const metafiles = await thunkAPI.dispatch(fetchMetafilesByFilepath(extractDirname(metafile.path))).unwrap();
+        const metafiles = await thunkAPI.dispatch(fetchMetafilesByFilepath(dirname(metafile.path.toString()))).unwrap();
         return metafiles.length > 0 ? (metafiles[0] as DirectoryMetafile) : undefined;
     }
 );
@@ -94,8 +97,8 @@ export const fetchContains = createAsyncThunk<Required<Pick<Metafile, 'contains'
 export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'branch' | 'status'>, FilebasedMetafile, AppThunkAPI>(
     'metafiles/fetchVersionControl',
     async (metafile, thunkAPI) => {
-        const root = await getRepoRoot(metafile.path);
-        const repo = root ? await thunkAPI.dispatch(fetchRepo(metafile)).unwrap() : undefined;
+        const root = await getRepoRoot(metafile.path); // linked worktrees dictate that root can be different from the repo.root
+        const repo = await thunkAPI.dispatch(fetchRepo(metafile)).unwrap();
         const current = repo ? await currentBranch({ dir: root ? root : repo.root.toString(), fullname: false }) : undefined;
         const branch = (repo && !current) ? 'HEAD' : undefined;
         const status = repo ? await getStatus(metafile.path) : undefined;
