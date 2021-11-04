@@ -6,13 +6,13 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
-import type { Card, Metafile } from '../types';
-import { RootState } from '../store/store';
-import { diff } from '../containers/diff';
-import { useAppSelector } from '../store/hooks';
-import metafileSelectors from '../store/selectors/metafiles';
-import cardSelectors from '../store/selectors/cards';
-import { removeUndefinedProperties } from '../containers/format';
+import type { Card, Metafile } from '../../types';
+import { RootState } from '../../store/store';
+import { diff } from '../../containers/diff';
+import { useAppSelector } from '../../store/hooks';
+import metafileSelectors from '../../store/selectors/metafiles';
+import cardSelectors from '../../store/selectors/cards';
+import { removeUndefinedProperties } from '../../containers/format';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
   const markers: IMarker[] = [];

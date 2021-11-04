@@ -15,8 +15,8 @@ export const reposSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchNewRepo.fulfilled, (_state, action) => {
-                reposSlice.actions.repoAdded(action.payload)
+            .addCase(fetchNewRepo.fulfilled, (state, action) => {
+                reposAdapter.addOne(state, action.payload);
             })
             .addCase(PURGE, (state) => {
                 reposAdapter.removeAll(state);

@@ -5,11 +5,10 @@ import * as http from 'isomorphic-git/http/node';
 import * as ini from 'ini';
 import * as dot from 'ts-dot-prop';
 import getGitConfigPath from 'git-config-path';
-
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
 import { isLinkedWorktree } from './git-worktree';
-import { getIgnore, isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
+import { isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
 import { removeUndefinedProperties } from './format';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
@@ -300,7 +299,6 @@ export const merge = async (
  * status indicator (see `GitStatus` type definition for all possible status values).
  */
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
-  console.log(`git.getStatus for ${filepath.toString()}`);
   if (await io.isDirectory(filepath)) {
     const statuses = await statusMatrix(filepath);
     const changed = statuses ? statuses

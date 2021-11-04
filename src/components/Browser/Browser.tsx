@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Card } from '../types';
+import type { Card } from '../../types';
 
 type BrowserState = {
   history: URL[];

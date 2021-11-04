@@ -8,11 +8,11 @@ import { modalRemoved } from '../store/slices/modals';
 import { commit, getConfig, getRepoRoot } from '../containers/git-porcelain';
 import metafileSelectors from '../store/selectors/metafiles';
 import { RootState } from '../store/store';
-import { updateBranches } from '../containers/repos-old';
 import repoSelectors from '../store/selectors/repos';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { fetchContains, fetchContent, fetchVersionControl, isDirectoryMetafile, isFilebasedMetafile } from '../store/thunks/metafiles';
-
+import { fetchRepoBranches } from '../store/thunks/repos';
+import { repoUpdated } from '../store/slices/repos';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -88,7 +88,10 @@ const CommitDialog: React.FunctionComponent<Modal & { parent: UUID }> = props =>
                     ...vcs
                 }))
             }
-            if (repo) await dispatch(updateBranches(repo.id));
+            if (repo) {
+                const branches = await dispatch(fetchRepoBranches(repo.root)).unwrap();
+                dispatch(repoUpdated({ ...repo, ...branches }));
+            }
         }
         dispatch(modalRemoved(props.id));
     }

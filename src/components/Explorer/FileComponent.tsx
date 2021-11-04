@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { InsertDriveFile as FileIcon, Add, Remove } from '@material-ui/icons';
 import { GitStatus } from '../../types';
 import { RootState } from '../../store/store';
-import { loadCard } from '../../containers/handlers';
+import { loadCard } from '../../store/thunks/handlers';
 import { extractFilename } from '../../containers/io';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';

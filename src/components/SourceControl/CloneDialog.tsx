@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
 
-import type { Modal } from '../types';
-import { useAppDispatch } from '../store/hooks';
-import { modalRemoved } from '../store/slices/modals';
-import { extractRepoName, isValidRepositoryURL, resolveURL } from '../containers/git-plumbing';
-import { cloneDirectoryDialog } from '../containers/dialogs';
-import { cloneRepository } from '../containers/repos-old';
-import StatusIcon, { Status } from './StatusIcon';
-import { loadBranchVersions } from '../containers/branch-tracker';
+import type { Modal } from '../../types';
+import { useAppDispatch } from '../../store/hooks';
+import { modalRemoved } from '../../store/slices/modals';
+import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git-plumbing';
+import { cloneDirectoryDialog } from '../../containers/dialogs';
+import { cloneRepository } from '../../store/thunks/repos';
+import StatusIcon, { Status } from '../StatusIcon';
+import { loadBranchVersions } from '../../containers/branch-tracker';
 
 
 const useStyles = makeStyles((theme: Theme) =>

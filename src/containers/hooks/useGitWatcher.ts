@@ -1,7 +1,8 @@
 import { PathLike } from 'fs-extra';
 import { useAppDispatch } from '../../store/hooks';
 import { getStatus } from '../git-porcelain';
-import { fetchMetafilesByFilepath, metafileUpdated } from '../../store/slices/metafiles';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { fetchMetafilesByFilepath } from '../../store/thunks/metafiles';
 import useWatcher, { WatchEventType, WatchListener } from './useWatcher';
 
 /**

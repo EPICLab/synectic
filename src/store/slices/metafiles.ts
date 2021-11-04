@@ -1,13 +1,10 @@
-import { createAsyncThunk, createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
-import * as path from 'path';
-import { PathLike } from 'fs-extra';
-import type { Metafile, UUID } from '../../types';
+import type { Metafile } from '../../types';
 import { repoRemoved } from './repos';
-import { AppThunkAPI } from '../hooks';
-import { filterObject, removeUndefined } from '../../containers/format';
+import { filterObject } from '../../containers/format';
 import { PURGE } from 'redux-persist';
-import { fetchNewMetafile, FilebasedMetafile, isFilebasedMetafile, isVirtualMetafile, VirtualMetafile } from '../thunks/metafiles';
+import { fetchNewMetafile } from '../thunks/metafiles';
 
 export const metafilesAdapter = createEntityAdapter<Metafile>();
 
@@ -26,8 +23,8 @@ export const metafilesSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchNewMetafile.fulfilled, (_state, action) => {
-                metafilesSlice.actions.metafileAdded(action.payload)
+            .addCase(fetchNewMetafile.fulfilled, (state, action) => {
+                metafilesAdapter.addOne(state, action.payload);
             })
             .addCase(repoRemoved, (state, action) => {
                 const updatedMetafiles = Object.values(state.entities)
@@ -36,7 +33,7 @@ export const metafilesSlice = createSlice({
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['repo']) };
                     })
-                metafilesSlice.actions.metafilesUpdated(updatedMetafiles);
+                metafilesAdapter.updateMany(state, updatedMetafiles);
             })
             .addCase(PURGE, (state) => {
                 metafilesAdapter.removeAll(state);
@@ -47,44 +44,3 @@ export const metafilesSlice = createSlice({
 export const { metafileAdded, metafileRemoved, metafileUpdated, metafilesUpdated } = metafilesSlice.actions;
 
 export default metafilesSlice.reducer;
-
-export const fetchMetafileById = createAsyncThunk<Metafile | undefined, UUID, AppThunkAPI>(
-    'metafiles/fetchById',
-    async (id, thunkAPI) => {
-        return thunkAPI.getState().metafiles.entities[id];
-    }
-);
-
-export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], PathLike, AppThunkAPI>(
-    'metafiles/fetchByPath',
-    async (metafileFilepath, thunkAPI) => {
-        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
-            .filter(isFilebasedMetafile)
-            .filter(metafile => path.relative(metafile.path.toString(), metafileFilepath.toString()).length === 0);
-    }
-)
-
-export const fetchMetafilesByRepo = createAsyncThunk<Metafile[], UUID, AppThunkAPI>(
-    'metafiles/fetchByRepo',
-    async (repoId, thunkAPI) => {
-        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
-            .filter(metafile => metafile.repo === repoId);
-    }
-)
-
-export const fetchMetafilesByBranch = createAsyncThunk<Metafile[], string, AppThunkAPI>(
-    'metafiles/fetchByBranch',
-    async (branch, thunkAPI) => {
-        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
-            .filter(metafile => metafile.branch === branch);
-    }
-)
-
-export const fetchMetafilesByVirtual = createAsyncThunk<VirtualMetafile[], { name: string, handler: string }, AppThunkAPI>(
-    'metafiles/fetchByVirtual',
-    async (virtual, thunkAPI) => {
-        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
-            .filter(isVirtualMetafile)
-            .filter(metafile => metafile.name === virtual.name && metafile.handler === virtual.handler);
-    }
-)

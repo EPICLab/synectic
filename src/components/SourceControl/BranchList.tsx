@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { RootState } from '../store/store';
+import { RootState } from '../../store/store';
 import { FormControl, Select, MenuItem, Input, Typography } from '@material-ui/core';
-import { checkoutBranch, switchCardMetafile } from '../containers/repos-old';
-import { useStyles } from './CardComponent';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import metafileSelectors from '../store/selectors/metafiles';
-import cardSelectors from '../store/selectors/cards';
-import { removeUndefinedProperties } from '../containers/format';
-import repoSelectors from '../store/selectors/repos';
+import { useStyles } from '../Card/CardComponent';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import metafileSelectors from '../../store/selectors/metafiles';
+import cardSelectors from '../../store/selectors/cards';
+import { removeUndefinedProperties } from '../../containers/format';
+import repoSelectors from '../../store/selectors/repos';
+import { checkoutBranch, switchCardMetafile } from '../../store/thunks/repos';
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 

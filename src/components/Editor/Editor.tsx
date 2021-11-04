@@ -10,18 +10,18 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
-import type { Card, Metafile } from '../types';
-import { RootState } from '../store/store';
-import { metafileUpdated } from '../store/slices/metafiles';
-import metafileSelectors from '../store/selectors/metafiles';
-import repoSelectors from '../store/selectors/repos';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import useGitWatcher from '../containers/hooks/useGitWatcher';
-import { BranchList } from './BranchList';
-import { removeUndefinedProperties } from '../containers/format';
+import type { Card, Metafile } from '../../types';
+import { RootState } from '../../store/store';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import metafileSelectors from '../../store/selectors/metafiles';
+import repoSelectors from '../../store/selectors/repos';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import useGitWatcher from '../../containers/hooks/useGitWatcher';
+import { BranchList } from '../SourceControl/BranchList';
+import { removeUndefinedProperties } from '../../containers/format';
 import { Button, Typography } from '@material-ui/core';
-import { SourceControlButton } from './SourceControl';
-import { isFilebasedMetafile, revertStagedChanges } from '../store/thunks/metafiles';
+import { SourceControlButton } from "../SourceControl/SourceControlButton";
+import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
 
 const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
   const [code, setCode] = useState<string>(props.metafile.content ? props.metafile.content : '');
@@ -60,8 +60,6 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
 
   return (
     <>
-      <span><Typography variant='body2'>ID:</Typography></span><span className='field'><Typography variant='body2'>...{props.id.slice(-10)}</Typography></span>
-      <span><Typography variant='body2'>Metafile:</Typography></span><span className='field'><Typography variant='body2'>...{props.metafile.slice(-10)}</Typography></span>
       <span><Typography variant='body2'>Name:</Typography></span><span className='field'><Typography variant='body2'>{props.name}</Typography></span>
       <span><Typography variant='body2'>Update:</Typography></span><span className='field'><Typography variant='body2'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</Typography></span>
       <span><Typography variant='body2'>Changes:</Typography></span>{metafile ? <RevertButton {...metafile} /> : undefined}

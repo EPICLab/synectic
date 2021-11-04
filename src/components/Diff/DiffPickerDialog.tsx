@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import * as MUI from '@material-ui/core';
-
-import type { UUID, Modal } from '../types';
-import { RootState } from '../store/store';
-import { loadCard } from '../containers/handlers';
-import { modalRemoved } from '../store/slices/modals';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import cardSelectors from '../store/selectors/cards';
+import type { UUID, Modal } from '../../types';
+import { RootState } from '../../store/store';
+import { loadCard } from '../../store/thunks/handlers';
+import { modalRemoved } from '../../store/slices/modals';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import cardSelectors from '../../store/selectors/cards';
 import { DateTime } from 'luxon';
-import { fetchMetafileById } from '../store/slices/metafiles';
 import { v4 } from 'uuid';
-import { fetchMetafile } from '../store/thunks/metafiles';
+import { fetchMetafile, fetchMetafileById } from '../../store/thunks/metafiles';
 
 const DiffPickerDialog: React.FunctionComponent<Modal> = props => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));

@@ -1,15 +1,15 @@
 import { v4 } from 'uuid';
 import { PathLike } from 'fs-extra';
-import type { Filetype, Metafile } from '../types';
-import * as io from './io';
-import filetypesJson from './filetypes.json';
+import type { Filetype, Metafile } from '../../types';
+import * as io from '../../containers/io';
+import filetypesJson from '../../containers/filetypes.json';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { cardAdded } from '../store/slices/cards';
+import { cardAdded } from '../slices/cards';
 import { DateTime } from 'luxon';
-import type { AppThunkAPI } from '../store/hooks';
-import { filetypeAdded } from '../store/slices/filetypes';
-import { fetchMetafile } from '../store/thunks/metafiles';
-import { metafileAdded } from '../store/slices/metafiles';
+import type { AppThunkAPI } from '../hooks';
+import { filetypeAdded } from '../slices/filetypes';
+import { fetchMetafile, fetchVersionControl, isFilebasedMetafile } from './metafiles';
+import { metafileAdded, metafileUpdated } from '../slices/metafiles';
 
 export type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 
@@ -93,9 +93,12 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
       }
     }
     if (param.filepath) {
-      console.log(`loadCard for filepath: ${param.filepath.toString()}`);
       const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: param.filepath })).unwrap();
       thunkAPI.dispatch(metafileAdded(metafile));
+      if (isFilebasedMetafile(metafile)) {
+        const vcs = await thunkAPI.dispatch(fetchVersionControl(metafile)).unwrap();
+        thunkAPI.dispatch(metafileUpdated({ ...metafile, ...vcs }));
+      }
       if (isHandlerRequiredMetafile(metafile)) {
         thunkAPI.dispatch(cardAdded({
           id: v4(),

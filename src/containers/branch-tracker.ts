@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import { AppThunkAPI } from '../store/hooks';
 import { fetchMetafile } from '../store/thunks/metafiles';
-import { loadCard } from './handlers';
+import { loadCard } from '../store/thunks/handlers';
 
 export const loadBranchVersions = createAsyncThunk<void, void, AppThunkAPI>(
   'cards/loadBranchVersion',

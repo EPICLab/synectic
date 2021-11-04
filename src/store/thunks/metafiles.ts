@@ -2,16 +2,16 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike, remove } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
-import { Metafile, Filetype } from '../../types';
+import { Metafile, Filetype, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
-import { fetchMetafilesByFilepath, fetchMetafilesByVirtual, metafilesSlice } from '../slices/metafiles';
-import { removeUndefinedProperties, WithRequired } from '../../containers/format';
-import { resolveHandler } from '../../containers/handlers';
+import { metafilesSlice } from '../slices/metafiles';
+import { removeUndefined, removeUndefinedProperties, WithRequired } from '../../containers/format';
+import { resolveHandler } from './handlers';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { currentBranch, getRepoRoot, getStatus } from '../../containers/git-porcelain';
 import { fetchRepo } from './repos';
 import { discardChanges } from '../../containers/git-plumbing';
-import { dirname } from 'path';
+import { dirname, relative } from 'path';
 
 export type FileMetafile = WithRequired<Metafile, 'content' | 'path'>;
 export type DirectoryMetafile = WithRequired<Metafile, 'contains' | 'path'>;
@@ -35,6 +35,47 @@ export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafi
 };
 
 type PathOrVirtual = { filepath: PathLike, virtual?: never } | { filepath?: never, virtual: VirtualMetafile };
+
+export const fetchMetafileById = createAsyncThunk<Metafile | undefined, UUID, AppThunkAPI>(
+    'metafiles/fetchById',
+    async (id, thunkAPI) => {
+        return thunkAPI.getState().metafiles.entities[id];
+    }
+);
+
+export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], PathLike, AppThunkAPI>(
+    'metafiles/fetchByPath',
+    async (metafileFilepath, thunkAPI) => {
+        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
+            .filter(isFilebasedMetafile)
+            .filter(metafile => relative(metafile.path.toString(), metafileFilepath.toString()).length === 0);
+    }
+);
+
+export const fetchMetafilesByRepo = createAsyncThunk<Metafile[], UUID, AppThunkAPI>(
+    'metafiles/fetchByRepo',
+    async (repoId, thunkAPI) => {
+        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
+            .filter(metafile => metafile.repo === repoId);
+    }
+);
+
+export const fetchMetafilesByBranch = createAsyncThunk<Metafile[], string, AppThunkAPI>(
+    'metafiles/fetchByBranch',
+    async (branch, thunkAPI) => {
+        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
+            .filter(metafile => metafile.branch === branch);
+    }
+);
+
+export const fetchMetafilesByVirtual = createAsyncThunk<VirtualMetafile[], { name: string, handler: string }, AppThunkAPI>(
+    'metafiles/fetchByVirtual',
+    async (virtual, thunkAPI) => {
+        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
+            .filter(isVirtualMetafile)
+            .filter(metafile => metafile.name === virtual.name && metafile.handler === virtual.handler);
+    }
+);
 
 /** Transitive potential to trigger the metafilesSlice.extraReducers to update Redux state */
 export const fetchMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThunkAPI>(

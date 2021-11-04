@@ -5,29 +5,24 @@ import SaveIcon from '@material-ui/icons/Save';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles, Typography } from '@material-ui/core';
-import type { Card } from '../types';
-import Editor, { EditorReverse } from './Editor';
-import Diff, { DiffReverse } from './Diff';
-import Explorer, { ExplorerReverse } from './Explorer/Explorer';
-import SourceControl, { SourceControlReverse } from './SourceControl';
-import Browser, { BrowserReverse } from './Browser';
-import { ReposOverview } from './ReposOverview';
-import { RootState } from '../store/store';
-import { createStack, pushCards, popCard } from '../containers/stacks-old';
-import { StyledIconButton } from './StyledIconButton';
-import { writeFileAsync } from '../containers/io';
-import { fileSaveDialog } from '../containers/dialogs';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import metafileSelectors from '../store/selectors/metafiles';
-import cardSelectors from '../store/selectors/cards';
-import { stackSelectors } from '../store/selectors/stacks';
-import { metafileUpdated } from '../store/slices/metafiles';
-import { cardRemoved } from '../store/slices/cards';
-import ConflictManager from './ConflictManager';
-import { GitCommitIcon } from './GitIcons';
-import { modalAdded } from '../store/slices/modals';
+import type { Card } from '../../types';
+import { RootState } from '../../store/store';
+import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
+import { StyledIconButton } from '../StyledIconButton';
+import { writeFileAsync } from '../../containers/io';
+import { fileSaveDialog } from '../../containers/dialogs';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import metafileSelectors from '../../store/selectors/metafiles';
+import cardSelectors from '../../store/selectors/cards';
+import { stackSelectors } from '../../store/selectors/stacks';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { cardRemoved } from '../../store/slices/cards';
+import { GitCommitIcon } from '../GitIcons';
+import { modalAdded } from '../../store/slices/modals';
 import { v4 } from 'uuid';
-import { fetchVersionControl, isFileMetafile } from '../store/thunks/metafiles';
+import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
+import { ContentBack } from './ContentBack';
+import { ContentFront } from './ContentFront';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -51,50 +46,6 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
     <div className='title'><Typography>{props.title}</Typography></div>
     <div className='buttons'>{props.children}</div>
   </div>;
-};
-
-const ContentFront: React.FunctionComponent<Card> = props => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  if (!metafile) return null;
-  switch (props.type) {
-    case 'Editor':
-      return (<Editor metafile={metafile} />);
-    case 'Diff':
-      return (<Diff metafile={metafile} />);
-    case 'Explorer':
-      return (<Explorer root={metafile} />);
-    case 'SourceControl':
-      return (<SourceControl root={metafile} />);
-    case 'Browser':
-      return (<Browser />);
-    case 'ReposTracker':
-      return (<ReposOverview />);
-    case 'ConflictManager':
-      return (<ConflictManager root={metafile} />)
-    default:
-      return null;
-  }
-};
-
-const ContentBack: React.FunctionComponent<Card> = props => {
-  switch (props.type) {
-    case 'Editor':
-      return (<EditorReverse {...props} />);
-    case 'Diff':
-      return (<DiffReverse {...props} />);
-    case 'Explorer':
-      return (<ExplorerReverse {...props} />);
-    case 'SourceControl':
-      return (<SourceControlReverse {...props} />);
-    case 'Browser':
-      return (<BrowserReverse {...props} />);
-    case 'ReposTracker':
-      return null;
-    case 'ConflictManager':
-      return null;
-    default:
-      return null;
-  }
 };
 
 const CardComponent: React.FunctionComponent<Card> = props => {

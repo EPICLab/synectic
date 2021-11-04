@@ -7,7 +7,7 @@ import './index.css';
 import './assets/style.css';
 import redux from './store/store';
 import CanvasComponent from './components/CanvasComponent';
-import { importFiletypes } from './containers/handlers';
+import { importFiletypes } from './store/thunks/handlers';
 import { PersistGate } from 'redux-persist/integration/react';
 
 const App = (): JSX.Element => {

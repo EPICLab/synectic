@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 
-import type { Modal, UUID } from '../types';
-import { RootState } from '../store/store';
-import { loadCard } from '../containers/handlers';
-import { getBranchRoot } from '../containers/git-porcelain';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import repoSelectors from '../store/selectors/repos';
-import { modalRemoved } from '../store/slices/modals';
-import { fetchMetafile } from '../store/thunks/metafiles';
+import type { Modal, UUID } from '../../types';
+import { RootState } from '../../store/store';
+import { loadCard } from '../../store/thunks/handlers';
+import { getBranchRoot } from '../../containers/git-porcelain';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import repoSelectors from '../../store/selectors/repos';
+import { modalRemoved } from '../../store/slices/modals';
+import { fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 

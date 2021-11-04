@@ -4,7 +4,7 @@ import { join } from 'path';
 import type { Metafile } from '../types';
 import { AppThunkAPI } from '../store/hooks';
 import { metafileUpdated } from '../store/slices/metafiles';
-import { loadCard } from './handlers';
+import { loadCard } from '../store/thunks/handlers';
 import { writeFileAsync } from './io';
 import { removeUndefined } from './format';
 import { fetchVersionControl, isFilebasedMetafile } from '../store/thunks/metafiles';

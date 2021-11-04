@@ -1,13 +1,13 @@
 import React from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
-import type { Card, Stack } from '../types';
-import { RootState } from '../store/store';
-import CardComponent from './CardComponent';
-import { pushCards, popCard } from '../containers/stacks-old';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import cardSelectors from '../store/selectors/cards';
-import { stackSelectors } from '../store/selectors/stacks';
-import { stackRemoved } from '../store/slices/stacks';
+import type { Card, Stack } from '../../types';
+import { RootState } from '../../store/store';
+import CardComponent from '../Card/CardComponent';
+import { pushCards, popCard } from '../../store/thunks/stacks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import cardSelectors from '../../store/selectors/cards';
+import { stackSelectors } from '../../store/selectors/stacks';
+import { stackRemoved } from '../../store/slices/stacks';
 
 const DnDItemType = {
   CARD: 'CARD',

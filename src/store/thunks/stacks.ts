@@ -2,11 +2,11 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import { XYCoord } from 'react-dnd';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import type { UUID, Card, Stack } from '../types';
-import type { AppThunkAPI } from '../store/hooks';
-import { stackAdded, stackRemoved, stackUpdated } from '../store/slices/stacks';
-import { removeItemInArray } from '../store/immutables';
-import { cardUpdated, cardRemoved } from '../store/slices/cards';
+import type { UUID, Card, Stack } from '../../types';
+import type { AppThunkAPI } from '../hooks';
+import { stackAdded, stackRemoved, stackUpdated } from '../slices/stacks';
+import { removeItemInArray } from '../immutables';
+import { cardUpdated, cardRemoved } from '../slices/cards';
 
 
 /**

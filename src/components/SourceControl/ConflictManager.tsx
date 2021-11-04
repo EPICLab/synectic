@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { TreeView } from '@material-ui/lab';
 import InfoIcon from '@material-ui/icons/Info';
 import WarningIcon from '@material-ui/icons/Warning';
-import type { Metafile } from '../types';
-import { StyledTreeItem } from './StyledTreeComponent';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { RootState } from '../store/store';
-import repoSelectors from '../store/selectors/repos';
-import { loadCard } from '../containers/handlers';
-import { extractFilename } from '../containers/io';
-import useGitConflicts from '../containers/hooks/useGitConflicts';
+import type { Metafile } from '../../types';
+import { StyledTreeItem } from '../StyledTreeComponent';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { RootState } from '../../store/store';
+import repoSelectors from '../../store/selectors/repos';
+import { loadCard } from '../../store/thunks/handlers';
+import { extractFilename } from '../../containers/io';
+import useGitConflicts from '../../containers/hooks/useGitConflicts';
 
 const ConflictManager: React.FunctionComponent<{ root: Metafile }> = props => {
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));

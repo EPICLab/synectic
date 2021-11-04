@@ -6,13 +6,13 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import type { Card, Metafile } from '../../types';
 import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
-import { BranchRibbon } from '../BranchRibbon';
-import { BranchList } from '../BranchList';
+import { BranchRibbon } from '../SourceControl/BranchRibbon';
+import { BranchList } from '../SourceControl/BranchList';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import useDirectory from '../../containers/hooks/useDirectory';
-import { SourceControlButton } from '../SourceControl';
+import { SourceControlButton } from "../SourceControl/SourceControlButton";
 import { DirectoryComponent } from './DirectoryComponent';
 import { FileComponent } from './FileComponent';
 

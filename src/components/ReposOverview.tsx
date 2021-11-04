@@ -13,10 +13,10 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import repoSelectors from '../store/selectors/repos';
 import cardSelectors from '../store/selectors/cards';
 import metafileSelectors from '../store/selectors/metafiles';
-import { loadCard } from '../containers/handlers';
+import { loadCard } from '../store/thunks/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
-import { checkoutBranch } from '../containers/repos-old';
-import { fetchMetafilesByFilepath } from '../store/slices/metafiles';
+import { checkoutBranch } from '../store/thunks/repos';
+import { fetchMetafilesByFilepath } from '../store/thunks/metafiles';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 

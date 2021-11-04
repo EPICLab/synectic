@@ -1,14 +1,14 @@
 import React from 'react';
 
 import type { Modal } from '../types';
-import CloneDialog from './CloneDialog';
+import CloneDialog from './SourceControl/CloneDialog';
 import CommitDialog from './CommitDialog';
-import DiffPickerDialog from './DiffPickerDialog';
+import DiffPickerDialog from './Diff/DiffPickerDialog';
 import ErrorDialog from './ErrorDialog';
-import { GitGraph } from './GitGraph';
-import MergeDialog from './MergeDialog';
+import { GitGraph } from './GitGraph/GitGraph';
+import MergeDialog from './SourceControl/MergeDialog';
 import NewCardDialog from './NewCardDialog';
-import SourcePickerDialog from './SourcePickerDialog';
+import SourcePickerDialog from './SourceControl/SourcePickerDialog';
 
 const ModalComponent: React.FunctionComponent<Modal> = props => {
   switch (props.type) {

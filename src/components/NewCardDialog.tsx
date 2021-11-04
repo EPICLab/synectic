@@ -4,7 +4,7 @@ import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Selec
 
 import type { CardType, Modal } from '../types';
 import { RootState } from '../store/store';
-import { loadCard } from '../containers/handlers';
+import { loadCard } from '../store/thunks/handlers';
 import * as io from '../containers/io';
 import { flattenArray } from '../containers/flatten';
 import { useAppDispatch, useAppSelector } from '../store/hooks';

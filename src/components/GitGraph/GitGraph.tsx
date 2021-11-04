@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import ReactFlow, { addEdge, Connection, Edge, FlowElement, OnLoadFunc, OnLoadParams } from 'react-flow-renderer';
 
-import type { UUID } from '../types';
+import type { UUID } from '../../types';
 import { nodeTypes } from './GitNode';
-import { useGitHistory } from '../containers/hooks/useGitHistory';
-import { RootState } from '../store/store';
-import { generateGraph, graphConstruction } from '../containers/git-graph';
-import repoSelectors from '../store/selectors/repos';
-import { useAppSelector } from '../store/hooks';
+import { useGitHistory } from '../../containers/hooks/useGitHistory';
+import { RootState } from '../../store/store';
+import { graphConstruction } from '../../containers/git-graph';
+import repoSelectors from '../../store/selectors/repos';
+import { useAppSelector } from '../../store/hooks';
 
 
 export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {

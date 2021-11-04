@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
-import { ColorSet } from '../containers/colors';
-import { removeUndefinedProperties } from '../containers/format';
+import { ColorSet } from '../../containers/colors';
+import { removeUndefinedProperties } from '../../containers/format';
 import { OutlinedCard } from './GitGraphTag';
 
 const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => removeUndefinedProperties({
