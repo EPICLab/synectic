@@ -21,6 +21,7 @@ type DragObject = {
 const StackComponent: React.FunctionComponent<Stack> = props => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
+  const capturedCards = useAppSelector((state: RootState) => cardSelectors.selectByStack(state, props.id));
   const dispatch = useAppDispatch();
 
   // Enable StackComponent as a drop source (i.e. allowing this stack to be draggable)
@@ -83,10 +84,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
 
   return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
     style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
-    {props.cards.map(cardId => {
-      const card = cards[cardId];
-      return card ? <CardComponent key={card.id} {...card} /> : undefined;
-    })}
+    {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}
     {props.children}
   </div>
 }
