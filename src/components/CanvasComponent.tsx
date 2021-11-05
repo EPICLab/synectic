@@ -59,12 +59,7 @@ const CanvasComponent: React.FunctionComponent = props => {
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
     accept: [DnDItemType.CARD, DnDItemType.STACK],
-    canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      const target = cards[monitor.getItem().id];
-      if (item.type === DnDItemType.CARD) return !target?.captured ? true : false;
-      return true;
-    },
-    drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
+    drop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
       switch (item.type) {
         case DnDItemType.CARD: {
           const card = cards[monitor.getItem().id];
@@ -76,7 +71,6 @@ const CanvasComponent: React.FunctionComponent = props => {
           } else {
             dispatch(cardUpdated({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
           }
-
           break;
         }
         case DnDItemType.STACK: {

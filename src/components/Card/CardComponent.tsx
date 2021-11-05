@@ -69,6 +69,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
       const dropTarget = cards[props.id];
+      // if (dropTarget?.captured) return false; // nothing can be dropped on a captured card
       const dropSource = item.type === DnDItemType.CARD ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
       // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
       return (dropTarget && dropSource) ? (dropTarget.id !== dropSource.id) : false;

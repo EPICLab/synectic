@@ -6,7 +6,7 @@ import CardComponent from '../Card/CardComponent';
 import { pushCards, popCard } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
-import { stackSelectors } from '../../store/selectors/stacks';
+import stackSelectors from '../../store/selectors/stacks';
 import { stackRemoved } from '../../store/slices/stacks';
 
 const DnDItemType = {
@@ -19,8 +19,8 @@ type DragObject = {
 }
 
 const StackComponent: React.FunctionComponent<Stack> = props => {
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
+  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
 
   // Enable StackComponent as a drop source (i.e. allowing this stack to be draggable)
@@ -37,10 +37,8 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
   const [, drop] = useDrop({
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      const dropTarget = stacks.find(s => s.id === props.id);
-      const dropSource = item.type === DnDItemType.CARD ?
-        cards.find(c => c.id === monitor.getItem().id) :
-        stacks.find(s => s.id === monitor.getItem().id);
+      const dropTarget = stacks[props.id];
+      const dropSource = item.type === DnDItemType.CARD ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
       // restrict dropped items from accepting a self-referencing drop (i.e. dropping a stack on itself)
       return (dropTarget && dropSource) ? (dropTarget.id !== dropSource.id) : false;
     },
@@ -49,21 +47,25 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
       if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
       switch (item.type) {
         case DnDItemType.CARD: {
-          const dropTarget = stacks.find(s => s.id === props.id);
-          const dropSource = cards.find(c => c.id === monitor.getItem().id);
-          if (dropTarget && dropSource && dropSource.captured) {
+          const dropTarget = stacks[props.id];
+          const dropSource = cards[monitor.getItem().id];
+          if (!dropTarget || !dropSource) return; // something isn't correct with this drop event
+          if (dropSource.captured && dropSource.captured !== dropTarget.id) {
             dispatch(popCard({ stack: dropTarget, card: dropSource, delta: delta }));
+            dispatch(pushCards({ stack: dropTarget, cards: [dropSource] }));
+          } else if (!dropSource.captured) {
+            dispatch(pushCards({ stack: dropTarget, cards: [dropSource] }));
           }
           break;
         }
         case DnDItemType.STACK: {
-          const dropTarget = stacks.find(s => s.id === props.id);
-          const dropSource = stacks.find(s => s.id === monitor.getItem().id);
+          const dropTarget = stacks[props.id];
+          const dropSource = stacks[monitor.getItem().id];
           if (dropTarget && dropSource) {
             dispatch(pushCards({
               stack: dropTarget,
               cards: dropSource.cards
-                .map(id => cards.find(c => c.id === id))
+                .map(id => cards[id])
                 .filter((card): card is Card => card !== undefined)
             }));
             dispatch(stackRemoved(dropSource.id));
@@ -82,7 +84,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
   return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
     style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
     {props.cards.map(cardId => {
-      const card = cards.find(c => c.id === cardId);
+      const card = cards[cardId];
       return card ? <CardComponent key={card.id} {...card} /> : undefined;
     })}
     {props.children}
