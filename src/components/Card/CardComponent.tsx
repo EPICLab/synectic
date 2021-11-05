@@ -14,7 +14,7 @@ import { fileSaveDialog } from '../../containers/dialogs';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import cardSelectors from '../../store/selectors/cards';
-import { stackSelectors } from '../../store/selectors/stacks';
+import stackSelectors from '../../store/selectors/stacks';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { cardRemoved } from '../../store/slices/cards';
 import { GitCommitIcon } from '../GitIcons';
@@ -50,8 +50,8 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
 
 const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
+  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const dispatch = useAppDispatch();
 
@@ -68,26 +68,24 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [{ isOver }, drop] = useDrop({
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      const dropTarget = cards.find(c => c.id === props.id);
-      const dropSource = item.type === DnDItemType.CARD ?
-        cards.find(c => c.id === monitor.getItem().id) :
-        stacks.find(s => s.id === monitor.getItem().id);
+      const dropTarget = cards[props.id];
+      const dropSource = item.type === DnDItemType.CARD ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
       // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
       return (dropTarget && dropSource) ? (dropTarget.id !== dropSource.id) : false;
     },
     drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
-      const dropTarget = cards.find(c => c.id === props.id);
+      const dropTarget = cards[props.id];
       const delta = monitor.getDifferenceFromInitialOffset();
       if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
       switch (item.type) {
         case DnDItemType.CARD: {
-          const dropSource = cards.find(c => c.id === monitor.getItem().id);
+          const dropSource = cards[monitor.getItem().id];
           if (dropSource && dropSource.captured) {
-            const captureStack = stacks.find(s => s.id === dropSource.captured);
+            const captureStack = stacks[dropSource.captured];
             if (captureStack) dispatch(popCard({ stack: captureStack, card: dropSource, delta: delta }));
           }
           if (dropTarget && dropTarget.captured) {
-            const capturingStack = stacks.find(s => s.id === dropTarget.captured);
+            const capturingStack = stacks[dropTarget.captured];
             if (capturingStack && dropSource) dispatch(pushCards({ stack: capturingStack, cards: [dropSource] }))
           } else {
             if (dropTarget && dropSource)
@@ -97,7 +95,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
         }
         case DnDItemType.STACK: {
           if (!props.captured) {
-            const dropSource = stacks.find(s => s.id === monitor.getItem().id);
+            const dropSource = stacks[monitor.getItem().id];
             if (dropTarget && dropSource) dispatch(pushCards({ stack: dropSource, cards: [dropTarget] }));
           }
           break;
@@ -138,9 +136,9 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     }
   }
   const close = () => {
-    const dropSource = cards.find(c => c.id === props.id);
+    const dropSource = cards[props.id];
     if (props.captured) {
-      const captureStack = stacks.find(s => s.id === props.captured);
+      const captureStack = stacks[props.captured];
       if (captureStack && dropSource) dispatch(popCard({ stack: captureStack, card: dropSource }));
     }
     if (dropSource) dispatch(cardRemoved(props.id));
