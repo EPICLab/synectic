@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
 import { stackRemoved } from '../../store/slices/stacks';
+import { StyledIconButton } from '../StyledIconButton';
+import CloseIcon from '@material-ui/icons/Close';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -76,6 +78,10 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
       }
     }
   });
+  const close = () => {
+    capturedCards.map((card, idx) => dispatch(popCard({ stack: props, card: card, delta: { x: card.left + (idx * 25), y: card.top + (idx * 25) } })));
+    dispatch(stackRemoved(props.id));
+  }
 
   const dragAndDrop = (elementOrNode: ConnectableElement) => {
     drag(elementOrNode);
@@ -84,6 +90,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
 
   return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
     style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
+    <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>
     {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}
     {props.children}
   </div>
