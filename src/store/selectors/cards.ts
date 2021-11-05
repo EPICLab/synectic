@@ -26,6 +26,13 @@ const selectByRepo = createDraftSafeSelector(
         .filter(c => branch ? metafiles[c.metafile]?.branch === branch : true)
 );
 
-const cardSelectors = { ...selectors, selectByRepo };
+const selectByStack = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, stackId: UUID) => stackId,
+    (cards, stackId) => cards
+        .filter(c => c.captured === stackId)
+)
+
+const cardSelectors = { ...selectors, selectByRepo, selectByStack };
 
 export default cardSelectors;
