@@ -14,6 +14,12 @@ export interface Actions<K, V> {
 // We hide some setters from the returned map to disable autocompletion
 type Return<K, V> = [Omit<Map<K, V>, 'set' | 'clear' | 'delete'>, Actions<K, V>]
 
+/**
+ * Custom React Hook for providing an API to interact with a `Map` data structure. It ta
+ * @param initialState An initial `Map` entry or nothing.
+ * @returns An instance of `Map` (including `foreach`, `get`, `has`, `entries`, `keys`, `values`, and `size`),
+ * and an object of methods (`set`, `setAll`, `remove`, and `reset`) for updating the map.
+ */
 function useMap<K, V>(
     initialState: MapOrEntries<K, V> = new Map(),
 ): Return<K, V> {
