@@ -8,6 +8,12 @@ import { stackAdded, stackRemoved, stackUpdated } from '../slices/stacks';
 import { removeItemInArray } from '../immutables';
 import { cardUpdated, cardRemoved } from '../slices/cards';
 
+export const fetchStackById = createAsyncThunk<Stack | undefined, UUID, AppThunkAPI>(
+  'stacks/fetchById',
+  async (id, thunkAPI) => {
+    return thunkAPI.getState().stacks.entities[id];
+  }
+);
 
 /**
  * Async Thunk action creator for creating a new stack, appending all captured child cards, and updating state 

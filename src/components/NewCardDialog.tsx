@@ -8,7 +8,7 @@ import { loadCard } from '../store/thunks/handlers';
 import * as io from '../containers/io';
 import { flattenArray } from '../containers/flatten';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { filetypeSelectors } from '../store/selectors/filetypes';
+import filetypeSelectors from '../store/selectors/filetypes';
 import { modalRemoved } from '../store/slices/modals';
 import { v4 } from 'uuid';
 import { fetchMetafile } from '../store/thunks/metafiles';

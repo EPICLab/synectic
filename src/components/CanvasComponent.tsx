@@ -16,11 +16,11 @@ import { cardUpdated } from '../store/slices/cards';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import cardSelectors from '../store/selectors/cards';
 import redux, { RootState } from '../store/store';
-import { stackSelectors } from '../store/selectors/stacks';
+import stackSelectors from '../store/selectors/stacks';
 import metafileSelectors from '../store/selectors/metafiles';
-import { filetypeSelectors } from '../store/selectors/filetypes';
+import filetypeSelectors from '../store/selectors/filetypes';
 import repoSelectors from '../store/selectors/repos';
-import { modalSelectors } from '../store/selectors/modals';
+import modalSelectors from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
 
 const DnDItemType = {
@@ -45,8 +45,10 @@ const useStyles = makeStyles((theme: Theme) =>
 const isMac = process.platform === 'darwin';
 
 const CanvasComponent: React.FunctionComponent = props => {
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
+  const cardsArray = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
+  const stacksArray = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
@@ -58,28 +60,27 @@ const CanvasComponent: React.FunctionComponent = props => {
   const [, drop] = useDrop({
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      const target = cards.find(c => c.id === monitor.getItem().id);
+      const target = cards[monitor.getItem().id];
       if (item.type === DnDItemType.CARD) return !target?.captured ? true : false;
       return true;
     },
     drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
       switch (item.type) {
         case DnDItemType.CARD: {
-          const card = cards.find(c => c.id === monitor.getItem().id);
+          const card = cards[monitor.getItem().id];
           const delta = monitor.getDifferenceFromInitialOffset();
-          if (!delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
-          if (card) {
-            if (card.captured) {
-              const captureStack = stacks.find(s => s.id === card.captured);
-              if (captureStack) dispatch(popCard({ stack: captureStack, card: card, delta: delta }));
-            } else {
-              dispatch(cardUpdated({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
-            }
+          if (!card || !delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
+          if (card.captured) {
+            const captureStack = stacks[card.captured];
+            if (captureStack) dispatch(popCard({ stack: captureStack, card: card, delta: delta }));
+          } else {
+            dispatch(cardUpdated({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
           }
+
           break;
         }
         case DnDItemType.STACK: {
-          const stack = stacks.find(s => s.id === monitor.getItem().id);
+          const stack = stacks[monitor.getItem().id];
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!delta) return; // no dragging is occurring, perhaps a stack was picked up and dropped without dragging
           if (stack) dispatch(stackUpdated({ ...stack, left: Math.round(stack.left + delta.x), top: Math.round(stack.top + delta.y) }));
@@ -94,12 +95,10 @@ const CanvasComponent: React.FunctionComponent = props => {
   });
 
   const showState = () => {
-    const allCards = Object.values(cards);
-    const allStacks = Object.values(stacks);
-    console.log(`CARDS: ${allCards.length}`)
-    console.log({ allCards });
-    console.log(`STACKS: ${allStacks.length}`)
-    console.log({ allStacks });
+    console.log(`CARDS: ${cardsArray.length}`)
+    console.log({ cards });
+    console.log(`STACKS: ${stacksArray.length}`)
+    console.log({ stacks });
     console.log(`METAFILES: ${metafiles.length} `);
     console.log({ metafiles });
     console.log(`REPOS: ${repos.length} `);
@@ -163,8 +162,8 @@ const CanvasComponent: React.FunctionComponent = props => {
         <NavMenu label='Help' submenu={helpMenu} />
         <GitGraphSelect />
       </div>
-      {stacks.map(stack => <StackComponent key={stack.id} {...stack} />)}
-      {cards.filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
+      {stacksArray.map(stack => <StackComponent key={stack.id} {...stack} />)}
+      {cardsArray.filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {modals.map(modal => <ModalComponent key={modal.id} {...modal} />)}
       {props.children}
     </div >

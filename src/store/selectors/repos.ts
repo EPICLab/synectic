@@ -4,7 +4,7 @@ import { RootState } from '../store';
 import { reposAdapter } from '../slices/repos';
 import { createDraftSafeSelector } from '@reduxjs/toolkit';
 
-export const selectors = reposAdapter.getSelectors<RootState>(state => state.repos);
+const selectors = reposAdapter.getSelectors<RootState>(state => state.repos);
 
 /**
  * Custom Redux selector for locating a repository in the Redux store based on name.

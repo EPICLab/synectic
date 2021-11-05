@@ -7,26 +7,26 @@ import { RootState } from '../store';
 
 const selectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
 
-export const selectByFilepath = createDraftSafeSelector(
+const selectByFilepath = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, filepath: PathLike) => filepath,
     (metafiles, filepath) => metafiles.filter(m => (m && m.path) && relative(m.path.toString(), filepath.toString()).length === 0)
 );
 
-export const selectByRepo = createDraftSafeSelector(
+const selectByRepo = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, repo: UUID) => repo,
     (metafiles, repo) => metafiles.filter(m => m.repo === repo)
 )
 
-export const selectByBranch = createDraftSafeSelector(
+const selectByBranch = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, filepath: PathLike) => filepath,
     (_state, _filepath, branch: string) => branch,
     (metafiles, filepath, branch) => metafiles.filter(m => m.path === filepath && m.branch === branch)
 );
 
-export const selectByVirtual = createDraftSafeSelector(
+const selectByVirtual = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, name: string) => name,
     (_state, _name, handler: string) => handler,
