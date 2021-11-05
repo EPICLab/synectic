@@ -151,14 +151,14 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
-        {(metafile && metafile.status) &&
+        {(metafile && metafile.status && !props.captured) &&
           <StyledIconButton aria-label='commit' disabled={!changes} onClick={commit} ><GitCommitIcon /></StyledIconButton>
         }
-        {(metafile && metafile.state) &&
+        {(metafile && metafile.state && !props.captured) &&
           <StyledIconButton aria-label='save' disabled={metafile.state === 'unmodified'} onClick={save} ><SaveIcon /></StyledIconButton>
         }
-        <StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton>
-        <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>
+        {(!props.captured) && <StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton>}
+        {(!props.captured) && <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>}
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>
