@@ -1,6 +1,7 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import type { Stack } from '../../types';
+import { PURGE } from 'redux-persist';
 
 export const stacksAdapter = createEntityAdapter<Stack>();
 
@@ -15,6 +16,12 @@ export const stacksSlice = createSlice({
                 ...action.payload, modified: DateTime.local().valueOf()
             })
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(PURGE, (state) => {
+                stacksAdapter.removeAll(state);
+            })
     }
 })
 
