@@ -1,7 +1,7 @@
 import { createDraftSafeSelector } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { relative } from 'path';
-import type { UUID } from '../../types';
+import type { FilesystemStatus, UUID } from '../../types';
 import { metafilesAdapter } from '../slices/metafiles';
 import { RootState } from '../store';
 
@@ -33,6 +33,12 @@ const selectByVirtual = createDraftSafeSelector(
     (metafiles, name, handler) => metafiles.filter(m => m.name === name && m.handler === handler)
 );
 
-const metafileSelectors = { ...selectors, selectByFilepath, selectByRepo, selectByBranch, selectByVirtual };
+const selectByState = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, state: FilesystemStatus) => state,
+    (metafiles, state) => metafiles.filter(m => m.state === state)
+)
+
+const metafileSelectors = { ...selectors, selectByFilepath, selectByRepo, selectByBranch, selectByVirtual, selectByState };
 
 export default metafileSelectors;
