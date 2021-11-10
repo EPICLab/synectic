@@ -39,7 +39,7 @@ export const createStack = createAsyncThunk<UUID, { name: string, cards: Card[],
       top: stack.cards[0].top
     }));
     stack.cards.map((card, index) => thunkAPI.dispatch(
-      cardUpdated({ ...card, captured: newStack.payload.id, top: (10 * index + 50), left: (10 * index + 10) })
+      cardUpdated({ ...card, captured: newStack.payload.id, zIndex: index + 1, top: (10 * index + 50), left: (10 * index + 10) })
     ));
     return newStack.payload.id;
   }
@@ -65,6 +65,7 @@ export const pushCards = createAsyncThunk<void, { stack: Stack, cards: Card[] },
       cardUpdated({
         ...card,
         captured: param.stack.id,
+        zIndex: param.stack.cards.length + index,
         top: (10 * (param.stack.cards.length + index) + 50),
         left: (10 * (param.stack.cards.length + index) + 10)
       })
@@ -107,11 +108,24 @@ export const popCard = createAsyncThunk<void, { stack: Stack, card: Card, delta?
         ...param.stack,
         cards: removeItemInArray(param.stack.cards, param.card.id)
       }))
+      param.stack.cards
+        .map(cardId => thunkAPI.getState().cards.entities[cardId])
+        .filter((card): card is Card => card !== undefined)
+        .map((card, index) => thunkAPI.dispatch(
+          cardUpdated({
+            ...card,
+            captured: param.stack.id,
+            zIndex: param.stack.cards.length + index,
+            top: (10 * (param.stack.cards.length + index) + 50),
+            left: (10 * (param.stack.cards.length + index) + 10)
+          })
+        ))
     }
     if (param.delta) {
       thunkAPI.dispatch(cardUpdated({
         ...param.card,
         captured: undefined,
+        zIndex: 0,
         left: Math.round(param.stack.left + param.card.left + param.delta.x),
         top: Math.round(param.stack.top + param.card.top + param.delta.y)
       }));
