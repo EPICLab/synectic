@@ -83,10 +83,12 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
           name: param.metafile.name,
           created: DateTime.local().valueOf(),
           modified: param.metafile.modified,
+          zIndex: 0,
           left: 10,
           top: 70,
           type: param.metafile.handler,
-          metafile: param.metafile.id
+          metafile: param.metafile.id,
+          classes: []
         }))
       } else {
         thunkAPI.rejectWithValue(`Metafile '${param.metafile.name}' missing handler for filetype: '${param.metafile.filetype}'`);
@@ -105,10 +107,12 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
           name: metafile.name,
           created: DateTime.local().valueOf(),
           modified: metafile.modified,
+          zIndex: 0,
           left: 10,
           top: 70,
           type: metafile.handler,
-          metafile: metafile.id
+          metafile: metafile.id,
+          classes: []
         }));
       } else {
         thunkAPI.rejectWithValue(`Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`);
