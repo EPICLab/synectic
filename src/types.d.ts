@@ -72,10 +72,14 @@ export type Card = {
   readonly modified: Timestamp;
   /** The UUID for capturing Stack object, or undefined if not captured. */
   readonly captured?: UUID | undefined;
+  /** The stack order of card relative to overlapping elements. */
+  readonly zIndex: number;
   /** The horizontal position of card relative to parent object. */
   readonly left: number;
   /** The vertical position of card relative to parent object. */
   readonly top: number;
+  /** An array of CSS classes to apply on the containing div of the card. */
+  readonly classes: string[];
 };
 
 /** A stack representation containing cards grouped according to the user. */
