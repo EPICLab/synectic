@@ -1,8 +1,9 @@
 import { RootState } from '../store';
 import { cardsAdapter } from '../slices/cards';
 import { createDraftSafeSelector } from '@reduxjs/toolkit';
-import { UUID } from '../../types';
+import { Metafile, UUID } from '../../types';
 import metafileSelectors from './metafiles';
+import { flattenArray } from '../../containers/flatten';
 
 const selectors = cardsAdapter.getSelectors<RootState>(state => state.cards);
 
@@ -33,6 +34,12 @@ const selectByStack = createDraftSafeSelector(
         .filter(c => c.captured === stackId)
 )
 
-const cardSelectors = { ...selectors, selectByRepo, selectByStack };
+const selectByMetafiles = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, metafiles: Metafile[]) => metafiles,
+    (cards, metafiles) => flattenArray(metafiles.map(m => cards.filter(c => c.metafile === m.id)))
+)
+
+const cardSelectors = { ...selectors, selectByRepo, selectByStack, selectByMetafiles };
 
 export default cardSelectors;
