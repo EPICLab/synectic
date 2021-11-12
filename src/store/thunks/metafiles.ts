@@ -19,7 +19,7 @@ export type FilebasedMetafile = WithRequired<Metafile, 'path'>;
 export type VirtualMetafile = WithRequired<Metafile, 'handler'> & Omit<Metafile, 'filetype' | 'state' | 'status' | 'repo' | 'branch'>;
 
 export const isFileMetafile = (metafile: Metafile): metafile is FileMetafile => {
-    return (metafile as FileMetafile).content !== undefined;
+    return (metafile as FileMetafile).path !== undefined && (metafile as FileMetafile).content !== undefined;
 };
 
 export const isDirectoryMetafile = (metafile: Metafile): metafile is DirectoryMetafile => {
