@@ -7,6 +7,7 @@ import type { AppThunkAPI } from '../hooks';
 import { stackAdded, stackRemoved, stackUpdated } from '../slices/stacks';
 import { removeItemInArray } from '../immutables';
 import { cardUpdated, cardRemoved } from '../slices/cards';
+import { isDefined } from '../../containers/format';
 
 export const fetchStackById = createAsyncThunk<Stack | undefined, UUID, AppThunkAPI>(
   'stacks/fetchById',
@@ -110,7 +111,7 @@ export const popCard = createAsyncThunk<void, { stack: Stack, card: Card, delta?
       }))
       param.stack.cards
         .map(cardId => thunkAPI.getState().cards.entities[cardId])
-        .filter((card): card is Card => card !== undefined)
+        .filter(isDefined)
         .map((card, index) => thunkAPI.dispatch(
           cardUpdated({
             ...card,
