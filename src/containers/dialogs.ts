@@ -40,7 +40,7 @@ export const fileSaveDialog = createAsyncThunk<void, Metafile, AppThunkAPI>(
           .filter(isFilebasedMetafile)
           .map(async m => {
             const vcs = await thunkAPI.dispatch(fetchVersionControl(m)).unwrap();
-            thunkAPI.dispatch(metafileUpdated({ ...m, ...vcs }));
+            thunkAPI.dispatch(metafileUpdated({ ...m, ...vcs, state: 'unmodified' }));
           })
       );
     }
