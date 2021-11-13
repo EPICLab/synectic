@@ -54,4 +54,4 @@ function useMap<K, V>(
     return [map, actions]
 }
 
-export default useMap
+export default useMap;
