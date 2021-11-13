@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
-import SaveIcon from '@material-ui/icons/Save';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles, Typography } from '@material-ui/core';
@@ -9,20 +8,13 @@ import type { Card } from '../../types';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
 import { StyledIconButton } from '../StyledIconButton';
-import { writeFileAsync } from '../../containers/io';
-import { fileSaveDialog } from '../../containers/dialogs';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import metafileSelectors from '../../store/selectors/metafiles';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
-import { metafileUpdated } from '../../store/slices/metafiles';
 import { cardRemoved } from '../../store/slices/cards';
-import { GitCommitIcon } from '../GitIcons';
-import { modalAdded } from '../../store/slices/modals';
-import { v4 } from 'uuid';
-import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { ContentBack } from './ContentBack';
 import { ContentFront } from './ContentFront';
+import SaveButton from '../SaveButton';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -52,7 +44,6 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const dispatch = useAppDispatch();
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
@@ -113,29 +104,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     drop(elementOrNode);
   }
 
-  const changes = metafile && metafile.status && ['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(metafile.status);
-
   const flip = () => setFlipped(!flipped);
-  const commit = () => {
-    if (metafile && metafile.status) {
-      console.log(`${metafile.name} metafile is capable of committing: ${changes}`);
-      dispatch(modalAdded({ id: v4(), type: 'CommitDialog', target: metafile.id }));
-    }
-  }
-  const save = async () => {
-    if (metafile) {
-      dispatch(metafileUpdated({ ...metafile, state: 'unmodified' }));
-      if (isFileMetafile(metafile)) {
-        console.log(`saving ${props.name}...`);
-        console.log({ metafile });
-        await writeFileAsync(metafile.path, metafile.content);
-        const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-        dispatch(metafileUpdated({ ...metafile, ...vcs }));
-      } else {
-        dispatch(fileSaveDialog(metafile));
-      }
-    }
-  }
   const close = () => {
     const dropSource = cards[props.id];
     if (props.captured) {
@@ -147,16 +116,11 @@ const CardComponent: React.FunctionComponent<Card> = props => {
 
   return (
     <div ref={dragAndDrop} data-testid='card-component' id={props.id}
-      className={`card ${(isOver && !props.captured) ? 'drop-source' : ''}`}
-      style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
+      className={`card ${(isOver && !props.captured) ? 'drop-source' : ''} ${props.classes.join(' ')}`}
+      style={{ zIndex: props.zIndex, left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
-        {(metafile && metafile.status && !props.captured) &&
-          <StyledIconButton aria-label='commit' disabled={!changes} onClick={commit} ><GitCommitIcon /></StyledIconButton>
-        }
-        {(metafile && metafile.state && !props.captured) &&
-          <StyledIconButton aria-label='save' disabled={metafile.state === 'unmodified'} onClick={save} ><SaveIcon /></StyledIconButton>
-        }
+        <SaveButton cardIds={[props.id]} />
         {(!props.captured) && <StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton>}
         {(!props.captured) && <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>}
       </Header>

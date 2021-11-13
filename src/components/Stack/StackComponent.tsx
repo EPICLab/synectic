@@ -1,22 +1,16 @@
 import React from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
-import type { Card, FilesystemStatus, Metafile, Stack, UUID } from '../../types';
+import type { Card, Stack } from '../../types';
 import { RootState } from '../../store/store';
 import CardComponent from '../Card/CardComponent';
 import { pushCards, popCard } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
-import metafileSelectors from '../../store/selectors/metafiles';
 import { stackRemoved } from '../../store/slices/stacks';
 import { StyledIconButton } from '../StyledIconButton';
-import SaveIcon from '@material-ui/icons/Save';
 import CloseIcon from '@material-ui/icons/Close';
-import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
-import { writeFileAsync } from '../../containers/io';
-import { metafileUpdated } from '../../store/slices/metafiles';
-import { fileSaveDialog } from '../../containers/dialogs';
-import { createSelector } from '@reduxjs/toolkit';
+import SaveButton from '../SaveButton';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -27,23 +21,10 @@ type DragObject = {
   type: string
 }
 
-const selectByStackAndState = createSelector(
-  cardSelectors.selectAll,
-  metafileSelectors.selectEntities,
-  (_state: RootState, stackId: UUID) => stackId,
-  (_state, _stackId, state: FilesystemStatus) => state,
-  (cards, metafiles, stackId, state) => cards
-    .filter(c => c.captured === stackId)
-    .map(c => metafiles[c.metafile])
-    .filter((m): m is Metafile => m !== undefined)
-    .filter(m => m && m.state === state)
-)
-
 const StackComponent: React.FunctionComponent<Stack> = props => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const capturedCards = useAppSelector((state: RootState) => cardSelectors.selectByStack(state, props.id));
-  const modifiedMetafiles = useAppSelector((state: RootState) => selectByStackAndState(state, props.id, 'modified'));
   const dispatch = useAppDispatch();
 
   // Enable StackComponent as a drop source (i.e. allowing this stack to be draggable)
@@ -98,30 +79,13 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
       }
     }
   });
-  const close = () => {
-    capturedCards.map((card, idx) => dispatch(popCard({ stack: props, card: card, delta: { x: card.left + (idx * 25), y: card.top + (idx * 25) } })));
-    dispatch(stackRemoved(props.id));
-  }
-
-  const save = async () => {
-    console.log(`saving the stack...`);
-
-    await Promise.all(modifiedMetafiles
-      .filter(isFileMetafile)
-      .map(async metafile => {
-        console.log(`saving ${metafile.name}...`);
-        console.log({ metafile });
-        await writeFileAsync(metafile.path, metafile.content);
-        const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-        dispatch(metafileUpdated({ ...metafile, ...vcs, state: 'unmodified' }));
-      }));
-
-    await Promise.all(modifiedMetafiles
-      .filter(metafile => !isFileMetafile(metafile))
-      .map(metafile => {
-        console.log(`saving ${metafile.name}...`);
-        dispatch(fileSaveDialog(metafile));
-      }));
+  const close = async () => {
+    await Promise.all(capturedCards.map(async (card, idx) => await dispatch(popCard({
+      stack: props,
+      card: card,
+      delta: { x: card.left + (idx * 25), y: card.top + (idx * 25) }
+    }))));
+    // dispatch(stackRemoved(props.id));
   }
 
   const dragAndDrop = (elementOrNode: ConnectableElement) => {
@@ -132,7 +96,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
   return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
     style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
     <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>
-    <StyledIconButton aria-label='save' disabled={modifiedMetafiles.length == 0} onClick={save} ><SaveIcon /></StyledIconButton>
+    <SaveButton cardIds={capturedCards.map(c => c.id)} />
     {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}
     {props.children}
   </div>

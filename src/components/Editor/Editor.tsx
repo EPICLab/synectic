@@ -12,35 +12,24 @@ import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes,
 
 import type { Card, Metafile } from '../../types';
 import { RootState } from '../../store/store';
-import { metafileUpdated } from '../../store/slices/metafiles';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import useGitWatcher from '../../containers/hooks/useGitWatcher';
 import { BranchList } from '../SourceControl/BranchList';
 import { removeUndefinedProperties } from '../../containers/format';
 import { Button, Typography } from '@material-ui/core';
-import { SourceControlButton } from "../SourceControl/SourceControlButton";
+import { SourceControlButton } from '../SourceControl/SourceControlButton';
 import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
+import useContent from '../../containers/hooks/useContent';
 
 const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
-  const [code, setCode] = useState<string>(props.metafile.content ? props.metafile.content : '');
+  const { content: code, update } = useContent(props.metafile);
   const [editorRef] = useState(React.createRef<AceEditor>());
-  const dispatch = useAppDispatch();
-  useGitWatcher(props.metafile.path);
-  useEffect(() => { onChange(props.metafile.content) }, [props.metafile]);
-
-  const onChange = async (newCode: string | undefined) => {
-    if (newCode && code !== newCode) {
-      setCode(newCode);
-      dispatch(metafileUpdated({ ...props.metafile, content: newCode, state: 'modified' }));
-    }
-  };
 
   const mode = removeUndefinedProperties({ mode: props.metafile.filetype?.toLowerCase() });
 
   return (
-    <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafile.id + '-editor'} value={code}
+    <AceEditor {...mode} theme='monokai' onChange={update} name={props.metafile.id + '-editor'} value={code}
       ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
   );
@@ -58,10 +47,16 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
 
+  useEffect(() => {
+    console.log('metafile changed:');
+    console.log({ metafile });
+  }, [metafile]);
+
   return (
     <>
       <span><Typography variant='body2'>Name:</Typography></span><span className='field'><Typography variant='body2'>{props.name}</Typography></span>
       <span><Typography variant='body2'>Update:</Typography></span><span className='field'><Typography variant='body2'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</Typography></span>
+      <span><Typography variant='body2'>State:</Typography></span><span className='field'><Typography variant='body2'>{metafile ? metafile.state : ''}</Typography></span>
       <span><Typography variant='body2'>Changes:</Typography></span>{metafile ? <RevertButton {...metafile} /> : undefined}
       <span><Typography variant='body2'>Repo:</Typography></span><span className='field'><Typography variant='body2'>{repo ? repo.name : 'Untracked'}</Typography></span>
       {repo ?
