@@ -1,11 +1,17 @@
 import { RootState } from '../store';
 import { cardsAdapter } from '../slices/cards';
-import { createDraftSafeSelector } from '@reduxjs/toolkit';
-import { Metafile, UUID } from '../../types';
+import { createDraftSafeSelector, EntityId } from '@reduxjs/toolkit';
+import { Card, Metafile, UUID } from '../../types';
 import metafileSelectors from './metafiles';
 import { flattenArray } from '../../containers/flatten';
 
 const selectors = cardsAdapter.getSelectors<RootState>(state => state.cards);
+
+const selectByIds = createDraftSafeSelector(
+    selectors.selectEntities,
+    (_state: RootState, ids: EntityId[]) => ids,
+    (cards, ids) => ids.map(id => cards[id]).filter((c): c is Card => c !== undefined)
+)
 
 /**
  * Custom Redux selector for locating cards that:
@@ -40,6 +46,6 @@ const selectByMetafiles = createDraftSafeSelector(
     (cards, metafiles) => flattenArray(metafiles.map(m => cards.filter(c => c.metafile === m.id)))
 )
 
-const cardSelectors = { ...selectors, selectByRepo, selectByStack, selectByMetafiles };
+const cardSelectors = { ...selectors, selectByIds, selectByRepo, selectByStack, selectByMetafiles };
 
 export default cardSelectors;
