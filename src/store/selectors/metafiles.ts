@@ -1,11 +1,17 @@
-import { createDraftSafeSelector } from '@reduxjs/toolkit';
+import { createDraftSafeSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { relative } from 'path';
-import type { FilesystemStatus, UUID } from '../../types';
+import type { Card, FilesystemStatus, Metafile, UUID } from '../../types';
 import { metafilesAdapter } from '../slices/metafiles';
 import { RootState } from '../store';
 
 const selectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
+
+const selectByIds = createDraftSafeSelector(
+    selectors.selectEntities,
+    (_state: RootState, ids: EntityId[]) => ids,
+    (metafiles, ids) => ids.map(id => metafiles[id]).filter((c): c is Metafile => c !== undefined)
+)
 
 const selectByFilepath = createDraftSafeSelector(
     selectors.selectAll,
@@ -39,6 +45,12 @@ const selectByState = createDraftSafeSelector(
     (metafiles, state) => metafiles.filter(m => m.state === state)
 )
 
-const metafileSelectors = { ...selectors, selectByFilepath, selectByRepo, selectByBranch, selectByVirtual, selectByState };
+const selectByCards = createDraftSafeSelector(
+    selectors.selectEntities,
+    (_state: RootState, cards: Card[]) => cards,
+    (metafiles, cards) => cards.map(card => metafiles[card.metafile])
+)
+
+const metafileSelectors = { ...selectors, selectByIds, selectByFilepath, selectByRepo, selectByBranch, selectByVirtual, selectByState, selectByCards };
 
 export default metafileSelectors;
