@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Save } from '@material-ui/icons';
 import type { UUID } from '../types';
 import { fileSaveDialog } from '../containers/dialogs';
@@ -12,11 +12,13 @@ import { metafileUpdated } from '../store/slices/metafiles';
 import { RootState } from '../store/store';
 import { fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../store/thunks/metafiles';
 import { StyledIconButton } from './StyledIconButton';
+import { FSCache } from './Cache/FSCache';
 
 const SaveButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, props.cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const modified = metafiles.filter(m => m.state ? m.state !== 'unmodified' : false);
+    const { cache } = useContext(FSCache);
+    const modified = metafiles.filter(m => m.path && m.content !== cache.get(m.path));
     const dispatch = useAppDispatch();
 
     const save = async () => {
@@ -32,7 +34,7 @@ const SaveButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
         await Promise.all(modified
             .filter(isVirtualMetafile)
             .map(async metafile => {
-                await dispatch(fileSaveDialog(metafile));
+                await dispatch(fileSaveDialog(metafile)); // will update metafile
             })
         );
 

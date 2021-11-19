@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
@@ -15,6 +15,8 @@ import { cardRemoved } from '../../store/slices/cards';
 import { ContentBack } from './ContentBack';
 import { ContentFront } from './ContentFront';
 import SaveButton from '../SaveButton';
+import { FSCache } from '../Cache/FSCache';
+import metafileSelectors from '../../store/selectors/metafiles';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -44,7 +46,13 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+  const { subscribe, unsubscribe } = useContext(FSCache);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (metafile && metafile.path) subscribe(metafile.path);
+  }, []);
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
   const [{ isDragging }, drag] = useDrag({
@@ -111,7 +119,10 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       const captureStack = stacks[props.captured];
       if (captureStack && dropSource) dispatch(popCard({ stack: captureStack, card: dropSource }));
     }
-    if (dropSource) dispatch(cardRemoved(props.id));
+    if (dropSource) {
+      if (metafile && metafile.path) unsubscribe(metafile.path);
+      dispatch(cardRemoved(props.id));
+    }
   }
 
   return (

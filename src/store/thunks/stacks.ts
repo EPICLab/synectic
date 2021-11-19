@@ -76,7 +76,7 @@ export const pushCards = createAsyncThunk<void, { stack: Stack, cards: Card[] },
 
 /**
  * Thunk Action Creator for composing valid UPDATE_STACK, REMOVE_STACK, UPDATE_CARD, and REMOVE_CARD Redux actions for removing a child
- * card contained  within a stack. If the current Redux store does not contain a matching card (based on UUID) contained in the stack
+ * card contained within a stack. If the current Redux store does not contain a matching card (based on UUID) contained in the stack
  * passed as a parameter, then dispatching this action will not result in any changes in the Redux store state. Positioning of the
  * card becomes relative to the bounds of the canvas, unless no `delta` parameter is provide (in which case the card is deleted from
  * the Redux store as well as from the stack).
