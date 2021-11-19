@@ -6,10 +6,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.css';
 import './assets/style.css';
 import redux from './store/store';
-import CanvasComponent from './components/CanvasComponent';
 import { importFiletypes } from './store/thunks/handlers';
 import { PersistGate } from 'redux-persist/integration/react';
 import { FSCacheProvider } from './components/Cache/FSCache';
+import CanvasComponent from './components/CanvasComponent';
 
 const App = (): JSX.Element => {
 

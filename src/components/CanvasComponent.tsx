@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { shell } from 'electron';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
 import type { Modal } from '../types';
@@ -22,6 +23,7 @@ import filetypeSelectors from '../store/selectors/filetypes';
 import repoSelectors from '../store/selectors/repos';
 import modalSelectors from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
+import { FSCache } from './Cache/FSCache';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -55,6 +57,7 @@ const CanvasComponent: React.FunctionComponent = props => {
   const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const classes = useStyles();
+  const { cache, reset } = useContext(FSCache);
 
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
@@ -143,8 +146,18 @@ const CanvasComponent: React.FunctionComponent = props => {
     { label: 'Show All...', click: () => showState() },
   ];
 
+  const sysMenu: NavItemProps[] = [
+    { label: 'Clear Datastore...', click: async () => redux.persistor.purge() },
+    { label: 'View Cache...', click: async () => console.log({ cache }) },
+    { label: 'Clear Cache...', click: async () => await reset() },
+  ];
+
   const helpMenu: NavItemProps[] = [
-    { label: 'Clear Cache...', click: async () => redux.persistor.purge() },
+    {
+      label: 'GitHub Repo...', click: async () => {
+        shell.openExternal('https://github.com/EPICLab/synectic/');
+      }
+    },
   ];
 
   return (
@@ -153,6 +166,7 @@ const CanvasComponent: React.FunctionComponent = props => {
         <NavMenu label='File' submenu={fileMenu} />
         <NavMenu label='Action' submenu={actionMenu} />
         <NavMenu label='View' submenu={viewMenu} />
+        <NavMenu label='System' submenu={sysMenu} />
         <NavMenu label='Help' submenu={helpMenu} />
         <GitGraphSelect />
       </div>
