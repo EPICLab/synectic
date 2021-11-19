@@ -9,7 +9,6 @@ import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
-
 import type { Card, Metafile } from '../../types';
 import { RootState } from '../../store/store';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -20,18 +19,29 @@ import { removeUndefinedProperties } from '../../containers/format';
 import { Button, Typography } from '@material-ui/core';
 import { SourceControlButton } from '../SourceControl/SourceControlButton';
 import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
-import useContent from '../../containers/hooks/useContent';
+import { metafileUpdated } from '../../store/slices/metafiles';
 
 const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
-  const { content: code, update } = useContent(props.metafile);
+  const [code, setCode] = useState(props.metafile.content ? props.metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
+  const dispatch = useAppDispatch();
+
+  const onChange = async (newCode: string | undefined) => {
+    if (newCode) {
+      setCode(newCode);
+      if (newCode !== props.metafile.content) dispatch(metafileUpdated({ ...props.metafile, content: newCode, state: 'modified' }));
+      else dispatch(metafileUpdated({ ...props.metafile, content: newCode, state: 'unmodified' }));
+    }
+  };
 
   const mode = removeUndefinedProperties({ mode: props.metafile.filetype?.toLowerCase() });
 
   return (
-    <AceEditor {...mode} theme='monokai' onChange={update} name={props.metafile.id + '-editor'} value={code}
-      ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
-      setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
+    <>
+      <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafile.id + '-editor'} value={code}
+        ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
+        setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
+    </>
   );
 }
 
