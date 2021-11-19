@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import React, { createContext, useEffect } from 'react';
 import { PathLike } from 'fs-extra';
 import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
@@ -8,7 +8,8 @@ import { readFileAsync } from '../../containers/io';
 type FSCacheType = {
     cache: Omit<Map<PathLike, string>, "set" | "clear" | "delete">,
     subscribe: (filepath: PathLike) => Promise<void>,
-    unsubscribe: (filepath: PathLike) => Promise<void>
+    unsubscribe: (filepath: PathLike) => Promise<void>,
+    reset: () => Promise<void>
 }
 
 export const FSCache = createContext<FSCacheType>({
@@ -16,12 +17,18 @@ export const FSCache = createContext<FSCacheType>({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     subscribe: (_filepath: PathLike) => { return new Promise(resolve => resolve()) },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    unsubscribe: (_filepath: PathLike) => { return new Promise(resolve => resolve()) }
+    unsubscribe: (_filepath: PathLike) => { return new Promise(resolve => resolve()) },
+    reset: () => { return new Promise(resolve => resolve()) }
 });
 
 export const FSCacheProvider: React.FunctionComponent = props => {
     const [cache, cacheActions] = useMap<PathLike, string>([]);
     const [watchers, watcherActions] = useMap<PathLike, { watcher: FSWatcher, count: number }>([]);
+
+    useEffect(() => {
+        console.log('FSCache mount', props);
+        return () => console.log('FSCache unmount', props);
+    }, []);
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
         switch (event) {
@@ -74,8 +81,14 @@ export const FSCacheProvider: React.FunctionComponent = props => {
         }
     };
 
+    const reset = async () => {
+        cache.forEach(async (_, filepath) => {
+            await unsubscribe(filepath);
+        });
+    }
+
     return (
-        <FSCache.Provider value={{ cache, subscribe, unsubscribe }}>
+        <FSCache.Provider value={{ cache, subscribe, unsubscribe, reset }}>
             {props.children}
         </FSCache.Provider>
     );
