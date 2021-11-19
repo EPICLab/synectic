@@ -50,7 +50,7 @@ export const NavMenu: React.FunctionComponent<NavMenuProps> = ({ label, submenu 
       <Button ref={anchorRef} aria-controls={open ? `${label}-menu` : undefined} aria-haspopup='true' onClick={handleToggle}>
         {label}
       </Button>
-      <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+      <Popper open={open} anchorEl={anchorRef.current} role={undefined} style={{ zIndex: 1000 }} transition disablePortal>
         {({ TransitionProps, placement }) => (
           <Grow {...TransitionProps} style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}>
             <Paper>
