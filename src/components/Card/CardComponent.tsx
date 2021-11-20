@@ -3,7 +3,7 @@ import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-d
 import { CSSTransition } from 'react-transition-group';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import CloseIcon from '@material-ui/icons/Close';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Tooltip, Typography } from '@material-ui/core';
 import type { Card } from '../../types';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
@@ -17,6 +17,7 @@ import { ContentFront } from './ContentFront';
 import SaveButton from '../SaveButton';
 import { FSCache } from '../Cache/FSCache';
 import metafileSelectors from '../../store/selectors/metafiles';
+import CommitButton from '../CommitButton';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -131,9 +132,10 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       style={{ zIndex: props.zIndex, left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
+        <CommitButton cardIds={[props.id]} />
         <SaveButton cardIds={[props.id]} />
-        {(!props.captured) && <StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton>}
-        {(!props.captured) && <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>}
+        {(!props.captured) && <Tooltip title='Flip'><StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton></Tooltip>}
+        {(!props.captured) && <Tooltip title='Close'><StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton></Tooltip>}
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>
