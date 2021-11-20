@@ -13,6 +13,7 @@ import { RootState } from '../store/store';
 import { fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../store/thunks/metafiles';
 import { StyledIconButton } from './StyledIconButton';
 import { FSCache } from './Cache/FSCache';
+import { Tooltip } from '@material-ui/core';
 
 const SaveButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, props.cardIds));
@@ -58,14 +59,16 @@ const SaveButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
     return (
         <>
             {modified.length > 0 && !isCaptured &&
-                <StyledIconButton
-                    aria-label='save'
-                    onClick={save}
-                    onMouseEnter={onHover}
-                    onMouseLeave={offHover}
-                >
-                    <Save />
-                </StyledIconButton>}
+                <Tooltip title='Save'>
+                    <StyledIconButton
+                        aria-label='save'
+                        onClick={save}
+                        onMouseEnter={onHover}
+                        onMouseLeave={offHover}
+                    >
+                        <Save />
+                    </StyledIconButton>
+                </Tooltip>}
         </>
     );
 }
