@@ -11,6 +11,8 @@ import { stackRemoved } from '../../store/slices/stacks';
 import { StyledIconButton } from '../StyledIconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveButton from '../SaveButton';
+import CommitButton from '../CommitButton';
+import { Tooltip } from '@material-ui/core';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -95,7 +97,8 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
 
   return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
     style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
-    <StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton>
+    <Tooltip title='Close Stack'><StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton></Tooltip>
+    <CommitButton cardIds={capturedCards.map(c => c.id)} />
     <SaveButton cardIds={capturedCards.map(c => c.id)} />
     {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}
     {props.children}
