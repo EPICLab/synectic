@@ -4,7 +4,6 @@ import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
 import { isDirectory, readFileAsync } from '../../containers/io';
-import { isFilebasedMetafile } from '../../store/thunks/metafiles';
 
 type FSCacheType = {
     cache: Omit<Map<PathLike, string>, "set" | "clear" | "delete">,
