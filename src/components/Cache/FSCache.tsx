@@ -3,7 +3,8 @@ import { PathLike } from 'fs-extra';
 import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
-import { readFileAsync } from '../../containers/io';
+import { isDirectory, readFileAsync } from '../../containers/io';
+import { isFilebasedMetafile } from '../../store/thunks/metafiles';
 
 type FSCacheType = {
     cache: Omit<Map<PathLike, string>, "set" | "clear" | "delete">,
@@ -33,12 +34,14 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
         switch (event) {
             case 'add': {
-                const content = await readFileAsync(filename, { encoding: 'utf-8' });
-                cacheActions.set(filename, content);
+                if (!isDirectory(filename)) {
+                    const content = await readFileAsync(filename, { encoding: 'utf-8' });
+                    cacheActions.set(filename, content);
 
-                const newWatcher = watch(filename.toString(), { ignoreInitial: true });
-                newWatcher.on('all', eventHandler);
-                watcherActions.set(filename, { watcher: newWatcher, count: 1 });
+                    const newWatcher = watch(filename.toString(), { ignoreInitial: true });
+                    newWatcher.on('all', eventHandler);
+                    watcherActions.set(filename, { watcher: newWatcher, count: 1 });
+                }
                 break;
             }
             case 'change': {
@@ -61,7 +64,7 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     const subscribe = async (filepath: PathLike) => {
         const watcher = watchers.get(filepath);
 
-        if (watcher !== undefined) {
+        if (watcher !== undefined && !isDirectory(filepath)) {
             watcherActions.set(filepath, { ...watcher, count: watcher.count + 1 });
         } else {
             await eventHandler('add', filepath);
