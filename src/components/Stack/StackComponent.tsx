@@ -57,7 +57,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
           const dropSource = cards[monitor.getItem().id];
           if (!dropTarget || !dropSource) return; // something isn't correct with this drop event
           if (dropSource.captured && dropSource.captured !== dropTarget.id) {
-            dispatch(popCard({ stack: dropTarget, card: dropSource, delta: delta }));
+            dispatch(popCard({ card: dropSource, delta: delta }));
             dispatch(pushCards({ stack: dropTarget, cards: [dropSource] }));
           } else if (!dropSource.captured) {
             dispatch(pushCards({ stack: dropTarget, cards: [dropSource] }));
@@ -82,11 +82,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
     }
   });
   const close = async () => {
-    await Promise.all(capturedCards.map(async (card, idx) => await dispatch(popCard({
-      stack: props,
-      card: card,
-      delta: { x: card.left + (idx * 25), y: card.top + (idx * 25) }
-    }))));
+    await Promise.all(capturedCards.map(async card => await dispatch(popCard({ card: card }))));
     // dispatch(stackRemoved(props.id));
   }
 

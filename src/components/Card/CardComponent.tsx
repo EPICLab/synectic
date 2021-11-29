@@ -83,7 +83,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
           const dropSource = cards[monitor.getItem().id];
           if (dropSource && dropSource.captured) {
             const captureStack = stacks[dropSource.captured];
-            if (captureStack) dispatch(popCard({ stack: captureStack, card: dropSource, delta: delta }));
+            if (captureStack) dispatch(popCard({ card: dropSource, delta: delta }));
           }
           if (dropTarget && dropTarget.captured) {
             const capturingStack = stacks[dropTarget.captured];
@@ -116,9 +116,8 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const flip = () => setFlipped(!flipped);
   const close = () => {
     const dropSource = cards[props.id];
-    if (props.captured) {
-      const captureStack = stacks[props.captured];
-      if (captureStack && dropSource) dispatch(popCard({ stack: captureStack, card: dropSource }));
+    if (props.captured && dropSource) {
+      dispatch(popCard({ card: dropSource }));
     }
     if (dropSource) {
       if (metafile && metafile.path) unsubscribe(metafile.path);

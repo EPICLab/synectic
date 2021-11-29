@@ -69,8 +69,7 @@ const CanvasComponent: React.FunctionComponent = props => {
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!card || !delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
           if (card.captured) {
-            const captureStack = stacks[card.captured];
-            if (captureStack) dispatch(popCard({ stack: captureStack, card: card, delta: delta }));
+            dispatch(popCard({ card: card, delta: delta }));
           } else {
             dispatch(cardUpdated({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
           }
