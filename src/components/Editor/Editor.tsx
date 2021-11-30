@@ -16,7 +16,7 @@ import repoSelectors from '../../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { BranchList } from '../SourceControl/BranchList';
 import { removeUndefinedProperties } from '../../containers/format';
-import { Button, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { SourceControlButton } from '../SourceControl/SourceControlButton';
 import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
 import { metafileUpdated } from '../../store/slices/metafiles';
@@ -43,13 +43,6 @@ const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
         setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
     </>
   );
-}
-
-export const RevertButton: React.FunctionComponent<Metafile> = props => {
-  const dispatch = useAppDispatch();
-  const revert = async () => isFilebasedMetafile(props) ? await dispatch(revertStagedChanges(props)) : undefined;
-  const changes = props.path && props.status && ['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? true : false;
-  return (<Button onClick={revert} disabled={!changes}>Undo Changes</Button>)
 }
 
 export const EditorReverse: React.FunctionComponent<Card> = props => {
