@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
 
-import type { Modal, UUID } from '../types';
+import type { Modal } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { modalRemoved } from '../store/slices/modals';
 import { commit, getConfig, getRepoRoot } from '../containers/git-porcelain';
@@ -52,10 +52,10 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const CommitDialog: React.FunctionComponent<Modal & { parent: UUID }> = props => {
+const CommitDialog: React.FunctionComponent<Modal> = props => {
     const classes = useStyles();
     const [message, setMessage] = useState('');
-    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.parent));
+    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.target ? props.target : '0'));
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
     const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
     const dispatch = useAppDispatch();
