@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Undo } from '@material-ui/icons';
 import type { UUID } from '../types';
 import { fileSaveDialog } from '../containers/dialogs';
-import { writeFileAsync } from '../containers/io';
+import { readFileAsync, writeFileAsync } from '../containers/io';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addItemInArray, removeItemInArray } from '../store/immutables';
 import cardSelectors from '../store/selectors/cards';
@@ -26,21 +26,16 @@ const UndoButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
         await Promise.all(modified
             .filter(isFileMetafile)
             .map(async metafile => {
-                await writeFileAsync(metafile.path, metafile.content);
+                const updatedContent = await readFileAsync(metafile.path, { encoding: 'utf-8' });
                 const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                dispatch(metafileUpdated({ ...metafile, ...vcs, state: 'unmodified' }));
-            })
-        );
-
-        await Promise.all(modified
-            .filter(isVirtualMetafile)
-            .map(async metafile => {
-                await dispatch(fileSaveDialog(metafile)); // will update metafile
+                dispatch(metafileUpdated({ ...metafile, ...vcs, state: 'unmodified', content: updatedContent }));
             })
         );
 
         offHover();
     }
+
+    const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
 
     const onHover = () => {
         if (cards.length > 1) {
@@ -55,7 +50,7 @@ const UndoButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
 
     return (
         <>
-            {modified.length > 0 &&
+            {modified.length > 0 && !isCaptured &&
                 <Tooltip title='Undo'>
                     <StyledIconButton
                         aria-label='undo'
