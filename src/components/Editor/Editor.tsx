@@ -16,9 +16,8 @@ import repoSelectors from '../../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { BranchList } from '../SourceControl/BranchList';
 import { removeUndefinedProperties } from '../../containers/format';
-import { Button, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { SourceControlButton } from '../SourceControl/SourceControlButton';
-import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
 import { metafileUpdated } from '../../store/slices/metafiles';
 
 const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
@@ -45,13 +44,6 @@ const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
   );
 }
 
-export const RevertButton: React.FunctionComponent<Metafile> = props => {
-  const dispatch = useAppDispatch();
-  const revert = async () => isFilebasedMetafile(props) ? await dispatch(revertStagedChanges(props)) : undefined;
-  const changes = props.path && props.status && ['*added', 'added', '*deleted', 'deleted', '*modified', 'modified'].includes(props.status) ? true : false;
-  return (<Button onClick={revert} disabled={!changes}>Undo Changes</Button>)
-}
-
 export const EditorReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
@@ -67,7 +59,6 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span><Typography variant='body2'>Name:</Typography></span><span className='field'><Typography variant='body2'>{props.name}</Typography></span>
       <span><Typography variant='body2'>Update:</Typography></span><span className='field'><Typography variant='body2'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</Typography></span>
       <span><Typography variant='body2'>State:</Typography></span><span className='field'><Typography variant='body2'>{metafile ? metafile.state : ''}</Typography></span>
-      <span><Typography variant='body2'>Changes:</Typography></span>{metafile ? <RevertButton {...metafile} /> : undefined}
       <span><Typography variant='body2'>Repo:</Typography></span><span className='field'><Typography variant='body2'>{repo ? repo.name : 'Untracked'}</Typography></span>
       {repo ?
         <>
