@@ -33,7 +33,7 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
         switch (event) {
             case 'add': {
-                if (!isDirectory(filename)) {
+                if (!(await isDirectory(filename))) {
                     const content = await readFileAsync(filename, { encoding: 'utf-8' });
                     cacheActions.set(filename, content);
 

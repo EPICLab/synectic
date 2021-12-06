@@ -146,7 +146,7 @@ export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'bra
         const root = await getRepoRoot(metafile.path); // linked worktrees dictate that root can be different from the repo.root
         const repo = await thunkAPI.dispatch(fetchRepo(metafile)).unwrap();
         const current = repo ? await currentBranch({ dir: root ? root : repo.root.toString(), fullname: false }) : undefined;
-        const branch = (repo && !current) ? 'HEAD' : undefined;
+        const branch = (repo && !current) ? 'HEAD' : current;
         const status = repo ? await getStatus(metafile.path) : undefined;
         return removeUndefinedProperties({ repo: repo?.id, branch: branch, status: status });
     }
