@@ -19,7 +19,6 @@ import { removeUndefinedProperties } from '../../containers/format';
 import { Typography } from '@material-ui/core';
 import { SourceControlButton } from '../SourceControl/SourceControlButton';
 import { metafileUpdated } from '../../store/slices/metafiles';
-import RevertButton from '../RevertButton';
 
 const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
   const [code, setCode] = useState(props.metafile.content ? props.metafile.content : '');
@@ -60,7 +59,6 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <span><Typography variant='body2'>Name:</Typography></span><span className='field'><Typography variant='body2'>{props.name}</Typography></span>
       <span><Typography variant='body2'>Update:</Typography></span><span className='field'><Typography variant='body2'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</Typography></span>
       <span><Typography variant='body2'>State:</Typography></span><span className='field'><Typography variant='body2'>{metafile ? metafile.state : ''}</Typography></span>
-      <span><Typography variant='body2'>Changes:</Typography></span>{metafile ? <RevertButton cardIds={[props.id]} /> : undefined}
       <span><Typography variant='body2'>Repo:</Typography></span><span className='field'><Typography variant='body2'>{repo ? repo.name : 'Untracked'}</Typography></span>
       {repo ?
         <>
