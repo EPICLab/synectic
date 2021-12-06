@@ -22,8 +22,8 @@ const RevertButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
 
     const revert = async () => {
         // map each staged and unstaged change
-        unstaged.filter(isFilebasedMetafile).map(async m => await dispatch(revertStagedChanges(m)));
-        staged.filter(isFilebasedMetafile).map(async m => await dispatch(revertStagedChanges(m)));
+        await Promise.all(unstaged.filter(isFilebasedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
+        await Promise.all(staged.filter(isFilebasedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
     }
 
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
