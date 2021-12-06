@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
 import { Undo } from '@material-ui/icons';
 import type { UUID } from '../types';
-import { fileSaveDialog } from '../containers/dialogs';
-import { readFileAsync, writeFileAsync } from '../containers/io';
+import { readFileAsync } from '../containers/io';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addItemInArray, removeItemInArray } from '../store/immutables';
 import cardSelectors from '../store/selectors/cards';
@@ -10,7 +9,7 @@ import metafileSelectors from '../store/selectors/metafiles';
 import { cardUpdated } from '../store/slices/cards';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { RootState } from '../store/store';
-import { fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../store/thunks/metafiles';
+import { fetchVersionControl, isFileMetafile } from '../store/thunks/metafiles';
 import { StyledIconButton } from './StyledIconButton';
 import { FSCache } from './Cache/FSCache';
 import { Tooltip } from '@material-ui/core';
