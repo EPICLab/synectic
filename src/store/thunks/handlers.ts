@@ -76,47 +76,27 @@ type CardLoadableFields =
 export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI & { rejectValue: string }>(
   'handlers/loadCard',
   async (param, thunkAPI) => {
-    if (param.metafile) {
-      if (isHandlerRequiredMetafile(param.metafile)) {
-        thunkAPI.dispatch(cardAdded({
-          id: v4(),
-          name: param.metafile.name,
-          created: DateTime.local().valueOf(),
-          modified: param.metafile.modified,
-          zIndex: 0,
-          left: 10,
-          top: 70,
-          type: param.metafile.handler,
-          metafile: param.metafile.id,
-          classes: []
-        }))
-      } else {
-        thunkAPI.rejectWithValue(`Metafile '${param.metafile.name}' missing handler for filetype: '${param.metafile.filetype}'`);
-      }
+    const metafile = param.metafile ? param.metafile : await thunkAPI.dispatch(fetchMetafile({ filepath: param.filepath })).unwrap();
+    if (param.filepath) thunkAPI.dispatch(metafileAdded(metafile));
+    if (param.filepath && isFilebasedMetafile(metafile)) {
+      const vcs = await thunkAPI.dispatch(fetchVersionControl(metafile)).unwrap();
+      thunkAPI.dispatch(metafileUpdated({ ...metafile, ...vcs }));
     }
-    if (param.filepath) {
-      const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: param.filepath })).unwrap();
-      thunkAPI.dispatch(metafileAdded(metafile));
-      if (isFilebasedMetafile(metafile)) {
-        const vcs = await thunkAPI.dispatch(fetchVersionControl(metafile)).unwrap();
-        thunkAPI.dispatch(metafileUpdated({ ...metafile, ...vcs }));
-      }
-      if (isHandlerRequiredMetafile(metafile)) {
-        thunkAPI.dispatch(cardAdded({
-          id: v4(),
-          name: metafile.name,
-          created: DateTime.local().valueOf(),
-          modified: metafile.modified,
-          zIndex: 0,
-          left: 10,
-          top: 70,
-          type: metafile.handler,
-          metafile: metafile.id,
-          classes: []
-        }));
-      } else {
-        thunkAPI.rejectWithValue(`Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`);
-      }
+    if (isHandlerRequiredMetafile(metafile)) {
+      thunkAPI.dispatch(cardAdded({
+        id: v4(),
+        name: metafile.name,
+        created: DateTime.local().valueOf(),
+        modified: metafile.modified,
+        zIndex: 0,
+        left: 10,
+        top: 70,
+        type: metafile.handler,
+        metafile: metafile.id,
+        classes: []
+      }));
+    } else {
+      thunkAPI.rejectWithValue(`Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`);
     }
   }
 )
