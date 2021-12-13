@@ -17,7 +17,7 @@ export const ContentFront: React.FunctionComponent<Card> = props => {
         return null;
     switch (props.type) {
         case 'Editor':
-            return (<Editor metafile={metafile} />);
+            return (<Editor metafileId={props.metafile} />);
         case 'Diff':
             return (<Diff metafile={metafile} />);
         case 'Explorer':

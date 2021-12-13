@@ -9,7 +9,7 @@ import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
-import type { Card, Metafile } from '../../types';
+import type { Card, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
@@ -20,8 +20,8 @@ import { Typography } from '@material-ui/core';
 import { SourceControlButton } from '../SourceControl/SourceControlButton';
 import { metafileUpdated } from '../../store/slices/metafiles';
 
-const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile.id));
+const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
   const [code, setCode] = useState(metafile && metafile.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
   const dispatch = useAppDispatch();
@@ -42,7 +42,7 @@ const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
 
   return (
     <>
-      <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafile.id + '-editor'} value={code}
+      <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafileId + '-editor'} value={code}
         ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
         setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
     </>
