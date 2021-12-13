@@ -113,8 +113,9 @@ const CanvasComponent: React.FunctionComponent = props => {
     { label: 'New...', click: () => dispatch(modalAdded(newCardDialogModal)) },
     ...(isMac ? [{ label: 'Open...', click: () => dispatch(fileOpenDialog()) }] : [
       { label: 'Open File...', click: () => dispatch(fileOpenDialog('openFile')) },
-      { label: 'Open Directory...', click: () => dispatch(fileOpenDialog('openDirectory')) }
-    ])
+      { label: 'Open Directory...', click: () => dispatch(fileOpenDialog('openDirectory')) },
+    ]),
+    { label: 'Clone...', click: () => dispatch(modalAdded({ id: v4(), type: 'CloneSelector' })) },
   ];
 
   const diffPickerModal: Modal = {
@@ -129,15 +130,10 @@ const CanvasComponent: React.FunctionComponent = props => {
     id: v4(),
     type: 'SourcePicker'
   }
-  const cloneSelectorModal: Modal = {
-    id: v4(),
-    type: 'CloneSelector'
-  }
   const actionMenu: NavItemProps[] = [
     { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(modalAdded(diffPickerModal)) },
     { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
-    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
-    { label: 'Clone...', click: () => dispatch(modalAdded(cloneSelectorModal)) },
+    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) }
   ];
 
   const viewMenu: NavItemProps[] = [
