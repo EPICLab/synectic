@@ -15,7 +15,7 @@ Pre-built releases are available for MacOS, Linux, and Windows. The following fo
 * Linux - `deb` (Debian-based, e.g. Ubuntu), `rpm` (RedHat-based, e.g. Fedora)
 * Windows - `exe`, `nupkg` ([Squirrel.Windows](https://www.electronforge.io/config/makers/squirrel.windows) target)
 
-Downloads: [https://nomatic.dev/synectic/](https://nomatic.dev/synectic/)
+Downloads: [https://nomatic.dev/synectic](https://nomatic.dev/synectic)
 
 # Install
 
