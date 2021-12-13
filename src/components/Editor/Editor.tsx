@@ -21,19 +21,24 @@ import { SourceControlButton } from '../SourceControl/SourceControlButton';
 import { metafileUpdated } from '../../store/slices/metafiles';
 
 const Editor: React.FunctionComponent<{ metafile: Metafile }> = props => {
-  const [code, setCode] = useState(props.metafile.content ? props.metafile.content : '');
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile.id));
+  const [code, setCode] = useState(metafile && metafile.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
   const dispatch = useAppDispatch();
+
+  useEffect(() => (metafile && metafile.content) ? setCode(metafile.content) : undefined, [metafile]);
 
   const onChange = async (newCode: string | undefined) => {
     if (newCode) {
       setCode(newCode);
-      if (newCode !== props.metafile.content) dispatch(metafileUpdated({ ...props.metafile, content: newCode, state: 'modified' }));
-      else dispatch(metafileUpdated({ ...props.metafile, content: newCode, state: 'unmodified' }));
+      if (metafile) {
+        if (newCode !== metafile.content) dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
+        else dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'unmodified' }));
+      }
     }
   };
 
-  const mode = removeUndefinedProperties({ mode: props.metafile.filetype?.toLowerCase() });
+  const mode = removeUndefinedProperties({ mode: metafile?.filetype?.toLowerCase() });
 
   return (
     <>
