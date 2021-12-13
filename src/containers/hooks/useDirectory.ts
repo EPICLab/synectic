@@ -44,6 +44,7 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     };
 
     const update = async (event: WatchEventType, filename: PathLike) => {
+        console.log(`useDirectory update for ${filename.toString()}`);
         switch (event) {
             case 'unlink': {
                 fileActions.remove(filename.toString());
@@ -78,16 +79,16 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     };
 
     const updateFileMetafile = async (metafile: FileMetafile) => {
-        const content = await dispatch(fetchContent({ filepath: metafile.path })).unwrap();
+        const contentAndState = await dispatch(fetchContent({ filepath: metafile.path })).unwrap();
         const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-        dispatch(metafileUpdated({ ...metafile, ...content, ...vcs }));
+        dispatch(metafileUpdated({ ...metafile, ...contentAndState, ...vcs }));
         fileActions.set(metafile.path.toString(), metafile);
     }
 
     const updateDirectoryMetafile = async (metafile: DirectoryMetafile) => {
-        const contains = await dispatch(fetchContains(metafile.path)).unwrap();
+        const containsAndState = await dispatch(fetchContains(metafile.path)).unwrap();
         const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-        dispatch(metafileUpdated({ ...metafile, ...contains, ...vcs }));
+        dispatch(metafileUpdated({ ...metafile, ...containsAndState, ...vcs }));
         directoryActions.set(metafile.path.toString(), metafile);
     }
 
