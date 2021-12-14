@@ -55,12 +55,19 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
     };
 
     const commit = async () => {
-        const commitDialogModal: Modal = {
-            id: v4(),
-            type: 'CommitDialog',
-            target: staged[0].id
-        };
-        dispatch(modalAdded(commitDialogModal));
+        const firstMetafile = staged[0];
+        if (firstMetafile.repo && firstMetafile.branch) {
+            const commitDialogModal: Modal = {
+                id: v4(),
+                type: 'CommitDialog',
+                target: firstMetafile.id,
+                options: {
+                    'repo': firstMetafile.repo,
+                    'branch': firstMetafile.branch
+                }
+            };
+            dispatch(modalAdded(commitDialogModal));
+        }
     };
 
     // checks for whether button is on a single card and also captured
