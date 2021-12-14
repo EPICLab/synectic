@@ -81,15 +81,10 @@ export const fetchMetafilesByVirtual = createAsyncThunk<VirtualMetafile[], { nam
 export const fetchMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThunkAPI>(
     'metafiles/fetchMetafile',
     async (input, thunkAPI) => {
-        return (await thunkAPI.dispatch(fetchNewMetafile(input)).unwrap());
-
-        // NOTE: Commented out the code below because having multiple copies of the same file opened into
-        // cards needs to allow for simultaneous edits, so each one needs a different metafile.
-        //
-        // const existing = await (input.virtual ?
-        //     thunkAPI.dispatch(fetchMetafilesByVirtual(input.virtual)) :
-        //     thunkAPI.dispatch(fetchMetafilesByFilepath(input.filepath))).unwrap();
-        // return existing.length > 0 ? existing[0] : (await thunkAPI.dispatch(fetchNewMetafile(input)).unwrap());
+        const existing = await (input.virtual ?
+            thunkAPI.dispatch(fetchMetafilesByVirtual(input.virtual)) :
+            thunkAPI.dispatch(fetchMetafilesByFilepath(input.filepath))).unwrap();
+        return existing.length > 0 ? existing[0] : (await thunkAPI.dispatch(fetchNewMetafile(input)).unwrap());
     }
 );
 
