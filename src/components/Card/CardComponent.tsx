@@ -49,6 +49,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+  const subscribedCards = useAppSelector((state: RootState) => cardSelectors.selectByMetafiles(state, metafile ? [metafile] : []));
   const { subscribe, unsubscribe } = useContext(FSCache);
   const dispatch = useAppDispatch();
 
@@ -121,7 +122,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       dispatch(popCard({ card: dropSource }));
     }
     if (dropSource) {
-      if (metafile && metafile.path) unsubscribe(metafile.path);
+      if (metafile && metafile.path && subscribedCards.length <= 1) unsubscribe(metafile.path);
       dispatch(cardRemoved(props.id));
     }
   }
