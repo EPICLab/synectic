@@ -40,7 +40,7 @@ export const BranchList: React.FunctionComponent<{ metafileId: string; cardId: s
     <FormControl id='branch-control' className={cssClasses.root}>
       <Select labelId='branch-selection-name-label' id='branch-name' value={branch}
         className={cssClasses.root} autoWidth={true} input={<Input className={cssClasses.root} />}
-        onChange={(e) => checkout(e.target.value as string)}>
+        onChange={(e) => checkout(e.target.value as string)} disableUnderline>
         {repo && Object.values(repo.local).filter(local => local !== 'HEAD').map(local => (<MenuItem key={local} value={local}><Typography variant='body2'>{local}</Typography></MenuItem>)
         )}
         {branch == 'untracked' && <MenuItem key={branch} value={branch}><Typography variant='body2'>{branch}</Typography></MenuItem>}
