@@ -14,11 +14,13 @@ import { RootState } from '../../store/store';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { BranchList } from '../SourceControl/BranchList';
 import { removeUndefinedProperties } from '../../containers/format';
 import { Typography } from '@material-ui/core';
-import { SourceControlButton } from '../SourceControl/SourceControlButton';
 import { metafileUpdated } from '../../store/slices/metafiles';
+import RevertButton from '../RevertButton';
+import CommitButton from '../CommitButton';
+import { BranchList } from '../SourceControl/BranchList';
+import { SourceControlButton } from '../SourceControl/SourceControlButton';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
@@ -49,27 +51,37 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   );
 }
 
+const DataField: React.FunctionComponent<{ title: string, field: React.ReactNode, textField?: boolean }> = props => {
+  return (<>
+    <div className='title'><Typography variant='body2'>{props.title}:</Typography></div>
+    {props.textField ?
+      <div className='field'><Typography variant='body2'>{props.field}</Typography></div> :
+      <div className='field'>{props.field}</div>
+    }
+  </>);
+}
+
 export const EditorReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
-
-  useEffect(() => {
-    console.log('metafile changed:');
-    console.log({ metafile });
-  }, [metafile]);
+  const sourceButton = false;
 
   return (
     <>
-      <span><Typography variant='body2'>Name:</Typography></span><span className='field'><Typography variant='body2'>{props.name}</Typography></span>
-      <span><Typography variant='body2'>Update:</Typography></span><span className='field'><Typography variant='body2'>{DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)}</Typography></span>
-      <span><Typography variant='body2'>State:</Typography></span><span className='field'><Typography variant='body2'>{metafile ? metafile.state : ''}</Typography></span>
-      <span><Typography variant='body2'>Repo:</Typography></span><span className='field'><Typography variant='body2'>{repo ? repo.name : 'Untracked'}</Typography></span>
+      <div className='buttons'>
+        <RevertButton cardIds={[props.id]} />
+        <CommitButton cardIds={[props.id]} />
+        {metafile && repo && sourceButton ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
+      </div>
+      <DataField title='UUID' textField field={props.id} />
+      <DataField title='Update' textField field={DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)} />
+      <DataField title='State' textField field={metafile ? metafile.state : ''} />
+      <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
       {repo ?
         <>
-          <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
-          <span>Status:</span><span className='field'><Typography variant='body2'>{metafile ? metafile.status : ''}</Typography></span>
-          <span>Versions:</span>{metafile ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
+          <DataField title='Status' textField field={metafile ? metafile.status : ''} />
+          <DataField title='Branch' field={metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined} />
         </>
         : undefined}
     </>

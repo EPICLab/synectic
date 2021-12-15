@@ -94,28 +94,63 @@ body {
 }
 
 .card-front {
-  background-color: rgba(40, 44, 52, 1);
+  background: rgba(40, 44, 52, 1);
 }
 
+
 .card-back {
-  background-color: rgba(232, 233, 233, 1);
+  background: rgba(232, 233, 233, 1);
   display: grid;
   grid-template-columns: minmax(2rem, 1.2fr) minmax(5rem, 3fr);
-  column-gap: 0.1rem;
-  grid-template-rows: repeat(auto-fill, minmax(1.7rem, 1fr));
+  grid-template-rows: 35px repeat(auto-fill, minmax(1.7rem, 1fr));
   row-gap: 0.25rem;
 }
 
-.card-back * {
+.card-back .buttons {
+  grid-row: 1;
+  grid-column: 1 / 3;
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+}
+
+.card-back .buttons:after {
+  content: '';
+  display: block;
+  position: absolute;
+  margin: 0 auto 0 10%;
+  width: 80%;
+  padding-top: 35px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.22);
+}
+
+.card-back button {
+  height: 15px;
+  width: 15px;
+  border: 0;
+  z-index: 9999;
+}
+
+.card-back button:first-of-type {
+  margin-left: 5px;
+}
+
+.card-back .title *, .card-back .field * {
   font-size: small;
-  padding: 0.2rem;
-  margin: 0.1rem;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.card-back .field {
-  border-bottom: 0.5px solid rgba(40, 44, 52, 1);
+.card-back .title * {
+  text-transform: uppercase;
+}
+
+.card-back .title, .card-back .field {
+  margin: auto 3px;
+}
+
+.card-back .title {
+  border-right: 0.1px solid rgba(0, 0, 0, 0.22);
 }
 
 /* CSSTransition from react-transition-group uses *-enter, *-enter-active,

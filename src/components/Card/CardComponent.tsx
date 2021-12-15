@@ -10,15 +10,14 @@ import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
 import { StyledIconButton } from '../StyledIconButton';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
+import metafileSelectors from '../../store/selectors/metafiles';
 import stackSelectors from '../../store/selectors/stacks';
 import { cardRemoved } from '../../store/slices/cards';
 import { ContentBack } from './ContentBack';
 import { ContentFront } from './ContentFront';
 import SaveButton from '../SaveButton';
+import UndoButton from '../UndoButton';
 import { FSCache } from '../Cache/FSCache';
-import metafileSelectors from '../../store/selectors/metafiles';
-import CommitButton from '../CommitButton';
-import RevertButton from '../RevertButton';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -33,7 +32,7 @@ export const useStyles = makeStyles({
   root: {
     color: 'rgba(171, 178, 191, 1.0)',
     fontSize: 'small',
-    fontFamily: '\'Lato\', Georgia, Serif'
+    fontFamily: '\'Lato\', Georgia, Serif',
   },
 });
 
@@ -133,8 +132,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       style={{ zIndex: props.zIndex, left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.name}>
-        <RevertButton cardIds={[props.id]} />
-        <CommitButton cardIds={[props.id]} />
+        <UndoButton cardIds={[props.id]} />
         <SaveButton cardIds={[props.id]} />
         {(!props.captured) && <Tooltip title='Flip'><StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton></Tooltip>}
         {(!props.captured) && <Tooltip title='Close'><StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton></Tooltip>}
