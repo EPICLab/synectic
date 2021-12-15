@@ -3,11 +3,11 @@ import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-d
 import { CSSTransition } from 'react-transition-group';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import CloseIcon from '@material-ui/icons/Close';
-import { makeStyles, Tooltip, Typography } from '@material-ui/core';
+import { IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core';
 import type { Card } from '../../types';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
-import { StyledIconButton } from '../StyledIconButton';
+import { useIconButtonStyle } from '../StyledIconButton';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -51,6 +51,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const subscribedCards = useAppSelector((state: RootState) => cardSelectors.selectByMetafiles(state, metafile ? [metafile] : []));
   const { subscribe, unsubscribe } = useContext(FSCache);
   const dispatch = useAppDispatch();
+  const classes = useIconButtonStyle({ mode: 'light' });
 
   useEffect(() => {
     if (metafile && metafile.path) subscribe(metafile.path);
@@ -134,8 +135,8 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       <Header title={props.name}>
         <UndoButton cardIds={[props.id]} />
         <SaveButton cardIds={[props.id]} />
-        {(!props.captured) && <Tooltip title='Flip'><StyledIconButton aria-label='flip' onClick={flip} ><AutorenewIcon /></StyledIconButton></Tooltip>}
-        {(!props.captured) && <Tooltip title='Close'><StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton></Tooltip>}
+        {(!props.captured) && <Tooltip title='Flip'><IconButton className={classes.root} aria-label='flip' onClick={flip} ><AutorenewIcon /></IconButton></Tooltip>}
+        {(!props.captured) && <Tooltip title='Close'><IconButton className={classes.root} aria-label='close' onClick={close} ><CloseIcon /></IconButton></Tooltip>}
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>

@@ -8,11 +8,11 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
 import { stackRemoved } from '../../store/slices/stacks';
-import { StyledIconButton } from '../StyledIconButton';
+import { useIconButtonStyle } from '../StyledIconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveButton from '../SaveButton';
 import CommitButton from '../CommitButton';
-import { Tooltip } from '@material-ui/core';
+import { IconButton, Tooltip } from '@material-ui/core';
 
 const DnDItemType = {
   CARD: 'CARD',
@@ -28,6 +28,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const capturedCards = useAppSelector((state: RootState) => cardSelectors.selectByStack(state, props.id));
   const dispatch = useAppDispatch();
+  const classes = useIconButtonStyle({ mode: 'light' });
 
   // Enable StackComponent as a drop source (i.e. allowing this stack to be draggable)
   const [{ isDragging }, drag] = useDrag({
@@ -93,7 +94,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
 
   return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
     style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
-    <Tooltip title='Close Stack'><StyledIconButton aria-label='close' onClick={close} ><CloseIcon /></StyledIconButton></Tooltip>
+    <Tooltip title='Close Stack'><IconButton className={classes.root} aria-label='close' onClick={close} ><CloseIcon /></IconButton></Tooltip>
     <CommitButton cardIds={capturedCards.map(c => c.id)} />
     <SaveButton cardIds={capturedCards.map(c => c.id)} />
     {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}

@@ -29,10 +29,6 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       '&:hover > $content': {
         backgroundColor: theme.palette.action.hover,
       },
-      // '&:focus > $content, &$selected > $content': {
-      //   backgroundColor: `var(--tree-view-bg-color, ${theme.palette.grey[400]})`,
-      //   color: 'var(--tree-view-color)',
-      // },
       '&:focus > $content $label, &:hover > $content $label, &$selected > $content $label': {
         backgroundColor: 'transparent',
       }
@@ -42,7 +38,6 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       color: theme.palette.text.secondary,
       borderTopRightRadius: theme.spacing(2),
       borderBottomRightRadius: theme.spacing(2),
-      // paddingRight: theme.spacing(1),
       ...removeUndefinedProperties({ fontWeight: theme.typography.fontWeightMedium }),
       '$expanded > &': {
         ...removeUndefinedProperties({ fontWeight: theme.typography.fontWeightRegular }),

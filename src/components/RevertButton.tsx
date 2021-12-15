@@ -5,11 +5,11 @@ import cardSelectors from '../store/selectors/cards';
 import metafileSelectors from '../store/selectors/metafiles';
 import { RootState } from '../store/store';
 import { isFilebasedMetafile, revertStagedChanges } from '../store/thunks/metafiles';
-import { Tooltip } from '@material-ui/core';
+import { IconButton, Tooltip } from '@material-ui/core';
 import { History } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../store/immutables';
 import { cardUpdated } from '../store/slices/cards';
-import { StyledIconButton } from './StyledIconButton';
+import { Mode, useIconButtonStyle } from './StyledIconButton';
 
 /**
  * Button for reverting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
@@ -17,17 +17,19 @@ import { StyledIconButton } from './StyledIconButton';
  * associated metafile has a VCS status of `added`, `*added`, `modified`, `*modified`, `deleted`, `*deleted`, `*modified`, or `*undeleted`.
  * Clicking on the button will trigger all changed metafiles to have their content reverted back to the most recent commit in the associated 
  * repository and branch.
- * @param props List of Card UUIDs that should be tracked by this button.
+ * @param cardIds List of Card UUIDs that should be tracked by this button.
+ * @param mode Optional theme mode for switching between light and dark themes.
  * @returns 
  */
-const RevertButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, props.cardIds));
+const RevertButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({ mode = 'light', cardIds }) => {
+    const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles
         .filter(m => m.status ? ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status) : false);
     const staged = metafiles
         .filter(m => m.status ? ['added', 'modified', 'deleted'].includes(m.status) : false);
     const dispatch = useAppDispatch();
+    const classes = useIconButtonStyle({ mode: mode });
 
     const revert = async () => {
         // map each staged and unstaged change
@@ -52,14 +54,15 @@ const RevertButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
         <>
             {(unstaged.length > 0 || staged.length > 0) && !isCaptured &&
                 <Tooltip title='Revert'>
-                    <StyledIconButton
+                    <IconButton
+                        className={classes.root}
                         aria-label='revert'
                         onClick={revert}
                         onMouseEnter={onHover}
                         onMouseLeave={offHover}
                     >
                         <History />
-                    </StyledIconButton>
+                    </IconButton>
                 </Tooltip>}
         </>
     )

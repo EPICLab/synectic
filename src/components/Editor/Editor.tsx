@@ -70,8 +70,8 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
   return (
     <>
       <div className='buttons'>
-        <RevertButton cardIds={[props.id]} />
-        <CommitButton cardIds={[props.id]} />
+        <RevertButton cardIds={[props.id]} mode='dark' />
+        <CommitButton cardIds={[props.id]} mode='dark' />
         {metafile && repo && sourceButton ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
       </div>
       <DataField title='UUID' textField field={props.id} />

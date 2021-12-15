@@ -1,11 +1,12 @@
-import { withStyles } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
+import { makeStyles } from '@material-ui/core';
 
-export const StyledIconButton = withStyles({
+export type Mode = 'light' | 'dark';
+
+export const useIconButtonStyle = makeStyles({
   root: {
-    color: '#ffffff',
+    color: (props: { mode: Mode }) => props.mode === 'dark' ? '#59575a' : '#ffffff',
     '&:hover': {
       color: '#d80027'
     }
   }
-})(IconButton);
+})
