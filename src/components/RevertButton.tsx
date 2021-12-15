@@ -11,6 +11,15 @@ import { addItemInArray, removeItemInArray } from '../store/immutables';
 import { cardUpdated } from '../store/slices/cards';
 import { StyledIconButton } from './StyledIconButton';
 
+/**
+ * Button for reverting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
+ * tracks the status of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one 
+ * associated metafile has a VCS status of `added`, `*added`, `modified`, `*modified`, `deleted`, `*deleted`, `*modified`, or `*undeleted`.
+ * Clicking on the button will trigger all changed metafiles to have their content reverted back to the most recent commit in the associated 
+ * repository and branch.
+ * @param props List of Card UUIDs that should be tracked by this button.
+ * @returns 
+ */
 const RevertButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, props.cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
