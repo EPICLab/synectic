@@ -72,7 +72,6 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
             const commitDialogModal: Modal = {
                 id: v4(),
                 type: 'CommitDialog',
-                target: firstMetafile.id,
                 options: {
                     'repo': firstMetafile.repo,
                     'branch': firstMetafile.branch

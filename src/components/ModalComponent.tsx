@@ -27,7 +27,7 @@ const ModalComponent: React.FunctionComponent<Modal> = props => {
     case 'SourcePicker':
       return (<SourcePickerDialog {...props} />);
     case 'CommitDialog':
-      return props.target ? (<CommitDialog {...props} />) : null;
+      return (<CommitDialog {...props} />);
     default:
       return null;
   }

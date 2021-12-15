@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
 import { ArrowDropDown, ArrowRight } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
-import type { Modal } from '../types';
+import type { Metafile, Modal } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { modalRemoved } from '../store/slices/modals';
 import { commit, getConfig, getRepoRoot } from '../containers/git-porcelain';
@@ -59,25 +59,34 @@ const CommitDialog: React.FunctionComponent<Modal> = props => {
     const classes = useStyles();
     const [message, setMessage] = useState('');
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
-    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.target ? props.target : '0'));
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-    const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
     const staged = metafiles.filter(m => {
-        return props.options && m.status && m.repo === props.options['repo'] && m.branch === props.options['branch'] && ['added', 'modified', 'deleted'].includes(m.status);
+        return props.options &&
+            m.status &&
+            m.repo === props.options['repo'] &&
+            m.branch === props.options['branch'] &&
+            ['added', 'modified', 'deleted'].includes(m.status);
     });
+
+    useEffect(() => {
+        if (staged.length < 1) dispatch(modalRemoved(props.id));
+    }, [staged]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setMessage(event.target.value);
     }
 
-    const printOutput = () => {
-        const directRepo = props.options ? props.options['repo'] : undefined;
-        const directBranch = props.options ? props.options['branch'] : undefined;
-        console.log(`repo: ${directRepo}, branch: ${directBranch}`);
-        console.log({ staged });
+    const update = async (metafile: Metafile) => {
+        if (isFileMetafile(metafile)) {
+            const contentAndState = await dispatch(fetchContent({ filepath: metafile.path })).unwrap();
+            const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+            dispatch(metafileUpdated({ ...metafile, ...contentAndState, ...vcs }));
+        }
     }
 
     const initiateCommit = async () => {
+        const metafile = staged[0];
+        const repo = (metafile && metafile.repo) ? repos.find(r => r.id === metafile.repo) : undefined;
         const dir = (metafile && metafile.path) ? await getRepoRoot(metafile.path) : undefined;
         if (dir) {
             const username = (await getConfig('user.name'));
@@ -127,7 +136,7 @@ const CommitDialog: React.FunctionComponent<Modal> = props => {
                         defaultExpandIcon={<ArrowRight />}
                         defaultEndIcon={<div style={{ width: 8 }} />}
                     >
-                        {staged.filter(isFileMetafile).map(m => <FileComponent key={m.id} update={async () => await printOutput()} {...m} />)}
+                        {staged.filter(isFileMetafile).map(m => <FileComponent key={m.id} update={async () => await update(m)} {...m} />)}
                     </TreeView>
                     <Typography color='textSecondary' variant='body2'>
                         Enter a commit message.
