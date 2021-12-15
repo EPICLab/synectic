@@ -39,6 +39,13 @@ export const importFiletypes = createAsyncThunk<void, void, AppThunkAPI>(
   }
 )
 
+/**
+ * Locate filetype information for a specific filepath. If none exists, then the filepath points to an unsupported file.
+ * @param filepath The relative or absolute path to evaluate.
+ * @return A Thunk that can be executed via `store/hooks/useAppDispatch` to update the Redux store state; automatically 
+ * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
+ * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
+ */
 export const resolveHandler = createAsyncThunk<Filetype | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
   'handlers/resolveHandler',
   async (filepath, thunkAPI) => {
@@ -64,10 +71,10 @@ type CardLoadableFields =
   { metafile?: never, filepath: PathLike };
 
 /**
- * Thunk Action Creator for adding a new Card, either by providing one or more metafile (specifically to
- * support Diff cards which require two metafiles) with an appropriate handler field or by providing a filepath 
- * in order to read the filesystem and dispatch any necessary Redux store updates before loading a new Card. 
- * This function will load an error if the metafile does not contain a valid filetype handler.
+ * Utility for adding a new Card, either by providing one or more metafile (specifically to support Diff cards which require 
+ * two metafiles) with an appropriate handler field or by providing a filepath in order to read the filesystem and dispatch 
+ * any necessary Redux store updates before loading a new Card. This function will load an error if the metafile does not 
+ * contain a valid filetype handler.
  * @param metafile A `Metafile` objects previously created or retrieved from the Redux state.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Thunk that can be executed to load a card onto the canvas and dispatch Redux updates, if the card cannot
