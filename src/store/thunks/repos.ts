@@ -8,7 +8,7 @@ import type { Card, Metafile, Repository, UUID } from '../../types';
 import { extractFromURL, extractRepoName, isGitRepo } from '../../containers/git-plumbing';
 import { clone, getConfig, getRemoteInfo, getRepoRoot, GitConfig } from '../../containers/git-porcelain';
 import { extractFilename } from '../../containers/io';
-import { fetchMetafileById, fetchMetafilesByFilepath, fetchParentMetafile, FilebasedMetafile } from './metafiles';
+import { fetchMetafile, fetchMetafileById, fetchParentMetafile, FilebasedMetafile } from './metafiles';
 import { removeUndefined } from '../../containers/format';
 import { cardUpdated } from '../slices/cards';
 import { repoUpdated } from '../slices/repos';
@@ -165,10 +165,8 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
             const newWorktree = await resolveWorktree(repo, param.branch);
             if (!oldWorktree || !newWorktree)
                 return thunkAPI.rejectWithValue(`No worktree could be resolved for either current or new worktree: repo='${repo.name}', old/new branch='${metafile.branch}'/'${param.branch}'`);
-
             const relativePath = relative(oldWorktree.path.toString(), metafile.path.toString());
-            const updates = await thunkAPI.dispatch(fetchMetafilesByFilepath(join(newWorktree.path.toString(), relativePath))).unwrap();
-            if (updates.length > 0) updated = updates[0];
+            updated = await thunkAPI.dispatch(fetchMetafile({ filepath: join(newWorktree.path.toString(), relativePath) })).unwrap();
         }
         // get an updated metafile based on the updated worktree path
         if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path:'${metafile.path}'`);
