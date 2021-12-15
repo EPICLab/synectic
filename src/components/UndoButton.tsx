@@ -14,6 +14,14 @@ import { StyledIconButton } from './StyledIconButton';
 import { FSCache } from './Cache/FSCache';
 import { Tooltip } from '@material-ui/core';
 
+/**
+ * Button for undoing changes back to the most recent version according to the filesystem for file-based cards. This button tracks the 
+ * state of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one associated metafile 
+ * has content that is diverged from the cache (according to FSCache). Clicking on the button will trigger all modified metafiles to have their
+ * content reset to the content in the associated files. This button operates as the inverse operation to the `SaveButton`.
+ * @param props List of Card UUIDs that should be tracked by this button.
+ * @returns 
+ */
 const UndoButton: React.FunctionComponent<{ cardIds: UUID[] }> = props => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, props.cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
