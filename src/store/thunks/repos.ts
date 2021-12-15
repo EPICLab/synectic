@@ -43,17 +43,14 @@ export const fetchReposByFilepath = createAsyncThunk<Repository[], PathLike, App
 export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetafile, AppThunkAPI>(
     'repos/fetchRepo',
     async (metafile, thunkAPI) => {
-        console.log(`fetchRepo`, { metafile });
         // if metafile already has a repo UUID, return the matching repository
         if (metafile.repo) {
-            console.log(`finding repo from existing UUID: ${metafile.repo}`);
             const repo = thunkAPI.getState().repos.entities[metafile.repo];
             if (repo) return repo;
         }
 
         // if parent metafile already has a repo UUID, return the matching repository
         const parent = await thunkAPI.dispatch(fetchParentMetafile(metafile)).unwrap();
-        console.log(`finding repo from parent:`, { parent });
         if (parent && parent.repo) {
             const repo = thunkAPI.getState().repos.entities[parent.repo];
             if (repo) return repo;
@@ -62,13 +59,11 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetaf
         // if root path matches an existing repo, return the matching repository
         const root = await getRepoRoot(metafile.path);
         if (root) {
-            console.log(`finding repo from root path: ${root}`);
             const repo = Object.values(thunkAPI.getState().repos.entities).find(r => r?.root.toString() === root);
             if (repo) return repo;
         }
 
         // if no existing repo can be found, create and return a new repository
-        console.log('returning a new repository');
         return root ? await thunkAPI.dispatch(fetchNewRepo(root)).unwrap() : undefined;
     }
 );
