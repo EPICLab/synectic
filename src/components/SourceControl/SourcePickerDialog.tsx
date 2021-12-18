@@ -60,7 +60,7 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
         path: branchRoot ? branchRoot : ''
       }
     })).unwrap();
-    if (metafile) dispatch(loadCard({ metafile: metafile }));
+    if (metafile && branchRoot) dispatch(loadCard({ metafile: metafile }));
     handleClose();
   }
 
