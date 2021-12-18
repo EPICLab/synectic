@@ -75,6 +75,7 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
         {metafile && repo && sourceButton ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
       </div>
       <DataField title='UUID' textField field={props.id} />
+      {metafile && <DataField title='Path' textField field={metafile.path?.toString()} />}
       <DataField title='Update' textField field={DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)} />
       <DataField title='State' textField field={metafile ? metafile.state : ''} />
       <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
