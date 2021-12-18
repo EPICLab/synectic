@@ -30,7 +30,7 @@ const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
         >
           {directories.length === 0 && files.length === 0 ?
             <StyledTreeItem key={'loading'} nodeId={'loading'} labelText={'loading...'} labelIcon={InfoIcon} /> : null}
-          {directories.map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
+          {directories.filter(dir => !dir.name.startsWith('.') && dir.name !== 'node_modules').map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
           {files.map(file => <FileComponent key={file.id} update={update} {...file} />)}
         </TreeView>
       </div>
