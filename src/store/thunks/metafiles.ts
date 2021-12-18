@@ -96,8 +96,9 @@ export const fetchNewMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThu
         const contentOrContains = await (input.filepath && filetype.filetype === 'Directory' ?
             thunkAPI.dispatch(fetchContains(input.filepath)) :
             thunkAPI.dispatch(fetchContent(input))).unwrap();
-        const filepath = removeUndefinedProperties({ path: input.filepath ? input.filepath : undefined });
+        const filepath = removeUndefinedProperties({ path: input.virtual ? input.virtual.path : input.filepath });
         return {
+            ...removeUndefinedProperties({ ...input.virtual }),
             id: v4(),
             name: input.virtual ?
                 input.virtual.name :
