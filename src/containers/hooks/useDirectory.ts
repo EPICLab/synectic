@@ -46,7 +46,11 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     }, [root]);
 
     const update = async (event: WatchEventType, filename: PathLike) => {
-        if (filename.toString().includes('.git')) return; // filter git directory
+        if (filename.toString().includes('.git')) {
+            // handle git directory by checking all files
+            updateAll();
+            return;
+        }
         switch (event) {
             case 'unlink': {
                 fileActions.remove(filename.toString());
