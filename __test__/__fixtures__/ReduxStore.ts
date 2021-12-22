@@ -79,6 +79,8 @@ export const testStore: RootState = {
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
         left: 10,
         top: 10,
+        zIndex: 0,
+        classes: [],
         captured: '254fa11a-6e7e-4fd3-bc08-e97c5409719b'
       },
       '67406095-fd01-4441-8e52-b0fdbad3327a': {
@@ -89,7 +91,9 @@ export const testStore: RootState = {
         created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00').valueOf(),
         modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00').valueOf(),
         left: 27,
-        top: 105
+        top: 105,
+        zIndex: 0,
+        classes: [],
       },
       '17734ae2-f8da-40cf-be86-993dc21b4079': {
         id: '17734ae2-f8da-40cf-be86-993dc21b4079',
@@ -100,6 +104,8 @@ export const testStore: RootState = {
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
         left: 20,
         top: 40,
+        zIndex: 0,
+        classes: [],
         captured: '254fa11a-6e7e-4fd3-bc08-e97c5409719b'
       },
       '6e84b210-f148-43bd-8364-c8710e70a9ef': {
@@ -111,6 +117,8 @@ export const testStore: RootState = {
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
         left: 10,
         top: 10,
+        zIndex: 0,
+        classes: [],
         captured: '1942z532-e7ab-190a-d1d3-385a2295de62'
       },
       '43c3c447-da0d-4299-a006-57344beb77da': {
@@ -122,6 +130,8 @@ export const testStore: RootState = {
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
         left: 10,
         top: 10,
+        zIndex: 0,
+        classes: [],
         captured: '1942z532-e7ab-190a-d1d3-385a2295de62'
       },
       'f1a1fb16-cb06-4fb7-9b10-29ad95032d51': {
@@ -132,7 +142,9 @@ export const testStore: RootState = {
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00').valueOf(),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
         left: 10,
-        top: 10
+        top: 10,
+        zIndex: 0,
+        classes: []
       },
       '4efdbe23-c938-4eb1-b29b-50bf76bdb44e': {
         id: '4efdbe23-c938-4eb1-b29b-50bf76bdb44e',
@@ -143,6 +155,8 @@ export const testStore: RootState = {
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
         left: 10,
         top: 10,
+        zIndex: 0,
+        classes: [],
         captured: '1942z532-e7ab-190a-d1d3-385a2295de62'
       }
     }
