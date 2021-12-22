@@ -149,6 +149,22 @@ export const objectifyPath = (path: Array<string | number>, value: string | bool
 };
 
 /**
+ * Compares two `Map` objects for equality; only supports `Map` and not objects with key-value pairs (i.e. `const map: {[key: string]: value}`).
+ * Checks for same map sizes, then tests all underlying key-value entries for equality between maps.
+ * @param map1 A `Map` object.
+ * @param map2 A `Map` object.
+ * @returns A boolean indicating true if the `Map` objects are equal, or false otherwise.
+ */
+export const equalMaps = <K, V>(map1: Map<K, V>, map2: Map<K, V>): boolean => {
+  if (map1.size !== map2.size) return false;
+  for (const [key, val] of map1) {
+    const testVal = map2.get(key);
+    if (JSON.stringify(testVal) !== JSON.stringify(val) || (testVal === undefined && !map2.has(key))) return false;
+  }
+  return true;
+}
+
+/**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 
  * and `Buffer`. However, `Buffer` has `.equals()` and `.compare()` functions for comparisons and these should 
  * be used in lieu of this function. `TypedArray` is a class of objects, which includes all of the following: 
