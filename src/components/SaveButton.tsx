@@ -52,8 +52,10 @@ const SaveButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({
         offHover();
     }
 
-    // checks for whether button is on a single card and also captured
+    // check whether button is on a single card and also captured
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
+    // check whether button is on a content-based card that can be saved to a file
+    const isSaveable = modified.length > 0 && modified[0].filetype !== 'Directory' && modified[0].handler === 'Editor';
 
     const onHover = () => {
         if (cards.length > 1) {
@@ -68,7 +70,7 @@ const SaveButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({
 
     return (
         <>
-            {modified.length > 0 && !isCaptured &&
+            {isSaveable && !isCaptured &&
                 <Tooltip title='Save'>
                     <IconButton
                         className={classes.root}

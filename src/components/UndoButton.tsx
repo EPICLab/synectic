@@ -44,7 +44,10 @@ const UndoButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({
         offHover();
     }
 
+    // check whether button is on a single card and also captured
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
+    // check whether button is on a content-based card that can be undone based on file-content
+    const isUndoable = modified.length > 0 && modified[0].filetype !== 'Directory' && modified[0].handler === 'Editor';
 
     const onHover = () => {
         if (cards.length > 1) {
@@ -59,7 +62,7 @@ const UndoButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({
 
     return (
         <>
-            {modified.length > 0 && !isCaptured &&
+            {isUndoable && !isCaptured &&
                 <Tooltip title='Undo'>
                     <IconButton
                         className={classes.root}
