@@ -97,7 +97,7 @@
     "git-config-path": "^2.0.0",
     "ignore": "^5.2.0",
     "ini": "^2.0.0",
-    "isomorphic-git": "^1.10.1",
+    "isomorphic-git": "^1.10.3",
     "luxon": "^2.0.2",
     "parse-path": "^4.0.3",
     "react": "^17.0.2",
