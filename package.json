@@ -95,7 +95,7 @@
     "diff": "^5.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "git-config-path": "^2.0.0",
-    "ignore": "^5.1.8",
+    "ignore": "^5.2.0",
     "ini": "^2.0.0",
     "isomorphic-git": "^1.10.1",
     "luxon": "^2.0.2",
