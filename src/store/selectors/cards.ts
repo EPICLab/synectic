@@ -27,7 +27,7 @@ const selectByRepo = createDraftSafeSelector(
     selectors.selectAll,
     metafileSelectors.selectEntities,
     (_state: RootState, repoId: UUID) => repoId,
-    (_state, _repoId, branch?: string) => branch,
+    (_state: RootState, _repoId: UUID, branch?: string) => branch,
     (cards, metafiles, repoId, branch) => cards
         .filter(c => metafiles[c.metafile] ? metafiles[c.metafile]?.repo === repoId : false)
         .filter(c => branch ? metafiles[c.metafile]?.branch === branch : true)

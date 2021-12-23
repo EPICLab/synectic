@@ -28,14 +28,14 @@ const selectByRepo = createDraftSafeSelector(
 const selectByBranch = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, filepath: PathLike) => filepath,
-    (_state, _filepath, branch: string) => branch,
+    (_state: RootState, _filepath: PathLike, branch: string) => branch,
     (metafiles, filepath, branch) => metafiles.filter(m => m.path === filepath && m.branch === branch)
 );
 
 const selectByVirtual = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, name: string) => name,
-    (_state, _name, handler: string) => handler,
+    (_state: RootState, _name: string, handler: string) => handler,
     (metafiles, name, handler) => metafiles.filter(m => m.name === name && m.handler === handler)
 );
 
