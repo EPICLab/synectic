@@ -9477,12 +9477,12 @@ trim-repeated@^1.0.0:
   dependencies:
     escape-string-regexp "^1.0.2"
 
-ts-dot-prop@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/ts-dot-prop/-/ts-dot-prop-1.5.1.tgz#0985111975cf49272495abc254051bc9a359afa7"
-  integrity sha512-r8qbDOImfEooU7CZleZihoypl1wHyxgbrQbY8qPPNiLZts+JmluEpiiYqtx2RPRwDHz7aQyeUYYdKWnToGcxgQ==
+ts-dot-prop@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/ts-dot-prop/-/ts-dot-prop-2.0.1.tgz#841cee610c7c6d9e9ece8cf3f090e1e4805b1b39"
+  integrity sha512-nl6Vr++44ZkojGenDe7ENNKpjAPO0Ev+jsbIrC5qUKHJ+mF4u9mAonXvlrrtLBOzHifl/0oe0R0UvwF1Uq6eAw==
   dependencies:
-    ts-util-is "^1.3.1"
+    ts-util-is "^2.0.0"
 
 ts-jest@^27.0.5:
   version "27.0.5"
@@ -9508,10 +9508,10 @@ ts-loader@^9.2.6:
     micromatch "^4.0.0"
     semver "^7.3.4"
 
-ts-util-is@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/ts-util-is/-/ts-util-is-1.3.1.tgz#26aae783ef654b617259d8b08b256a4378cea786"
-  integrity sha512-GzWwMPpA3lyScr1yshT6FD0ZIHbAjBzig06AFj6oh79tZLZU3yaqqqgpk4ONNw267qzIqd4SU/n93N2tE9CZWw==
+ts-util-is@^2.0.0:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/ts-util-is/-/ts-util-is-2.0.2.tgz#27289f66e8c2945ba12de5a62d398735cc3be481"
+  integrity sha512-04T15Tok4y9VJlJsi9bLhqxmUosDFBKDo93VdZf3BModUcJfEzea0L+SMPNlSLpPr+vcNU3vHwxnfJl5wkOqhg==
 
 tsconfig-paths@^3.11.0:
   version "3.11.0"
