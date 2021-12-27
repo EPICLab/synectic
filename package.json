@@ -39,7 +39,7 @@
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",
-    "@types/dagre": "^0.7.46",
+    "@types/dagre": "^0.7.47",
     "@types/diff": "^5.0.2",
     "@types/fs-extra": "^9.0.13",
     "@types/git-config-path": "^2.0.1",
