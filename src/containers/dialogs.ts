@@ -7,7 +7,8 @@ import { metafileUpdated } from '../store/slices/metafiles';
 import { loadCard } from '../store/thunks/handlers';
 import { writeFileAsync } from './io';
 import { removeUndefined } from './format';
-import { fetchVersionControl, isFilebasedMetafile } from '../store/thunks/metafiles';
+import { fetchMetafile, fetchVersionControl, isFilebasedMetafile } from '../store/thunks/metafiles';
+import { fetchRepo } from '../store/thunks/repos';
 
 type PickerType = 'openFile' | 'openDirectory';
 
@@ -17,7 +18,14 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
     const isMac = process.platform === 'darwin';
     const properties: ('openFile' | 'openDirectory')[] = pickerType ? [pickerType] : (isMac ? ['openFile', 'openDirectory'] : ['openFile']);
     const paths: Electron.OpenDialogReturnValue = await ipcRenderer.invoke('fileOpenDialog', properties);
-    if (!paths.canceled && paths.filePaths) paths.filePaths.map(async filePath => await thunkAPI.dispatch(loadCard({ filepath: filePath })));
+    if (!paths.canceled && paths.filePaths) {
+      if (paths.filePaths.length > 1) {
+        // multiple filepaths loading asynchronously can lead to a race condition where multiple repos are created; resolve first path to allow the repo to exist
+        const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: paths.filePaths[0] })).unwrap();
+        if (isFilebasedMetafile(metafile)) await thunkAPI.dispatch(fetchRepo(metafile));
+      }
+      await Promise.all(paths.filePaths.map(async filePath => await thunkAPI.dispatch(loadCard({ filepath: filePath }))));
+    }
   }
 );
 

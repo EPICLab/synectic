@@ -59,8 +59,8 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetaf
         // if root path matches an existing repo, return the matching repository
         const root = await getRepoRoot(metafile.path);
         if (root) {
-            const repo = Object.values(thunkAPI.getState().repos.entities).find(r => r?.root.toString() === root);
-            if (repo) return repo;
+            const repo = await thunkAPI.dispatch(fetchReposByFilepath(root)).unwrap();
+            if (repo[0]) return repo[0];
         }
 
         // if no existing repo can be found, create and return a new repository
