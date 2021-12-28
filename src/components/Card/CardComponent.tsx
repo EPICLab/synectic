@@ -18,11 +18,8 @@ import { ContentFront } from './ContentFront';
 import SaveButton from '../SaveButton';
 import UndoButton from '../UndoButton';
 import { FSCache } from '../Cache/FSCache';
+import { DnDItemType } from '../CanvasComponent';
 
-const DnDItemType = {
-  CARD: 'CARD',
-  STACK: 'STACK'
-}
 type DragObject = {
   id: string,
   type: string

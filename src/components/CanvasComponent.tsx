@@ -25,10 +25,11 @@ import modalSelectors from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
 import { FSCache } from './Cache/FSCache';
 
-const DnDItemType = {
-  CARD: 'CARD',
-  STACK: 'STACK'
+export enum DnDItemType {
+  CARD = 'CARD',
+  STACK = 'STACK'
 }
+
 type DragObject = {
   id: string,
   type: string

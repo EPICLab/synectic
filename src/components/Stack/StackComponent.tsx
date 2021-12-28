@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import type { Card, Stack } from '../../types';
 import { RootState } from '../../store/store';
 import CardComponent from '../Card/CardComponent';
-import { pushCards, popCard } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
@@ -13,14 +12,29 @@ import CloseIcon from '@material-ui/icons/Close';
 import SaveButton from '../SaveButton';
 import CommitButton from '../CommitButton';
 import { IconButton, Tooltip } from '@material-ui/core';
+import { getEmptyImage } from 'react-dnd-html5-backend';
+import { usePreview } from 'react-dnd-preview';
+import { popCard, pushCards } from '../../store/thunks/stacks';
+import { DnDItemType } from '../CanvasComponent';
 
-const DnDItemType = {
-  CARD: 'CARD',
-  STACK: 'STACK'
-}
 type DragObject = {
   id: string,
   type: string
+}
+
+const StackPreview: React.FunctionComponent<{ stack: Stack, cards: Card[] }> = props => {
+  const { display, itemType, style } = usePreview();
+  if (!display) { return null }
+
+  return (
+    (itemType === DnDItemType.STACK) ?
+      <div className='stack' data-testid='stack-component' style={style}>
+        <CommitButton cardIds={[]} />
+        <SaveButton cardIds={[]} />
+        {props.cards.map(card => <CardComponent key={card.id} {...card} />)}
+        {props.children}
+      </div> : null
+  )
 }
 
 const StackComponent: React.FunctionComponent<Stack> = props => {
@@ -31,7 +45,7 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
   const classes = useIconButtonStyle({ mode: 'light' });
 
   // Enable StackComponent as a drop source (i.e. allowing this stack to be draggable)
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag, preview] = useDrag({
     type: DnDItemType.STACK,
     item: () => ({ id: props.id, type: DnDItemType.STACK }),
     collect: monitor => ({
@@ -39,6 +53,10 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
       isDragging: !!monitor.isDragging()
     })
   }, [props.id]);
+
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true })
+  }, []);
 
   // Enable StackComponent as a drop target (i.e. allow other elements to be dropped on this stack)
   const [, drop] = useDrop({
@@ -84,7 +102,6 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
   });
   const close = async () => {
     await Promise.all(capturedCards.map(async card => await dispatch(popCard({ card: card }))));
-    // dispatch(stackRemoved(props.id));
   }
 
   const dragAndDrop = (elementOrNode: ConnectableElement) => {
@@ -92,14 +109,19 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
     drop(elementOrNode);
   }
 
-  return <div className='stack' ref={dragAndDrop} data-testid='stack-component'
-    style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
-    <Tooltip title='Close Stack'><IconButton className={classes.root} aria-label='close' onClick={close} ><CloseIcon /></IconButton></Tooltip>
-    <CommitButton cardIds={capturedCards.map(c => c.id)} />
-    <SaveButton cardIds={capturedCards.map(c => c.id)} />
-    {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}
-    {props.children}
-  </div>
+  return (
+    <>
+      <div className='stack' ref={dragAndDrop} data-testid='stack-component'
+        style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
+        <Tooltip title='Close Stack'><IconButton className={classes.root} aria-label='close' onClick={close} ><CloseIcon /></IconButton></Tooltip>
+        <CommitButton cardIds={capturedCards.map(c => c.id)} />
+        <SaveButton cardIds={capturedCards.map(c => c.id)} />
+        {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}
+        {props.children}
+      </div>
+      <StackPreview stack={props} cards={capturedCards} />
+    </>
+  )
 }
 
 export default StackComponent;
