@@ -4,6 +4,9 @@ import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
 import { isDirectory, readFileAsync } from '../../containers/io';
+import { useAppDispatch } from '../../store/hooks';
+import { metafileRemoved } from '../../store/slices/metafiles';
+import { fetchMetafilesByFilepath } from '../../store/thunks/metafiles';
 
 type FSCacheType = {
     cache: Omit<Map<PathLike, string>, "set" | "clear" | "delete">,
@@ -24,6 +27,7 @@ export const FSCache = createContext<FSCacheType>({
 export const FSCacheProvider: React.FunctionComponent = props => {
     const [cache, cacheActions] = useMap<PathLike, string>([]);
     const [watchers, watcherActions] = useMap<PathLike, { watcher: FSWatcher, count: number }>([]);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         console.log('FSCache mount', props);
@@ -79,6 +83,8 @@ export const FSCacheProvider: React.FunctionComponent = props => {
             } else {
                 watcher.watcher.close();
                 await eventHandler('unlink', filepath);
+                const metafile = (await dispatch(fetchMetafilesByFilepath(filepath)).unwrap())[0];
+                if (metafile) dispatch(metafileRemoved(metafile.id));
             }
         }
     };
