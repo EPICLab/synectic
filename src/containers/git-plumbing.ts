@@ -213,7 +213,7 @@ export const branchDiff = async (
       const [A, B] = entries.slice(0, 2);
       if (!A || !B) return [];
 
-      if (filepath === '.') return [];                                           // ignore directories
+      if (filepath === '.') return [];                                        // ignore directories
       if ((await A.type()) === 'tree' || (await B.type()) === 'tree') return; // ignore directories, known as trees in git lingo
       const Aoid = await A.oid();
       const Boid = await B.oid();
@@ -240,16 +240,24 @@ export const branchDiff = async (
  * [`ignore`](https://github.com/kaelzhang/node-ignore) library, where `.filter` and `.ignores` functions can then be used
  * to determine whether a git command should operate on a given filepath.
  * @param dir The relative or absolute directory path to search.
+ * @param useGitRules Include ignore rules common to git projects (i.e. excluding `.git` and `node_modules` directories).
  * @returns A Promise object containing a Ignore object that can be interacted with according to the 
  * [`ignore`](https://github.com/kaelzhang/node-ignore) API documentation.
  */
-export const getIgnore = async (dir: fs.PathLike): Promise<Ignore> => {
+export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<Ignore> => {
   const ignoreFiles = (await io.readDirAsyncDepth(dir)).filter(filename => io.extractFilename(filename) === '.gitignore');
   const ignoreManager = ignore();
   ignoreFiles.map(async ignoreFile => {
     const content = await io.readFileAsync(ignoreFile, { encoding: 'utf-8' });
     ignoreManager.add(content);
   });
+  if (useGitRules) {
+    // this rule is standard for git-based projects
+    ignoreManager.add('.git');
+    // .gitignore files often incldue 'node_modules/' as a rule, but node-ignore requires the trailing '/' for directories and node 
+    // `path` mismatches that by returning only the directory name. See: https://github.com/kaelzhang/node-ignore#2-filenames-and-dirnames
+    ignoreManager.add('node_modules');
+  }
   return ignoreManager;
 }
 
