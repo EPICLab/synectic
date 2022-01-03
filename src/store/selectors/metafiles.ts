@@ -43,14 +43,23 @@ const selectByState = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, state: FilesystemStatus) => state,
     (metafiles, state) => metafiles.filter(m => m.state === state)
-)
+);
 
 const selectByCards = createDraftSafeSelector(
     selectors.selectEntities,
     (_state: RootState, cards: Card[]) => cards,
     (metafiles, cards) => cards.map(card => metafiles[card.metafile])
-)
+);
 
-const metafileSelectors = { ...selectors, selectByIds, selectByFilepath, selectByRepo, selectByBranch, selectByVirtual, selectByState, selectByCards };
+const selectByConflicted = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, repoId: UUID) => repoId,
+    (metafiles, repo) => metafiles.filter(m => m.repo === repo && m.conflicts !== undefined && m.conflicts.length > 0)
+);
+
+const metafileSelectors = {
+    ...selectors, selectByIds, selectByFilepath, selectByRepo, selectByBranch,
+    selectByVirtual, selectByState, selectByCards, selectByConflicted
+};
 
 export default metafileSelectors;
