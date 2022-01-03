@@ -12,11 +12,13 @@ import { currentBranch, getRepoRoot, getStatus } from '../../containers/git-porc
 import { fetchRepo } from './repos';
 import { discardChanges } from '../../containers/git-plumbing';
 import { dirname, relative } from 'path';
+import { checkFilepath, Conflict } from '../../containers/conflicts';
 
 export type FileMetafile = WithRequired<Metafile, 'content' | 'path'>;
 export type DirectoryMetafile = WithRequired<Metafile, 'contains' | 'path'>;
 export type FilebasedMetafile = WithRequired<Metafile, 'path'>;
 export type VirtualMetafile = WithRequired<Metafile, 'handler'> & Omit<Metafile, 'filetype' | 'state' | 'status' | 'repo' | 'branch'>;
+export type ConflictedMetafile = WithRequired<Metafile, 'path' | 'repo' | 'conflicts'>;
 
 export const isFileMetafile = (metafile: Metafile): metafile is FileMetafile => {
     return (metafile as FileMetafile).path !== undefined && (metafile as FileMetafile).content !== undefined;
@@ -33,6 +35,10 @@ export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMe
 export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafile => {
     return (metafile as VirtualMetafile).handler !== undefined && !('filetype' in metafile);
 };
+
+export const isConflictedMetafile = (metafile: Metafile): metafile is ConflictedMetafile => {
+    return (metafile as ConflictedMetafile).repo !== undefined && (metafile as ConflictedMetafile).conflicts !== undefined;
+}
 
 type PathOrVirtual = { filepath: PathLike, virtual?: never } | { filepath?: never, virtual: VirtualMetafile };
 
@@ -144,7 +150,8 @@ export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'bra
         const current = repo ? await currentBranch({ dir: root ? root : repo.root.toString(), fullname: false }) : undefined;
         const branch = (repo && !current) ? 'HEAD' : current;
         const status = repo ? await getStatus(metafile.path) : undefined;
-        return removeUndefinedProperties({ repo: repo?.id, branch: branch, status: status });
+        const conflicts = await checkFilepath(metafile.path);
+        return removeUndefinedProperties({ repo: repo?.id, branch: branch, status: status, conflicts: conflicts ? conflicts.conflicts : undefined });
     }
 );
 
@@ -184,6 +191,7 @@ export const revertStagedChanges = createAsyncThunk<void, FilebasedMetafile, App
                         ...metafile,
                         content: updatedContent,
                         state: 'unmodified',
+                        conflicts: undefined,
                         ...removeUndefinedProperties({ status: status })
                     }));
                 }
@@ -200,11 +208,24 @@ export const revertStagedChanges = createAsyncThunk<void, FilebasedMetafile, App
                         ...metafile,
                         content: content,
                         state: 'unmodified',
+                        conflicts: undefined,
                         ...removeUndefinedProperties({ status: status })
                     }));
                 }
                 break;
             }
         }
+    }
+);
+
+export const fetchConflicted = createAsyncThunk<{ metafile: Metafile, conflicts: number[] }[], Conflict[], AppThunkAPI>(
+    'metafiles/fetchConflicted',
+    async (conflicts, thunkAPI) => {
+        return await Promise.all(conflicts.map(async conflict => {
+            return {
+                metafile: await thunkAPI.dispatch(fetchMetafile({ filepath: conflict.filepath })).unwrap(),
+                conflicts: conflict.conflicts
+            }
+        }));
     }
 );
