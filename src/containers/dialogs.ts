@@ -20,7 +20,10 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
     const paths: Electron.OpenDialogReturnValue = await ipcRenderer.invoke('fileOpenDialog', properties);
     if (!paths.canceled && paths.filePaths) {
       if (paths.filePaths.length > 1) {
-        // multiple filepaths loading asynchronously can lead to a race condition where multiple repos are created; resolve first path to allow the repo to exist
+        /** Multiple filepaths loading asynchronously can cause a race condition where all filepaths appear to require a new repo, which 
+         * causes duplicated copies of the same repo to be added to the Redux store. Since multiple filepaths must all have the same root 
+         * parent directory, and therefore share the same repo, we can fix it by resolving the repo of the first path before loading any 
+         * other cards. */
         const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: paths.filePaths[0] })).unwrap();
         if (isFilebasedMetafile(metafile)) await thunkAPI.dispatch(fetchRepo(metafile));
       }
