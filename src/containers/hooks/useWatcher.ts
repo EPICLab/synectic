@@ -9,7 +9,7 @@ export type WatchListener<T> = (event: WatchEventType, filename: T) => void;
  * Custom React Hook for monitoring filesystem objects (files and directories) and triggering an event callback
  * function when changes are detected. If a filepath is undefined, as in the case of virtual metafiles, then
  * this hook becomes a no-op and will skip opening any FS watchers. This hook initializes FS watchers upon
- * initialization, and will close all watchers prior based on the context closure of the calling component.
+ * initialization, and will close all watchers based on the context closure of the calling component.
  * @param filepath The relative or absolute path to a file or directory (recursively includes all subdirectories 
  * and files) that should be watched for changes.
  * @param eventHandler The event callback function that should be called on all detected change events.
