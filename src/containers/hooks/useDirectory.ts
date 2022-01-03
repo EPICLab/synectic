@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { PathLike } from 'fs-extra';
+import { relative } from 'path';
 import * as io from '../io';
 import { useAppDispatch } from '../../store/hooks';
 import useMap from './useMap';
@@ -8,6 +9,7 @@ import { WatchEventType } from './useWatcher';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { DirectoryMetafile, fetchContains, fetchContent, fetchMetafile, fetchVersionControl, FileMetafile, isDirectoryMetafile, isFileMetafile } from '../../store/thunks/metafiles';
 import { asyncFilter } from '../format';
+import { getIgnore } from '../git-plumbing';
 
 export type useDirectoryHook = {
     root: PathLike | undefined,
@@ -35,9 +37,11 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
 
     const updateAll = useCallback(async () => {
         if (root) {
+            const ignore = await getIgnore(root, true);
             const filepaths = (await io.readDirAsyncDepth(root, 1))
-                .filter(p => p !== root) // filter root filepath from results
-                .filter(p => !p.includes('.git')); // filter git directory
+                .filter(p => p !== root)                                     // filter root filepath from results
+                .filter(p => !p.includes('.git'))                            // filter git directory
+                .filter(p => !ignore.ignores(relative(root.toString(), p))); // filter based on git-ignore rules
             const subdirs = await asyncFilter(filepaths, (f) => io.isDirectory(f));
             const subfiles = filepaths.filter(f => !subdirs.includes(f));
             await Promise.all(subdirs.map(f => update('addDir', f)));
