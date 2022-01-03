@@ -126,7 +126,7 @@ export type Metafile = {
   readonly filetype?: string;
   /** The type of card that can load the content of this metafile. */
   readonly handler?: CardType;
-  /** The relative or absolute path to the file or directory of this metafile.  */
+  /** The relative or absolute path to the file or directory of this metafile. */
   readonly path?: PathLike;
   /** The UUID for related Repository object, when managed by a version control system. */
   readonly repo?: UUID;
@@ -142,6 +142,10 @@ export type Metafile = {
   readonly contains?: UUID[];
   /** An array with all Card object UUIDs included in the diff output (when this metafile has a `Diff` handler). */
   readonly targets?: UUID[];
+  /** An object for branch merging information, including base branch and compare branch names from the `repo`. */
+  readonly merging?: { base: string, compare: string }
+  /** An array of indexed conflicts indicating the starting position of each conflict in the content of this metafile. */
+  readonly conflicts?: number[] | undefined;
 }
 
 /** A version control repository associated with content loaded into Synectic. */
