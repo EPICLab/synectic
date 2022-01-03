@@ -29,7 +29,7 @@ export const ContentFront: React.FunctionComponent<Card> = props => {
         case 'ReposTracker':
             return (<ReposOverview />);
         case 'ConflictManager':
-            return (<ConflictManager root={metafile} />);
+            return (<ConflictManager metafileId={props.metafile} />);
         default:
             return null;
     }
