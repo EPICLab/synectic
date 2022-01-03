@@ -79,10 +79,10 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
       <DataField title='Update' textField field={DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)} />
       <DataField title='State' textField field={metafile ? metafile.state : ''} />
       <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
-      {repo ?
+      {repo && metafile ?
         <>
-          <DataField title='Status' textField field={metafile ? metafile.status : ''} />
-          <DataField title='Branch' field={metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined} />
+          <DataField title='Status' textField field={metafile.conflicts && metafile.conflicts?.length > 0 ? `${metafile.status} [CONFLICT]` : metafile.status} />
+          <DataField title='Branch' field={<BranchList metafileId={metafile.id} cardId={props.id} />} />
         </>
         : undefined}
     </>
