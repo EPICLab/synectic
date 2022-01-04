@@ -1,8 +1,7 @@
 import { PathLike } from 'fs-extra';
 import { useAppDispatch } from '../../store/hooks';
-import { getStatus } from '../git-porcelain';
 import { metafileUpdated } from '../../store/slices/metafiles';
-import { fetchMetafilesByFilepath } from '../../store/thunks/metafiles';
+import { fetchMetafilesByFilepath, fetchVersionControl } from '../../store/thunks/metafiles';
 import useWatcher, { WatchEventType, WatchListener } from './useWatcher';
 
 /**
@@ -21,9 +20,11 @@ const useGitWatcher = (root: PathLike | undefined, additionalEventHandler?: Watc
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
         if (!['unlink', 'unlinkDir'].includes(event)) {
-            const status = await getStatus(filename);
-            const metafiles = status ? await dispatch(fetchMetafilesByFilepath(filename)).unwrap() : undefined;
-            if (status && metafiles && metafiles.length > 0) dispatch(metafileUpdated({ ...metafiles[0], status: status }));
+            const metafiles = await dispatch(fetchMetafilesByFilepath(filename)).unwrap();
+            await Promise.all(metafiles.map(async metafile => {
+                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+                dispatch(metafileUpdated({ ...metafile, ...vcs }));
+            }));
         }
     }
 
