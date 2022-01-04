@@ -15,9 +15,11 @@ import repoSelectors from '../../store/selectors/repos';
 import { modalRemoved } from '../../store/slices/modals';
 import { merge } from '../../containers/merges';
 import { loadCard } from '../../store/thunks/handlers';
-import { fetchMetafile } from '../../store/thunks/metafiles';
+import { fetchConflicted, fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { checkProject } from '../../containers/conflicts';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -93,22 +95,25 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     // >>>      const conflictCheck = await merge(fullRepo.root, base, compare, true);
 
     const mergeCheck = await merge(fullRepo.root, base, compare);
-    console.log(`MergeDialog conflictCheck: ${JSON.stringify(mergeCheck, undefined, 2)}`);
     const conflictStatus = mergeCheck.mergeConflicts ? 'Failing' : 'Passing';
     setBranchConflicts([conflictStatus, []]);
 
     if (conflictStatus == 'Failing') {
-      const conflictMetafile = await dispatch(fetchMetafile({
+      const conflicts = await checkProject(fullRepo.root);
+      const conflictedMetafiles = await dispatch(fetchConflicted(conflicts)).unwrap();
+      conflictedMetafiles.map(m => dispatch(metafileUpdated({ ...m.metafile, conflicts: m.conflicts })));
+      const conflictManager = await dispatch(fetchMetafile({
         virtual: {
           id: v4(),
           modified: DateTime.local().valueOf(),
-          name: `Conflicts: ${base}<>${compare}`,
+          name: `Merge Conflicts`,
           handler: 'ConflictManager',
           repo: fullRepo.id,
-          path: fullRepo.root
+          path: fullRepo.root,
+          merging: { base: base, compare: compare }
         }
       })).unwrap();
-      if (conflictMetafile) await dispatch(loadCard({ metafile: conflictMetafile }));
+      if (conflictManager) await dispatch(loadCard({ metafile: conflictManager }));
       await delay(3000);
       dispatch(modalRemoved(props.id));
     }
