@@ -133,8 +133,18 @@ const CanvasComponent: React.FunctionComponent = props => {
   }
   const actionMenu: NavItemProps[] = [
     { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(modalAdded(diffPickerModal)) },
-    { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
     { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) }
+  ];
+
+  const mergeMenu: NavItemProps[] = [
+    { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
+    {
+      label: 'Show Conflicts...', click: () => {
+        const conflicting = metafiles.filter(m => m.conflicts !== undefined);
+        console.log(`conflicting [${conflicting.length}]`);
+        conflicting.map(m => console.log(`conflict in ${m.name}`));
+      }
+    }
   ];
 
   const viewMenu: NavItemProps[] = [
@@ -161,6 +171,7 @@ const CanvasComponent: React.FunctionComponent = props => {
       <div className={classes.root} >
         <NavMenu label='File' submenu={fileMenu} />
         <NavMenu label='Action' submenu={actionMenu} />
+        <NavMenu label='Merge' submenu={mergeMenu} />
         <NavMenu label='View' submenu={viewMenu} />
         <NavMenu label='System' submenu={sysMenu} />
         <NavMenu label='Help' submenu={helpMenu} />
