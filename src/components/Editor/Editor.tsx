@@ -31,12 +31,10 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   useEffect(() => (metafile && metafile.content) ? setCode(metafile.content) : undefined, [metafile]);
 
   const onChange = async (newCode: string | undefined) => {
-    if (newCode) {
-      setCode(newCode);
-      if (metafile) {
-        if (newCode !== metafile.content) dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'modified' }));
-        else dispatch(metafileUpdated({ ...metafile, content: newCode, state: 'unmodified' }));
-      }
+    setCode(newCode ? newCode : '');
+    if (metafile) {
+      if (newCode !== metafile.content) dispatch(metafileUpdated({ ...metafile, content: newCode ? newCode : '', state: 'modified' }));
+      else dispatch(metafileUpdated({ ...metafile, content: newCode ? newCode : '', state: 'unmodified' }));
     }
   };
 
