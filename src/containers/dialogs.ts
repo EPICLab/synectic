@@ -32,7 +32,7 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
   }
 );
 
-export const fileSaveDialog = createAsyncThunk<void, Metafile, AppThunkAPI>(
+export const fileSaveDialog = createAsyncThunk<boolean, Metafile, AppThunkAPI>(
   'dialogs/fileSaveDialog',
   async (metafile, thunkAPI) => {
     const isMac = process.platform === 'darwin';
@@ -54,7 +54,9 @@ export const fileSaveDialog = createAsyncThunk<void, Metafile, AppThunkAPI>(
             thunkAPI.dispatch(metafileUpdated({ ...m, ...vcs }));
           })
       );
+      return true;
     }
+    return false;
   }
 );
 
