@@ -144,7 +144,7 @@ export const fetchContains = createAsyncThunk<Required<Pick<Metafile, 'contains'
 );
 
 /** Transitive potential to trigger reposSlice.extraReducers to update Redux state */
-export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'branch' | 'status'>, FilebasedMetafile, AppThunkAPI>(
+export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'branch' | 'status' | 'conflicts'>, FilebasedMetafile, AppThunkAPI>(
     'metafiles/fetchVersionControl',
     async (metafile, thunkAPI) => {
         const root = await getRepoRoot(metafile.path); // linked worktrees dictate that root can be different from the repo.root
@@ -152,8 +152,8 @@ export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'bra
         const current = repo ? await currentBranch({ dir: root ? root : repo.root.toString(), fullname: false }) : undefined;
         const branch = (repo && !current) ? 'HEAD' : current;
         const status = repo ? await getStatus(metafile.path) : undefined;
-        const conflicts = await checkFilepath(metafile.path);
-        return removeUndefinedProperties({ repo: repo?.id, branch: branch, status: status, conflicts: conflicts ? conflicts.conflicts : undefined });
+        const conflicts = isFileMetafile(metafile) ? (await checkFilepath(metafile.path))?.conflicts : undefined;
+        return removeUndefinedProperties({ repo: repo?.id, branch: branch, status: status, conflicts: conflicts });
     }
 );
 
