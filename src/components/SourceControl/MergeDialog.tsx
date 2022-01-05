@@ -106,7 +106,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         virtual: {
           id: v4(),
           modified: DateTime.local().valueOf(),
-          name: `Merge Conflicts`,
+          name: `Version Conflicts`,
           handler: 'ConflictManager',
           repo: fullRepo.id,
           path: fullRepo.root,

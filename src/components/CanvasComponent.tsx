@@ -24,6 +24,7 @@ import repoSelectors from '../store/selectors/repos';
 import modalSelectors from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
 import { FSCache } from './Cache/FSCache';
+import { loadConflictManagers } from '../containers/conflicts';
 
 export enum DnDItemType {
   CARD = 'CARD',
@@ -138,13 +139,7 @@ const CanvasComponent: React.FunctionComponent = props => {
 
   const mergeMenu: NavItemProps[] = [
     { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
-    {
-      label: 'Show Conflicts...', click: () => {
-        const conflicting = metafiles.filter(m => m.conflicts !== undefined);
-        console.log(`conflicting [${conflicting.length}]`);
-        conflicting.map(m => console.log(`conflict in ${m.name}`));
-      }
-    }
+    { label: 'Show Conflicts...', click: () => dispatch(loadConflictManagers()) }
   ];
 
   const viewMenu: NavItemProps[] = [

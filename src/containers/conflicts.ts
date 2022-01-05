@@ -3,8 +3,14 @@ import { PathLike } from 'fs-extra';
 import * as io from './io';
 import { getIgnore } from './git-plumbing';
 import { asyncFilter, removeUndefined } from './format';
-import { getRepoRoot } from './git-porcelain';
+import { getBranchRoot, getRepoRoot } from './git-porcelain';
 import { Ignore } from 'ignore';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { AppThunkAPI } from '../store/hooks';
+import { v4 } from 'uuid';
+import { fetchMetafile } from '../store/thunks/metafiles';
+import { DateTime } from 'luxon';
+import { loadCard } from '../store/thunks/handlers';
 
 export type Conflict = {
     /** The relative or absolute path to the file containing conflicts. */
@@ -12,6 +18,34 @@ export type Conflict = {
     /** An array of indexed conflicts indicating the starting position of each conflict in the file. */
     conflicts: number[]
 }
+
+export const loadConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
+    'conflicts/loadConflictManagers',
+    async (_, thunkAPI) => {
+        const repos = removeUndefined(Object.values(thunkAPI.getState().repos.entities));
+        await Promise.all(repos.map(async repo => {
+            await Promise.all(repo.local.map(async branch => {
+                const root = await getBranchRoot(repo, branch);
+                const conflicts = await checkProject(root);
+                if (root && conflicts.length > 0) {
+                    const conflictManager = await thunkAPI.dispatch(fetchMetafile({
+                        virtual: {
+                            id: v4(),
+                            modified: DateTime.local().valueOf(),
+                            name: `Version Conflicts`,
+                            handler: 'ConflictManager',
+                            repo: repo.id,
+                            path: root,
+                            merging: { base: branch, compare: '' }
+                        }
+                    })).unwrap();
+                    console.log(`Loading ConflictManager for repo: ${repo.name}, branch: ${branch}...`);
+                    await thunkAPI.dispatch(loadCard({ metafile: conflictManager }));
+                }
+            }));
+        }));
+    }
+);
 
 export const checkFilepath = async (filepath: PathLike, ignoreManager?: Ignore): Promise<Conflict | undefined> => {
     const root = await getRepoRoot(filepath);
