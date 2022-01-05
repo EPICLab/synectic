@@ -33,7 +33,7 @@ export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMe
 }
 
 export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafile => {
-    return (metafile as VirtualMetafile).handler !== undefined && !('filetype' in metafile);
+    return (metafile as VirtualMetafile).handler !== undefined && !('path' in metafile);
 };
 
 export const isConflictedMetafile = (metafile: Metafile): metafile is ConflictedMetafile => {
