@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Save } from '@material-ui/icons';
 import type { UUID } from '../types';
 import { fileSaveDialog } from '../containers/dialogs';
@@ -10,7 +10,7 @@ import metafileSelectors from '../store/selectors/metafiles';
 import { cardUpdated } from '../store/slices/cards';
 import { metafileUpdated } from '../store/slices/metafiles';
 import { RootState } from '../store/store';
-import { fetchMetafileById, fetchMetafilesByFilepath, fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../store/thunks/metafiles';
+import { fetchMetafileById, fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
 import { FSCache } from './Cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
@@ -61,11 +61,6 @@ const SaveButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
     // check whether button is on a content-based card that can be saved to a file
     const isSaveable = modified.length > 0 && modified[0].filetype !== 'Directory' && modified[0].handler === 'Editor';
-
-
-    useEffect(() => {
-        console.log(`file: ${metafiles.length > 0 ? metafiles[0].name : ''}`, { metafiles, isCaptured, isSaveable });
-    }, [isCaptured, isSaveable]);
 
     const onHover = () => {
         if (cards.length > 1) {
