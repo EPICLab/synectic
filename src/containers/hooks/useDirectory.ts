@@ -10,11 +10,14 @@ import { metafileUpdated } from '../../store/slices/metafiles';
 import { DirectoryMetafile, fetchContains, fetchContent, fetchMetafile, fetchVersionControl, FileMetafile, isDirectoryMetafile, isFileMetafile } from '../../store/thunks/metafiles';
 import { asyncFilter } from '../format';
 import { getIgnore } from '../git-plumbing';
+import { checkFilepath, Conflict } from '../conflicts';
+import { diffArrays } from 'diff';
 
 export type useDirectoryHook = {
     root: PathLike | undefined,
     directories: DirectoryMetafile[],
     files: FileMetafile[],
+    conflicts: Conflict[],
     update: () => Promise<void>
 }
 
@@ -32,6 +35,7 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     useGitWatcher(root, async (event: WatchEventType, filename: PathLike) => update(event, filename));
     const [directories, directoryActions] = useMap<string, DirectoryMetafile>([]);
     const [files, fileActions] = useMap<string, FileMetafile>([]);
+    const [conflicts, conflictActions] = useMap<string, Conflict>([]);
 
     useEffect(() => { updateAll() }, []);
 
@@ -70,7 +74,18 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
                 break;
             }
             case 'add': {
-                const metafile = await dispatch(fetchMetafile({ filepath: filename })).unwrap();
+                let metafile = await dispatch(fetchMetafile({ filepath: filename })).unwrap();
+                if (isFileMetafile(metafile)) {
+                    const conflict = await checkFilepath(metafile.path.toString());
+                    if (conflict) {
+                        const previous = conflicts.get(metafile.path.toString());
+                        const changed = previous ? diffArrays(previous.conflicts, conflict.conflicts).filter(diff => diff.added || diff.removed).length > 0 : false;
+                        if (!previous || changed) { // only update conflicts if they are new or changed
+                            conflictActions.set(metafile.path.toString(), conflict);
+                            metafile = dispatch(metafileUpdated({ ...metafile, conflicts: conflict.conflicts })).payload;
+                        }
+                    }
+                }
                 if (isFileMetafile(metafile)) fileActions.set(metafile.path.toString(), metafile);
                 break;
             }
@@ -91,8 +106,17 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
     const updateFileMetafile = async (metafile: FileMetafile) => {
         const contentAndState = await dispatch(fetchContent({ filepath: metafile.path })).unwrap();
         const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-        const updated = dispatch(metafileUpdated({ ...metafile, ...contentAndState, ...vcs })).payload;
-        fileActions.set(metafile.path.toString(), updated as FileMetafile);
+        let updated = dispatch(metafileUpdated({ ...metafile, ...contentAndState, ...vcs })).payload as FileMetafile;
+        if (updated.conflicts !== undefined) {
+            const previous = conflicts.get(updated.path.toString());
+            const changed = previous ? diffArrays(previous.conflicts, updated.conflicts).filter(diff => diff.added || diff.removed).length > 0 : false;
+            if (!previous || changed) { // only update conflicts if they are new or changed
+                const conflict = { filepath: updated.path.toString(), conflicts: updated.conflicts };
+                conflictActions.set(updated.path.toString(), conflict);
+                updated = dispatch(metafileUpdated({ ...metafile, conflicts: conflict.conflicts })).payload as FileMetafile;
+            }
+        }
+        fileActions.set(metafile.path.toString(), updated);
     }
 
     const updateDirectoryMetafile = async (metafile: DirectoryMetafile) => {
@@ -102,7 +126,7 @@ const useDirectory = (root: PathLike | undefined): useDirectoryHook => {
         directoryActions.set(metafile.path.toString(), updated as DirectoryMetafile);
     }
 
-    return { root, directories: Array.from(directories.values()), files: Array.from(files.values()), update: updateAll };
+    return { root, directories: Array.from(directories.values()), files: Array.from(files.values()), conflicts: Array.from(conflicts.values()), update: updateAll };
 }
 
 export default useDirectory;
