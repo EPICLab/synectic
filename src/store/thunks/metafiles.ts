@@ -52,9 +52,11 @@ export const fetchMetafileById = createAsyncThunk<Metafile | undefined, UUID, Ap
 export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], PathLike, AppThunkAPI>(
     'metafiles/fetchByPath',
     async (metafileFilepath, thunkAPI) => {
+        const filetype = await thunkAPI.dispatch(fetchFiletype({ filepath: metafileFilepath })).unwrap();
         return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
             .filter(isFilebasedMetafile)
-            .filter(metafile => relative(metafile.path.toString(), metafileFilepath.toString()).length === 0);
+            .filter(metafile => relative(metafile.path.toString(), metafileFilepath.toString()).length === 0)
+            .filter(metafile => metafile.filetype === filetype.filetype && metafile.handler === filetype.handler);
     }
 );
 
