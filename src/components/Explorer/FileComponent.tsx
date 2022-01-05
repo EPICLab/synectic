@@ -31,13 +31,17 @@ export const FileComponent: React.FunctionComponent<FileMetafile & { update: () 
         return modifiedCheck(status) && !changedCheck(status);
     };
 
-    const colorFilter = (status: GitStatus | undefined) => (status && stagedCheck(status) ? '#61aeee'
-        : (status && changedCheck(status) ? '#d19a66' : undefined));
+    const colorFilter = (status: GitStatus | undefined, conflicts: number[] | undefined) => {
+        if (conflicts && conflicts.length > 0) return '#da6473'; // red
+        if (status && stagedCheck(status)) return '#61aeee';
+        if (status && changedCheck(status)) return '#d19a66';
+        return undefined;
+    };
 
     const iconFilter = (status: GitStatus | undefined) => (status && stagedCheck(status) ? Remove
         : (status && changedCheck(status) ? Add : undefined));
 
-    const optionals = removeUndefinedProperties({ color: colorFilter(props.status), labelInfo: iconFilter(props.status) });
+    const optionals = removeUndefinedProperties({ color: colorFilter(props.status, props.conflicts), labelInfo: iconFilter(props.status) });
 
     // expects a TreeView parent to encompass the StyledTreeItem below
     return (
