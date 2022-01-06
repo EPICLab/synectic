@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
-import InfoIcon from '@material-ui/icons/Info';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import { Info, ArrowDropDown, ArrowRight } from '@material-ui/icons';
 import type { Card, Metafile } from '../../types';
 import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
@@ -15,6 +13,9 @@ import useDirectory from '../../containers/hooks/useDirectory';
 import { SourceControlButton } from "../SourceControl/SourceControlButton";
 import { DirectoryComponent } from './DirectoryComponent';
 import { FileComponent } from './FileComponent';
+import { Typography } from '@material-ui/core';
+import { DateTime } from 'luxon';
+import { useGitHistory } from '../../containers/hooks/useGitHistory';
 
 const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
   const { directories, files, update } = useDirectory(props.root.path);
@@ -24,12 +25,12 @@ const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
       <div className='list-component'>
         {props.root.branch ? <BranchRibbon branch={props.root.branch} /> : null}
         <TreeView
-          defaultCollapseIcon={<ArrowDropDownIcon />}
-          defaultExpandIcon={<ArrowRightIcon />}
+          defaultCollapseIcon={<ArrowDropDown />}
+          defaultExpandIcon={<ArrowRight />}
           defaultEndIcon={<div style={{ width: 8 }} />}
         >
           {directories.length === 0 && files.length === 0 ?
-            <StyledTreeItem key={'loading'} nodeId={'loading'} labelText={'loading...'} labelIcon={InfoIcon} /> : null}
+            <StyledTreeItem key={'loading'} nodeId={'loading'} labelText={'loading...'} labelIcon={Info} /> : null}
           {directories.filter(dir => !dir.name.startsWith('.') && dir.name !== 'node_modules').map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
           {files.map(file => <FileComponent key={file.id} update={update} {...file} />)}
         </TreeView>
@@ -38,21 +39,48 @@ const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
   );
 };
 
+const DataField: React.FunctionComponent<{ title: string, field: React.ReactNode, textField?: boolean }> = props => {
+  return (<>
+    <div className='title'><Typography variant='body2'>{props.title}:</Typography></div>
+    {props.textField ?
+      <div className='field'><Typography variant='body2'>{props.field}</Typography></div> :
+      <div className='field'>{props.field}</div>
+    }
+  </>);
+}
+
 export const ExplorerReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
+  const { commits, heads, update } = useGitHistory(repo);
+
+  useEffect(() => { update() }, [metafile?.repo]);
+
+  const formatHeadCommit = (branch: string | undefined) => {
+    if (branch) {
+      const sha1 = heads.get(`local/${branch}`);
+      const commitInfo = sha1 ? commits.get(sha1) : undefined;
+      if (commitInfo) return `${commitInfo.oid.slice(0, 6)}  ${commitInfo.commit.message.slice(0, 15)}`;
+    }
+    return '[detached]';
+  }
 
   return (
     <>
-      <span>Name:</span><span className='field'>{props.name}</span>
-      <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
-      <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
-      {repo ?
+      <div className='buttons'>
+        {repo && metafile && <SourceControlButton repoId={repo.id} metafileId={metafile.id} mode='dark' />}
+      </div>
+      <DataField title='UUID' textField field={props.id} />
+      <DataField title='Path' textField field={metafile?.path?.toString()} />
+      <DataField title='Update' textField field={DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)} />
+      <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
+
+      {repo && metafile ?
         <>
-          <span>Branch:</span>{metafile ? <BranchList metafileId={metafile.id} cardId={props.id} /> : undefined}
-          <span>Status:</span><span className='field'>{metafile ? metafile.status : ''}</span>
-          <span>Versions:</span>{metafile ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
+          <DataField title='Status' textField field={metafile?.status} />
+          <DataField title='Branch' field={<BranchList metafileId={metafile.id} cardId={props.id} />} />
+          <DataField title='Head' textField field={formatHeadCommit(metafile.branch)} />
         </>
         : undefined}
     </>
