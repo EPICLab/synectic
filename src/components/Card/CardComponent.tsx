@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
+import { sep } from 'path';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core';
@@ -129,7 +130,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       className={`card ${(isOver && !props.captured) ? 'drop-source' : ''} ${props.classes.join(' ')}`}
       style={{ zIndex: props.zIndex, left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
-      <Header title={props.name}>
+      <Header title={props.type === 'Explorer' ? `${sep}${props.name}` : props.name}>
         <UndoButton cardIds={[props.id]} />
         <SaveButton cardIds={[props.id]} />
         {(!props.captured) && <Tooltip title='Flip'><IconButton className={classes.root} aria-label='flip' onClick={flip} ><AutorenewIcon /></IconButton></Tooltip>}
