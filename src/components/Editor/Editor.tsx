@@ -15,12 +15,12 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
-import { Typography } from '@material-ui/core';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import RevertButton from '../RevertButton';
 import CommitButton from '../CommitButton';
 import { BranchList } from '../SourceControl/BranchList';
 import { SourceControlButton } from '../SourceControl/SourceControlButton';
+import DataField from '../Card/DataField';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
@@ -47,16 +47,6 @@ const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
         setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
     </>
   );
-}
-
-const DataField: React.FunctionComponent<{ title: string, field: React.ReactNode, textField?: boolean }> = props => {
-  return (<>
-    <div className='title'><Typography variant='body2'>{props.title}:</Typography></div>
-    {props.textField ?
-      <div className='field'><Typography variant='body2'>{props.field}</Typography></div> :
-      <div className='field'>{props.field}</div>
-    }
-  </>);
 }
 
 export const EditorReverse: React.FunctionComponent<Card> = props => {

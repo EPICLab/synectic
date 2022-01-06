@@ -10,10 +10,10 @@ import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import useDirectory from '../../containers/hooks/useDirectory';
+import DataField from '../Card/DataField';
 import { SourceControlButton } from "../SourceControl/SourceControlButton";
 import { DirectoryComponent } from './DirectoryComponent';
 import { FileComponent } from './FileComponent';
-import { Typography } from '@material-ui/core';
 import { DateTime } from 'luxon';
 import { useGitHistory } from '../../containers/hooks/useGitHistory';
 
@@ -38,16 +38,6 @@ const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
     </>
   );
 };
-
-const DataField: React.FunctionComponent<{ title: string, field: React.ReactNode, textField?: boolean }> = props => {
-  return (<>
-    <div className='title'><Typography variant='body2'>{props.title}:</Typography></div>
-    {props.textField ?
-      <div className='field'><Typography variant='body2'>{props.field}</Typography></div> :
-      <div className='field'>{props.field}</div>
-    }
-  </>);
-}
 
 export const ExplorerReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
