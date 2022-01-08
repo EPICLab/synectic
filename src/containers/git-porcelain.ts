@@ -3,15 +3,16 @@ import * as path from 'path';
 import * as isogit from 'isomorphic-git';
 import * as http from 'isomorphic-git/http/node';
 import * as ini from 'ini';
-import * as dot from 'ts-dot-prop';
+import parse from 'parse-git-config';
+import dotProp from 'dot-prop';
 import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
-import { isLinkedWorktree } from './git-worktree';
+import * as worktree from './git-worktree';
 import { isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
 import { removeUndefinedProperties } from './format';
 
-export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string };
+export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
 /**
  * Get the value of a symbolic ref or resolve a ref to its SHA1 object id; this function is a wrapper to the 
@@ -215,7 +216,7 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   test?: boolean;
 }): Promise<string | void> => {
   const optionals = removeUndefinedProperties({ fullname: fullname, test: test });
-  if (await isLinkedWorktree({ gitdir: gitdir })) {
+  if (await worktree.isLinkedWorktree({ gitdir: gitdir })) {
     const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
     return await isogit.currentBranch({ fs: fs, dir: worktreedir, gitdir: worktreedir, ...optionals });
   } else {
@@ -340,30 +341,47 @@ export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', 
 }
 
 /**
- * Read an entry from the git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality
- * to resolve global git-config files. The return object indicates the scope (`local` or `global`) in which the value was located, and the 
- * git-config value. If the optional `global` parameter is not enabled, then `getConfig` will default to checking the `local` scope followed
- * by the `global` scope (only if no value was found in `local`).
+ * Read an entry from git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality to resolve global 
+ * git-config files. The return object indicates the value for the git config entry and the scope (`local` or `global`) in which the value was located. 
+ * If the `local` or `global` parameter are disabled, set to `false`, then the search will not attempt to locate git-config files in that scope. If both
+ * parameters are enabled, then `local` scope is searched first and only if there were no matches will the `global` scope then be searched.
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path.
  * @param keyPath The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
- * @param global Optional parameter for restricting the search to only the global git-config file (i.e. the `global` scope).
+ * @param local Allow search in the `local` git-config file (i.e. the `local` scope); defaults to true.
+ * @param global Allow search in the `global` git-config file (i.e. the `global` scope); defaults to true.
+ * @param showOrigin Show the origin path of the git-config file containing the matched entry.
  * @return A Promise object containing the value and a scope indicating whether the entry was found in the `local` or `global` git-config
  * file, or only a scope of `none` if the value could not be found in any scope.
  */
-export const getConfig = async (keyPath: string, global = false): Promise<GitConfig> => {
-  const getConfigValue = async (key: string, scope: 'local' | 'global') => {
-    const configPath = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
-    if (!configPath) return null; // no git-config file exists for the requested scope
-    if (scope == 'local' && !configPath.endsWith(path.normalize('.git/config'))) return null; // local scope requested, but global scope found
-    const configFile = ini.parse(await io.readFileAsync(configPath, { encoding: 'utf-8' }));
-    return dot.has(configFile, key) ? dot.get(configFile, key) as string : null;
-  };
+export const getConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'), keyPath, local = true, global = true, showOrigin = false }: {
+  dir: fs.PathLike,
+  gitdir?: fs.PathLike,
+  keyPath: string,
+  local?: boolean,
+  global?: boolean,
+  showOrigin?: boolean
+}): Promise<GitConfig> => {
+  const root = (await worktree.isLinkedWorktree({ gitdir: gitdir })) ? await worktree.resolveLinkToRoot(dir) : dir;
+  const localConfigPath = (local && root) ? path.resolve(root.toString(), '.git/config') : null;
+  const globalConfigPath = (global) ? getGitConfigPath('global') : null;
 
-  const localValue = global ? null : await getConfigValue(keyPath, 'local');
-  const globalValue = await getConfigValue(keyPath, 'global');
+  const readConfigValue = async (configPath: string | null, key: string) => {
+    if (!configPath) return null;
+    const configFile = await parse({ path: configPath });
+    if (!configFile) return null;
+    const config = parse.expandKeys(configFile);
+    return dotProp.has(config, key) ? dotProp.get(config, key) as string : null;
+  }
+  const includeOrigin = (configPath: string | null) => showOrigin ? removeUndefinedProperties({ origin: configPath }) : {};
 
-  if (global && globalValue) return { scope: 'global', value: globalValue };
-  if (!global && localValue) return { scope: 'local', value: localValue };
-  if (!global && !localValue && globalValue) return { scope: 'global', value: globalValue };
+  const localValue = local ? await readConfigValue(localConfigPath, keyPath) : null;
+  const globalValue = global ? await readConfigValue(globalConfigPath, keyPath) : null;
+
+  console.log(`getConfig =>\n\tkeyPath: ${keyPath}\n\tgitdir: ${gitdir.toString()}\n\troot: ${root ? root.toString() : root}\n\tlocalConfigPath: ${localConfigPath}, localValue: ${localValue}\n\tglobalConfigPath: ${globalConfigPath}, globalValue: ${globalValue}`);
+
+  if (localValue) return { scope: 'local', value: localValue, ...includeOrigin(localConfigPath) };
+  if (globalValue) return { scope: 'global', value: globalValue, ...includeOrigin(globalConfigPath) };
   return { scope: 'none' };
 };
 
@@ -371,21 +389,29 @@ export const getConfig = async (keyPath: string, global = false): Promise<GitCon
  * Update an entry in the git-config files; modeled after the *isomorphic-git/setConfig* function, but includes additional functionality
  * to resolve global git-config files. The scope is strictly respected (i.e. if the entry exists only in `global` scope but `local` scope 
  * is specified, then a new entry will be added to the git-config file in `local` scope). Entries can be removed by setting value to
- * `undefined`; attempting to remove a non-existing entry will result in a null operation.
+ * `undefined`; attempting to remove a non-existing entry will result in a no-op.
+ * @param dir The working tree directory path.
+ * @param gitdir The git directory path.
  * @param scope The scope indicating whether the entry update should occur in the `local` or `global` git-config file. 
  * @param keyPath The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
  * @param value The value to be added, updated, or removed (by setting `undefined`) from the git-config file.
  * @return A Promise object containing a string in ini-format with the contents of the updated git-config file.
  */
-export const setConfig = async (scope: 'local' | 'global', keyPath: string, value: string | boolean | number | undefined)
-  : Promise<string | null> => {
-  const configPath = (scope == 'global') ? getGitConfigPath('global') : getGitConfigPath();
-  if (!configPath) return null;                                                 // no git-config file exists for the requested scope
-  if (scope == 'local' && !configPath.endsWith(path.normalize('.git/config'))) return null; // local scope requested, but global scope found
+export const setConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'), scope, keyPath, value }: {
+  dir: fs.PathLike,
+  gitdir?: fs.PathLike,
+  scope: 'local' | 'global',
+  keyPath: string,
+  value: string | boolean | number | undefined
+}): Promise<string | null> => {
+  const root = (await worktree.isLinkedWorktree({ gitdir: gitdir })) ? await worktree.resolveLinkToRoot(dir) : dir;
+  const configPath = (scope == 'local' && root) ? path.resolve(root.toString(), '.git/config') : getGitConfigPath('global');
+  if (!configPath) return null; // no git-config file exists for the requested scope
 
-  const configFile = ini.parse(await io.readFileAsync(configPath, { encoding: 'utf-8' }));
-  if (value === undefined) dot.remove(configFile, keyPath);
-  else dot.set(configFile, keyPath, value);
+  const configFile = await parse({ path: configPath });
+  if (!configFile) return null; // git-config file cannot be parsed; possible corrupted file?
+  if (value === undefined) dotProp.delete(configFile, keyPath);
+  else dotProp.set(configFile, keyPath, value);
 
   const updatedConfig = ini.stringify(configFile, { section: '', whitespace: true });
   await io.writeFileAsync(configPath, updatedConfig);
