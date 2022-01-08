@@ -378,8 +378,6 @@ export const getConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'
   const localValue = local ? await readConfigValue(localConfigPath, keyPath) : null;
   const globalValue = global ? await readConfigValue(globalConfigPath, keyPath) : null;
 
-  console.log(`getConfig =>\n\tkeyPath: ${keyPath}\n\tgitdir: ${gitdir.toString()}\n\troot: ${root ? root.toString() : root}\n\tlocalConfigPath: ${localConfigPath}, localValue: ${localValue}\n\tglobalConfigPath: ${globalConfigPath}, globalValue: ${globalValue}`);
-
   if (localValue) return { scope: 'local', value: localValue, ...includeOrigin(localConfigPath) };
   if (globalValue) return { scope: 'global', value: globalValue, ...includeOrigin(globalConfigPath) };
   return { scope: 'none' };
