@@ -3,6 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, FormControlLabel, Switch, TextField, Typography } from '@material-ui/core';
 import { getConfig, setConfig } from '../containers/git-porcelain';
 import isEmail from 'validator/lib/isEmail';
+import { PathLike } from 'fs-extra';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -28,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const GitConfigForm: React.FunctionComponent<{ open: boolean }> = props => {
+export const GitConfigForm: React.FunctionComponent<{ open: boolean, root: PathLike | undefined }> = props => {
   const [globalCheck, setGlobalCheck] = useState(false);
   const [existingUsername, setExistingUsername] = useState('');
   const [existingEmail, setExistingEmail] = useState('');
@@ -38,12 +39,14 @@ export const GitConfigForm: React.FunctionComponent<{ open: boolean }> = props =
 
   useEffect(() => {
     const getConfigs = async () => {
-      const retrievedUsername = globalCheck ? await getConfig('user.name', true) : await getConfig('user.name');
-      const retrievedEmail = globalCheck ? await getConfig('user.email', true) : await getConfig('user.email');
-      setExistingUsername(retrievedUsername.scope !== 'none' ? retrievedUsername.value : '');
-      setExistingEmail(retrievedEmail.scope !== 'none' ? retrievedEmail.value : '');
-      setUsername(retrievedUsername.scope !== 'none' ? retrievedUsername.value : '');
-      setEmail(retrievedEmail.scope !== 'none' ? retrievedEmail.value : '');
+      if (props.root) {
+        const retrievedUsername = globalCheck ? await getConfig({ dir: props.root, keyPath: 'user.name', local: false }) : await getConfig({ dir: props.root, keyPath: 'user.name' });
+        const retrievedEmail = globalCheck ? await getConfig({ dir: props.root, keyPath: 'user.email', local: false }) : await getConfig({ dir: props.root, keyPath: 'user.email' });
+        setExistingUsername(retrievedUsername.scope !== 'none' ? retrievedUsername.value : '');
+        setExistingEmail(retrievedEmail.scope !== 'none' ? retrievedEmail.value : '');
+        setUsername(retrievedUsername.scope !== 'none' ? retrievedUsername.value : '');
+        setEmail(retrievedEmail.scope !== 'none' ? retrievedEmail.value : '');
+      }
     };
     getConfigs();
   }, [globalCheck]);
@@ -55,8 +58,10 @@ export const GitConfigForm: React.FunctionComponent<{ open: boolean }> = props =
   const setConfigs = async () => {
     console.log(`updating git-config values: username => ${username}, email => ${email}`);
     const scope = globalCheck ? 'global' : 'local';
-    await setConfig(scope, 'user.name', username);
-    if (isEmail(email)) await setConfig(scope, 'user.email', email);
+    if (props.root) {
+      await setConfig({ dir: props.root, scope: scope, keyPath: 'user.name', value: username });
+      if (isEmail(email)) await setConfig({ dir: props.root, scope: scope, keyPath: 'user.email', value: email });
+    }
   }
 
   if (!props.open) return null;

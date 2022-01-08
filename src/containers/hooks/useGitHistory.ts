@@ -3,6 +3,7 @@ import { ReadCommitResult } from 'isomorphic-git';
 
 import type { Repository } from '../../types';
 import { getConfig, log } from '../git-porcelain';
+import { PathLike } from 'fs-extra';
 
 export type CommitInfo = ReadCommitResult & {
   branch: string,
@@ -15,12 +16,12 @@ type useGitHistoryHook = {
   update: () => Promise<void>
 }
 
-const resolveRemote = async (branch: string) => {
-  const defaultBranch = await getConfig('init.defaultBranch');
-  let remote = await getConfig(`branch.${branch}.remote`);
-  if (remote.scope === 'none' && defaultBranch.scope !== 'none') remote = await getConfig(`branch.${defaultBranch.value}.remote`);
-  if (remote.scope === 'none') remote = await getConfig('branch.master.remote');
-  if (remote.scope === 'none') remote = await getConfig('branch.main.remote');
+const resolveRemote = async (root: PathLike, branch: string) => {
+  const defaultBranch = await getConfig({ dir: root, keyPath: 'init.defaultBranch' });
+  let remote = await getConfig({ dir: root, keyPath: `branch.${branch}.remote` });
+  if (remote.scope === 'none' && defaultBranch.scope !== 'none') remote = await getConfig({ dir: root, keyPath: `branch.${defaultBranch.value}.remote` });
+  if (remote.scope === 'none') remote = await getConfig({ dir: root, keyPath: 'branch.master.remote' });
+  if (remote.scope === 'none') remote = await getConfig({ dir: root, keyPath: 'branch.main.remote' });
   return (remote.scope === 'none') ? 'origin' : remote.value;
 }
 
@@ -45,7 +46,7 @@ export const useGitHistory = (repo: Repository | undefined): useGitHistoryHook =
     const headsCache = new Map<string, string>();
 
     const processCommits = async (branch: string, scope: 'local' | 'remote'): Promise<void> => {
-      const remote = await resolveRemote(branch);
+      const remote = await resolveRemote(repo.root, branch);
 
       const branchCommits = (scope === 'remote')
         ? await log({ dir: repo.root.toString(), ref: `remotes/${remote}/${branch}` })

@@ -89,8 +89,8 @@ const CommitDialog: React.FunctionComponent<Modal> = props => {
         const repo = (metafile && metafile.repo) ? repos.find(r => r.id === metafile.repo) : undefined;
         const dir = (metafile && metafile.path) ? await getRepoRoot(metafile.path) : undefined;
         if (dir) {
-            const username = (await getConfig('user.name'));
-            const email = await getConfig('user.email');
+            const username = (await getConfig({ dir: dir, keyPath: 'user.name' }));
+            const email = await getConfig({ dir: dir, keyPath: 'user.email' });
 
             const result = await commit({
                 dir: dir, message: message, author: {

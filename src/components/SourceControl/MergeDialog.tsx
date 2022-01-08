@@ -161,6 +161,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         {(branchConflicts[0] === 'Failing') ? <Divider variant='middle' /> : null}
         <div className={classes.section2}>
           <GitConfigForm
+            root={repos.find(r => r.id === repo)?.root}
             open={(branchConflicts[1] && branchConflicts[1].length > 0) ? true : false}
           />
         </div>
