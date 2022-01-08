@@ -69,7 +69,7 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
       {repo && metafile ?
         <>
           <DataField title='Status' textField field={metafile?.status} />
-          <DataField title='Branch' field={<BranchList metafileId={metafile.id} cardId={props.id} />} />
+          <DataField title='Branch' field={<BranchList cardId={props.id} />} />
           <DataField title='Head' textField field={formatHeadCommit(metafile.branch)} />
         </>
         : undefined}
