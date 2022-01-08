@@ -1,19 +1,20 @@
 import * as fs from 'fs-extra';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs';
-import { checkout, getConfigAll, listBranches, ProgressCallback } from 'isomorphic-git';
+import { checkout, listBranches, ProgressCallback } from 'isomorphic-git';
 import { v4 } from 'uuid';
 import { AppThunkAPI } from '../hooks';
 import type { Card, Metafile, Repository, UUID } from '../../types';
 import { extractFromURL, extractRepoName, isGitRepo } from '../../containers/git-plumbing';
 import { clone, getConfig, getRemoteInfo, getRepoRoot, GitConfig } from '../../containers/git-porcelain';
 import { extractFilename } from '../../containers/io';
-import { fetchMetafile, fetchMetafileById, fetchParentMetafile, FilebasedMetafile } from './metafiles';
+import { fetchMetafile, fetchMetafileById, fetchParentMetafile, fetchVersionControl, FilebasedMetafile, isFilebasedMetafile } from './metafiles';
 import { removeUndefined } from '../../containers/format';
 import { cardUpdated } from '../slices/cards';
 import { repoUpdated } from '../slices/repos';
 import { resolveWorktree } from '../../containers/git-worktree';
 import { join, relative } from 'path';
+import { metafileUpdated } from '../slices/metafiles';
 
 export const fetchRepoById = createAsyncThunk<Repository | undefined, UUID, AppThunkAPI>(
     'repos/fetchById',
@@ -72,9 +73,9 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetaf
 export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
     'repos/fetchNew',
     async (root, thunkAPI) => {
-        const remoteOriginUrls: string[] = await getConfigAll({ fs: fs, dir: root.toString(), path: 'remote.origin.url' });
-        const { url, oauth } = (remoteOriginUrls.length > 0) ?
-            extractFromURL(remoteOriginUrls[0]) :
+        const remoteOriginUrl = await getConfig({ dir: root, keyPath: 'remote.origin.url' });
+        const { url, oauth } = (remoteOriginUrl.scope !== 'none') ?
+            extractFromURL(remoteOriginUrl.value) :
             { url: undefined, oauth: undefined };
         const extractGitConfigValue = (gitConfig: GitConfig): string => {
             return (gitConfig.scope === 'none') ? '' : gitConfig.value;
@@ -93,8 +94,8 @@ export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
             local: local,
             remote: remote,
             oauth: oauth ? oauth : 'github',
-            username: extractGitConfigValue(await getConfig('user.name')),
-            password: extractGitConfigValue(await getConfig('credential.helper')),
+            username: extractGitConfigValue(await getConfig({ dir: root, keyPath: 'user.name' })),
+            password: extractGitConfigValue(await getConfig({ dir: root, keyPath: 'credential.helper' })),
             token: ''
         };
     }
@@ -177,6 +178,10 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
         // get an updated metafile based on the updated worktree path
         if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path:'${metafile.path}'`);
 
+        if (isFilebasedMetafile(updated)) {
+            const vcs = await thunkAPI.dispatch(fetchVersionControl(updated)).unwrap();
+            updated = thunkAPI.dispatch(metafileUpdated({ ...updated, ...vcs })).payload;
+        }
         if (param.progress) console.log('checkout complete...');
         return updated;
     }
