@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike, remove } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
-import { Metafile, Filetype, UUID } from '../../types';
+import type { Metafile, Filetype, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
 import { metafilesSlice } from '../slices/metafiles';
 import { removeUndefined, removeUndefinedProperties, WithRequired } from '../../containers/format';
