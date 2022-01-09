@@ -17,6 +17,7 @@ import { loadCard } from '../store/thunks/handlers';
 import { getBranchRoot } from '../containers/git-porcelain';
 import { checkoutBranch } from '../store/thunks/repos';
 import { fetchMetafilesByFilepath } from '../store/thunks/metafiles';
+import branchSelectors from '../store/selectors/branches';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 
@@ -54,7 +55,8 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
 
 const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => {
   const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
-  const branches = repo ? removeDuplicates([...repo.local, ...repo.remote], (a: string, b: string) => a === b) : [];
+  const local = useAppSelector((state: RootState) => branchSelectors.selectByRoot(state, repo ? repo.root : ''));
+  const branches = repo ? removeDuplicates([...local.map(b => b.name), ...repo.remote], (a: string, b: string) => a === b) : [];
 
   return repo ? (
     <StyledTreeItem key={repo.id} nodeId={repo.id} labelText={repo.name} labelIcon={GitRepoIcon}>
