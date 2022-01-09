@@ -1,9 +1,13 @@
 import { useCallback, useState } from 'react';
 import { ReadCommitResult } from 'isomorphic-git';
+import * as path from 'path';
 
 import type { Repository } from '../../types';
 import { getConfig, log } from '../git-porcelain';
 import { PathLike } from 'fs-extra';
+import { useAppSelector } from '../../store/hooks';
+import { RootState } from '../../store/store';
+import branchSelectors from '../../store/selectors/branches';
 
 export type CommitInfo = ReadCommitResult & {
   branch: string,
@@ -37,6 +41,7 @@ const resolveRemote = async (root: PathLike, branch: string) => {
  * commit hashes to commits and `heads` maps scoped branch names to the SHA-1 hash of the commit pointed to by HEAD on that branch.
  */
 export const useGitHistory = (repo: Repository | undefined): useGitHistoryHook => {
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectByGitdir(state, repo ? path.join(repo.root.toString(), '.git') : ''));
   const [commits, setCommits] = useState(new Map<string, CommitInfo>());
   const [heads, setHeads] = useState(new Map<string, string>());
 
@@ -61,7 +66,7 @@ export const useGitHistory = (repo: Repository | undefined): useGitHistoryHook =
       }
     }
 
-    await Promise.all(repo.local.map(async branch => processCommits(branch, 'local')));
+    await Promise.all(branches.map(async branch => processCommits(branch.name, 'local')));
     await Promise.all(repo.remote.map(async branch => processCommits(branch, 'remote')));
     // replace the `commits` and `heads` states every time, since deep comparisons for all commits is computationally expensive
     setCommits(commitsCache);

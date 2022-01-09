@@ -28,7 +28,7 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
 
   // load a new Explorer card containing the root of the repository at the specified branch
   const clickHandle = async () => {
-    const branchRoot = await getBranchRoot(props.repo, props.branch);
+    const branchRoot = await getBranchRoot(props.repo.root, props.branch);
 
     // undefined branchRoot indicates the main worktree, and any linked worktrees, are not associated with that branch
     if (branchRoot) {

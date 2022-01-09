@@ -14,11 +14,13 @@ import { changedCheck, modifiedCheck, SourceFileComponent, stagedCheck } from '.
 import { fetchRepoById } from '../../store/thunks/repos';
 import { add, remove } from '../../containers/git-plumbing';
 import { metafileUpdated } from '../../store/slices/metafiles';
+import branchSelectors from '../../store/selectors/branches';
 
 const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
   const dispatch = useAppDispatch();
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(repos.find(r => r.id === props.root.repo));
+  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.root.branch ? props.root.branch : ''));
   const { files, update } = useDirectory(isFilebasedMetafile(props.root) ? props.root.path : undefined);
   const changed = useMemo(() => files.filter(f => changedCheck(f.status)), [files]);
   const staged = useMemo(() => files.filter(f => stagedCheck(f.status)), [files]);
@@ -27,7 +29,7 @@ const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
   const stage = async (metafile: FileMetafile) => {
     const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
     if (repo && metafile.branch) {
-      await add(metafile.path, repo, metafile.branch);
+      await add(metafile.path, repo.root, metafile.branch);
       const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
       dispatch(metafileUpdated({ ...metafile, ...vcs }));
     }
@@ -37,7 +39,7 @@ const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
   const unstage = async (metafile: FileMetafile) => {
     const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
     if (repo && metafile.branch) {
-      await remove(metafile.path, repo, metafile.branch);
+      await remove(metafile.path, repo.root, metafile.branch);
       const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
       dispatch(metafileUpdated({ ...metafile, ...vcs }));
     }
@@ -46,16 +48,16 @@ const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
 
   return (
     <>
-      {props.root.branch ?
+      {branch ?
         <div className='list-component'>
-          <BranchRibbon branch={props.root.branch} onClick={() => {
+          <BranchRibbon branch={branch.name} onClick={() => {
             console.log({ props, files, modified });
           }} />
           <TreeView
-            expanded={[`${repo ? repo.name : ''}-${props.root.branch}-staged`, `${repo ? repo.name : ''}-${props.root.branch}-changed`]}
+            expanded={[`${repo ? repo.name : ''}-${branch.name}-staged`, `${repo ? repo.name : ''}-${branch.name}-changed`]}
           >
-            <StyledTreeItem key={`${repo ? repo.name : ''}-${props.root.branch}-staged`}
-              nodeId={`${repo ? repo.name : ''}-${props.root.branch}-staged`}
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${branch.name}-staged`}
+              nodeId={`${repo ? repo.name : ''}-${branch.name}-staged`}
               labelText='Staged'
               labelInfoText={`${staged.length}`}
               labelIcon={GitBranchIcon}
@@ -65,8 +67,8 @@ const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
                 : null
               }
             </StyledTreeItem>
-            <StyledTreeItem key={`${repo ? repo.name : ''}-${props.root.branch}-changed`}
-              nodeId={`${repo ? repo.name : ''}-${props.root.branch}-changed`}
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${branch.name}-changed`}
+              nodeId={`${repo ? repo.name : ''}-${branch.name}-changed`}
               labelText='Changed'
               labelInfoText={`${changed.length}`}
               labelIcon={GitBranchIcon}
@@ -87,10 +89,11 @@ export const SourceControlReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
+  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
   return (
     <>
       <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
-      <span>Branch:</span><span className='field'>{metafile?.branch ? metafile.branch : 'untracked'}</span>
+      <span>Branch:</span><span className='field'>{branch ? branch.name : 'untracked'}</span>
     </>
   )
 }

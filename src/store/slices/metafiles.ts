@@ -5,6 +5,7 @@ import { repoRemoved } from './repos';
 import { filterObject } from '../../containers/format';
 import { PURGE } from 'redux-persist';
 import { fetchNewMetafile } from '../thunks/metafiles';
+import { branchRemoved } from './branches';
 
 export const metafilesAdapter = createEntityAdapter<Metafile>();
 
@@ -31,7 +32,16 @@ export const metafilesSlice = createSlice({
                     .filter((m): m is Metafile => m !== undefined)
                     .filter(m => m.repo === action.payload)
                     .map(m => {
-                        return { id: m.id, changes: filterObject(m, ['repo']) };
+                        return { id: m.id, changes: filterObject(m, ['repo', 'branch', 'status']) };
+                    })
+                metafilesAdapter.updateMany(state, updatedMetafiles);
+            })
+            .addCase(branchRemoved, (state, action) => {
+                const updatedMetafiles = Object.values(state.entities)
+                    .filter((m): m is Metafile => m !== undefined)
+                    .filter(m => m.branch === action.payload)
+                    .map(m => {
+                        return { id: m.id, changes: filterObject(m, ['branch', 'status']) }
                     })
                 metafilesAdapter.updateMany(state, updatedMetafiles);
             })

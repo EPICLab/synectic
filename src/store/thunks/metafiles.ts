@@ -8,11 +8,12 @@ import { metafilesSlice } from '../slices/metafiles';
 import { removeUndefined, removeUndefinedProperties, WithRequired } from '../../containers/format';
 import { resolveHandler } from './handlers';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
-import { currentBranch, getRepoRoot, getStatus } from '../../containers/git-porcelain';
+import { getStatus } from '../../containers/git-porcelain';
 import { fetchRepo } from './repos';
 import { discardChanges } from '../../containers/git-plumbing';
 import { dirname, relative } from 'path';
 import { checkFilepath, Conflict } from '../../containers/conflicts';
+import { fetchBranch } from './branches';
 
 export type FileMetafile = WithRequired<Metafile, 'content' | 'path'>;
 export type DirectoryMetafile = WithRequired<Metafile, 'contains' | 'path'>;
@@ -60,19 +61,11 @@ export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], Pa
     }
 );
 
-export const fetchMetafilesByRepo = createAsyncThunk<Metafile[], UUID, AppThunkAPI>(
-    'metafiles/fetchByRepo',
-    async (repoId, thunkAPI) => {
+export const fetchMetafilesByVersionControl = createAsyncThunk<Metafile[], { repoId: UUID, branch?: UUID }, AppThunkAPI>(
+    'metafiles/fetchByVersionControl',
+    async (vcs, thunkAPI) => {
         return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
-            .filter(metafile => metafile.repo === repoId);
-    }
-);
-
-export const fetchMetafilesByBranch = createAsyncThunk<Metafile[], string, AppThunkAPI>(
-    'metafiles/fetchByBranch',
-    async (branch, thunkAPI) => {
-        return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
-            .filter(metafile => metafile.branch === branch);
+            .filter(metafile => metafile.repo === vcs.repoId && (!vcs.branch || metafile.branch === vcs.branch));
     }
 );
 
@@ -147,13 +140,11 @@ export const fetchContains = createAsyncThunk<Required<Pick<Metafile, 'contains'
 export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'branch' | 'status' | 'conflicts'>, FilebasedMetafile, AppThunkAPI>(
     'metafiles/fetchVersionControl',
     async (metafile, thunkAPI) => {
-        const root = await getRepoRoot(metafile.path); // linked worktrees dictate that root can be different from the repo.root
         const repo = await thunkAPI.dispatch(fetchRepo(metafile)).unwrap();
-        const current = repo ? await currentBranch({ dir: root ? root : repo.root.toString(), fullname: false }) : undefined;
-        const branch = (repo && !current) ? 'HEAD' : current;
+        const branch = await thunkAPI.dispatch(fetchBranch(metafile)).unwrap();
         const status = repo ? await getStatus(metafile.path) : undefined;
         const conflicts = isFileMetafile(metafile) ? (await checkFilepath(metafile.path))?.conflicts : undefined;
-        return removeUndefinedProperties({ repo: repo?.id, branch: branch, status: status, conflicts: conflicts });
+        return removeUndefinedProperties({ repo: repo?.id, branch: branch?.id, status: status, conflicts: conflicts });
     }
 );
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { InsertDriveFile, Add, Remove } from '@material-ui/icons';
-import { GitStatus, Metafile, Repository } from '../../types';
+import type { GitStatus, Metafile, Repository } from '../../types';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { extractFilename } from '../../containers/io';
 import { add, remove } from '../../containers/git-plumbing';
@@ -50,11 +50,11 @@ export const SourceFileComponent: React.FunctionComponent<Metafile & SourceFileP
                     }
                     if (stagedCheck(props.status)) {
                         console.log(`unstaging ${extractFilename(props.path)}...`);
-                        await remove(props.path, props.repository, props.branch);
+                        await remove(props.path, props.repository.root, props.branch);
                         await props.update();
                     } else if (modifiedCheck(props.status)) {
                         console.log(`staging ${extractFilename(props.path)}...`);
-                        await add(props.path, props.repository, props.branch);
+                        await add(props.path, props.repository.root, props.branch);
                         await props.update();
                     }
                 }} />

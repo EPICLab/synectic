@@ -25,7 +25,7 @@ export const loadConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
         const repos = removeUndefined(Object.values(thunkAPI.getState().repos.entities));
         await Promise.all(repos.map(async repo => {
             await Promise.all(repo.local.map(async branch => {
-                const root = await getBranchRoot(repo, branch);
+                const root = await getBranchRoot(repo.root, branch);
                 const conflicts = await checkProject(root);
                 if (root && conflicts.length > 0) {
                     const conflictManager = await thunkAPI.dispatch(fetchMetafile({

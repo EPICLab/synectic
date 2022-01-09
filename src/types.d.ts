@@ -130,8 +130,8 @@ export type Metafile = {
   readonly path?: PathLike;
   /** The UUID for related Repository object, when managed by a version control system. */
   readonly repo?: UUID;
-  /** The branch name or ref, when managed by a version control system. */
-  readonly branch?: string;
+  /** The UUID for related Branch object, when managed by a version control system. */
+  readonly branch?: UUID;
   /** The latest Git status code for this file relative to the associated repository and branch. */
   readonly status?: GitStatus;
   /** The latest Filesystem status code for this file relative to the associated content. */
@@ -155,15 +155,15 @@ export type Repository = {
   /** The name of repository. Either a qualified name for remote-tracking repositories (e.g. `EPICLab/synectic`), or the root
    * directory name for local-only repositories (e.g. `synectic`). */
   readonly name: string;
-  /** The relative or absolute path to the git root directory. */
+  /** The relative or absolute path to the git root directory (.git) in the main worktree. */
   readonly root: PathLike;
   /** The URL for a CORS proxy service that enables User-Agent Header requests that meet same-origin policies on web services
    * (including GitHub). */
   readonly corsProxy: string;
-  /** The URL associated with any remote-hosted instances of this repository, or a local path URL in the case of local-only repositories. */
+  /** The URL associated with any remote-hosted instances of this repository; contains empty string if local-only repository. */
   readonly url: string;
-  /** An array with all local branch refs associated with this repository. */
-  readonly local: string[];
+  /** An array with all Branch object UUIDs for local branch refs associated with this repository. */
+  readonly local: UUID[];
   /** An array with all remote branch refs associated with this repository. */
   readonly remote: string[];
   /** The type of OAuth authentication required based on the remote-hosting service for this repository. */
@@ -176,6 +176,17 @@ export type Repository = {
   /** The authentication token associated with an account on the remote-hosting service indicated in `oauth`. Not all services require
    * a token, see https://isomorphic-git.org/docs/en/authentication for service-specific authentication requirements. */
   readonly token: string;
+}
+
+export type Branch = {
+  /** The UUID for Branch object. */
+  readonly id: UUID;
+  /** The name of branch. */
+  readonly name: string;
+  /** The relative or absolute path to the git worktree root directory; same as `gitdir` unless a linked worktree. */
+  readonly root: PathLike;
+  /** The relative or absolute path to the git root directory (.git) in the main worktree. */
+  readonly gitdir: PathLike;
 }
 
 /** A queued modal event (dialog or error) that requires a visible response from the system. */

@@ -25,6 +25,7 @@ import modalSelectors from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
 import { FSCache } from './Cache/FSCache';
 import { loadConflictManagers } from '../containers/conflicts';
+import branchSelectors from '../store/selectors/branches';
 
 export enum DnDItemType {
   CARD = 'CARD',
@@ -56,6 +57,7 @@ const CanvasComponent: React.FunctionComponent = props => {
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectAll(state));
   const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const classes = useStyles();
@@ -103,6 +105,8 @@ const CanvasComponent: React.FunctionComponent = props => {
     console.log({ repos });
     console.log(`FILETYPES: ${filetypes.length} `);
     console.log({ filetypes });
+    console.log(`BRANCHES: ${branches.length} `);
+    console.log({ branches });
     console.log(`MODALS: ${modals.length} `);
     console.log({ modals });
   }

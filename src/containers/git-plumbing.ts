@@ -265,17 +265,17 @@ export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<
  * Add a file to the git index (aka staging area) for a specific repository and branch. If the branch is a linked worktree,
  * then index updates will occur on the index file in the `{main-worktree-root}/.git/worktrees/{linked-worktree}` directory.
  * @param filepath The relative or absolute path to add.
- * @param repo A Repository object.
+ * @param root The relative or absolute path to the git root directory (.git) in the main worktree.
  * @param branch The name of a branch contained within the local branches of the indicated repository.
  * @returns A Promise object for the add operation.
  */
-export const add = async (filepath: fs.PathLike, repo: Repository, branch: string): Promise<void> => {
+export const add = async (filepath: fs.PathLike, root: fs.PathLike, branch: string): Promise<void> => {
   const dir = await getRepoRoot(filepath);
   if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
   const isLinked = await worktree.isLinkedWorktree({ dir: dir });
 
   if (isLinked) {
-    const worktreeRoot = await getBranchRoot(repo, branch);
+    const worktreeRoot = await getBranchRoot(root, branch);
     if (!worktreeRoot) return undefined; // not a part of a linked worktree
     const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
     return isogit.add({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) });
@@ -288,17 +288,17 @@ export const add = async (filepath: fs.PathLike, repo: Repository, branch: strin
  * then index updates will occur on the index file in the `{main-worktree-root}/.git/worktrees/{linked-worktree}` directory. This
  * operation does not delete the file in the working directory, but does reset the index to discard any previously staged changes.
  * @param filepath The relative or absolute path to add.
- * @param repo A Repository object.
+ * @param root The relative or absolute path to the git root directory (.git) in the main worktree.
  * @param branch The name of a branch contained within the local branches of the indicated repository.
  * @returns A Promise object for the remove operation.
  */
-export const remove = async (filepath: fs.PathLike, repo: Repository, branch: string): Promise<void> => {
+export const remove = async (filepath: fs.PathLike, root: fs.PathLike, branch: string): Promise<void> => {
   const dir = await getRepoRoot(filepath);
   if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
   const isLinked = await worktree.isLinkedWorktree({ dir: dir });
 
   if (isLinked) {
-    const worktreeRoot = await getBranchRoot(repo, branch);
+    const worktreeRoot = await getBranchRoot(root, branch);
     if (!worktreeRoot) return undefined; // not a part of a linked worktree
     console.log({ isLinked, worktreeRoot });
     const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();

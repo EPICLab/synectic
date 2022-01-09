@@ -56,18 +56,18 @@ export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undef
  * Find the root git directory for a specific branch. For the current branch on the main worktree, this corresponds to calling *getRepoRoot*
  * function. For branches on linked worktrees, this corresponds to reading the `.git/worktrees/{branch}/gitdir` file to determine the file
  * location for the linked worktree directory.
- * @param repo Repository object corresponding to the target branch.
+ * @param root The relative or absolute path to the git root directory (.git) in the main worktree.
  * @param branch Name of the target branch.
  * @returns A Promise object containing the root git directory path, or undefined if no root git directory exists for the branch (i.e. the 
  * branch is remote-only and is not currently being tracked locally).
  */
-export const getBranchRoot = async (repo: Repository, branch: string): Promise<string | undefined> => {
+export const getBranchRoot = async (root: fs.PathLike, branch: string): Promise<string | undefined> => {
   // check to see if branch matches the main worktree
-  const current = await currentBranch({ dir: repo.root });
-  if (branch === current) return getRepoRoot(repo.root);
+  const current = await currentBranch({ dir: root });
+  if (branch === current) return getRepoRoot(root);
 
   // check to see if branch matches one of the linked worktrees
-  const worktreePath = path.join(repo.root.toString(), '.git', 'worktrees');
+  const worktreePath = path.join(root.toString(), '.git', 'worktrees');
   return fs.stat(worktreePath)
     .then(async () => {
       const worktreeBranches = await io.readDirAsync(worktreePath);

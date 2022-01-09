@@ -4,6 +4,7 @@ import cardsReducer from './slices/cards';
 import filetypesReducer from './slices/filetypes';
 import metafilesReducer from './slices/metafiles';
 import reposReducer from './slices/repos';
+import branchesReducer from './slices/branches';
 import modalsReducer from './slices/modals';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -14,6 +15,7 @@ export const rootReducer = combineReducers({
     filetypes: filetypesReducer,
     metafiles: metafilesReducer,
     repos: reposReducer,
+    branches: branchesReducer,
     modals: modalsReducer
 });
 

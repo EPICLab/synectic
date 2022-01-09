@@ -12,9 +12,10 @@ import { fetchMetafile, fetchMetafileById, fetchParentMetafile, fetchVersionCont
 import { removeUndefined } from '../../containers/format';
 import { cardUpdated } from '../slices/cards';
 import { repoUpdated } from '../slices/repos';
-import { resolveWorktree } from '../../containers/git-worktree';
+import { isLinkedWorktree, resolveLinkToRoot, resolveWorktree } from '../../containers/git-worktree';
 import { join, relative } from 'path';
 import { metafileUpdated } from '../slices/metafiles';
+import { fetchBranches } from './branches';
 
 export const fetchRepoById = createAsyncThunk<Repository | undefined, UUID, AppThunkAPI>(
     'repos/fetchById',
@@ -31,12 +32,16 @@ export const fetchReposByName = createAsyncThunk<Repository[], { name: string, u
     }
 );
 
-export const fetchReposByFilepath = createAsyncThunk<Repository[], PathLike, AppThunkAPI>(
+export const fetchRepoByFilepath = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI>(
     'repos/fetchByFilepath',
     async (filepath, thunkAPI) => {
         const root = await getRepoRoot(filepath);
-        return removeUndefined(Object.values(thunkAPI.getState().repos.entities)
-            .filter(repo => repo && repo.root.toString() === root));
+        const mainRoot = root ? (
+            (await isLinkedWorktree({ dir: root })) ? await resolveLinkToRoot(root) : root)
+            : undefined;
+        const repos = removeUndefined(Object.values(thunkAPI.getState().repos.entities)
+            .filter(repo => repo && repo.root.toString() === mainRoot));
+        return repos.length > 0 ? repos[0] : undefined;
     }
 );
 
@@ -58,13 +63,11 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetaf
         }
 
         // if root path matches an existing repo, return the matching repository
-        const root = await getRepoRoot(metafile.path);
-        if (root) {
-            const repo = await thunkAPI.dispatch(fetchReposByFilepath(root)).unwrap();
-            if (repo[0]) return repo[0];
-        }
+        const repo = await thunkAPI.dispatch(fetchRepoByFilepath(metafile.path)).unwrap();
+        if (repo) return repo;
 
         // if no existing repo can be found, create and return a new repository
+        const root = await getRepoRoot(metafile.path);
         return root ? await thunkAPI.dispatch(fetchNewRepo(root)).unwrap() : undefined;
     }
 );
@@ -83,9 +86,7 @@ export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
         const { local, remote } = await thunkAPI.dispatch(fetchRepoBranches(root)).unwrap();
         return {
             id: v4(),
-            name: url ?
-                extractRepoName(url.href) :
-                (root ? extractFilename(root) : ''),
+            name: url ? extractRepoName(url.href) : (root ? extractFilename(root) : ''),
             root: root,
             /** TODO: The corsProxy is just a stubbed URL for now, but eventually we need to support Cross-Origin 
              * Resource Sharing (CORS) since isomorphic-git requires it */
@@ -101,10 +102,10 @@ export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
     }
 );
 
-export const fetchRepoBranches = createAsyncThunk<Pick<Repository, 'local' | 'remote'>, PathLike>(
+export const fetchRepoBranches = createAsyncThunk<Pick<Repository, 'local' | 'remote'>, PathLike, AppThunkAPI>(
     'repos/fetchBranches',
-    async (root) => {
-        const localBranches = await listBranches({ fs: fs, dir: root.toString() });
+    async (root, thunkAPI) => {
+        const localBranches = (await thunkAPI.dispatch(fetchBranches(root)).unwrap()).map(b => b.id);
         const remoteBranches = await listBranches({ fs: fs, dir: root.toString(), remote: 'origin' });
         return { local: localBranches, remote: remoteBranches };
     }
@@ -154,9 +155,11 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
     'repos/checkoutBranch',
     async (param, thunkAPI) => {
         const metafile = thunkAPI.getState().metafiles.entities[param.metafileId];
+        const branch = (metafile && metafile.branch) ? thunkAPI.getState().branches.entities[metafile.branch] : undefined;
         const repo = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
         if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${param.metafileId}'`);
         if (!metafile.path) return thunkAPI.rejectWithValue(`Cannot checkout branches for virtual metafile:'${param.metafileId}'`);
+        if (!branch) return thunkAPI.rejectWithValue(`Branch missing for metafile id:'${param.metafileId}'`);
         if (!repo) return thunkAPI.rejectWithValue(`Repository missing for metafile id:'${param.metafileId}'`);
         if (!metafile || !repo) return undefined;
 
@@ -168,7 +171,7 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
             updated = await thunkAPI.dispatch(fetchMetafileById(metafile.id)).unwrap();
         } else {
             // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
-            const oldWorktree = metafile.branch ? await resolveWorktree(repo, metafile.branch) : undefined;
+            const oldWorktree = await resolveWorktree(repo, branch.name);
             const newWorktree = await resolveWorktree(repo, param.branch);
             if (!oldWorktree || !newWorktree)
                 return thunkAPI.rejectWithValue(`No worktree could be resolved for either current or new worktree: repo='${repo.name}', old/new branch='${metafile.branch}'/'${param.branch}'`);

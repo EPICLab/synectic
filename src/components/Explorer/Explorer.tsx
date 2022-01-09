@@ -16,14 +16,16 @@ import { DirectoryComponent } from './DirectoryComponent';
 import { FileComponent } from './FileComponent';
 import { DateTime } from 'luxon';
 import { useGitHistory } from '../../containers/hooks/useGitHistory';
+import branchSelectors from '../../store/selectors/branches';
 
 const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
+  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.root.branch ? props.root.branch : ''));
   const { directories, files, update } = useDirectory(props.root.path);
 
   return (
     <>
       <div className='list-component'>
-        {props.root.branch ? <BranchRibbon branch={props.root.branch} /> : null}
+        {branch ? <BranchRibbon branch={branch.name} /> : null}
         <TreeView
           defaultCollapseIcon={<ArrowDropDown />}
           defaultExpandIcon={<ArrowRight />}
@@ -43,13 +45,14 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
+  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
   const { commits, heads, update } = useGitHistory(repo);
 
   useEffect(() => { update() }, [metafile?.repo]);
 
-  const formatHeadCommit = (branch: string | undefined) => {
-    if (branch) {
-      const sha1 = heads.get(`local/${branch}`);
+  const formatHeadCommit = (branchName: string | undefined) => {
+    if (branchName) {
+      const sha1 = heads.get(`local/${branchName}`);
       const commitInfo = sha1 ? commits.get(sha1) : undefined;
       if (commitInfo) return `${commitInfo.oid.slice(0, 6)}  ${commitInfo.commit.message.slice(0, 15)}`;
     }
@@ -66,11 +69,11 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
       <DataField title='Update' textField field={DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)} />
       <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
 
-      {repo && metafile ?
+      {repo && metafile && branch ?
         <>
           <DataField title='Status' textField field={metafile?.status} />
-          <DataField title='Branch' field={<BranchList cardId={props.id} />} />
-          <DataField title='Head' textField field={formatHeadCommit(metafile.branch)} />
+          <DataField title='Branch' field={<BranchList cardId={props.id} repoId={repo.id} />} />
+          <DataField title='Head' textField field={formatHeadCommit(branch.name)} />
         </>
         : undefined}
     </>

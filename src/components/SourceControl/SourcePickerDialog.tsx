@@ -48,7 +48,7 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
 
   const handleClick = async () => {
     const repo = repos.find(r => r.id === selectedRepo);
-    const branchRoot = repo ? await getBranchRoot(repo, selectedBranch) : '';
+    const branchRoot = repo ? await getBranchRoot(repo.root, selectedBranch) : '';
     const metafile = await dispatch(fetchMetafile({
       virtual: {
         id: v4(),

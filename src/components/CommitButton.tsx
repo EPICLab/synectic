@@ -44,7 +44,7 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
             .map(async metafile => {
                 const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
                 if (repo && metafile.branch) {
-                    await add(metafile.path, repo, metafile.branch);
+                    await add(metafile.path, repo.root, metafile.branch);
                     const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
                     dispatch(metafileUpdated({ ...metafile, ...vcs }));
                 }
@@ -58,7 +58,7 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
             .map(async metafile => {
                 const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
                 if (repo && metafile.branch) {
-                    await remove(metafile.path, repo, metafile.branch);
+                    await remove(metafile.path, repo.root, metafile.branch);
                     const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
                     dispatch(metafileUpdated({ ...metafile, ...vcs }));
                 }

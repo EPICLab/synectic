@@ -1,7 +1,7 @@
 import React from 'react';
 import { DeviceHub as VersionControl } from '@material-ui/icons';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { UUID } from '../../types';
+import type { UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -29,7 +29,7 @@ export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafi
             console.log(`Cannot load source control for untracked metafile:'${metafileId}'`);
             return;
         }
-        const branchRoot = await getBranchRoot(repo, metafile.branch);
+        const branchRoot = await getBranchRoot(repo.root, metafile.branch);
         const sourceControl = await dispatch(fetchMetafile({
             virtual: {
                 id: v4(),
