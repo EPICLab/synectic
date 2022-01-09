@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from '../../types';
+import type { Card } from '../../types';
 import { EditorReverse } from '../Editor/Editor';
 import { DiffReverse } from '../Diff/Diff';
 import { ExplorerReverse } from '../Explorer/Explorer';
