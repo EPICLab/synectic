@@ -120,10 +120,10 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
     map: async (filename: string, entries: (isogit.WalkerEntry | null)[]) => {
       if (!entries || filename === '.' || ignoreWorktree.ignores(filename)) return;
 
-      const [head, workdir, stage] = entries.slice(0, 3);
+      const [workdir, stage] = entries.slice(1, 3);
 
-      // determine oid for HEAD tree
-      const headOid = head ? await head.oid() : undefined;
+      // determine oid for head tree
+      const head = await resolveOid(path.join(worktreeRoot, filename), branch);
 
       // determine oid for working directory tree
       let workdirOid;
@@ -139,7 +139,7 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
       const indexEntry = index.entries.find(entry => entry.filePath === filename);
       const stageOid = indexEntry ? indexEntry.objectId.slice(2) : undefined;
 
-      const entry = [undefined, headOid, workdirOid, stageOid];
+      const entry = [undefined, head, workdirOid, stageOid];
       const result = entry.map(value => entry.indexOf(value));
       result.shift();
 

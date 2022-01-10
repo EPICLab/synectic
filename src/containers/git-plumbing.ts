@@ -331,8 +331,8 @@ export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | un
 /**
  * Efficiently get the git status of multiple files in a directory at once. Extending the utility of 
  * [**isomorphic-git/statusMatrix**](https://isomorphic-git.org/docs/en/statusMatrix), this function resolves pathing for linked 
- * working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)) and returns the same status matrix containing HEAD 
- * status, WORKDIR status, and STAGE status entries for each file or blob in the directory.
+ * worktrees (see [git-worktree](https://git-scm.com/docs/git-worktree)) and returns the same status matrix containing HEAD status, 
+ * WORKDIR status, and STAGE status entries for each file or blob in the directory.
  * @param dirpath The relative or absolute path to evaluate.
  * @returns A Promise object containing undefined if the path is not contained within a directory under version control, or a 2D array 
  * of tuples alphabetically ordered according to the filename followed by three integers representing the HEAD status, WORKDIR status, 
@@ -347,7 +347,7 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
   const isLinked = await worktree.isLinkedWorktree({ dir: dir });
 
   return isLinked
-    ? worktree.statusMatrix(dirpath)
+    ? worktree.statusMatrix(dir)
     : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !isHiddenFile(f) });
 }
 
