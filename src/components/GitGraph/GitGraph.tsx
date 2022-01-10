@@ -40,6 +40,7 @@ export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
     nodeTypes={nodeTypes}
     onConnect={onConnect}
     onLoad={onLoad}
+    onMouseDown={() => console.log({ commits, heads, elements })}
     // onNodeMouseEnter={(_event, node) => console.log(node.id)}
     className='git-flow' />);
 }
