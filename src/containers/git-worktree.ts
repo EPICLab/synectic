@@ -92,7 +92,8 @@ export const resolveLinkToRoot = async (worktreeRoot: fs.PathLike): Promise<stri
  */
 export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined> => {
   const worktreeRoot = await getRepoRoot(filepath);
-  if (!worktreeRoot) return undefined; // no root Git directory indicates that the filepath is not part of a Git repo
+  // check to see if under version control (i.e. git root path exists), and whether the root is a linked worktree root directory
+  if (!worktreeRoot || !(await isLinkedWorktree({ dir: worktreeRoot }))) return undefined;
   const dir = await resolveLinkToRoot(worktreeRoot);
   if (!dir) return undefined; // not part of a linked worktree, use `git.getStatus` instead
 
@@ -113,7 +114,8 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
 
   const result = await isogit.walk({
     fs: fs,
-    dir: dir,
+    dir: worktreeRoot,
+    gitdir: gitdir,
     trees: [isogit.TREE({ ref: branch }), isogit.WORKDIR(), isogit.STAGE()],
     map: async (filename: string, entries: (isogit.WalkerEntry | null)[]) => {
       if (!entries || filename === '.' || ignoreWorktree.ignores(filename)) return;
@@ -144,6 +146,8 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
       return [filename, ...result];
     }
   });
+
+  console.log(`worktree.statusMatrix => filepath: ${filepath.toString()}, branch: ${branch}, dir: ${worktreeRoot}, gitdir: ${gitdir}, result:`, { result });
 
   return new Promise(resolve => resolve(result));
 }
