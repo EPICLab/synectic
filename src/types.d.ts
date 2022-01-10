@@ -164,8 +164,8 @@ export type Repository = {
   readonly url: string;
   /** An array with all Branch object UUIDs for local branch refs associated with this repository. */
   readonly local: UUID[];
-  /** An array with all remote branch refs associated with this repository. */
-  readonly remote: string[];
+  /** An array with all Branch object UUIDs for remote branch refs associated with this repository. */
+  readonly remote: UUID[];
   /** The type of OAuth authentication required based on the remote-hosting service for this repository. */
   readonly oauth: 'github' | 'bitbucket' | 'gitlab';
   /** The authentication username associated with an account on the remote-hosting service indicated in `oauth`. Not all services require
@@ -182,11 +182,16 @@ export type Branch = {
   /** The UUID for Branch object. */
   readonly id: UUID;
   /** The name of branch. */
-  readonly name: string;
-  /** The relative or absolute path to the git worktree root directory; same as `gitdir` unless a linked worktree. */
+  readonly ref: string;
+  /** The relative or absolute path to the working tree directory path. This is the worktree root directory in the case of linked worktrees,
+   * and the parent of the root directory (.git) in the main worktree otherwise. */
   readonly root: PathLike;
   /** The relative or absolute path to the git root directory (.git) in the main worktree. */
   readonly gitdir: PathLike;
+  /** The reference scope of the branch; typically a branch will have an instance of both a `local` and `remote` branch. */
+  readonly scope: 'local' | 'remote';
+  /** The name of the remote to fetch from/push to using `git fetch` and `git push` commands for this branch; default is `origin`. */
+  readonly remote: string;
 }
 
 /** A queued modal event (dialog or error) that requires a visible response from the system. */
