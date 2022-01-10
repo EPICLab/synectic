@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { InsertDriveFile as FileIcon, DeleteForever as Delete } from '@material-ui/icons';
 import { remove as removePath } from 'fs-extra';
-import { GitStatus } from '../../types';
+import type { GitStatus } from '../../types';
 import { loadCard } from '../../store/thunks/handlers';
 import { extractFilename } from '../../containers/io';
 import { StyledTreeItem } from '../StyledTreeComponent';

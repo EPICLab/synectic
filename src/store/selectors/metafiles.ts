@@ -28,7 +28,7 @@ const selectByRepo = createDraftSafeSelector(
 const selectByBranch = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, filepath: PathLike) => filepath,
-    (_state: RootState, _filepath: PathLike, branch: string) => branch,
+    (_state: RootState, _filepath: PathLike, branch: UUID) => branch,
     (metafiles, filepath, branch) => metafiles.filter(m => m.path === filepath && m.branch === branch)
 );
 

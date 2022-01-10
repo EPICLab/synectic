@@ -1,7 +1,7 @@
 import { RootState } from '../store';
 import { cardsAdapter } from '../slices/cards';
 import { createDraftSafeSelector, EntityId } from '@reduxjs/toolkit';
-import { Card, Metafile, UUID } from '../../types';
+import type { Card, Metafile, UUID } from '../../types';
 import metafileSelectors from './metafiles';
 import { flattenArray } from '../../containers/flatten';
 
@@ -28,9 +28,9 @@ const selectByRepo = createDraftSafeSelector(
     metafileSelectors.selectEntities,
     (_state: RootState, repoId: UUID) => repoId,
     (_state: RootState, _repoId: UUID, branch?: string) => branch,
-    (cards, metafiles, repoId, branch) => cards
+    (cards, metafiles, repoId, branchId) => cards
         .filter(c => metafiles[c.metafile] ? metafiles[c.metafile]?.repo === repoId : false)
-        .filter(c => branch ? metafiles[c.metafile]?.branch === branch : true)
+        .filter(c => branchId ? metafiles[c.metafile]?.branch === branchId : true)
 );
 
 const selectByStack = createDraftSafeSelector(

@@ -4,9 +4,9 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import ErrorIcon from '@material-ui/icons/Error';
 import { v4 } from 'uuid';
-import type { UUID, Repository } from '../types';
+import type { Repository, Branch } from '../types';
 import { RootState } from '../store/store';
-import { isDefined, removeDuplicates } from '../containers/format';
+import { isDefined } from '../containers/format';
 import { StyledTreeItem } from './StyledTreeComponent';
 import { GitRepoIcon, GitBranchIcon } from './GitIcons';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
@@ -14,30 +14,27 @@ import repoSelectors from '../store/selectors/repos';
 import cardSelectors from '../store/selectors/cards';
 import metafileSelectors from '../store/selectors/metafiles';
 import { loadCard } from '../store/thunks/handlers';
-import { getBranchRoot } from '../containers/git-porcelain';
 import { checkoutBranch } from '../store/thunks/repos';
 import { fetchMetafilesByFilepath } from '../store/thunks/metafiles';
 import branchSelectors from '../store/selectors/branches';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 
-const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }> = props => {
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectByRepo(state, props.repo.id, props.branch));
+const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: Branch }> = props => {
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectByRepo(state, props.repo.id, props.branch.id));
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const modified = cards.map(c => metafiles.find(m => m.id === c.metafile)).filter(isDefined).filter(m => m.status && modifiedStatuses.includes(m.status));
   const dispatch = useAppDispatch();
 
   // load a new Explorer card containing the root of the repository at the specified branch
   const clickHandle = async () => {
-    const branchRoot = await getBranchRoot(props.repo.root, props.branch);
-
-    // undefined branchRoot indicates the main worktree, and any linked worktrees, are not associated with that branch
-    if (branchRoot) {
-      dispatch(loadCard({ filepath: branchRoot }));
+    // undefined root indicates the main worktree, and any linked worktrees, are not associated with that branch
+    if (props.branch.root) {
+      dispatch(loadCard({ filepath: props.branch.root }));
     } else {
-      console.log(`branchRoot '${branchRoot}' not associated with any worktrees, gathering new metafile and checking out the branch`);
+      console.log(`root '${props.branch.root}' not associated with any worktrees, gathering new metafile and checking out the branch`);
       const metafiles = await dispatch(fetchMetafilesByFilepath(props.repo.root)).unwrap();
-      const updated = metafiles ? await dispatch(checkoutBranch({ metafileId: metafiles[0].id, branch: props.branch })).unwrap() : undefined;
+      const updated = metafiles ? await dispatch(checkoutBranch({ metafileId: metafiles[0].id, branchId: props.branch.id })).unwrap() : undefined;
       if (updated) {
         console.log(`checkoutBranch updated metafile: ${JSON.stringify(updated, undefined, 2)}`);
         dispatch(loadCard({ metafile: updated }));
@@ -46,23 +43,24 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: string }
   }
 
   return (
-    <StyledTreeItem key={`${props.repo}-${props.branch}`} nodeId={`${props.repo}-${props.branch}`}
-      labelText={`${props.branch} [${modified.length}/${cards.length}]`}
+    <StyledTreeItem
+      key={`${props.repo}-${props.branch.id}`}
+      nodeId={`${props.repo}-${props.branch.id}`}
+      labelText={`${props.branch.ref} [${modified.length}/${cards.length}]`}
       labelIcon={GitBranchIcon}
       onClick={clickHandle}
-    />);
+    />
+  );
 };
 
-const RepoStatusComponent: React.FunctionComponent<{ repoId: UUID }> = props => {
-  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
-  const local = useAppSelector((state: RootState) => branchSelectors.selectByRoot(state, repo ? repo.root : ''));
-  const branches = repo ? removeDuplicates([...local.map(b => b.name), ...repo.remote], (a: string, b: string) => a === b) : [];
+const RepoStatusComponent: React.FunctionComponent<{ repo: Repository }> = props => {
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, props.repo, true));
 
-  return repo ? (
-    <StyledTreeItem key={repo.id} nodeId={repo.id} labelText={repo.name} labelIcon={GitRepoIcon}>
-      {branches.filter(branch => branch !== 'HEAD').map(branch => <BranchStatus key={v4()} repo={repo} branch={branch} />)}
+  return (
+    <StyledTreeItem key={props.repo.id} nodeId={props.repo.id} labelText={props.repo.name} labelIcon={GitRepoIcon}>
+      {branches.filter(branch => branch.ref !== 'HEAD').map(branch => <BranchStatus key={v4()} repo={props.repo} branch={branch} />)}
     </StyledTreeItem >
-  ) : null;
+  );
 }
 
 export const ReposOverview: React.FunctionComponent = () => {
@@ -86,7 +84,7 @@ export const ReposOverview: React.FunctionComponent = () => {
             labelIcon={ErrorIcon}
           />
         }
-        {repos.length > 0 && repos.map(repo => <RepoStatusComponent key={repo.id} repoId={repo.id} />)}
+        {repos.length > 0 && repos.map(repo => <RepoStatusComponent key={repo.id} repo={repo} />)}
       </TreeView>
     </div>
   );

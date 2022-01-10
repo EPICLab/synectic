@@ -4,6 +4,7 @@
 // Typed version by: Nicholas Nelson <https://github.com/nelsonni>
 
 // import * as binarnia from 'binarnia';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const binarnia = require('binarnia');
 
 export type IndexEntry = {

@@ -143,6 +143,8 @@ export const graphConstruction = async (commits: Map<string, CommitInfo>, heads:
 
   const { history, staged } = await parseCommits(currentCommits, heads, repo);
 
+  console.log(`graphConstruction =>`, { history, staged });
+
   const optimizedNewElements = layoutOptimizer([...history, ...staged]);
   return optimizedNewElements;
 }

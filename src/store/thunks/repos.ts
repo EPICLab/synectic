@@ -15,7 +15,7 @@ import { repoUpdated } from '../slices/repos';
 import { isLinkedWorktree, resolveLinkToRoot, resolveWorktree } from '../../containers/git-worktree';
 import { join, relative } from 'path';
 import { metafileUpdated } from '../slices/metafiles';
-import { fetchBranches } from './branches';
+import { fetchLocalBranch, fetchRemoteBranch } from './branches';
 
 export const fetchRepoById = createAsyncThunk<Repository | undefined, UUID, AppThunkAPI>(
     'repos/fetchById',
@@ -105,9 +105,15 @@ export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
 export const fetchRepoBranches = createAsyncThunk<Pick<Repository, 'local' | 'remote'>, PathLike, AppThunkAPI>(
     'repos/fetchBranches',
     async (root, thunkAPI) => {
-        const localBranches = (await thunkAPI.dispatch(fetchBranches(root)).unwrap()).map(b => b.id);
+        const localBranches = await listBranches({ fs: fs, dir: root.toString() });
+        const local = removeUndefined(await Promise.all(
+            localBranches.map(branch => thunkAPI.dispatch(fetchLocalBranch({ root: root, branchName: branch })).unwrap())
+        ));
         const remoteBranches = await listBranches({ fs: fs, dir: root.toString(), remote: 'origin' });
-        return { local: localBranches, remote: remoteBranches };
+        const remote = removeUndefined(await Promise.all(
+            remoteBranches.map(branch => thunkAPI.dispatch(fetchRemoteBranch({ root: root, branchName: branch })).unwrap())
+        ));
+        return { local: local.map(branch => branch.id), remote: remote.map(branch => branch.id) };
     }
 );
 
@@ -151,7 +157,7 @@ export const cloneRepository = createAsyncThunk<Repository | undefined, { url: U
     }
 );
 
-export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileId: UUID, branch: string, progress?: boolean, overwrite?: boolean }, AppThunkAPI>(
+export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileId: UUID, branchId: UUID, progress?: boolean, overwrite?: boolean }, AppThunkAPI>(
     'repos/checkoutBranch',
     async (param, thunkAPI) => {
         const metafile = thunkAPI.getState().metafiles.entities[param.metafileId];
@@ -166,15 +172,15 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
         let updated: Metafile | undefined;
         if (param.overwrite) {
             // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
-            if (param.progress) await checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch, onProgress: (e) => console.log(e.phase) });
-            else await checkout({ fs: fs, dir: repo.root.toString(), ref: param.branch });
+            if (param.progress) await checkout({ fs: fs, dir: repo.root.toString(), ref: param.branchId, onProgress: (e) => console.log(e.phase) });
+            else await checkout({ fs: fs, dir: repo.root.toString(), ref: param.branchId });
             updated = await thunkAPI.dispatch(fetchMetafileById(metafile.id)).unwrap();
         } else {
             // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
-            const oldWorktree = await resolveWorktree(repo, branch.name);
-            const newWorktree = await resolveWorktree(repo, param.branch);
+            const oldWorktree = await resolveWorktree(repo, branch.ref);
+            const newWorktree = await resolveWorktree(repo, param.branchId);
             if (!oldWorktree || !newWorktree)
-                return thunkAPI.rejectWithValue(`No worktree could be resolved for either current or new worktree: repo='${repo.name}', old/new branch='${metafile.branch}'/'${param.branch}'`);
+                return thunkAPI.rejectWithValue(`No worktree could be resolved for either current or new worktree: repo='${repo.name}', old/new branch='${metafile.branch}'/'${param.branchId}'`);
             const relativePath = relative(oldWorktree.path.toString(), metafile.path.toString());
             updated = await thunkAPI.dispatch(fetchMetafile({ filepath: join(newWorktree.path.toString(), relativePath) })).unwrap();
         }

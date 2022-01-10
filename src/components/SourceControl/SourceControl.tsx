@@ -50,14 +50,14 @@ const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
     <>
       {branch ?
         <div className='list-component'>
-          <BranchRibbon branch={branch.name} onClick={() => {
+          <BranchRibbon branch={branch.ref} onClick={() => {
             console.log({ props, files, modified });
           }} />
           <TreeView
-            expanded={[`${repo ? repo.name : ''}-${branch.name}-staged`, `${repo ? repo.name : ''}-${branch.name}-changed`]}
+            expanded={[`${repo ? repo.name : ''}-${branch.ref}-staged`, `${repo ? repo.name : ''}-${branch.ref}-changed`]}
           >
-            <StyledTreeItem key={`${repo ? repo.name : ''}-${branch.name}-staged`}
-              nodeId={`${repo ? repo.name : ''}-${branch.name}-staged`}
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${branch.ref}-staged`}
+              nodeId={`${repo ? repo.name : ''}-${branch.ref}-staged`}
               labelText='Staged'
               labelInfoText={`${staged.length}`}
               labelIcon={GitBranchIcon}
@@ -67,8 +67,8 @@ const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
                 : null
               }
             </StyledTreeItem>
-            <StyledTreeItem key={`${repo ? repo.name : ''}-${branch.name}-changed`}
-              nodeId={`${repo ? repo.name : ''}-${branch.name}-changed`}
+            <StyledTreeItem key={`${repo ? repo.name : ''}-${branch.ref}-changed`}
+              nodeId={`${repo ? repo.name : ''}-${branch.ref}-changed`}
               labelText='Changed'
               labelInfoText={`${changed.length}`}
               labelIcon={GitBranchIcon}
@@ -93,7 +93,7 @@ export const SourceControlReverse: React.FunctionComponent<Card> = props => {
   return (
     <>
       <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
-      <span>Branch:</span><span className='field'>{branch ? branch.name : 'untracked'}</span>
+      <span>Branch:</span><span className='field'>{branch ? branch.ref : 'untracked'}</span>
     </>
   )
 }

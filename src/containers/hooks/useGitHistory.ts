@@ -1,10 +1,7 @@
 import { useCallback, useState } from 'react';
 import { ReadCommitResult } from 'isomorphic-git';
-import * as path from 'path';
-
-import type { Repository } from '../../types';
-import { getConfig, log } from '../git-porcelain';
-import { PathLike } from 'fs-extra';
+import type { Branch, Repository } from '../../types';
+import { log } from '../git-porcelain';
 import { useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import branchSelectors from '../../store/selectors/branches';
@@ -20,15 +17,6 @@ type useGitHistoryHook = {
   update: () => Promise<void>
 }
 
-const resolveRemote = async (root: PathLike, branch: string) => {
-  const defaultBranch = await getConfig({ dir: root, keyPath: 'init.defaultBranch' });
-  let remote = await getConfig({ dir: root, keyPath: `branch.${branch}.remote` });
-  if (remote.scope === 'none' && defaultBranch.scope !== 'none') remote = await getConfig({ dir: root, keyPath: `branch.${defaultBranch.value}.remote` });
-  if (remote.scope === 'none') remote = await getConfig({ dir: root, keyPath: 'branch.master.remote' });
-  if (remote.scope === 'none') remote = await getConfig({ dir: root, keyPath: 'branch.main.remote' });
-  return (remote.scope === 'none') ? 'origin' : remote.value;
-}
-
 /**
  * Custom React Hook for managing commit histories for all known branches (local and remote) within a git repository. Resolves a list of 
  * unique commits that exist across all branches, and mappings from branch names (encoded in the form `[scope]/[branch]`, 
@@ -41,7 +29,7 @@ const resolveRemote = async (root: PathLike, branch: string) => {
  * commit hashes to commits and `heads` maps scoped branch names to the SHA-1 hash of the commit pointed to by HEAD on that branch.
  */
 export const useGitHistory = (repo: Repository | undefined): useGitHistoryHook => {
-  const branches = useAppSelector((state: RootState) => branchSelectors.selectByGitdir(state, repo ? path.join(repo.root.toString(), '.git') : ''));
+  const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo) : []);
   const [commits, setCommits] = useState(new Map<string, CommitInfo>());
   const [heads, setHeads] = useState(new Map<string, string>());
 
@@ -50,24 +38,21 @@ export const useGitHistory = (repo: Repository | undefined): useGitHistoryHook =
     const commitsCache = new Map<string, CommitInfo>();
     const headsCache = new Map<string, string>();
 
-    const processCommits = async (branch: string, scope: 'local' | 'remote'): Promise<void> => {
-      const remote = await resolveRemote(repo.root, branch);
-
-      const branchCommits = (scope === 'remote')
-        ? await log({ dir: repo.root.toString(), ref: `remotes/${remote}/${branch}` })
-        : await log({ dir: repo.root.toString(), ref: branch });
+    const processCommits = async (branch: Branch): Promise<void> => {
+      const branchCommits = (branch.scope === 'remote')
+        ? await log({ dir: repo.root.toString(), ref: `remotes/${branch.remote}/${branch.ref}` })
+        : await log({ dir: repo.root.toString(), ref: branch.ref });
       // append to the caches only if no entries exist for the new commit or branch
       branchCommits.map(commit =>
         (!commitsCache.has(commit.oid))
-          ? commitsCache.set(commit.oid, { ...commit, branch: branch, scope: scope })
+          ? commitsCache.set(commit.oid, { ...commit, branch: branch.ref, scope: branch.scope })
           : null);
-      if (!headsCache.has(`${scope}/${branch}`)) {
-        headsCache.set(`${scope}/${branch}`, branchCommits[0].oid);
+      if (!headsCache.has(`${branch.scope}/${branch.ref}`)) {
+        headsCache.set(`${branch.scope}/${branch.ref}`, branchCommits[0].oid);
       }
     }
 
-    await Promise.all(branches.map(async branch => processCommits(branch.name, 'local')));
-    await Promise.all(repo.remote.map(async branch => processCommits(branch, 'remote')));
+    await Promise.all(branches.map(async branch => processCommits(branch)));
     // replace the `commits` and `heads` states every time, since deep comparisons for all commits is computationally expensive
     setCommits(commitsCache);
     setHeads(headsCache);

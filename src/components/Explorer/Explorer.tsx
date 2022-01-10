@@ -25,7 +25,7 @@ const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
   return (
     <>
       <div className='list-component'>
-        {branch ? <BranchRibbon branch={branch.name} /> : null}
+        {branch ? <BranchRibbon branch={branch.ref} /> : null}
         <TreeView
           defaultCollapseIcon={<ArrowDropDown />}
           defaultExpandIcon={<ArrowRight />}
@@ -73,7 +73,7 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
         <>
           <DataField title='Status' textField field={metafile?.status} />
           <DataField title='Branch' field={<BranchList cardId={props.id} repoId={repo.id} />} />
-          <DataField title='Head' textField field={formatHeadCommit(branch.name)} />
+          <DataField title='Head' textField field={formatHeadCommit(branch.ref)} />
         </>
         : undefined}
     </>
