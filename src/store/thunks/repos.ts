@@ -76,18 +76,19 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetaf
 export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
     'repos/fetchNew',
     async (root, thunkAPI) => {
-        const remoteOriginUrl = await getConfig({ dir: root, keyPath: 'remote.origin.url' });
+        const mainRoot = (await isLinkedWorktree({ dir: root })) ? await resolveLinkToRoot(root) : root;
+        const remoteOriginUrl: GitConfig = mainRoot ? await getConfig({ dir: mainRoot, keyPath: 'remote.origin.url' }) : { scope: 'none' };
         const { url, oauth } = (remoteOriginUrl.scope !== 'none') ?
             extractFromURL(remoteOriginUrl.value) :
             { url: undefined, oauth: undefined };
         const extractGitConfigValue = (gitConfig: GitConfig): string => {
             return (gitConfig.scope === 'none') ? '' : gitConfig.value;
         };
-        const { local, remote } = await thunkAPI.dispatch(fetchRepoBranches(root)).unwrap();
+        const { local, remote } = mainRoot ? await thunkAPI.dispatch(fetchRepoBranches(mainRoot)).unwrap() : { local: [], remote: [] };
         return {
             id: v4(),
-            name: url ? extractRepoName(url.href) : (root ? extractFilename(root) : ''),
-            root: root,
+            name: url ? extractRepoName(url.href) : (mainRoot ? extractFilename(mainRoot) : ''),
+            root: mainRoot ? mainRoot : '',
             /** TODO: The corsProxy is just a stubbed URL for now, but eventually we need to support Cross-Origin 
              * Resource Sharing (CORS) since isomorphic-git requires it */
             corsProxy: 'https://cors-anywhere.herokuapp.com',
@@ -95,8 +96,8 @@ export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
             local: local,
             remote: remote,
             oauth: oauth ? oauth : 'github',
-            username: extractGitConfigValue(await getConfig({ dir: root, keyPath: 'user.name' })),
-            password: extractGitConfigValue(await getConfig({ dir: root, keyPath: 'credential.helper' })),
+            username: mainRoot ? extractGitConfigValue(await getConfig({ dir: mainRoot, keyPath: 'user.name' })) : '',
+            password: mainRoot ? extractGitConfigValue(await getConfig({ dir: mainRoot, keyPath: 'credential.helper' })) : '',
             token: ''
         };
     }
