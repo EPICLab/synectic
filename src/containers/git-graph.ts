@@ -2,7 +2,7 @@ import dagre from 'dagre';
 import { ArrowHeadType, Edge, FlowElement, Node, isNode, isEdge } from 'react-flow-renderer';
 
 import type { Repository } from '../types';
-import { getStatus } from '../containers/git-porcelain';
+import { getBranchRoot, getStatus } from '../containers/git-porcelain';
 import { CommitInfo } from './hooks/useGitHistory';
 import { flattenArray } from '../containers/flatten';
 import { colorSets } from '../containers/colors';
@@ -38,7 +38,8 @@ const getGitEdge = (commit: CommitInfo): Edge[] => {
 };
 
 const getGitStaged = async (commit: CommitInfo, repo: Repository, parentNode?: Node): Promise<(Node | Edge)[]> => {
-  const currentBranchStatus = await getStatus(repo.root);
+  const branchRoot = await getBranchRoot(repo.root, commit.branch);
+  const currentBranchStatus = branchRoot ? await getStatus(branchRoot) : undefined;
   if (currentBranchStatus && !(['ignored', 'unmodified'].includes(currentBranchStatus))) {
     return [{
       id: `${commit.oid}*`,
@@ -94,7 +95,7 @@ const parseCommits = async (commits: CommitInfo[], heads: Map<string, string>, r
 
   const headsHashes = Array.from(heads.values());
   const headCommits = commits.filter(commit => headsHashes.includes(commit.oid));
-  const staged = flattenArray(await Promise.all(headCommits.map(currentBranchCommit => getGitStaged(currentBranchCommit, repo))));
+  const staged = flattenArray(await Promise.all(headCommits.filter(c => c.scope === 'local').map(currentBranchCommit => getGitStaged(currentBranchCommit, repo))));
 
   return { history, staged };
 }
