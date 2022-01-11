@@ -12,8 +12,9 @@ import { toHTTPS } from 'git-remote-protocol';
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { currentBranch, getBranchRoot, getRepoRoot, log } from './git-porcelain';
+import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from './format';
+import { unstage } from './unstage-shim';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -300,10 +301,15 @@ export const remove = async (filepath: fs.PathLike, root: fs.PathLike, branch: s
     const gitdir = (await io.readFileAsync(`${dir.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
     const mainRoot = await getRepoRoot(gitdir);
     if (!mainRoot) return undefined;
-    const headOid = (await log({ dir: mainRoot, ref: branch, depth: 1 }))[0].oid;
+    // const headOid = (await log({ dir: mainRoot, ref: branch, depth: 1 }))[0].oid;
 
-    return isogit.remove({ fs: fs, dir: dir, gitdir: gitdir, filepath: path.relative(dir, filepath.toString()) })
-      .then(() => isogit.resetIndex({ fs: fs, dir: dir, gitdir: gitdir, ref: headOid, filepath: path.relative(dir, filepath.toString()) }));
+    // return isogit.remove({ fs: fs, dir: dir, gitdir: gitdir, filepath: path.relative(dir, filepath.toString()) })
+    //   .then(() => isogit.resetIndex({ fs: fs, dir: dir, gitdir: gitdir, ref: headOid, filepath: path.relative(dir, filepath.toString()) }));
+
+    // WARNING: Temporary shim in place to fix bug with `isomorphic-git.resetIndex` on linked worktree files: https://github.com/EPICLab/synectic/issues/600
+    const check = await unstage(filepath, dir);
+    console.log(`unstaged: ${check.fulfilled ? 'succeeded' : 'failed'}`);
+    return;
   }
   return isogit.remove({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) })
     .then(() => isogit.resetIndex({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) }));

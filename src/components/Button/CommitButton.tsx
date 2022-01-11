@@ -40,7 +40,6 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
     const classes = useIconButtonStyle({ mode: mode });
 
     const stage = async () => {
-        console.log(`staging:`, { unstaged });
         await Promise.all(unstaged
             .filter(isFileMetafile)
             .map(async metafile => {
@@ -56,7 +55,6 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
     };
 
     const unstage = async () => {
-        console.log(`unstaging:`, { staged });
         await Promise.all(staged
             .filter(isFileMetafile)
             .map(async metafile => {
