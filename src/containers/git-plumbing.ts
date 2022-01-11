@@ -12,7 +12,7 @@ import { toHTTPS } from 'git-remote-protocol';
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
+import { currentBranch, getBranchRoot, getRepoRoot, log } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from './format';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
@@ -146,9 +146,8 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
  * Resolve a ref to its SHA-1 object id for a specific filepath contained within a git branch. The response represents an oid that 
  * can be provided directly to `resolveRef` in order to obtain a blob string containing the latest version on a particular branch 
  * (i.e. for determining whether the file has diverged from the latest version in git).
- * @param dir The working tree directory path.
+ * @param filepath The relative or absolute path to resolve.
  * @param branch The branch to reference for resolving the indicated filepath.
-* @param relativeFilepath The relative path from a git root (either linked or main worktree) to the target file.
  * @returns A Promise object containing the SHA-1 hash associated with the filepath in the latest commit on the indicated branch.
  */
 export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise<string | undefined> => {
@@ -298,12 +297,13 @@ export const remove = async (filepath: fs.PathLike, root: fs.PathLike, branch: s
   const isLinked = await worktree.isLinkedWorktree({ dir: dir });
 
   if (isLinked) {
-    const worktreeRoot = await getBranchRoot(root, branch);
-    if (!worktreeRoot) return undefined; // not a part of a linked worktree
-    console.log({ isLinked, worktreeRoot });
-    const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    return isogit.remove({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) })
-      .then(() => isogit.resetIndex({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) }));
+    const gitdir = (await io.readFileAsync(`${dir.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
+    const mainRoot = await getRepoRoot(gitdir);
+    if (!mainRoot) return undefined;
+    const headOid = (await log({ dir: mainRoot, ref: branch, depth: 1 }))[0].oid;
+
+    return isogit.remove({ fs: fs, dir: dir, gitdir: gitdir, filepath: path.relative(dir, filepath.toString()) })
+      .then(() => isogit.resetIndex({ fs: fs, dir: dir, gitdir: gitdir, ref: headOid, filepath: path.relative(dir, filepath.toString()) }));
   }
   return isogit.remove({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) })
     .then(() => isogit.resetIndex({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) }));
@@ -366,7 +366,6 @@ export const parseStatusMatrix = async (file: fs.PathLike, matrix: Unpromisify<R
   if (isIgnored) return 'ignored';
 
   const matrixFile = matrix.find(status => io.extractFilename(status[0]) === io.extractFilename(file));
-  if (!matrixFile) console.log('parseStatusMatrix =>', { file, matrix, matrixFile });
   if (!matrixFile) return 'absent';
 
   return matrixToStatus({ matrixEntry: matrixFile });
