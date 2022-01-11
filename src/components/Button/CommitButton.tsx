@@ -1,21 +1,22 @@
 import React from 'react';
+import { v4 } from 'uuid';
 import { Add, Remove } from '@material-ui/icons';
+import { IconButton, Tooltip } from '@material-ui/core';
 import { GitCommitIcon as Commit } from '../GitIcons';
 import type { Metafile, Modal, UUID } from '../../types';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
 import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
-import { IconButton, Tooltip } from '@material-ui/core';
 import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { add, remove } from '../../containers/git-plumbing';
 import { fetchRepoById } from '../../store/thunks/repos';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { modalAdded } from '../../store/slices/modals';
-import { v4 } from 'uuid';
+import { fetchBranchById } from '../../store/thunks/branches';
 
 /**
  * Button for managing the staging, unstaging, and initiation of commits for VCS-tracked cards. This button tracks the
@@ -39,12 +40,14 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
     const classes = useIconButtonStyle({ mode: mode });
 
     const stage = async () => {
+        console.log(`staging:`, { unstaged });
         await Promise.all(unstaged
             .filter(isFileMetafile)
             .map(async metafile => {
                 const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
-                if (repo && metafile.branch) {
-                    await add(metafile.path, repo.root, metafile.branch);
+                const branch = metafile.branch ? await dispatch(fetchBranchById(metafile.branch)).unwrap() : undefined;
+                if (repo && branch) {
+                    await add(metafile.path, repo.root, branch.ref);
                     const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
                     dispatch(metafileUpdated({ ...metafile, ...vcs }));
                 }
@@ -53,12 +56,14 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
     };
 
     const unstage = async () => {
+        console.log(`unstaging:`, { staged });
         await Promise.all(staged
             .filter(isFileMetafile)
             .map(async metafile => {
                 const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
-                if (repo && metafile.branch) {
-                    await remove(metafile.path, repo.root, metafile.branch);
+                const branch = metafile.branch ? await dispatch(fetchBranchById(metafile.branch)).unwrap() : undefined;
+                if (repo && branch) {
+                    await remove(metafile.path, repo.root, branch.ref);
                     const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
                     dispatch(metafileUpdated({ ...metafile, ...vcs }));
                 }
