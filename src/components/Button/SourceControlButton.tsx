@@ -11,7 +11,7 @@ import { loadCard } from '../../store/thunks/handlers';
 import { fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { Mode, useIconButtonStyle } from '../StyledIconButton';
+import { Mode, useIconButtonStyle } from './StyledIconButton';
 
 
 export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafileId: UUID, mode?: Mode }> = ({ mode = 'light', repoId, metafileId }) => {

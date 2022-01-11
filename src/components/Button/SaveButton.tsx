@@ -1,18 +1,18 @@
 import React, { useContext } from 'react';
 import { Save } from '@material-ui/icons';
-import type { UUID } from '../types';
-import { fileSaveDialog } from '../containers/dialogs';
-import { writeFileAsync } from '../containers/io';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { addItemInArray, removeItemInArray } from '../store/immutables';
-import cardSelectors from '../store/selectors/cards';
-import metafileSelectors from '../store/selectors/metafiles';
-import { cardUpdated } from '../store/slices/cards';
-import { metafileUpdated } from '../store/slices/metafiles';
-import { RootState } from '../store/store';
-import { fetchMetafileById, fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../store/thunks/metafiles';
+import type { UUID } from '../../types';
+import { fileSaveDialog } from '../../containers/dialogs';
+import { writeFileAsync } from '../../containers/io';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addItemInArray, removeItemInArray } from '../../store/immutables';
+import cardSelectors from '../../store/selectors/cards';
+import metafileSelectors from '../../store/selectors/metafiles';
+import { cardUpdated } from '../../store/slices/cards';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { RootState } from '../../store/store';
+import { fetchMetafileById, fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
-import { FSCache } from './Cache/FSCache';
+import { FSCache } from '../Cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
 
 /**

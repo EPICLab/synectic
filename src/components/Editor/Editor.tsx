@@ -16,10 +16,10 @@ import repoSelectors from '../../store/selectors/repos';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
 import { metafileUpdated } from '../../store/slices/metafiles';
-import RevertButton from '../RevertButton';
-import CommitButton from '../CommitButton';
+import RevertButton from '../Button/RevertButton';
+import CommitButton from '../Button/CommitButton';
 import { BranchList } from '../SourceControl/BranchList';
-import { SourceControlButton } from '../SourceControl/SourceControlButton';
+import { SourceControlButton } from '../Button/SourceControlButton';
 import DataField from '../Card/DataField';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {

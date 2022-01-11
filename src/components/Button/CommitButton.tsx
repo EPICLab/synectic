@@ -1,20 +1,20 @@
 import React from 'react';
 import { Add, Remove } from '@material-ui/icons';
-import { GitCommitIcon as Commit } from './GitIcons';
-import type { Metafile, Modal, UUID } from '../types';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import cardSelectors from '../store/selectors/cards';
-import metafileSelectors from '../store/selectors/metafiles';
-import { RootState } from '../store/store';
+import { GitCommitIcon as Commit } from '../GitIcons';
+import type { Metafile, Modal, UUID } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import cardSelectors from '../../store/selectors/cards';
+import metafileSelectors from '../../store/selectors/metafiles';
+import { RootState } from '../../store/store';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
-import { cardUpdated } from '../store/slices/cards';
-import { addItemInArray, removeItemInArray } from '../store/immutables';
+import { cardUpdated } from '../../store/slices/cards';
+import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { fetchVersionControl, isFileMetafile } from '../store/thunks/metafiles';
-import { add, remove } from '../containers/git-plumbing';
-import { fetchRepoById } from '../store/thunks/repos';
-import { metafileUpdated } from '../store/slices/metafiles';
-import { modalAdded } from '../store/slices/modals';
+import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
+import { add, remove } from '../../containers/git-plumbing';
+import { fetchRepoById } from '../../store/thunks/repos';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { modalAdded } from '../../store/slices/modals';
 import { v4 } from 'uuid';
 
 /**

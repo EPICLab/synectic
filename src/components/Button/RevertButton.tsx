@@ -1,14 +1,14 @@
 import React from 'react';
-import type { UUID } from '../types';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import cardSelectors from '../store/selectors/cards';
-import metafileSelectors from '../store/selectors/metafiles';
-import { RootState } from '../store/store';
-import { isFilebasedMetafile, revertStagedChanges } from '../store/thunks/metafiles';
+import type { UUID } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import cardSelectors from '../../store/selectors/cards';
+import metafileSelectors from '../../store/selectors/metafiles';
+import { RootState } from '../../store/store';
+import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { History } from '@material-ui/icons';
-import { addItemInArray, removeItemInArray } from '../store/immutables';
-import { cardUpdated } from '../store/slices/cards';
+import { addItemInArray, removeItemInArray } from '../../store/immutables';
+import { cardUpdated } from '../../store/slices/cards';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
 
 /**

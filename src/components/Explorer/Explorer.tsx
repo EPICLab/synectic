@@ -11,7 +11,7 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import useDirectory from '../../containers/hooks/useDirectory';
 import DataField from '../Card/DataField';
-import { SourceControlButton } from "../SourceControl/SourceControlButton";
+import { SourceControlButton } from "../Button/SourceControlButton";
 import { DirectoryComponent } from './DirectoryComponent';
 import { FileComponent } from './FileComponent';
 import { DateTime } from 'luxon';
