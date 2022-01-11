@@ -5,9 +5,16 @@ import { v4 } from 'uuid';
 import { removeUndefined } from '../../containers/format';
 import { currentBranch, getBranchRoot, getConfig, getRepoRoot } from '../../containers/git-porcelain';
 import { isLinkedWorktree, resolveLinkToRoot } from '../../containers/git-worktree';
-import type { Branch } from '../../types';
+import type { Branch, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
 import { fetchParentMetafile, FilebasedMetafile } from './metafiles';
+
+export const fetchBranchById = createAsyncThunk<Branch | undefined, UUID, AppThunkAPI>(
+    'repos/fetchById',
+    async (id, thunkAPI) => {
+        return thunkAPI.getState().branches.entities[id];
+    }
+);
 
 export const fetchBranchByFilepath = createAsyncThunk<Branch | undefined, PathLike, AppThunkAPI>(
     'branches/fetchByFilepath',
