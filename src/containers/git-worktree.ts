@@ -147,8 +147,6 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
     }
   });
 
-  console.log(`worktree.statusMatrix => filepath: ${filepath.toString()}, branch: ${branch}, dir: ${worktreeRoot}, gitdir: ${gitdir}, result:`, { result });
-
   return new Promise(resolve => resolve(result));
 }
 
