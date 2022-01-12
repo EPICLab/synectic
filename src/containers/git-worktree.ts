@@ -232,19 +232,20 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
  * with the target branch, a new worktree will be added (including checking out the code into a separate `.syn/{branch}` 
  * directory outside of the root directory of the main worktree) and returned.
  * @param repo The Repository object that points to the main worktree.
- * @param targetBranch The local or remote target branch that should be resolved into a worktree.
+ * @param branchId The UUID of a Branch object in the Redux store.
+ * @param branchRef The local or remote branch ref that should be resolved into a worktree.
  * @return A Worktree object containing a path to linked/main worktree root, a ref to current branch, and the current commit
  * revision hash at the head of the branch.
  */
-export const resolveWorktree = async (repo: Repository, targetBranch: string): Promise<Worktree | undefined> => {
-  if (![...repo.local, ...repo.remote].includes(targetBranch)) return undefined; // unknown target branch
+export const resolveWorktree = async (repo: Repository, branchId: UUID, branchRef: string): Promise<Worktree | undefined> => {
+  if (![...repo.local, ...repo.remote].includes(branchId)) return undefined; // unknown target branch
   const worktrees = await list(repo.root);
-  const existing = worktrees ? worktrees.find(w => w.ref === targetBranch) : undefined;
+  const existing = worktrees ? worktrees.find(w => w.ref === branchRef) : undefined;
   if (existing) return existing;
-  const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${targetBranch}`);
-  await add(repo, linkedRoot, targetBranch);
+  const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${branchRef}`);
+  await add(repo, linkedRoot, branchRef);
   const updatedWorktrees = await list(repo.root);
-  return updatedWorktrees ? updatedWorktrees.find(w => w.ref === targetBranch) : undefined;
+  return updatedWorktrees ? updatedWorktrees.find(w => w.ref === branchRef) : undefined;
 }
 
 /**
