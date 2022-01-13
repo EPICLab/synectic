@@ -6,7 +6,7 @@ import { TreeView } from '@material-ui/lab';
 import type { Metafile, Modal } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { modalRemoved } from '../store/slices/modals';
-import { commit, getConfig, getRepoRoot } from '../containers/git-porcelain';
+import { commit, getConfig } from '../containers/git-porcelain';
 import metafileSelectors from '../store/selectors/metafiles';
 import { RootState } from '../store/store';
 import repoSelectors from '../store/selectors/repos';
@@ -15,6 +15,7 @@ import { fetchContains, fetchContent, fetchVersionControl, isDirectoryMetafile, 
 import { fetchRepoBranches } from '../store/thunks/repos';
 import { repoUpdated } from '../store/slices/repos';
 import { FileComponent } from './Explorer/FileComponent';
+import { getRoot } from '../containers/git-path';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -87,7 +88,7 @@ const CommitDialog: React.FunctionComponent<Modal> = props => {
     const initiateCommit = async () => {
         const metafile = staged[0];
         const repo = (metafile && metafile.repo) ? repos.find(r => r.id === metafile.repo) : undefined;
-        const dir = (metafile && metafile.path) ? await getRepoRoot(metafile.path) : undefined;
+        const dir = (metafile && metafile.path) ? await getRoot(metafile.path) : undefined;
         if (dir) {
             const username = (await getConfig({ dir: dir, keyPath: 'user.name' }));
             const email = await getConfig({ dir: dir, keyPath: 'user.email' });
