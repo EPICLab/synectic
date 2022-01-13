@@ -50,11 +50,11 @@ export const SourceFileComponent: React.FunctionComponent<Metafile & SourceFileP
                     }
                     if (stagedCheck(props.status)) {
                         console.log(`unstaging ${extractFilename(props.path)}...`);
-                        await remove(props.path, props.repository.root, props.branch);
+                        await remove(props.path);
                         await props.update();
                     } else if (modifiedCheck(props.status)) {
                         console.log(`staging ${extractFilename(props.path)}...`);
-                        await add(props.path, props.repository.root, props.branch);
+                        await add(props.path);
                         await props.update();
                     }
                 }} />

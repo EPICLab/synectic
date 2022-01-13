@@ -13,10 +13,8 @@ import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { add, remove } from '../../containers/git-plumbing';
-import { fetchRepoById } from '../../store/thunks/repos';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { modalAdded } from '../../store/slices/modals';
-import { fetchBranchById } from '../../store/thunks/branches';
 
 /**
  * Button for managing the staging, unstaging, and initiation of commits for VCS-tracked cards. This button tracks the
@@ -43,13 +41,9 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
         await Promise.all(unstaged
             .filter(isFileMetafile)
             .map(async metafile => {
-                const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
-                const branch = metafile.branch ? await dispatch(fetchBranchById(metafile.branch)).unwrap() : undefined;
-                if (repo && branch) {
-                    await add(metafile.path, repo.root, branch.ref);
-                    const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                    dispatch(metafileUpdated({ ...metafile, ...vcs }));
-                }
+                await add(metafile.path);
+                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+                dispatch(metafileUpdated({ ...metafile, ...vcs }));
             })
         );
     };
@@ -58,13 +52,10 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
         await Promise.all(staged
             .filter(isFileMetafile)
             .map(async metafile => {
-                const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
-                const branch = metafile.branch ? await dispatch(fetchBranchById(metafile.branch)).unwrap() : undefined;
-                if (repo && branch) {
-                    await remove(metafile.path, repo.root, branch.ref);
-                    const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                    dispatch(metafileUpdated({ ...metafile, ...vcs }));
-                }
+                await remove(metafile.path);
+                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+                dispatch(metafileUpdated({ ...metafile, ...vcs }));
+
             })
         );
     };

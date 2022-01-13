@@ -11,38 +11,31 @@ import repoSelectors from '../../store/selectors/repos';
 import useDirectory from '../../containers/hooks/useDirectory';
 import { fetchVersionControl, FileMetafile, isFilebasedMetafile } from '../../store/thunks/metafiles';
 import { changedCheck, modifiedCheck, SourceFileComponent, stagedCheck } from './SourceFileComponent';
-import { fetchRepoById } from '../../store/thunks/repos';
 import { add, remove } from '../../containers/git-plumbing';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import branchSelectors from '../../store/selectors/branches';
 
-const SourceControl: React.FunctionComponent<{ root: Metafile }> = props => {
+const SourceControl: React.FunctionComponent<{ sourceControl: Metafile }> = props => {
   const dispatch = useAppDispatch();
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [repo] = useState(repos.find(r => r.id === props.root.repo));
-  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.root.branch ? props.root.branch : ''));
-  const { files, update } = useDirectory(isFilebasedMetafile(props.root) ? props.root.path : undefined);
+  const [repo] = useState(repos.find(r => r.id === props.sourceControl.repo));
+  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.sourceControl.branch ? props.sourceControl.branch : ''));
+  const { files, update } = useDirectory(props.sourceControl.path);
   const changed = useMemo(() => files.filter(f => changedCheck(f.status)), [files]);
   const staged = useMemo(() => files.filter(f => stagedCheck(f.status)), [files]);
   const modified = useMemo(() => files.filter(f => modifiedCheck(f.status)), [files]);
 
   const stage = async (metafile: FileMetafile) => {
-    const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
-    if (repo && metafile.branch) {
-      await add(metafile.path, repo.root, metafile.branch);
-      const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-      dispatch(metafileUpdated({ ...metafile, ...vcs }));
-    }
+    await add(metafile.path);
+    const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+    dispatch(metafileUpdated({ ...metafile, ...vcs }));
     update();
   };
 
   const unstage = async (metafile: FileMetafile) => {
-    const repo = metafile.repo ? await dispatch(fetchRepoById(metafile.repo)).unwrap() : undefined;
-    if (repo && metafile.branch) {
-      await remove(metafile.path, repo.root, metafile.branch);
-      const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-      dispatch(metafileUpdated({ ...metafile, ...vcs }));
-    }
+    await remove(metafile.path);
+    const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+    dispatch(metafileUpdated({ ...metafile, ...vcs }));
     update();
   };
 

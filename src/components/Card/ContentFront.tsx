@@ -23,7 +23,7 @@ export const ContentFront: React.FunctionComponent<Card> = props => {
         case 'Explorer':
             return (<Explorer root={metafile} />);
         case 'SourceControl':
-            return (<SourceControl root={metafile} />);
+            return (<SourceControl sourceControl={metafile} />);
         case 'Browser':
             return (<Browser />);
         case 'ReposTracker':
