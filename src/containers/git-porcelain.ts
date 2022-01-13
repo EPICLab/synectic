@@ -35,53 +35,6 @@ export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string 
 }
 
 /**
- * @deprecated
- * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a *.git* subdirectory. In the 
- * case of separate working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)), this will find and return a directory that 
- * contains a *.git* file instead.
- * @param filepath The relative or absolute path to evaluate.
- * @return A Promise object containing the root git directory path, or undefined if no root git directory exists for the filepath (i.e. 
- * the filepath is not part of a Git repository).
- */
-export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undefined> => {
-  try {
-    const root = await isogit.findRoot({ fs: fs, filepath: filepath.toString() });
-    return root;
-  }
-  catch (e) {
-    return undefined;
-  }
-};
-
-/**
- * @deprecated
- * Find the root git directory for a specific branch. For the current branch on the main worktree, this corresponds to calling *getRepoRoot*
- * function. For branches on linked worktrees, this corresponds to reading the `.git/worktrees/{branch}/gitdir` file to determine the file
- * location for the linked worktree directory.
- * @param root The relative or absolute path to the git root directory (.git) in the main worktree.
- * @param branch Name of the target branch.
- * @returns A Promise object containing the root git directory path, or undefined if no root git directory exists for the branch (i.e. the 
- * branch is remote-only and is not currently being tracked locally).
- */
-export const getBranchRoot = async (root: fs.PathLike, branch: string): Promise<string | undefined> => {
-  // check to see if branch matches the main worktree
-  const current = await currentBranch({ dir: root });
-  if (branch === current) return getRepoRoot(root);
-
-  // check to see if branch matches one of the linked worktrees
-  const worktreePath = path.join(root.toString(), '.git', 'worktrees');
-  return fs.stat(worktreePath)
-    .then(async () => {
-      const worktreeBranches = await io.readDirAsync(worktreePath);
-      const match = worktreeBranches.find(w => w === branch);
-      if (match) {
-        return path.dirname((await io.readFileAsync(path.join(worktreePath, match, 'gitdir'), { encoding: 'utf-8' })).trim());
-      }
-    })
-    .catch(() => { return undefined });
-}
-
-/**
  * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function to inject the `fs` parameter and extend with
  * additional local-only branch functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the
  * local-only repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
