@@ -5,13 +5,13 @@ import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Selec
 import type { Modal, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { loadCard } from '../../store/thunks/handlers';
-import { getBranchRoot } from '../../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { modalRemoved } from '../../store/slices/modals';
 import { fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
+import { getBranchRoot } from '../../containers/git-path';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
