@@ -8,9 +8,9 @@ import dotProp from 'dot-prop';
 import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
-import * as worktree from './git-worktree';
-import { isGitRepo, matrixEntry, statusMatrix } from './git-plumbing';
+import { matrixEntry, statusMatrix } from './git-plumbing';
 import { removeUndefinedProperties } from './format';
+import { getWorktreePaths } from './git-path';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
@@ -35,6 +35,7 @@ export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string 
 }
 
 /**
+ * @deprecated
  * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a *.git* subdirectory. In the 
  * case of separate working trees (see [git-worktree](https://git-scm.com/docs/git-worktree)), this will find and return a directory that 
  * contains a *.git* file instead.
@@ -53,6 +54,7 @@ export const getRepoRoot = async (filepath: fs.PathLike): Promise<string | undef
 };
 
 /**
+ * @deprecated
  * Find the root git directory for a specific branch. For the current branch on the main worktree, this corresponds to calling *getRepoRoot*
  * function. For branches on linked worktrees, this corresponds to reading the `.git/worktrees/{branch}/gitdir` file to determine the file
  * location for the linked worktree directory.
@@ -84,7 +86,7 @@ export const getBranchRoot = async (root: fs.PathLike, branch: string): Promise<
  * additional local-only branch functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the
  * local-only repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
  * @param repo A Repository object to be cloned.
- * @param dir The working tree directory path to contain the cloned repo.
+ * @param dir The worktree root directory to contain the cloned repo.
  * @param ref An optional branch name or SHA-1 hash to target cloning to that specific branch or commit.
  * @param singleBranch Instead of the default behavior of fetching all the branches, only fetch a single branch.
  * @param noCheckout Only fetch the repo without checking out a branch. Skipping checkout can save a lot of time normally spent writing
@@ -108,10 +110,12 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   onProgress?: isogit.ProgressCallback | undefined;
 }): Promise<void> => {
   const optionals = removeUndefinedProperties({ depth: depth, exclude: exclude, onProgress: onProgress });
-  const existingBranch = (await isGitRepo(repo.root)) ? await currentBranch({ dir: repo.root.toString(), fullname: false }) : undefined;
+  const worktree = await getWorktreePaths(repo.root);
+  const existingBranch = worktree.dir ? await currentBranch({ dir: worktree.dir, fullname: false }) : undefined;
   const targetBranch = ref ? ref : existingBranch;
+  const remoteBranches = worktree.dir ? await isogit.listBranches({ fs: fs, dir: worktree.dir.toString(), remote: 'origin' }) : [];
 
-  if (targetBranch && !repo.remote.includes(targetBranch)) {
+  if (targetBranch && !remoteBranches.includes(targetBranch)) {
     await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) }); // do not copy node_modules/ directory
     if (targetBranch !== existingBranch)
       await checkout({ dir: dir, ref: targetBranch, noCheckout: noCheckout });
@@ -125,8 +129,8 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
 
 /**
  * Checkout a branch; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/checkout* function.
- * @param dir The working tree directory path.
- * @param gitdir The git directory path.
+ * @param dir The worktree root directory.
+ * @param gitdir The worktree git directory.
  * @param ref The branch name or SHA-1 commit hash to checkout files from; defaults to `HEAD`.
  * @param filepaths Limit the checkout to the given files and directories.
  * @param remote Which remote repository to use for the checkout process; defaults to `origin`.
@@ -160,8 +164,8 @@ export const checkout = async ({
 
 /**
  * Create a new commit; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/checkout* function.
- * @param dir The working tree directory path.
- * @param gitdir The git directory path.
+ * @param dir The worktree root directory.
+ * @param gitdir The worktree git directory.
  * @param message The commit message to use.
  * @param author The details about the author (i.e. the `name`, `email`, `timestamp`, and `timezoneOffset`); defaults to the
  * config fields in the local git config file, or the global git config file (if no local is set).
@@ -203,8 +207,8 @@ export const commit = async ({ dir, gitdir = path.join(dir.toString(), '.git'), 
  * function to inject the `fs` parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a 
  * file, then `.git` points to a file containing updated pathing to translate from the linked worktree to the `.git/worktree` directory in 
  * the main worktree and this path must be used for branch checks.
- * @param dir The working tree directory path.
- * @param gitdir The git directory path.
+ * @param dir The worktree root directory.
+ * @param gitdir The worktree git directory.
  * @param fullname Boolean option to return the full path (e.g. "refs/heads/master") instead of the abbreviated form; default is false.
  * @param test Boolean option to return 'undefined' if the current branch doesn't actually exist (such as 'master' right after git init).
  * @return A Promise object containing the current branch name, or undefined if the HEAD is detached.
@@ -216,17 +220,15 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   test?: boolean;
 }): Promise<string | void> => {
   const optionals = removeUndefinedProperties({ fullname: fullname, test: test });
-  if (await worktree.isLinkedWorktree({ gitdir: gitdir })) {
-    const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    return await isogit.currentBranch({ fs: fs, dir: worktreedir, gitdir: worktreedir, ...optionals });
-  } else {
-    return await isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ...optionals });
-  }
+  const worktree = await getWorktreePaths(gitdir);
+  return worktree.worktreeLink
+    ? isogit.currentBranch({ fs: fs, dir: worktree.worktreeLink.toString(), gitdir: worktree.worktreeLink.toString(), ...optionals })
+    : isogit.currentBranch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ...optionals });
 }
 
 /**
  * Delete a local branch; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/deleteBranch* function.
- * @param dir The working tree directory path.
+ * @param dir The worktree root directory.
  * @param gitdir The git directory path.
  * @param ref The branch name to delete.
  * @return A Promise object for the branch deletion operation; succeeds when filesystem operations are complete.
@@ -242,7 +244,7 @@ export const deleteBranch = ({ dir, gitdir = path.join(dir.toString(), '.git'), 
 /**
 * Get commit descriptions from the git history; this function is a wrapper to inject the `fs` parameter in to the 
 * *isomorphic-git/log* function.
-* @param dir The working tree directory path.
+* @param dir The worktree root directory.
 * @param ref The commit to begin walking backwards through the history from.
 * @param depth Limit the number of commits returned. No limit by default.
 * @param since Return history newer than the given date. Can be combined with `depth` to get whichever is shorter.
@@ -263,7 +265,7 @@ export const log = ({ dir, ref = 'HEAD', depth, since }: {
  * `dryRun` option additionally checks for `user.name` and `user.email` from git-config, and injects a `missingConfig` return
  * object that indicates whether either git-config field is missing from the local configuration level 
  * (see https://www.atlassian.com/git/tutorials/setting-up-a-repository/git-config).
- * @param dir The working tree directory path.
+ * @param dir The worktree root directory.
  * @param base The base branch to merge delta commits into.
  * @param compare The compare branch to examine for delta commits.
  * @param dryRun Optional parameter for simulating a merge in order to preemptively test for a successful merge. 
@@ -292,9 +294,9 @@ export const merge = async (
 }
 
 /**
- * Determines the git tracking status of a specific file or directory path. If the `filepath` parameter points to a linked worktree,
- * then the `.git` file in that worktree will be used to translate paths back to the main worktree for querying the git trees 
- * (HEAD, WORKDIR, and STAGE).
+ * Determines the git tracking status of a specific file or directory path. If the filepath is tracked by a branch in a linked worktree,
+ * then status checks will look at the index file in the `GIT_DIR/worktrees/{branch}` directory for determining HEAD, WORKDIR, and STAGE
+ * status codes. Status codes are translated into the comparable `GitStatus` type.
  * @param filepath The relative or absolute path to evaluate.
  * @return A Promise object containing undefined if the path is not contained within a directory under version control, or a git 
  * status indicator (see `GitStatus` type definition for all possible status values).
@@ -362,8 +364,8 @@ export const getConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'
   global?: boolean,
   showOrigin?: boolean
 }): Promise<GitConfig> => {
-  const root = (await worktree.isLinkedWorktree({ gitdir: gitdir })) ? await worktree.resolveLinkToRoot(dir) : dir;
-  const localConfigPath = (local && root) ? path.resolve(root.toString(), '.git/config') : null;
+  const worktree = await getWorktreePaths(gitdir);
+  const localConfigPath = (local && worktree.gitdir) ? path.resolve(path.join(worktree.gitdir.toString(), 'config')) : null;
   const globalConfigPath = (global) ? getGitConfigPath('global') : null;
 
   const readConfigValue = async (configPath: string | null, key: string) => {
@@ -388,8 +390,8 @@ export const getConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'
  * to resolve global git-config files. The scope is strictly respected (i.e. if the entry exists only in `global` scope but `local` scope 
  * is specified, then a new entry will be added to the git-config file in `local` scope). Entries can be removed by setting value to
  * `undefined`; attempting to remove a non-existing entry will result in a no-op.
- * @param dir The working tree directory path.
- * @param gitdir The git directory path.
+ * @param dir The worktree root directory path.
+ * @param gitdir The worktree git file or directory path.
  * @param scope The scope indicating whether the entry update should occur in the `local` or `global` git-config file. 
  * @param keyPath The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
  * @param value The value to be added, updated, or removed (by setting `undefined`) from the git-config file.
@@ -402,8 +404,8 @@ export const setConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'
   keyPath: string,
   value: string | boolean | number | undefined
 }): Promise<string | null> => {
-  const root = (await worktree.isLinkedWorktree({ gitdir: gitdir })) ? await worktree.resolveLinkToRoot(dir) : dir;
-  const configPath = (scope == 'local' && root) ? path.resolve(root.toString(), '.git/config') : getGitConfigPath('global');
+  const worktree = await getWorktreePaths(gitdir);
+  const configPath = (scope == 'local' && worktree.gitdir) ? path.resolve(path.join(worktree.gitdir.toString(), 'config')) : getGitConfigPath('global');
   if (!configPath) return null; // no git-config file exists for the requested scope
 
   const configFile = await parse({ path: configPath });
