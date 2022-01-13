@@ -12,9 +12,10 @@ import { toHTTPS } from 'git-remote-protocol';
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { currentBranch, getBranchRoot, getRepoRoot } from './git-porcelain';
+import { currentBranch } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from './format';
 import { unstage } from './unstage-shim';
+import { getRoot, getWorktreePaths } from './git-path';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -26,6 +27,7 @@ export const isHiddenFile = (path: PathLike): boolean => {
 }
 
 /**
+ * @deprecated
  * Asynchronous check for presence of .git within directory to validate Git version control.
  * @param filepath The relative or absolute path to evaluate. 
  * @return A Promise object containing true if filepath contains a .git subdirectory (or points directly to the .git directory), 
@@ -129,18 +131,13 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   ref: string;
   depth?: number;
 }): Promise<string> => {
-  if (await io.isDirectory(gitdir)) {
-    const optional = removeUndefinedProperties({ depth: depth });
-    return isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, ...optional });
-  } else {
-    const worktreedir = (await io.readFileAsync(gitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    const commondir = (await io.readFileAsync(path.join(worktreedir, 'commondir'), { encoding: 'utf-8' })).trim();
-    const linkedgitdir = path.normalize(`${worktreedir}/${commondir}`);
-    const linkeddir = path.normalize(`${gitdir}/..`);
-    const updatedRef = (ref === 'HEAD') ? (await io.readFileAsync(`${worktreedir}/HEAD`, { encoding: 'utf-8' })).trim() : ref;
-    const optional = removeUndefinedProperties({ depth: depth });
-    return isogit.resolveRef({ fs: fs, dir: linkeddir, gitdir: linkedgitdir, ref: updatedRef, ...optional });
-  }
+  const worktree = await getWorktreePaths(gitdir);
+  const optional = removeUndefinedProperties({ depth: depth });
+  const updatedRef = (worktree.worktreeLink && ref === 'HEAD') ? (await io.readFileAsync(path.join(worktree.worktreeLink.toString(), 'HEAD'), { encoding: 'utf-8' })).trim() : ref;
+
+  return (worktree.dir && worktree.gitdir)
+    ? isogit.resolveRef({ fs: fs, dir: worktree.dir.toString(), gitdir: worktree.gitdir.toString(), ref: updatedRef, ...optional })
+    : isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, ...optional });
 }
 
 /**
@@ -152,15 +149,14 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
  * @returns A Promise object containing the SHA-1 hash associated with the filepath in the latest commit on the indicated branch.
  */
 export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise<string | undefined> => {
-  const repoRoot = await getRepoRoot(filepath);
-  if (!repoRoot) return undefined;
-  const dir = (await worktree.isLinkedWorktree({ dir: repoRoot })) ? (await worktree.resolveLinkToRoot(repoRoot)) : repoRoot;
-  if (!dir) return undefined;
+  const root = await getRoot(filepath);
+  const { dir } = await getWorktreePaths(filepath);
+  if (!root || !dir) return undefined; // not under version control
 
-  const relativePath = path.relative(repoRoot, filepath.toString());
+  const relativePath = path.relative(root.toString(), filepath.toString());
   const commit = await resolveRef({ dir: dir, ref: branch });
-  const tree = (await isogit.readCommit({ fs: fs, dir: dir, oid: commit })).commit.tree;
-  const entry = (await isogit.readTree({ fs: fs, dir: dir, oid: tree })).tree.find(entry => entry.path === relativePath);
+  const tree = (await isogit.readCommit({ fs: fs, dir: dir.toString(), oid: commit })).commit.tree;
+  const entry = (await isogit.readTree({ fs: fs, dir: dir.toString(), oid: tree })).tree.find(entry => entry.path === relativePath);
   return entry ? entry.oid : undefined;
 }
 
@@ -262,57 +258,44 @@ export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<
 }
 
 /**
- * Add a file to the git index (aka staging area) for a specific repository and branch. If the branch is a linked worktree,
- * then index updates will occur on the index file in the `{main-worktree-root}/.git/worktrees/{linked-worktree}` directory.
+ * Add a file to the git index (aka staging area). If the filepath is tracked by a branch in a linked worktree, then index updates
+ * will occur on the index file in the `GIT_DIR/worktrees/{branch}` directory.
  * @param filepath The relative or absolute path to add.
- * @param root The relative or absolute path to the git root directory (.git) in the main worktree.
- * @param branch The name of a branch contained within the local branches of the indicated repository.
  * @returns A Promise object for the add operation.
  */
-export const add = async (filepath: fs.PathLike, root: fs.PathLike, branch: string): Promise<void> => {
-  const dir = await getRepoRoot(filepath);
-  if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
-  const isLinked = await worktree.isLinkedWorktree({ dir: dir });
+export const add = async (filepath: fs.PathLike): Promise<void> => {
+  const { dir, worktreeDir, worktreeLink } = await getWorktreePaths(filepath);
+  if (!dir) return undefined; // not under version control
 
-  if (isLinked) {
-    const worktreeRoot = await getBranchRoot(root, branch);
-    if (!worktreeRoot) return undefined; // not a part of a linked worktree
-    const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    return isogit.add({ fs: fs, dir: worktreeRoot, gitdir: gitdir, filepath: path.relative(worktreeRoot, filepath.toString()) });
-  }
-  return isogit.add({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) });
+  return (worktreeDir && worktreeLink)
+    ? isogit.add({ fs: fs, dir: worktreeDir.toString(), gitdir: worktreeLink.toString(), filepath: path.relative(worktreeDir.toString(), filepath.toString()) })
+    : isogit.add({ fs: fs, dir: dir.toString(), filepath: path.relative(dir.toString(), filepath.toString()) });
 }
 
 /**
- * Remove a file from the git index (aka staging area) for a specific repository and branch. If the branch is a linked worktree,
- * then index updates will occur on the index file in the `{main-worktree-root}/.git/worktrees/{linked-worktree}` directory. This
- * operation does not delete the file in the working directory, but does reset the index to discard any previously staged changes.
- * @param filepath The relative or absolute path to add.
- * @param root The relative or absolute path to the git root directory (.git) in the main worktree.
- * @param branch The name of a branch contained within the local branches of the indicated repository.
+ * Remove a file from the git index (aka staging area). If the filepath is tracked by a branch in a linked worktree, then index updates 
+ * will occur on the index file in the `GIT_DIR/worktrees/{branch}` directory. This operation does not delete the file in the working 
+ * directory, but does reset the index to discard any previously staged changes.
+ * @param filepath The relative or absolute path to unstage.
  * @returns A Promise object for the remove operation.
  */
-export const remove = async (filepath: fs.PathLike, root: fs.PathLike, branch: string): Promise<void> => {
-  const dir = await getRepoRoot(filepath);
-  if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
-  const isLinked = await worktree.isLinkedWorktree({ dir: dir });
+export const remove = async (filepath: fs.PathLike): Promise<void> => {
+  const { dir, worktreeDir } = await getWorktreePaths(filepath);
+  if (!dir) return undefined; // not under version control
 
-  if (isLinked) {
-    const gitdir = (await io.readFileAsync(`${dir.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-    const mainRoot = await getRepoRoot(gitdir);
-    if (!mainRoot) return undefined;
-    // const headOid = (await log({ dir: mainRoot, ref: branch, depth: 1 }))[0].oid;
+  /**
+   * Partial solution for handling linked worktree files. This is capable of removing the file from the git index, but not reseting the index. This results in
+   * the file with changes being unstaged, but a `deletion` change for the same file remaining in the staging area.
+   * 
+   * const headOid = (await log({ dir: dir.toString(), ref: branch, depth: 1 }))[0].oid;
+   * 
+   * return isogit.remove({ fs: fs, dir: worktreeDir.toString(), gitdir: worktreeLink.toString(), filepath: path.relative(worktreeDir.toString(), filepath.toString()) })
+   *    .then(() => isogit.resetIndex({ fs: fs, dir: worktreeDir.toString(), gitdir: worktreeLink.toString(), ref: headOid, filepath: path.relative(worktreeDir.toString(), filepath.toString()) }));
+   */
 
-    // return isogit.remove({ fs: fs, dir: dir, gitdir: gitdir, filepath: path.relative(dir, filepath.toString()) })
-    //   .then(() => isogit.resetIndex({ fs: fs, dir: dir, gitdir: gitdir, ref: headOid, filepath: path.relative(dir, filepath.toString()) }));
-
-    // WARNING: Temporary shim in place to fix bug with `isomorphic-git.resetIndex` on linked worktree files: https://github.com/EPICLab/synectic/issues/600
-    const check = await unstage(filepath, dir);
-    console.log(`unstaged: ${check.fulfilled ? 'succeeded' : 'failed'}`);
-    return;
-  }
-  return isogit.remove({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) })
-    .then(() => isogit.resetIndex({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) }));
+  // WARNING: Temporary shim in place to fix bug with `isomorphic-git.resetIndex` on linked worktree files: https://github.com/EPICLab/synectic/issues/600
+  return worktreeDir ? await unstage(filepath, worktreeDir) : isogit.remove({ fs: fs, dir: dir.toString(), filepath: path.relative(dir.toString(), filepath.toString()) })
+    .then(() => isogit.resetIndex({ fs: fs, dir: dir.toString(), filepath: path.relative(dir.toString(), filepath.toString()) }));
 }
 
 /**
@@ -325,13 +308,12 @@ export const remove = async (filepath: fs.PathLike, root: fs.PathLike, branch: s
  * status indicator (see `GitStatus` type definition for all possible status values).
  */
 export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
-  const dir = await getRepoRoot(filepath);
-  if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
-  const isLinked = await worktree.isLinkedWorktree({ dir: dir });
+  const { dir, worktreeDir } = await getWorktreePaths(filepath);
+  if (!dir) return undefined; // not under version control
 
-  return isLinked
+  return worktreeDir
     ? worktree.status(filepath)
-    : isogit.status({ fs: fs, dir: dir, filepath: path.relative(dir, filepath.toString()) });
+    : isogit.status({ fs: fs, dir: dir.toString(), filepath: path.relative(dir.toString(), filepath.toString()) });
 }
 
 /**
@@ -348,13 +330,13 @@ export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | un
  *   * The STAGE status is either absent (0), identical to HEAD (1), identical to WORKDIR (2), or different from WORKDIR (3).
  */
 export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined> => {
-  const dir = await getRepoRoot(dirpath);
-  if (!dir) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
-  const isLinked = await worktree.isLinkedWorktree({ dir: dir });
+  const root = await getRoot(dirpath);
+  const { worktreeDir } = await getWorktreePaths(dirpath);
+  if (!root) return undefined; // not under version control
 
-  return isLinked
-    ? worktree.statusMatrix(dir)
-    : isogit.statusMatrix({ fs: fs, dir: dir, filter: f => !isHiddenFile(f) });
+  return worktreeDir
+    ? worktree.statusMatrix(dirpath)
+    : isogit.statusMatrix({ fs: fs, dir: dirpath.toString(), filter: f => !isHiddenFile(f) });
 }
 
 /**
@@ -364,7 +346,7 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
  */
 export const parseStatusMatrix = async (file: fs.PathLike, matrix: Unpromisify<ReturnType<typeof statusMatrix>>):
   Promise<GitStatus | undefined> => {
-  const dir = await getRepoRoot(file);
+  const dir = await getRoot(file);
   if (!dir) return undefined;
   if (!matrix) return undefined;
 
@@ -414,15 +396,15 @@ export const matrixToStatus = (entry: AtLeastOne<statusMatrixTypes>): GitStatus 
  * file content from the head of the associated branch as a UTF-8 encoded string.
  */
 export const discardChanges = async (filepath: fs.PathLike): Promise<string | undefined> => {
-  const root = await getRepoRoot(filepath);
-  if (!root) return undefined; // no root Git directory indicates that the filepath is not part of a Git repository
-  const dir = (await worktree.isLinkedWorktree({ dir: root })) ? await worktree.resolveLinkToRoot(root) : root;
-  if (!dir) return undefined;
+  const root = await getRoot(filepath);
+  const { dir } = await getWorktreePaths(filepath);
+  if (!root || !dir) return undefined; // not under version control
+
   const branch = await currentBranch({ dir: root, fullname: false });
   if (!branch) return undefined;
 
   const oid = await resolveOid(filepath, branch);
   if (!oid) return undefined;
-  const blob = await isogit.readBlob({ fs: fs, dir: dir, oid: oid });
+  const blob = await isogit.readBlob({ fs: fs, dir: dir.toString(), oid: oid });
   return Buffer.from(blob.blob).toString('utf-8');
 }
