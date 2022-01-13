@@ -8,7 +8,6 @@ import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
 // import { isHiddenFile } from 'is-hidden-file';
-
 import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
@@ -25,23 +24,6 @@ type Unpromisify<T> = T extends Promise<infer U> ? U : T;
 export const isHiddenFile = (path: PathLike): boolean => {
   return /(^|\/)\.[^/.]/g.test(path.toString());
 }
-
-/**
- * @deprecated
- * Asynchronous check for presence of .git within directory to validate Git version control.
- * @param filepath The relative or absolute path to evaluate. 
- * @return A Promise object containing true if filepath contains a .git subdirectory (or points directly to the .git directory), 
- * and false otherwise.
- */
-export const isGitRepo = async (filepath: fs.PathLike): Promise<boolean> => {
-  const stats = await io.extractStats(filepath);
-  const directory = stats?.isDirectory() ? filepath.toString() : path.dirname(filepath.toString());
-  if (directory === undefined) return false;
-  const gitPath = (path.basename(directory) === '.git') ? directory : path.join(directory, '/.git');
-  const gitStats = await io.extractStats(gitPath);
-  if (gitStats === undefined) return false;
-  else return true;
-};
 
 /**
  * Parse a URL to extract Git repository name, typically based on the remote origin URL.
