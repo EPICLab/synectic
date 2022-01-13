@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
 import type { GitStatus, Repository, SHA1, UUID } from '../types';
-import { removeUndefinedProperties } from './format';
+import { isDefined, removeUndefinedProperties } from './format';
 import * as io from './io';
 import { checkout, clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
 import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
@@ -261,17 +261,12 @@ export const list = async (target: fs.PathLike): Promise<Worktree[] | undefined>
   const main = await createWorktree(dir.toString());
 
   // GIT_DIR/worktrees will only exist if at least one linked worktree has been added to the repository (even if it was later deleted)
-  const linked = worktrees ? await Promise.all((await io.readDirAsync(worktrees))
+  const linked = worktrees ? (await Promise.all((await io.readDirAsync(worktrees))
     .filter(a => !a.startsWith('.')) // filter for hidden files (i.e. avoid reading .DS_Store on MacOS platform)
-    .map(async worktree => {
-      const { worktreeDir } = await getWorktreePaths('');
-      console.log(worktreeDir);
-      // gitdir => worktreeGitdir
-      const gitdir = (await io.readFileAsync(`${worktrees}/${worktree}/gitdir`, { encoding: 'utf-8' })).trim();
-      // dir => worktreeDir
-      const dir = path.normalize(`${gitdir}/..`);
-      return await createWorktree(dir);
-    })) : [];
+    .map(async branch => {
+      const { worktreeDir } = await getWorktreePaths(path.join(worktrees.toString(), branch));
+      return worktreeDir ? await createWorktree(worktreeDir) : undefined;
+    }))).filter(isDefined) : [];
 
   /**
    * LIST OUTPUT FORMAT
