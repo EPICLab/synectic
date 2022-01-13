@@ -35,12 +35,12 @@ export const BranchList: React.FunctionComponent<{ cardId: UUID; repoId: UUID; o
   const checkout = async (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
     if (card && metafile) {
-      setSelected(newBranch);
       const overwrite = removeUndefinedProperties({ overwrite: props.overwrite });
       const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
       if (metafile.path) unsubscribe(metafile.path);
       if (updated) await dispatch(switchCardMetafile({ card: card, metafile: updated }));
       if (updated && updated.path) subscribe(updated.path);
+      if (updated) setSelected(newBranch);
     }
   };
 
