@@ -4,11 +4,10 @@ import * as isogit from 'isomorphic-git';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
-
 import type { GitStatus, Repository, SHA1, UUID } from '../types';
-import { ExactlyOne, removeUndefinedProperties } from './format';
+import { removeUndefinedProperties } from './format';
 import * as io from './io';
-import { checkout, clone, currentBranch, deleteBranch, getRepoRoot, getStatus } from './git-porcelain';
+import { checkout, clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
 import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
 import { parse } from './git-index';
 import { compareStats } from './io-stats';
@@ -25,7 +24,6 @@ export type Worktree = {
   ref?: string; // A branch name or symbolic ref (can be abbreviated).
   rev?: SHA1 | string; // A revision (or commit) representing the current state of `index` for the worktree.
 }
-
 
 /**
  * Utility function for compiling all necessary information for working with either linked or main working trees 
@@ -48,36 +46,6 @@ const createWorktree = async (root: fs.PathLike, bare = false): Promise<Worktree
     rev: commit,
     ...ref,
   };
-}
-
-/**
- * @deprecated
- * Utility function for discerning whether a working tree directory path (`dir`) or a git directory path (`gitdir`) is associated with a 
- * linked working tree (see [git-worktree](https://git-scm.com/docs/git-worktree)). This is determined by examining whether `.git` points
- * to a sub-directory or a file; where a sub-directory indicates a main worktree and a file indicates a linked worktree.
- * @param dir The working tree directory path.
- * @param gitdir The git directory path (typically ends in `.git`).
- * @return A boolean indicating whether the provided path is a linked worktree.
- */
-export const isLinkedWorktree = async (input: ExactlyOne<{ dir: fs.PathLike, gitdir: fs.PathLike }>): Promise<boolean> => {
-  const gitdir = input.gitdir ? input.gitdir : (input.dir ? path.join(input.dir.toString(), '.git') : undefined);
-  return gitdir ? !(await io.isDirectory(gitdir)) : false;
-}
-
-/**
- * @deprecated
- * Resolve the root working tree directory from a linked worktree. Starting from the *.git* file within a linked worktree, reads the path
- * to the worktree folder in the main worktree (i.e. `.git/worktrees/worktree-branch`) and walks upward until it finds a directory 
- * containing a *.git* subdirectory.
- * @param worktreeRoot The working tree directory path for a linked worktree (i.e. the directory containing a *.git* file).
- * @return A Promise object containing the working tree directory path, or undefined if the working tree *.git* file or the main tree
- * *.git* directory do not exist.
- */
-export const resolveLinkToRoot = async (worktreeRoot: fs.PathLike): Promise<string | undefined> => {
-  if (!isLinkedWorktree({ dir: worktreeRoot })) return undefined; // not part of a linked worktree, use `git.getStatus` instead
-  const gitdir = (await io.readFileAsync(`${worktreeRoot.toString()}/.git`, { encoding: 'utf-8' })).slice('gitdir: '.length).trim();
-  const dir = await getRepoRoot(gitdir); // need to find the working tree directory containing .git in the main worktree
-  return dir;
 }
 
 /**
