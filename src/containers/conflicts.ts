@@ -3,7 +3,6 @@ import { PathLike } from 'fs-extra';
 import * as io from './io';
 import { getIgnore } from './git-plumbing';
 import { asyncFilter, removeUndefined } from './format';
-import { getBranchRoot, getRepoRoot } from './git-porcelain';
 import { Ignore } from 'ignore';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AppThunkAPI } from '../store/hooks';
@@ -11,6 +10,7 @@ import { v4 } from 'uuid';
 import { fetchMetafile } from '../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { loadCard } from '../store/thunks/handlers';
+import { getBranchRoot, getRoot } from './git-path';
 
 export type Conflict = {
     /** The relative or absolute path to the file containing conflicts. */
@@ -48,7 +48,7 @@ export const loadConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
 );
 
 export const checkFilepath = async (filepath: PathLike, ignoreManager?: Ignore): Promise<Conflict | undefined> => {
-    const root = await getRepoRoot(filepath);
+    const root = await getRoot(filepath);
     if (root && !(await io.isDirectory(filepath))) {
         const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
         const ignore = ignoreManager ? ignoreManager : (await getIgnore(root, true));
