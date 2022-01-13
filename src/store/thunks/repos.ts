@@ -5,17 +5,18 @@ import { checkout, listBranches, ProgressCallback } from 'isomorphic-git';
 import { v4 } from 'uuid';
 import { AppThunkAPI } from '../hooks';
 import type { Card, Metafile, Repository, UUID } from '../../types';
-import { extractFromURL, extractRepoName, isGitRepo } from '../../containers/git-plumbing';
-import { clone, getConfig, getRemoteInfo, getRepoRoot, GitConfig } from '../../containers/git-porcelain';
+import { extractFromURL, extractRepoName } from '../../containers/git-plumbing';
+import { clone, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
 import { extractFilename } from '../../containers/io';
 import { fetchMetafile, fetchMetafileById, fetchParentMetafile, fetchVersionControl, FilebasedMetafile, isFilebasedMetafile } from './metafiles';
 import { isDefined, removeUndefined } from '../../containers/format';
 import { cardUpdated } from '../slices/cards';
 import { repoUpdated } from '../slices/repos';
-import { isLinkedWorktree, resolveLinkToRoot, resolveWorktree } from '../../containers/git-worktree';
+import { resolveWorktree } from '../../containers/git-worktree';
 import { join, relative } from 'path';
 import { metafileUpdated } from '../slices/metafiles';
 import { fetchLocalBranch, fetchRemoteBranch } from './branches';
+import { getRoot, getWorktreePaths } from '../../containers/git-path';
 
 export const fetchRepoById = createAsyncThunk<Repository | undefined, UUID, AppThunkAPI>(
     'repos/fetchById',
@@ -35,12 +36,9 @@ export const fetchReposByName = createAsyncThunk<Repository[], { name: string, u
 export const fetchRepoByFilepath = createAsyncThunk<Repository | undefined, PathLike, AppThunkAPI>(
     'repos/fetchByFilepath',
     async (filepath, thunkAPI) => {
-        const root = await getRepoRoot(filepath);
-        const mainRoot = root ? (
-            (await isLinkedWorktree({ dir: root })) ? await resolveLinkToRoot(root) : root)
-            : undefined;
-        const repos = removeUndefined(Object.values(thunkAPI.getState().repos.entities)
-            .filter(repo => repo && repo.root.toString() === mainRoot));
+        const { dir } = await getWorktreePaths(filepath);
+        const repos = dir ? removeUndefined(Object.values(thunkAPI.getState().repos.entities)
+            .filter(repo => repo && repo.root.toString() === dir.toString())) : [];
         return repos.length > 0 ? repos[0] : undefined;
     }
 );
@@ -67,7 +65,7 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetaf
         if (repo) return repo;
 
         // if no existing repo can be found, create and return a new repository
-        const root = await getRepoRoot(metafile.path);
+        const root = await getRoot(metafile.path);
         return root ? await thunkAPI.dispatch(fetchNewRepo(root)).unwrap() : undefined;
     }
 );
@@ -76,19 +74,20 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, FilebasedMetaf
 export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
     'repos/fetchNew',
     async (root, thunkAPI) => {
-        const mainRoot = (await isLinkedWorktree({ dir: root })) ? await resolveLinkToRoot(root) : root;
-        const remoteOriginUrl: GitConfig = mainRoot ? await getConfig({ dir: mainRoot, keyPath: 'remote.origin.url' }) : { scope: 'none' };
+        const { dir } = await getWorktreePaths(root);
+
+        const remoteOriginUrl: GitConfig = dir ? await getConfig({ dir: dir, keyPath: 'remote.origin.url' }) : { scope: 'none' };
         const { url, oauth } = (remoteOriginUrl.scope !== 'none') ?
             extractFromURL(remoteOriginUrl.value) :
             { url: undefined, oauth: undefined };
         const extractGitConfigValue = (gitConfig: GitConfig): string => {
             return (gitConfig.scope === 'none') ? '' : gitConfig.value;
         };
-        const { local, remote } = mainRoot ? await thunkAPI.dispatch(fetchRepoBranches(mainRoot)).unwrap() : { local: [], remote: [] };
+        const { local, remote } = dir ? await thunkAPI.dispatch(fetchRepoBranches(dir)).unwrap() : { local: [], remote: [] };
         return {
             id: v4(),
-            name: url ? extractRepoName(url.href) : (mainRoot ? extractFilename(mainRoot) : ''),
-            root: mainRoot ? mainRoot : '',
+            name: url ? extractRepoName(url.href) : (dir ? extractFilename(dir) : ''),
+            root: dir ? dir : '',
             /** TODO: The corsProxy is just a stubbed URL for now, but eventually we need to support Cross-Origin 
              * Resource Sharing (CORS) since isomorphic-git requires it */
             corsProxy: 'https://cors-anywhere.herokuapp.com',
@@ -96,8 +95,8 @@ export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
             local: local,
             remote: remote,
             oauth: oauth ? oauth : 'github',
-            username: mainRoot ? extractGitConfigValue(await getConfig({ dir: mainRoot, keyPath: 'user.name' })) : '',
-            password: mainRoot ? extractGitConfigValue(await getConfig({ dir: mainRoot, keyPath: 'credential.helper' })) : '',
+            username: dir ? extractGitConfigValue(await getConfig({ dir: dir, keyPath: 'user.name' })) : '',
+            password: dir ? extractGitConfigValue(await getConfig({ dir: dir, keyPath: 'credential.helper' })) : '',
             token: ''
         };
     }
@@ -135,8 +134,8 @@ export const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile:
 export const cloneRepository = createAsyncThunk<Repository | undefined, { url: URL | string, root: PathLike, onProgress?: ProgressCallback }, AppThunkAPI>(
     'repos/cloneRepository',
     async (param, thunkAPI) => {
-        const existing = await isGitRepo(param.root);
-        if (existing) { // if root points to a current repository, do not clone over it
+        const { dir } = await getWorktreePaths(param.root);
+        if (dir) { // if root points to a current repository, do not clone over it
             console.log(`Existing repository found at '${param.root.toString()}', use 'fetchRepo' to retrieve`);
             return undefined;
         }
