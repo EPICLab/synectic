@@ -2,10 +2,11 @@ import dagre from 'dagre';
 import { ArrowHeadType, Edge, FlowElement, Node, isNode, isEdge } from 'react-flow-renderer';
 
 import type { Repository } from '../types';
-import { getBranchRoot, getStatus } from '../containers/git-porcelain';
+import { getStatus } from '../containers/git-porcelain';
 import { CommitInfo } from './hooks/useGitHistory';
 import { flattenArray } from '../containers/flatten';
 import { colorSets } from '../containers/colors';
+import { getBranchRoot } from './git-path';
 
 const nodesep = 80;
 
