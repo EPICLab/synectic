@@ -26,11 +26,7 @@ export const BranchList: React.FunctionComponent<{ cardId: UUID; repoId: UUID; o
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card ? card.metafile : ''));
   const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, (metafile && metafile.branch) ? metafile.branch : ''));
-
   const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo, true) : []);
-  // const branches = useAppSelector((state: RootState) => branchSelectors.selectByGitdir(state, repo ? path.join(repo.root.toString(), '.git') : ''));
-
-
   const [selected, setSelected] = useState(branch ? branch.ref : '');
   const { subscribe, unsubscribe } = useContext(FSCache);
   const cssClasses = useStyles();
@@ -61,7 +57,7 @@ export const BranchList: React.FunctionComponent<{ cardId: UUID; repoId: UUID; o
           disableUnderline: true,
         }}
       >
-        {branches.map(branch => (
+        {branches.filter(branch => branch.ref !== 'HEAD').map(branch => (
           <MenuItem key={branch.id} value={branch.ref}>
             <Typography variant='body2'>
               {branch.ref}
