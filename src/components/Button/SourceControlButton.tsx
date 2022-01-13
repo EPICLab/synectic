@@ -6,12 +6,12 @@ import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { getBranchRoot } from '../../containers/git-porcelain';
 import { loadCard } from '../../store/thunks/handlers';
 import { fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
+import { getBranchRoot } from '../../containers/git-path';
 
 
 export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafileId: UUID, mode?: Mode }> = ({ mode = 'light', repoId, metafileId }) => {
