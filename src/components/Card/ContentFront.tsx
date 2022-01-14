@@ -21,9 +21,9 @@ export const ContentFront: React.FunctionComponent<Card> = props => {
         case 'Diff':
             return (<Diff metafile={metafile} />);
         case 'Explorer':
-            return (<Explorer root={metafile} />);
+            return (<Explorer rootMetafileId={props.metafile} />);
         case 'SourceControl':
-            return (<SourceControl sourceControl={metafile} />);
+            return (<SourceControl sourceControlId={props.metafile} />);
         case 'Browser':
             return (<Browser />);
         case 'ReposTracker':

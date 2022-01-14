@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import { Info, ArrowDropDown, ArrowRight } from '@material-ui/icons';
-import type { Card, Metafile } from '../../types';
+import type { Card, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { BranchRibbon } from '../SourceControl/BranchRibbon';
@@ -18,9 +18,10 @@ import { DateTime } from 'luxon';
 import { useGitHistory } from '../../containers/hooks/useGitHistory';
 import branchSelectors from '../../store/selectors/branches';
 
-const Explorer: React.FunctionComponent<{ root: Metafile }> = props => {
-  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.root.branch ? props.root.branch : ''));
-  const { directories, files, update } = useDirectory(props.root.path);
+const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootMetafileId));
+  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
+  const { directories, files, update } = useDirectory(metafile ? metafile.path : '');
 
   return (
     <>

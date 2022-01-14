@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { TreeView } from '@material-ui/lab';
-import type { Card, Metafile } from '../../types';
+import type { Card, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { BranchRibbon } from './BranchRibbon';
 import { StyledTreeItem } from '../StyledTreeComponent';
@@ -15,15 +15,15 @@ import { add, remove } from '../../containers/git-plumbing';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import branchSelectors from '../../store/selectors/branches';
 
-const SourceControl: React.FunctionComponent<{ sourceControl: Metafile }> = props => {
-  const dispatch = useAppDispatch();
-  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [repo] = useState(repos.find(r => r.id === props.sourceControl.repo));
-  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.sourceControl.branch ? props.sourceControl.branch : ''));
-  const { files, update } = useDirectory(props.sourceControl.path);
+const SourceControl: React.FunctionComponent<{ sourceControlId: UUID }> = props => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.sourceControlId));
+  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile && metafile.repo ? metafile.repo : ''));
+  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
+  const { files, update } = useDirectory(metafile ? metafile.path : undefined);
   const changed = useMemo(() => files.filter(f => changedCheck(f.status)), [files]);
   const staged = useMemo(() => files.filter(f => stagedCheck(f.status)), [files]);
   const modified = useMemo(() => files.filter(f => modifiedCheck(f.status)), [files]);
+  const dispatch = useAppDispatch();
 
   const stage = async (metafile: FileMetafile) => {
     await add(metafile.path);
@@ -43,9 +43,7 @@ const SourceControl: React.FunctionComponent<{ sourceControl: Metafile }> = prop
     <>
       {branch ?
         <div className='list-component'>
-          <BranchRibbon branch={branch.ref} onClick={() => {
-            console.log({ props, files, modified });
-          }} />
+          <BranchRibbon branch={branch.ref} onClick={() => { console.log({ props, files, modified }) }} />
           <TreeView
             expanded={[`${repo ? repo.name : ''}-${branch.ref}-staged`, `${repo ? repo.name : ''}-${branch.ref}-changed`]}
           >
