@@ -137,7 +137,8 @@ const CommitDialog: React.FunctionComponent<Modal> = props => {
                         defaultExpandIcon={<ArrowRight />}
                         defaultEndIcon={<div style={{ width: 8 }} />}
                     >
-                        {staged.filter(isFileMetafile).map(m => <FileComponent key={m.id} metafileId={m.id} update={async () => await update(m)} />)}
+                        {staged.filter(isFileMetafile).sort((a, b) => a.name.localeCompare(b.name))
+                            .map(m => <FileComponent key={m.id} metafileId={m.id} update={async () => await update(m)} />)}
                     </TreeView>
                     <Typography color='textSecondary' variant='body2'>
                         Enter a commit message.
