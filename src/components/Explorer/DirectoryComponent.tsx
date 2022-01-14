@@ -21,7 +21,7 @@ export const DirectoryComponent: React.FunctionComponent<DirectoryMetafile> = pr
             onClick={clickHandle}
         >
             {directories.map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
-            {files.map(file => <FileComponent key={file.id} update={update} {...file} />)}
+            {files.map(file => <FileComponent key={file.id} metafileId={file.id} update={update} />)}
         </StyledTreeItem>
     );
 };

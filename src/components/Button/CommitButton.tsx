@@ -43,6 +43,7 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
             .map(async metafile => {
                 await add(metafile.path);
                 const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+                console.log(`staging ${metafile.name}`, { vcs });
                 dispatch(metafileUpdated({ ...metafile, ...vcs }));
             })
         );
@@ -54,6 +55,7 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
             .map(async metafile => {
                 await remove(metafile.path);
                 const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
+                console.log(`unstaging ${metafile.name}`, { vcs });
                 dispatch(metafileUpdated({ ...metafile, ...vcs }));
 
             })
