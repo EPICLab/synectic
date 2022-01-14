@@ -15,10 +15,14 @@ import { isFilebasedMetafile } from '../../store/thunks/metafiles';
 export const FileComponent: React.FunctionComponent<{ metafileId: UUID, update: () => Promise<void> }> = props => {
     const metafile = useAppSelector((root: RootState) => metafileSelectors.selectById(root, props.metafileId));
     const dispatch = useAppDispatch();
-    const { unsubscribe } = useContext(FSCache);
+    const { subscribe, unsubscribe } = useContext(FSCache);
     const [internalStatus, setInternalStatus] = useState({ conflicts: false, unstaged: false, staged: false });
 
     useEffect(() => { check() }, [metafile?.status]);
+    useEffect(() => {
+        metafile && isFilebasedMetafile(metafile) ? subscribe(metafile.path) : null;
+        return () => { metafile && isFilebasedMetafile(metafile) ? unsubscribe(metafile.path) : null }
+    }, []);
 
     const check = () => {
         if (metafile && metafile.status) {
@@ -52,7 +56,6 @@ export const FileComponent: React.FunctionComponent<{ metafileId: UUID, update: 
                     labelInfoClickHandler={async (e) => {
                         e.stopPropagation(); // prevent propogating the click event to the StyleTreeItem onClick method
                         if (isFilebasedMetafile(metafile)) {
-                            await unsubscribe(metafile.path);
                             await removePath(metafile.path.toString());
                         }
 

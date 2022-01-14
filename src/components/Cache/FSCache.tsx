@@ -30,8 +30,8 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        console.log('FSCache mount', props);
-        return () => console.log('FSCache unmount', props);
+        console.log('FSCache mount');
+        return () => console.log('FSCache unmount', Array.from(cache.entries()), Array.from(watchers.entries()));
     }, []);
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
@@ -65,9 +65,9 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     }
 
     const subscribe = async (filepath: PathLike) => {
-        const watcher = watchers.get(filepath);
+        const watcher = watchers.get(filepath.toString());
 
-        if (watcher !== undefined && !isDirectory(filepath)) {
+        if (watcher !== undefined && !(await isDirectory(filepath))) {
             watcherActions.set(filepath, { ...watcher, count: watcher.count + 1 });
         } else {
             await eventHandler('add', filepath);
@@ -75,7 +75,7 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     };
 
     const unsubscribe = async (filepath: PathLike) => {
-        const watcher = watchers.get(filepath);
+        const watcher = watchers.get(filepath.toString());
 
         if (watcher !== undefined) {
             if (watcher.count > 1) {
