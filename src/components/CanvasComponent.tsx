@@ -26,6 +26,7 @@ import { modalAdded } from '../store/slices/modals';
 import { FSCache } from './Cache/FSCache';
 import { loadConflictManagers } from '../containers/conflicts';
 import branchSelectors from '../store/selectors/branches';
+import { DateTime } from 'luxon';
 
 export enum DnDItemType {
   CARD = 'CARD',
@@ -50,12 +51,12 @@ const useStyles = makeStyles((theme: Theme) =>
 const isMac = process.platform === 'darwin';
 
 const CanvasComponent: React.FunctionComponent = props => {
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const cardsArray = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const stacksArray = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
-  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
+  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
+  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const branches = useAppSelector((state: RootState) => branchSelectors.selectAll(state));
   const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
@@ -95,20 +96,15 @@ const CanvasComponent: React.FunctionComponent = props => {
   });
 
   const showState = () => {
-    console.log(`CARDS: ${cardsArray.length}`)
-    console.log({ cards });
-    console.log(`STACKS: ${stacksArray.length}`)
-    console.log({ stacks });
-    console.log(`METAFILES: ${metafiles.length} `);
-    console.log({ metafiles });
-    console.log(`REPOS: ${repos.length} `);
-    console.log({ repos });
-    console.log(`FILETYPES: ${filetypes.length} `);
-    console.log({ filetypes });
-    console.log(`BRANCHES: ${branches.length} `);
-    console.log({ branches });
-    console.log(`MODALS: ${modals.length} `);
-    console.log({ modals });
+    console.group(`Redux Store : ${DateTime.local().toHTTP()}`);
+    console.log(`STACKS [${Object.keys(stacks).length}]`, stacks);
+    console.log(`CARDS [${Object.keys(cards).length}]`, cards);
+    console.log(`FILETYPES [${Object.keys(filetypes).length}]`, filetypes);
+    console.log(`METAFILES [${Object.keys(metafiles).length}]`, metafiles);
+    console.log(`REPOS [${Object.keys(repos).length}]`, repos);
+    console.log(`BRANCHES [${Object.keys(branches).length}]`, branches);
+    console.log(`MODALS [${Object.keys(modals).length}]`, modals);
+    console.groupEnd();
   }
 
   const newCardDialogModal: Modal = {
