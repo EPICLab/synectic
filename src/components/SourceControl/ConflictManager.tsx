@@ -11,7 +11,7 @@ import { extractFilename } from '../../containers/io';
 import { ConflictRibbon } from './ConflictRibbon';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { WithRequired } from '../../containers/format';
-import useDirectory from '../../containers/hooks/useDirectory';
+import { isFilebasedMetafile } from '../../store/thunks/metafiles';
 
 type ConflictManagerMetafile = WithRequired<Metafile, 'repo' | 'branch' | 'merging'>;
 
@@ -22,30 +22,30 @@ export const isConflictManagerMetafile = (metafile: Metafile): metafile is Confl
 const ConflictManager: React.FunctionComponent<{ metafileId: UUID }> = props => {
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile?.repo ? metafile.repo : ''));
-    const { conflicts, update } = useDirectory(repo ? repo.root : '');
+    const conflictedMetafiles = useAppSelector((state: RootState) => metafileSelectors.selectByConflicted(state, repo ? repo.id : ''));
     const dispatch = useAppDispatch();
 
     return (
         <div className='list-component'>
             {metafile && isConflictManagerMetafile(metafile) && <ConflictRibbon base={metafile.merging.base} compare={metafile.merging.compare} />}
             <TreeView>
-                {conflicts.length == 0 &&
+                {conflictedMetafiles.length == 0 &&
                     <StyledTreeItem key={'no-conflict'} nodeId={'no-conflict'}
                         color={'#da6473'} // red
                         labelText={'[no conflicts]'}
                         labelIcon={Info}
-                        onClick={update}
                     />
                 }
-                {repo && metafile && isConflictManagerMetafile(metafile) && conflicts.length > 0 && conflicts.map(conflict =>
-                    <StyledTreeItem key={`${repo.id}-${metafile.branch}-${conflict.filepath.toString()}`}
-                        nodeId={`${repo.id}-${metafile.branch}-${conflict.filepath.toString()}`}
-                        color={'#da6473'} // red
-                        labelText={`${extractFilename(conflict.filepath)} [${conflict.conflicts?.length}]`}
-                        labelIcon={Warning}
-                        onClick={() => dispatch(loadCard({ filepath: conflict.filepath }))}
-                    />
-                )}
+                {repo && metafile && isConflictManagerMetafile(metafile) && conflictedMetafiles.length > 0 &&
+                    conflictedMetafiles.filter(isFilebasedMetafile).map(conflict =>
+                        <StyledTreeItem key={`${repo.id}-${metafile.branch}-${conflict.path.toString()}`}
+                            nodeId={`${repo.id}-${metafile.branch}-${conflict.path.toString()}`}
+                            color={'#da6473'} // red
+                            labelText={`${extractFilename(conflict.path)} [${conflict.conflicts?.length}]`}
+                            labelIcon={Warning}
+                            onClick={() => dispatch(loadCard({ filepath: conflict.path }))}
+                        />
+                    )}
             </TreeView>
         </div>
     );
