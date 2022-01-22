@@ -24,6 +24,7 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
          * causes duplicated copies of the same repo to be added to the Redux store. Since multiple filepaths must all have the same root 
          * parent directory, and therefore share the same repo, we can fix it by resolving the repo of the first path before loading any 
          * other cards. */
+        console.log(`multiple filepaths, so fetchMetafile then fetchRepo, then loadCard which also calls fetchMetafile`);
         const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: paths.filePaths[0] })).unwrap();
         if (isFilebasedMetafile(metafile)) await thunkAPI.dispatch(fetchRepo(metafile));
       }
