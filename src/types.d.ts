@@ -148,6 +148,13 @@ export type Metafile = {
   readonly conflicts?: number[] | undefined;
 }
 
+export type Cached = {
+  readonly id: UUID;
+  readonly reserves: number;
+  readonly metafile: UUID;
+  readonly path: PathLike;
+}
+
 /** A version control repository associated with content loaded into Synectic. */
 export type Repository = {
   /** The UUID for Repository object. */
