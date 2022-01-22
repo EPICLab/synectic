@@ -4,7 +4,6 @@ import type { Metafile } from '../../types';
 import { repoRemoved } from './repos';
 import { filterObject } from '../../containers/format';
 import { PURGE } from 'redux-persist';
-import { fetchNewMetafile } from '../thunks/metafiles';
 import { branchRemoved } from './branches';
 
 export const metafilesAdapter = createEntityAdapter<Metafile>();
@@ -24,9 +23,6 @@ export const metafilesSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchNewMetafile.fulfilled, (state, action) => {
-                metafilesAdapter.addOne(state, action.payload);
-            })
             .addCase(repoRemoved, (state, action) => {
                 const updatedMetafiles = Object.values(state.entities)
                     .filter((m): m is Metafile => m !== undefined)

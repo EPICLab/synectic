@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import type { Metafile, Filetype, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
-import { metafilesSlice } from '../slices/metafiles';
+import { metafileAdded, metafilesSlice } from '../slices/metafiles';
 import { removeUndefined, removeUndefinedProperties, WithRequired } from '../../containers/format';
 import { resolveHandler } from './handlers';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
@@ -78,7 +78,6 @@ export const fetchMetafilesByVirtual = createAsyncThunk<VirtualMetafile[], { nam
     }
 );
 
-/** Transitive potential to trigger the metafilesSlice.extraReducers to update Redux state */
 export const fetchMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThunkAPI>(
     'metafiles/fetchMetafile',
     async (input, thunkAPI) => {
@@ -89,7 +88,6 @@ export const fetchMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThunkA
     }
 );
 
-/** Triggers the metafilesSlice.extraReducers to update Redux state */
 export const fetchNewMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThunkAPI>(
     'metafiles/fetchNew',
     async (input, thunkAPI) => {
@@ -98,7 +96,7 @@ export const fetchNewMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThu
             thunkAPI.dispatch(fetchContains(input.filepath)) :
             thunkAPI.dispatch(fetchContent(input))).unwrap();
         const filepath = removeUndefinedProperties({ path: input.virtual ? input.virtual.path : input.filepath });
-        return {
+        return thunkAPI.dispatch(metafileAdded({
             ...removeUndefinedProperties({ ...input.virtual }),
             id: v4(),
             name: input.virtual ?
@@ -108,7 +106,7 @@ export const fetchNewMetafile = createAsyncThunk<Metafile, PathOrVirtual, AppThu
             ...filepath,
             ...filetype,
             ...contentOrContains
-        };
+        })).payload;
     }
 );
 
