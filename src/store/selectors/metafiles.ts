@@ -4,6 +4,7 @@ import { relative } from 'path';
 import type { Card, FilesystemStatus, Metafile, UUID } from '../../types';
 import { metafilesAdapter } from '../slices/metafiles';
 import { RootState } from '../store';
+import { isFilebasedMetafile, isFileMetafile } from '../thunks/metafiles';
 
 const selectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
 
@@ -32,6 +33,13 @@ const selectByBranch = createDraftSafeSelector(
     (metafiles, filepath, branch) => metafiles.filter(m => m.path === filepath && m.branch === branch)
 );
 
+const selectByRoot = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, root: PathLike) => root,
+    (metafiles, root) => metafiles.filter(m => isFilebasedMetafile(m) && !relative(root.toString(), m.path.toString()).startsWith('..')
+        && relative(root.toString(), m.path.toString()).length !== 0)
+)
+
 const selectByVirtual = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, name: string) => name,
@@ -57,9 +65,38 @@ const selectByConflicted = createDraftSafeSelector(
     (metafiles, repo) => metafiles.filter(m => m.repo === repo && m.conflicts !== undefined && m.conflicts.length > 0)
 );
 
+const selectStagedByRepo = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, repoId: UUID) => repoId,
+    (metafiles, repo) => metafiles.filter(isFileMetafile)
+        .filter(m => m.repo === repo && m.status && ['added', 'modified', 'deleted'].includes(m.status))
+)
+
+const selectStagedByBranch = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, branchId: UUID) => branchId,
+    (metafiles, branch) => metafiles.filter(isFileMetafile)
+        .filter(m => m.branch === branch && m.status && ['added', 'modified', 'deleted'].includes(m.status))
+)
+
+const selectUnstagedByRepo = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, repoId: UUID) => repoId,
+    (metafiles, repo) => metafiles.filter(isFileMetafile)
+        .filter(m => m.repo === repo && m.status && ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status))
+)
+
+const selectUnstagedByBranch = createDraftSafeSelector(
+    selectors.selectAll,
+    (_state: RootState, branchId: UUID) => branchId,
+    (metafiles, branch) => metafiles.filter(isFileMetafile)
+        .filter(m => m.branch === branch && m.status && ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status))
+)
+
 const metafileSelectors = {
-    ...selectors, selectByIds, selectByFilepath, selectByRepo, selectByBranch,
-    selectByVirtual, selectByState, selectByCards, selectByConflicted
+    ...selectors, selectByIds, selectByFilepath, selectByRepo, selectByBranch, selectByRoot,
+    selectByVirtual, selectByState, selectByCards, selectByConflicted, selectStagedByRepo,
+    selectStagedByBranch, selectUnstagedByRepo, selectUnstagedByBranch
 };
 
 export default metafileSelectors;
