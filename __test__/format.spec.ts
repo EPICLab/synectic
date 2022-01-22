@@ -89,17 +89,17 @@ describe('containers/format', () => {
     expect(format.removeUndefined(arr)).toStrictEqual(arr);
   });
 
-  it('removeUndefinedFields removes undefined from Object of Primitive types', () => {
+  it('removeUndefinedProperties removes undefined from Object of Primitive types', () => {
     const obj = { a: 3, b: 'a', c: undefined, d: true };
-    expect(format.removeUndefinedFields(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
+    expect(format.removeUndefinedProperties(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
   });
 
-  it('removeUndefinedFields removes top-level undefined from Object with nested Objects', () => {
+  it('removeUndefinedProperties removes top-level undefined from Object with nested Objects', () => {
     const obj = { a: undefined, b: { c: 3 }, d: { e: undefined }, f: { g: 7 } };
-    expect(format.removeUndefinedFields(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
+    expect(format.removeUndefinedProperties(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
   });
 
-  it('removeUndefinedFields returns original array when no undefined are present', () => {
+  it('removeUndefined returns original array when no undefined are present', () => {
     const arr = [{ a: 3 }, 'a', { b: 7 }, true];
     expect(format.removeUndefined(arr)).toStrictEqual(arr);
   });
