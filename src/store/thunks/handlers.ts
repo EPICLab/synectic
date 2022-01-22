@@ -84,7 +84,6 @@ export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI &
   'handlers/loadCard',
   async (param, thunkAPI) => {
     const metafile = param.metafile ? param.metafile : await thunkAPI.dispatch(fetchMetafile({ filepath: param.filepath })).unwrap();
-    if (param.filepath) thunkAPI.dispatch(metafileAdded(metafile));
     if (param.filepath && isFilebasedMetafile(metafile)) {
       const vcs = await thunkAPI.dispatch(fetchVersionControl(metafile)).unwrap();
       thunkAPI.dispatch(metafileUpdated({ ...metafile, ...vcs }));
