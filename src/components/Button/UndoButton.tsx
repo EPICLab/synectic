@@ -11,7 +11,7 @@ import { metafileUpdated } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
 import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
-import { FSCache } from '../Cache/FSCache';
+import { FSCache } from '../../store/cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
 
 /**

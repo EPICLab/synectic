@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { sep } from 'path';
@@ -11,14 +11,12 @@ import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
 import { useIconButtonStyle } from '../Button/StyledIconButton';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
-import metafileSelectors from '../../store/selectors/metafiles';
 import stackSelectors from '../../store/selectors/stacks';
 import { cardRemoved } from '../../store/slices/cards';
 import { ContentBack } from './ContentBack';
 import { ContentFront } from './ContentFront';
 import SaveButton from '../Button/SaveButton';
 import UndoButton from '../Button/UndoButton';
-import { FSCache } from '../Cache/FSCache';
 import { DnDItemType } from '../CanvasComponent';
 
 type DragObject = {
@@ -45,15 +43,8 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  const subscribedCards = useAppSelector((state: RootState) => cardSelectors.selectByMetafiles(state, metafile ? [metafile] : []));
-  const { subscribe, unsubscribe } = useContext(FSCache);
   const dispatch = useAppDispatch();
   const classes = useIconButtonStyle({ mode: 'light' });
-
-  useEffect(() => {
-    if (metafile && metafile.path) subscribe(metafile.path);
-  }, []);
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
   const [{ isDragging }, drag] = useDrag({
@@ -114,13 +105,12 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   }
 
   const flip = () => setFlipped(!flipped);
-  const close = () => {
+  const close = async () => {
     const dropSource = cards[props.id];
     if (props.captured && dropSource) {
       dispatch(popCard({ card: dropSource }));
     }
     if (dropSource) {
-      if (metafile && metafile.path && subscribedCards.length <= 1) unsubscribe(metafile.path);
       dispatch(cardRemoved(props.id));
     }
   }

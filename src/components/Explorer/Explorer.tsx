@@ -6,10 +6,9 @@ import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { BranchRibbon } from '../SourceControl/BranchRibbon';
 import { BranchList } from '../SourceControl/BranchList';
-import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import useDirectory from '../../containers/hooks/useDirectory';
 import DataField from '../Card/DataField';
 import { SourceControlButton } from "../Button/SourceControlButton";
 import { DirectoryComponent } from './DirectoryComponent';
@@ -17,11 +16,33 @@ import { FileComponent } from './FileComponent';
 import { DateTime } from 'luxon';
 import { useGitHistory } from '../../containers/hooks/useGitHistory';
 import branchSelectors from '../../store/selectors/branches';
+import { fetchMetafile, isDirectoryMetafile, isFileMetafile } from '../../store/thunks/metafiles';
+import { getIgnore } from '../../containers/git-plumbing';
+import { readDirAsyncDepth } from '../../containers/io';
+import { relative } from 'path';
 
 const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootMetafileId));
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
-  const { directories, files, update } = useDirectory(metafile ? metafile.path : '');
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByRoot(state, metafile && metafile.path ? metafile.path : ''));
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    console.log(`Explorer mounted`, { metafile, branch, metafiles });
+    const asyncFetch = async () => {
+      if (metafile && metafile.path) {
+        const root = metafile.path;
+        const ignore = await getIgnore(root, true);
+        const filepaths = (await readDirAsyncDepth(root, 1))
+          .filter(p => p !== root)                                     // filter root filepath from results
+          .filter(p => !p.includes('.git'))                            // filter git directory
+          .filter(p => !ignore.ignores(relative(root.toString(), p))); // filter based on git-ignore rules
+        await Promise.all(filepaths.map(f => dispatch(fetchMetafile({ filepath: f }))));
+      }
+    }
+    asyncFetch();
+    return () => console.log(`Explorer unmounted`);
+  }, []);
 
   return (
     <>
@@ -32,10 +53,10 @@ const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
           defaultExpandIcon={<ArrowRight />}
           defaultEndIcon={<div style={{ width: 8 }} />}
         >
-          {directories.length === 0 && files.length === 0 ?
+          {metafiles.length === 0 ?
             <StyledTreeItem key={'loading'} nodeId={'loading'} labelText={'loading...'} labelIcon={Info} /> : null}
-          {directories.filter(dir => !dir.name.startsWith('.') && dir.name !== 'node_modules').map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
-          {files.sort((a, b) => a.name.localeCompare(b.name)).map(file => <FileComponent key={file.id} metafileId={file.id} update={update} />)}
+          {metafiles.filter(isDirectoryMetafile).filter(dir => !dir.name.startsWith('.') && dir.name !== 'node_modules').map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
+          {metafiles.filter(isFileMetafile).sort((a, b) => a.name.localeCompare(b.name)).map(file => <FileComponent key={file.id} metafileId={file.id} />)}
         </TreeView>
       </div>
     </>

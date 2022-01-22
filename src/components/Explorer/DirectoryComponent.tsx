@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import { StyledTreeItem } from '../StyledTreeComponent';
-import useDirectory from '../../containers/hooks/useDirectory';
-import { DirectoryMetafile } from '../../store/thunks/metafiles';
+import { DirectoryMetafile, isDirectoryMetafile, isFileMetafile } from '../../store/thunks/metafiles';
 import { FileComponent } from "./FileComponent";
+import { useAppSelector } from '../../store/hooks';
+import metafileSelectors from '../../store/selectors/metafiles';
+import { RootState } from '../../store/store';
 
 
 export const DirectoryComponent: React.FunctionComponent<DirectoryMetafile> = props => {
-    const { directories, files, update } = useDirectory(props.path);
+    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByRoot(state, props.path));
     const [expanded, setExpanded] = useState(false);
 
     const clickHandle = async () => setExpanded(!expanded);
@@ -20,8 +22,8 @@ export const DirectoryComponent: React.FunctionComponent<DirectoryMetafile> = pr
             labelIcon={expanded ? FolderOpenIcon : FolderIcon}
             onClick={clickHandle}
         >
-            {directories.map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
-            {files.map(file => <FileComponent key={file.id} metafileId={file.id} update={update} />)}
+            {metafiles.filter(isDirectoryMetafile).map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
+            {metafiles.filter(isFileMetafile).map(file => <FileComponent key={file.id} metafileId={file.id} />)}
         </StyledTreeItem>
     );
 };

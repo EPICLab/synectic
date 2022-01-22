@@ -10,9 +10,9 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
-import { fetchMetafileById, fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../../store/thunks/metafiles';
+import { fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
-import { FSCache } from '../Cache/FSCache';
+import { FSCache } from '../../store/cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
 
 /**
@@ -31,7 +31,6 @@ const SaveButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({
     const modified = metafiles.filter(m => (isFileMetafile(m) && m.content !== cache.get(m.path)) || (isVirtualMetafile(m) && m.content && m.content.length > 0));
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
-    const { subscribe } = useContext(FSCache);
 
     const save = async () => {
         await Promise.all(modified
@@ -45,13 +44,7 @@ const SaveButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({
 
         await Promise.all(modified
             .filter(isVirtualMetafile)
-            .map(async metafile => {
-                const saved = await dispatch(fileSaveDialog(metafile)).unwrap(); // will update metafile
-                if (saved) {
-                    const updated = await dispatch(fetchMetafileById(metafile.id)).unwrap();
-                    if (updated && updated.path) subscribe(updated.path);
-                }
-            })
+            .map(async metafile => await dispatch(fileSaveDialog(metafile))) // will update metafile
         );
 
         offHover();

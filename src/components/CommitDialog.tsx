@@ -3,7 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
 import { ArrowDropDown, ArrowRight } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
-import type { Metafile, Modal } from '../types';
+import type { Modal } from '../types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { modalRemoved } from '../store/slices/modals';
 import { commit, getConfig } from '../containers/git-porcelain';
@@ -77,14 +77,6 @@ const CommitDialog: React.FunctionComponent<Modal> = props => {
         setMessage(event.target.value);
     }
 
-    const update = async (metafile: Metafile) => {
-        if (isFileMetafile(metafile)) {
-            const contentAndState = await dispatch(fetchContent({ filepath: metafile.path })).unwrap();
-            const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-            dispatch(metafileUpdated({ ...metafile, ...contentAndState, ...vcs }));
-        }
-    }
-
     const initiateCommit = async () => {
         const metafile = staged[0];
         const repo = (metafile && metafile.repo) ? repos.find(r => r.id === metafile.repo) : undefined;
@@ -138,7 +130,7 @@ const CommitDialog: React.FunctionComponent<Modal> = props => {
                         defaultEndIcon={<div style={{ width: 8 }} />}
                     >
                         {staged.filter(isFileMetafile).sort((a, b) => a.name.localeCompare(b.name))
-                            .map(m => <FileComponent key={m.id} metafileId={m.id} update={async () => await update(m)} />)}
+                            .map(m => <FileComponent key={m.id} metafileId={m.id} />)}
                     </TreeView>
                     <Typography color='textSecondary' variant='body2'>
                         Enter a commit message.

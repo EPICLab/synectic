@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { FormControl, MenuItem, Typography, TextField } from '@material-ui/core';
 import type { UUID } from '../../types';
 import branchSelectors from '../../store/selectors/branches';
@@ -6,7 +6,6 @@ import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { RootState } from '../../store/store';
-import { FSCache } from '../Cache/FSCache';
 import { useStyles } from '../Card/CardComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
@@ -28,7 +27,6 @@ export const BranchList: React.FunctionComponent<{ cardId: UUID; repoId: UUID; o
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, (metafile && metafile.branch) ? metafile.branch : ''));
   const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo, true) : []);
   const [selected, setSelected] = useState(branch ? branch.ref : '');
-  const { subscribe, unsubscribe } = useContext(FSCache);
   const cssClasses = useStyles();
   const dispatch = useAppDispatch();
 
@@ -37,9 +35,7 @@ export const BranchList: React.FunctionComponent<{ cardId: UUID; repoId: UUID; o
     if (card && metafile) {
       const overwrite = removeUndefinedProperties({ overwrite: props.overwrite });
       const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
-      if (metafile.path) unsubscribe(metafile.path);
       if (updated) await dispatch(switchCardMetafile({ card: card, metafile: updated }));
-      if (updated && updated.path) subscribe(updated.path);
       if (updated) setSelected(newBranch);
     }
   };
