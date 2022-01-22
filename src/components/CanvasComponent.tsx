@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { shell } from 'electron';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 import type { Modal } from '../types';
 import CardComponent from './Card/CardComponent';
 import StackComponent from './Stack/StackComponent';
@@ -23,10 +24,11 @@ import filetypeSelectors from '../store/selectors/filetypes';
 import repoSelectors from '../store/selectors/repos';
 import modalSelectors from '../store/selectors/modals';
 import { modalAdded } from '../store/slices/modals';
-import { FSCache } from './Cache/FSCache';
+import { FSCache } from '../store/cache/FSCache';
 import { loadConflictManagers } from '../containers/conflicts';
 import branchSelectors from '../store/selectors/branches';
-import { DateTime } from 'luxon';
+
+import cachedSelectors from '../store/selectors/cached';
 
 export enum DnDItemType {
   CARD = 'CARD',
@@ -57,12 +59,13 @@ const CanvasComponent: React.FunctionComponent = props => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
+  const cached = useAppSelector((state: RootState) => cachedSelectors.selectAll(state));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const branches = useAppSelector((state: RootState) => branchSelectors.selectAll(state));
   const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const classes = useStyles();
-  const { cache, reset } = useContext(FSCache);
+  const { cache } = useContext(FSCache);
 
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
@@ -95,15 +98,22 @@ const CanvasComponent: React.FunctionComponent = props => {
     }
   });
 
-  const showState = () => {
+  const showStore = () => {
     console.group(`Redux Store : ${DateTime.local().toHTTP()}`);
     console.log(`STACKS [${Object.keys(stacks).length}]`, stacks);
     console.log(`CARDS [${Object.keys(cards).length}]`, cards);
-    console.log(`FILETYPES [${Object.keys(filetypes).length}]`, filetypes);
-    console.log(`METAFILES [${Object.keys(metafiles).length}]`, metafiles);
-    console.log(`REPOS [${Object.keys(repos).length}]`, repos);
-    console.log(`BRANCHES [${Object.keys(branches).length}]`, branches);
-    console.log(`MODALS [${Object.keys(modals).length}]`, modals);
+    console.log(`FILETYPES [${filetypes.length}]`);
+    console.log(`METAFILES [${metafiles.length}]`, metafiles);
+    console.log(`CACHED [${cached.length}]`, cached);
+    console.log(`REPOS [${repos.length}]`, repos);
+    console.log(`BRANCHES [${branches.length}]`, branches);
+    console.log(`MODALS [${modals.length}]`, modals);
+    console.groupEnd();
+  }
+
+  const showCache = () => {
+    console.group(`FS Cache : ${DateTime.local().toHTTP()}`);
+    console.log(`CACHE [${cache.size}]`, cache.keys());
     console.groupEnd();
   }
 
@@ -144,13 +154,12 @@ const CanvasComponent: React.FunctionComponent = props => {
 
   const viewMenu: NavItemProps[] = [
     { label: 'Branches...', click: async () => dispatch(loadBranchVersions()) },
-    { label: 'Show All...', click: () => showState() },
   ];
 
   const sysMenu: NavItemProps[] = [
-    { label: 'Clear Datastore...', click: async () => redux.persistor.purge() },
-    { label: 'View Cache...', click: async () => console.log({ cache }) },
-    { label: 'Clear Cache...', click: async () => await reset() },
+    { label: 'View Datastore...', click: () => showStore() },
+    { label: 'View Cache...', click: () => showCache() },
+    { label: 'Clear Datastore...', click: async () => redux.persistor.purge() }
   ];
 
   const helpMenu: NavItemProps[] = [
