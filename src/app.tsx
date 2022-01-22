@@ -8,7 +8,7 @@ import './assets/style.css';
 import redux from './store/store';
 import { importFiletypes } from './store/thunks/handlers';
 import { PersistGate } from 'redux-persist/integration/react';
-import { FSCacheProvider } from './components/Cache/FSCache';
+import { FSCacheProvider } from './store/cache/FSCache';
 import CanvasComponent from './components/CanvasComponent';
 
 const App = (): JSX.Element => {
