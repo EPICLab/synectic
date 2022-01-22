@@ -26,6 +26,11 @@
   "config": {
     "forge": "./forge.config.json"
   },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0",
+    "npm": ">=8.0.0",
+    "yarn": ">=1.22.0"
+  },
   "devDependencies": {
     "@atao60/fse-cli": "^0.1.7",
     "@electron-forge/cli": "^6.0.0-beta.61",
