@@ -12,6 +12,7 @@ import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import { Mode, useIconButtonStyle } from './StyledIconButton';
 import { getBranchRoot } from '../../containers/git-path';
+import { removeUndefinedProperties } from '../../containers/format';
 
 
 export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafileId: UUID, mode?: Mode }> = ({ mode = 'light', repoId, metafileId }) => {
@@ -29,7 +30,7 @@ export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafi
             console.log(`Cannot load source control for untracked metafile:'${metafileId}'`);
             return;
         }
-        const branchRoot = await getBranchRoot(repo.root, metafile.branch);
+        const optionals = removeUndefinedProperties({ path: await getBranchRoot(repo.root, metafile.branch) });
         const sourceControl = await dispatch(fetchMetafile({
             virtual: {
                 id: v4(),
@@ -38,7 +39,7 @@ export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafi
                 handler: 'SourceControl',
                 repo: repo.id,
                 branch: metafile.branch,
-                path: branchRoot ? branchRoot : ''
+                ...optionals
             }
         })).unwrap();
 
