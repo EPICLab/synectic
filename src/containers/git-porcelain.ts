@@ -4,7 +4,7 @@ import * as isogit from 'isomorphic-git';
 import * as http from 'isomorphic-git/http/node';
 import * as ini from 'ini';
 import parse from 'parse-git-config';
-import dotProp from 'dot-prop';
+import { getProperty, setProperty, hasProperty, deleteProperty } from 'dot-prop';
 import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
@@ -326,7 +326,7 @@ export const getConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'
     const configFile = await parse({ path: configPath });
     if (!configFile) return null;
     const config = parse.expandKeys(configFile);
-    return dotProp.has(config, key) ? dotProp.get(config, key) as string : null;
+    return hasProperty(config, key) ? getProperty(config, key) as string : null;
   }
   const includeOrigin = (configPath: string | null) => showOrigin ? removeUndefinedProperties({ origin: configPath }) : {};
 
@@ -363,8 +363,8 @@ export const setConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'
 
   const configFile = await parse({ path: configPath });
   if (!configFile) return null; // git-config file cannot be parsed; possible corrupted file?
-  if (value === undefined) dotProp.delete(configFile, keyPath);
-  else dotProp.set(configFile, keyPath, value);
+  if (value === undefined) deleteProperty(configFile, keyPath);
+  else setProperty(configFile, keyPath, value);
 
   const updatedConfig = ini.stringify(configFile, { section: '', whitespace: true });
   await io.writeFileAsync(configPath, updatedConfig);
