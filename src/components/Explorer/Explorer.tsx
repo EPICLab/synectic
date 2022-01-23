@@ -28,7 +28,6 @@ const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    console.log(`Explorer mounted`, { metafile, branch, metafiles });
     const asyncFetch = async () => {
       if (metafile && metafile.path) {
         const root = metafile.path;
@@ -41,7 +40,6 @@ const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
       }
     }
     asyncFetch();
-    return () => console.log(`Explorer unmounted`);
   }, []);
 
   return (
