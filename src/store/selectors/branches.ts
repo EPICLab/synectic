@@ -1,4 +1,4 @@
-import { createDraftSafeSelector } from '@reduxjs/toolkit';
+import { createDraftSafeSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { removeDuplicates } from '../../containers/format';
 import type { Branch, Repository } from '../../types';
@@ -6,6 +6,12 @@ import { branchesAdapter } from '../slices/branches';
 import { RootState } from '../store';
 
 const selectors = branchesAdapter.getSelectors<RootState>(state => state.branches);
+
+const selectByIds = createDraftSafeSelector(
+    selectors.selectEntities,
+    (_state: RootState, ids: EntityId[]) => ids,
+    (branches, ids) => ids.map(id => branches[id]).filter((b): b is Branch => b !== undefined)
+)
 
 const selectByRef = createDraftSafeSelector(
     selectors.selectAll,
@@ -37,7 +43,7 @@ const selectByRepo = createDraftSafeSelector(
 )
 
 const branchSelectors = {
-    ...selectors, selectByRef, selectByRoot, selectByGitdir, selectByRepo
+    ...selectors, selectByIds, selectByRef, selectByRoot, selectByGitdir, selectByRepo
 };
 
 export default branchSelectors;
