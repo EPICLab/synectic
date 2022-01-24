@@ -8,7 +8,7 @@ import { RootState } from '../store';
 import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from '../thunks/metafiles';
 import { metafileRemoved } from '../slices/metafiles';
 
-export const cacheManager: Middleware<unknown, RootState> = api => next => action => {
+export const cache: Middleware<unknown, RootState> = api => next => action => {
     if (typeof action === 'function') {
         // handle Promises 
         return action(api.dispatch, api.getState);

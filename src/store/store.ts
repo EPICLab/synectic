@@ -9,7 +9,7 @@ import branchesReducer from './slices/branches';
 import modalsReducer from './slices/modals';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { cacheManager } from './middleware/cache';
+import { cache } from './middleware/cache';
 
 export const rootReducer = combineReducers({
     stacks: stacksReducer,
@@ -37,7 +37,7 @@ const store = configureStore({
         serializableCheck: {
             ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
         }
-    }).concat([cacheManager])
+    }).concat([cache])
 });
 const persistor = persistStore(store);
 
