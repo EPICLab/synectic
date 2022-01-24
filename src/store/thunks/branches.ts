@@ -68,7 +68,7 @@ export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: Pat
         }
         const branchRoot = input.branchName ? await getBranchRoot(dir, input.branchName) : dir;
         const current = branchRoot ? await currentBranch({ dir: branchRoot, fullname: false }) : undefined;
-        const branch = !current ? 'HEAD' : current;
+        const branch = input.branchName ? input.branchName : !current ? 'HEAD' : current;
         const config = branch !== 'HEAD' ? await getConfig({ dir: dir, keyPath: `branch.${branch}.remote` }) : undefined;
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
 
