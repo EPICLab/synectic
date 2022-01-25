@@ -106,12 +106,15 @@ export const fetchRepoBranches = createAsyncThunk<Pick<Repository, 'local' | 're
     'repos/fetchBranches',
     async (root, thunkAPI) => {
         const localBranches = await listBranches({ fs: fs, dir: root.toString() });
-        const local = removeUndefined(await Promise.all(
-            localBranches.map(branch => thunkAPI.dispatch(fetchLocalBranch({ root: root, branchName: branch })).unwrap())
+        const local = removeUndefined(await Promise.all(localBranches
+            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which aren't a real branch
+            .map(branch => thunkAPI.dispatch(fetchLocalBranch({ root: root, branchName: branch })).unwrap())
         ));
         const remoteBranches = await listBranches({ fs: fs, dir: root.toString(), remote: 'origin' });
-        const remote = removeUndefined(await Promise.all(
-            remoteBranches.map(branch => thunkAPI.dispatch(fetchRemoteBranch({ root: root, branchName: branch })).unwrap())
+
+        const remote = removeUndefined(await Promise.all(remoteBranches
+            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which aren't a real branch
+            .map(branch => thunkAPI.dispatch(fetchRemoteBranch({ root: root, branchName: branch })).unwrap())
         ));
         return { local: local.map(branch => branch.id), remote: remote.map(branch => branch.id) };
     }
@@ -136,7 +139,7 @@ export const cloneRepository = createAsyncThunk<Repository | undefined, { url: U
     async (param, thunkAPI) => {
         const { dir } = await getWorktreePaths(param.root);
         if (dir) { // if root points to a current repository, do not clone over it
-            console.log(`Existing repository found at '${param.root.toString()}', use 'fetchRepo' to retrieve`);
+            console.error(`Existing repository found at '${param.root.toString()}', use 'fetchRepo' to retrieve`);
             return undefined;
         }
         const repo = await thunkAPI.dispatch(fetchNewRepo(param.root)).unwrap();
