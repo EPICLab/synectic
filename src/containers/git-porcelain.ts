@@ -203,14 +203,18 @@ export const deleteBranch = ({ dir, gitdir = path.join(dir.toString(), '.git'), 
 * @param since Return history newer than the given date. Can be combined with `depth` to get whichever is shorter.
 * @return A Promise object containing an array of `ReadCommitResult` objects (per https://isomorphic-git.org/docs/en/log).
 */
-export const log = ({ dir, ref = 'HEAD', depth, since }: {
+export const log = async ({ dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', depth, since }: {
   dir: fs.PathLike;
+  gitdir?: fs.PathLike;
   ref?: string;
   depth?: number;
   since?: Date;
 }): Promise<isogit.ReadCommitResult[]> => {
   const optionals = removeUndefinedProperties({ since: since });
-  return isogit.log({ fs: fs, dir: dir.toString(), ref: ref, depth: depth, ...optionals });
+  const worktree = await getWorktreePaths(gitdir);
+  return (worktree.dir && worktree.gitdir)
+    ? isogit.log({ fs: fs, dir: worktree.dir.toString(), gitdir: worktree.gitdir.toString(), ref: ref, depth: depth, ...optionals })
+    : isogit.log({ fs: fs, dir: dir.toString(), ref: ref, depth: depth, ...optionals });
 }
 
 /**

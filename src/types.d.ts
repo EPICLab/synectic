@@ -199,6 +199,10 @@ export type Branch = {
   readonly scope: 'local' | 'remote';
   /** The name of the remote to fetch from/push to using `git fetch` and `git push` commands for this branch; default is `origin`. */
   readonly remote: string;
+  /** The list of SHA-1 hashes for commits associated with this branch. */
+  readonly commits: string[];
+  /** The SHA-1 hash of the commit pointed to by HEAD on this branch. */
+  readonly head: string;
 }
 
 /** A queued modal event (dialog or error) that requires a visible response from the system. */

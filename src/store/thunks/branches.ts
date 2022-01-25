@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs';
 import { v4 } from 'uuid';
 import { removeUndefined } from '../../containers/format';
-import { currentBranch, getConfig } from '../../containers/git-porcelain';
+import { currentBranch, getConfig, log } from '../../containers/git-porcelain';
 import type { Branch, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
 import { fetchParentMetafile, FilebasedMetafile } from './metafiles';
@@ -71,14 +71,16 @@ export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: Pat
         const branch = input.branchName ? input.branchName : !current ? 'HEAD' : current;
         const config = branch !== 'HEAD' ? await getConfig({ dir: dir, keyPath: `branch.${branch}.remote` }) : undefined;
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
-
+        const commits = branchRoot ? (await log({ dir: branchRoot, ref: branch, depth: 50 })).map(c => c.oid) : [];
         return {
             id: v4(),
             scope: 'local',
             ref: branch,
             root: branchRoot ? branchRoot : '',
             gitdir: gitdir ? gitdir : '',
-            remote: remote
+            remote: remote,
+            commits: commits,
+            head: commits.length > 0 ? commits[0] : ''
         };
     }
 );
@@ -101,6 +103,7 @@ export const fetchRemoteBranch = createAsyncThunk<Branch | undefined, { root: Pa
         }
         const config = await getConfig({ dir: dir, keyPath: `branch.${input.branchName}.remote` });
         const remote = (config.scope !== 'none') ? config.value : 'origin';
+        const commits = (await log({ dir: dir, ref: `remotes/${remote}/${input.branchName}`, depth: 50 })).map(c => c.oid);
 
         return {
             id: v4(),
@@ -108,7 +111,9 @@ export const fetchRemoteBranch = createAsyncThunk<Branch | undefined, { root: Pa
             ref: input.branchName,
             root: dir,
             gitdir: gitdir,
-            remote: remote
+            remote: remote,
+            commits: commits,
+            head: commits.length > 0 ? commits[0] : ''
         };
     }
 );

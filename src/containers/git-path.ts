@@ -10,9 +10,9 @@ export type WorktreePaths = {
     gitdir: fs.PathLike | undefined;
     /** The linked worktrees directory (i.e. `GIT_DIR/worktrees`, such as *'/{project}/.git/worktrees'*). */
     worktrees: fs.PathLike | undefined;
-    /** The linked worktree root directory (i.e. `/{project}/../.syn/{branch}`), or `undefined` if not a linked worktree. */
+    /** The linked worktree root directory (i.e. `/{project}/../.syn/{repo}/{branch}`), or `undefined` if not a linked worktree. */
     worktreeDir: fs.PathLike | undefined;
-    /** The linked worktree git file (e.g. *'/{project}/../.syn/{branch}/.git'*, or `undefined` if not a linked worktree. */
+    /** The linked worktree git file (e.g. *'/{project}/../.syn/{repo}/{branch}/.git'*, or `undefined` if not a linked worktree. */
     worktreeGitdir: fs.PathLike | undefined;
     /** The direct link from linked worktree into the linked worktrees directory (i.e. `GIT_DIR/worktrees/{branch}`); this path
      * is found in the linked worktree git file (`worktreeGitdir`). */
