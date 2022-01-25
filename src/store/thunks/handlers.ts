@@ -9,7 +9,7 @@ import { DateTime } from 'luxon';
 import type { AppThunkAPI } from '../hooks';
 import { filetypeAdded } from '../slices/filetypes';
 import { fetchMetafile, fetchVersionControl, isFilebasedMetafile } from './metafiles';
-import { metafileAdded, metafileUpdated } from '../slices/metafiles';
+import { metafileUpdated } from '../slices/metafiles';
 
 export type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 
