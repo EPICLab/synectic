@@ -180,6 +180,19 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
 }
 
 /**
+ * Get the name of the default branch pointed to by *.git/refs/remotes/origin/HEAD*.
+ * @param dir The worktree root directory.
+ * @param gitdir The worktree git directory.
+ * @returns A Promise object containing the default branch name, or undefined if no default branch has been set.
+ */
+export const defaultBranch = async ({ dir, gitdir = path.join(dir.toString(), '.git') }: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
+}): Promise<string> => {
+  return (await io.readFileAsync(path.join(gitdir.toString(), 'refs', 'remotes', 'origin', 'HEAD'), { encoding: 'utf-8' })).slice('ref: refs/remotes/origin/'.length).trim();
+};
+
+/**
  * Delete a local branch; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/deleteBranch* function.
  * @param dir The worktree root directory.
  * @param gitdir The git directory path.
