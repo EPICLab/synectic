@@ -7,6 +7,7 @@ import { DateTime } from 'luxon';
 import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import sha1 from 'sha1';
+import { ReadCommitResult } from 'isomorphic-git';
 
 export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
@@ -169,6 +170,8 @@ export type Repository = {
   readonly corsProxy: string;
   /** The URL associated with any remote-hosted instances of this repository; contains empty string if local-only repository. */
   readonly url: string;
+  /** The branch name corresponding to the default branch within this repository. */
+  readonly default: string;
   /** An array with all Branch object UUIDs for local branch refs associated with this repository. */
   readonly local: UUID[];
   /** An array with all Branch object UUIDs for remote branch refs associated with this repository. */
@@ -199,8 +202,8 @@ export type Branch = {
   readonly scope: 'local' | 'remote';
   /** The name of the remote to fetch from/push to using `git fetch` and `git push` commands for this branch; default is `origin`. */
   readonly remote: string;
-  /** The list of SHA-1 hashes for commits associated with this branch. */
-  readonly commits: string[];
+  /** The list of commit descriptions for commits within this branch. */
+  readonly commits: ReadCommitResult[];
   /** The SHA-1 hash of the commit pointed to by HEAD on this branch. */
   readonly head: string;
 }
