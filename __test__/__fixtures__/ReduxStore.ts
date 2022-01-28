@@ -20,7 +20,15 @@ export const emptyStore: RootState = {
     ids: [],
     entities: {}
   },
+  cached: {
+    ids: [],
+    entities: {}
+  },
   repos: {
+    ids: [],
+    entities: {}
+  },
+  branches: {
     ids: [],
     entities: {}
   },
@@ -28,10 +36,10 @@ export const emptyStore: RootState = {
     ids: [],
     entities: {}
   },
-  _persist: {
-    version: 0,
-    rehydrated: true
-  }
+  // _persist: {
+  //   version: 0,
+  //   rehydrated: true
+  // }
 }
 
 export const testStore: RootState = {
@@ -219,6 +227,10 @@ export const testStore: RootState = {
       }
     }
   },
+  cached: {
+    ids: [],
+    entities: {}
+  },
   repos: {
     ids: ['23'],
     entities: {
@@ -228,6 +240,7 @@ export const testStore: RootState = {
         root: 'sampleUser/',
         corsProxy: 'http://www.oregonstate.edu',
         url: 'https://github.com/sampleUser/myRepo',
+        default: 'master',
         local: ['master', 'sample', 'test'],
         remote: [],
         oauth: 'github',
@@ -236,6 +249,10 @@ export const testStore: RootState = {
         token: '584n29dkj1683a67f302x009q164'
       }
     }
+  },
+  branches: {
+    ids: [],
+    entities: {}
   },
   modals: {
     ids: ['97fa02bc-596c-46d6-b025-2968f0d32b91', '2d52bbae-d396-44a5-a91d-ec4cf3ab8a9b', '8650d074-70b5-4eaa-a99e-a4f5eb825a60', '766d01f2-d4f5-4d13-99c0-6e1eba396079', '67f53785-4b14-46a8-8ffb-8fe0cad89bbd'],
@@ -265,8 +282,8 @@ export const testStore: RootState = {
       }
     }
   },
-  _persist: {
-    version: 0,
-    rehydrated: true
-  }
+  // _persist: {
+  //   version: 0,
+  //   rehydrated: true
+  // }
 };
