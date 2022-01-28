@@ -44,8 +44,9 @@ const getNode = (commit: CommitVertex): Node => {
         data: {
             text: '',
             tooltip: '',
-            color: colorSets[5],
-            border: '',
+            color: commit.conflicted ? colorSets[9] : colorSets[5],
+            border: commit.staged ? 'dashed' : '',
+            opacity: commit.staged ? '0.6' : '1.0',
             branch: commit.head ? `${commit.scope}/${commit.branch}` : ''
         },
         position: { x: 0, y: 0 }
@@ -54,37 +55,12 @@ const getNode = (commit: CommitVertex): Node => {
 
 const getEdges = (commit: CommitVertex): Edge[] => {
     return commit.parents.map(parent => ({
-        id: `e${parent.slice(0, 7)}=${commit.oid.slice(0, 7)}`,
+        id: `e${parent.slice(0, 7)}=${commit.staged ? commit.oid : commit.oid.slice(0, 7)}`,
         source: parent,
         target: commit.oid,
+        animated: commit.staged ? true : false,
         arrowHeadType: ArrowHeadType.ArrowClosed
     }));
-}
-
-const getStagedNode = (commit: CommitVertex): Node => {
-    return {
-        id: `${commit.scope}/${commit.branch}*`,
-        type: 'gitNode',
-        data: {
-            text: '',
-            tooltip: '',
-            color: colorSets[5],
-            border: 'dashed',
-            opacity: '0.6',
-            branch: `${commit.scope}/${commit.branch}*`
-        },
-        position: { x: 0, y: 0 }
-    };
-}
-
-const getStagedEdge = (commit: CommitVertex): Edge => {
-    return {
-        id: `e${commit.oid.slice(0, 7)}-${commit.scope}/${commit.branch}*`,
-        source: commit.oid,
-        target: `${commit.scope}/${commit.branch}*`,
-        animated: true,
-        arrowHeadType: ArrowHeadType.ArrowClosed
-    };
 }
 
 export default layoutGraph;
