@@ -74,6 +74,21 @@ export const isFilled = <T>(t: T | null): t is T => {
 export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
 
 /**
+ * Generic for partitioning an array into two disjoint arrays given a predicate function
+ * that indicates whether an element should being in the passing subarray or failing subarray.
+ * @param array The given array of elements to partition.
+ * @param predicate A predicate function that resolves to true if element `e` meets
+ * the inclusion requirements, and false otherwise.
+ * @returns The resulting array of arrays where elements that passed the predicate are in
+ * the left subarray and elements that failed the predicate are in the right subarray.
+ */
+export const partition = <T>(array: T[], predicate: (e: T) => boolean) => {
+  return array.reduce((accumulator: [T[], T[]], item) => predicate(item)
+    ? (accumulator[0].push(item), accumulator)
+    : (accumulator[1].push(item), accumulator), [[], []]);
+}
+
+/**
  * Filters an array and removes any undefined elements contained within it.
  * @param array The given array of elements that should be filtered for undefined.
  * @return The resulting array devoid of any undefined elements.
