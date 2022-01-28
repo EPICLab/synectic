@@ -7,6 +7,7 @@ import type { Branch, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
 import { fetchParentMetafile, FilebasedMetafile } from './metafiles';
 import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
+import { branchUpdated } from '../slices/branches';
 
 export const fetchBranchById = createAsyncThunk<Branch | undefined, UUID, AppThunkAPI>(
     'repos/fetchById',
@@ -18,7 +19,8 @@ export const fetchBranchById = createAsyncThunk<Branch | undefined, UUID, AppThu
 export const fetchBranchByFilepath = createAsyncThunk<Branch | undefined, PathLike, AppThunkAPI>(
     'branches/fetchByFilepath',
     async (filepath, thunkAPI) => {
-        const root = await getRoot(filepath);
+        const worktree = await getWorktreePaths(filepath);
+        const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
         const branches = removeUndefined(Object.values(thunkAPI.getState().branches.entities)
             .filter(branch => branch && branch.root.toString() == root));
         return branches.length > 0 ? branches[0] : undefined;
@@ -69,9 +71,15 @@ export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: Pat
         const branchRoot = input.branchName ? await getBranchRoot(dir, input.branchName) : dir;
         const current = branchRoot ? await currentBranch({ dir: branchRoot, fullname: false }) : undefined;
         const branch = input.branchName ? input.branchName : !current ? 'HEAD' : current;
+
         const config = branch !== 'HEAD' ? await getConfig({ dir: dir, keyPath: `branch.${branch}.remote` }) : undefined;
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
-        const commits = branchRoot ? (await log({ dir: branchRoot, ref: branch, depth: 50 })).map(c => c.oid) : [];
+        const commits = branchRoot ? (await log({ dir: branchRoot, ref: branch, depth: 50 })) : [];
+        const head = commits.length > 0 ? commits[0].oid : '';
+
+        const existing = removeUndefined(Object.values(thunkAPI.getState().branches.entities)).find(b => b.scope === 'local' && b.ref === branch);
+        if (existing) return thunkAPI.dispatch(branchUpdated({ ...existing, commits: commits, head: head })).payload;
+
         return {
             id: v4(),
             scope: 'local',
@@ -80,7 +88,7 @@ export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: Pat
             gitdir: gitdir ? gitdir : '',
             remote: remote,
             commits: commits,
-            head: commits.length > 0 ? commits[0] : ''
+            head: commits.length > 0 ? commits[0].oid : ''
         };
     }
 );
@@ -101,9 +109,14 @@ export const fetchRemoteBranch = createAsyncThunk<Branch | undefined, { root: Pa
             thunkAPI.rejectWithValue(`No repository found at root directory: ${input.root.toString()}`);
             return undefined;
         }
+
         const config = await getConfig({ dir: dir, keyPath: `branch.${input.branchName}.remote` });
         const remote = (config.scope !== 'none') ? config.value : 'origin';
-        const commits = (await log({ dir: dir, ref: `remotes/${remote}/${input.branchName}`, depth: 50 })).map(c => c.oid);
+        const commits = (await log({ dir: dir, ref: `remotes/${remote}/${input.branchName}`, depth: 50 }));
+        const head = commits.length > 0 ? commits[0].oid : '';
+
+        const existing = removeUndefined(Object.values(thunkAPI.getState().branches.entities)).find(b => b.scope === 'remote' && b.ref === input.branchName);
+        if (existing) return thunkAPI.dispatch(branchUpdated({ ...existing, commits: commits, head: head })).payload;
 
         return {
             id: v4(),
@@ -113,7 +126,7 @@ export const fetchRemoteBranch = createAsyncThunk<Branch | undefined, { root: Pa
             gitdir: gitdir,
             remote: remote,
             commits: commits,
-            head: commits.length > 0 ? commits[0] : ''
+            head: commits.length > 0 ? commits[0].oid : ''
         };
     }
 );
