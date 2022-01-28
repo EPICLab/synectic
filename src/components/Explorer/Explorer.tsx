@@ -66,7 +66,7 @@ export const ExplorerReverse: React.FunctionComponent<Card> = props => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
-  const { commits, heads, update } = useGitHistory(repo);
+  const { commits, heads, update } = useGitHistory(repo ? repo.id : '');
 
   useEffect(() => { update() }, [metafile?.repo]);
 

@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import { ReadCommitResult } from 'isomorphic-git';
-import type { Branch, Repository } from '../../types';
+import type { Branch, UUID } from '../../types';
 import { log } from '../git-porcelain';
 import { useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import branchSelectors from '../../store/selectors/branches';
+import repoSelectors from '../../store/selectors/repos';
 
 export type CommitInfo = ReadCommitResult & {
   branch: string,
@@ -28,7 +29,8 @@ type useGitHistoryHook = {
  * @return The states of `commits`, `heads`, and the `update` function. Both `commits` and `heads` are maps, where `commits` maps SHA-1 
  * commit hashes to commits and `heads` maps scoped branch names to the SHA-1 hash of the commit pointed to by HEAD on that branch.
  */
-export const useGitHistory = (repo: Repository | undefined): useGitHistoryHook => {
+export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
+  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
   const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo) : []);
   const [commits, setCommits] = useState(new Map<string, CommitInfo>());
   const [heads, setHeads] = useState(new Map<string, string>());
