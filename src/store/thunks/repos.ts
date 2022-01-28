@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 import { AppThunkAPI } from '../hooks';
 import type { Card, Metafile, Repository, UUID } from '../../types';
 import { extractFromURL, extractRepoName } from '../../containers/git-plumbing';
-import { clone, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
+import { clone, defaultBranch, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
 import { extractFilename, extractStats } from '../../containers/io';
 import { fetchMetafile, fetchMetafileById, fetchParentMetafile, fetchVersionControl, FilebasedMetafile, isFilebasedMetafile } from './metafiles';
 import { isDefined, removeUndefined } from '../../containers/format';
@@ -92,6 +92,7 @@ export const fetchNewRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
              * Resource Sharing (CORS) since isomorphic-git requires it */
             corsProxy: 'https://cors-anywhere.herokuapp.com',
             url: url ? url.href : '',
+            default: dir ? await defaultBranch({ dir: dir }) : '',
             local: local,
             remote: remote,
             oauth: oauth ? oauth : 'github',
@@ -107,13 +108,13 @@ export const fetchRepoBranches = createAsyncThunk<Pick<Repository, 'local' | 're
     async (root, thunkAPI) => {
         const localBranches = await listBranches({ fs: fs, dir: root.toString() });
         const local = removeUndefined(await Promise.all(localBranches
-            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which aren't a real branch
+            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which is only a reference pointer
             .map(branch => thunkAPI.dispatch(fetchLocalBranch({ root: root, branchName: branch })).unwrap())
         ));
         const remoteBranches = await listBranches({ fs: fs, dir: root.toString(), remote: 'origin' });
 
         const remote = removeUndefined(await Promise.all(remoteBranches
-            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which aren't a real branch
+            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which is only a reference pointer
             .map(branch => thunkAPI.dispatch(fetchRemoteBranch({ root: root, branchName: branch })).unwrap())
         ));
         return { local: local.map(branch => branch.id), remote: remote.map(branch => branch.id) };
