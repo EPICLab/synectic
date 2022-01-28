@@ -119,7 +119,6 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     const link = (graph: GitGraph) => {
         for (const vertex of graph.values()) {
             for (const oid of vertex.parents) {
-                console.log(`link vertex: ${vertex.oid}, parent: ${oid}`);
                 const parent = graph.get(oid);
                 if (parent && !parent.children.some(child => child === vertex.oid)) {
                     graph.set(parent.oid, { ...parent, children: [...parent.children, vertex.oid] });
