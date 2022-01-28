@@ -11,7 +11,7 @@ import useWatcher, { WatchEventType, WatchListener } from './useWatcher';
  * undefined on non-versioned filepaths). Uses `useWatcher` hooks under the hood for opening and closing
  * FS watchers, which drive subsequent status checks, based on the context closure of the component
  * calling this hook.
- * @param root The Git root repository (i.e. the path returned by `containers/git-porcelain.getRepoRoot`)
+ * @param root The Git root repository (i.e. the path returned by `containers/git-path.getRoot`)
  * @param additionalEventHandler An optional additional event handler for bubbling up specific events from
  * the underlying `useWatcher` hooks.
  */

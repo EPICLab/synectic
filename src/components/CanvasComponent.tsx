@@ -27,7 +27,6 @@ import { modalAdded } from '../store/slices/modals';
 import { FSCache } from '../store/cache/FSCache';
 import { loadConflictManagers } from '../containers/conflicts';
 import branchSelectors from '../store/selectors/branches';
-
 import cachedSelectors from '../store/selectors/cached';
 
 export enum DnDItemType {
