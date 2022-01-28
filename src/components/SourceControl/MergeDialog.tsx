@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
-
 import type { Modal, UUID } from '../../types';
 import { branchLog } from '../../containers/git-plumbing';
 import TimelineComponent from '../MergeTimeline';
@@ -20,6 +19,7 @@ import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { checkProject } from '../../containers/conflicts';
+import branchSelectors from '../../store/selectors/branches';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,16 +53,24 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo, setRepo] = useState<UUID>('');
-  const [base, setBase] = useState<string>('');
-  const [compare, setCompare] = useState<string>('');
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
+  const [base, setBase] = useState<UUID>('');
+  const [compare, setCompare] = useState<UUID>('');
   const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
   const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
   const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
   const dispatch = useAppDispatch();
 
-  const branches = repos.find(r => r.id === repo)?.local.map(b => ({ key: b, value: b }));
+  const repoOptions = repos.map(r => ({ key: r.id, value: r.name }));
+  const selectedRepo = repos.find(r => r.id === repo);
+  const branchOptions = selectedRepo ? selectedRepo.local.reduce((accumulator: { key: UUID, value: string }[], branchId) => {
+    const branch = branches[branchId];
+    return branch ? (accumulator.push({ key: branch.id, value: branch.ref }), accumulator) : accumulator;
+  }, []) : [];
 
   const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+  const mergeable = repo !== '' && base !== '' && compare !== '' && base !== compare;
 
   // const branchCheck = async () => {
   //   const fullRepo = repos.find(r => r.id === repo);
@@ -147,13 +155,13 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         <div className={classes.section2}>
           <Grid container alignItems='center' justifyContent='center'>
             <Grid item xs={12}>
-              <DropSelect label='Repo' target={repo} setTarget={setRepo} options={repos.map(r => ({ key: r.id, value: r.name }))} />
+              <DropSelect label='Repo' target={repo} setTarget={setRepo} options={repoOptions} />
             </Grid>
             <Grid item xs={6}>
-              <DropSelect label='Base' target={base} setTarget={setBase} options={branches ? branches : []} />
+              <DropSelect label='Base' target={base} setTarget={setBase} options={branchOptions} />
             </Grid>
             <Grid item xs={6}>
-              <DropSelect label='Compare' target={compare} setTarget={setCompare} options={branches ? branches : []} />
+              <DropSelect label='Compare' target={compare} setTarget={setCompare} options={branchOptions} />
             </Grid>
           </Grid>
           <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
@@ -166,9 +174,13 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
           />
         </div>
         <div className={classes.section2}>
-          <Button variant='outlined' color='primary' className={classes.button} onClick={check}>Merge</Button>
-          {/* <Button variant='outlined' color='primary' className={classes.button} onClick={branchCheck}>Check Branches</Button>
-          <Button variant='outlined' color='primary' className={classes.button}>Merge</Button> */}
+          <Button
+            variant='outlined'
+            color='primary'
+            className={classes.button}
+            disabled={!mergeable}
+            onMouseEnter={() => console.log(mergeable)}
+            onClick={check}>Merge</Button>
         </div>
       </div>
     </Dialog>
