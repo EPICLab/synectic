@@ -17,7 +17,6 @@ import { loadCard } from '../../store/thunks/handlers';
 import { fetchConflicted, fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { metafileUpdated } from '../../store/slices/metafiles';
 import { checkProject } from '../../containers/conflicts';
 import branchSelectors from '../../store/selectors/branches';
 
@@ -81,7 +80,11 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   // }
 
   const check = async () => {
-    console.log(`<<MERGE CHECK>>\nbase: ${base} => compare: ${compare}`);
+    const baseBranch = branches[base];
+    const compareBranch = branches[compare];
+    if (!baseBranch || !compareBranch) return;
+
+    console.log(`<<MERGE CHECK>>\nbase: ${baseBranch.ref} => compare: ${compareBranch.ref}`);
     setCommitCountDelta('Running');
     setBranchConflicts(['Unchecked', undefined]);
     setBuildStatus('Unchecked');
@@ -92,7 +95,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
       return;
     }
     // check to verify that new commits exist between the target branches
-    const repoLog = fullRepo ? (await branchLog(fullRepo.root, base, compare)) : undefined;
+    const repoLog = fullRepo ? (await branchLog(fullRepo.root, baseBranch.ref, compareBranch.ref)) : undefined;
     const commitStatus = repoLog ? (repoLog.length > 0 ? 'Passing' : 'Failing') : 'Unchecked';
     setCommitCountDelta(commitStatus);
 
@@ -102,23 +105,22 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     // check for merge conflicts by running merge with dryRun option enabled (at least when using git-porcelain/merge)
     // >>>      const conflictCheck = await merge(fullRepo.root, base, compare, true);
 
-    const mergeCheck = await merge(fullRepo.root, base, compare);
+    const mergeCheck = await merge(fullRepo.root, baseBranch.ref, compareBranch.ref);
     const conflictStatus = mergeCheck.mergeConflicts ? 'Failing' : 'Passing';
     setBranchConflicts([conflictStatus, []]);
 
     if (conflictStatus == 'Failing') {
       const conflicts = await checkProject(fullRepo.root);
-      const conflictedMetafiles = await dispatch(fetchConflicted(conflicts)).unwrap();
-      conflictedMetafiles.map(m => dispatch(metafileUpdated({ ...m.metafile, conflicts: m.conflicts })));
+      await dispatch(fetchConflicted(conflicts)); // updates version control status in Redux store
       const conflictManager = await dispatch(fetchMetafile({
         virtual: {
           id: v4(),
           modified: DateTime.local().valueOf(),
-          name: `Version Conflicts`,
+          name: `Conflicts`,
           handler: 'ConflictManager',
           repo: fullRepo.id,
           path: fullRepo.root,
-          merging: { base: base, compare: compare }
+          merging: { base: baseBranch.ref, compare: compareBranch.ref }
         }
       })).unwrap();
       if (conflictManager) await dispatch(loadCard({ metafile: conflictManager }));
@@ -129,7 +131,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     setBuildStatus('Running');
 
     // check for build failures by running build scripts from target project
-    const buildResults = await build(fullRepo, base, compare);
+    const buildResults = await build(fullRepo, baseBranch.ref, compareBranch.ref);
     const buildStatus = (buildResults.installCode === 0 && buildResults.buildCode === 0) ? 'Passing' : 'Failing';
     setBuildStatus(buildStatus);
   }
@@ -179,8 +181,9 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
             color='primary'
             className={classes.button}
             disabled={!mergeable}
-            onMouseEnter={() => console.log(mergeable)}
-            onClick={check}>Merge</Button>
+            onClick={check}>
+            Merge
+          </Button>
         </div>
       </div>
     </Dialog>
