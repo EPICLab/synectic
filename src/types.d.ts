@@ -149,10 +149,15 @@ export type Metafile = {
   readonly conflicts?: number[] | undefined;
 }
 
+/** A reference to the cached file contents maintained by FSCache and holding a reserve count to determine when to invalidate and purge. */
 export type Cached = {
+  /** The UUID for Cached object. */
   readonly id: UUID;
+  /** The count of interested components currently active within Synectic; FSCache will invalidate and purge this object when the count reaches 0. */
   readonly reserves: number;
+  /** The Metafile object UUID associated with the same filesystem object as the cached object. */
   readonly metafile: UUID;
+  /** The relative or absolute path to the file associated with the cached object. */
   readonly path: PathLike;
 }
 

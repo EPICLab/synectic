@@ -40,8 +40,6 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     //     ? await log({ dir: repo.root.toString(), ref: `remotes/${branch.remote}/${branch.ref}` })
     //     : await log({ dir: repo.root.toString(), ref: branch.ref });
 
-    useEffect(() => { print() }, [graph]);
-
     const process = async () => {
         if (repo) {
             const newGraph = new Map(graph);
