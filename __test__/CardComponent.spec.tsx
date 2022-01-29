@@ -5,10 +5,9 @@ import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { mockStore } from './__mocks__/reduxStoreMock';
-import CardComponent from '../src/components/CardComponent';
+import CardComponent from '../src/components/Card/CardComponent';
 import { testStore } from './__fixtures__/ReduxStore';
 import { browserCard, diffCard, explorerCard, firstEditorCard, reposTrackerCard } from './__fixtures__/Card';
-import * as useDirectoryHook from '../src/containers/hooks/useDirectory';
 import type { MockInstance } from './__mocks__/mock-fs-promise';
 import { mock, file } from './__mocks__/mock-fs-promise';
 
@@ -71,13 +70,6 @@ describe('CardComponent', () => {
   });
 
   it('Card resolves props into React Component for Explorer handler', async () => {
-    // Explorer component automatically loads files and directories through async calls to the useDirectory hook
-    jest.spyOn(useDirectoryHook, 'default').mockReturnValue({
-      root: 'foo',
-      directories: [],
-      files: [],
-      update: () => { return new Promise<void>(resolve => resolve()) }
-    });
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
     await act(async () => {
       render(
@@ -123,13 +115,6 @@ describe('CardComponent', () => {
   });
 
   it('Explorer Card renders a reverse side when the flip button is clicked', async () => {
-    // Explorer component automatically loads files and directories through async calls to the useDirectory hook
-    jest.spyOn(useDirectoryHook, 'default').mockReturnValue({
-      root: 'foo',
-      directories: [],
-      files: [],
-      update: () => { return new Promise<void>(resolve => resolve()) }
-    });
     const [WrappedComponent] = wrapWithTestBackend(CardComponent);
     await act(async () => {
       render(
