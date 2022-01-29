@@ -9,7 +9,6 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "version": "fse version",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
     "clean": "fse remove out; fse remove .webpack; fse remove dist",
