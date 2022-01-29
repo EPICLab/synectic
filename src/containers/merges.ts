@@ -20,7 +20,7 @@ type ExecError = {
 
 export type MergeResult = {
     mergeStatus: isogit.MergeResult,
-    mergeConflicts?: string[],
+    mergeConflicts?: fs.PathLike[],
     stdout: string,
     stderr: string
 }
@@ -36,22 +36,12 @@ export type MergeResult = {
  * exec shell-command output (`stdout` and `stderr`), and a list of files containing conflicts (if a merge conflict prevented the merge).
  */
 export const merge = async (dir: fs.PathLike, base: string, compare: string): Promise<MergeResult> => {
-    const { worktreeLink } = await getWorktreePaths(dir);
+    const worktree = await getWorktreePaths(dir);
+    const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
 
-    if (!worktreeLink) return {
-        mergeStatus: {
-            oid: '',
-            alreadyMerged: false,
-            fastForward: false,
-            mergeCommit: false,
-        },
-        stdout: '',
-        stderr: ''
-    }
-
-    const commitDelta = await branchLog(worktreeLink, base, compare);
-    if (worktreeLink && commitDelta.length == 0) {
-        const oid = await resolveRef(worktreeLink, 'HEAD');
+    const commitDelta = root ? await branchLog(root, base, compare) : [];
+    if (root && commitDelta.length == 0) {
+        const oid = worktree.dir ? await resolveRef(worktree.dir, 'HEAD') : '';
         return {
             mergeStatus: {
                 oid: oid ? oid : '',
@@ -67,12 +57,13 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
     let mergeResults: { stdout: string; stderr: string; } = { stdout: '', stderr: '' };
     let mergeError: ExecError | undefined;
     try {
-        mergeResults = await promiseExec(`git merge ${base} ${compare}`, { cwd: worktreeLink.toString() });
+        mergeResults = await promiseExec(`git merge ${base} ${compare}`, { cwd: dir.toString() });
     } catch (error) {
         mergeError = error as ExecError;
-        const conflictPattern = /(?<=content conflict in ).*?(?=\n)/gm;
-        const conflicts = mergeError ? mergeError.stderr.match(conflictPattern)?.map(filename => path.resolve(worktreeLink.toString(), filename)) : [];
-        const oid = await resolveRef(worktreeLink, 'HEAD');
+        const conflictPattern = /(?<=conflict in ).*(?=\n)/gm;
+        const mergeOutput = mergeError ? `${mergeError.stdout}\n${mergeError.stderr}` : '';
+        const conflicts = mergeOutput.match(conflictPattern)?.map(filename => worktree.dir ? path.resolve(worktree.dir.toString(), filename) : filename);
+        const oid = worktree.dir ? await resolveRef(worktree.dir, 'HEAD') : '';
         return {
             mergeStatus: {
                 oid: oid ? oid : '',
@@ -85,7 +76,7 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
             stderr: mergeError.stderr
         };
     }
-    const oid = await resolveRef(worktreeLink, 'HEAD');
+    const oid = worktree.dir ? await resolveRef(worktree.dir, 'HEAD') : '';
     return {
         mergeStatus: {
             oid: oid ? oid : '',
