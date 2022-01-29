@@ -5,7 +5,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { virtualMetafile } from './__fixtures__/Metafile';
 import { testStore } from './__fixtures__/ReduxStore';
 import { mockStore } from './__mocks__/reduxStoreMock';
-import Editor from '../src/components/Editor';
+import Editor from '../src/components/Editor/Editor';
 
 describe('Editor', () => {
 
