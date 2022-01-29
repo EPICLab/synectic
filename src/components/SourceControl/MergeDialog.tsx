@@ -3,7 +3,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import type { Modal, UUID } from '../../types';
 import { branchLog } from '../../containers/git-plumbing';
-import TimelineComponent from '../MergeTimeline';
+import TimelineComponent from './MergeTimeline';
 import DropSelect from '../DropSelect';
 import { RootState } from '../../store/store';
 import { build } from '../../containers/builds';

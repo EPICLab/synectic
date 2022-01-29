@@ -6,7 +6,7 @@ import Explorer from '../Explorer/Explorer';
 import SourceControl from '../SourceControl/SourceControl';
 import ConflictManager from '../SourceControl/ConflictManager';
 import Browser from '../Browser/Browser';
-import { ReposOverview } from '../ReposOverview';
+import { ReposOverview } from '../SourceControl/ReposOverview';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
