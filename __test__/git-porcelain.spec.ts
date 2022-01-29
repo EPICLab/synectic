@@ -136,22 +136,13 @@ describe('containers/git-porcelain', () => {
   //   });
 
   it('setConfig updates values to local git-config', async () => {
-    const updated = await git.setConfig('local', 'user.name', 'John Smith');
+    const updated = await git.setConfig({ dir: process.cwd(), scope: 'local', keyPath: 'user.name', value: 'John Smith' });
     expect(updated).toMatchSnapshot();
   });
 
   it('setConfig deletes values from local git-config', async () => {
-    const updated = await git.setConfig('local', 'user.name', undefined);
+    const updated = await git.setConfig({ dir: process.cwd(), scope: 'local', keyPath: 'user.name', value: undefined });
     expect(updated).toMatchSnapshot();
-  });
-
-  it('getRepoRoot resolves to Git root directory on file in tracked directory', async () => {
-    await expect(git.getRepoRoot('qux/tracked-file.js')).resolves.toBe('.');
-  });
-
-  it('getRepoRoot resolves to Git root directory on untracked file in tracked directory', async () => {
-    await mockedInstance.addItem('foo/haze/test.js', 'content');
-    await expect(git.getRepoRoot('foo/haze/test.js')).resolves.toBe('.');
   });
 
   it('getStatus resolves Git status on tracked file', async () => {
@@ -168,7 +159,7 @@ describe('containers/git-porcelain', () => {
   });
 
   it('getStatus resolves Git status on untracked directory', async () => {
-    await mockedInstance.addItem('bezo/', { });
+    await mockedInstance.addItem('bezo/', {});
     // differs from native git, which focuses on files and ignores empty directories
     await expect(git.getStatus('bezo/')).resolves.toBe('modified');
   });
