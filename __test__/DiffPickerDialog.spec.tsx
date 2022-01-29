@@ -4,7 +4,7 @@ import { act } from '@testing-library/react/pure';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import DiffPickerDialog from '../src/components/DiffPickerDialog';
+import DiffPickerDialog from '../src/components/Diff/DiffPickerDialog';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
 import { diffPickerModal } from './__fixtures__/Modal';
