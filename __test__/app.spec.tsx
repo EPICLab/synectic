@@ -3,7 +3,7 @@ import type { Card } from '../src/types';
 import { cardAdded } from '../src/store/slices/cards';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { emptyStore, testStore } from './__fixtures__/ReduxStore';
-import { importFiletypes } from '../src/containers/handlers';
+import { importFiletypes } from '../src/store/thunks/handlers';
 
 describe('App', () => {
 
@@ -14,8 +14,10 @@ describe('App', () => {
     metafile: '65914371',
     created: DateTime.fromISO('2014-04-09T08:14:02.371-08:00').valueOf(),
     modified: DateTime.fromISO('2014-06-23T21:58:44.507-08:00').valueOf(),
+    zIndex: 0,
     left: 100,
-    top: 50
+    top: 50,
+    classes: []
   };
 
   it('Redux store dispatches to resolvers', () => {
