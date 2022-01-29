@@ -10,7 +10,7 @@ import { v4 } from 'uuid';
 import { fetchMetafile } from '../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { loadCard } from '../store/thunks/handlers';
-import { getBranchRoot, getRoot } from './git-path';
+import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
 
 export type Conflict = {
     /** The relative or absolute path to the file containing conflicts. */
@@ -24,28 +24,41 @@ export const loadConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
     async (_, thunkAPI) => {
         const repos = removeUndefined(Object.values(thunkAPI.getState().repos.entities));
         await Promise.all(repos.map(async repo => {
-            await Promise.all(repo.local.map(async branch => {
-                const root = await getBranchRoot(repo.root, branch);
+            await Promise.all(repo.local.map(async branchId => {
+                const branch = thunkAPI.getState().branches.entities[branchId];
+                const root = branch ? await getBranchRoot(repo.root, branch.ref) : undefined;
                 const conflicts = await checkProject(root);
-                if (root && conflicts.length > 0) {
+                if (branch && root && conflicts.length > 0) {
+                    const { base, compare } = await resolveConflictBranches(root);
                     const conflictManager = await thunkAPI.dispatch(fetchMetafile({
                         virtual: {
                             id: v4(),
                             modified: DateTime.local().valueOf(),
-                            name: `Version Conflicts`,
+                            name: `Conflicts`,
                             handler: 'ConflictManager',
                             repo: repo.id,
                             path: root,
-                            merging: { base: branch, compare: '' }
+                            merging: { base: (base ? base : branch.ref), compare: compare }
                         }
                     })).unwrap();
-                    console.log(`Loading ConflictManager for repo: ${repo.name}, branch: ${branch}...`);
                     await thunkAPI.dispatch(loadCard({ metafile: conflictManager }));
                 }
             }));
         }));
     }
 );
+
+export const resolveConflictBranches = async (root: PathLike): Promise<{ base: string | undefined, compare: string }> => {
+    const branchPattern = /(?<=^Merge branch(es)? .*)('.+?')+/gm;
+    const worktree = await getWorktreePaths(root);
+    const mergeMsg = worktree.gitdir ? await io.readFileAsync(path.join(worktree.gitdir.toString(), 'MERGE_MSG'), { encoding: 'utf-8' }) : '';
+    const match = mergeMsg.match(branchPattern);
+    return match
+        ? match.length === 2
+            ? { base: match[0].replace(/['"]+/g, ''), compare: match[1].replace(/['"]+/g, '') }
+            : { base: undefined, compare: match[0].replace(/['"]+/g, '') }
+        : { base: undefined, compare: '' };
+}
 
 export const checkFilepath = async (filepath: PathLike, ignoreManager?: Ignore): Promise<Conflict | undefined> => {
     const root = await getRoot(filepath);
