@@ -1,8 +1,7 @@
 import React from 'react';
 import { v4 } from 'uuid';
-import { Add, Remove } from '@material-ui/icons';
+import { Add, Remove, Done } from '@material-ui/icons';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { GitCommitIcon as Commit } from '../GitIcons';
 import type { Metafile, Modal, UUID } from '../../types';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -126,7 +125,7 @@ const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
                         onMouseEnter={() => onHover(staged)}
                         onMouseLeave={offHover}
                     >
-                        <Commit />
+                        <Done />
                     </IconButton>
                 </Tooltip>}
         </>
