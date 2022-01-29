@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import type { Metafile, Filetype, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
-import { metafileAdded, metafilesSlice } from '../slices/metafiles';
+import { metafileAdded, metafilesSlice, metafileUpdated } from '../slices/metafiles';
 import { removeUndefined, removeUndefinedProperties, WithRequired } from '../../containers/format';
 import { resolveHandler } from './handlers';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
@@ -142,7 +142,7 @@ export const fetchVersionControl = createAsyncThunk<Pick<Metafile, 'repo' | 'bra
         const branch = await thunkAPI.dispatch(fetchBranch(metafile)).unwrap();
         const status = repo ? await getStatus(metafile.path) : undefined;
         const conflicts = isFileMetafile(metafile) ? (await checkFilepath(metafile.path))?.conflicts : undefined;
-        return removeUndefinedProperties({ repo: repo?.id, branch: branch?.id, status: status, conflicts: conflicts });
+        return { ...removeUndefinedProperties({ repo: repo?.id, branch: branch?.id, status: status }), conflicts: conflicts };
     }
 );
 
@@ -209,14 +209,17 @@ export const revertStagedChanges = createAsyncThunk<void, FilebasedMetafile, App
     }
 );
 
-export const fetchConflicted = createAsyncThunk<{ metafile: Metafile, conflicts: number[] }[], Conflict[], AppThunkAPI>(
+export const fetchConflicted = createAsyncThunk<Metafile[], Conflict[], AppThunkAPI>(
     'metafiles/fetchConflicted',
     async (conflicts, thunkAPI) => {
         return await Promise.all(conflicts.map(async conflict => {
-            return {
-                metafile: await thunkAPI.dispatch(fetchMetafile({ filepath: conflict.filepath })).unwrap(),
-                conflicts: conflict.conflicts
+            const metafile = await thunkAPI.dispatch(fetchMetafile({ filepath: conflict.filepath })).unwrap();
+            if (isFilebasedMetafile(metafile)) {
+                const vcs = await thunkAPI.dispatch(fetchVersionControl(metafile)).unwrap();
+                const updated = thunkAPI.dispatch(metafileUpdated({ ...metafile, ...vcs })).payload;
+                return updated;
             }
+            return metafile;
         }));
     }
 );
