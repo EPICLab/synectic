@@ -63,7 +63,7 @@ const RepoStatusComponent: React.FunctionComponent<{ repo: Repository }> = props
   );
 }
 
-export const ReposOverview: React.FunctionComponent = () => {
+const ReposOverview: React.FunctionComponent = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [expanded, setExpanded] = React.useState(repos.length > 0 ? [repos[0].id] : []); // initial state; expand first listed repo
 
