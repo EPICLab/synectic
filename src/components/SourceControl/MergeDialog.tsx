@@ -7,7 +7,7 @@ import TimelineComponent from './MergeTimeline';
 import DropSelect from '../DropSelect';
 import { RootState } from '../../store/store';
 import { build } from '../../containers/builds';
-import { GitConfigForm } from '../GitConfigForm';
+import { GitConfigForm } from './GitConfigForm';
 // import { merge as isomerge } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
