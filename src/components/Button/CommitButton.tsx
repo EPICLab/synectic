@@ -15,18 +15,23 @@ import { add, remove } from '../../containers/git-plumbing';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { modalAdded } from '../../store/slices/modals';
 
+type CommitButtonProps = {
+    cardIds: UUID[],
+    mode?: Mode
+}
+
 /**
  * Button for managing the staging, unstaging, and initiation of commits for VCS-tracked cards. This button tracks the
  * status of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one
  * associatedd metafile has a VCS status of `*absent`, `*added`, `*undeleted`, `*modified`, `*deleted`, `added`, `modified`, 
- * `deleted`. Clicking on the `Stage` button will trigger all unstaged metafiles to have their associated changed staged, clicking
+ * `deleted`. Clicking on the `Stage` button will trigger all unstaged metafiles to have their changes staged, clicking
  * on the `Unstage` button will reverse this process for any staged metafiles, and clicking on the `Commit` button will load
  * the staged metafiles into a new CommitDialog. 
  * @param cardIds List of Card UUIDs that should be tracked by this button.
  * @param mode Optional theme mode for switching between light and dark themes.
  * @returns 
  */
-const CommitButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({ mode = 'light', cardIds }) => {
+const CommitButton: React.FunctionComponent<CommitButtonProps> = ({ mode = 'light', cardIds }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles

@@ -14,16 +14,21 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { FSCache } from '../../store/cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
 
+type UndoButtonProps = {
+    cardIds: UUID[],
+    mode?: Mode
+}
+
 /**
  * Button for undoing changes back to the most recent version according to the filesystem for file-based cards. This button tracks the 
- * state of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one associated metafile 
- * has content that is diverged from the cache (according to FSCache). Clicking on the button will trigger all modified metafiles to have their
- * content reset to the content in the associated files. This button operates as the inverse operation to the `SaveButton`.
+ * state of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one associated 
+ * metafile has content that is diverged from the cache (according to FSCache). Clicking on the button will trigger all modified metafiles 
+ * to have their content reset to the content in the associated files. This button operates as the inverse operation to the `SaveButton`.
  * @param cardIds List of Card UUIDs that should be tracked by this button.
- * @param mode Optional theme mode for switching between light and dark themes.
+ * @param mode Optional mode for switching between light and dark themes.
  * @returns 
  */
-const UndoButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({ mode = 'light', cardIds }) => {
+const UndoButton: React.FunctionComponent<UndoButtonProps> = ({ mode = 'light', cardIds }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const { cache } = useContext(FSCache);
