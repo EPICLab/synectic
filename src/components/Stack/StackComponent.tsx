@@ -9,8 +9,10 @@ import stackSelectors from '../../store/selectors/stacks';
 import { stackRemoved } from '../../store/slices/stacks';
 import { useIconButtonStyle } from '../Button/useStyledIconButton';
 import CloseIcon from '@material-ui/icons/Close';
+import CommitButton from '../Button/CommitButton';
 import SaveButton from '../Button/SaveButton';
-import CommitButton from '../Button/OldCommitButton';
+import StageButton from '../Button/StageButton';
+import UnstageButton from '../Button/UnstageButton';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { usePreview } from 'react-dnd-preview';
@@ -29,6 +31,8 @@ const StackPreview: React.FunctionComponent<{ stack: Stack, cards: Card[] }> = p
   return (
     (itemType === DnDItemType.STACK) ?
       <div className='stack' data-testid='stack-component' style={style}>
+        <StageButton cardIds={[]} />
+        <UnstageButton cardIds={[]} />
         <CommitButton cardIds={[]} />
         <SaveButton cardIds={[]} />
         {props.cards.map(card => <CardComponent key={card.id} {...card} />)}
@@ -114,6 +118,8 @@ const StackComponent: React.FunctionComponent<Stack> = props => {
       <div className='stack' ref={dragAndDrop} data-testid='stack-component'
         style={{ left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}>
         <Tooltip title='Close Stack'><IconButton className={classes.root} aria-label='close' onClick={close} ><CloseIcon /></IconButton></Tooltip>
+        <StageButton cardIds={capturedCards.map(c => c.id)} />
+        <UnstageButton cardIds={capturedCards.map(c => c.id)} />
         <CommitButton cardIds={capturedCards.map(c => c.id)} />
         <SaveButton cardIds={capturedCards.map(c => c.id)} />
         {capturedCards.map(card => <CardComponent key={card.id} {...card} />)}

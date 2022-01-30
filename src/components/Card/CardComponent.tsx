@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { sep } from 'path';
-import { IconButton, Tooltip, Typography } from '@material-ui/core';
-import { Flip } from '@material-ui/icons';
+import { Typography } from '@material-ui/core';
 import type { Card } from '../../types';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
@@ -17,7 +16,10 @@ import FlipButton from '../Button/FlipButton';
 import SaveButton from '../Button/SaveButton';
 import UndoButton from '../Button/UndoButton';
 import { DnDItemType } from '../CanvasComponent';
-import { useIconButtonStyle } from '../Button/useStyledIconButton';
+import ResetButton from '../Button/ResetButton';
+import StageButton from '../Button/StageButton';
+import UnstageButton from '../Button/UnstageButton';
+import CommitButton from '../Button/CommitButton';
 
 type DragObject = {
   id: string,
@@ -35,7 +37,6 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
-  const classes = useIconButtonStyle({ mode: 'light' });
   const dispatch = useAppDispatch();
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
@@ -95,25 +96,27 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     drop(elementOrNode);
   }
 
-  const flip = () => setFlipped(!flipped);
-
   return (
     <div ref={dragAndDrop} data-testid='card-component' id={props.id}
       className={`card ${(isOver && !props.captured) ? 'drop-source' : ''} ${props.classes.join(' ')}`}
       style={{ zIndex: props.zIndex, left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
     >
       <Header title={props.type === 'Explorer' ? `${sep}${props.name}` : props.name}>
+        <ResetButton cardIds={[props.id]} />
+        <StageButton cardIds={[props.id]} />
+        <UnstageButton cardIds={[props.id]} />
+        <CommitButton cardIds={[props.id]} />
         <UndoButton cardIds={[props.id]} />
         <SaveButton cardIds={[props.id]} />
-        <FlipButton cardId={props.id} onClickHandler={flip} />
-        {(!props.captured) && <Tooltip title='Flip'><IconButton className={classes.root} aria-label='flip' onClick={flip} ><Flip /></IconButton></Tooltip>}
+        <FlipButton cardId={props.id} onClickHandler={() => setFlipped(!flipped)} />
         <CloseButton cardId={props.id} />
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>
           {flipped ?
             <ContentBack {...props} /> :
-            <ContentFront {...props} />}
+            <ContentFront {...props} />
+          }
         </>
       </CSSTransition>
     </div>
