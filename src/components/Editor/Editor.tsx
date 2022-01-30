@@ -10,17 +10,15 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 import type { Card, UUID } from '../../types';
-import { RootState } from '../../store/store';
+import DataField from '../Card/DataField';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { removeUndefinedProperties } from '../../containers/format';
-import { metafileUpdated } from '../../store/slices/metafiles';
-import RevertButton from '../Button/RevertButton';
-import CommitButton from '../Button/OldCommitButton';
+import SourceControlButton from '../Button/SourceControlButton';
 import { BranchList } from '../SourceControl/BranchList';
-import { SourceControlButton } from '../Button/SourceControlButton';
-import DataField from '../Card/DataField';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { removeUndefinedProperties } from '../../containers/format';
+import { RootState } from '../../store/store';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const Editor: React.FunctionComponent<{ metafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
@@ -53,14 +51,12 @@ export const EditorReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
-  const sourceButton = false;
+  // const sourceButton = false;
 
   return (
     <>
       <div className='buttons'>
-        <RevertButton cardIds={[props.id]} mode='dark' />
-        <CommitButton cardIds={[props.id]} mode='dark' />
-        {metafile && repo && sourceButton ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} /> : undefined}
+        {metafile && repo ? <SourceControlButton repoId={repo.id} metafileId={metafile.id} mode='dark' /> : undefined}
       </div>
       <DataField title='UUID' textField field={props.id} />
       <DataField title='Path' textField field={metafile?.path?.toString()} />
