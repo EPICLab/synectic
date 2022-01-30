@@ -6,10 +6,15 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { History } from '@material-ui/icons';
+import { Restore } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { cardUpdated } from '../../store/slices/cards';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
+
+type RevertButtonProps = {
+    cardIds: UUID[],
+    mode?: Mode
+}
 
 /**
  * Button for reverting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
@@ -21,7 +26,7 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * @param mode Optional theme mode for switching between light and dark themes.
  * @returns 
  */
-const RevertButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({ mode = 'light', cardIds }) => {
+const RevertButton: React.FunctionComponent<RevertButtonProps> = ({ mode = 'light', cardIds }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles
@@ -61,7 +66,7 @@ const RevertButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = 
                         onMouseEnter={onHover}
                         onMouseLeave={offHover}
                     >
-                        <History />
+                        <Restore />
                     </IconButton>
                 </Tooltip>}
         </>

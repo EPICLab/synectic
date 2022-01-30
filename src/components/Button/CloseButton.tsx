@@ -19,7 +19,6 @@ type CloseButtonProps = {
  * when the card is defined and not captured.
  * @param cardId The Card UUID that should be tracked by this button.
  * @param mode Optional mode for switching between light and dark themes.
- * @returns 
  */
 const CloseButton: React.FunctionComponent<CloseButtonProps> = ({ mode = 'light', cardId }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));

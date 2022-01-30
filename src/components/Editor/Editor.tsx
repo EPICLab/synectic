@@ -17,7 +17,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import RevertButton from '../Button/RevertButton';
-import CommitButton from '../Button/CommitButton';
+import CommitButton from '../Button/OldCommitButton';
 import { BranchList } from '../SourceControl/BranchList';
 import { SourceControlButton } from '../Button/SourceControlButton';
 import DataField from '../Card/DataField';

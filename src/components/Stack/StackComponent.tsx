@@ -10,7 +10,7 @@ import { stackRemoved } from '../../store/slices/stacks';
 import { useIconButtonStyle } from '../Button/useStyledIconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveButton from '../Button/SaveButton';
-import CommitButton from '../Button/CommitButton';
+import CommitButton from '../Button/OldCommitButton';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { usePreview } from 'react-dnd-preview';
