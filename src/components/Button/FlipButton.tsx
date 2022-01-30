@@ -9,11 +9,11 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 type FlipButtonProps = {
     cardId: UUID,
-    onClick: React.MouseEventHandler<HTMLButtonElement>,
+    onClickHandler: () => void,
     mode?: Mode
 }
 
-const FlipButton: React.FunctionComponent<FlipButtonProps> = ({ mode = 'light', cardId, onClick }) => {
+const FlipButton: React.FunctionComponent<FlipButtonProps> = ({ mode = 'light', cardId, onClickHandler }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
     const classes = useIconButtonStyle({ mode: mode });
 
@@ -21,7 +21,7 @@ const FlipButton: React.FunctionComponent<FlipButtonProps> = ({ mode = 'light', 
         <>
             {card && !card.captured &&
                 <Tooltip title='Flip'>
-                    <IconButton className={classes.root} aria-label='flip' onClick={onClick}>
+                    <IconButton className={classes.root} aria-label='flip' onClick={onClickHandler}>
                         <Flip />
                     </IconButton>
                 </Tooltip>}
