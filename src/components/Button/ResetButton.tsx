@@ -6,18 +6,18 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { Restore } from '@material-ui/icons';
+import { SettingsBackupRestore } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { cardUpdated } from '../../store/slices/cards';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
-type RevertButtonProps = {
+type ResetButtonProps = {
     cardIds: UUID[],
     mode?: Mode
 }
 
 /**
- * Button for reverting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
+ * Button for resetting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
  * tracks the status of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one 
  * associated metafile has a VCS status of `added`, `*added`, `modified`, `*modified`, `deleted`, `*deleted`, `*modified`, or `*undeleted`.
  * Clicking on the button will trigger all changed metafiles to have their content reverted back to the most recent commit in the associated 
@@ -26,7 +26,7 @@ type RevertButtonProps = {
  * @param mode Optional theme mode for switching between light and dark themes.
  * @returns 
  */
-const RevertButton: React.FunctionComponent<RevertButtonProps> = ({ mode = 'light', cardIds }) => {
+const ResetButton: React.FunctionComponent<ResetButtonProps> = ({ mode = 'light', cardIds }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles
@@ -42,6 +42,8 @@ const RevertButton: React.FunctionComponent<RevertButtonProps> = ({ mode = 'ligh
         await Promise.all(staged.filter(isFilebasedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
     }
 
+    const isExplorer = metafiles.find(m => m.handler === 'Explorer');
+    const hasChanges = (unstaged.length > 0 || staged.length > 0);
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
 
     const onHover = () => {
@@ -57,20 +59,20 @@ const RevertButton: React.FunctionComponent<RevertButtonProps> = ({ mode = 'ligh
 
     return (
         <>
-            {(unstaged.length > 0 || staged.length > 0) && !isCaptured &&
-                <Tooltip title='Revert'>
+            {!isExplorer && hasChanges && !isCaptured &&
+                <Tooltip title='Reset'>
                     <IconButton
                         className={classes.root}
-                        aria-label='revert'
+                        aria-label='reset'
                         onClick={revert}
                         onMouseEnter={onHover}
                         onMouseLeave={offHover}
                     >
-                        <Restore />
+                        <SettingsBackupRestore />
                     </IconButton>
                 </Tooltip>}
         </>
     )
 }
 
-export default RevertButton;
+export default ResetButton;
