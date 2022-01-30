@@ -2,33 +2,27 @@ import React, { useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { sep } from 'path';
-import { makeStyles, Typography } from '@material-ui/core';
+import { IconButton, Tooltip, Typography } from '@material-ui/core';
+import { Flip } from '@material-ui/icons';
 import type { Card } from '../../types';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
-import { ContentBack } from './ContentBack';
-import { ContentFront } from './ContentFront';
+import ContentBack from './ContentBack';
+import ContentFront from './ContentFront';
+import CloseButton from '../Button/CloseButton';
+import FlipButton from '../Button/FlipButton';
 import SaveButton from '../Button/SaveButton';
 import UndoButton from '../Button/UndoButton';
 import { DnDItemType } from '../CanvasComponent';
-import FlipButton from '../Button/FlipButton';
-import CloseButton from '../Button/CloseButton';
+import { useIconButtonStyle } from '../Button/useStyledIconButton';
 
 type DragObject = {
   id: string,
   type: string
 }
-
-export const useStyles = makeStyles({
-  root: {
-    color: 'rgba(171, 178, 191, 1.0)',
-    fontSize: 'small',
-    fontFamily: '\'Lato\', Georgia, Serif',
-  },
-});
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'>
@@ -41,6 +35,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
+  const classes = useIconButtonStyle({ mode: 'light' });
   const dispatch = useAppDispatch();
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
@@ -100,6 +95,8 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     drop(elementOrNode);
   }
 
+  const flip = () => setFlipped(!flipped);
+
   return (
     <div ref={dragAndDrop} data-testid='card-component' id={props.id}
       className={`card ${(isOver && !props.captured) ? 'drop-source' : ''} ${props.classes.join(' ')}`}
@@ -108,14 +105,15 @@ const CardComponent: React.FunctionComponent<Card> = props => {
       <Header title={props.type === 'Explorer' ? `${sep}${props.name}` : props.name}>
         <UndoButton cardIds={[props.id]} />
         <SaveButton cardIds={[props.id]} />
-        <FlipButton cardId={props.id} onClick={() => setFlipped(!flipped)} />
+        <FlipButton cardId={props.id} onClickHandler={flip} />
+        {(!props.captured) && <Tooltip title='Flip'><IconButton className={classes.root} aria-label='flip' onClick={flip} ><Flip /></IconButton></Tooltip>}
         <CloseButton cardId={props.id} />
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>
           {flipped ?
-            <div className='card-back'><ContentBack {...props} /></div> :
-            <div className='card-front'><ContentFront {...props} /></div>}
+            <ContentBack {...props} /> :
+            <ContentFront {...props} />}
         </>
       </CSSTransition>
     </div>
