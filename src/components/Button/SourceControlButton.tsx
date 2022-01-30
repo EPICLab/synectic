@@ -20,7 +20,7 @@ type SourceControlButtonProps = {
     mode?: Mode
 }
 
-export const SourceControlButton: React.FunctionComponent<SourceControlButtonProps> = ({ mode = 'light', repoId, metafileId }) => {
+const SourceControlButton: React.FunctionComponent<SourceControlButtonProps> = ({ mode = 'light', repoId, metafileId }) => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, metafileId));
     const classes = useIconButtonStyle({ mode: mode });
@@ -62,3 +62,5 @@ export const SourceControlButton: React.FunctionComponent<SourceControlButtonPro
         </>
     );
 };
+
+export default SourceControlButton;

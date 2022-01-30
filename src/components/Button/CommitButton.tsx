@@ -32,7 +32,7 @@ const CommitButton: React.FunctionComponent<CommitButtonProps> = ({ mode = 'ligh
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    // checks for whether button is on a single card and also captured
+    const hasStaged = staged.length > 0;
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
 
     const commit = async () => {
@@ -63,7 +63,7 @@ const CommitButton: React.FunctionComponent<CommitButtonProps> = ({ mode = 'ligh
 
     return (
         <>
-            {staged.length > 0 && !isCaptured &&
+            {hasStaged && !isCaptured &&
                 <Tooltip title='Commit'>
                     <IconButton
                         className={classes.root}

@@ -33,7 +33,8 @@ const StageButton: React.FunctionComponent<StageButtonProps> = ({ mode = 'light'
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    // checks for whether button is on a single card and also captured
+    const isExplorer = metafiles.find(m => m.handler === 'Explorer');
+    const hasUnstaged = unstaged.length > 0;
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
 
     const stage = async () => {
@@ -61,7 +62,7 @@ const StageButton: React.FunctionComponent<StageButtonProps> = ({ mode = 'light'
 
     return (
         <>
-            {unstaged.length > 0 && !isCaptured &&
+            {!isExplorer && hasUnstaged && !isCaptured &&
                 <Tooltip title='Stage'>
                     <IconButton
                         className={classes.root}
