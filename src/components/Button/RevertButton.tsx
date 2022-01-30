@@ -9,7 +9,7 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import { History } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { cardUpdated } from '../../store/slices/cards';
-import { Mode, useIconButtonStyle } from './StyledIconButton';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 /**
  * Button for reverting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 

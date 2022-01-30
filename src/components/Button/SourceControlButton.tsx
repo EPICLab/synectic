@@ -10,7 +10,7 @@ import { loadCard } from '../../store/thunks/handlers';
 import { fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { Mode, useIconButtonStyle } from './StyledIconButton';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git-path';
 import { removeUndefinedProperties } from '../../containers/format';
 

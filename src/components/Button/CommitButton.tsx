@@ -7,7 +7,7 @@ import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
-import { Mode, useIconButtonStyle } from './StyledIconButton';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';

@@ -5,7 +5,7 @@ import { useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import { RootState } from '../../store/store';
 import type { UUID } from '../../types';
-import { Mode, useIconButtonStyle } from './StyledIconButton';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 type FlipButtonProps = {
     cardId: UUID,

@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
 import { stackRemoved } from '../../store/slices/stacks';
-import { useIconButtonStyle } from '../Button/StyledIconButton';
+import { useIconButtonStyle } from '../Button/useStyledIconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveButton from '../Button/SaveButton';
 import CommitButton from '../Button/CommitButton';
