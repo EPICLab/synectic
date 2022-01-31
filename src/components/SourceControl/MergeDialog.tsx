@@ -124,7 +124,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         }
       })).unwrap();
       if (conflictManager) await dispatch(loadCard({ metafile: conflictManager }));
-      await delay(3000);
+      await delay(2500);
       dispatch(modalRemoved(props.id));
     }
     if (conflictStatus == 'Failing') return;
