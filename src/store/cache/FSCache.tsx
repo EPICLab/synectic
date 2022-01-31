@@ -3,7 +3,7 @@ import { PathLike } from 'fs-extra';
 import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
-import { extractStats, isDirectory, readFileAsync } from '../../containers/io';
+import { extractStats, readFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { RootState } from '../store';
 import cachedSelectors from '../selectors/cached';
@@ -27,9 +27,7 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     useEffect(() => {
         const asyncUpdate = async () => {
             const added = cached.filter(cachedFile => !cache.has(cachedFile.path));
-            console.log('added', { added });
             const removed = Array.from(cache.keys()).filter(cachePath => !cached.find(cachedFile => cachedFile.path.toString() === cachePath.toString()));
-            console.log('removed', { removed });
             await Promise.all(added.map(cachedFile => eventHandler('add', cachedFile.path)));
             await Promise.all(removed.map(cachePath => eventHandler('unlink', cachePath)));
         }
@@ -37,7 +35,6 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     }, [cached]);
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
-        console.log(event, filename);
         switch (event) {
             case 'add': {
                 const stats = await extractStats(filename);
