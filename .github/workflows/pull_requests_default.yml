@@ -28,5 +28,7 @@ jobs:
       - name: Install dependencies
         # See security recommendations for Yarn 2 at https://yarnpkg.com/features/zero-installs#does-it-have-security-implications
         run: yarn ci:install
-      - run: yarn lint
-      - run: yarn test
+      - name: Run linting rules
+        run: yarn lint
+      - name: Run tests
+        run: yarn test
