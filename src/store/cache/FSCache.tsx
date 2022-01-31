@@ -46,8 +46,8 @@ export const FSCacheProvider: React.FunctionComponent = props => {
                     newWatcher.on('all', eventHandler);
                     watcherActions.set(filename, newWatcher);
                 } else if (!stats) {
-                    const metafile = (await dispatch(fetchMetafilesByFilepath(filename)).unwrap())[0];
-                    dispatch(metafileRemoved(metafile.id));
+                    const metafiles = (await dispatch(fetchMetafilesByFilepath(filename)).unwrap());
+                    if (metafiles.length > 0) dispatch(metafileRemoved(metafiles[0].id));
                 }
                 break;
             }
