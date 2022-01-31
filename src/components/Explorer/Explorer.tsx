@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
+import { DateTime } from 'luxon';
 import { Info, ArrowDropDown, ArrowRight } from '@material-ui/icons';
+import { relative } from 'path';
 import type { Card, UUID } from '../../types';
-import { RootState } from '../../store/store';
-import { StyledTreeItem } from '../StyledTreeComponent';
-import { BranchRibbon } from '../SourceControl/BranchRibbon';
-import { BranchList } from '../SourceControl/BranchList';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import branchSelectors from '../../store/selectors/branches';
+import DataField from '../Card/DataField';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import DataField from '../Card/DataField';
-import { SourceControlButton } from "../Button/SourceControlButton";
+import SourceControlButton from '../Button/SourceControlButton';
+import { BranchList } from '../SourceControl/BranchList';
+import { BranchRibbon } from '../SourceControl/BranchRibbon';
 import { DirectoryComponent } from './DirectoryComponent';
-import { FileComponent } from './FileComponent';
-import { DateTime } from 'luxon';
-import { useGitHistory } from '../../containers/hooks/useGitHistory';
-import branchSelectors from '../../store/selectors/branches';
 import { fetchMetafile, isDirectoryMetafile, isFileMetafile } from '../../store/thunks/metafiles';
+import { FileComponent } from './FileComponent';
 import { getIgnore } from '../../containers/git-plumbing';
 import { readDirAsyncDepth } from '../../containers/io';
-import { relative } from 'path';
+import { RootState } from '../../store/store';
+import { StyledTreeItem } from '../StyledTreeComponent';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useGitHistory } from '../../containers/hooks/useGitHistory';
 
 const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootMetafileId));
