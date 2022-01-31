@@ -33,8 +33,9 @@ const StageButton: React.FunctionComponent<StageButtonProps> = ({ mode = 'light'
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const isExplorer = metafiles.find(m => m.handler === 'Explorer');
+    const isExplorer = metafiles.find(m => m.handler === 'Explorer') ? true : false;
     const hasUnstaged = unstaged.length > 0;
+    const hasConflicts = unstaged.find(m => m.conflicts && m.conflicts.length > 0) ? true : false;
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
 
     const stage = async () => {
@@ -62,7 +63,7 @@ const StageButton: React.FunctionComponent<StageButtonProps> = ({ mode = 'light'
 
     return (
         <>
-            {!isExplorer && hasUnstaged && !isCaptured &&
+            {!isExplorer && hasUnstaged && !hasConflicts && !isCaptured &&
                 <Tooltip title='Stage'>
                     <IconButton
                         className={classes.root}
