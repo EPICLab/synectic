@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Timeline, TimelineConnector, TimelineContent, TimelineItem, TimelineSeparator } from '@material-ui/lab';
 import { Typography } from '@material-ui/core';
-import StatusIcon, { Status } from './StatusIcon';
+import StatusIcon, { Status } from '../StatusIcon';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

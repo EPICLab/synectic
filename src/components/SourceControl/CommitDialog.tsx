@@ -3,19 +3,19 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
 import { ArrowDropDown, ArrowRight } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
-import type { Modal } from '../types';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { modalRemoved } from '../store/slices/modals';
-import { commit, getConfig } from '../containers/git-porcelain';
-import metafileSelectors from '../store/selectors/metafiles';
-import { RootState } from '../store/store';
-import repoSelectors from '../store/selectors/repos';
-import { metafileUpdated } from '../store/slices/metafiles';
-import { fetchContains, fetchContent, fetchVersionControl, isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from '../store/thunks/metafiles';
-import { fetchRepoBranches } from '../store/thunks/repos';
-import { repoUpdated } from '../store/slices/repos';
-import { FileComponent } from './Explorer/FileComponent';
-import { getRoot } from '../containers/git-path';
+import type { Modal } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { modalRemoved } from '../../store/slices/modals';
+import { commit, getConfig } from '../../containers/git-porcelain';
+import metafileSelectors from '../../store/selectors/metafiles';
+import { RootState } from '../../store/store';
+import repoSelectors from '../../store/selectors/repos';
+import { metafileUpdated } from '../../store/slices/metafiles';
+import { fetchContains, fetchContent, fetchVersionControl, isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from '../../store/thunks/metafiles';
+import { fetchRepoBranches } from '../../store/thunks/repos';
+import { repoUpdated } from '../../store/slices/repos';
+import { FileComponent } from '../Explorer/FileComponent';
+import { getRoot } from '../../containers/git-path';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

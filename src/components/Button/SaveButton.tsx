@@ -11,9 +11,14 @@ import { cardUpdated } from '../../store/slices/cards';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
 import { fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../../store/thunks/metafiles';
-import { Mode, useIconButtonStyle } from './StyledIconButton';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { FSCache } from '../../store/cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
+
+type SaveButtonProps = {
+    cardIds: UUID[],
+    mode?: Mode
+}
 
 /**
  * Button for saving the content of modified metafiles to their associated files. This button tracks the state of metafiles associated
@@ -24,7 +29,7 @@ import { IconButton, Tooltip } from '@material-ui/core';
  * @param mode Optional theme mode for switching between light and dark themes.
  * @returns 
  */
-const SaveButton: React.FunctionComponent<{ cardIds: UUID[], mode?: Mode }> = ({ mode = 'light', cardIds }) => {
+const SaveButton: React.FunctionComponent<SaveButtonProps> = ({ mode = 'light', cardIds }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const { cache } = useContext(FSCache);

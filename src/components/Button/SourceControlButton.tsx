@@ -10,12 +10,17 @@ import { loadCard } from '../../store/thunks/handlers';
 import { fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
-import { Mode, useIconButtonStyle } from './StyledIconButton';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git-path';
 import { removeUndefinedProperties } from '../../containers/format';
 
+type SourceControlButtonProps = {
+    repoId: UUID,
+    metafileId: UUID,
+    mode?: Mode
+}
 
-export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafileId: UUID, mode?: Mode }> = ({ mode = 'light', repoId, metafileId }) => {
+const SourceControlButton: React.FunctionComponent<SourceControlButtonProps> = ({ mode = 'light', repoId, metafileId }) => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, metafileId));
     const classes = useIconButtonStyle({ mode: mode });
@@ -50,14 +55,12 @@ export const SourceControlButton: React.FunctionComponent<{ repoId: UUID, metafi
         <>
             {repo && metafile &&
                 <Tooltip title='Source Control'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='source-control'
-                        onClick={loadSourceControl}
-                    >
+                    <IconButton className={classes.root} aria-label='source-control' onClick={loadSourceControl}>
                         <VersionControl />
                     </IconButton>
                 </Tooltip>}
         </>
     );
 };
+
+export default SourceControlButton;
