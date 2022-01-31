@@ -13,7 +13,9 @@ import { loadCard } from '../../store/thunks/handlers';
 import { extractFilename } from '../../containers/io';
 import { ConflictRibbon } from './ConflictRibbon';
 import { WithRequired } from '../../containers/format';
-import { isFilebasedMetafile } from '../../store/thunks/metafiles';
+import { fetchContent, fetchMetafilesByFilepath, isFilebasedMetafile } from '../../store/thunks/metafiles';
+import { PathLike } from 'fs-extra';
+import { metafileUpdated } from '../../store/slices/metafiles';
 
 type ConflictManagerMetafile = WithRequired<Metafile, 'repo' | 'branch' | 'merging'>;
 
@@ -27,6 +29,16 @@ const ConflictManager: React.FunctionComponent<{ metafileId: UUID }> = props => 
     const baseBranch = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo) : [])[0];
     const conflictedMetafiles = useAppSelector((state: RootState) => metafileSelectors.selectByConflicted(state, repo ? repo.id : ''));
     const dispatch = useAppDispatch();
+
+    const handleClick = async (filepath: PathLike) => {
+        // verify that most recent version of file content is available before loading card
+        const metafiles = await dispatch(fetchMetafilesByFilepath(filepath)).unwrap();
+        await Promise.all(metafiles.map(async metafile => {
+            const content = await dispatch(fetchContent({ filepath: filepath })).unwrap();
+            dispatch(metafileUpdated({ ...metafile, ...content }));
+            await dispatch(loadCard({ filepath: metafile.path }));
+        }));
+    }
 
     return (
         <div className='list-component'>
@@ -46,7 +58,7 @@ const ConflictManager: React.FunctionComponent<{ metafileId: UUID }> = props => 
                             color={'#da6473'} // red
                             labelText={`${extractFilename(conflict.path)} [${conflict.conflicts?.length}]`}
                             labelIcon={Warning}
-                            onClick={() => dispatch(loadCard({ filepath: conflict.path }))}
+                            onClick={() => handleClick(conflict.path)}
                         />
                     )}
             </TreeView>
