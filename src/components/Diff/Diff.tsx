@@ -13,6 +13,7 @@ import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import cardSelectors from '../../store/selectors/cards';
 import { removeUndefinedProperties } from '../../containers/format';
+import DataField from '../Card/DataField';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
   const markers: IMarker[] = [];
@@ -60,11 +61,10 @@ export const DiffReverse: React.FunctionComponent<Card> = props => {
 
   return (
     <>
-      <span>Name:</span><span className='field'>{metafile ? metafile.name : ''}</span>
-      <span>Original:</span><span className='field'>{original ? original.name :
-        '[Cannot locate original card]'} (...{original ? original.id.slice(-5) : '[uuid]'})</span>
-      <span>Updated:</span><span className='field'>{updated ? updated.name :
-        '[Cannot locate updated card]'} (...{updated ? updated.id.slice(-5) : '[uuid]'})</span>
+      <div className='buttons'>
+      </div>
+      <DataField title='Left' textField field={`${original ? original.name : '[Cannot locate original card]'} (...${original ? original.id.slice(-5) : '[uuid]'})`} />
+      <DataField title='Right' textField field={`${updated ? updated.name : '[Cannot locate updated card'} (...${updated ? updated.id.slice(-5) : '[uuid]'})`} />
     </>
   );
 };
