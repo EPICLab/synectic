@@ -6,13 +6,14 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
-import type { Card, Metafile } from '../../types';
+import type { Card, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { diff } from '../../containers/diff';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import cardSelectors from '../../store/selectors/cards';
 import { removeUndefinedProperties } from '../../containers/format';
+import DataField from '../Card/DataField';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
   const markers: IMarker[] = [];
@@ -26,10 +27,11 @@ const extractMarkers = (diffOutput: string): IMarker[] => {
   return markers;
 };
 
-const Diff: React.FunctionComponent<{ metafile: Metafile }> = props => {
-  const originalCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, props.metafile.targets?.[0] ? props.metafile.targets[0] : ''));
+const Diff: React.FunctionComponent<{ metafileId: UUID }> = props => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
+  const originalCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[0] ? metafile.targets[0] : ''));
   const original = useAppSelector((state: RootState) => metafileSelectors.selectById(state, originalCard ? originalCard.metafile : ''));
-  const updatedCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, props.metafile.targets?.[1] ? props.metafile.targets[1] : ''));
+  const updatedCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[1] ? metafile.targets[1] : ''));
   const updated = useAppSelector((state: RootState) => metafileSelectors.selectById(state, updatedCard ? updatedCard.metafile : ''));
 
   const [diffOutput, setDiffOutput] = useState(diff(original?.content ? original.content : '', updated?.content ? updated.content : ''));
@@ -59,11 +61,10 @@ export const DiffReverse: React.FunctionComponent<Card> = props => {
 
   return (
     <>
-      <span>Name:</span><span className='field'>{metafile ? metafile.name : ''}</span>
-      <span>Original:</span><span className='field'>{original ? original.name :
-        '[Cannot locate original card]'} (...{original ? original.id.slice(-5) : '[uuid]'})</span>
-      <span>Updated:</span><span className='field'>{updated ? updated.name :
-        '[Cannot locate updated card]'} (...{updated ? updated.id.slice(-5) : '[uuid]'})</span>
+      <div className='buttons'>
+      </div>
+      <DataField title='Left' textField field={`${original ? original.name : '[Cannot locate original card]'} (...${original ? original.id.slice(-5) : '[uuid]'})`} />
+      <DataField title='Right' textField field={`${updated ? updated.name : '[Cannot locate updated card'} (...${updated ? updated.id.slice(-5) : '[uuid]'})`} />
     </>
   );
 };

@@ -12,6 +12,7 @@ import { FileMetafile, isFileMetafile } from '../../store/thunks/metafiles';
 import { SourceFileComponent } from './SourceFileComponent';
 import branchSelectors from '../../store/selectors/branches';
 import { Add, Remove, SvgIconComponent, Warning } from '@material-ui/icons';
+import DataField from '../Card/DataField';
 
 export type SourceMotif = {
   color: string | undefined,
@@ -85,10 +86,14 @@ export const SourceControlReverse: React.FunctionComponent<Card> = props => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile && metafile.repo ? metafile.repo : ''));
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
+
+
+
   return (
     <>
-      <span>Repo:</span><span className='field'>{repo ? repo.name : 'Untracked'}</span>
-      <span>Branch:</span><span className='field'>{branch ? branch.ref : 'untracked'}</span>
+      <div className='buttons'></div>
+      <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
+      <DataField title='Branch' textField field={branch ? branch.ref : 'Untracked'} />
     </>
   )
 }
