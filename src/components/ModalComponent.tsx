@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { Modal } from '../types';
 import CloneDialog from './SourceControl/CloneDialog';
-import CommitDialog from './CommitDialog';
+import CommitDialog from './SourceControl/CommitDialog';
 import DiffPickerDialog from './Diff/DiffPickerDialog';
 import ErrorDialog from './ErrorDialog';
 import { GitGraph } from './GitGraph/GitGraph';

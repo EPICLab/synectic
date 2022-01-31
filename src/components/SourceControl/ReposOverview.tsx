@@ -4,19 +4,19 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import ErrorIcon from '@material-ui/icons/Error';
 import { v4 } from 'uuid';
-import type { Repository, Branch } from '../types';
-import { RootState } from '../store/store';
-import { isDefined } from '../containers/format';
-import { StyledTreeItem } from './StyledTreeComponent';
-import { GitRepoIcon, GitBranchIcon } from './GitIcons';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import repoSelectors from '../store/selectors/repos';
-import cardSelectors from '../store/selectors/cards';
-import metafileSelectors from '../store/selectors/metafiles';
-import { loadCard } from '../store/thunks/handlers';
-import { checkoutBranch } from '../store/thunks/repos';
-import { fetchMetafilesByFilepath } from '../store/thunks/metafiles';
-import branchSelectors from '../store/selectors/branches';
+import type { Repository, Branch } from '../../types';
+import { RootState } from '../../store/store';
+import { isDefined } from '../../containers/format';
+import { StyledTreeItem } from '../StyledTreeComponent';
+import { GitRepoIcon, GitBranchIcon } from '../GitIcons';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import repoSelectors from '../../store/selectors/repos';
+import cardSelectors from '../../store/selectors/cards';
+import metafileSelectors from '../../store/selectors/metafiles';
+import { loadCard } from '../../store/thunks/handlers';
+import { checkoutBranch } from '../../store/thunks/repos';
+import { fetchMetafilesByFilepath } from '../../store/thunks/metafiles';
+import branchSelectors from '../../store/selectors/branches';
 
 const modifiedStatuses = ['modified', '*modified', 'deleted', '*deleted', 'added', '*added', '*absent', '*undeleted', '*undeletedmodified'];
 
@@ -63,7 +63,7 @@ const RepoStatusComponent: React.FunctionComponent<{ repo: Repository }> = props
   );
 }
 
-export const ReposOverview: React.FunctionComponent = () => {
+const ReposOverview: React.FunctionComponent = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [expanded, setExpanded] = React.useState(repos.length > 0 ? [repos[0].id] : []); // initial state; expand first listed repo
 
