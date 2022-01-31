@@ -10,21 +10,23 @@ jobs:
       DRAFT_STATE: ${{ github.event.pull_request.draft == false }}
     steps:
       - name: Draft State
-        run: echo "$DRAFT_STATE"
+        run: echo ${{ DRAFT_STATE }}
   test_pull_request:
     if: github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        node-version: ['14', '16']
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v2
-      - name: Setup Node.js environment
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
-          # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-          node-version: '12'
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
       - name: Install dependencies
         # See security recommendations for Yarn 2 at https://yarnpkg.com/features/zero-installs#does-it-have-security-implications
         run: yarn ci:install
