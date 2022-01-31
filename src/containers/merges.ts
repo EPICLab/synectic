@@ -109,3 +109,11 @@ export const abortMerge = async (dir: fs.PathLike): Promise<void> => {
         }
     }
 }
+
+export const resolveMerge = async (dir: fs.PathLike, compareBranch: string): Promise<void> => {
+    try {
+        await promiseExec(`git commit -m "Merge branch '${compareBranch}'"`, { cwd: dir.toString() });
+    } catch (error) {
+        console.error(error);
+    }
+}
