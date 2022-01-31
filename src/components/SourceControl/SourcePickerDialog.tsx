@@ -12,6 +12,8 @@ import { fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
 import { getBranchRoot } from '../../containers/git-path';
+import branchSelectors from '../../store/selectors/branches';
+import { isDefined, removeUndefinedProperties } from '../../containers/format';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -40,15 +42,17 @@ const useStyles = makeStyles((theme: Theme) =>
 const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
   const [selectedRepo, setSelectedRepo] = useState<UUID>('');
-  const [selectedBranch, setSelectedBranch] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState<UUID>('');
 
   const handleClose = () => dispatch(modalRemoved(props.id));
 
   const handleClick = async () => {
     const repo = repos.find(r => r.id === selectedRepo);
-    const root = repo ? await getBranchRoot(repo.root, selectedBranch) : '';
+    const branch = branches[selectedBranch];
+    const optionals = repo && branch && removeUndefinedProperties({ path: await getBranchRoot(repo.root, branch.ref) });
     const metafile = await dispatch(fetchMetafile({
       virtual: {
         id: v4(),
@@ -57,10 +61,10 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
         handler: 'SourceControl',
         repo: selectedRepo,
         branch: selectedBranch,
-        path: root ? root : ''
+        ...optionals
       }
     })).unwrap();
-    if (metafile && root) dispatch(loadCard({ metafile: metafile }));
+    if (metafile) dispatch(loadCard({ metafile: metafile }));
     handleClose();
   }
 
@@ -111,8 +115,11 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
               onChange={(e) => setSelectedBranch(e.target.value as string)}
               label='Branch'
             >
-              {selectedRepo ? repos.find(r => r.id === selectedRepo)?.local.map(branch =>
-                <MenuItem key={branch} value={branch}>{branch}</MenuItem>)
+              {selectedRepo ? repos.find(r => r.id === selectedRepo)?.local
+                .map(branchId => branches[branchId])
+                .filter(isDefined)
+                .map(branch =>
+                  <MenuItem key={branch.id} value={branch.id}>{branch.ref}</MenuItem>)
                 : <MenuItem value=''><em>None</em></MenuItem>
               }
             </Select>

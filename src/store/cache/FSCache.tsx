@@ -3,10 +3,12 @@ import { PathLike } from 'fs-extra';
 import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
-import { isDirectory, readFileAsync } from '../../containers/io';
-import { useAppSelector } from '../hooks';
+import { extractStats, readFileAsync } from '../../containers/io';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { RootState } from '../store';
 import cachedSelectors from '../selectors/cached';
+import { metafileRemoved } from '../slices/metafiles';
+import { fetchMetafilesByFilepath } from '../thunks/metafiles';
 
 type FSCacheType = {
     cache: Omit<Map<PathLike, string>, "set" | "clear" | "delete">
@@ -18,8 +20,9 @@ export const FSCache = createContext<FSCacheType>({
 
 export const FSCacheProvider: React.FunctionComponent = props => {
     const cached = useAppSelector((state: RootState) => cachedSelectors.selectAll(state));
-    const [cache, cacheActions] = useMap<PathLike, string>([]);
-    const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]);
+    const [cache, cacheActions] = useMap<PathLike, string>([]); // filepath to cached file content
+    const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         const asyncUpdate = async () => {
@@ -34,13 +37,17 @@ export const FSCacheProvider: React.FunctionComponent = props => {
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
         switch (event) {
             case 'add': {
-                if (!(await isDirectory(filename))) {
+                const stats = await extractStats(filename);
+                if (stats && !stats.isDirectory()) { // verify file exists on FS and is not a directory
                     const content = await readFileAsync(filename, { encoding: 'utf-8' });
                     cacheActions.set(filename, content);
 
                     const newWatcher = watch(filename.toString(), { ignoreInitial: true });
                     newWatcher.on('all', eventHandler);
                     watcherActions.set(filename, newWatcher);
+                } else if (!stats) {
+                    const metafiles = (await dispatch(fetchMetafilesByFilepath(filename)).unwrap());
+                    if (metafiles.length > 0) dispatch(metafileRemoved(metafiles[0].id));
                 }
                 break;
             }

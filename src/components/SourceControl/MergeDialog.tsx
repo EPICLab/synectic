@@ -3,11 +3,11 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import type { Modal, UUID } from '../../types';
 import { branchLog } from '../../containers/git-plumbing';
-import TimelineComponent from '../MergeTimeline';
+import TimelineComponent from './MergeTimeline';
 import DropSelect from '../DropSelect';
 import { RootState } from '../../store/store';
 import { build } from '../../containers/builds';
-import { GitConfigForm } from '../GitConfigForm';
+import { GitConfigForm } from './GitConfigForm';
 // import { merge as isomerge } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
@@ -124,7 +124,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
         }
       })).unwrap();
       if (conflictManager) await dispatch(loadCard({ metafile: conflictManager }));
-      await delay(3000);
+      await delay(2500);
       dispatch(modalRemoved(props.id));
     }
     if (conflictStatus == 'Failing') return;

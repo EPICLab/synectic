@@ -2,35 +2,31 @@ import React, { useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { sep } from 'path';
-import AutorenewIcon from '@material-ui/icons/Autorenew';
-import CloseIcon from '@material-ui/icons/Close';
-import { IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import type { Card } from '../../types';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
-import { useIconButtonStyle } from '../Button/StyledIconButton';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
-import { cardRemoved } from '../../store/slices/cards';
-import { ContentBack } from './ContentBack';
-import { ContentFront } from './ContentFront';
+import ContentBack from './ContentBack';
+import ContentFront from './ContentFront';
+import CloseButton from '../Button/CloseButton';
+import FlipButton from '../Button/FlipButton';
 import SaveButton from '../Button/SaveButton';
 import UndoButton from '../Button/UndoButton';
 import { DnDItemType } from '../CanvasComponent';
+import ResetButton from '../Button/ResetButton';
+import StageButton from '../Button/StageButton';
+import UnstageButton from '../Button/UnstageButton';
+import CommitButton from '../Button/CommitButton';
+import ResolveButton from '../Button/ResolveButton';
+import AbortButton from '../Button/AbortButton';
 
 type DragObject = {
   id: string,
   type: string
 }
-
-export const useStyles = makeStyles({
-  root: {
-    color: 'rgba(171, 178, 191, 1.0)',
-    fontSize: 'small',
-    fontFamily: '\'Lato\', Georgia, Serif',
-  },
-});
 
 const Header: React.FunctionComponent<{ title: string }> = props => {
   return <div className='card-header'>
@@ -39,34 +35,32 @@ const Header: React.FunctionComponent<{ title: string }> = props => {
   </div>;
 };
 
-const CardComponent: React.FunctionComponent<Card> = props => {
+const CardComponent: React.FunctionComponent<Card> = card => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
-  const classes = useIconButtonStyle({ mode: 'light' });
 
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
   const [{ isDragging }, drag] = useDrag({
     type: DnDItemType.CARD,
-    item: () => ({ id: props.id, type: DnDItemType.CARD }),
+    item: () => ({ id: card.id, type: DnDItemType.CARD }),
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     })
-  }, [props.id]);
+  }, [card.id]);
 
   // Enable CardComponent as a drop target (i.e. allow other elements to be dropped on this card)
   const [{ isOver }, drop] = useDrop({
     accept: [DnDItemType.CARD, DnDItemType.STACK],
     canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      const dropTarget = cards[props.id];
-      // if (dropTarget?.captured) return false; // nothing can be dropped on a captured card
+      const dropTarget = cards[card.id];
       const dropSource = item.type === DnDItemType.CARD ? cards[monitor.getItem().id] : stacks[monitor.getItem().id];
       // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
       return (dropTarget && dropSource) ? (dropTarget.id !== dropSource.id) : false;
     },
     drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
-      const dropTarget = cards[props.id];
+      const dropTarget = cards[card.id];
       const delta = monitor.getDifferenceFromInitialOffset();
       if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
       switch (item.type) {
@@ -86,7 +80,7 @@ const CardComponent: React.FunctionComponent<Card> = props => {
           break;
         }
         case DnDItemType.STACK: {
-          if (!props.captured) {
+          if (!card.captured) {
             const dropSource = stacks[monitor.getItem().id];
             if (dropTarget && dropSource) dispatch(pushCards({ stack: dropSource, cards: [dropTarget] }));
           }
@@ -97,40 +91,36 @@ const CardComponent: React.FunctionComponent<Card> = props => {
     collect: monitor => ({
       isOver: !!monitor.isOver() // return isOver prop to highlight drop sources that accept hovered item
     })
-  }, [cards, stacks, props.id]);
+  }, [cards, stacks, card.id]);
 
   const dragAndDrop = (elementOrNode: ConnectableElement) => {
     drag(elementOrNode);
     drop(elementOrNode);
   }
 
-  const flip = () => setFlipped(!flipped);
-  const close = async () => {
-    const dropSource = cards[props.id];
-    if (props.captured && dropSource) {
-      dispatch(popCard({ card: dropSource }));
-    }
-    if (dropSource) {
-      dispatch(cardRemoved(props.id));
-    }
-  }
-
   return (
-    <div ref={dragAndDrop} data-testid='card-component' id={props.id}
-      className={`card ${(isOver && !props.captured) ? 'drop-source' : ''} ${props.classes.join(' ')}`}
-      style={{ zIndex: props.zIndex, left: props.left, top: props.top, opacity: isDragging ? 0 : 1 }}
+    <div ref={dragAndDrop} data-testid='card-component' id={card.id}
+      className={`card ${(isOver && !card.captured) ? 'drop-source' : ''} ${card.classes.join(' ')}`}
+      style={{ zIndex: card.zIndex, left: card.left, top: card.top, opacity: isDragging ? 0 : 1 }}
     >
-      <Header title={props.type === 'Explorer' ? `${sep}${props.name}` : props.name}>
-        <UndoButton cardIds={[props.id]} />
-        <SaveButton cardIds={[props.id]} />
-        {(!props.captured) && <Tooltip title='Flip'><IconButton className={classes.root} aria-label='flip' onClick={flip} ><AutorenewIcon /></IconButton></Tooltip>}
-        {(!props.captured) && <Tooltip title='Close'><IconButton className={classes.root} aria-label='close' onClick={close} ><CloseIcon /></IconButton></Tooltip>}
+      <Header title={card.type === 'Explorer' ? `${sep}${card.name}` : card.name}>
+        <ResetButton cardIds={[card.id]} />
+        <StageButton cardIds={[card.id]} />
+        <UnstageButton cardIds={[card.id]} />
+        <CommitButton cardIds={[card.id]} />
+        <UndoButton cardIds={[card.id]} />
+        <SaveButton cardIds={[card.id]} />
+        <AbortButton cardId={card.id} />
+        <ResolveButton cardId={card.id} />
+        <FlipButton cardId={card.id} onClickHandler={() => setFlipped(!flipped)} />
+        <CloseButton cardId={card.id} />
       </Header>
       <CSSTransition in={flipped} timeout={600} classNames='flip'>
         <>
           {flipped ?
-            <div className='card-back'><ContentBack {...props} /></div> :
-            <div className='card-front'><ContentFront {...props} /></div>}
+            <ContentBack {...card} /> :
+            <ContentFront {...card} />
+          }
         </>
       </CSSTransition>
     </div>
