@@ -26,7 +26,6 @@ type UndoButtonProps = {
  * to have their content reset to the content in the associated files. This button operates as the inverse operation to the `SaveButton`.
  * @param cardIds List of Card UUIDs that should be tracked by this button.
  * @param mode Optional mode for switching between light and dark themes.
- * @returns 
  */
 const UndoButton: React.FunctionComponent<UndoButtonProps> = ({ mode = 'light', cardIds }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
