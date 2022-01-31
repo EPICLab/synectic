@@ -5,9 +5,9 @@ import { file, mock, MockInstance } from './__mocks__/mock-fs-promise';
 import { Provider } from 'react-redux';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { testStore } from './__fixtures__/ReduxStore';
-import { writeFileAsync } from '../src/containers/io';
+// import { writeFileAsync } from '../src/containers/io';
 import * as path from 'path';
-import { rename, unlink } from 'fs-extra';
+// import { rename, unlink } from 'fs-extra';
 
 describe('containers/hooks/useWatcher', () => {
     let mockedInstance: MockInstance;
