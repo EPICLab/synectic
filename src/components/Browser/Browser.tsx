@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Card } from '../../types';
+import DataField from '../Card/DataField';
 
 type BrowserState = {
   history: URL[];
@@ -44,8 +45,8 @@ const Browser: React.FunctionComponent = () => {
   return (
     <>
       <div className='browser-topbar'>
-        <button className="arrow-left" onClick={() => backwards()} />
-        <button className="arrow-right" onClick={() => forwards()} />
+        <button className="arrow-left" disabled={browserState.index === browserState.history.length - 1} onClick={backwards} />
+        <button className="arrow-right" disabled={browserState.index == 0} onClick={forwards} />
         <button className="refresh" onClick={() => setWebviewKey(webviewKey + 1)} />
         <input className="url-bar-style" type="text" placeholder="URL" value={urlInput}
           onKeyDown={go} onChange={e => setUrlInput(e.target.value)} />
@@ -61,10 +62,9 @@ const Browser: React.FunctionComponent = () => {
 export const BrowserReverse: React.FunctionComponent<Card> = props => {
   return (
     <>
-      <span>ID:</span><span className='field'>...{props.id.slice(-10)}</span>
-      <span>Metafile:</span><span className='field'>...{props.metafile.slice(-10)}</span>
-      <span>Name:</span><span className='field'>{props.name}</span>
-      <span>Update:</span><span className='field'>{props.modified.toLocaleString()}</span>
+      <div className='buttons'>
+      </div>
+      <DataField title='Update' textField field={props.modified.toLocaleString()} />
     </>
   );
 };

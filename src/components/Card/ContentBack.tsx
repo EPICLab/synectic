@@ -6,18 +6,18 @@ import { ExplorerReverse } from '../Explorer/Explorer';
 import { SourceControlReverse } from '../SourceControl/SourceControl';
 import { BrowserReverse } from '../Browser/Browser';
 
-export const ContentBack: React.FunctionComponent<Card> = props => {
-    switch (props.type) {
+const Content: React.FunctionComponent<Card> = card => {
+    switch (card.type) {
         case 'Editor':
-            return (<EditorReverse {...props} />);
+            return (<EditorReverse {...card} />);
         case 'Diff':
-            return (<DiffReverse {...props} />);
+            return (<DiffReverse {...card} />);
         case 'Explorer':
-            return (<ExplorerReverse {...props} />);
+            return (<ExplorerReverse {...card} />);
         case 'SourceControl':
-            return (<SourceControlReverse {...props} />);
+            return (<SourceControlReverse {...card} />);
         case 'Browser':
-            return (<BrowserReverse {...props} />);
+            return (<BrowserReverse {...card} />);
         case 'ReposTracker':
             return null;
         case 'ConflictManager':
@@ -26,3 +26,9 @@ export const ContentBack: React.FunctionComponent<Card> = props => {
             return null;
     }
 };
+
+const ContentBack: React.FunctionComponent<Card> = card => {
+    return (<div className='card-back'><Content {...card} /></div>);
+}
+
+export default ContentBack;
