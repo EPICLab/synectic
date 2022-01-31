@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
-import { FormControl, MenuItem, Typography, TextField } from '@material-ui/core';
+import { FormControl, MenuItem, Typography, TextField, makeStyles } from '@material-ui/core';
 import type { UUID } from '../../types';
 import branchSelectors from '../../store/selectors/branches';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { RootState } from '../../store/store';
-import { useStyles } from '../Card/CardComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
 import { checkoutBranch, switchCardMetafile } from '../../store/thunks/repos';
+
+export const useStyles = makeStyles({
+  root: {
+    color: 'rgba(171, 178, 191, 1.0)',
+    fontSize: 'small',
+    fontFamily: '\'Lato\', Georgia, Serif',
+  },
+});
 
 /**
  * React Component to display a list of branches from the repository associated with a particular card on the 
