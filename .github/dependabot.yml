@@ -9,6 +9,6 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: "development"
-    milestone: 4
+    milestone: 6
     open-pull-requests-limit: 7
     rebase-strategy: "disabled"
