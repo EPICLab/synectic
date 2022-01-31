@@ -6,6 +6,7 @@ import * as isogit from 'isomorphic-git';
 import { resolveRef } from './git-porcelain';
 import { branchLog } from './git-plumbing';
 import { getWorktreePaths } from './git-path';
+import { extractStats } from './io';
 
 const promiseExec = util.promisify(exec);
 
@@ -87,4 +88,24 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
         stdout: mergeResults.stdout,
         stderr: mergeResults.stderr
     };
+}
+
+/**
+ * Abort the merging of branches; useful when merge conflicts arise and need to be backed out. This function is a wrapper to the 
+ * *git* command-line utility, which differs from most git commands in Synectic that rely upon the *isomorphic-git* module. This function
+ * can handle merging across linked worktrees.
+ * @param dir The worktree root directory path.
+ */
+export const abortMerge = async (dir: fs.PathLike): Promise<void> => {
+    const worktree = await getWorktreePaths(dir);
+    const stats = worktree.gitdir ? await extractStats(path.join(worktree.gitdir?.toString(), 'MERGE_HEAD')) : undefined;
+
+    if (stats) {
+        try {
+
+            await promiseExec(`git merge --abort`, { cwd: dir.toString() });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }
