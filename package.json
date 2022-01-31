@@ -73,7 +73,7 @@
     "eslint": "^8.8.0",
     "eslint-plugin-import": "^2.25.4",
     "file-loader": "^6.2.0",
-    "fork-ts-checker-webpack-plugin": "^6.5.0",
+    "fork-ts-checker-webpack-plugin": "^7.0.0",
     "git-remote-protocol": "^0.1.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.4.7",
