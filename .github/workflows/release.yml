@@ -5,13 +5,19 @@ on:
     tags: 
     - '*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag'
+        required: true  
 
 jobs:
   release:
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     permissions:
       contents: write
     steps:
@@ -22,11 +28,16 @@ jobs:
       uses: daschaa/package-version@v1.1.0
       with:
         path: './package.json'
-    - name: Output package version
-      run: echo "The package version is ${{ steps.get_version.outputs.current-version }}"
-    # - name: Create ${{ github.ref_name }} release on ${{ matrix.os }}
-    #   uses: ncipollo/release-action@v1
-    #   with:
-    #     artifacts: "out/make/Synectic-${{ steps.get_version.outputs.current-version }}"
-    #     generateReleaseNotes: true
-    #     token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+    - run: yarn ci
+    - run: yarn make
+    - name: Create ${{ github.ref_name }} release on ${{ matrix.os }}
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "out/make/**"
+        generateReleaseNotes: true
+        token: ${{ secrets.GITHUB_TOKEN }}
