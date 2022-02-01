@@ -38,6 +38,6 @@ jobs:
     - name: Create ${{ github.ref_name }} release on ${{ matrix.os }}
       uses: ncipollo/release-action@v1
       with:
+        allowUpdates: true
         artifacts: "out/make/**"
-        generateReleaseNotes: true
         token: ${{ secrets.GITHUB_TOKEN }}
