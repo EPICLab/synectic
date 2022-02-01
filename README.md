@@ -1,6 +1,6 @@
 # Synectic Integrated Development Environment
-![Production Test Check](https://github.com/EPICLab/synectic/workflows/Production%20Test%20Check/badge.svg)
-![Development Test Check](https://github.com/EPICLab/synectic/workflows/Development%20Test%20Check/badge.svg)
+[![Production CI](https://github.com/EPICLab/synectic/actions/workflows/production.yml/badge.svg)](https://github.com/EPICLab/synectic/actions/workflows/production.yml)
+[![Development CI](https://github.com/EPICLab/synectic/actions/workflows/development.yml/badge.svg)](https://github.com/EPICLab/synectic/actions/workflows/development.yml)
 
 Synectics is a problem solving methodology that stimulates thought processes of which the subject may be unaware ([Wikipedia](https://en.wikipedia.org/wiki/Synectics)). Synectic IDE is a fundamentally different type of IDE, focused on supporting a human-oriented view of problem solving in software development. Synectic promotes context-specific functionality that compliments and enhances human cognition, memory, and reasoning. As a research prototype, this software has no expressed warranty or guarantees and should be treated as experimental software.
 
