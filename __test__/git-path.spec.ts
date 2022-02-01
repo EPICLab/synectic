@@ -1,3 +1,4 @@
+import path from 'path';
 import type { MockInstance } from './__mocks__/mock-fs-promise';
 import { mock } from './__mocks__/mock-fs-promise';
 import * as isogit from 'isomorphic-git';
@@ -63,8 +64,8 @@ describe('containers/git-path', () => {
         await expect(getWorktreePaths('foo/add.ts')).resolves.toEqual(
             expect.objectContaining({
                 dir: 'foo',
-                gitdir: 'foo/.git',
-                worktrees: 'foo/.git/worktrees',
+                gitdir: path.normalize('foo/.git'),
+                worktrees: path.normalize('foo/.git/worktrees'),
                 worktreeDir: undefined,
                 worktreeGitdir: undefined,
                 worktreeLink: undefined
@@ -77,7 +78,7 @@ describe('containers/git-path', () => {
         await expect(getWorktreePaths('bar/beta.ts')).resolves.toEqual(
             expect.objectContaining({
                 dir: 'bar',
-                gitdir: 'bar/.git',
+                gitdir: path.normalize('bar/.git'),
                 worktrees: undefined,
                 worktreeDir: undefined,
                 worktreeGitdir: undefined,
@@ -91,11 +92,11 @@ describe('containers/git-path', () => {
         await expect(getWorktreePaths('.syn/bad-branch/delta.txt')).resolves.toEqual(
             expect.objectContaining({
                 dir: 'foo',
-                gitdir: 'foo/.git',
-                worktrees: 'foo/.git/worktrees',
-                worktreeDir: '.syn/bad-branch',
-                worktreeGitdir: '.syn/bad-branch/.git',
-                worktreeLink: 'foo/.git/worktrees/bad-branch'
+                gitdir: path.normalize('foo/.git'),
+                worktrees: path.normalize('foo/.git/worktrees'),
+                worktreeDir: path.normalize('.syn/bad-branch'),
+                worktreeGitdir: path.normalize('.syn/bad-branch/.git'),
+                worktreeLink: path.normalize('foo/.git/worktrees/bad-branch')
             })
         );
     });
@@ -105,11 +106,11 @@ describe('containers/git-path', () => {
         await expect(getWorktreePaths('foo/.git/worktrees/bad-branch')).resolves.toEqual(
             expect.objectContaining({
                 dir: 'foo',
-                gitdir: 'foo/.git',
-                worktrees: 'foo/.git/worktrees',
-                worktreeDir: '.syn/bad-branch',
-                worktreeGitdir: '.syn/bad-branch/.git',
-                worktreeLink: 'foo/.git/worktrees/bad-branch'
+                gitdir: path.normalize('foo/.git'),
+                worktrees: path.normalize('foo/.git/worktrees'),
+                worktreeDir: path.normalize('.syn/bad-branch'),
+                worktreeGitdir: path.normalize('.syn/bad-branch/.git'),
+                worktreeLink: path.normalize('foo/.git/worktrees/bad-branch')
             })
         );
     });
