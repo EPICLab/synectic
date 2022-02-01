@@ -15,6 +15,7 @@
     {
       "name": "@electron-forge/maker-dmg",
       "config": {
+        "icon": "src/assets/icon/icon.icns",
         "format": "ULFO"
       }
     },
