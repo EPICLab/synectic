@@ -1,6 +1,7 @@
 {
   "packagerConfig": {
     "asar": true,
+    "executableName": "synectic",
     "packageManager": "yarn",
     "icon": "src/assets/icon/icon"
   },
