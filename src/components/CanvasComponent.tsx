@@ -162,11 +162,10 @@ const CanvasComponent: React.FunctionComponent = props => {
   ];
 
   const helpMenu: NavItemProps[] = [
-    {
-      label: 'GitHub Repo...', click: async () => {
-        shell.openExternal('https://github.com/EPICLab/synectic/');
-      }
-    },
+    { label: 'Website...', click: async () => { shell.openExternal('https://nomatic.dev/synectic'); } },
+    { label: 'Repository...', click: async () => { shell.openExternal('https://github.com/EPICLab/synectic/'); } },
+    { label: 'Release Notes...', click: async () => { shell.openExternal('https://github.com/EPICLab/synectic/releases'); } },
+    { label: 'View License...', click: async () => { shell.openExternal('https://github.com/EPICLab/synectic/blob/5ec51f6dc9dc857cae58c5253c3334c8f33a63c4/LICENSE'); } },
   ];
 
   return (
