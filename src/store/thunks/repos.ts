@@ -183,8 +183,8 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
             updated = await thunkAPI.dispatch(fetchMetafileById(metafile.id)).unwrap();
         } else {
             // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
-            const oldWorktree = await resolveWorktree(repo, oldBranch.id, oldBranch.ref);
-            const newWorktree = await resolveWorktree(repo, newBranch.id, newBranch.ref);
+            const oldWorktree = await resolveWorktree(repo, oldBranch.id, oldBranch.ref); // get an existing worktree
+            const newWorktree = await resolveWorktree(repo, newBranch.id, newBranch.ref); // get a new linked-worktree, including creating a directory (if needed)
             if (!oldWorktree)
                 return thunkAPI.rejectWithValue(`No worktree could be resolved for current worktree =>\n\trepo: '${repo.name}'\n\told branch: '${oldBranch.ref}'\n\tnew branch: '${newBranch.ref}'`);
             if (!newWorktree)

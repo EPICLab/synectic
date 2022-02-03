@@ -23,7 +23,8 @@ export const fetchBranchByFilepath = createAsyncThunk<Branch | undefined, PathLi
         const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
         const branches = removeUndefined(Object.values(thunkAPI.getState().branches.entities)
             .filter(branch => branch && branch.root.toString() == root));
-        return branches.length > 0 ? branches[0] : undefined;
+        const current = await currentBranch({ dir: filepath });
+        return current ? branches.find(b => b.ref === current) : undefined;
     }
 );
 
