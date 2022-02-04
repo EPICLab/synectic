@@ -39,6 +39,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
+        generateReleaseNotes: true
         omitBodyDuringUpdate: true
         artifacts: "out/make/**"
         token: ${{ secrets.GITHUB_TOKEN }}

@@ -10,7 +10,7 @@ describe('containers/git-path', () => {
         const instance = await mock({
             '.syn': {
                 'bad-branch': {
-                    '.git': 'gitdir: foo/.git/worktrees/bad-branch',
+                    '.git': `gitdir: ${path.normalize('foo/.git/worktrees/bad-branch')}`,
                     'delta.txt': 'file contents'
                 }
             },
@@ -19,7 +19,7 @@ describe('containers/git-path', () => {
                 '.git': {
                     worktrees: {
                         'bad-branch': {
-                            gitdir: '.syn/bad-branch/.git'
+                            gitdir: `${path.normalize('.syn/bad-branch/.git')}`
                         }
                     }
                 }
@@ -56,7 +56,7 @@ describe('containers/git-path', () => {
         expect.assertions(1);
         const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
         jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
-        await expect(getBranchRoot('foo', 'bad-branch')).resolves.toEqual('.syn/bad-branch');
+        await expect(getBranchRoot('foo', 'bad-branch')).resolves.toEqual(path.normalize('.syn/bad-branch'));
     });
 
     it('getWorktreePaths resolves path to main worktree file', async () => {

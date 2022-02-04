@@ -7,9 +7,12 @@ import Editor from '../Editor/Editor';
 import Explorer from '../Explorer/Explorer';
 import ReposOverview from '../SourceControl/ReposOverview';
 import SourceControl from '../SourceControl/SourceControl';
+import Loading from './Loading';
 
 const Content: React.FunctionComponent<Card> = card => {
     switch (card.type) {
+        case 'Loading':
+            return (<Loading />);
         case 'Editor':
             return (<Editor metafileId={card.metafile} />);
         case 'Diff':

@@ -30,7 +30,7 @@ export type WorktreePaths = {
 export const getRoot = async (filepath: fs.PathLike): Promise<fs.PathLike | undefined> => {
     try {
         const root = await findRoot({ fs: fs, filepath: filepath.toString() });
-        return root;
+        return path.normalize(root);
     }
     catch (e) {
         return undefined;
@@ -90,7 +90,7 @@ export const getWorktreePaths = async (target: fs.PathLike): Promise<WorktreePat
 
         const worktreeGitdir = (worktrees && branch) ?
             (await io.readFileAsync(path.join(worktrees, branch, 'gitdir'), { encoding: 'utf-8' })).trim() : undefined;
-        const worktreeDir = worktreeGitdir ? path.normalize(path.join(worktreeGitdir, '..')) : undefined;
+        const worktreeDir = worktreeGitdir ? path.join(worktreeGitdir, '..') : undefined;
         const worktreeLink = worktreeGitdir ?
             (await io.readFileAsync(worktreeGitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim() : undefined;
 

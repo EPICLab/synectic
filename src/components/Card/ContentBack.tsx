@@ -5,9 +5,12 @@ import { DiffReverse } from '../Diff/Diff';
 import { ExplorerReverse } from '../Explorer/Explorer';
 import { SourceControlReverse } from '../SourceControl/SourceControl';
 import { BrowserReverse } from '../Browser/Browser';
+import { LoadingReverse } from './Loading';
 
 const Content: React.FunctionComponent<Card> = card => {
     switch (card.type) {
+        case 'Loading':
+            return (<LoadingReverse {...card} />);
         case 'Editor':
             return (<EditorReverse {...card} />);
         case 'Diff':
