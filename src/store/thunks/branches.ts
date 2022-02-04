@@ -6,7 +6,7 @@ import { currentBranch, getConfig, log } from '../../containers/git-porcelain';
 import type { Branch, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
 import { fetchParentMetafile, FilebasedMetafile } from './metafiles';
-import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
+import { getRoot, getWorktreePaths } from '../../containers/git-path';
 import { branchUpdated } from '../slices/branches';
 
 export const fetchBranchById = createAsyncThunk<Branch | undefined, UUID, AppThunkAPI>(
@@ -23,7 +23,7 @@ export const fetchBranchByFilepath = createAsyncThunk<Branch | undefined, PathLi
         const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
         const branches = removeUndefined(Object.values(thunkAPI.getState().branches.entities)
             .filter(branch => branch && branch.root.toString() == root));
-        const current = await currentBranch({ dir: filepath });
+        const current = root ? await currentBranch({ dir: root }) : undefined;
         return current ? branches.find(b => b.ref === current) : undefined;
     }
 );
@@ -46,10 +46,13 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, FilebasedMetafil
 
         // if root path matches an existing branch, return the matching branch
         const branch = await thunkAPI.dispatch(fetchBranchByFilepath(metafile.path)).unwrap();
-        if (branch) return branch;
+        if (branch) {
+            return branch;
+        }
 
         const root = await getRoot(metafile.path);
-        return root ? await thunkAPI.dispatch(fetchLocalBranch({ root: root })).unwrap() : undefined;
+        const localBranch = root ? await thunkAPI.dispatch(fetchLocalBranch({ root: root })).unwrap() : undefined;
+        return localBranch;
     }
 );
 
@@ -64,18 +67,19 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, FilebasedMetafil
 export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: PathLike, branchName?: string }, AppThunkAPI>(
     'branches/fetchLocalBranch',
     async (input, thunkAPI) => {
-        const { dir, gitdir } = await getWorktreePaths(input.root);
+        const { dir, gitdir, worktreeDir, worktreeGitdir } = await getWorktreePaths(input.root);
         if (!dir) {
             thunkAPI.rejectWithValue(`No repository found at root directory: ${input.root.toString()}`);
             return undefined;
         }
-        const branchRoot = input.branchName ? await getBranchRoot(dir, input.branchName) : dir;
-        const current = branchRoot ? await currentBranch({ dir: branchRoot, fullname: false }) : undefined;
+        const root = worktreeDir ? worktreeDir : dir;
+        const rootGitdir = worktreeGitdir ? worktreeGitdir : gitdir;
+        const current = root ? await currentBranch({ dir: root, fullname: false }) : undefined;
         const branch = input.branchName ? input.branchName : !current ? 'HEAD' : current;
 
         const config = branch !== 'HEAD' ? await getConfig({ dir: dir, keyPath: `branch.${branch}.remote` }) : undefined;
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
-        const commits = branchRoot ? (await log({ dir: branchRoot, ref: branch, depth: 50 })) : [];
+        const commits = root ? (await log({ dir: root, ref: branch, depth: 50 })) : [];
         const head = commits.length > 0 ? commits[0].oid : '';
 
         const existing = removeUndefined(Object.values(thunkAPI.getState().branches.entities)).find(b => b.scope === 'local' && b.ref === branch);
@@ -85,8 +89,8 @@ export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: Pat
             id: v4(),
             scope: 'local',
             ref: branch,
-            root: branchRoot ? branchRoot : '',
-            gitdir: gitdir ? gitdir : '',
+            root: root ? root : '',
+            gitdir: rootGitdir ? rootGitdir : '',
             remote: remote,
             commits: commits,
             head: commits.length > 0 ? commits[0].oid : ''

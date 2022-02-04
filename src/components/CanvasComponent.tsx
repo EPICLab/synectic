@@ -143,22 +143,19 @@ const CanvasComponent: React.FunctionComponent = props => {
   }
   const actionMenu: NavItemProps[] = [
     { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(modalAdded(diffPickerModal)) },
-    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) }
-  ];
-
-  const mergeMenu: NavItemProps[] = [
     { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
-    { label: 'Show Conflicts...', click: () => dispatch(loadConflictManagers()) }
   ];
 
   const viewMenu: NavItemProps[] = [
+    { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
     { label: 'Branches...', click: async () => dispatch(loadBranchVersions()) },
+    { label: 'Show Conflicts...', click: () => dispatch(loadConflictManagers()) },
   ];
 
   const sysMenu: NavItemProps[] = [
     { label: 'View Datastore...', click: () => showStore() },
     { label: 'View Cache...', click: () => showCache() },
-    { label: 'Clear Datastore...', click: async () => redux.persistor.purge() }
+    { label: 'Clear Datastore...', click: async () => redux.persistor.purge() },
   ];
 
   const helpMenu: NavItemProps[] = [
@@ -173,7 +170,6 @@ const CanvasComponent: React.FunctionComponent = props => {
       <div className={classes.root} >
         <NavMenu label='File' submenu={fileMenu} />
         <NavMenu label='Action' submenu={actionMenu} />
-        <NavMenu label='Merge' submenu={mergeMenu} />
         <NavMenu label='View' submenu={viewMenu} />
         <NavMenu label='System' submenu={sysMenu} />
         <NavMenu label='Help' submenu={helpMenu} />

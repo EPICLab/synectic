@@ -203,7 +203,8 @@ export const resolveWorktree = async (repo: Repository, branchId: UUID, branchRe
   const worktrees = await list(repo.root);
   const existing = worktrees ? worktrees.find(w => w.ref === branchRef) : undefined;
   if (existing) return existing;
-  const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${repo.name}/${branchRef}`);
+  const repoRef = io.extractFilename(repo.name);
+  const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${repoRef}/${branchRef}`);
   await add(repo, linkedRoot, branchRef);
   const updatedWorktrees = await list(repo.root);
   return updatedWorktrees ? updatedWorktrees.find(w => w.ref === branchRef) : undefined;

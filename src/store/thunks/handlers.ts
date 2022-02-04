@@ -4,7 +4,7 @@ import type { Filetype, Metafile } from '../../types';
 import * as io from '../../containers/io';
 import filetypesJson from '../../containers/filetypes.json';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { cardAdded } from '../slices/cards';
+import { cardAdded, cardUpdated } from '../slices/cards';
 import { DateTime } from 'luxon';
 import type { AppThunkAPI } from '../hooks';
 import { filetypeAdded } from '../slices/filetypes';
@@ -83,23 +83,29 @@ type CardLoadableFields =
 export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI & { rejectValue: string }>(
   'handlers/loadCard',
   async (param, thunkAPI) => {
+    const card = thunkAPI.dispatch(cardAdded({
+      id: v4(),
+      name: param.metafile ? param.metafile.name : param.filepath.toString(),
+      created: DateTime.local().valueOf(),
+      modified: DateTime.local().valueOf(),
+      zIndex: 0,
+      left: 10,
+      top: 70,
+      type: 'Loading',
+      metafile: '',
+      classes: []
+    })).payload;
     const metafile = param.metafile ? param.metafile : await thunkAPI.dispatch(fetchMetafile({ filepath: param.filepath })).unwrap();
     if (param.filepath && isFilebasedMetafile(metafile)) {
       const vcs = await thunkAPI.dispatch(fetchVersionControl(metafile)).unwrap();
       thunkAPI.dispatch(metafileUpdated({ ...metafile, ...vcs }));
     }
     if (isHandlerRequiredMetafile(metafile)) {
-      thunkAPI.dispatch(cardAdded({
-        id: v4(),
+      thunkAPI.dispatch(cardUpdated({
+        ...card,
         name: metafile.name,
-        created: DateTime.local().valueOf(),
-        modified: metafile.modified,
-        zIndex: 0,
-        left: 10,
-        top: 70,
         type: metafile.handler,
-        metafile: metafile.id,
-        classes: []
+        metafile: metafile.id
       }));
     } else {
       thunkAPI.rejectWithValue(`Metafile '${metafile.name}' missing handler for filetype: '${metafile.filetype}'`);
