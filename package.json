@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "preversion": "yarn test",
-    "postversion": "git push --tags && yarn publish . --tag $npm_package_version && git push && echo \"Successfully released version $npm_package_version!\"",
+    "postversion": "git push --tags",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
     "clean": "fse remove out; fse remove .webpack; fse remove dist",
