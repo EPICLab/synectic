@@ -45,21 +45,13 @@ export const GitGraphSelect: React.FunctionComponent = () => {
   const dispatch = useAppDispatch();
   const classes = useStyles();
 
-  /** if Clear Cache is called while a repo is selected, the Select component goes throws the following:
-   
-    Material-UI: You have provided an out-of-range value `b48f6199-3b49-4255-bcef-abd0754d553b` for the select component.
-    Consider providing a value that matches one of the available options or ''.
-    The available values are ``.
-   */
-
   useEffect(() => {
     clearMap();
   }, [repos]);
 
   const updateMap = (selected: Repository) => {
-    const id = v4();
-    setGraph(id); // track the modal UUID so that we can remove the graph later
-    dispatch(modalAdded({ id: id, type: 'GitGraph', target: selected.id }));
+    const modal = dispatch(modalAdded({ id: v4(), type: 'GitGraph', target: selected.id })).payload;
+    setGraph(modal.id); // track the modal UUID so that we can remove the graph later
     setRepo(selected.id); // update the select menu
   }
 
