@@ -32,11 +32,11 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: Branch }
     if (props.branch.root) {
       dispatch(loadCard({ filepath: props.branch.root }));
     } else {
-      console.log(`root '${props.branch.root}' not associated with any worktrees, gathering new metafile and checking out the branch`);
-      const metafiles = await dispatch(fetchMetafilesByFilepath(props.repo.root)).unwrap();
-      const updated = metafiles ? await dispatch(checkoutBranch({ metafileId: metafiles[0].id, branchRef: props.branch.ref })).unwrap() : undefined;
+      const resultAction = await dispatch(fetchMetafilesByFilepath(props.repo.root));
+      const updated = (fetchMetafilesByFilepath.fulfilled.match(resultAction))
+        ? await dispatch(checkoutBranch({ metafileId: metafiles[0].id, branchRef: props.branch.ref })).unwrap()
+        : undefined;
       if (updated) {
-        console.log(`checkoutBranch updated metafile: ${JSON.stringify(updated, undefined, 2)}`);
         dispatch(loadCard({ metafile: updated }));
       }
     }
