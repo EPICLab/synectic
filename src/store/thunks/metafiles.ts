@@ -50,7 +50,7 @@ export const fetchMetafileById = createAsyncThunk<Metafile | undefined, UUID, Ap
     }
 );
 
-export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], PathLike, AppThunkAPI>(
+export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], PathLike, AppThunkAPI<FilebasedMetafile[]>>(
     'metafiles/fetchByPath',
     async (metafileFilepath, thunkAPI) => {
         const filetype = await thunkAPI.dispatch(fetchFiletype({ filepath: metafileFilepath })).unwrap();
@@ -61,7 +61,7 @@ export const fetchMetafilesByFilepath = createAsyncThunk<FilebasedMetafile[], Pa
     }
 );
 
-export const fetchMetafilesByVersionControl = createAsyncThunk<Metafile[], { repoId: UUID, branch?: UUID }, AppThunkAPI>(
+export const fetchMetafilesByVersionControl = createAsyncThunk<Metafile[], { repoId: UUID, branch?: UUID }, AppThunkAPI<Metafile[]>>(
     'metafiles/fetchByVersionControl',
     async (vcs, thunkAPI) => {
         return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
@@ -69,7 +69,7 @@ export const fetchMetafilesByVersionControl = createAsyncThunk<Metafile[], { rep
     }
 );
 
-export const fetchMetafilesByVirtual = createAsyncThunk<VirtualMetafile[], { name: string, handler: string }, AppThunkAPI>(
+export const fetchMetafilesByVirtual = createAsyncThunk<VirtualMetafile[], { name: string, handler: string }, AppThunkAPI<VirtualMetafile[]>>(
     'metafiles/fetchByVirtual',
     async (virtual, thunkAPI) => {
         return removeUndefined(Object.values(thunkAPI.getState().metafiles.entities))
