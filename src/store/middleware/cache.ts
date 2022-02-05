@@ -13,7 +13,7 @@ export const cache: Middleware<unknown, RootState> = api => next => action => {
         // handle Promises 
         return action(api.dispatch, api.getState);
     } else {
-        if (action.type === 'metafiles/metafileRemoved') {
+        if (action.type === 'metafiles/metafileRemoved/fulfilled') {
             const metafiles = removeUndefined(Object.values(api.getState().metafiles.entities));
             const metafile = metafiles.find(metafile => metafile.id === action.payload);
 
@@ -23,7 +23,7 @@ export const cache: Middleware<unknown, RootState> = api => next => action => {
             }
         }
 
-        if (action.type === 'cards/cardRemoved') {
+        if (action.type === 'cards/cardRemoved/fulfilled') {
             const cards = removeUndefined(Object.values(api.getState().cards.entities));
             const card = cards.find(c => c.id === action.payload);
             const metafiles = removeUndefined(Object.values(api.getState().metafiles.entities));
@@ -53,7 +53,7 @@ export const cache: Middleware<unknown, RootState> = api => next => action => {
 
         const result = next(action);
 
-        if (action.type === 'metafiles/metafileAdded') {
+        if (action.type === 'metafiles/metafileAdded/fulfilled') {
             const metafile: Metafile = action.payload;
             if (isFileMetafile(metafile)) {
                 api.dispatch(cachedAdded({
@@ -65,7 +65,7 @@ export const cache: Middleware<unknown, RootState> = api => next => action => {
             }
         }
 
-        if (action.type === 'metafiles/fetchMetafile/fulfilled') {
+        if (['metafiles/fetchByPath/fulfilled', 'metafiles/fetchByVirtual/fulfilled', 'metafiles/fetchNew/fulfilled'].includes(action.type)) {
             const metafile: Metafile = action.payload;
             if (isFileMetafile(metafile)) {
                 const cached = removeUndefined(Object.values(api.getState().cached.entities)).find(cachedFile => cachedFile.path === metafile.path);
