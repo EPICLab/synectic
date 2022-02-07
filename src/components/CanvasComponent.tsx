@@ -112,7 +112,7 @@ const CanvasComponent: React.FunctionComponent = props => {
 
   const showCache = () => {
     console.group(`FS Cache : ${DateTime.local().toHTTP()}`);
-    console.log(`CACHE [${cache.size}]`, Array.from(cache.keys()));
+    console.log(`CACHE [${cache.size}]`, Array.from(cached).map(m => { return { path: m.path, reserves: m.reserves } }));
     console.groupEnd();
   }
 
