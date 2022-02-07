@@ -126,11 +126,11 @@ export const fetchParentMetafile = createAsyncThunk<DirectoryMetafile | undefine
     }
 );
 
-export const fetchContent = createAsyncThunk<Required<Pick<Metafile, 'content' | 'state'>>, PathOrVirtual>(
+export const fetchContent = createAsyncThunk<Required<Pick<Metafile, 'state'>>, PathOrVirtual>(
     'metafiles/fetchContent',
     async (input) => {
         return input.virtual ?
-            { content: input.virtual.content ? input.virtual.content : '', state: input.virtual.state ? input.virtual.state : 'unmodified' } :
+            { content: input.virtual.content, state: input.virtual.state ? input.virtual.state : 'unmodified' } :
             { content: await readFileAsync(input.filepath, { encoding: 'utf-8' }), state: 'unmodified' };
     }
 );
