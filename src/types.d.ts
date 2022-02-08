@@ -14,7 +14,7 @@ export type SHA1 = ReturnType<typeof sha1>;
 export type Timestamp = ReturnType<DateTime['valueOf']>;
 
 export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'ReposTracker' | 'Merge' | 'SourceControl' | 'ConflictManager';
-export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewCardDialog' | 'SourcePicker' | 'CommitDialog';
+export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewCardDialog' | 'SourcePicker' | 'CommitDialog' | 'Notification';
 /**
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |
