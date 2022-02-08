@@ -65,8 +65,16 @@ export const cache: Middleware<unknown, RootState> = api => next => action => {
             }
         }
 
-        if (action.type === 'metafiles/fetchMetafile/fulfilled') {
+        if (action.type === 'metafiles/fetchNew/fulfilled') {
             const metafile: Metafile = action.payload;
+            if (isFileMetafile(metafile)) {
+                const cached = removeUndefined(Object.values(api.getState().cached.entities)).find(cachedFile => cachedFile.path === metafile.path);
+                if (cached) api.dispatch(cachedSubscribed(cached));
+            }
+        }
+
+        if (['metafiles/fetchByPath/fulfilled', 'metafiles/fetchByVirtual/fulfilled'].includes(action.type)) {
+            const metafile: Metafile = action.payload[0];
             if (isFileMetafile(metafile)) {
                 const cached = removeUndefined(Object.values(api.getState().cached.entities)).find(cachedFile => cachedFile.path === metafile.path);
                 if (cached) api.dispatch(cachedSubscribed(cached));

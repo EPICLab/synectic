@@ -8,6 +8,7 @@ import ErrorDialog from './ErrorDialog';
 import { GitGraph } from './GitGraph/GitGraph';
 import MergeDialog from './SourceControl/MergeDialog';
 import NewCardDialog from './NewCardDialog';
+import Notification from './Notification';
 import SourcePickerDialog from './SourceControl/SourcePickerDialog';
 
 const ModalComponent: React.FunctionComponent<Modal> = props => {
@@ -28,6 +29,8 @@ const ModalComponent: React.FunctionComponent<Modal> = props => {
       return (<SourcePickerDialog {...props} />);
     case 'CommitDialog':
       return (<CommitDialog {...props} />);
+    case 'Notification':
+      return (<Notification {...props} />);
     default:
       return null;
   }

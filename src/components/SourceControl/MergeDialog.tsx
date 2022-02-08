@@ -68,23 +68,13 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   }, []) : [];
 
   const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
   const mergeable = repo !== '' && base !== '' && compare !== '' && base !== compare;
-
-  // const branchCheck = async () => {
-  //   const fullRepo = repos.find(r => r.id === repo);
-  //   if (!fullRepo) return;
-  //   const result = await isomerge(fullRepo.root, base, compare, true);
-  //   console.log(`merge dryRun: ${base}...${compare}`);
-  //   console.log(result);
-  // }
 
   const check = async () => {
     const baseBranch = branches[base];
     const compareBranch = branches[compare];
     if (!baseBranch || !compareBranch) return;
 
-    console.log(`<<MERGE CHECK>>\nbase: ${baseBranch.ref} => compare: ${compareBranch.ref}`);
     setCommitCountDelta('Running');
     setBranchConflicts(['Unchecked', undefined]);
     setBuildStatus('Unchecked');
@@ -131,7 +121,8 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     setBuildStatus('Running');
 
     // check for build failures by running build scripts from target project
-    const buildResults = await build(fullRepo, baseBranch.ref, compareBranch.ref);
+    const buildResults = await build(fullRepo, baseBranch.ref);
+    console.log(`BUILD`, { buildResults });
     const buildStatus = (buildResults.installCode === 0 && buildResults.buildCode === 0) ? 'Passing' : 'Failing';
     setBuildStatus(buildStatus);
   }
@@ -176,14 +167,22 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
           />
         </div>
         <div className={classes.section2}>
-          <Button
-            variant='outlined'
-            color='primary'
-            className={classes.button}
-            disabled={!mergeable}
-            onClick={check}>
-            Merge
-          </Button>
+          {branchConflicts[0] === 'Passing' && buildStatus === 'Passing' ?
+            <Button
+              variant='outlined'
+              color='primary'
+              className={classes.button}
+              onClick={() => dispatch(modalRemoved(props.id))}>
+              OK
+            </Button> :
+            <Button
+              variant='outlined'
+              color='primary'
+              className={classes.button}
+              disabled={!mergeable}
+              onClick={check}>
+              Merge
+            </Button>}
         </div>
       </div>
     </Dialog>

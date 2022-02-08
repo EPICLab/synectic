@@ -46,7 +46,7 @@ export const importFiletypes = createAsyncThunk<void, void, AppThunkAPI>(
  * wrapped in a [Promise Lifecycle](https://redux-toolkit.js.org/api/createAsyncThunk#promise-lifecycle-actions)
  * that generates `pending`, `fulfilled`, and `rejected` actions as needed.
  */
-export const resolveHandler = createAsyncThunk<Filetype | undefined, PathLike, AppThunkAPI & { rejectValue: string }>(
+export const resolveHandler = createAsyncThunk<Filetype | undefined, PathLike, AppThunkAPI<string>>(
   'handlers/resolveHandler',
   async (filepath, thunkAPI) => {
     const stats = await io.extractStats(filepath);
@@ -80,7 +80,7 @@ type CardLoadableFields =
  * @return A Thunk that can be executed to load a card onto the canvas and dispatch Redux updates, if the card cannot
  * be added to the Redux store and no errors can be generated, then `undefined` is returned instead.
  */
-export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI & { rejectValue: string }>(
+export const loadCard = createAsyncThunk<void, CardLoadableFields, AppThunkAPI<string>>(
   'handlers/loadCard',
   async (param, thunkAPI) => {
     const card = thunkAPI.dispatch(cardAdded({

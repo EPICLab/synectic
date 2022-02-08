@@ -49,12 +49,12 @@ const ResetButton: React.FunctionComponent<ResetButtonProps> = ({ mode = 'light'
     const onHover = () => {
         if (cards.length > 1) {
             cards.filter(c => unstaged.find(m => c.metafile === m.id) || staged.find(m => c.metafile === m.id) ? true : false)
-                .map(c => dispatch(cardUpdated({ ...c, classes: addItemInArray(c.classes, 'selected') })));
+                .map(c => dispatch(cardUpdated({ ...c, classes: addItemInArray(c.classes, 'selected-card') })));
         }
     }
 
     const offHover = () => {
-        cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected') })));
+        cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
     return (

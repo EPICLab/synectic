@@ -1,47 +1,33 @@
 import { exec } from 'child_process';
 import util from 'util';
-import { checkout } from 'isomorphic-git';
-import * as fs from 'fs-extra';
-import { join } from 'path';
 
 import type { Repository } from '../types';
-import { clone, merge } from '../containers/git-porcelain';
 import { readDirAsync } from './io';
-import { removeUndefinedProperties } from './format';
+import { getBranchRoot, getWorktreePaths } from './git-path';
 
 const promiseExec = util.promisify(exec);
 
-export const tempClone = async (repo: Repository, branch: string): Promise<string> => {
-  const cloneRoot = join(repo.root.toString(), '../', '.syn');
-  await clone({ repo: repo, dir: cloneRoot, ref: branch });
-  return cloneRoot;
-}
+export const build = async (repo: Repository, base: string): Promise<{ installCode: number; buildCode: number; }> => {
+  const branchRoot = await getBranchRoot(repo.root, base);
+  if (!branchRoot) return { installCode: -1, buildCode: -1 };
+  const worktree = await getWorktreePaths(branchRoot);
+  if (!worktree.dir) return { installCode: -1, buildCode: -1 };
 
-export const build = async (repo: Repository, base: string, compare: string): Promise<{ installCode: number; buildCode: number; }> => {
-  const cloneRoot = await tempClone(repo, base);
-  await checkout({ fs: fs, dir: cloneRoot, ref: base });
-
-  const mergeResult = await merge(cloneRoot, base, compare);
-  const ref = removeUndefinedProperties({ ref: mergeResult.oid });
-  // this next step seems unnecessary, but isomorphic-git.merge stages a reversal changeset that negates the results of the merge
-  // reverting the target branch back to the merged commit (via checkout) allows these reversal changesets to be removed
-  await checkout({ fs: fs, dir: cloneRoot, ...ref });
-
-  const rootFiles = await readDirAsync(cloneRoot);
+  const rootFiles = await readDirAsync(worktree.dir);
   const packageManager = rootFiles.find(file => file === 'yarn.lock') ? 'yarn' : 'npm';
 
   let [installCode, buildCode] = [-1, -1];
   try {
-    const installResults = promiseExec(`${packageManager} install`, { cwd: cloneRoot });
+    const installResults = promiseExec(`${packageManager} install`, { cwd: worktree.dir.toString() });
     installResults.child.stdout?.on('data', data => console.log('INSTALL: ' + data));
     installResults.child.stderr?.on('data', data => console.log('INSTALL error: ' + data));
     installResults.child.on('close', code => {
       console.log(`INSTALL 'close' listener found code: ${code}`);
-      (code ? (installCode = code) : null);
+      installCode = Number(code);
     });
     installResults.child.on('exit', code => {
       console.log(`INSTALL 'exit' listener found code: ${code}`);
-      (code ? (installCode = code) : null);
+      installCode = Number(code);
     });
     installResults.child.on('error', error => {
       console.log('INSTALL \'error\' listener found error:');
@@ -52,20 +38,21 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
     console.log('INSTALL ERROR');
     console.log(e);
   }
+  console.log(`BUILD intermediate`, { installCode, buildCode });
 
   if (installCode === 0) {
     const packageManagerBuildScript = packageManager === 'yarn' ? 'run' : 'run-script';
     try {
-      const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} build`, { cwd: cloneRoot });
+      const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} build`, { cwd: worktree.dir.toString() });
       buildResults.child.stdout?.on('data', data => console.log('BUILD: ' + data));
       buildResults.child.stderr?.on('data', data => console.log('BUILD error: ' + data));
       buildResults.child.on('close', code => {
         console.log(`BUILD 'close' listener found code: ${code}`);
-        (code ? (buildCode = code) : null);
+        buildCode = Number(code);
       });
       buildResults.child.on('exit', code => {
         console.log(`BUILD 'exit' listener found code: ${code}`);
-        (code ? (buildCode = code) : null);
+        buildCode = Number(code);
       });
       buildResults.child.on('error', error => {
         console.log('BUILD \'error\' listener found error:');
@@ -78,7 +65,7 @@ export const build = async (repo: Repository, base: string, compare: string): Pr
     }
   }
 
-  fs.remove(cloneRoot, (error) => console.log(error));
+  console.log(`BUILD final`, { installCode, buildCode });
 
-  return { installCode: installCode, buildCode: buildCode };
+  return { installCode, buildCode };
 }

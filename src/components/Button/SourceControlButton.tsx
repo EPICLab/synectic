@@ -7,12 +7,11 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { loadCard } from '../../store/thunks/handlers';
-import { fetchMetafile } from '../../store/thunks/metafiles';
-import { v4 } from 'uuid';
-import { DateTime } from 'luxon';
+import { fetchNewMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git-path';
 import { removeUndefinedProperties } from '../../containers/format';
+import branchSelectors from '../../store/selectors/branches';
 
 type SourceControlButtonProps = {
     repoId: UUID,
@@ -23,6 +22,7 @@ type SourceControlButtonProps = {
 const SourceControlButton: React.FunctionComponent<SourceControlButtonProps> = ({ mode = 'light', repoId, metafileId }) => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, metafileId));
+    const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
@@ -35,11 +35,13 @@ const SourceControlButton: React.FunctionComponent<SourceControlButtonProps> = (
             console.log(`Cannot load source control for untracked metafile:'${metafileId}'`);
             return;
         }
-        const optionals = removeUndefinedProperties({ path: await getBranchRoot(repo.root, metafile.branch) });
-        const sourceControl = await dispatch(fetchMetafile({
+
+        const branchName = branches[metafile.branch]?.ref;
+        const optionals = branchName ? removeUndefinedProperties({ path: await getBranchRoot(repo.root, branchName) }) : {};
+        const sourceControl = await dispatch(fetchNewMetafile({
             virtual: {
-                id: v4(),
-                modified: DateTime.local().valueOf(),
+                id: '',
+                modified: 0,
                 name: 'Source Control',
                 handler: 'SourceControl',
                 repo: repo.id,

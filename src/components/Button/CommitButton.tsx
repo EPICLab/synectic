@@ -53,12 +53,12 @@ const CommitButton: React.FunctionComponent<CommitButtonProps> = ({ mode = 'ligh
     const onHover = (target: Metafile[]) => {
         if (cards.length > 1) {
             cards.filter(c => target.find(m => c.metafile === m.id) ? true : false)
-                .map(c => dispatch(cardUpdated({ ...c, classes: addItemInArray(c.classes, 'selected') })));
+                .map(c => dispatch(cardUpdated({ ...c, classes: addItemInArray(c.classes, 'selected-card') })));
         }
     }
 
     const offHover = () => {
-        cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected') })));
+        cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
     return (

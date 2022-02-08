@@ -77,7 +77,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
                             <Typography color='secondary' variant='body2'>
                                 Missing git-config: {JSON.stringify(branchConflicts[1])}
                             </Typography> : null} */}
-                        {(branchConflicts[1] !== undefined) ?
+                        {(branchConflicts[0] === 'Failing') ?
                             <Typography color='secondary' variant='body2'>
                                 Merge conflicts: Resolve conflicts before merging
                             </Typography> : null}
