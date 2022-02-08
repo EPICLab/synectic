@@ -58,7 +58,7 @@ export const GitGraphSelect: React.FunctionComponent = () => {
   const clearMap = () => {
     if (graph) dispatch(modalRemoved(graph));
     setGraph(undefined);
-    setRepo('');
+    setRepo(undefined);
   }
 
   const repoChange = async (event: React.ChangeEvent<{ value: UUID }>) => {
@@ -79,7 +79,7 @@ export const GitGraphSelect: React.FunctionComponent = () => {
           onChange={repoChange}
           input={<StyledInput />}
         >
-          <MenuItem key='' value='' className={classes.defaultItem}>Repository Map</MenuItem>
+          <MenuItem key='' value='' className={classes.defaultItem}>{repo ? 'Clear Map' : 'Repository Map'}</MenuItem>
           {repos.map(r => <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>)}
         </Select>
       </FormControl>
