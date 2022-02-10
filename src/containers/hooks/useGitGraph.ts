@@ -3,12 +3,13 @@ import { ReadCommitResult } from 'isomorphic-git';
 import { useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
+import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { RootState } from '../../store/store';
 import type { Branch, UUID } from '../../types';
 import { checkProject } from '../conflicts';
 import { removeUndefined } from '../format';
-import { getStatus } from '../git-porcelain';
+import { hasStatus } from '../git-porcelain';
 import usePrevious from './usePrevious';
 
 type Oid = string;
@@ -30,27 +31,37 @@ type useGitGraphHook = {
 
 const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
+    const staged = useAppSelector((state: RootState) => metafileSelectors.selectStagedFieldsByRepo(state, repo ? repo.id : ''));
+    const prevStaged = usePrevious(staged);
     const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo) : []);
-    const previous = usePrevious(branches);
+    const prevBranches = usePrevious(branches);
     const [graph, setGraph] = useState(new Map<Oid, CommitVertex>());
 
-    useEffect(() => { process() }, [branches]);
+    useEffect(() => {
+        process('branches');
+    }, [branches]);
+    useEffect(() => {
+        const changed = prevStaged ? diffArrays(prevStaged, staged).filter(change => change.added || change.removed).length > 0 : true;
+        if (changed) process('staged');
+    }, [staged]);
 
-    // const fetched = (branch.scope === 'remote')
-    //     ? await log({ dir: repo.root.toString(), ref: `remotes/${branch.remote}/${branch.ref}` })
-    //     : await log({ dir: repo.root.toString(), ref: branch.ref });
-
-    const process = async () => {
+    const process = async (target: 'branches' | 'staged') => {
         if (repo) {
             const newGraph = new Map(graph);
-            const { added, removed, modified } = partition();
+            const { added, removed, modified } = (target === 'branches') ? partition() : { added: [], removed: [], modified: [] };
 
             if (removed) { // no guarantee about providence of commits, invalidate graph and reconstruct
                 newGraph.clear();
                 await Promise.all(branches.map(branch => parse(newGraph, branch)));
+                await Promise.all(branches.map(branch => parseStaged(newGraph, branch)));
             } else {
                 await Promise.all(added.map(branch => parse(newGraph, branch)));
                 await Promise.all(modified.map(branch => parse(newGraph, branch)));
+                await Promise.all(added.map(branch => parseStaged(newGraph, branch)));
+                await Promise.all(modified.map(branch => parseStaged(newGraph, branch)));
+            }
+            if (target === 'staged') {
+                await Promise.all(branches.map(branch => parseStaged(newGraph, branch)));
             }
             link(newGraph); // linking is needed for topological sorting to work properly
             if (pruned) prune(newGraph);
@@ -83,11 +94,15 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
             })
                 : null
         });
+    };
 
-        // check for staged files in branch and add placeholder CommitVertex if found
+    const parseStaged = async (graph: GitGraph, branch: Branch) => {
         if (branch.scope === 'local') {
-            const status = await getStatus(branch.root);
-            if (status && !['ignored', 'unmodified'].includes(status)) {
+            const existing = graph.has(`${branch.scope}/${branch.ref}*`);
+            const hasStaged = await hasStatus(branch.root, ['added', 'modified', 'deleted']);
+
+            if (!existing && hasStaged) {
+                // add placeholder CommitVertex for newly staged files in the branch
                 graph.set(`${branch.scope}/${branch.ref}*`, {
                     oid: `${branch.scope}/${branch.ref}*`,
                     commit: {
@@ -107,8 +122,12 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
                     conflicted: false
                 });
             }
+            if (existing && !hasStaged) {
+                // delete any previously set placeholders CommitVertex
+                graph.delete(`${branch.scope}/${branch.ref}*`);
+            }
         }
-    };
+    }
 
     /**
      * Traverse all vertices and add backlinks to all child vertices. Time complexity is `O(V+E)`, where `V` is
@@ -153,21 +172,28 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
      * Filter and partition commits in a branch into added, removed, and modified. Time complexity is `O(B*C)` where `B` is the
      * number of branches (local and remote instances are considered separately) and `C` is the number of commits in the repository.
      * @returns A filtered object containing branches that have been added, branches that have been removed, and branches that
-     * contain modifications to the tracked commits or the commit pointed to by HEAD.
+     * contain modifications to the tracked commits, the commit pointed to by HEAD, or staged/unstaged files.
      */
     const partition = (): { added: Branch[], removed: boolean, modified: Branch[] } => {
-        const removed = previous ? previous.some(branch => !branches.some(b => b.id === branch.id)) : false;
-        if (removed) return { added: [], removed: removed, modified: [] }; // removed branches invalidate the graph
+        const removed = prevBranches ? prevBranches.some(branch => !branches.some(b => b.id === branch.id)) : false;
+        if (removed) return { added: [], removed: removed, modified: [] }; // branches were removed, so invalidate the graph
 
         const isModified = (prev: Branch, curr: Branch) => {
             const sameHead = prev.head === curr.head;
-            const sameCommits = diffArrays(prev.commits, curr.commits, { comparator: (a, b) => a.oid === b.oid }).length === 0;
+            const sameCommits = !diffArrays(prev.commits, curr.commits, { comparator: (a, b) => a.oid === b.oid }).some(d => d.added || d.removed);
             return !(sameHead && sameCommits);
         }
 
+        const isChanged = (branch: Branch) => {
+            const prev = prevStaged?.some(m => m.branch === branch.id);
+            const curr = staged.some(m => m.branch === branch.id);
+            return prev !== curr;
+        }
+
         const [added, modified] = branches.reduce((accumulator: [Branch[], Branch[]], branch) => {
-            const prev = previous?.find(b => b.id === branch.id);
-            const modified = prev ? isModified(prev, branch) : true;
+            const prev = prevBranches?.find(b => b.id === branch.id);
+            let modified = prev ? isModified(prev, branch) : true;
+            modified = modified ? modified : isChanged(branch);
             return !prev ? (accumulator[0].push(branch), accumulator) : modified ? (accumulator[1].push(branch), accumulator) : accumulator;
         }, [[], []]);
 

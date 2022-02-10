@@ -6,7 +6,7 @@ import { currentBranch, getConfig, log } from '../../containers/git-porcelain';
 import type { Branch, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
 import { fetchParentMetafile, FilebasedMetafile } from './metafiles';
-import { getRoot, getWorktreePaths } from '../../containers/git-path';
+import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
 import { branchUpdated } from '../slices/branches';
 
 export const fetchBranchById = createAsyncThunk<Branch | undefined, UUID, AppThunkAPI>(
@@ -67,12 +67,13 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, FilebasedMetafil
 export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: PathLike, branchName?: string }, AppThunkAPI>(
     'branches/fetchLocalBranch',
     async (input, thunkAPI) => {
-        const { dir, gitdir, worktreeDir, worktreeGitdir } = await getWorktreePaths(input.root);
+        const branchRoot = input.branchName ? await getBranchRoot(input.root, input.branchName) : undefined;
+        const root = branchRoot ? branchRoot : input.root;
+        const { dir, gitdir, worktreeGitdir } = await getWorktreePaths(root);
         if (!dir) {
-            thunkAPI.rejectWithValue(`No repository found at root directory: ${input.root.toString()}`);
+            thunkAPI.rejectWithValue(`No repository found at root directory: ${root.toString()}`);
             return undefined;
         }
-        const root = worktreeDir ? worktreeDir : dir;
         const rootGitdir = worktreeGitdir ? worktreeGitdir : gitdir;
         const current = root ? await currentBranch({ dir: root, fullname: false }) : undefined;
         const branch = input.branchName ? input.branchName : !current ? 'HEAD' : current;

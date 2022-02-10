@@ -8,8 +8,8 @@ import { getProperty, setProperty, hasProperty, deleteProperty } from 'dot-prop'
 import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
-import { matrixEntry, statusMatrix } from './git-plumbing';
-import { removeUndefinedProperties } from './format';
+import { matrixEntry, matrixToStatus, statusMatrix } from './git-plumbing';
+import { isDefined, removeUndefinedProperties } from './format';
 import { getWorktreePaths } from './git-path';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
@@ -281,6 +281,26 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
   return matrixEntry(filepath);
+}
+
+/**
+ * Checks the git tracking status of a specific file or directory path for matches against a set of status filters. If the file is
+ * tracked by a branch in a linked worktree then status checks will look at the index file in the `GIT_DIR/worktrees/{branch}` directory
+ * for determining HEAD, WORKDIR, and STAGE status codes. Status codes are translated into comparable `GitStatus` type before comparison
+ * with the provided status filters.
+ * @param filepath The relative or absolute path to evaluate.
+ * @param statusFilters Array of `GitStatus` values to check against.
+ * @return A Promise object containing false if the path is not contained within a directory under version control, or a boolean
+ * indicating whether any file or files matched at least one of the `GitStatus` values in the provided status filter.
+ */
+export const hasStatus = async (filepath: fs.PathLike, statusFilters: GitStatus[]): Promise<boolean> => {
+  const statuses = await statusMatrix(filepath);
+  const found: GitStatus[] = statuses ? statuses
+    .map(row => matrixToStatus({ matrixEntry: row }))
+    .filter(isDefined)
+    .filter(status => statusFilters.includes(status))
+    : [];
+  return (found.length > 0) ? true : false;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { createDraftSafeSelector, EntityId } from '@reduxjs/toolkit';
+import { createDraftSafeSelector, createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { relative } from 'path';
 import type { Card, FilesystemStatus, Metafile, UUID } from '../../types';
@@ -72,6 +72,14 @@ const selectStagedByRepo = createDraftSafeSelector(
         .filter(m => m.repo === repo && m.status && ['added', 'modified', 'deleted'].includes(m.status))
 )
 
+const selectStagedFieldsByRepo = createSelector(
+    selectors.selectAll,
+    (_state: RootState, repoId: UUID) => repoId,
+    (metafiles, repo) => metafiles.filter(isFileMetafile)
+        .filter(m => m.repo === repo && m.status && ['added', 'modified', 'deleted'].includes(m.status))
+        .map(m => { return { id: m.id, repo: m.repo, branch: m.branch, status: m.status } })
+)
+
 const selectStagedByBranch = createDraftSafeSelector(
     selectors.selectAll,
     (_state: RootState, branchId: UUID) => branchId,
@@ -95,7 +103,7 @@ const selectUnstagedByBranch = createDraftSafeSelector(
 
 const metafileSelectors = {
     ...selectors, selectByIds, selectByFilepath, selectByRepo, selectByBranch, selectByRoot,
-    selectByVirtual, selectByState, selectByCards, selectByConflicted, selectStagedByRepo,
+    selectByVirtual, selectByState, selectByCards, selectByConflicted, selectStagedByRepo, selectStagedFieldsByRepo,
     selectStagedByBranch, selectUnstagedByRepo, selectUnstagedByBranch
 };
 
