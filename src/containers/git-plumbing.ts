@@ -113,13 +113,13 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   ref: string;
   depth?: number;
 }): Promise<string> => {
-  const worktree = await getWorktreePaths(gitdir);
+  const worktree = await getWorktreePaths(dir);
   const optional = removeUndefinedProperties({ depth: depth });
-  const updatedRef = (worktree.worktreeLink && ref === 'HEAD') ? (await io.readFileAsync(path.join(worktree.worktreeLink.toString(), 'HEAD'), { encoding: 'utf-8' })).trim() : ref;
-
-  return (worktree.dir && worktree.gitdir)
-    ? isogit.resolveRef({ fs: fs, dir: worktree.dir.toString(), gitdir: worktree.gitdir.toString(), ref: updatedRef, ...optional })
-    : isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, ...optional });
+  if (worktree.gitdir && worktree.worktreeLink && ref === 'HEAD') {
+    const linkedRef = (await io.readFileAsync(path.join(worktree.worktreeLink.toString(), 'HEAD'), { encoding: 'utf-8' })).slice('ref: '.length).trim();
+    return (await io.readFileAsync(path.join(worktree.gitdir.toString(), linkedRef), { encoding: 'utf-8' })).trim();
+  }
+  return await isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, ...optional });
 }
 
 /**
