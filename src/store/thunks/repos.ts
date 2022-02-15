@@ -135,29 +135,23 @@ export const switchCardMetafile = createAsyncThunk<void, { card: Card, metafile:
 );
 
 /** Async thunk action creator for creating a local repository by cloning a remote repository. */
-export const cloneRepository = createAsyncThunk<Repository | undefined, { url: URL | string, root: PathLike, onProgress?: ProgressCallback }, AppThunkAPI>(
+export const cloneRepository = createAsyncThunk<Repository | undefined, { url: URL, root: PathLike, onProgress?: ProgressCallback }, AppThunkAPI<string>>(
     'repos/cloneRepository',
     async (param, thunkAPI) => {
-        const { dir } = await getWorktreePaths(param.root);
-        if (dir) { // if root points to a current repository, do not clone over it
-            console.error(`Existing repository found at '${param.root.toString()}', use 'fetchRepo' to retrieve`);
-            return undefined;
-        }
+        const existing = await thunkAPI.dispatch(fetchRepoByFilepath(param.root)).unwrap();
+        // if root points to a current repository, do not clone over it and instead use `fetchRepo`
+        if (existing) return thunkAPI.rejectWithValue(`Existing repository found at '${param.root.toString()}', open the root directory instead`);
+
+        const info = await getRemoteInfo({ url: param.url.toString() });
+        if (!info.HEAD) return thunkAPI.rejectWithValue('Repository not configured; HEAD is disconnected or not configured');
+        const cloned = await clone({ url: param.url, dir: param.root, noCheckout: true, depth: 10, onProgress: param.onProgress });
+        if (!cloned) return thunkAPI.rejectWithValue(`Clone failed for '${param.url.toString()}'; possibly unsupported URL type`);
+
         const repo = await thunkAPI.dispatch(fetchNewRepo(param.root)).unwrap();
-        if (repo) {
-            const info = await getRemoteInfo({ url: repo.url });
-            if (!info.HEAD) return thunkAPI.rejectWithValue('Repository not configured; HEAD is disconnected or not configured');
-            const defaultBranch = info.HEAD.substring(info.HEAD.lastIndexOf('/') + 1);
-            thunkAPI.dispatch(repoUpdated({
-                ...repo,
-                remote: [defaultBranch]
-            }));
-            await clone({ repo: repo, dir: repo.root, noCheckout: true, depth: 10, onProgress: param.onProgress });
-            const branches = await thunkAPI.dispatch(fetchRepoBranches(repo.root)).unwrap();
-            thunkAPI.dispatch(repoUpdated({ ...repo, ...branches }));
-            return await thunkAPI.dispatch(fetchRepoById(repo.id)).unwrap();
-        }
-        return undefined;
+        const branches = repo ? await thunkAPI.dispatch(fetchRepoBranches(repo.root)).unwrap() : undefined;
+        (repo && branches) ? thunkAPI.dispatch(repoUpdated({ ...repo, ...branches })) : undefined;
+        if (repo) return await thunkAPI.dispatch(fetchRepoById(repo.id)).unwrap();
+        else return undefined;
     }
 );
 
