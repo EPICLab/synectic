@@ -1,7 +1,7 @@
 {
   "name": "synectic",
   "productName": "Synectic",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "preversion": "yarn test",
-    "postversion": "git push --tags",
+    "postversion": "genversion lib/version.js",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
     "clean": "fse remove out; fse remove .webpack; fse remove dist",
@@ -74,6 +74,7 @@
     "eslint-plugin-import": "^2.25.4",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^7.2.1",
+    "genversion": "^3.0.2",
     "git-remote-protocol": "^0.1.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.5.1",
