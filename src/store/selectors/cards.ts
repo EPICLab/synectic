@@ -1,13 +1,13 @@
 import { RootState } from '../store';
 import { cardsAdapter } from '../slices/cards';
-import { createDraftSafeSelector, EntityId } from '@reduxjs/toolkit';
+import { createSelector, EntityId } from '@reduxjs/toolkit';
 import type { Card, Metafile, UUID } from '../../types';
 import metafileSelectors from './metafiles';
 import { flattenArray } from '../../containers/flatten';
 
 const selectors = cardsAdapter.getSelectors<RootState>(state => state.cards);
 
-const selectByIds = createDraftSafeSelector(
+const selectByIds = createSelector(
     selectors.selectEntities,
     (_state: RootState, ids: EntityId[]) => ids,
     (cards, ids) => ids.map(id => cards[id]).filter((c): c is Card => c !== undefined)
@@ -23,7 +23,7 @@ const selectByIds = createDraftSafeSelector(
  * @param branch Git branch name or commit hash.
  * @returns An array of Card objects that meet the selection criteria.
  */
-const selectByRepo = createDraftSafeSelector(
+const selectByRepo = createSelector(
     selectors.selectAll,
     metafileSelectors.selectEntities,
     (_state: RootState, repoId: UUID) => repoId,
@@ -33,14 +33,14 @@ const selectByRepo = createDraftSafeSelector(
         .filter(c => branchId ? metafiles[c.metafile]?.branch === branchId : true)
 );
 
-const selectByStack = createDraftSafeSelector(
+const selectByStack = createSelector(
     selectors.selectAll,
     (_state: RootState, stackId: UUID) => stackId,
     (cards, stackId) => cards
         .filter(c => c.captured === stackId)
 )
 
-const selectByMetafiles = createDraftSafeSelector(
+const selectByMetafiles = createSelector(
     selectors.selectAll,
     (_state: RootState, metafiles: Metafile[]) => metafiles,
     (cards, metafiles) => flattenArray(metafiles.map(m => cards.filter(c => c.metafile === m.id)))

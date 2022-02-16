@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const CloneDialog: React.FunctionComponent<Modal> = props => {
     const classes = useStyles();
     const [url, setUrl] = useState('');
-    const [invalid, setInvalid] = useState(false);
+    const [invalid, setInvalid] = useState(true);
     const [targetPath, setTargetPath] = useState('');
     const [status, setStatus] = useState<Status>('Unchecked');
     const [log, setLog] = useState('');
@@ -74,11 +74,12 @@ const CloneDialog: React.FunctionComponent<Modal> = props => {
         const initiateCloning = async () => {
             try {
                 setStatus('Running');
-                await dispatch(cloneRepository({
-                    url: url,
+                const repo = await dispatch(cloneRepository({
+                    url: new URL(url),
                     root: targetPath,
                     onProgress: (progress) => setLog(`cloning objects: ${progress.loaded}/${progress.total}`)
-                }));
+                })).unwrap();
+                if (!repo) throw new Error('Cloning failed');
                 setStatus('Passing');
                 await dispatch(loadBranchVersions());
                 await delay(2000);
@@ -87,7 +88,6 @@ const CloneDialog: React.FunctionComponent<Modal> = props => {
                 setStatus('Failing');
             }
         }
-
         if (targetPath !== '' && !invalid) initiateCloning();
     }, [targetPath]);
 
@@ -124,7 +124,7 @@ const CloneDialog: React.FunctionComponent<Modal> = props => {
                             <Typography color='textSecondary' variant='body2'>
                                 {status === 'Running' ? log : null}
                                 {status === 'Passing' ? `Clone completed from '${url}' to '${targetPath}'` : null}
-                                {status === 'Failing' ? `Existing repository at ${targetPath}` : null}
+                                {status === 'Failing' ? `Clone failed from '${url}' to '${targetPath}'` : null}
                             </Typography>
                         </div>
                     </div>

@@ -8,8 +8,8 @@ import { getProperty, setProperty, hasProperty, deleteProperty } from 'dot-prop'
 import getGitConfigPath from 'git-config-path';
 import type { Repository, GitStatus } from '../types';
 import * as io from './io';
-import { matrixEntry, statusMatrix } from './git-plumbing';
-import { removeUndefinedProperties } from './format';
+import { matrixEntry, matrixToStatus, statusMatrix } from './git-plumbing';
+import { isDefined, removeUndefinedProperties } from './format';
 import { getWorktreePaths } from './git-path';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
@@ -38,8 +38,8 @@ export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string 
  * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function to inject the `fs` parameter and extend with
  * additional local-only branch functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the
  * local-only repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
- * @param repo A Repository object to be cloned.
  * @param dir The worktree root directory to contain the cloned repo.
+ * @param repo A Repository object to be cloned.
  * @param ref An optional branch name or SHA-1 hash to target cloning to that specific branch or commit.
  * @param singleBranch Instead of the default behavior of fetching all the branches, only fetch a single branch.
  * @param noCheckout Only fetch the repo without checking out a branch. Skipping checkout can save a lot of time normally spent writing
@@ -49,11 +49,12 @@ export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string 
  * @param exclude A list of branches or tags which should be excluded from remote server responses; specifically any commits reachable
  * from these refs will be excluded.
  * @param onProgress Callback for listening to GitProgressEvent occurrences during cloning.
- * @return A Promise object for the clone operation.
+ * @return A Promise object containing a boolean representing success/failure of the cloning operation.
  */
-export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout = false, noTags = false, depth, exclude, onProgress }: {
-  repo: Repository;
+export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheckout = false, noTags = false, depth, exclude, onProgress }: {
   dir: fs.PathLike;
+  url?: URL;
+  repo?: Repository;
   ref?: string;
   singleBranch?: boolean;
   noCheckout?: boolean;
@@ -61,23 +62,40 @@ export const clone = async ({ repo, dir, ref, singleBranch = false, noCheckout =
   depth?: number;
   exclude?: string[];
   onProgress?: isogit.ProgressCallback | undefined;
-}): Promise<void> => {
-  const optionals = removeUndefinedProperties({ depth: depth, exclude: exclude, onProgress: onProgress });
-  const worktree = await getWorktreePaths(repo.root);
-  const existingBranch = worktree.dir ? await currentBranch({ dir: worktree.dir, fullname: false }) : undefined;
-  const targetBranch = ref ? ref : existingBranch;
-  const remoteBranches = worktree.dir ? await isogit.listBranches({ fs: fs, dir: worktree.dir.toString(), remote: 'origin' }) : [];
+}): Promise<boolean> => {
+  const optionals = removeUndefinedProperties({ ref, depth, exclude, onProgress });
+  if (dir.toString().length == 0) return false;
 
-  if (targetBranch && !remoteBranches.includes(targetBranch)) {
-    await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) }); // do not copy node_modules/ directory
-    if (targetBranch !== existingBranch)
-      await checkout({ dir: dir, ref: targetBranch, noCheckout: noCheckout });
-    return;
+  if (url) {
+    // cloning a new repository from remote URL
+    await isogit.clone({
+      fs: fs, http: http, dir: dir.toString(), url: url.toString(), singleBranch: singleBranch, noCheckout: noCheckout,
+      noTags: noTags, ...optionals
+    });
+    return true;
   }
-  return isogit.clone({
-    fs: fs, http: http, dir: dir.toString(), url: repo.url, singleBranch: singleBranch, noCheckout: noCheckout,
-    noTags: noTags, ...optionals
-  });
+
+  if (repo) {
+    const worktree = await getWorktreePaths(repo.root);
+    const existingBranch = worktree.dir ? await currentBranch({ dir: worktree.dir, fullname: false }) : undefined;
+    const remoteBranches = worktree.dir ? await isogit.listBranches({ fs: fs, dir: worktree.dir.toString(), remote: 'origin' }) : [];
+    const targetBranch = ref ? ref : existingBranch;
+
+    if (targetBranch && !remoteBranches.includes(targetBranch)) {
+      // cloning a local-only branch via copy & checkout
+      await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) }); // do not copy node_modules/ directory
+      await checkout({ dir: dir, ref: targetBranch, noCheckout: noCheckout });
+      return true;
+    } else {
+      // cloning an existing repository into a linked worktree root directory
+      await isogit.clone({
+        fs: fs, http: http, dir: dir.toString(), url: repo.url, singleBranch: singleBranch, noCheckout: noCheckout,
+        noTags: noTags, ...optionals
+      });
+      return true;
+    }
+  }
+  return false;
 };
 
 /**
@@ -281,6 +299,26 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
   return matrixEntry(filepath);
+}
+
+/**
+ * Checks the git tracking status of a specific file or directory path for matches against a set of status filters. If the file is
+ * tracked by a branch in a linked worktree then status checks will look at the index file in the `GIT_DIR/worktrees/{branch}` directory
+ * for determining HEAD, WORKDIR, and STAGE status codes. Status codes are translated into comparable `GitStatus` type before comparison
+ * with the provided status filters.
+ * @param filepath The relative or absolute path to evaluate.
+ * @param statusFilters Array of `GitStatus` values to check against.
+ * @return A Promise object containing false if the path is not contained within a directory under version control, or a boolean
+ * indicating whether any file or files matched at least one of the `GitStatus` values in the provided status filter.
+ */
+export const hasStatus = async (filepath: fs.PathLike, statusFilters: GitStatus[]): Promise<boolean> => {
+  const statuses = await statusMatrix(filepath);
+  const found: GitStatus[] = statuses ? statuses
+    .map(row => matrixToStatus({ matrixEntry: row }))
+    .filter(isDefined)
+    .filter(status => statusFilters.includes(status))
+    : [];
+  return (found.length > 0) ? true : false;
 }
 
 /**

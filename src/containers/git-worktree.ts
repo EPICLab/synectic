@@ -221,8 +221,6 @@ export const resolveWorktree = async (repo: Repository, branchId: UUID, branchRe
  * @return A Promise object for the add worktree operation.
  */
 export const add = async (repo: Repository, worktreeDir: fs.PathLike, commitish?: string): Promise<void> => {
-  const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await resolveRef({ dir: repo.root, ref: commitish }))
-    : await resolveRef({ dir: repo.root, ref: 'HEAD' });
   const branch = (commitish && !isHash(commitish, 'sha1')) ? commitish : io.extractDirname(worktreeDir);
   const worktreeGitdir = path.resolve(path.join(worktreeDir.toString(), '.git'));
   const worktreeLink = path.join(repo.root.toString(), '.git', 'worktrees', branch);
@@ -232,6 +230,10 @@ export const add = async (repo: Repository, worktreeDir: fs.PathLike, commitish?
   // initialize the linked worktree
   await clone({ repo: repo, dir: worktreeDir, ref: branch });
   await checkout({ dir: worktreeDir, ref: branch });
+
+  // branch must already exist in order to resolve worktreeLink path (`GIT_DIR/worktrees/{branch}`)
+  const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await resolveRef({ dir: worktreeDir, ref: commitish }))
+    : await resolveRef({ dir: repo.root, ref: 'HEAD' });
 
   // populate internal git files in main worktree to recognize the new linked worktree
   await fs.ensureDir(worktreeLink);

@@ -163,6 +163,12 @@ const CanvasComponent: React.FunctionComponent = props => {
     { label: 'Repository...', click: async () => { shell.openExternal('https://github.com/EPICLab/synectic/'); } },
     { label: 'Release Notes...', click: async () => { shell.openExternal('https://github.com/EPICLab/synectic/releases'); } },
     { label: 'View License...', click: async () => { shell.openExternal('https://github.com/EPICLab/synectic/blob/5ec51f6dc9dc857cae58c5253c3334c8f33a63c4/LICENSE'); } },
+    {
+      label: 'Version', click: () => dispatch(modalAdded({
+        id: v4(), type: 'Notification',
+        options: { 'message': `Synectic v${process.env.npm_package_version}` }
+      }))
+    }
   ];
 
   return (
