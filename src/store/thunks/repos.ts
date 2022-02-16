@@ -144,7 +144,7 @@ export const cloneRepository = createAsyncThunk<Repository | undefined, { url: U
 
         const info = await getRemoteInfo({ url: param.url.toString() });
         if (!info.HEAD) return thunkAPI.rejectWithValue('Repository not configured; HEAD is disconnected or not configured');
-        const cloned = await clone({ url: param.url, dir: param.root, noCheckout: true, depth: 10, onProgress: param.onProgress });
+        const cloned = await clone({ url: param.url, dir: param.root, depth: 10, onProgress: param.onProgress });
         if (!cloned) return thunkAPI.rejectWithValue(`Clone failed for '${param.url.toString()}'; possibly unsupported URL type`);
 
         const repo = await thunkAPI.dispatch(fetchNewRepo(param.root)).unwrap();
