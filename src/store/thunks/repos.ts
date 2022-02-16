@@ -187,6 +187,10 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
             const absolutePath = join(newWorktree.path.toString(), relativePath);
             const fileExists = (await extractStats(absolutePath)) ? true : false;
             updated = fileExists ? await thunkAPI.dispatch(fetchMetafile({ filepath: join(newWorktree.path.toString(), relativePath) })).unwrap() : undefined;
+
+            // update branches in repo in case new local branches have been checked out
+            const branches = repo ? await thunkAPI.dispatch(fetchRepoBranches(repo.root)).unwrap() : undefined;
+            (repo && branches) ? thunkAPI.dispatch(repoUpdated({ ...repo, ...branches })) : undefined;
         }
         // get an updated metafile based on the updated worktree path
         if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path: '${metafile.path}'`);

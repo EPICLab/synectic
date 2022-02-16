@@ -35,11 +35,15 @@ const selectByRepo = createSelector(
     selectors.selectAll,
     (_state: RootState, repo: Repository) => repo,
     (_state: RootState, _repo: Repository, dedup?: boolean) => dedup ? dedup : false,
-    (branches, repo, dedup) => dedup ?
-        removeDuplicates(
-            branches.filter(branch => repo.local.includes(branch.id) || repo.remote.includes(branch.id)),
-            (a: Branch, b: Branch) => a.ref === b.ref) :
-        branches.filter(branch => repo.local.includes(branch.id) || repo.remote.includes(branch.id))
+    (branches, repo, dedup) => dedup
+        ? branches.reduce((accumulator: Branch[], branch) => {
+            // prefer local branches over remote branches when deduplicating
+            if (repo.local.includes(branch.id)) return (accumulator.push(branch), accumulator);
+            else if (repo.remote.includes(branch.id) && !accumulator.some(b => b.ref === branch.ref))
+                return (accumulator.push(branch), accumulator);
+            return accumulator;
+        }, [])
+        : branches.filter(branch => repo.local.includes(branch.id) || repo.remote.includes(branch.id))
 )
 
 const branchSelectors = {
