@@ -1,4 +1,4 @@
-import { createDraftSafeSelector, EntityId } from '@reduxjs/toolkit';
+import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { removeDuplicates } from '../../containers/format';
 import type { Branch, Repository } from '../../types';
@@ -7,31 +7,31 @@ import { RootState } from '../store';
 
 const selectors = branchesAdapter.getSelectors<RootState>(state => state.branches);
 
-const selectByIds = createDraftSafeSelector(
+const selectByIds = createSelector(
     selectors.selectEntities,
     (_state: RootState, ids: EntityId[]) => ids,
     (branches, ids) => ids.map(id => branches[id]).filter((b): b is Branch => b !== undefined)
 )
 
-const selectByRef = createDraftSafeSelector(
+const selectByRef = createSelector(
     selectors.selectAll,
     (_state: RootState, ref: string) => ref,
     (branches, ref) => branches.filter(b => b.ref === ref)
 )
 
-const selectByRoot = createDraftSafeSelector(
+const selectByRoot = createSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
     (branches, root) => branches.filter(b => b.root === root)
 )
 
-const selectByGitdir = createDraftSafeSelector(
+const selectByGitdir = createSelector(
     selectors.selectAll,
     (_state: RootState, gitdir: PathLike) => gitdir,
     (branches, gitdir) => branches.filter(b => b.gitdir === gitdir)
 )
 
-const selectByRepo = createDraftSafeSelector(
+const selectByRepo = createSelector(
     selectors.selectAll,
     (_state: RootState, repo: Repository) => repo,
     (_state: RootState, _repo: Repository, dedup?: boolean) => dedup ? dedup : false,
