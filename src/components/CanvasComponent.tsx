@@ -28,6 +28,7 @@ import { FSCache } from '../store/cache/FSCache';
 import { loadConflictManagers } from '../containers/conflicts';
 import branchSelectors from '../store/selectors/branches';
 import cachedSelectors from '../store/selectors/cached';
+import version from '../../version';
 
 export enum DnDItemType {
   CARD = 'CARD',
@@ -166,7 +167,7 @@ const CanvasComponent: React.FunctionComponent = props => {
     {
       label: 'Version', click: () => dispatch(modalAdded({
         id: v4(), type: 'Notification',
-        options: { 'message': `Synectic v${process.env.npm_package_version}` }
+        options: { 'message': `Synectic v${version}` }
       }))
     }
   ];
