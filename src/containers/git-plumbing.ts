@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
+import * as http from 'isomorphic-git/http/node';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
@@ -153,8 +154,16 @@ export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise
  * @return A Promise object containing a list of commits not found in both branches (i.e. the divergent set).
  */
 export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: string): Promise<isogit.ReadCommitResult[]> => {
-  const logA = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` });
-  const logB = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` });
+  const basePath = path.join(dir.toString(), '.git', 'refs', 'heads');
+
+  const logA = (await io.extractStats(path.join(basePath, branchA)))
+    ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` })
+    : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchA}` });
+
+  const logB = (await io.extractStats(path.join(basePath, branchB)))
+    ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` })
+    : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchB}` });
+
   return logA
     .filter(commitA => !logB.some(commitB => commitA.oid === commitB.oid))
     .concat(logB.filter(commitB => !logA.some(commitA => commitB.oid === commitA.oid)));
