@@ -12,7 +12,7 @@ export const loadBranchVersions = createAsyncThunk<void, void, AppThunkAPI>(
       virtual: {
         id: v4(),
         modified: DateTime.local().valueOf(),
-        name: 'Branch Tracker', handler: 'ReposTracker'
+        name: 'Branch Tracker', handler: 'BranchTracker'
       }
     }))
       .unwrap()

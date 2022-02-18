@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import { ArrowDropDown, ArrowRight, Error } from '@material-ui/icons';
 import { v4 } from 'uuid';
@@ -25,7 +25,7 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: Branch }
   const clickHandle = async () => {
     // undefined root indicates the main worktree, and any linked worktrees, are not associated with that branch
     const directoryContent = (await readDirAsync(props.branch.root));
-    const empty = directoryContent.length == 0 || (directoryContent.length == 1 && directoryContent.includes('.git')); // only a .git sub-directory counts as empty
+    const empty = directoryContent.length == 0 || (directoryContent.length == 1 && directoryContent.includes('.git')); // a .git sub-directory still counts as empty
     const current = await currentBranch({ dir: props.branch.root });
     let metafile = await dispatch(fetchMetafile({ filepath: props.branch.root })).unwrap();
     const vcs = isFilebasedMetafile(metafile) ? await dispatch(fetchVersionControl(metafile)).unwrap() : undefined;
@@ -49,8 +49,12 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: Branch }
   );
 };
 
-const RepoStatusComponent: React.FunctionComponent<{ repo: Repository }> = props => {
+const RepoStatus: React.FunctionComponent<{ repo: Repository }> = props => {
   const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, props.repo, true));
+
+  useEffect(() => {
+    console.log('RepoStatus branches', { branches });
+  }, [branches]);
 
   return (
     <StyledTreeItem key={props.repo.id} nodeId={props.repo.id} labelText={props.repo.name} labelIcon={GitRepoIcon}>
@@ -59,7 +63,7 @@ const RepoStatusComponent: React.FunctionComponent<{ repo: Repository }> = props
   );
 }
 
-const ReposOverview: React.FunctionComponent = () => {
+const BranchTracker: React.FunctionComponent = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [expanded, setExpanded] = React.useState(repos.length > 0 ? [repos[0].id] : []); // initial state; expand first listed repo
 
@@ -80,10 +84,10 @@ const ReposOverview: React.FunctionComponent = () => {
             labelIcon={Error}
           />
         }
-        {repos.length > 0 && repos.map(repo => <RepoStatusComponent key={repo.id} repo={repo} />)}
+        {repos.length > 0 && repos.map(repo => <RepoStatus key={repo.id} repo={repo} />)}
       </TreeView>
     </div>
   );
 };
 
-export default ReposOverview;
+export default BranchTracker;
