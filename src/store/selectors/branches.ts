@@ -39,7 +39,7 @@ const selectByRepo = createSelector(
             if (repo.local.includes(branch.id)) {
                 // prefer local branches, remove matching remote branch if already added
                 return (accumulator.push(branch), accumulator)
-                    .filter(branch => !(branch.scope === 'remote' && branch.ref === branch.ref));
+                    .filter(b => !(b.scope === 'remote' && b.ref === branch.ref));
             } else if (repo.remote.includes(branch.id) && !accumulator.some(b => b.scope === 'local' && b.ref === branch.ref)) {
                 // prefer local branches, only add remote if no matching local branch
                 return (accumulator.push(branch), accumulator);
