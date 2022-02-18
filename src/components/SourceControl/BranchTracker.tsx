@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import { ArrowDropDown, ArrowRight, Error } from '@material-ui/icons';
 import { v4 } from 'uuid';
@@ -51,10 +51,6 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: Branch }
 
 const RepoStatus: React.FunctionComponent<{ repo: Repository }> = props => {
   const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, props.repo, true));
-
-  useEffect(() => {
-    console.log('RepoStatus branches', { branches });
-  }, [branches]);
 
   return (
     <StyledTreeItem key={props.repo.id} nodeId={props.repo.id} labelText={props.repo.name} labelIcon={GitRepoIcon}>
