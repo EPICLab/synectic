@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
 
-import type { Modal, UUID } from '../../types';
+import type { Modal, Repository, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { loadCard } from '../../store/thunks/handlers';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -14,6 +14,21 @@ import { DateTime } from 'luxon';
 import { getBranchRoot } from '../../containers/git-path';
 import branchSelectors from '../../store/selectors/branches';
 import { isDefined, removeUndefinedProperties } from '../../containers/format';
+
+const emptyRepo: Repository = {
+  id: '',
+  name: '',
+  root: '',
+  corsProxy: '',
+  url: '',
+  default: '',
+  local: [],
+  remote: [],
+  oauth: 'github',
+  username: '',
+  password: '',
+  token: ''
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,17 +56,17 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
   const classes = useStyles();
-  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectEntities(state));
   const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
   const [selectedRepo, setSelectedRepo] = useState<UUID>('');
   const [selectedBranch, setSelectedBranch] = useState<UUID>('');
+  const repo = repos[selectedRepo];
+  const branch = branches[selectedBranch];
 
   const handleClose = () => dispatch(modalRemoved(props.id));
 
   const handleClick = async () => {
-    const repo = repos.find(r => r.id === selectedRepo);
-    const branch = branches[selectedBranch];
     const optionals = repo && branch && removeUndefinedProperties({ path: await getBranchRoot(repo.root, branch.ref) });
     const metafile = await dispatch(fetchMetafile({
       virtual: {
@@ -87,43 +102,8 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
         </div>
         <Divider variant='middle' />
         <div className={classes.section2}>
-          <FormControl variant='outlined' className={classes.formControl}
-            id='form-control-repo' aria-label='Repo Selection'>
-            <InputLabel id='source-repo-select-label'>Repository</InputLabel>
-            <Select
-              labelId='source-repo-select-label'
-              id='source-select-repo'
-              value={selectedRepo}
-              autoWidth={true}
-              onChange={(e) => setSelectedRepo(e.target.value as UUID)}
-              label='Repository'
-            >
-              <MenuItem value=''><em>None</em></MenuItem>
-              {Object.values(repos).map(repo => (
-                <MenuItem key={repo.id} value={repo.id}>{repo.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl variant='outlined' className={classes.formControl}
-            id='form-control-branch' aria-label='Branch Selection'>
-            <InputLabel id='source-branch-select-label'>Branch</InputLabel>
-            <Select
-              labelId='source-branch-select-label'
-              id='source-select-branch'
-              value={selectedBranch}
-              autoWidth={true}
-              onChange={(e) => setSelectedBranch(e.target.value as string)}
-              label='Branch'
-            >
-              {selectedRepo ? repos.find(r => r.id === selectedRepo)?.local
-                .map(branchId => branches[branchId])
-                .filter(isDefined)
-                .map(branch =>
-                  <MenuItem key={branch.id} value={branch.id}>{branch.ref}</MenuItem>)
-                : <MenuItem value=''><em>None</em></MenuItem>
-              }
-            </Select>
-          </FormControl>
+          <RepoSelect repos={Object.values(repos).filter(isDefined)} selectedRepo={selectedRepo} setSelectedRepo={setSelectedRepo} />
+          <BranchSelect repo={repo} selectedBranch={selectedBranch} setSelectedBranch={setSelectedBranch} />
         </div>
         <div className={classes.section2}>
           <Button id='create-source-control-button'
@@ -139,6 +119,55 @@ const SourcePickerDialog: React.FunctionComponent<Modal> = props => {
         </div>
       </div>
     </Dialog>
+  );
+}
+
+const RepoSelect: React.FunctionComponent<{ repos: Repository[], selectedRepo: UUID, setSelectedRepo: Dispatch<SetStateAction<UUID>> }> = props => {
+  const classes = useStyles();
+
+  return (
+    <FormControl variant='outlined' className={classes.formControl}
+      id='form-control-repo' aria-label='Repo Selection'>
+      <InputLabel id='source-repo-select-label'>Repository</InputLabel>
+      <Select
+        labelId='source-repo-select-label'
+        id='source-select-repo'
+        value={props.selectedRepo}
+        autoWidth={true}
+        onChange={(e) => props.setSelectedRepo(e.target.value as UUID)}
+        label='Repository'
+      >
+        <MenuItem value=''><em>None</em></MenuItem>
+        {props.repos.map(repo => (
+          <MenuItem key={repo.id} value={repo.id}>{repo.name}</MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+}
+
+const BranchSelect: React.FunctionComponent<{ repo: Repository | undefined, selectedBranch: UUID, setSelectedBranch: Dispatch<SetStateAction<UUID>> }> = props => {
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, props.repo ? props.repo : emptyRepo, true));
+  const classes = useStyles();
+
+  return (
+    <FormControl variant='outlined' className={classes.formControl}
+      id='form-control-branch' aria-label='Branch Selection'>
+      <InputLabel id='source-branch-select-label'>Branch</InputLabel>
+      <Select
+        labelId='source-branch-select-label'
+        id='source-select-branch'
+        value={props.selectedBranch}
+        autoWidth={true}
+        onChange={(e) => props.setSelectedBranch(e.target.value as string)}
+        label='Branch'
+      >
+        {props.repo ?
+          branches.map(branch => <MenuItem key={branch.id} value={branch.id}>{branch.ref}</MenuItem>)
+          : <MenuItem value=''><em>None</em></MenuItem>
+        }
+      </Select>
+    </FormControl>
   );
 }
 
