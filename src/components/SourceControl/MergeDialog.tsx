@@ -115,7 +115,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
     // >>>      const conflictCheck = await merge(fullRepo.root, base, compare, true);
 
     const mergeCheck = await merge(repo.root, baseBranch.ref, compareBranch.ref);
-    const conflictStatus = mergeCheck.mergeConflicts ? 'Failing' : 'Passing';
+    const conflictStatus = (mergeCheck.mergeConflicts && mergeCheck.mergeConflicts.length > 0) ? 'Failing' : 'Passing';
     setBranchConflicts([conflictStatus, []]);
 
     if (conflictStatus == 'Failing') {
