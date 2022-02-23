@@ -32,7 +32,8 @@ import version from '../../version';
 
 export enum DnDItemType {
   CARD = 'CARD',
-  STACK = 'STACK'
+  STACK = 'STACK',
+  BRANCH = 'BRANCH'
 }
 
 type DragObject = {

@@ -16,10 +16,56 @@ import branchSelectors from '../../store/selectors/branches';
 import { readDirAsync } from '../../containers/io';
 import { currentBranch } from '../../containers/git-porcelain';
 import { metafileUpdated } from '../../store/slices/metafiles';
+import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
+import { DnDItemType } from '../CanvasComponent';
+import { modalAdded } from '../../store/slices/modals';
+
+type DragObject = {
+  id: string,
+  type: string
+}
 
 const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: Branch }> = props => {
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
   const cards = useAppSelector((state: RootState) => cardSelectors.selectByRepo(state, props.repo.id, props.branch.id));
   const dispatch = useAppDispatch();
+
+  // Enable BranchStatus as a drop source (i.e. allowing this component to be draggable)
+  const [{ isDragging }, drag] = useDrag({
+    type: DnDItemType.BRANCH,
+    item: () => ({ id: props.branch.id, type: DnDItemType.CARD }),
+    collect: monitor => ({
+      isDragging: !!monitor.isDragging()
+    })
+  }, [props.branch.id]);
+
+  // Enable BranchStatus as a drop target (i.e. allow other elements to be dropped on this component)
+  const [{ isOver }, drop] = useDrop({
+    accept: [DnDItemType.BRANCH],
+    canDrop: (item: { id: string, type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
+      const dropTarget = props.branch;
+      const dropSource = branches[monitor.getItem().id];
+      // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
+      const nonSelf = dropSource ? (dropTarget.id !== dropSource.id) : false;
+      const sameRepo = dropSource ? props.repo.local.includes(dropSource.id) || props.repo.remote.includes(dropSource.id) : false;
+      return nonSelf && sameRepo;
+    },
+    drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
+      const dropTarget = props.branch;
+      const dropSource = branches[monitor.getItem().id];
+      const delta = monitor.getDifferenceFromInitialOffset();
+      if (!delta) return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
+      if (dropSource) dispatch(modalAdded({ id: v4(), type: 'MergeSelector', options: { repo: props.repo.id, base: dropTarget.id, compare: dropSource.id } }));
+    },
+    collect: monitor => ({
+      isOver: !!monitor.isOver() // return isOver prop to highlight drop sources that accept hovered item
+    })
+  }, [branches]);
+
+  const dragAndDrop = (elementOrNode: ConnectableElement) => {
+    drag(elementOrNode);
+    drop(elementOrNode);
+  }
 
   // load a new Explorer card containing the root of the repository at the specified branch
   const clickHandle = async () => {
@@ -39,13 +85,17 @@ const BranchStatus: React.FunctionComponent<{ repo: Repository, branch: Branch }
   }
 
   return (
-    <StyledTreeItem
-      key={`${props.repo}-${props.branch.id}`}
-      nodeId={`${props.repo}-${props.branch.id}`}
-      labelText={`${props.branch.ref} [${cards.length}]`}
-      labelIcon={GitBranchIcon}
-      onClick={clickHandle}
-    />
+    <div ref={dragAndDrop}>
+      <StyledTreeItem
+        className={`${isOver ? 'drop-source' : ''}`}
+        style={{ opacity: isDragging ? 0 : 1 }}
+        key={`${props.repo}-${props.branch.id}`}
+        nodeId={`${props.repo}-${props.branch.id}`}
+        labelText={`${props.branch.ref} [${cards.length}]`}
+        labelIcon={GitBranchIcon}
+        onClick={clickHandle}
+      />
+    </div>
   );
 };
 

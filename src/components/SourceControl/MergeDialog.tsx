@@ -76,9 +76,9 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectEntities(state));
   const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
-  const [selectedRepo, setSelectedRepo] = useState<UUID>('');
-  const [selectedBase, setSelectedBase] = useState<UUID>('');
-  const [selectedCompare, setSelectedCompare] = useState<UUID>('');
+  const [selectedRepo, setSelectedRepo] = useState<UUID>(props.options && props.options['repo'] ? props.options['repo'] as UUID : '');
+  const [selectedBase, setSelectedBase] = useState<UUID>(props.options && props.options['base'] ? props.options['base'] as UUID : '');
+  const [selectedCompare, setSelectedCompare] = useState<UUID>(props.options && props.options['compare'] ? props.options['compare'] as UUID : '');
 
   const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
   const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
