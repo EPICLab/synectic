@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
-import * as http from 'isomorphic-git/http/node';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import isUUID from 'validator/lib/isUUID';
