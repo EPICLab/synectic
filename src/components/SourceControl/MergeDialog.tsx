@@ -6,7 +6,7 @@ import { branchLog } from '../../containers/git-plumbing';
 import TimelineComponent from './MergeTimeline';
 import DropSelect from '../DropSelect';
 import { RootState } from '../../store/store';
-import { build } from '../../containers/builds';
+// import { build } from '../../containers/builds';
 import { GitConfigForm } from './GitConfigForm';
 // import { merge as isomerge } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -82,7 +82,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
 
   const [commitCountDelta, setCommitCountDelta] = useState<CheckState>('Unchecked');
   const [branchConflicts, setBranchConflicts] = useState<[CheckState, MissingGitConfigs]>(['Unchecked', undefined]);
-  const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
+  // const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
   const repo = repos[selectedRepo];
 
   const repoOptions = Object.values(repos).filter(isDefined).map(r => ({ key: r.id, value: r.name }));
@@ -97,7 +97,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
 
     setCommitCountDelta('Running');
     setBranchConflicts(['Unchecked', undefined]);
-    setBuildStatus('Unchecked');
+    // setBuildStatus('Unchecked');
 
     if (!repo) {
       setCommitCountDelta('Unchecked');
@@ -137,13 +137,13 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
       dispatch(modalRemoved(props.id));
     }
     if (conflictStatus == 'Failing') return;
-    setBuildStatus('Running');
+    // setBuildStatus('Running');
 
     // check for build failures by running build scripts from target project
-    const buildResults = await build(repo, baseBranch.ref);
-    console.log(`BUILD`, { buildResults });
-    const buildStatus = (buildResults.installCode === 0 && buildResults.buildCode === 0) ? 'Passing' : 'Failing';
-    setBuildStatus(buildStatus);
+    // const buildResults = await build(repo, baseBranch.ref);
+    // console.log(`BUILD`, { buildResults });
+    // const buildStatus = (buildResults.installCode === 0 && buildResults.buildCode === 0) ? 'Passing' : 'Failing';
+    // setBuildStatus(buildStatus);
   }
 
   return (
@@ -176,7 +176,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
               <BranchSelect label='Compare' repo={repo} selectedBranch={selectedCompare} otherBranch={selectedBase} setSelectedBranch={setSelectedCompare} />
             </Grid>
           </Grid>
-          <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} buildStatus={buildStatus} />
+          <TimelineComponent commitCountDelta={commitCountDelta} branchConflicts={branchConflicts} />
         </div>
         {(branchConflicts[0] === 'Failing') ? <Divider variant='middle' /> : null}
         <div className={classes.section2}>
@@ -186,7 +186,7 @@ const MergeDialog: React.FunctionComponent<Modal> = props => {
           />
         </div>
         <div className={classes.section2}>
-          {branchConflicts[0] === 'Passing' && buildStatus === 'Passing' ?
+          {branchConflicts[0] === 'Passing' ?
             <Button
               variant='outlined'
               color='primary'
