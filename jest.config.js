@@ -4,7 +4,6 @@ module.exports = {
         '<rootDir>/__test__/setupTests.ts'
     ],
     preset: 'ts-jest',
-    roots: ['<rootDir>/__test__'],
     snapshotSerializers: [
         'jest-serializer-path',
     ],
