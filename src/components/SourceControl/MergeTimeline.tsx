@@ -35,20 +35,20 @@ type MissingGitConfigs = string[] | undefined;
 type TimelineProps = {
     commitCountDelta: Status,
     branchConflicts: [Status, MissingGitConfigs],
-    buildStatus: Status
+    // buildStatus: Status
 }
 
 const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
     const classes = useStyles();
     const [commitCountDelta, setCommitCountDelta] = useState<Status>('Unchecked');
     const [branchConflicts, setBranchConflicts] = useState<[Status, MissingGitConfigs]>(['Unchecked', undefined]);
-    const [buildStatus, setBuildStatus] = useState<Status>('Unchecked');
+    // const [buildStatus, setBuildStatus] = useState<Status>('Unchecked');
 
     useEffect(() => {
         setCommitCountDelta(props.commitCountDelta);
         setBranchConflicts(props.branchConflicts);
-        setBuildStatus(props.buildStatus);
-    }, [branchConflicts, buildStatus, commitCountDelta, props]);
+        // setBuildStatus(props.buildStatus);
+    }, [branchConflicts, commitCountDelta, props]);
 
     return (
         <Timeline align='left' className={classes.timeline} >
@@ -69,7 +69,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
                 <TimelineItem className={classes.tl_item} >
                     <TimelineSeparator>
                         <StatusIcon status={props.branchConflicts[0]} />
-                        {buildStatus != 'Unchecked' ? <TimelineConnector /> : null}
+                        {/* {buildStatus != 'Unchecked' ? <TimelineConnector /> : null} */}
                     </TimelineSeparator>
                     <TimelineContent className={classes.tl_content} >
                         <Typography>Checking for merge conflicts...</Typography>
@@ -85,7 +85,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
                 </TimelineItem>
                 : null
             }
-            {buildStatus != 'Unchecked' ?
+            {/* {buildStatus != 'Unchecked' ?
                 <TimelineItem className={classes.tl_item} >
                     <TimelineSeparator>
                         <StatusIcon status={props.buildStatus} />
@@ -95,7 +95,7 @@ const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
                     </TimelineContent>
                 </TimelineItem>
                 : null
-            }
+            } */}
         </Timeline>
     );
 }

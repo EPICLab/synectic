@@ -157,7 +157,7 @@ export const testStore: RootState = {
       '4efdbe23-c938-4eb1-b29b-50bf76bdb44e': {
         id: '4efdbe23-c938-4eb1-b29b-50bf76bdb44e',
         name: 'baz',
-        type: 'ReposTracker',
+        type: 'BranchTracker',
         metafile: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
         created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00').valueOf(),
         modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),

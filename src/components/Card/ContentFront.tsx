@@ -5,7 +5,7 @@ import ConflictManager from '../SourceControl/ConflictManager';
 import Diff from '../Diff/Diff';
 import Editor from '../Editor/Editor';
 import Explorer from '../Explorer/Explorer';
-import ReposOverview from '../SourceControl/ReposOverview';
+import BranchTracker from '../SourceControl/BranchTracker';
 import SourceControl from '../SourceControl/SourceControl';
 import Loading from './Loading';
 
@@ -23,8 +23,8 @@ const Content: React.FunctionComponent<Card> = card => {
             return (<SourceControl sourceControlId={card.metafile} />);
         case 'Browser':
             return (<Browser />);
-        case 'ReposTracker':
-            return (<ReposOverview />);
+        case 'BranchTracker':
+            return (<BranchTracker />);
         case 'ConflictManager':
             return (<ConflictManager metafileId={card.metafile} />);
         default:

@@ -21,7 +21,7 @@ const Content: React.FunctionComponent<Card> = card => {
             return (<SourceControlReverse {...card} />);
         case 'Browser':
             return (<BrowserReverse {...card} />);
-        case 'ReposTracker':
+        case 'BranchTracker':
             return null;
         case 'ConflictManager':
             return null;
