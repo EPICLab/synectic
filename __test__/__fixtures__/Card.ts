@@ -1,4 +1,4 @@
-import type { Card } from '../../src/types';
+import { Card } from '../../src/store/slices/cards';
 import { testStore } from './ReduxStore';
 
 export const firstEditorCard = testStore.cards.entities['f6b3f2a3-9145-4b59-a4a1-bf414214f30b'] as Card;

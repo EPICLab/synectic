@@ -1,13 +1,13 @@
 import React from 'react';
-import type { Card } from '../../types';
-import { EditorReverse } from '../Editor/Editor';
-import { DiffReverse } from '../Diff/Diff';
-import { ExplorerReverse } from '../Explorer/Explorer';
-import { SourceControlReverse } from '../SourceControl/SourceControl';
-import { BrowserReverse } from '../Browser/Browser';
+import EditorReverse from '../Editor/EditorReverse';
+import DiffReverse from '../Diff/DiffReverse';
+import ExplorerReverse from '../Explorer/ExplorerReverse';
+import SourceControlReverse from "../SourceControl/SourceControlReverse";
+import BrowserReverse from '../Browser/BrowserReverse';
 import { LoadingReverse } from './Loading';
+import { Card } from '../../store/slices/cards';
 
-const Content: React.FunctionComponent<Card> = card => {
+const Content = (card: Card) => {
     switch (card.type) {
         case 'Loading':
             return (<LoadingReverse {...card} />);
@@ -30,7 +30,7 @@ const Content: React.FunctionComponent<Card> = card => {
     }
 };
 
-const ContentBack: React.FunctionComponent<Card> = card => {
+const ContentBack = (card: Card) => {
     return (<div className='card-back'><Content {...card} /></div>);
 }
 
