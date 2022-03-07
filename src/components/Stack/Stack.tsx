@@ -1,47 +1,31 @@
-import React, { useEffect } from 'react';
+
+import React, { PropsWithChildren, useEffect } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
-import type { Card, Stack } from '../../types';
 import { RootState } from '../../store/store';
-import CardComponent from '../Card/CardComponent';
+import StackPreview from './StackPreview';
+import CardComponent from '../Card';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
-import { stackRemoved } from '../../store/slices/stacks';
+import { Stack, stackRemoved } from '../../store/slices/stacks';
 import { useIconButtonStyle } from '../Button/useStyledIconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import CommitButton from '../Button/CommitButton';
-import SaveButton from '../Button/SaveButton';
-import StageButton from '../Button/StageButton';
-import UnstageButton from '../Button/UnstageButton';
+import CommitButton from '../Button/Commit';
+import SaveButton from '../Button/Save';
+import StageButton from '../Button/Stage';
+import UnstageButton from '../Button/Unstage';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { usePreview } from 'react-dnd-preview';
 import { popCard, pushCards } from '../../store/thunks/stacks';
-import { DnDItemType } from '../CanvasComponent';
+import { DnDItemType } from '../Canvas/Canvas';
+import { Card } from '../../store/slices/cards';
 
 type DragObject = {
   id: string,
   type: string
 }
 
-const StackPreview: React.FunctionComponent<{ stack: Stack, cards: Card[] }> = props => {
-  const { display, itemType, style } = usePreview();
-  if (!display) { return null }
-
-  return (
-    (itemType === DnDItemType.STACK) ?
-      <div className='stack' data-testid='stack-component' style={style}>
-        <StageButton cardIds={[]} />
-        <UnstageButton cardIds={[]} />
-        <CommitButton cardIds={[]} />
-        <SaveButton cardIds={[]} />
-        {props.cards.map(card => <CardComponent key={card.id} {...card} />)}
-        {props.children}
-      </div> : null
-  )
-}
-
-const StackComponent: React.FunctionComponent<Stack> = props => {
+const StackComponent = (props: PropsWithChildren<Stack>) => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const capturedCards = useAppSelector((state: RootState) => cardSelectors.selectByStack(state, props.id));
