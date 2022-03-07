@@ -1,4 +1,4 @@
-import type { Modal } from '../../src/types';
+import { Modal } from '../../src/store/slices/modals';
 import { testStore } from './ReduxStore';
 
 export const newCardModal = testStore.modals.entities['97fa02bc-596c-46d6-b025-2968f0d32b91'] as Modal;
