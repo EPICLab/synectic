@@ -4,19 +4,19 @@ import { PathLike } from 'fs';
 import { checkout, listBranches, ProgressCallback } from 'isomorphic-git';
 import { v4 } from 'uuid';
 import { AppThunkAPI } from '../hooks';
-import type { Card, Metafile, Repository, UUID } from '../../types';
 import { extractFromURL, extractRepoName } from '../../containers/git-plumbing';
 import { clone, defaultBranch, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
 import { extractFilename, extractStats } from '../../containers/io';
 import { fetchMetafile, fetchMetafileById, fetchParentMetafile, fetchVersionControl, FilebasedMetafile, isFilebasedMetafile } from './metafiles';
 import { isDefined, removeUndefined } from '../../containers/format';
-import { cardUpdated } from '../slices/cards';
-import { repoUpdated } from '../slices/repos';
+import { Card, cardUpdated } from '../slices/cards';
+import { Repository, repoUpdated } from '../slices/repos';
 import { resolveWorktree } from '../../containers/git-worktree';
 import { join, relative } from 'path';
-import { metafileUpdated } from '../slices/metafiles';
+import { Metafile, metafileUpdated } from '../slices/metafiles';
 import { fetchLocalBranch, fetchRemoteBranch } from './branches';
 import { getRoot, getWorktreePaths } from '../../containers/git-path';
+import { UUID } from '../types';
 
 export const fetchRepoById = createAsyncThunk<Repository | undefined, UUID, AppThunkAPI>(
     'repos/fetchById',

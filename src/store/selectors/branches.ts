@@ -1,7 +1,7 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import type { Branch, Repository } from '../../types';
-import { branchesAdapter } from '../slices/branches';
+import { Branch, branchesAdapter } from '../slices/branches';
+import { Repository } from '../slices/repos';
 import { RootState } from '../store';
 
 const selectors = branchesAdapter.getSelectors<RootState>(state => state.branches);

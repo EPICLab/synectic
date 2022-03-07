@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import type { Card } from '../../types';
-import DataField from '../Card/DataField';
+import { IconButton, Tooltip } from '@material-ui/core';
+import { ArrowBack, ArrowForward, Refresh } from '@material-ui/icons';
+import React, { useEffect, useState } from 'react';
+import { Mode, useIconButtonStyle } from '../Button/useStyledIconButton';
 
 type BrowserState = {
   history: URL[];
@@ -8,13 +9,18 @@ type BrowserState = {
   index: number;
 }
 
-const Browser: React.FunctionComponent = () => {
+const Browser = ({ mode = 'light' }: { mode?: Mode }) => {
   const [webviewKey, setWebviewKey] = useState(0);
+  const classes = useIconButtonStyle({ mode: mode });
   const [urlInput, setUrlInput] = useState('https://epiclab.github.io/');
   const [browserState, setBrowserState] = useState<BrowserState>({
     history: [new URL('https://epiclab.github.io/')],
     current: new URL('https://epiclab.github.io/'), index: 0
   });
+
+  useEffect(() => {
+    console.log(`mode: ${mode}`);
+  }, []);
 
   const go = (e: React.KeyboardEvent) => {
     if (e.keyCode != 13) return;
@@ -45,9 +51,40 @@ const Browser: React.FunctionComponent = () => {
   return (
     <>
       <div className='browser-topbar'>
-        <button className="arrow-left" disabled={browserState.index === browserState.history.length - 1} onClick={backwards} />
-        <button className="arrow-right" disabled={browserState.index == 0} onClick={forwards} />
-        <button className="refresh" onClick={() => setWebviewKey(webviewKey + 1)} />
+        <Tooltip title='Go back'>
+          <span>
+            <IconButton
+              className={classes.root}
+              aria-label='back'
+              disabled={browserState.index === browserState.history.length - 1}
+              onClick={backwards}
+            >
+              <ArrowBack />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <ArrowBack onClick={backwards} />
+        <Tooltip title='Go forward'>
+          <span>
+            <IconButton
+              className={classes.root}
+              aria-label='forward'
+              disabled={browserState.index == 0}
+              onClick={forwards}
+            >
+              <ArrowForward />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title='Refresh'>
+          <IconButton
+            className={classes.root}
+            aria-label='refresh'
+            onClick={() => setWebviewKey(webviewKey + 1)}
+          >
+            <Refresh />
+          </IconButton>
+        </Tooltip>
         <input className="url-bar-style" type="text" placeholder="URL" value={urlInput}
           onKeyDown={go} onChange={e => setUrlInput(e.target.value)} />
       </div>
@@ -58,15 +95,5 @@ const Browser: React.FunctionComponent = () => {
     </>
   )
 }
-
-export const BrowserReverse: React.FunctionComponent<Card> = props => {
-  return (
-    <>
-      <div className='buttons'>
-      </div>
-      <DataField title='Update' textField field={props.modified.toLocaleString()} />
-    </>
-  );
-};
 
 export default Browser;

@@ -4,7 +4,6 @@ import * as isogit from 'isomorphic-git';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
-import type { GitStatus, Repository, SHA1, UUID } from '../types';
 import { isDefined, removeUndefinedProperties } from './format';
 import * as io from './io';
 import { checkout, clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
@@ -12,6 +11,8 @@ import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
 import { parse } from './git-index';
 import { compareStats } from './io-stats';
 import { getWorktreePaths } from './git-path';
+import { GitStatus, SHA1, UUID } from '../store/types';
+import { Repository } from '../store/slices/repos';
 
 // API SOURCE: https://git-scm.com/docs/git-worktree
 

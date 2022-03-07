@@ -75,7 +75,7 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = props => {
+export const StyledTreeItem = (props: StyledTreeItemProps) => {
   const { labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler,
     color, bgColor, enableHover, labelInfoText, ...other } = props;
   const [hover, setHover] = useState(false);

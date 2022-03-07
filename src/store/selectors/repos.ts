@@ -1,7 +1,6 @@
 import parsePath from 'parse-path';
-import type { Repository } from '../../types';
 import { RootState } from '../store';
-import { reposAdapter } from '../slices/repos';
+import { reposAdapter, Repository } from '../slices/repos';
 import { createDraftSafeSelector } from '@reduxjs/toolkit';
 
 const selectors = reposAdapter.getSelectors<RootState>(state => state.repos);

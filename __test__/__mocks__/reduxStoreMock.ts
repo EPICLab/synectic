@@ -1,6 +1,6 @@
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureMockStore from 'redux-mock-store';
-import { RootState, AppDispatch, persistedReducer } from '../../src/store/store';
+import { RootState, AppDispatch, rootReducer } from '../../src/store/store';
 
 import { AnyAction, DeepPartial } from 'redux';
 
@@ -24,7 +24,8 @@ const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
  *   * https://github.com/reduxjs/redux-mock-store/issues/71
  *   * https://github.com/reduxjs/redux-mock-store/issues/71#issuecomment-515209822
  */
-export const createState = (initialState: RootState) => (actions: AnyAction[]): RootState => actions.reduce(persistedReducer, initialState);
+export const createState = (initialState: RootState) => (actions: AnyAction[]): RootState =>
+    actions.reduce((state, action) => rootReducer(state, action), initialState);
 
 /**
  * Creates a mocked Redux store for testing purposes. The resulting store can be interacted with using:
@@ -35,7 +36,6 @@ export const createState = (initialState: RootState) => (actions: AnyAction[]): 
  *   * `store.subscribe()`: Subscribes a listener to the store for specific actions.
  * @param initialState A JavaScript object containing an initial Redux store state that mimicks the shape of `RootState`.
  */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const mockStore = (initialState: RootState) => createMockStore(createState(initialState));
 
 /**
