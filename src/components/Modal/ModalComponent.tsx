@@ -10,7 +10,7 @@ import NewCardDialog from './NewCardDialog';
 import Notification from './Notification';
 import SourcePickerDialog from './SourcePickerDialog';
 
-const ModalComponent: React.FunctionComponent<Modal> = props => {
+const ModalComponent = (props: Modal) => {
   switch (props.type) {
     case 'DiffPicker':
       return (<DiffPickerDialog {...props} />);

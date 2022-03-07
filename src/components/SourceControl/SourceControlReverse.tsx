@@ -8,7 +8,7 @@ import DataField from '../Card/DataField';
 import { Card } from '../../store/slices/cards';
 
 
-const SourceControlReverse: React.FunctionComponent<Card> = props => {
+const SourceControlReverse = (props: Card) => {
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile && metafile.repo ? metafile.repo : ''));
     const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));

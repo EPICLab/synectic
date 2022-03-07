@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { usePreview } from 'react-dnd-preview';
 import { Card } from '../../store/slices/cards';
 import { Stack } from '../../store/slices/stacks';
@@ -14,7 +14,7 @@ type StackPreviewProps = {
     cards: Card[];
 }
 
-const StackPreview: React.FunctionComponent<StackPreviewProps> = props => {
+const StackPreview = (props: PropsWithChildren<StackPreviewProps>) => {
     const { display, itemType, style } = usePreview();
 
     if (!display) {
