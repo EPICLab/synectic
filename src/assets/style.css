@@ -316,13 +316,6 @@ button.arrow-right {
   outline: 0px;
 }
 
-button.refresh {
-  background: url('refresh.svg') no-repeat center top/contain;
-  background-size: cover;
-  border-style: none;
-  outline: 0px;
-}
-
 .url-bar-style {
   height: 17px;
   border-radius: 2px;
