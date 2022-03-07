@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import Browser from '../src/components/Browser/Browser';
+import Browser from './Browser';
 
 describe('Browser', () => {
 
