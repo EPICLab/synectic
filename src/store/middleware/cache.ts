@@ -3,10 +3,9 @@ import { Middleware } from 'redux';
 import { v4 } from 'uuid';
 import { removeUndefined } from '../../containers/format';
 import { cachedAdded, cachedRemoved, cachedSubscribed, cachedUnsubscribed } from '../slices/cached';
-import type { Metafile } from '../../types';
 import { RootState } from '../store';
 import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from '../thunks/metafiles';
-import { metafileRemoved } from '../slices/metafiles';
+import { Metafile, metafileRemoved } from '../slices/metafiles';
 
 export const cache: Middleware<unknown, RootState> = api => next => action => {
     if (typeof action === 'function') {

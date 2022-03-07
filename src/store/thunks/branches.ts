@@ -3,11 +3,11 @@ import { PathLike } from 'fs';
 import { v4 } from 'uuid';
 import { removeUndefined } from '../../containers/format';
 import { currentBranch, getConfig, log } from '../../containers/git-porcelain';
-import type { Branch, UUID } from '../../types';
 import { AppThunkAPI } from '../hooks';
 import { fetchParentMetafile, FilebasedMetafile } from './metafiles';
 import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
-import { branchUpdated } from '../slices/branches';
+import { Branch, branchUpdated } from '../slices/branches';
+import { UUID } from '../types';
 
 export const fetchBranchById = createAsyncThunk<Branch | undefined, UUID, AppThunkAPI>(
     'repos/fetchById',

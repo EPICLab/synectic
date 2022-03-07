@@ -6,11 +6,12 @@ import * as ini from 'ini';
 import parse from 'parse-git-config';
 import { get as getProperty, set as setProperty, has as hasProperty, delete as deleteProperty } from 'dot-prop';
 import getGitConfigPath from 'git-config-path';
-import type { Repository, GitStatus } from '../types';
 import * as io from './io';
 import { matrixEntry, matrixToStatus, statusMatrix } from './git-plumbing';
 import { isDefined, removeUndefinedProperties } from './format';
 import { getWorktreePaths } from './git-path';
+import { Repository } from '../store/slices/repos';
+import { GitStatus } from '../store/types';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 

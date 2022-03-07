@@ -1,9 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ipcRenderer } from 'electron';
 import { join } from 'path';
-import type { Metafile } from '../types';
 import { AppThunkAPI } from '../store/hooks';
-import { metafileUpdated } from '../store/slices/metafiles';
+import { Metafile, metafileUpdated } from '../store/slices/metafiles';
 import { loadCard } from '../store/thunks/handlers';
 import { writeFileAsync } from './io';
 import { removeUndefined } from './format';
