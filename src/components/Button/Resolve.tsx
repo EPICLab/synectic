@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { v4 } from 'uuid';
 import { DoneAll, ExitToApp } from '@material-ui/icons';
 import { IconButton, Tooltip } from '@material-ui/core';
-import type { UUID } from '../../types';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { add } from '../../containers/git-plumbing';
 import { RootState } from '../../store/store';
@@ -12,11 +11,12 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
-import { isConflictManagerMetafile } from '../SourceControl/ConflictManager';
+import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
 import repoSelectors from '../../store/selectors/repos';
 import branchSelectors from '../../store/selectors/branches';
 import { cardRemoved } from '../../store/slices/cards';
 import { resolveMerge } from '../../containers/merges';
+import { UUID } from '../../store/types';
 
 /**
  * Button for staging resolution changes for all previously conflicting files in a repository, committing the resolution the the repository,
@@ -24,7 +24,7 @@ import { resolveMerge } from '../../containers/merges';
  * @param cardId Card UUID that should be tracked by this button.
  * @param mode Optional mode setting for enabling the dark mode on this icon button.
  */
-const ResolveButton: React.FunctionComponent<{ cardId: UUID, mode?: Mode }> = ({ mode = 'light', cardId }) => {
+const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card?.metafile ? card.metafile : ''));
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile?.repo ? metafile.repo : ''));

@@ -1,5 +1,4 @@
 import React from 'react';
-import type { UUID } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -10,11 +9,7 @@ import { SettingsBackupRestore } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { cardUpdated } from '../../store/slices/cards';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-
-type ResetButtonProps = {
-    cardIds: UUID[],
-    mode?: Mode
-}
+import { UUID } from '../../store/types';
 
 /**
  * Button for resetting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
@@ -26,7 +21,7 @@ type ResetButtonProps = {
  * @param mode Optional theme mode for switching between light and dark themes.
  * @returns 
  */
-const ResetButton: React.FunctionComponent<ResetButtonProps> = ({ mode = 'light', cardIds }) => {
+const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles

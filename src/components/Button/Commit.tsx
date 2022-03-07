@@ -1,31 +1,26 @@
 import React from 'react';
+import { v4 } from 'uuid';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { Remove } from '@material-ui/icons';
-import type { Metafile, UUID } from '../../types';
+import { Done } from '@material-ui/icons';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
-import { remove } from '../../containers/git-plumbing';
-import { metafileUpdated } from '../../store/slices/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
-
-type UnstageButtonProps = {
-    cardIds: UUID[],
-    mode?: Mode
-}
+import { Modal, modalAdded } from '../../store/slices/modals';
+import { UUID } from '../../store/types';
+import { Metafile } from '../../store/slices/metafiles';
 
 /**
- * Button for managing the unstaging of changes for VCS-tracked cards. This button tracks the status of metafiles associated with the list
- * of cards supplied via props. The button is only enabled when at least one associated metafile has a VCS status of `added`, `modified`, 
- * or `deleted`. Clicking on the button will trigger all staged metafiles to have their changes unstaged.
+ * Button for initiating commits to a specific branch and repository. This button tracks the status of metafiles associated with the list of 
+ * cards supplied via props. The button is only enabled when at least one associated metafile has a VCS status of `added`, `modified`, or 
+ * `deleted`. Clicking on the button will trigger a `CommitDialog` modal to be loaded.
  * @param cardIds List of Card UUIDs that should be tracked by this button.
  * @param mode Optional mode for switching between light and dark themes.
  */
-const UnstageButton: React.FunctionComponent<UnstageButtonProps> = ({ mode = 'light', cardIds }) => {
+const CommitButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const staged = metafiles
@@ -33,21 +28,22 @@ const UnstageButton: React.FunctionComponent<UnstageButtonProps> = ({ mode = 'li
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const isExplorer = metafiles.find(m => m.handler === 'Explorer');
     const hasStaged = staged.length > 0;
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
 
-    const unstage = async () => {
-        await Promise.all(staged
-            .filter(isFileMetafile)
-            .map(async metafile => {
-                await remove(metafile.path);
-                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                console.log(`unstaging ${metafile.name}`, { vcs });
-                dispatch(metafileUpdated({ ...metafile, ...vcs }));
-
-            })
-        );
+    const commit = async () => {
+        const firstMetafile = staged[0];
+        if (firstMetafile.repo && firstMetafile.branch) {
+            const commitDialogModal: Modal = {
+                id: v4(),
+                type: 'CommitDialog',
+                options: {
+                    'repo': firstMetafile.repo,
+                    'branch': firstMetafile.branch
+                }
+            };
+            dispatch(modalAdded(commitDialogModal));
+        }
     };
 
     const onHover = (target: Metafile[]) => {
@@ -63,20 +59,20 @@ const UnstageButton: React.FunctionComponent<UnstageButtonProps> = ({ mode = 'li
 
     return (
         <>
-            {!isExplorer && hasStaged && !isCaptured &&
-                <Tooltip title='Unstage'>
+            {hasStaged && !isCaptured &&
+                <Tooltip title='Commit'>
                     <IconButton
                         className={classes.root}
-                        aria-label='unstage'
-                        onClick={unstage}
+                        aria-label='commit'
+                        onClick={commit}
                         onMouseEnter={() => onHover(staged)}
                         onMouseLeave={offHover}
                     >
-                        <Remove />
+                        <Done />
                     </IconButton>
                 </Tooltip>}
         </>
     );
 }
 
-export default UnstageButton;
+export default CommitButton;

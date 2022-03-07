@@ -4,15 +4,10 @@ import { Close } from '@material-ui/icons';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import { RootState } from '../../store/store';
-import type { UUID } from '../../types';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { popCard } from '../../store/thunks/stacks';
 import { cardRemoved } from '../../store/slices/cards';
-
-type CloseButtonProps = {
-    cardId: UUID,
-    mode?: Mode
-}
+import { UUID } from '../../store/types';
 
 /**
  * Button for closing and removing card, or popping the card off of a stack if captured. The button is only enabled
@@ -20,7 +15,7 @@ type CloseButtonProps = {
  * @param cardId The Card UUID that should be tracked by this button.
  * @param mode Optional mode for switching between light and dark themes.
  */
-const CloseButton: React.FunctionComponent<CloseButtonProps> = ({ mode = 'light', cardId }) => {
+const CloseButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();

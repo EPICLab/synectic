@@ -4,16 +4,10 @@ import { Flip } from '@material-ui/icons';
 import { useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import { RootState } from '../../store/store';
-import type { UUID } from '../../types';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
+import { UUID } from '../../store/types';
 
-type FlipButtonProps = {
-    cardId: UUID,
-    onClickHandler: () => void,
-    mode?: Mode
-}
-
-const FlipButton: React.FunctionComponent<FlipButtonProps> = ({ mode = 'light', cardId, onClickHandler }) => {
+const FlipButton = ({ cardId, onClickHandler, mode = 'light' }: { cardId: UUID, onClickHandler: () => void, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
     const classes = useIconButtonStyle({ mode: mode });
 

@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Undo } from '@material-ui/icons';
-import type { UUID } from '../../types';
 import { readFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
@@ -13,11 +12,7 @@ import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafile
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { FSCache } from '../../store/cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
-
-type UndoButtonProps = {
-    cardIds: UUID[],
-    mode?: Mode
-}
+import { UUID } from '../../store/types';
 
 /**
  * Button for undoing changes back to the most recent version according to the filesystem for file-based cards. This button tracks the 
@@ -27,7 +22,7 @@ type UndoButtonProps = {
  * @param cardIds List of Card UUIDs that should be tracked by this button.
  * @param mode Optional mode for switching between light and dark themes.
  */
-const UndoButton: React.FunctionComponent<UndoButtonProps> = ({ mode = 'light', cardIds }) => {
+const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const { cache } = useContext(FSCache);

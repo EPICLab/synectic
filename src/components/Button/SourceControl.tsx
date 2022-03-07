@@ -1,7 +1,6 @@
 import React from 'react';
 import { DeviceHub as VersionControl } from '@material-ui/icons';
 import { IconButton, Tooltip } from '@material-ui/core';
-import type { UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -12,14 +11,9 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git-path';
 import { removeUndefinedProperties } from '../../containers/format';
 import branchSelectors from '../../store/selectors/branches';
+import { UUID } from '../../store/types';
 
-type SourceControlButtonProps = {
-    repoId: UUID,
-    metafileId: UUID,
-    mode?: Mode
-}
-
-const SourceControlButton: React.FunctionComponent<SourceControlButtonProps> = ({ mode = 'light', repoId, metafileId }) => {
+const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: UUID, metafileId: UUID, mode?: Mode }) => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, metafileId));
     const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
