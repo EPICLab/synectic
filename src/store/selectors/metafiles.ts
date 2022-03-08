@@ -1,10 +1,11 @@
 import { createDraftSafeSelector, createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { relative } from 'path';
-import type { Card, FilesystemStatus, Metafile, UUID } from '../../types';
-import { metafilesAdapter } from '../slices/metafiles';
+import { Card } from '../slices/cards';
+import { Metafile, metafilesAdapter } from '../slices/metafiles';
 import { RootState } from '../store';
 import { isFilebasedMetafile, isFileMetafile } from '../thunks/metafiles';
+import { FilesystemStatus, UUID } from '../types';
 
 const selectors = metafilesAdapter.getSelectors<RootState>(state => state.metafiles);
 

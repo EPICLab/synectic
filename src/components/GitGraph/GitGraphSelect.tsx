@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
-import type { Repository, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { modalAdded, modalRemoved } from '../../store/slices/modals';
 import { v4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
+import { UUID } from '../../store/types';
+import { Repository } from '../../store/slices/repos';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({
@@ -38,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export const GitGraphSelect: React.FunctionComponent = () => {
+const GitGraphSelect = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [repo, setRepo] = useState<UUID>();
   const [graph, setGraph] = useState<UUID>();
@@ -86,3 +87,5 @@ export const GitGraphSelect: React.FunctionComponent = () => {
     </div>
   );
 }
+
+export default GitGraphSelect;
