@@ -1,4 +1,4 @@
-import { diff } from '../src/containers/diff';
+import { diff } from './diff';
 
 describe('diff', () => {
   const good = 'Good dog\nGood dog\nBad dog';

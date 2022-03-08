@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import type { Metafile } from '../src/types';
-import useMap from '../src/containers/hooks/useMap';
-import { basicMetafile, virtualMetafile } from './__fixtures__/Metafile';
+import useMap from './useMap';
+import { Metafile } from '../../store/slices/metafiles';
+import { basicMetafile, virtualMetafile } from '../../../__test__/__fixtures__/Metafile';
 
 describe('containers/hooks/useMap', () => {
 
