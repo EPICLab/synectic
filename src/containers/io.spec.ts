@@ -1,8 +1,7 @@
 import * as fs from 'fs-extra';
-import type { MockInstance } from './__mocks__/mock-fs-promise';
-import type { Filetype } from '../src/types';
-import { mock, file } from './__mocks__/mock-fs-promise';
-import * as io from '../src/containers/io';
+import { Filetype } from '../store/slices/filetypes';
+import { file, mock, MockInstance } from '../test-utils/mock-fs';
+import * as io from './io';
 
 describe('io.extractStats', () => {
     let mockedInstance: MockInstance;

@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const NewCardDialog: React.FunctionComponent<Modal> = props => {
+const NewCardDialog = (props: Modal) => {
   const classes = useStyles();
   const dispatch = useAppDispatch();
   const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));

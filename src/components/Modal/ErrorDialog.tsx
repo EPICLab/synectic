@@ -4,7 +4,7 @@ import { Dialog, DialogTitle, Button, DialogContent, DialogContentText } from '@
 import { metafileRemoved } from '../../store/slices/metafiles';
 import { Modal } from '../../store/slices/modals';
 
-const ErrorDialog: React.FunctionComponent<Modal> = props => {
+const ErrorDialog = (props: Modal) => {
   const dispatch = useDispatch();
   const message = props.options && props.options['message'] as string;
 

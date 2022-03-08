@@ -1,4 +1,4 @@
-import * as format from '../src/containers/format';
+import * as format from './format';
 
 describe('containers/format', () => {
 

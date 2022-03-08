@@ -4,7 +4,7 @@ import { Close } from '@material-ui/icons';
 import { useAppDispatch } from '../../store/hooks';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 
-const Notification: React.FunctionComponent<Modal> = props => {
+const Notification = (props: Modal) => {
     const message = props.options && props.options['message'] as string;
     const dispatch = useAppDispatch();
 
