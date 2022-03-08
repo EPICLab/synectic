@@ -2,10 +2,10 @@
 import parsePath from 'parse-path';
 import * as path from 'path';
 
-import type { Repository } from '../src/types';
 import * as git from '../src/containers/git-porcelain';
 import * as worktree from '../src/containers/git-worktree';
 import { extractStats, readFileAsync, writeFileAsync } from '../src/containers/io';
+import { Repository } from '../src/store/slices/repos';
 import type { MockInstance } from './__mocks__/mock-fs-promise';
 import { mock, file } from './__mocks__/mock-fs-promise';
 

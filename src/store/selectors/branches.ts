@@ -1,7 +1,7 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import type { Branch, Repository } from '../../types';
-import { branchesAdapter } from '../slices/branches';
+import { Branch, branchesAdapter } from '../slices/branches';
+import { Repository } from '../slices/repos';
 import { RootState } from '../store';
 
 const selectors = branchesAdapter.getSelectors<RootState>(state => state.branches);
@@ -39,7 +39,7 @@ const selectByRepo = createSelector(
             if (repo.local.includes(branch.id)) {
                 // prefer local branches, remove matching remote branch if already added
                 return (accumulator.push(branch), accumulator)
-                    .filter(branch => !(branch.scope === 'remote' && branch.ref === branch.ref));
+                    .filter(b => !(b.scope === 'remote' && b.ref === branch.ref));
             } else if (repo.remote.includes(branch.id) && !accumulator.some(b => b.scope === 'local' && b.ref === branch.ref)) {
                 // prefer local branches, only add remote if no matching local branch
                 return (accumulator.push(branch), accumulator);

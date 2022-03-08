@@ -8,13 +8,14 @@ import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
 // import { isHiddenFile } from 'is-hidden-file';
-import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
 import { currentBranch } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from './format';
 import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
+import { Repository } from '../store/slices/repos';
+import { GitStatus } from '../store/types';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -153,8 +154,16 @@ export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise
  * @return A Promise object containing a list of commits not found in both branches (i.e. the divergent set).
  */
 export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: string): Promise<isogit.ReadCommitResult[]> => {
-  const logA = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` });
-  const logB = await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` });
+  const basePath = path.join(dir.toString(), '.git', 'refs', 'heads');
+
+  const logA = (await io.extractStats(path.join(basePath, branchA)))
+    ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` })
+    : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchA}` });
+
+  const logB = (await io.extractStats(path.join(basePath, branchB)))
+    ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` })
+    : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchB}` });
+
   return logA
     .filter(commitA => !logB.some(commitB => commitA.oid === commitB.oid))
     .concat(logB.filter(commitB => !logA.some(commitA => commitB.oid === commitA.oid)));

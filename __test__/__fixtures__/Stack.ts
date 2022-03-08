@@ -1,4 +1,4 @@
-import type { Stack } from '../../src/types';
+import { Stack } from '../../src/store/slices/stacks';
 import { testStore } from './ReduxStore';
 
 export const basicStack = testStore.stacks.entities['254fa11a-6e7e-4fd3-bc08-e97c5409719b'] as Stack;

@@ -2,6 +2,8 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import pako from 'pako';
 import { TextDecoder } from 'util';
+import { flattenArray } from './flatten';
+import { Filetype } from '../store/slices/filetypes';
 
 /**
  * **WARNING**
@@ -9,9 +11,6 @@ import { TextDecoder } from 'util';
  * utility functions that improve upon the default filesystem functions in [Node.js FS module](https://nodejs.org/api/fs.html).
  * If there is no functions in `node-fs-extra` or `fs`, then a new method can be added here.
  */
-
-import type { Filetype } from '../types';
-import { flattenArray } from './flatten';
 
 /**
  * Encoding formats that adhere to the name of 

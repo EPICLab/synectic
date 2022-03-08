@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import ReactFlow, { addEdge, Connection, Edge, FlowElement, OnLoadFunc, OnLoadParams } from 'react-flow-renderer';
-import type { UUID } from '../../types';
 import { nodeTypes } from './GitNode';
 import useGitGraph from '../../containers/hooks/useGitGraph';
 import layoutGraph from '../../containers/git-graph';
+import { UUID } from '../../store/types';
 
-export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
+const GitGraph = (props: { repo: UUID }) => {
   const [elements, setElements] = useState<FlowElement[]>([]);
   const [reactFlowState, setReactFlowState] = useState<OnLoadParams>();
   const { graph, topological } = useGitGraph(props.repo);

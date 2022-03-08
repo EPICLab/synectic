@@ -1,7 +1,6 @@
 import React from 'react';
 import { InsertDriveFile as FileIcon, DeleteForever as Delete } from '@material-ui/icons';
 import { remove as removePath } from 'fs-extra';
-import type { UUID } from '../../types';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { loadCard } from '../../store/thunks/handlers';
@@ -10,9 +9,10 @@ import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
 import { isFilebasedMetafile, isFileMetafile } from '../../store/thunks/metafiles';
-import { getSourceMotif } from '../SourceControl/SourceControl';
+import { getSourceMotif } from '../SourceControl/SourceMotif';
+import { UUID } from '../../store/types';
 
-export const FileComponent: React.FunctionComponent<{ metafileId: UUID }> = props => {
+const FileComponent = (props: { metafileId: UUID }) => {
     const metafile = useAppSelector((root: RootState) => metafileSelectors.selectById(root, props.metafileId));
     const dispatch = useAppDispatch();
     const motif = metafile && isFileMetafile(metafile) ? getSourceMotif(metafile) : undefined;
@@ -44,3 +44,5 @@ export const FileComponent: React.FunctionComponent<{ metafileId: UUID }> = prop
         </>
     );
 };
+
+export default FileComponent;

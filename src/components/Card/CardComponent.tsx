@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
 import { sep } from 'path';
 import { Typography } from '@material-ui/core';
-import type { Card } from '../../types';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -11,31 +10,32 @@ import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
 import ContentBack from './ContentBack';
 import ContentFront from './ContentFront';
-import CloseButton from '../Button/CloseButton';
-import FlipButton from '../Button/FlipButton';
-import SaveButton from '../Button/SaveButton';
-import UndoButton from '../Button/UndoButton';
-import { DnDItemType } from '../CanvasComponent';
-import ResetButton from '../Button/ResetButton';
-import StageButton from '../Button/StageButton';
-import UnstageButton from '../Button/UnstageButton';
-import CommitButton from '../Button/CommitButton';
-import ResolveButton from '../Button/ResolveButton';
-import AbortButton from '../Button/AbortButton';
+import CloseButton from '../Button/Close';
+import FlipButton from '../Button/Flip';
+import SaveButton from '../Button/Save';
+import UndoButton from '../Button/Undo';
+import { DnDItemType } from '../Canvas/Canvas';
+import ResetButton from '../Button/Reset';
+import StageButton from '../Button/Stage';
+import UnstageButton from '../Button/Unstage';
+import CommitButton from '../Button/Commit';
+import ResolveButton from '../Button/Resolve';
+import AbortButton from '../Button/Abort';
+import { Card } from '../../store/slices/cards';
 
 type DragObject = {
   id: string,
   type: string
 }
 
-const Header: React.FunctionComponent<{ title: string }> = props => {
+const Header = (props: PropsWithChildren<{ title: string }>) => {
   return <div className='card-header'>
     <div className='title'><Typography>{props.title}</Typography></div>
     <div className='buttons'>{props.children}</div>
   </div>;
 };
 
-const CardComponent: React.FunctionComponent<Card> = card => {
+const CardComponent = (card: Card) => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
