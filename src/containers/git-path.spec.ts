@@ -1,8 +1,7 @@
 import path from 'path';
-import type { MockInstance } from './__mocks__/mock-fs-promise';
-import { mock } from './__mocks__/mock-fs-promise';
 import * as isogit from 'isomorphic-git';
-import { getBranchRoot, getRoot, getWorktreePaths } from '../src/containers/git-path';
+import { mock, MockInstance } from '../test-utils/mock-fs';
+import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
 
 describe('containers/git-path', () => {
     let mockedInstance: MockInstance;

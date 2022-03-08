@@ -1,7 +1,7 @@
 module.exports = {
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: [
-        '<rootDir>/__test__/setupTests.ts'
+        '<rootDir>/src/test-utils/setupTests.ts'
     ],
     preset: 'ts-jest',
     snapshotSerializers: [
