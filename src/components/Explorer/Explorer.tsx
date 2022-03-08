@@ -1,27 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import TreeView from '@material-ui/lab/TreeView';
-import { DateTime } from 'luxon';
 import { Info, ArrowDropDown, ArrowRight } from '@material-ui/icons';
 import { relative } from 'path';
-import type { Card, UUID } from '../../types';
 import branchSelectors from '../../store/selectors/branches';
-import DataField from '../Card/DataField';
 import metafileSelectors from '../../store/selectors/metafiles';
-import repoSelectors from '../../store/selectors/repos';
-import SourceControlButton from '../Button/SourceControlButton';
-import { BranchList } from '../SourceControl/BranchList';
-import { BranchRibbon } from '../SourceControl/BranchRibbon';
-import { DirectoryComponent } from './DirectoryComponent';
+import BranchRibbon from '../BranchRibbon';
+import Directory from './Directory';
 import { fetchMetafile, isDirectoryMetafile, isFileMetafile } from '../../store/thunks/metafiles';
-import { FileComponent } from './FileComponent';
+import FileComponent from './FileComponent';
 import { getIgnore } from '../../containers/git-plumbing';
 import { readDirAsyncDepth } from '../../containers/io';
 import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { useGitHistory } from '../../containers/hooks/useGitHistory';
+import { UUID } from '../../store/types';
 
-const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
+const Explorer = (props: { rootMetafileId: UUID }) => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.rootMetafileId));
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByRoot(state, metafile && metafile.path ? metafile.path : ''));
@@ -44,7 +38,7 @@ const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
 
   return (
     <>
-      <div className='list-component'>
+      <div className='list-component' data-testid='explorer-component'>
         {branch ? <BranchRibbon branch={branch.ref} /> : null}
         <TreeView
           defaultCollapseIcon={<ArrowDropDown />}
@@ -53,49 +47,10 @@ const Explorer: React.FunctionComponent<{ rootMetafileId: UUID }> = props => {
         >
           {metafiles.length === 0 ?
             <StyledTreeItem key={'loading'} nodeId={'loading'} labelText={'loading...'} labelIcon={Info} /> : null}
-          {metafiles.filter(isDirectoryMetafile).filter(dir => !dir.name.startsWith('.') && dir.name !== 'node_modules').map(dir => <DirectoryComponent key={dir.id} {...dir} />)}
+          {metafiles.filter(isDirectoryMetafile).filter(dir => !dir.name.startsWith('.') && dir.name !== 'node_modules').map(dir => <Directory key={dir.id} {...dir} />)}
           {metafiles.filter(isFileMetafile).sort((a, b) => a.name.localeCompare(b.name)).map(file => <FileComponent key={file.id} metafileId={file.id} />)}
         </TreeView>
       </div>
-    </>
-  );
-};
-
-export const ExplorerReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
-  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
-  const { commits, heads, update } = useGitHistory(repo ? repo.id : '');
-
-  useEffect(() => { update() }, [metafile?.repo]);
-
-  const formatHeadCommit = (branchName: string | undefined) => {
-    if (branchName) {
-      const sha1 = heads.get(`local/${branchName}`);
-      const commitInfo = sha1 ? commits.get(sha1) : undefined;
-      if (commitInfo) return `${commitInfo.oid.slice(0, 6)}  ${commitInfo.commit.message.slice(0, 15)}`;
-    }
-    return '[detached]';
-  }
-
-  return (
-    <>
-      <div className='buttons'>
-        {repo && metafile && <SourceControlButton repoId={repo.id} metafileId={metafile.id} mode='dark' />}
-      </div>
-      <DataField title='UUID' textField field={props.id} />
-      <DataField title='Path' textField field={metafile?.path?.toString()} />
-      <DataField title='Update' textField field={DateTime.fromMillis(props.modified).toLocaleString(DateTime.DATETIME_SHORT)} />
-      <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
-
-      {repo && metafile && branch ?
-        <>
-          <DataField title='Status' textField field={metafile?.status} />
-          <DataField title='Branch' field={<BranchList cardId={props.id} repoId={repo.id} />} />
-          <DataField title='Head' textField field={formatHeadCommit(branch.ref)} />
-        </>
-        : undefined}
     </>
   );
 };

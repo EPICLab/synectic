@@ -1,15 +1,14 @@
 import { v4 } from 'uuid';
 import { PathLike } from 'fs-extra';
-import type { Filetype, Metafile } from '../../types';
 import * as io from '../../containers/io';
 import filetypesJson from '../../containers/filetypes.json';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { cardAdded, cardUpdated } from '../slices/cards';
 import { DateTime } from 'luxon';
 import type { AppThunkAPI } from '../hooks';
-import { filetypeAdded } from '../slices/filetypes';
+import { Filetype, filetypeAdded } from '../slices/filetypes';
 import { fetchMetafile, fetchVersionControl, isFilebasedMetafile } from './metafiles';
-import { metafileUpdated } from '../slices/metafiles';
+import { Metafile, metafileUpdated } from '../slices/metafiles';
 
 export type HandlerRequiredMetafile = Metafile & Required<Pick<Metafile, 'handler'>>;
 

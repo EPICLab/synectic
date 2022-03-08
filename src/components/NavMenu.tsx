@@ -14,7 +14,7 @@ export type NavItemProps = {
   click: (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
 }
 
-export const NavItem: React.FunctionComponent<NavItemProps> = ({ label, click, disabled }) => {
+export const NavItem = ({ label, click, disabled }: NavItemProps) => {
   return (
     <MenuItem onClick={click} {...removeUndefinedProperties({ disabled: disabled })}>{label}</ MenuItem>
   );
@@ -25,7 +25,7 @@ type NavMenuProps = {
   submenu: NavItemProps[];
 }
 
-export const NavMenu: React.FunctionComponent<NavMenuProps> = ({ label, submenu }) => {
+export const NavMenu = ({ label, submenu }: NavMenuProps) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLButtonElement>(null);
 
