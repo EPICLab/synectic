@@ -1,6 +1,6 @@
 import { IconButton, Tooltip } from '@material-ui/core';
 import { ArrowBack, ArrowForward, Refresh } from '@material-ui/icons';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Mode, useIconButtonStyle } from '../Button/useStyledIconButton';
 
 type BrowserState = {
@@ -17,10 +17,6 @@ const Browser = ({ mode = 'light' }: { mode?: Mode }) => {
     history: [new URL('https://epiclab.github.io/')],
     current: new URL('https://epiclab.github.io/'), index: 0
   });
-
-  useEffect(() => {
-    console.log(`mode: ${mode}`);
-  }, []);
 
   const go = (e: React.KeyboardEvent) => {
     if (e.keyCode != 13) return;

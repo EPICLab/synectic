@@ -235,7 +235,7 @@ Synectic has the following [Jest](#Jest) options set in `jest.config.js`:
 
 | Setting                                    | Value                       | Description  |
 | ------------------------------------------ |:---------------------------:| ----------------------------------------------------:|
-| `setupFilesAfterEnv`                       | `['<rootDir>/__test__/setupTests.ts']`           | A list of paths to modules that configure or setup the testing framework before each test (i.e. the actions defined in `setupTests.ts` executes after environment setup) |
+| `setupFilesAfterEnv`                       | `['<rootDir>/src/test-utils/setupTests.ts']`           | A list of paths to modules that configure or setup the testing framework before each test (i.e. the actions defined in `setupTests.ts` executes after environment setup) |
 | `preset` | `ts-jest` | All TypeScript files (`.ts` and `.tsx`) will be handled by `ts-jest`; JavaScript files are not processed |
 | `roots` | `['<rootDir>/__test__']` | Jest will only search for test files in the `__test__` directory |
 | `snapshotSerializers` | `['jest-serializer-path']` | Enables the `jest-serializer-path` for removing absolute paths and normalizing paths across all platforms in Jest snapshots |

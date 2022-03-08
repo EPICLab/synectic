@@ -1,4 +1,4 @@
-import { flattenArray, flattenObject } from '../src/containers/flatten';
+import { flattenArray, flattenObject } from './flatten';
 
 describe('flatten.flatten', () => {
 
