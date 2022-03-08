@@ -1,4 +1,4 @@
-import React, { createContext, useEffect } from 'react';
+import React, { createContext, PropsWithChildren, ReactNode, useEffect } from 'react';
 import { PathLike } from 'fs-extra';
 import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
@@ -18,7 +18,7 @@ export const FSCache = createContext<FSCacheType>({
     cache: new Map<PathLike, string>()
 });
 
-export const FSCacheProvider: React.FunctionComponent = props => {
+export const FSCacheProvider = (props: PropsWithChildren<ReactNode>) => {
     const cached = useAppSelector((state: RootState) => cachedSelectors.selectAll(state));
     const [cache, cacheActions] = useMap<PathLike, string>([]); // filepath to cached file content
     const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher

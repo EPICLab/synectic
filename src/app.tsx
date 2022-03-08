@@ -9,11 +9,12 @@ import redux from './store/store';
 import { importFiletypes } from './store/thunks/handlers';
 import { PersistGate } from 'redux-persist/integration/react';
 import { FSCacheProvider } from './store/cache/FSCache';
-import CanvasComponent from './components/CanvasComponent';
+import Canvas from './components/Canvas';
 
 const App = (): JSX.Element => {
 
   useEffect(() => {
+    console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
     redux.store.dispatch(importFiletypes()); // load all supported filetype handlers into Redux store
     // redux.persistor.purge(); // remove all cached Redux data
   }, []); // run the effect only once; after the first render
@@ -23,7 +24,7 @@ const App = (): JSX.Element => {
       <PersistGate loading={null} persistor={redux.persistor}>
         <DndProvider backend={HTML5Backend}>
           <FSCacheProvider>
-            <CanvasComponent />
+            <Canvas />
           </FSCacheProvider>
         </DndProvider>
       </PersistGate>

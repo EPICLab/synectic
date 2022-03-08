@@ -41,7 +41,7 @@ export type Status =
     | 'Passing'
     | 'Failing';
 
-const StatusIcon: React.FunctionComponent<{ status: Status }> = props => {
+const StatusIcon = (props: { status: Status }) => {
     switch (props.status) {
         case 'Running':
             return <StyledCircularProgress size={18} />;
