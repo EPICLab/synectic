@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ConflictRibbon: React.FunctionComponent<{ base: string, compare: string, onClick?: () => void }> = props => {
+export const ConflictRibbon = (props: { base: string, compare: string, onClick?: () => void }) => {
     const ribbonText = `Base: ${props.base}, Compare: ${props.compare}`;
     return (
         <div className='branch-ribbon-container' onClick={props.onClick} >

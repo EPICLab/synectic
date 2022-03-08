@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const GitConfigForm: React.FunctionComponent<{ open: boolean, root: PathLike | undefined }> = props => {
+const GitConfigForm = (props: { open: boolean, root: PathLike | undefined }) => {
   const [globalCheck, setGlobalCheck] = useState(false);
   const [existingUsername, setExistingUsername] = useState('');
   const [existingEmail, setExistingEmail] = useState('');
@@ -110,5 +110,6 @@ export const GitConfigForm: React.FunctionComponent<{ open: boolean, root: PathL
       />
     </>
   );
-
 }
+
+export default GitConfigForm;

@@ -1,11 +1,11 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import type { Card } from '../../types';
 import DataField from '../Card/DataField';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
 import { CircularProgress, makeStyles } from '@material-ui/core';
+import { Card } from '../../store/slices/cards';
 
 const useStyles = makeStyles({
     root: {
@@ -26,7 +26,7 @@ const useStyles = makeStyles({
     }
 });
 
-const Loading: React.FunctionComponent = () => {
+const Loading = () => {
     const classes = useStyles();
 
     return (
@@ -35,7 +35,7 @@ const Loading: React.FunctionComponent = () => {
         </div>);
 }
 
-export const LoadingReverse: React.FunctionComponent<Card> = props => {
+export const LoadingReverse = (props: Card) => {
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
 
     return (

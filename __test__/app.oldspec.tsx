@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon';
-import type { Card } from '../src/types';
-import { cardAdded } from '../src/store/slices/cards';
+import { Card, cardAdded } from '../src/store/slices/cards';
 import { mockStore } from './__mocks__/reduxStoreMock';
 import { emptyStore, testStore } from './__fixtures__/ReduxStore';
 import { importFiletypes } from '../src/store/thunks/handlers';

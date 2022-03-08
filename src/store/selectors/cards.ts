@@ -1,9 +1,10 @@
 import { RootState } from '../store';
-import { cardsAdapter } from '../slices/cards';
+import { Card, cardsAdapter } from '../slices/cards';
 import { createSelector, EntityId } from '@reduxjs/toolkit';
-import type { Card, Metafile, UUID } from '../../types';
 import metafileSelectors from './metafiles';
 import { flattenArray } from '../../containers/flatten';
+import { UUID } from '../types';
+import { Metafile } from '../slices/metafiles';
 
 const selectors = cardsAdapter.getSelectors<RootState>(state => state.cards);
 

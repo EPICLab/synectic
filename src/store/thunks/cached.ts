@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { relative } from 'path';
-import type { Cached } from '../../types';
 import { removeUndefined } from '../../containers/format';
 import { AppThunkAPI } from '../hooks';
+import { Cached } from '../slices/cached';
 
 export const fetchCachedByFilepath = createAsyncThunk<Cached[], PathLike, AppThunkAPI>(
     'cached/fetchByPath',

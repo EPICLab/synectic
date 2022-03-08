@@ -23,7 +23,7 @@ type DropSelectProps = {
     width?: number | undefined;
 }
 
-const DropSelect: React.FunctionComponent<DropSelectProps> = props => {
+const DropSelect = (props: DropSelectProps) => {
     const classes = useStyles();
 
     return (

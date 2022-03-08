@@ -46,7 +46,7 @@ const useStyles = makeStyles({
   },
 });
 
-export const OutlinedCard: React.FunctionComponent<{ content: string, placement: Placement }> = props => {
+const OutlinedCard = (props: { content: string, placement: Placement }) => {
   const classes = useStyles();
   const position = placementToPosition[props.placement];
 
@@ -58,3 +58,5 @@ export const OutlinedCard: React.FunctionComponent<{ content: string, placement:
     </StyledTag>
   );
 }
+
+export default OutlinedCard;

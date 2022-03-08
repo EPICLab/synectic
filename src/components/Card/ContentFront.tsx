@@ -1,15 +1,15 @@
 import React from 'react';
-import type { Card } from '../../types';
-import Browser from '../Browser/Browser';
-import ConflictManager from '../SourceControl/ConflictManager';
-import Diff from '../Diff/Diff';
-import Editor from '../Editor/Editor';
-import Explorer from '../Explorer/Explorer';
-import BranchTracker from '../SourceControl/BranchTracker';
-import SourceControl from '../SourceControl/SourceControl';
+import BranchTracker from '../BranchTracker';
+import Browser from '../Browser';
+import ConflictManager from '../ConflictManager';
+import Diff from '../Diff';
+import Editor from '../Editor';
+import Explorer from '../Explorer';
+import SourceControl from '../SourceControl';
 import Loading from './Loading';
+import { Card } from '../../store/slices/cards';
 
-const Content: React.FunctionComponent<Card> = card => {
+const Content = (card: Card) => {
     switch (card.type) {
         case 'Loading':
             return (<Loading />);
@@ -32,7 +32,7 @@ const Content: React.FunctionComponent<Card> = card => {
     }
 };
 
-const ContentFront: React.FunctionComponent<Card> = card => {
+const ContentFront = (card: Card) => {
     return (<div className='card-front'><Content {...card} /></div>)
 }
 

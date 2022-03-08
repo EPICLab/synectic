@@ -8,13 +8,14 @@ import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
 // import { isHiddenFile } from 'is-hidden-file';
-import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
 import { currentBranch } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from './format';
 import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
+import { Repository } from '../store/slices/repos';
+import { GitStatus } from '../store/types';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];

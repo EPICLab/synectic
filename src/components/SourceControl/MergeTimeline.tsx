@@ -38,7 +38,7 @@ type TimelineProps = {
     // buildStatus: Status
 }
 
-const TimelineComponent: React.FunctionComponent<TimelineProps> = props => {
+const TimelineComponent = (props: TimelineProps) => {
     const classes = useStyles();
     const [commitCountDelta, setCommitCountDelta] = useState<Status>('Unchecked');
     const [branchConflicts, setBranchConflicts] = useState<[Status, MissingGitConfigs]>(['Unchecked', undefined]);
