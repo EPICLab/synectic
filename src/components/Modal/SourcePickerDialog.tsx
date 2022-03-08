@@ -13,8 +13,8 @@ import { getBranchRoot } from '../../containers/git-path';
 import branchSelectors from '../../store/selectors/branches';
 import { isDefined, removeUndefinedProperties } from '../../containers/format';
 import { UUID } from '../../store/types';
-import RepoSelect from '../SourceControl/RepoSelect';
-import BranchSelect from '../SourceControl/BranchSelect';
+import RepoSelect from '../RepoSelect';
+import BranchSelect from '../BranchSelect';
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({

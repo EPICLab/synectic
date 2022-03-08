@@ -6,7 +6,7 @@ import { GitRepoIcon } from '../GitIcons';
 import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import { Repository } from '../../store/slices/repos';
-import BranchStatus from './BranchStatus';
+import BranchStatus from '../BranchStatus';
 
 const RepoStatus = (props: { repo: Repository; }) => {
     const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, props.repo, true));

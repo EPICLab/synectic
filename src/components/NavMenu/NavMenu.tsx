@@ -5,27 +5,15 @@ import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
-import MenuItem from '@material-ui/core/MenuItem';
-import { removeUndefinedProperties } from '../containers/format';
-
-export type NavItemProps = {
-  label: string;
-  disabled?: boolean;
-  click: (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
-}
-
-export const NavItem = ({ label, click, disabled }: NavItemProps) => {
-  return (
-    <MenuItem onClick={click} {...removeUndefinedProperties({ disabled: disabled })}>{label}</ MenuItem>
-  );
-}
+import { removeUndefinedProperties } from '../../containers/format';
+import NavItem, { NavItemProps } from '../NavItem/NavItem';
 
 type NavMenuProps = {
   label: string;
   submenu: NavItemProps[];
 }
 
-export const NavMenu = ({ label, submenu }: NavMenuProps) => {
+const NavMenu = ({ label, submenu }: NavMenuProps) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLButtonElement>(null);
 
@@ -72,3 +60,5 @@ export const NavMenu = ({ label, submenu }: NavMenuProps) => {
     </>
   );
 }
+
+export default NavMenu;

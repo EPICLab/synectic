@@ -9,7 +9,7 @@ import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
 import { isFilebasedMetafile, isFileMetafile } from '../../store/thunks/metafiles';
-import { getSourceMotif } from '../SourceControl/SourceMotif';
+import { getSourceMotif } from '../../containers/sourceMotif';
 import { UUID } from '../../store/types';
 
 const FileComponent = (props: { metafileId: UUID }) => {

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import { branchLog } from '../../containers/git-plumbing';
-import TimelineComponent from '../SourceControl/MergeTimeline';
+import TimelineComponent from '../MergeTimeline';
 import { RootState } from '../../store/store';
 // import { build } from '../../containers/builds';
-import GitConfigForm from '../SourceControl/GitConfigForm';
+import GitConfigForm from '../GitConfigForm';
 // import { merge as isomerge } from '../containers/git-porcelain';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
@@ -19,8 +19,8 @@ import { checkProject } from '../../containers/conflicts';
 import branchSelectors from '../../store/selectors/branches';
 import { isDefined } from '../../containers/format';
 import { UUID } from '../../store/types';
-import BranchSelect from '../SourceControl/BranchSelect';
-import RepoSelect from '../SourceControl/RepoSelect';
+import BranchSelect from '../BranchSelect';
+import RepoSelect from '../RepoSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

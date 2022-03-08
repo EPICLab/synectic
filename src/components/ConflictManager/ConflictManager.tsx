@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import { loadCard } from '../../store/thunks/handlers';
 import { extractFilename } from '../../containers/io';
-import { ConflictRibbon } from '../SourceControl/ConflictRibbon';
+import ConflictRibbon from '../ConflictRibbon';
 import { WithRequired } from '../../containers/format';
 import { fetchContent, fetchMetafilesByFilepath, isFilebasedMetafile } from '../../store/thunks/metafiles';
 import { PathLike } from 'fs-extra';

@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { fetchVersionControl, isFilebasedMetafile, isFileMetafile } from '../../store/thunks/metafiles';
-import { getSourceMotif, stagedCheck, unstagedCheck } from './SourceMotif';
+import { getSourceMotif, stagedCheck, unstagedCheck } from '../../containers/sourceMotif';
 import { add, remove } from '../../containers/git-plumbing';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import { UUID } from '../../store/types';
