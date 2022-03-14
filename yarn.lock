@@ -1658,10 +1658,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@>=16.9.0", "@types/react@^17.0.39":
-  version "17.0.39"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.39.tgz#d0f4cde092502a6db00a1cded6e6bf2abb7633ce"
-  integrity sha512-UVavlfAxDd/AgAacMa60Azl7ygyQNRwC/DsHZmKgNvPmRR5p70AJ5Q9EAmL2NWOJmeV+vVUI4IAP7GZrN8h8Ug==
+"@types/react@*", "@types/react@>=16.9.0", "@types/react@^17.0.40":
+  version "17.0.40"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.40.tgz#dc010cee6254d5239a138083f3799a16638e6bad"
+  integrity sha512-UrXhD/JyLH+W70nNSufXqMZNuUD2cXHu6UjCllC6pmOQgBX4SGXOH8fjRka0O0Ee0HrFxapDD8Bwn81Kmiz6jQ==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -3821,10 +3821,10 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@17.1.1:
-  version "17.1.1"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-17.1.1.tgz#a936907faf68a0a4ae24e8f79c8b22995661c54b"
-  integrity sha512-S+PIsCOfxB+9DkPsbnWpbLQx6+3P5FGedCeVQ/vhZEX8zD4Wj2F118HGFX6ShEfsaTYE623ESK/f+b2ueHpEpQ==
+electron@17.1.2:
+  version "17.1.2"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-17.1.2.tgz#b4e4a0df883d9a9854cf865efa2bb00b12d55b1d"
+  integrity sha512-hqKQaUIRWX5Y2eAD8FZINWD/e5TKdpkbBYbkcZmJS4Bd1PKQsaDVc9h5xoA8zZQkPymE9rss+swjRpAFurOPGQ==
   dependencies:
     "@electron/get" "^1.13.0"
     "@types/node" "^14.6.2"
