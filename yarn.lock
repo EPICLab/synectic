@@ -416,10 +416,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.16.7", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
-  version "7.16.7"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.7.tgz#03ff99f64106588c9c403c6ecb8c3bafbbdff1fa"
-  integrity sha512-9E9FJowqAsytyOY6LG+1KuueckRL+aQW+mKvXRXnuFGyRAyepJPmEo9vgMfXUA6O9u3IeEdv9MAkppFcaQwogQ==
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.17.2", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
+  version "7.17.8"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.17.8.tgz#3e56e4aff81befa55ac3ac6a0967349fd1c5bca2"
+  integrity sha512-dQpEpK0O9o6lj6oPu0gRDbbnk+4LeHlNcBpspf6Olzt3GIX4P1lWF1gS+pHLDFlaJvbR6q7jCfQ08zA4QJBnmA==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -7911,19 +7911,17 @@ react-error-boundary@^3.1.0:
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-react-flow-renderer@^9.7.4:
-  version "9.7.4"
-  resolved "https://registry.yarnpkg.com/react-flow-renderer/-/react-flow-renderer-9.7.4.tgz#11394c05ca953b650e2017d056c075fd3df9075c"
-  integrity sha512-GxHBXzkn8Y+TEG8pul7h6Fjo4cKrT0kW9UQ34OAGZqAnSBLbBsx9W++TF8GiULBbTn3O8o7HtHxux685Op10mQ==
+react-flow-renderer@^10.0.3:
+  version "10.0.3"
+  resolved "https://registry.yarnpkg.com/react-flow-renderer/-/react-flow-renderer-10.0.3.tgz#137fec189da38a3f3dfb4ee45f8a5e83ae18746d"
+  integrity sha512-A7WFbpD8mvuxAM7jMsN+ut9NTbja/cvmqGyHlOx6uNQe7c9X1a9TRycGKsAdOSIUYtS5Ubona74FmvoBvQvNTQ==
   dependencies:
-    "@babel/runtime" "^7.16.7"
+    "@babel/runtime" "^7.17.2"
     classcat "^5.0.3"
     d3-selection "^3.0.0"
     d3-zoom "^3.0.0"
-    fast-deep-equal "^3.1.3"
     react-draggable "^4.4.4"
-    react-redux "^7.2.6"
-    redux "^4.1.2"
+    zustand "^3.7.1"
 
 react-is@^16.7.0, react-is@^16.8.1:
   version "16.13.1"
@@ -9889,3 +9887,8 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+zustand@^3.7.1:
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-3.7.1.tgz#7388f0a7175a6c2fd9a2880b383a4bf6cdf6b7c6"
+  integrity sha512-wHBCZlKj+bg03/hP+Tzv24YhnqqP8MCeN9ECPDXoF01062SIbnfl3j9O0znkDw1lNTY0a8WN3F///a0UhhaEqg==
