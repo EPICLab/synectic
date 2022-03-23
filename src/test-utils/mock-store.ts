@@ -2,11 +2,12 @@ import { AnyAction } from 'redux';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureMockStore from 'redux-mock-store';
 import { RootState, AppDispatch, rootReducer } from '../store/store';
+import { cacheMiddleware } from '../store/cache/cacheMiddleware';
 
 const middlewares = getDefaultMiddleware({
     serializableCheck: false,
     immutableCheck: false
-});
+}).concat([cacheMiddleware.middleware]);
 const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
 
 /** 
