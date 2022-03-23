@@ -3,7 +3,7 @@ import { cleanup, render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { DateTime } from 'luxon';
 import { RootState } from '../store';
-import { Metafile, metafileAdded, metafileRemoved } from '../slices/metafiles';
+import { metafileAdded, metafileRemoved } from '../slices/metafiles';
 import { mockStore } from '../../test-utils/mock-store';
 import { DndProvider } from 'react-dnd';
 import Canvas from '../../components/Canvas';
