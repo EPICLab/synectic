@@ -1,4 +1,6 @@
 import React, { PropsWithChildren } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { usePreview } from 'react-dnd-preview';
 import { Card } from '../../store/slices/cards';
 import { Stack } from '../../store/slices/stacks';
@@ -22,14 +24,16 @@ const StackPreview = (props: PropsWithChildren<StackPreviewProps>) => {
     }
 
     return (itemType === DnDItemType.STACK) ?
-        <div className='stack' data-testid='stack-component' style={style}>
-            <StageButton cardIds={[]} />
-            <UnstageButton cardIds={[]} />
-            <CommitButton cardIds={[]} />
-            <SaveButton cardIds={[]} />
-            {props.cards.map(card => <CardComponent key={card.id} {...card} />)}
-            {props.children}
-        </div> : null;
+        <DndProvider backend={HTML5Backend}>
+            <div className='stack' data-testid='stack-component' style={style}>
+                <StageButton cardIds={[]} />
+                <UnstageButton cardIds={[]} />
+                <CommitButton cardIds={[]} />
+                <SaveButton cardIds={[]} />
+                {props.cards.map(card => <CardComponent key={card.id} {...card} />)}
+                {props.children}
+            </div>
+        </DndProvider> : null;
 };
 
 export default StackPreview;
