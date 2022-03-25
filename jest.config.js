@@ -8,6 +8,10 @@ module.exports = {
         'jest-serializer-path',
     ],
     clearMocks: true,
+    transformIgnorePatterns: [],
+    transform: {
+        "\\.m?js?$": "jest-esm-transformer"
+    },
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
     moduleNameMapper: {
         "ace-builds": "<rootDir>/node_modules/ace-builds",
