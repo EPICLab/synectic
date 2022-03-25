@@ -25,8 +25,11 @@ export type CommitVertex = ReadCommitResult & {
     conflicted: boolean
 }
 type useGitGraphHook = {
+    /** A map from commit oid to CommitVertex elements contained within a graph. */
     graph: GitGraph,
+    /** The ordered list of commit oids for the elements within the graph. */
     topological: Oid[],
+    /** A convenience function for printing both the graph and the topologically-sorted graph of elements. */
     print: () => void
 }
 
