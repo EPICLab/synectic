@@ -62,6 +62,6 @@ const GitNode = (props: GitNodeProps) => {
 
 export const nodeTypes = {
   gitNode: GitNode
-}
+};
 
 export default GitNode;

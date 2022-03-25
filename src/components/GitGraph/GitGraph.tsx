@@ -1,34 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import ReactFlow, { addEdge, Connection, Edge, FlowElement, OnLoadFunc, OnLoadParams } from 'react-flow-renderer';
+import ReactFlow, { addEdge, Connection, Edge, isEdge, isNode, ReactFlowInstance, useEdgesState, useNodesState } from 'react-flow-renderer';
 import { nodeTypes } from './GitNode';
 import useGitGraph from '../../containers/hooks/useGitGraph';
 import layoutGraph from '../../containers/git-graph';
 import { UUID } from '../../store/types';
 
 const GitGraph = (props: { repo: UUID }) => {
-  const [elements, setElements] = useState<FlowElement[]>([]);
-  const [reactFlowState, setReactFlowState] = useState<OnLoadParams>();
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const onConnect = (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds));
+  const onInit = (reactFlowInstance: ReactFlowInstance) => { setReactFlowState(reactFlowInstance) };
+
+  const [reactFlowState, setReactFlowState] = useState<ReactFlowInstance>();
   const { graph, topological } = useGitGraph(props.repo);
 
-  const onConnect = (params: Edge | Connection) => setElements((els) => addEdge(params, els));
-  const onLoad: OnLoadFunc = (rf) => { setReactFlowState(rf) };
-
-  useEffect(() => { reactFlowState?.fitView() }, [elements]);
+  useEffect(() => { reactFlowState?.fitView() }, [nodes, edges]);
 
   useEffect(() => {
-    setElements(layoutGraph(graph, topological));
+    const rfElements = layoutGraph(graph, topological);
+    setNodes(rfElements.filter(isNode));
+    setEdges(rfElements.filter(isEdge));
   }, [graph]);
 
   return (
     <>
-      {/* <IconButton aria-label='print-graph' onClick={() => print()}>
-        <Info />
-      </IconButton> */}
       <ReactFlow
-        elements={elements}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         onConnect={onConnect}
-        onLoad={onLoad}
+        onInit={onInit}
+        fitView
         className='git-flow' />
     </>
   );

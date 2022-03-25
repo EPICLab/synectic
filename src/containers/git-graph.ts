@@ -1,12 +1,12 @@
 import dagre from 'dagre';
-import { ArrowHeadType, Edge, FlowElement, isEdge, isNode, Node } from 'react-flow-renderer';
+import { Edge, isEdge, isNode, MarkerType, Node } from 'react-flow-renderer';
 import { colorSets } from './colors';
 import { CommitVertex, GitGraph } from './hooks/useGitGraph';
 
 const nodesep = 80;
 
-const layoutGraph = (graph: GitGraph, topological: string[]): FlowElement[] => {
-    const elements: FlowElement[] = [];
+const layoutGraph = (graph: GitGraph, topological: string[]): (Edge | Node)[] => {
+    const elements: (Edge | Node)[] = [];
     for (const oid of topological) {
         const commit = graph.get(oid);
         if (commit) {
@@ -19,7 +19,7 @@ const layoutGraph = (graph: GitGraph, topological: string[]): FlowElement[] => {
     return layoutOptimizer(elements);
 }
 
-const layoutOptimizer = (rfGraph: FlowElement[]): FlowElement[] => {
+const layoutOptimizer = (rfGraph: (Edge | Node)[]): (Edge | Node)[] => {
     const graph = new dagre.graphlib.Graph();
     graph.setGraph({ nodesep: nodesep });
     graph.setDefaultEdgeLabel(() => { return {}; });
@@ -59,7 +59,7 @@ const getEdges = (commit: CommitVertex): Edge[] => {
         source: parent,
         target: commit.oid,
         animated: commit.staged ? true : false,
-        arrowHeadType: ArrowHeadType.ArrowClosed
+        arrowHeadType: MarkerType.ArrowClosed
     }));
 }
 
