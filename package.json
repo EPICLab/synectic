@@ -79,6 +79,7 @@
     "git-remote-protocol": "^0.1.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.5.1",
+    "jest-esm-transformer": "^1.0.0",
     "jest-serializer-path": "^0.1.15",
     "node-loader": "^2.0.0",
     "pako": "^2.0.4",
