@@ -8,9 +8,9 @@ import { Metafile, metafileAdded, metafileRemoved } from '../slices/metafiles';
 import { RootState } from '../store';
 import { fetchMetafilesByFilepath, fetchMetafilesByVirtual, fetchNewMetafile, isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from '../thunks/metafiles';
 
-export const cacheMiddleware = createListenerMiddleware();
+export const listenerMiddleware = createListenerMiddleware();
 
-const startAppListening = cacheMiddleware.startListening as TypedStartListening<RootState>;
+const startAppListening = listenerMiddleware.startListening as TypedStartListening<RootState>;
 
 startAppListening({
     actionCreator: metafileRemoved,
