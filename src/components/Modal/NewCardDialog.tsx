@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@material-ui/core';
 import { RootState } from '../../store/store';
-import { loadCard } from '../../store/thunks/handlers';
+import { loadCard } from '../../store/thunks/filetypes';
 import * as io from '../../containers/io';
 import { flattenArray } from '../../containers/flatten';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';

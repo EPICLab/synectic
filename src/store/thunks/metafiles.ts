@@ -5,7 +5,7 @@ import { v4 } from 'uuid';
 import { AppThunkAPI } from '../hooks';
 import { Metafile, metafileAdded, metafilesSlice, metafileUpdated } from '../slices/metafiles';
 import { removeUndefined, removeUndefinedProperties, WithRequired } from '../../containers/format';
-import { resolveHandler } from './handlers';
+import { resolveHandler } from './filetypes';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { getStatus } from '../../containers/git-porcelain';
 import { fetchRepo } from './repos';

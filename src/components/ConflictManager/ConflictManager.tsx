@@ -6,7 +6,7 @@ import repoSelectors from '../../store/selectors/repos';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
-import { loadCard } from '../../store/thunks/handlers';
+import { loadCard } from '../../store/thunks/filetypes';
 import { extractFilename } from '../../containers/io';
 import ConflictRibbon from '../ConflictRibbon';
 import { WithRequired } from '../../containers/format';

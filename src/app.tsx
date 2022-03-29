@@ -6,7 +6,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.css';
 import './assets/style.css';
 import redux from './store/store';
-import { importFiletypes } from './store/thunks/handlers';
+import { importFiletypes } from './store/thunks/filetypes';
 import { PersistGate } from 'redux-persist/integration/react';
 import { FSCacheProvider } from './store/cache/FSCache';
 import Canvas from './components/Canvas';

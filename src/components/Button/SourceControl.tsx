@@ -5,7 +5,7 @@ import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { loadCard } from '../../store/thunks/handlers';
+import { loadCard } from '../../store/thunks/filetypes';
 import { fetchNewMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git-path';

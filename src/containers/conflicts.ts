@@ -9,7 +9,7 @@ import { AppThunkAPI } from '../store/hooks';
 import { v4 } from 'uuid';
 import { fetchMetafile } from '../store/thunks/metafiles';
 import { DateTime } from 'luxon';
-import { loadCard } from '../store/thunks/handlers';
+import { loadCard } from '../store/thunks/filetypes';
 import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
 
 export type Conflict = {

@@ -3,7 +3,7 @@ import { InsertDriveFile as FileIcon, DeleteForever as Delete } from '@material-
 import { remove as removePath } from 'fs-extra';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
-import { loadCard } from '../../store/thunks/handlers';
+import { loadCard } from '../../store/thunks/filetypes';
 import { extractFilename } from '../../containers/io';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';

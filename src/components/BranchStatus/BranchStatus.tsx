@@ -5,7 +5,7 @@ import { StyledTreeItem } from '../StyledTreeComponent';
 import { GitBranchIcon } from '../GitIcons';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
-import { loadCard } from '../../store/thunks/handlers';
+import { loadCard } from '../../store/thunks/filetypes';
 import { checkoutBranch } from '../../store/thunks/repos';
 import { fetchMetafile, fetchVersionControl, isFilebasedMetafile } from '../../store/thunks/metafiles';
 import branchSelectors from '../../store/selectors/branches';

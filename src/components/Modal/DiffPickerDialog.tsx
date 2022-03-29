@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as MUI from '@material-ui/core';
 import { RootState } from '../../store/store';
-import { loadCard } from '../../store/thunks/handlers';
+import { loadCard } from '../../store/thunks/filetypes';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';

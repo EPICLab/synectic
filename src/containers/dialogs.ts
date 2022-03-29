@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron';
 import { join } from 'path';
 import { AppThunkAPI } from '../store/hooks';
 import { Metafile, metafileUpdated } from '../store/slices/metafiles';
-import { loadCard } from '../store/thunks/handlers';
+import { loadCard } from '../store/thunks/filetypes';
 import { writeFileAsync } from './io';
 import { removeUndefined } from './format';
 import { fetchMetafile, fetchVersionControl, isFilebasedMetafile } from '../store/thunks/metafiles';

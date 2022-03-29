@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { merge } from '../../containers/merges';
-import { loadCard } from '../../store/thunks/handlers';
+import { loadCard } from '../../store/thunks/filetypes';
 import { fetchConflicted, fetchMetafile } from '../../store/thunks/metafiles';
 import { v4 } from 'uuid';
 import { DateTime } from 'luxon';
