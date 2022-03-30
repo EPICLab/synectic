@@ -1,5 +1,5 @@
-type ArrayElementType<T> = T extends Array<infer U> ? ArrayElementType<U> : T;
-type ObjectElementType<T> = T extends Record<string, infer U> ? ObjectElementType<U> : T;
+type ArrayElementType<T> = T extends Array<infer U> ? U : T;
+type ObjectElementType<T> = T extends Record<string | number | symbol, infer U> ? U : T;
 
 /**
  * Flattens an n-depth array into a single level array containing all sub-array elements. Solutions for the problem of 
