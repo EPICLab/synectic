@@ -1,6 +1,7 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { PURGE } from 'redux-persist';
+import { isDefined } from '../../containers/format';
 import { fetchNewRepo } from '../thunks/repos';
 import { UUID } from '../types';
 import { branchRemoved } from './branches';
@@ -54,11 +55,10 @@ export const reposSlice = createSlice({
             })
             .addCase(branchRemoved, (state, action) => {
                 const updatedRepos = Object.values(state.entities)
-                    .filter((r): r is Repository => r !== undefined)
-                    .filter(r => r.local.includes(action.payload.toString()))
-                    .map(r => {
-                        const updatedLocal = r.local.filter(branch => branch !== action.payload);
-                        return { id: r.id, changes: { ...r, local: updatedLocal } }
+                    .filter(isDefined)
+                    .filter(repo => repo.local.includes(action.payload.toString()))
+                    .map(repo => {
+                        return { id: repo.id, changes: { ...repo, local: repo.local.filter(branch => branch !== action.payload) } }
                     })
                 reposAdapter.updateMany(state, updatedRepos);
 
