@@ -138,9 +138,9 @@ export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<bool
 };
 
 /**
- * Generic for filtering an object given a set of filtering keys for inclusion in the resulting object.
+ * Generic for flattening and filtering an object given a set of filtering keys for inclusion in the resulting object.
  * @param obj An object containing key-value indexed fields.
- * @param filter An array of key strings that indicate which key-value pairs should be included.
+ * @param filter An array of key strings that indicate which key-value pairs should be included or excluded.
  * @return The resulting object devoid of key-value fields that did not match the key filter, or an empty object.
  */
 export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: string[]): T | Record<string, never> => {
