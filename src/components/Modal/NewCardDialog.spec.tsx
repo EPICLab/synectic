@@ -82,13 +82,16 @@ describe('NewCardDialog modal component', () => {
     const store = mockStore(testStore);
 
     const produceComponent = () => {
-        render(
-            <Provider store={store}>
-                <DndProvider backend={HTML5Backend}>
-                    <NewCardDialog {...mockedModal} />
-                </DndProvider>
-            </Provider>
-        );
+        return {
+            user: userEvent.setup(),
+            ...render(
+                <Provider store={store}>
+                    <DndProvider backend={HTML5Backend}>
+                        <NewCardDialog {...mockedModal} />
+                    </DndProvider>
+                </Provider>
+            )
+        }
     };
 
     it('renders the NewCardDialog modal component', () => {
@@ -96,7 +99,7 @@ describe('NewCardDialog modal component', () => {
         expect(screen.getByTestId('new-card-dialog')).toBeInTheDocument();
     });
 
-    it('generates REMOVAL_MODAL action when escape key is pressed', async () => {
+    it('generates modalRemoved action when escape key is pressed', async () => {
         produceComponent();
         fireEvent.keyDown(screen.getByTestId('new-card-dialog'), {
             key: 'Escape',
@@ -117,12 +120,12 @@ describe('NewCardDialog modal component', () => {
         });
     });
 
-    it('generates REMOVE_MODAL action when clicking outside of dialog', async () => {
-        produceComponent();
+    it('generates modalRemoved action when clicking outside of dialog', async () => {
+        const { user } = produceComponent();
 
         // using DOM selector method instead of RTL
         const backdrop = document.querySelector('.MuiBackdrop-root');
-        if (backdrop) userEvent.click(backdrop);
+        if (backdrop) await user.click(backdrop);
 
         await waitFor(() => {
             expect(store.getActions()).toStrictEqual(
@@ -137,10 +140,10 @@ describe('NewCardDialog modal component', () => {
     });
 
     it('validates filename and filetype', async () => {
-        produceComponent();
+        const { user } = produceComponent();
 
         // open the editor portion of dialog
-        userEvent.click(screen.getByTestId('editor-button'));
+        await user.click(screen.getByTestId('editor-button'));
         // enter a filename with an invalid filetype
         fireEvent.change(screen.getByLabelText('Filename'), {
             target: { value: 'test.jsxw' }
@@ -150,17 +153,19 @@ describe('NewCardDialog modal component', () => {
     });
 
     it('populates filetype on valid filename entry', async () => {
-        produceComponent();
+        const { user } = produceComponent();
 
         // open the editor portion of dialog
-        userEvent.click(screen.getByTestId('editor-button'));
+        await user.click(screen.getByTestId('editor-button'));
         // enter a filename with a valid filetype
-        userEvent.type(screen.getByLabelText('Filename'), 'test.js');
+        fireEvent.change(screen.getByLabelText('Filename'), {
+            target: { value: 'test.js' }
+        });
         expect(screen.getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
         expect(screen.getByText('Create Card').closest('button')).toBeEnabled();
 
         // click to attempt to create a card
-        userEvent.click(screen.getByText('Create Card'));
+        await user.click(screen.getByText('Create Card'));
         await waitFor(() => {
             expect(store.getActions()).toStrictEqual(
                 expect.arrayContaining([

@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import TreeView from '@material-ui/lab/TreeView';
@@ -29,7 +29,6 @@ describe('Directory', () => {
   });
 
   it('Directory initially renders without expanding to display children', () => {
-    store.getState().branches
     render(
       <Provider store={store} >
         <TreeView><Directory {...directoryMetafile} /> </TreeView>
@@ -41,6 +40,7 @@ describe('Directory', () => {
   });
 
   it('Directory expands to display child files and directories', async () => {
+    const user = userEvent.setup();
     render(
       <Provider store={store}>
         <TreeView><Directory {...directoryMetafile} /></TreeView>
@@ -48,9 +48,7 @@ describe('Directory', () => {
     );
     expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
 
-    await act(async () => {
-      userEvent.click(screen.getByText('foo'));
-    });
+    await user.click(screen.getByText('foo'));
 
     expect(screen.queryByText('bar.js')).toBeInTheDocument();
   });

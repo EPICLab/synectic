@@ -7,14 +7,15 @@ import Browser from './Browser';
 describe('Browser', () => {
 
   it('Browser allows the user to enter/edit a URL', async () => {
+    const user = userEvent.setup();
     render(<Browser />);
     const textBox = screen.getByRole('textbox');
 
     expect(textBox).toHaveValue('https://epiclab.github.io/');
 
     // Type URL into text box
-    userEvent.clear(screen.getByRole('textbox'));
-    userEvent.type(screen.getByRole('textbox'), 'https://google.com');
+    await user.clear(screen.getByRole('textbox'));
+    await user.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Hit Enter button
     fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
@@ -23,6 +24,7 @@ describe('Browser', () => {
   });
 
   it('Browser allows the user to navigate backwards and forwards in history', async () => {
+    const user = userEvent.setup();
     render(<Browser />);
     const textBox = screen.getByRole('textbox');
     const backButton = screen.getAllByRole('button')[0];
@@ -32,8 +34,8 @@ describe('Browser', () => {
     textBox.focus();
 
     // Type URL into text box
-    userEvent.clear(screen.getByRole('textbox'));
-    userEvent.type(screen.getByRole('textbox'), 'https://google.com');
+    await user.clear(screen.getByRole('textbox'));
+    await user.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Press Enter key
     fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
@@ -49,6 +51,7 @@ describe('Browser', () => {
   });
 
   it('Browser does not change the page URL when the refresh button is clicked', async () => {
+    const user = userEvent.setup();
     render(<Browser />);
     const textBox = screen.getByRole('textbox');
     const refreshButton = screen.getAllByRole('button')[2];
@@ -60,8 +63,8 @@ describe('Browser', () => {
     textBox.focus();
 
     // Type URL into text box
-    userEvent.clear(screen.getByRole('textbox'));
-    userEvent.type(screen.getByRole('textbox'), 'https://google.com');
+    await user.clear(screen.getByRole('textbox'));
+    await user.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Press Enter key
     fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
