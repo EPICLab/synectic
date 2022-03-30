@@ -1,7 +1,7 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import { repoRemoved } from './repos';
-import { filterObject } from '../../containers/format';
+import { filterObject, isDefined } from '../../containers/format';
 import { PURGE } from 'redux-persist';
 import { branchRemoved } from './branches';
 import { CardType, FilesystemStatus, GitStatus, Timestamp, UUID } from '../types';
@@ -41,6 +41,49 @@ export type Metafile = {
     readonly conflicts?: number[] | undefined;
 }
 
+export type VirtualMetafileProperties = {
+    /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
+    readonly filetype: string;
+    /** The type of card that can load the content of this metafile. */
+    readonly handler: CardType;
+}
+export type FilebasedMetafileProperties = {
+    /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
+    readonly filetype: string;
+    /** The type of card that can load the content of this metafile. */
+    readonly handler: CardType;
+    /** The relative or absolute path to the file or directory of this metafile. */
+    readonly path: PathLike;
+    /** The latest Filesystem status code for this file relative to the associated content. */
+    readonly state: FilesystemStatus;
+}
+export type FileMetafileProperties = {
+    /** The textual contents maintained for files; can differ from actual file content when unsaved changes have been made. */
+    readonly content: string;
+}
+export type DirectoryMetafileProperties = {
+    /** An array with all Metafile object UUIDs for direct sub-files and sub-directories. */
+    readonly contains: UUID[];
+}
+export type VersionedMetafileProperties = {
+    /** The UUID for associated Repository object. */
+    readonly repo: UUID;
+    /** The UUID for associated Branch object. */
+    readonly branch: UUID;
+    /** The latest Git status code for this metafile relative to the associated repository and branch. */
+    readonly status: GitStatus;
+    /** An array of tuples indicating the start/end indices of each Git conflict in the content of this metafile. */
+    readonly conflicts: [number, number][];
+}
+export type DiffMetafileProperties = {
+    /** An array with all Card object UUIDs included in the diff output. */
+    readonly targets: UUID[];
+}
+export type MergingMetafileProperties = {
+    /** Object containing base branch and compare branch names involved in an in-progress branch merge. */
+    readonly merging?: { base: string, compare: string }
+}
+
 export const metafilesAdapter = createEntityAdapter<Metafile>();
 
 export const metafilesSlice = createSlice({
@@ -54,13 +97,14 @@ export const metafilesSlice = createSlice({
                 ...action.payload, modified: DateTime.local().valueOf()
             })
         },
-        metafilesUpdated: metafilesAdapter.updateMany
+        metafilesUpdated: metafilesAdapter.updateMany,
+        metafileReplaced: metafilesAdapter.setOne
     },
     extraReducers: (builder) => {
         builder
             .addCase(repoRemoved, (state, action) => {
                 const updatedMetafiles = Object.values(state.entities)
-                    .filter((m): m is Metafile => m !== undefined)
+                    .filter(isDefined)
                     .filter(m => m.repo === action.payload)
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['repo', 'branch', 'status']) };
@@ -69,7 +113,7 @@ export const metafilesSlice = createSlice({
             })
             .addCase(branchRemoved, (state, action) => {
                 const updatedMetafiles = Object.values(state.entities)
-                    .filter((m): m is Metafile => m !== undefined)
+                    .filter(isDefined)
                     .filter(m => m.branch === action.payload)
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['branch', 'status']) }
