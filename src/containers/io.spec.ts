@@ -95,6 +95,25 @@ describe('io.extractExtension', () => {
     });
 });
 
+describe('io.isEqualPaths', () => {
+    it('isEqualPaths resolves to true for absolutely equivalent paths', () => {
+        expect.assertions(1);
+        expect(io.isEqualPaths('foo/bar/example.ts', 'foo/bar/example.ts')).toBeTruthy();
+    });
+
+    it('isEqualPaths resolves to true for relatively equivalent paths', () => {
+        expect.assertions(1);
+        expect(io.isEqualPaths('foo/bar/example.ts', 'qux/../foo/bar/example.ts')).toBeTruthy();
+    });
+
+    it('isEqualPaths resolves to false for non-equivalent paths', () => {
+        expect.assertions(3);
+        expect(io.isEqualPaths('foo/bar/example.ts', 'foo/bar/sample.js')).toBeFalsy();
+        expect(io.isEqualPaths('foo/bar/example.ts', 'qux/bar/example.ts')).toBeFalsy();
+        expect(io.isEqualPaths('foo/bar/example.ts', 'foo/bar')).toBeFalsy();
+    });
+});
+
 describe('io.readFileAsync', () => {
     let mockedInstance: MockInstance;
     beforeAll(async () => {

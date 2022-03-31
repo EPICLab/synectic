@@ -4,6 +4,8 @@ import pako from 'pako';
 import { TextDecoder } from 'util';
 import { flattenArray } from './flatten';
 import { Filetype } from '../store/slices/filetypes';
+import { PathLike } from 'fs';
+import { relative } from 'path';
 
 /**
  * **WARNING**
@@ -91,6 +93,16 @@ export const extractExtension = (filepath: fs.PathLike): string => {
   // cannot actually return undefined because split() returns string[] that is at worst empty
   return ext;
 };
+
+/**
+ * Evaluates whether two paths are equivalent.
+ * @param path1 The relative or absolute path to evaluate.
+ * @param path2 The other relative or absolute path to evaluate.
+ * @returns A boolean indicating true if the paths are equivalent, or false otherwise.
+ */
+export const isEqualPaths = (path1: PathLike, path2: PathLike): boolean => {
+  return relative(path1.toString(), path2.toString()).length === 0;
+}
 
 /**
  * Asynchronously read file contents into a Buffer or string.
