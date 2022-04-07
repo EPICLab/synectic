@@ -67,6 +67,21 @@ export const isFilled = <T>(t: T | null): t is T => {
 }
 
 /**
+ * Generic for comparing possible updates against the current state of an object.
+ * @param object The original state object.
+ * @param properties The updated state properties.
+ * @returns A boolean indicating true if at least one property is new or contains modified values, false otherwise.
+ */
+export const isUpdateable = <T extends Record<string | number | symbol, unknown>>(object: T, properties: Partial<T>): boolean => {
+  let prop: keyof typeof properties;
+  for (prop in properties) {
+    if (!(prop in object)) return true;
+    if (object[prop] !== properties[prop]) return true;
+  }
+  return false;
+};
+
+/**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.
  * @param json A valid JSON string.
  * @return A typed object (or nested array of objects).
@@ -75,7 +90,7 @@ export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
 
 /**
  * Generic for partitioning an array into two disjoint arrays given a predicate function
- * that indicates whether an element should being in the passing subarray or failing subarray.
+ * that indicates whether an element should be in the passing subarray or failing subarray.
  * @param array The given array of elements to partition.
  * @param predicate A predicate function that resolves to true if element `e` meets
  * the inclusion requirements, and false otherwise.
@@ -164,8 +179,9 @@ export const objectifyPath = (path: Array<string | number>, value: string | bool
 };
 
 /**
- * Compares two `Map` objects for equality; only supports `Map` and not objects with key-value pairs (i.e. `const map: {[key: string]: value}`).
- * Checks for same map sizes, then tests all underlying key-value entries for equality between maps.
+ * Compares two `Map` objects for equality; only supports `Map` and not objects with key-value pairs (i.e. 
+ * `const map: {[key: string]: value}`). Checks for same map sizes, then tests all underlying key-value entries for 
+ * equality between maps.
  * @param map1 A `Map` object.
  * @param map2 A `Map` object.
  * @returns A boolean indicating true if the `Map` objects are equal, or false otherwise.
@@ -175,6 +191,21 @@ export const equalMaps = <K, V>(map1: Map<K, V>, map2: Map<K, V>): boolean => {
   for (const [key, val] of map1) {
     const testVal = map2.get(key);
     if (JSON.stringify(testVal) !== JSON.stringify(val) || (testVal === undefined && !map2.has(key))) return false;
+  }
+  return true;
+}
+
+/**
+ * Compares two `Array` objects for equality. Checks for same array length, then tests all underlying elements
+ * for equality between arrays.
+ * @param arr1 An `Array` object.
+ * @param arr2 An `Array` object.
+ * @returns A boolean indicating true if the `Array` objects are equal, or false otherwise.
+ */
+export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
+  if (arr1.length != arr2.length) return false;
+  for (let i = 0; i != arr1.length; i++) {
+    if (JSON.stringify(arr1[i]) != JSON.stringify(arr2[i]) || arr1[i] === undefined) return false;
   }
   return true;
 }
