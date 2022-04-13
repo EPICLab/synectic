@@ -1,7 +1,7 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import { repoRemoved } from './repos';
-import { filterObject, isDefined } from '../../containers/format';
+import { filterObject, isDefined, Override } from '../../containers/format';
 import { PURGE } from 'redux-persist';
 import { branchRemoved } from './branches';
 import { CardType, FilesystemStatus, GitStatus, Timestamp, UUID } from '../types';
@@ -15,57 +15,54 @@ export type Metafile = {
     readonly name: string;
     /** The timestamp for last update to metafile properties (not directly associated with filesystem `mtime` or `ctime`). */
     readonly modified: Timestamp;
-    /** The filetype format for encoding/decoding contents (same as `Filetype.filetype`, but this allows for virtual metafiles). */
-    readonly filetype?: string;
     /** The type of card that can load the content of this metafile. */
-    readonly handler?: CardType;
-    /** The relative or absolute path to the file or directory of this metafile. */
-    readonly path?: PathLike;
-    /** The UUID for related Repository object, when managed by a version control system. */
-    readonly repo?: UUID;
-    /** The UUID for related Branch object, when managed by a version control system. */
-    readonly branch?: UUID;
-    /** The latest Git status code for this file relative to the associated repository and branch. */
-    readonly status?: GitStatus;
-    /** The latest Filesystem status code for this file relative to the associated content. */
-    readonly state?: FilesystemStatus;
-    /** The textual contents maintained for files; can differ from actual file content when unsaved changes are made in Synectic. */
-    readonly content?: string;
-    /** An array with all Metafile object UUIDs for direct sub-files and sub-directories (when this metafile has a `Directory` filetype). */
-    readonly contains?: UUID[];
-    /** An array with all Card object UUIDs included in the diff output (when this metafile has a `Diff` handler). */
-    readonly targets?: UUID[];
-    /** An object for branch merging information, including base branch and compare branch names from the `repo`. */
-    readonly merging?: { base: string, compare: string }
-    /** An array of indexed conflicts indicating the starting position of each conflict in the content of this metafile. */
-    readonly conflicts?: number[] | undefined;
-}
+    readonly handler: CardType;
+    /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
+    readonly filetype: string;
+} & Partial<FilebasedProps>
+    & Partial<FileProps>
+    & Partial<DirectoryProps>
+    & Partial<VersionedProps>
+    & Partial<DiffProps>
+    & Partial<MergingProps>;
 
-export type VirtualMetafileProperties = {
-    /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
-    readonly filetype: string;
-    /** The type of card that can load the content of this metafile. */
-    readonly handler: CardType;
-}
-export type FilebasedMetafileProperties = {
-    /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
-    readonly filetype: string;
-    /** The type of card that can load the content of this metafile. */
-    readonly handler: CardType;
+export type MetafileTemplate = Omit<Metafile, 'id'>;
+export type VirtualMetafile = Omit<Metafile, keyof FilebasedProps>;
+export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafile => !isFilebasedMetafile(metafile);
+
+export type FilebasedMetafile = Override<Metafile, FilebasedProps>;
+export type FilebasedProps = {
     /** The relative or absolute path to the file or directory of this metafile. */
     readonly path: PathLike;
     /** The latest Filesystem status code for this file relative to the associated content. */
     readonly state: FilesystemStatus;
-}
-export type FileMetafileProperties = {
+};
+export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMetafile => {
+    return metafile
+        && (metafile as FilebasedMetafile).path !== undefined
+        && (metafile as FilebasedMetafile).state !== undefined
+};
+
+export type FileMetafile = Override<FilebasedMetafile, FileProps>;
+export type FileProps = {
     /** The textual contents maintained for files; can differ from actual file content when unsaved changes have been made. */
     readonly content: string;
-}
-export type DirectoryMetafileProperties = {
+};
+export const isFileMetafile = (metafile: Metafile): metafile is FileMetafile => {
+    return isFilebasedMetafile(metafile) && (metafile as FileMetafile).content !== undefined;
+};
+
+export type DirectoryMetafile = Override<FilebasedMetafile, DirectoryProps>;
+export type DirectoryProps = {
     /** An array with all Metafile object UUIDs for direct sub-files and sub-directories. */
     readonly contains: UUID[];
-}
-export type VersionedMetafileProperties = {
+};
+export const isDirectoryMetafile = (metafile: Metafile): metafile is DirectoryMetafile => {
+    return isFilebasedMetafile(metafile) && (metafile as DirectoryMetafile).contains !== undefined;
+};
+
+export type VersionedMetafile = Override<FilebasedMetafile, VersionedProps>;
+export type VersionedProps = {
     /** The UUID for associated Repository object. */
     readonly repo: UUID;
     /** The UUID for associated Branch object. */
@@ -74,15 +71,28 @@ export type VersionedMetafileProperties = {
     readonly status: GitStatus;
     /** An array of tuples indicating the start/end indices of each Git conflict in the content of this metafile. */
     readonly conflicts: [number, number][];
-}
-export type DiffMetafileProperties = {
+};
+export const isVersionedMetafile = (metafile: Metafile): metafile is VersionedMetafile => {
+    return isFilebasedMetafile(metafile) && (metafile as VersionedMetafile).repo !== undefined;
+};
+
+export type DiffMetafile = Override<Metafile, DiffProps>;
+export type DiffProps = {
     /** An array with all Card object UUIDs included in the diff output. */
     readonly targets: UUID[];
-}
-export type MergingMetafileProperties = {
+};
+export const isDiffMetafile = (metafile: Metafile): metafile is DiffMetafile => {
+    return (metafile as DiffMetafile).targets !== undefined;
+};
+
+export type MergingMetafile = Override<Metafile, MergingProps>;
+export type MergingProps = {
     /** Object containing base branch and compare branch names involved in an in-progress branch merge. */
-    readonly merging?: { base: string, compare: string }
-}
+    readonly merging: { base: string, compare: string }
+};
+export const isMergingMetafile = (metafile: Metafile): metafile is MergingMetafile => {
+    return (metafile as MergingMetafile).merging !== undefined;
+};
 
 export const metafilesAdapter = createEntityAdapter<Metafile>();
 
@@ -92,12 +102,22 @@ export const metafilesSlice = createSlice({
     reducers: {
         metafileAdded: metafilesAdapter.addOne,
         metafileRemoved: metafilesAdapter.removeOne,
-        metafileUpdated: (state, action: PayloadAction<Metafile>) => {
-            metafilesAdapter.upsertOne(state, {
-                ...action.payload, modified: DateTime.local().valueOf()
-            })
+        metafileUpdated: {
+            reducer: (state, action: PayloadAction<Metafile>) => {
+                metafilesAdapter.upsertOne(state, action.payload);
+            },
+            prepare: (metafile: Metafile) => {
+                return { payload: { ...metafile, modified: DateTime.local().valueOf() } };
+            }
         },
-        metafilesUpdated: metafilesAdapter.updateMany,
+        metafilesUpdated: {
+            reducer: (state, action: PayloadAction<readonly Metafile[]>) => {
+                metafilesAdapter.upsertMany(state, action.payload);
+            },
+            prepare: (metafiles: readonly Metafile[]) => {
+                return { payload: metafiles.map(metafile => ({ ...metafile, modified: DateTime.local().valueOf() })) };
+            }
+        },
         metafileReplaced: metafilesAdapter.setOne
     },
     extraReducers: (builder) => {
