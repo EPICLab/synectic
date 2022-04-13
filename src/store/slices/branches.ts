@@ -2,7 +2,6 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { ReadCommitResult } from 'isomorphic-git';
 import { PURGE } from 'redux-persist';
-import { fetchLocalBranch, fetchRemoteBranch } from '../thunks/branches';
 import { UUID } from '../types';
 
 export type Branch = {
@@ -37,12 +36,6 @@ export const branchesSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchLocalBranch.fulfilled, (state, action) => {
-                if (action.payload !== undefined) branchesAdapter.addOne(state, action.payload);
-            })
-            .addCase(fetchRemoteBranch.fulfilled, (state, action) => {
-                if (action.payload !== undefined) branchesAdapter.addOne(state, action.payload);
-            })
             .addCase(PURGE, (state) => {
                 branchesAdapter.removeAll(state);
             })
