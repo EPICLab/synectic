@@ -2,13 +2,13 @@ import { AnyAction } from 'redux';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureMockStore from 'redux-mock-store';
 import { RootState, AppDispatch, rootReducer } from '../store/store';
-import { listenerMiddleware } from '../store/cache/listenerMiddleware';
+import { listenerMiddleware } from '../store/listenerMiddleware';
 
-const middlewares = getDefaultMiddleware({
-    serializableCheck: false,
-    immutableCheck: false
-}).concat([listenerMiddleware.middleware]);
-const createMockStore = configureMockStore<RootState, AppDispatch>(middlewares);
+const middlewares = (withListeners = false) => {
+    const defaultMiddlewares = getDefaultMiddleware({ serializableCheck: false, immutableCheck: false });
+    return withListeners ? defaultMiddlewares.concat([listenerMiddleware.middleware]) : defaultMiddlewares;
+}
+const createMockStore = (withListeners = false) => configureMockStore<RootState, AppDispatch>(middlewares(withListeners));
 
 /** 
  * The mocked Redux store does not execute any reducers, and therefore `getActions()` only provides the unexecuted actions 
@@ -31,5 +31,6 @@ export const createState = (initialState: RootState) => (actions: AnyAction[]): 
  *   * `store.clearActions()`: Clears the stored actions.
  *   * `store.subscribe()`: Subscribes a listener to the store for specific actions.
  * @param initialState A JavaScript object containing an initial Redux store state that mimicks the shape of `RootState`.
+ * @param withListeners Option for including possibly asynchronous listeners from createListenerMiddleware API.
  */
-export const mockStore = (initialState: RootState) => createMockStore(createState(initialState));
+export const mockStore = (initialState: RootState, withListeners = false) => createMockStore(withListeners)(createState(initialState));
