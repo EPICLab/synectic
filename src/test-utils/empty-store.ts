@@ -17,7 +17,7 @@ export const emptyStore: RootState = {
         ids: [],
         entities: {}
     },
-    cached: {
+    cache: {
         ids: [],
         entities: {}
     },
