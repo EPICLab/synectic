@@ -19,8 +19,8 @@ const mockedMetafile1: FilebasedMetafile = {
     path: 'foo/example.ts',
     state: 'unmodified',
     content: 'const rand = Math.floor(Math.random() * 6) + 1;',
-    repo: '23',
-    branch: '503',
+    repo: '94304818-ca39-4fb1-9499-86aa329597b9',
+    branch: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
     status: 'unmodified',
     conflicts: []
 };
@@ -56,20 +56,20 @@ const mockedDirectoryMetafile: DirectoryMetafile = {
     path: 'foo',
     state: 'unmodified',
     contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'],
-    repo: '23',
-    branch: '503',
+    repo: '94304818-ca39-4fb1-9499-86aa329597b9',
+    branch: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
     status: 'unmodified',
     conflicts: []
 };
 
 const mockedRepository: Repository = {
-    id: '23',
+    id: '94304818-ca39-4fb1-9499-86aa329597b9',
     name: 'foo/myRepo',
     root: 'foo/',
     corsProxy: 'http://www.oregonstate.edu',
     url: 'https://github.com/foo/myRepo',
     default: 'master',
-    local: ['master', 'sample', 'test'],
+    local: ['7351312c-b7bf-4f9c-af65-d9fdfb7847e7'],
     remote: [],
     oauth: 'github',
     username: 'sampleUser',
@@ -78,8 +78,8 @@ const mockedRepository: Repository = {
 };
 
 const mockedBranch: Branch = {
-    id: '503',
-    ref: 'test',
+    id: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
+    ref: 'main',
     root: 'foo/',
     gitdir: 'foo/.git',
     scope: 'local',
