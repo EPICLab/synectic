@@ -16,7 +16,7 @@ import { UUID } from '../types';
 import { resolveWorktree } from '../../containers/git-worktree';
 import { join, relative } from 'path';
 import { extractStats } from '../../containers/io';
-import { repoUpdated } from '../slices/repos';
+import { Repository, repoUpdated } from '../slices/repos';
 
 type BranchIdentifiers = { root: PathLike, branch: string, scope: 'local' | 'remote' };
 type BranchIdentOrMetafile = { branchIdentifiers: BranchIdentifiers, metafile?: never } | { branchIdentifiers?: never, metafile: FilebasedMetafile };
@@ -28,13 +28,13 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, BranchIdentOrMet
 
         if (input.metafile) {
             // if metafile already has a branch UUID, check for matching branch
-            let branch = input.metafile.branch ? branchSelectors.selectById(state, input.metafile.branch) : undefined;
+            let branch: Branch | undefined = input.metafile.branch ? branchSelectors.selectById(state, input.metafile.branch) : undefined;
             const parent = !branch ? await thunkAPI.dispatch(fetchParentMetafile(input.metafile)).unwrap() : undefined;
             // otherwise if parent metafile already has a branch UUID, check for matching branch
             branch = (parent && isVersionedMetafile(parent)) ? branchSelectors.selectById(state, parent.branch) : branch;
             if (branch) return branch;
         }
-        const root = input.metafile ? await getRoot(input.metafile.path) : input.branchIdentifiers.root;
+        const root: fs.PathLike | undefined = input.metafile ? await getRoot(input.metafile.path) : input.branchIdentifiers.root;
         // if filepath has a root path, check for matching branch
         let branch = root ? branchSelectors.selectByRoot(state, root) : undefined;
         // otherwise create a new branch
@@ -96,7 +96,7 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, CheckoutOpt
         const metafile = metafileSelectors.selectById(state, input.metafile);
         const oldBranch = (metafile && isVersionedMetafile(metafile)) ? branchSelectors.selectById(state, metafile.branch) : undefined;
         const newBranch = branchSelectors.selectByRef(state, input.branchRef)[0];
-        const repo = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
+        const repo: Repository | undefined = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
 
         if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${input.metafile}'`);
         if (!oldBranch) return thunkAPI.rejectWithValue(`Branch missing for metafile id:'${input.metafile}'`);
