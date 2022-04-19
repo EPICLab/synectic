@@ -13,18 +13,18 @@ export type Filetype = {
     readonly extensions: string[];
 }
 
-export const filetypesAdapter = createEntityAdapter<Filetype>();
+export const filetypeAdapter = createEntityAdapter<Filetype>();
 
-export const filetypesSlice = createSlice({
+export const filetypeSlice = createSlice({
     name: 'filetypes',
-    initialState: filetypesAdapter.getInitialState(),
+    initialState: filetypeAdapter.getInitialState(),
     reducers: {
-        filetypeAdded: filetypesAdapter.addOne,
-        filetypeRemoved: filetypesAdapter.removeOne,
-        filetypeUpdated: filetypesAdapter.upsertOne
+        filetypeAdded: filetypeAdapter.addOne,
+        filetypeRemoved: filetypeAdapter.removeOne,
+        filetypeUpdated: filetypeAdapter.upsertOne
     }
 })
 
-export const { filetypeAdded, filetypeRemoved, filetypeUpdated } = filetypesSlice.actions;
+export const { filetypeAdded, filetypeRemoved, filetypeUpdated } = filetypeSlice.actions;
 
-export default filetypesSlice.reducer;
+export default filetypeSlice.reducer;

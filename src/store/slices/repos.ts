@@ -2,7 +2,7 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { PURGE } from 'redux-persist';
 import { isDefined } from '../../containers/format';
-import { fetchNewRepo } from '../thunks/repos';
+// import { fetchNewRepo } from '../thunks/repos';
 import { UUID } from '../types';
 import { branchRemoved } from './branches';
 
@@ -38,21 +38,21 @@ export type Repository = {
     readonly token: string;
 }
 
-export const reposAdapter = createEntityAdapter<Repository>();
+export const repoAdapter = createEntityAdapter<Repository>();
 
-export const reposSlice = createSlice({
+export const repoSlice = createSlice({
     name: 'repos',
-    initialState: reposAdapter.getInitialState(),
+    initialState: repoAdapter.getInitialState(),
     reducers: {
-        repoAdded: reposAdapter.addOne,
-        repoRemoved: reposAdapter.removeOne,
-        repoUpdated: reposAdapter.upsertOne
+        repoAdded: repoAdapter.addOne,
+        repoRemoved: repoAdapter.removeOne,
+        repoUpdated: repoAdapter.upsertOne
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchNewRepo.fulfilled, (state, action) => {
-                reposAdapter.addOne(state, action.payload);
-            })
+            // .addCase(fetchNewRepo.fulfilled, (state, action) => {
+            //     reposAdapter.addOne(state, action.payload);
+            // })
             .addCase(branchRemoved, (state, action) => {
                 const updatedRepos = Object.values(state.entities)
                     .filter(isDefined)
@@ -60,16 +60,16 @@ export const reposSlice = createSlice({
                     .map(repo => {
                         return { id: repo.id, changes: { ...repo, local: repo.local.filter(branch => branch !== action.payload) } }
                     })
-                reposAdapter.updateMany(state, updatedRepos);
+                repoAdapter.updateMany(state, updatedRepos);
 
             })
             .addCase(PURGE, (state) => {
-                reposAdapter.removeAll(state);
+                repoAdapter.removeAll(state);
             })
     }
 });
 
-export const { repoAdded, repoRemoved, repoUpdated } = reposSlice.actions;
+export const { repoAdded, repoRemoved, repoUpdated } = repoSlice.actions;
 
-export default reposSlice.reducer;
+export default repoSlice.reducer;
 

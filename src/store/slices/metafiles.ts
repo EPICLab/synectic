@@ -26,10 +26,12 @@ export type Metafile = {
     & Partial<DiffProps>
     & Partial<MergingProps>;
 
+/** A metafile without the requisite ID field, which can be used for composing valid Metafiles prior to them being assigned an ID. */
 export type MetafileTemplate = Omit<Metafile, 'id'>;
 export type VirtualMetafile = Omit<Metafile, keyof FilebasedProps>;
 export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafile => !isFilebasedMetafile(metafile);
 
+/** A metafile with an associated filesystem object (e.g. file or directory). Does not guarantee that type-specific fields have been added. */
 export type FilebasedMetafile = Override<Metafile, FilebasedProps>;
 export type FilebasedProps = {
     /** The relative or absolute path to the file or directory of this metafile. */
@@ -43,6 +45,7 @@ export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMe
         && (metafile as FilebasedMetafile).state !== undefined
 };
 
+/** A metafile that contains file information related to a similar type of filesystem object. */
 export type FileMetafile = Override<FilebasedMetafile, FileProps>;
 export type FileProps = {
     /** The textual contents maintained for files; can differ from actual file content when unsaved changes have been made. */
@@ -52,6 +55,7 @@ export const isFileMetafile = (metafile: Metafile): metafile is FileMetafile => 
     return isFilebasedMetafile(metafile) && (metafile as FileMetafile).content !== undefined;
 };
 
+/** A metafile that contains directory information related to a similar type of filesystem object. */
 export type DirectoryMetafile = Override<FilebasedMetafile, DirectoryProps>;
 export type DirectoryProps = {
     /** An array with all Metafile object UUIDs for direct sub-files and sub-directories. */
@@ -61,6 +65,7 @@ export const isDirectoryMetafile = (metafile: Metafile): metafile is DirectoryMe
     return isFilebasedMetafile(metafile) && (metafile as DirectoryMetafile).contains !== undefined;
 };
 
+/** A metafile that is associated with a filesystem object that is tracked by a version control system. */
 export type VersionedMetafile = Override<FilebasedMetafile, VersionedProps>;
 export type VersionedProps = {
     /** The UUID for associated Repository object. */
@@ -94,17 +99,17 @@ export const isMergingMetafile = (metafile: Metafile): metafile is MergingMetafi
     return (metafile as MergingMetafile).merging !== undefined;
 };
 
-export const metafilesAdapter = createEntityAdapter<Metafile>();
+export const metafileAdapter = createEntityAdapter<Metafile>();
 
-export const metafilesSlice = createSlice({
+export const metafileSlice = createSlice({
     name: 'metafiles',
-    initialState: metafilesAdapter.getInitialState(),
+    initialState: metafileAdapter.getInitialState(),
     reducers: {
-        metafileAdded: metafilesAdapter.addOne,
-        metafileRemoved: metafilesAdapter.removeOne,
+        metafileAdded: metafileAdapter.addOne,
+        metafileRemoved: metafileAdapter.removeOne,
         metafileUpdated: {
             reducer: (state, action: PayloadAction<Metafile>) => {
-                metafilesAdapter.upsertOne(state, action.payload);
+                metafileAdapter.upsertOne(state, action.payload);
             },
             prepare: (metafile: Metafile) => {
                 return { payload: { ...metafile, modified: DateTime.local().valueOf() } };
@@ -112,13 +117,13 @@ export const metafilesSlice = createSlice({
         },
         metafilesUpdated: {
             reducer: (state, action: PayloadAction<readonly Metafile[]>) => {
-                metafilesAdapter.upsertMany(state, action.payload);
+                metafileAdapter.upsertMany(state, action.payload);
             },
             prepare: (metafiles: readonly Metafile[]) => {
                 return { payload: metafiles.map(metafile => ({ ...metafile, modified: DateTime.local().valueOf() })) };
             }
         },
-        metafileReplaced: metafilesAdapter.setOne
+        metafileReplaced: metafileAdapter.setOne
     },
     extraReducers: (builder) => {
         builder
@@ -129,7 +134,7 @@ export const metafilesSlice = createSlice({
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['repo', 'branch', 'status']) };
                     })
-                metafilesAdapter.updateMany(state, updatedMetafiles);
+                metafileAdapter.updateMany(state, updatedMetafiles);
             })
             .addCase(branchRemoved, (state, action) => {
                 const updatedMetafiles = Object.values(state.entities)
@@ -138,14 +143,14 @@ export const metafilesSlice = createSlice({
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['branch', 'status']) }
                     })
-                metafilesAdapter.updateMany(state, updatedMetafiles);
+                metafileAdapter.updateMany(state, updatedMetafiles);
             })
             .addCase(PURGE, (state) => {
-                metafilesAdapter.removeAll(state);
+                metafileAdapter.removeAll(state);
             })
     }
 })
 
-export const { metafileAdded, metafileRemoved, metafileUpdated, metafilesUpdated } = metafilesSlice.actions;
+export const { metafileAdded, metafileRemoved, metafileUpdated, metafilesUpdated } = metafileSlice.actions;
 
-export default metafilesSlice.reducer;
+export default metafileSlice.reducer;
