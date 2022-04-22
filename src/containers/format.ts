@@ -1,5 +1,10 @@
 import { flattenObject } from './flatten';
 
+/** Requires all properties in U to override types in the intersection of T & U.
+ * Reused from: https://dev.to/vborodulin/ts-how-to-override-properties-with-type-intersection-554l
+*/
+export type Override<T, U> = Omit<T, keyof U> & U;
+
 /** Requires all properties to be nullable (i.e. `null` or `undefined` or `void`).
  * Inspired by: https://javascript.plainenglish.io/typescript-advanced-mapped-and-conditional-types-2d10c96042fe
  */
