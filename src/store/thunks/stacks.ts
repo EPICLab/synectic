@@ -31,7 +31,7 @@ export const createStack = createAsyncThunk<Stack, { name: string, note: string,
 );
 
 /** Add cards to an existing Stack object. */
-export const pushCards = createAsyncThunk<void, { stack: UUID, cards: [UUID, ...UUID[]] }, AppThunkAPI>(
+export const pushCards = createAsyncThunk<void, { stack: UUID, cards: UUID[] }, AppThunkAPI>(
     'stacks/pushCards',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -61,7 +61,7 @@ export const pushCards = createAsyncThunk<void, { stack: UUID, cards: [UUID, ...
 /** Remove cards from an existing Stack object. Positioning of the card becomes relative to the bounds of the canvas, unless no `delta` 
  * parameter is provide (in which case the card is arbitrarily positioned outside of the stack). If the `delta` parameter used, then the
  * `{x,y}` values can be gathered from `DropTargetMonitor.getDifferenceFromInitialOffset()`. */
-export const popCards = createAsyncThunk<void, { cards: [UUID, ...UUID[]], delta?: XYCoord }, AppThunkAPI>(
+export const popCards = createAsyncThunk<void, { cards: UUID[], delta?: XYCoord }, AppThunkAPI>(
     'stacks/pushCards',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
