@@ -16,10 +16,9 @@ import { ProgressCallback } from 'isomorphic-git';
 import { checkProject, resolveConflictBranches } from '../../containers/conflicts';
 import { DateTime } from 'luxon';
 import { createCard } from './cards';
+import { ExactlyOne } from '../../containers/format';
 
-type PathOrMetafile = { filepath: PathLike, metafile?: never } | { filepath?: never, metafile: FilebasedMetafile };
-
-export const fetchRepo = createAsyncThunk<Repository | undefined, PathOrMetafile, AppThunkAPI>(
+export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'repos/fetchRepo',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();

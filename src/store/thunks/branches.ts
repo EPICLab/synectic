@@ -3,7 +3,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { listBranches } from 'isomorphic-git';
 import { v4 } from 'uuid';
-import { isDefined } from '../../containers/format';
+import { ExactlyOne, isDefined } from '../../containers/format';
 import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
 import { checkout, getConfig, log } from '../../containers/git-porcelain';
 import { AppThunkAPI } from '../hooks';
@@ -19,9 +19,8 @@ import { extractStats } from '../../containers/io';
 import { Repository, repoUpdated } from '../slices/repos';
 
 type BranchIdentifiers = { root: PathLike, branch: string, scope: 'local' | 'remote' };
-type BranchIdentOrMetafile = { branchIdentifiers: BranchIdentifiers, metafile?: never } | { branchIdentifiers?: never, metafile: FilebasedMetafile };
 
-export const fetchBranch = createAsyncThunk<Branch | undefined, BranchIdentOrMetafile, AppThunkAPI>(
+export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ branchIdentifiers: BranchIdentifiers, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'branches/fetchBranch',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
