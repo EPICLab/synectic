@@ -1,17 +1,17 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike, remove } from 'fs-extra';
 import { DateTime } from 'luxon';
-import { dirname } from 'path';
+import { dirname, relative } from 'path';
 import { v4 } from 'uuid';
 import { checkFilepath, Conflict } from '../../containers/conflicts';
 import { flattenArray } from '../../containers/flatten';
 import { ExactlyOne, isDefined, isUpdateable, removeUndefinedProperties } from '../../containers/format';
-import { discardChanges } from '../../containers/git-plumbing';
+import { discardChanges, getIgnore } from '../../containers/git-plumbing';
 import { getStatus } from '../../containers/git-porcelain';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { AppThunkAPI } from '../hooks';
 import metafileSelectors from '../selectors/metafiles';
-import { DirectoryMetafile, FilebasedMetafile, Metafile, metafileAdded, MetafileTemplate, metafileUpdated, VersionedMetafile } from '../slices/metafiles';
+import { DirectoryMetafile, FilebasedMetafile, Metafile, MetafileTemplate, VersionedMetafile, metafileAdded, metafileUpdated } from '../slices/metafiles';
 import { fetchBranch } from './branches';
 import { fetchFiletype } from './filetypes';
 import { fetchRepo } from './repos';
@@ -21,9 +21,19 @@ export const isHydrated = (metafile: FilebasedMetafile) => {
         (metafile.filetype !== 'Directory' && 'path' in metafile && 'content' in metafile)
 }
 
+export const fetchMetafile = createAsyncThunk<Metafile, PathLike, AppThunkAPI>(
+    'metafiles/fetchMetafile',
+    async (filepath, thunkAPI) => {
+        const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
+        console.log(`fetchMetafile => ${filepath.toString()} [existing: ${existing.length > 0 ? 'true' : 'false'}]`);
+        return (existing.length > 0) ? existing[0] : await thunkAPI.dispatch(createMetafile({ path: filepath })).unwrap();
+    }
+);
+
 export const createMetafile = createAsyncThunk<Metafile, ExactlyOne<{ path: PathLike, metafile: MetafileTemplate }>, AppThunkAPI>(
     'metafiles/createMetafile',
     async (input, thunkAPI) => {
+        console.log(`createMetafile => ${input.metafile ? 'metafile: ' + input.metafile.name : 'path: ' + input.path.toString()}`);
         const filetype = await thunkAPI.dispatch(fetchFiletype(input.path ? input.path : '')).unwrap();
         return thunkAPI.dispatch(metafileAdded({
             id: v4(),
@@ -42,8 +52,12 @@ export const updateFilebasedMetafile = createAsyncThunk<FilebasedMetafile, Fileb
     'metafiles/updateFilebasedMetafile',
     async (metafile, thunkAPI) => {
         if (metafile.filetype === 'Directory') {
+            console.log(`updateFilebasedMetafile => ${metafile.name} (${metafile.path})`);
             const state = thunkAPI.getState();
-            const paths = (await readDirAsyncDepth(metafile.path, 1)).filter(p => p !== metafile.path);
+            const ignore = await getIgnore(metafile.path, true); // TODO: Load this once instead of doing it for every file
+            const paths = (await readDirAsyncDepth(metafile.path, 1))
+                .filter(p => p !== metafile.path)
+                .filter(p => !ignore.ignores(relative(metafile.path.toString(), p)));
             const contains = (await paths.reduce(async (accumulator: Promise<Metafile[]>, current) => {
                 const metafiles = await accumulator;
                 const existing = metafileSelectors.selectByFilepath(state, current);
@@ -73,6 +87,7 @@ export const updateFilebasedMetafile = createAsyncThunk<FilebasedMetafile, Fileb
 export const updatedVersionedMetafile = createAsyncThunk<VersionedMetafile | FilebasedMetafile, FilebasedMetafile, AppThunkAPI>(
     'metafiles/updateVersionedMetafile',
     async (metafile, thunkAPI) => {
+        console.log(`updateVersionedMetafile => ${metafile.name}`);
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
         const status = await getStatus(metafile.path);

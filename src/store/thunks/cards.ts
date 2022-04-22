@@ -5,15 +5,14 @@ import { v4 } from 'uuid';
 import { ExactlyOne } from '../../containers/format';
 import { extractFilename } from '../../containers/io';
 import { AppThunkAPI } from '../hooks';
-import metafileSelectors from '../selectors/metafiles';
 import { Card, cardAdded, cardUpdated } from '../slices/cards';
 import { Metafile } from '../slices/metafiles';
-import { createMetafile } from './metafiles';
+import { fetchMetafile } from './metafiles';
 
 export const createCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, metafile: Metafile }>, AppThunkAPI>(
     'cards/createCard',
     async (input, thunkAPI) => {
-        let card = thunkAPI.dispatch(cardAdded({
+        let card: Card = thunkAPI.dispatch(cardAdded({
             id: v4(),
             name: input.metafile ? input.metafile.name : extractFilename(input.path),
             created: DateTime.local().valueOf(),
@@ -28,8 +27,7 @@ export const createCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, me
         })).payload;
 
         if (input.path) {
-            const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), input.path);
-            const metafile = existing.length > 0 ? existing[0] : await thunkAPI.dispatch(createMetafile({ path: input.path })).unwrap();
+            const metafile = await thunkAPI.dispatch(fetchMetafile(input.path)).unwrap();
             if (metafile) {
                 card = thunkAPI.dispatch(cardUpdated({
                     ...card,

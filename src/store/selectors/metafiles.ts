@@ -1,6 +1,6 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import { relative } from 'path';
+import { relative, sep } from 'path';
 import { isEqualPaths } from '../../containers/io';
 import { Card } from '../slices/cards';
 import { FilebasedMetafile, isFilebasedMetafile, isFileMetafile, Metafile, metafileAdapter, VersionedMetafile, VirtualMetafile } from '../slices/metafiles';
@@ -33,14 +33,18 @@ const selectByRoot = createSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
     (metafiles, root) => metafiles.filter(m =>
-        isFilebasedMetafile(m) && !relative(root.toString(), m.path.toString()).startsWith('..')) as FilebasedMetafile[]
-)
+        isFilebasedMetafile(m) &&
+        m.path.toString() !== root.toString() &&
+        !relative(root.toString(), m.path.toString()).startsWith('..') &&
+        !relative(root.toString(), m.path.toString()).includes(sep)
+    ) as FilebasedMetafile[]
+);
 
 const selectByRepo = createSelector(
     selectors.selectAll,
     (_state: RootState, repo: UUID) => repo,
     (metafiles, repo) => metafiles.filter(m => m.repo === repo) as VersionedMetafile[]
-)
+);
 
 const selectByBranch = createSelector(
     selectors.selectAll,
@@ -75,20 +79,13 @@ const selectByConflicted = createSelector(
         m.repo === repo && m.conflicts !== undefined && m.conflicts.length > 0) as VersionedMetafile[]
 );
 
-// const selectStagedByRepo = createSelector(
-//     selectors.selectAll,
-//     (_state: RootState, repoId: UUID) => repoId,
-//     (metafiles, repo) => metafiles.filter(isFileMetafile)
-//         .filter(m => m.repo === repo && m.status && ['added', 'modified', 'deleted'].includes(m.status))
-// )
-
-// const selectStagedFieldsByRepo = createSelector(
-//     selectors.selectAll,
-//     (_state: RootState, repoId: UUID) => repoId,
-//     (metafiles, repo) => metafiles.filter(isFileMetafile)
-//         .filter(m => m.repo === repo && m.status && ['added', 'modified', 'deleted'].includes(m.status))
-//         .map(m => { return { id: m.id, repo: m.repo, branch: m.branch, status: m.status } })
-// )
+const selectStagedFieldsByRepo = createSelector(
+    selectors.selectAll,
+    (_state: RootState, repoId: UUID) => repoId,
+    (metafiles, repo) => metafiles.filter(isFileMetafile)
+        .filter(m => m.repo === repo && m.status && ['added', 'modified', 'deleted'].includes(m.status))
+        .map(m => { return { id: m.id, repo: m.repo, branch: m.branch, status: m.status } })
+)
 
 const selectStagedByBranch = createSelector(
     selectors.selectAll,
@@ -96,13 +93,6 @@ const selectStagedByBranch = createSelector(
     (metafiles, branch) => metafiles.filter(isFileMetafile)
         .filter(m => m.branch === branch && m.status && ['added', 'modified', 'deleted'].includes(m.status))
 )
-
-// const selectUnstagedByRepo = createSelector(
-//     selectors.selectAll,
-//     (_state: RootState, repoId: UUID) => repoId,
-//     (metafiles, repo) => metafiles.filter(isFileMetafile)
-//         .filter(m => m.repo === repo && m.status && ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status))
-// )
 
 const selectUnstagedByBranch = createSelector(
     selectors.selectAll,
@@ -113,7 +103,7 @@ const selectUnstagedByBranch = createSelector(
 
 const metafileSelectors = {
     ...selectors, selectByIds, selectByFilepath, selectByFilepaths, selectByRoot, selectByRepo, selectByBranch,
-    selectByVirtual, selectByState, selectByCards, selectByConflicted, selectStagedByBranch, selectUnstagedByBranch
+    selectByVirtual, selectByState, selectByCards, selectByConflicted, selectStagedFieldsByRepo, selectStagedByBranch, selectUnstagedByBranch
 };
 
 export default metafileSelectors;
