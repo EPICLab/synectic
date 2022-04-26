@@ -11,13 +11,14 @@ import cacheSelectors from '../selectors/cache';
 import { diffArrays } from 'diff';
 import { flattenArray } from '../../containers/flatten';
 import { cacheRemoved, cacheUpdated } from '../slices/cache';
-import { fetchCache } from '../thunks/cache';
+import { subscribe } from '../thunks/cache';
 import { fetchMetafile } from '../thunks/metafiles';
 
 export const FSCache = createContext({});
 
 export const FSCacheProvider = (props: PropsWithChildren<ReactNode>) => {
     const cacheIds = useAppSelector((state: RootState) => cacheSelectors.selectIds(state));
+    const cache = useAppSelector((state: RootState) => cacheSelectors.selectEntities(state));
     const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher
     const dispatch = useAppDispatch();
 
@@ -36,22 +37,22 @@ export const FSCacheProvider = (props: PropsWithChildren<ReactNode>) => {
         switch (event) {
             case 'add': {
                 const stats = await extractStats(filename);
+                const metafile = await dispatch(fetchMetafile(filename)).unwrap();
                 if (stats && !stats.isDirectory()) { // verify file exists on FS and is not a directory
-                    dispatch(fetchCache(filename));
+                    dispatch(subscribe({ path: filename, metafile: metafile.id }));
                     const newWatcher = watch(filename.toString(), { ignoreInitial: true });
                     newWatcher.on('all', eventHandler);
                     watcherActions.set(filename, newWatcher);
                 } else if (!stats) {
-                    const metafile = await dispatch(fetchMetafile(filename)).unwrap();
                     dispatch(metafileRemoved(metafile.id));
                 }
                 break;
             }
             case 'change': {
-                const existing = cacheIds.find(cache => cache === filename.toString());
+                const existing = cache[filename.toString()];
                 if (existing) dispatch(cacheUpdated({
-                    id: existing,
-                    changes: { content: await readFileAsync(filename, { encoding: 'utf-8' }) }
+                    ...existing,
+                    content: await readFileAsync(filename, { encoding: 'utf-8' })
                 }));
                 break;
             }
