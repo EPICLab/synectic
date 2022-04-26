@@ -55,8 +55,8 @@ describe('FileComponent', () => {
             </Provider>
         );
         expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
-        await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i));
-        expect(screen.queryByText('bar.js')).toBeInTheDocument();
+        await waitForElementToBeRemoved(() => screen.queryByLabelText(/loading/i));
+        expect(screen.getByText('bar.js')).toBeInTheDocument();
     });
 
 });
