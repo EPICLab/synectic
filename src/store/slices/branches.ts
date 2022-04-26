@@ -2,7 +2,6 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { ReadCommitResult } from 'isomorphic-git';
 import { PURGE } from 'redux-persist';
-import { fetchLocalBranch, fetchRemoteBranch } from '../thunks/branches';
 import { UUID } from '../types';
 
 export type Branch = {
@@ -25,30 +24,24 @@ export type Branch = {
     readonly head: string;
 }
 
-export const branchesAdapter = createEntityAdapter<Branch>();
+export const branchAdapter = createEntityAdapter<Branch>();
 
-export const branchesSlice = createSlice({
+export const branchSlice = createSlice({
     name: 'branches',
-    initialState: branchesAdapter.getInitialState(),
+    initialState: branchAdapter.getInitialState(),
     reducers: {
-        branchAdded: branchesAdapter.addOne,
-        branchRemoved: branchesAdapter.removeOne,
-        branchUpdated: branchesAdapter.upsertOne
+        branchAdded: branchAdapter.addOne,
+        branchRemoved: branchAdapter.removeOne,
+        branchUpdated: branchAdapter.upsertOne
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchLocalBranch.fulfilled, (state, action) => {
-                if (action.payload !== undefined) branchesAdapter.addOne(state, action.payload);
-            })
-            .addCase(fetchRemoteBranch.fulfilled, (state, action) => {
-                if (action.payload !== undefined) branchesAdapter.addOne(state, action.payload);
-            })
             .addCase(PURGE, (state) => {
-                branchesAdapter.removeAll(state);
+                branchAdapter.removeAll(state);
             })
     }
 });
 
-export const { branchAdded, branchRemoved, branchUpdated } = branchesSlice.actions;
+export const { branchAdded, branchRemoved, branchUpdated } = branchSlice.actions;
 
-export default branchesSlice.reducer;
+export default branchSlice.reducer;

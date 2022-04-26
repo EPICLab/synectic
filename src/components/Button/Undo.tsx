@@ -1,18 +1,17 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Undo } from '@material-ui/icons';
-import { readFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
-import { metafileUpdated } from '../../store/slices/metafiles';
+import { isFileMetafile } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
-import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { FSCache } from '../../store/cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { UUID } from '../../store/types';
+import cachedSelectors from '../../store/selectors/cache';
+import { updatedVersionedMetafile, updateFilebasedMetafile } from '../../store/thunks/metafiles';
 
 /**
  * Button for undoing changes back to the most recent version according to the filesystem for file-based cards. This button tracks the 
@@ -25,8 +24,8 @@ import { UUID } from '../../store/types';
 const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const { cache } = useContext(FSCache);
-    const modified = metafiles.filter(m => m.path && m.content !== cache.get(m.path));
+    const cache = useAppSelector((state: RootState) => cachedSelectors.selectEntities(state));
+    const modified = metafiles.filter(m => m.path && m.content !== cache[m.path.toString()]?.content);
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
@@ -34,9 +33,8 @@ const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
         await Promise.all(modified
             .filter(isFileMetafile)
             .map(async metafile => {
-                const updatedContent = await readFileAsync(metafile.path, { encoding: 'utf-8' });
-                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                dispatch(metafileUpdated({ ...metafile, ...vcs, state: 'unmodified', content: updatedContent }));
+                await dispatch(updateFilebasedMetafile(metafile));
+                await dispatch(updatedVersionedMetafile(metafile));
             })
         );
 

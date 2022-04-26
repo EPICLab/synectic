@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import { RootState } from '../../store/store';
-import { loadCard } from '../../store/thunks/handlers';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { fetchMetafile } from '../../store/thunks/metafiles';
-import { v4 } from 'uuid';
+import { createMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { getBranchRoot } from '../../containers/git-path';
 import branchSelectors from '../../store/selectors/branches';
@@ -15,6 +13,7 @@ import { isDefined, removeUndefinedProperties } from '../../containers/format';
 import { UUID } from '../../store/types';
 import RepoSelect from '../RepoSelect';
 import BranchSelect from '../BranchSelect';
+import { createCard } from '../../store/thunks/cards';
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -49,18 +48,18 @@ const SourcePickerDialog = (props: Modal) => {
 
   const handleClick = async () => {
     const optionals = repo && branch && removeUndefinedProperties({ path: await getBranchRoot(repo.root, branch.ref) });
-    const metafile = await dispatch(fetchMetafile({
-      virtual: {
-        id: v4(),
-        modified: DateTime.local().valueOf(),
+    const metafile = await dispatch(createMetafile({
+      metafile: {
         name: 'Source Control',
+        modified: DateTime.local().valueOf(),
         handler: 'SourceControl',
+        filetype: 'Text',
         repo: selectedRepo,
         branch: selectedBranch,
         ...optionals
       }
     })).unwrap();
-    if (metafile) dispatch(loadCard({ metafile: metafile }));
+    if (metafile) dispatch(createCard({ metafile: metafile }));
     handleClose();
   }
 

@@ -1,9 +1,11 @@
 import parsePath from 'parse-path';
+import { PathLike } from 'fs-extra';
+import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-import { reposAdapter, Repository } from '../slices/repos';
-import { createDraftSafeSelector } from '@reduxjs/toolkit';
+import { repoAdapter, Repository } from '../slices/repos';
+import { isEqualPaths } from '../../containers/io';
 
-const selectors = reposAdapter.getSelectors<RootState>(state => state.repos);
+const selectors = repoAdapter.getSelectors<RootState>(state => state.repos);
 
 /**
  * Custom Redux selector for locating a repository in the Redux store based on name.
@@ -11,10 +13,16 @@ const selectors = reposAdapter.getSelectors<RootState>(state => state.repos);
  * @param name The repository name.
  * @returns A Repository object or undefined if no match.
  */
-const selectByName = createDraftSafeSelector(
+const selectByName = createSelector(
     selectors.selectAll,
     (_state: RootState, name: string) => name,
     (repos, name): Repository | undefined => repos.find(repo => repo.name === name)
+);
+
+const selectByRoot = createSelector(
+    selectors.selectAll,
+    (_state: RootState, root: PathLike) => root,
+    (repos, root) => repos.find(r => isEqualPaths(root, r.root))
 );
 
 /**
@@ -23,12 +31,12 @@ const selectByName = createDraftSafeSelector(
  * @param url The remote URL of a repository; can use http, https, ssh, or git protocols.
  * @returns A Repository object or undefined if no match.
  */
-const selectByUrl = createDraftSafeSelector(
+const selectByUrl = createSelector(
     selectors.selectAll,
     (_state: RootState, url: parsePath.ParsedPath) => url,
     (repos, url): Repository | undefined => repos.find(repo => repo.url === url.href)
 );
 
-const repoSelectors = { ...selectors, selectByName, selectByUrl };
+const repoSelectors = { ...selectors, selectByName, selectByRoot, selectByUrl };
 
 export default repoSelectors;
