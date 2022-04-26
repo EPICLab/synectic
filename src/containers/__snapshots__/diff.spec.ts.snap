@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`diff diff matches unmodified text without line changes 1`] = `
+exports[`containers/diff diff matches unmodified text without line changes 1`] = `
 " Good dog
  Good dog
  Bad dog
 "
 `;
 
-exports[`diff diff returns both added and removed lines 1`] = `
+exports[`containers/diff diff returns both added and removed lines 1`] = `
 "+Bad dog
  Good dog
 -Good dog

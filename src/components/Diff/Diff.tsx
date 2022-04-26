@@ -26,8 +26,8 @@ const extractMarkers = (diffOutput: string): IMarker[] => {
   return markers;
 };
 
-const Diff = (props: { metafileId: UUID }) => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
+const Diff = (props: { metafile: UUID }) => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const originalCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[0] ? metafile.targets[0] : ''));
   const original = useAppSelector((state: RootState) => metafileSelectors.selectById(state, originalCard ? originalCard.metafile : ''));
   const updatedCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[1] ? metafile.targets[1] : ''));
