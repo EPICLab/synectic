@@ -2,16 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@material-ui/core';
 import { RootState } from '../../store/store';
-import { loadCard } from '../../store/thunks/handlers';
 import * as io from '../../containers/io';
 import { flattenArray } from '../../containers/flatten';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import filetypeSelectors from '../../store/selectors/filetypes';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { v4 } from 'uuid';
-import { fetchMetafile } from '../../store/thunks/metafiles';
+import { createMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { CardType } from '../../store/types';
+import { createCard } from '../../store/thunks/cards';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -136,28 +135,27 @@ const NewCardDialog = (props: Modal) => {
 
   const handleClick = async () => {
     if (category === 'Editor' && isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
-      const metafile = await dispatch(fetchMetafile({
-        virtual: {
-          id: v4(),
-          modified: DateTime.local().valueOf(),
+      const metafile = await dispatch(createMetafile({
+        metafile: {
           name: fileName,
+          modified: DateTime.local().valueOf(),
           handler: 'Editor',
           filetype: filetype
         }
       })).unwrap();
-      if (metafile) await dispatch(loadCard({ metafile: metafile }));
+      if (metafile) await dispatch(createCard({ metafile: metafile }));
       handleClose();
     }
     if (category === 'Browser') {
-      const metafile = await dispatch(fetchMetafile({
-        virtual: {
-          id: v4(),
-          modified: DateTime.local().valueOf(),
+      const metafile = await dispatch(createMetafile({
+        metafile: {
           name: 'Browser',
-          handler: 'Browser'
+          modified: DateTime.local().valueOf(),
+          handler: 'Browser',
+          filetype: 'Text'
         }
       })).unwrap();
-      if (metafile) dispatch(loadCard({ metafile: metafile }));
+      if (metafile) dispatch(createCard({ metafile: metafile }));
       handleClose();
     }
   };

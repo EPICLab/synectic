@@ -1,4 +1,4 @@
-import { FileMetafile } from '../store/thunks/metafiles';
+import { FileMetafile } from '../store/slices/metafiles';
 import { Add, Remove, SvgIconComponent, Warning } from '@material-ui/icons';
 
 export type SourceMotif = {

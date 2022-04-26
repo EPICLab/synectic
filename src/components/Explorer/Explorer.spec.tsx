@@ -11,7 +11,7 @@ describe('Explorer component', () => {
         render(
             <Provider store={redux.store} >
                 <DndProvider backend={HTML5Backend}>
-                    <Explorer rootMetafileId='3' />
+                    <Explorer metafile='3' />
                 </DndProvider>
             </Provider>
         );

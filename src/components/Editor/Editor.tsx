@@ -9,14 +9,17 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 import metafileSelectors from '../../store/selectors/metafiles';
-import { metafileUpdated } from '../../store/slices/metafiles';
-import { removeUndefinedProperties } from '../../containers/format';
+import { isFileMetafile, metafileUpdated } from '../../store/slices/metafiles';
+import { isDefined, removeUndefinedProperties } from '../../containers/format';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { UUID } from '../../store/types';
+import { isHydrated } from '../../store/thunks/metafiles';
+import { Skeleton } from '@material-ui/lab';
 
-const Editor = (props: { metafileId: UUID }) => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
+const Editor = (props: { metafile: UUID }) => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+  const loaded = isDefined(metafile) && isFileMetafile(metafile) && isHydrated(metafile);
   const [code, setCode] = useState(metafile && metafile.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
   const dispatch = useAppDispatch();
@@ -35,9 +38,11 @@ const Editor = (props: { metafileId: UUID }) => {
 
   return (
     <>
-      <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafileId + '-editor'} value={code}
-        ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
-        setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
+      {loaded ?
+        <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafile + '-editor'} value={code}
+          ref={editorRef} className='editor' height='100%' width='100%' showGutter={false}
+          setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
+        : <Skeleton variant='text' aria-label='loading' />}
     </>
   );
 }

@@ -1,18 +1,30 @@
 import { RootState } from '../store';
-import { Card, cardsAdapter } from '../slices/cards';
+import { Card, cardAdapter } from '../slices/cards';
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import metafileSelectors from './metafiles';
 import { flattenArray } from '../../containers/flatten';
 import { UUID } from '../types';
 import { Metafile } from '../slices/metafiles';
 
-const selectors = cardsAdapter.getSelectors<RootState>(state => state.cards);
+const selectors = cardAdapter.getSelectors<RootState>(state => state.cards);
 
 const selectByIds = createSelector(
     selectors.selectEntities,
     (_state: RootState, ids: EntityId[]) => ids,
     (cards, ids) => ids.map(id => cards[id]).filter((c): c is Card => c !== undefined)
-)
+);
+
+const selectByMetafile = createSelector(
+    selectors.selectAll,
+    (_state: RootState, metafile: UUID) => metafile,
+    (cards, metafile) => cards.filter(c => c.metafile === metafile)
+);
+
+const selectByMetafiles = createSelector(
+    selectors.selectAll,
+    (_state: RootState, metafiles: Metafile[]) => metafiles,
+    (cards, metafiles) => flattenArray(metafiles.map(m => cards.filter(c => c.metafile === m.id)))
+);
 
 /**
  * Custom Redux selector for locating cards that:
@@ -39,14 +51,8 @@ const selectByStack = createSelector(
     (_state: RootState, stackId: UUID) => stackId,
     (cards, stackId) => cards
         .filter(c => c.captured === stackId)
-)
+);
 
-const selectByMetafiles = createSelector(
-    selectors.selectAll,
-    (_state: RootState, metafiles: Metafile[]) => metafiles,
-    (cards, metafiles) => flattenArray(metafiles.map(m => cards.filter(c => c.metafile === m.id)))
-)
-
-const cardSelectors = { ...selectors, selectByIds, selectByRepo, selectByStack, selectByMetafiles };
+const cardSelectors = { ...selectors, selectByIds, selectByMetafile, selectByMetafiles, selectByRepo, selectByStack };
 
 export default cardSelectors;

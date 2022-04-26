@@ -1,11 +1,10 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import { file, mock, MockInstance } from './__mocks__/mock-fs-promise';
 import { Provider } from 'react-redux';
-import { mockStore } from './__mocks__/reduxStoreMock';
-import { testStore } from './__fixtures__/ReduxStore';
-// import { writeFileAsync } from '../src/containers/io';
-import useGitWatcher from '../src/containers/hooks/useGitWatcher';
+import { file, mock, MockInstance } from '../../test-utils/mock-fs';
+import { mockStore } from '../../test-utils/mock-store';
+import { emptyStore } from '../../test-utils/empty-store';
+import useGitWatcher from './useGitWatcher';
 
 describe('containers/hooks/useGitDirectory', () => {
     let mockedInstance: MockInstance;
@@ -24,7 +23,7 @@ describe('containers/hooks/useGitDirectory', () => {
         });
         return mockedInstance = instance;
     });
-    beforeEach(() => store = mockStore(testStore));
+    beforeEach(() => store = mockStore(emptyStore));
 
     afterAll(() => mockedInstance.reset);
     afterEach(() => {

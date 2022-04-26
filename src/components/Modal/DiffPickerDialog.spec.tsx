@@ -28,6 +28,7 @@ const mockedStore: RootState = {
                 top: 10,
                 zIndex: 0,
                 classes: [],
+                captured: undefined
             },
             '67406095-fd01-4441-8e52-b0fdbad3327a': {
                 id: '67406095-fd01-4441-8e52-b0fdbad3327a',
@@ -40,6 +41,7 @@ const mockedStore: RootState = {
                 top: 105,
                 zIndex: 0,
                 classes: [],
+                captured: undefined
             }
         }
     },
@@ -51,7 +53,7 @@ const mockedStore: RootState = {
         ids: [],
         entities: {}
     },
-    cached: {
+    cache: {
         ids: [],
         entities: {}
     },
@@ -134,10 +136,8 @@ describe('DiffPickerDialog modal component', () => {
             options[1].click();
         });
 
-        await waitFor(() => {
-            expect(trigger).toHaveFocus();
-            expect(trigger).toHaveTextContent(/turtle\.asp/i);
-        });
+        await waitFor(() => expect(trigger).toHaveFocus());
+        expect(trigger).toHaveTextContent(/turtle\.asp/i);
     });
 
     it('DiffPickerDialog returns UUIDs for selected cards on run', async () => {
@@ -170,7 +170,7 @@ describe('DiffPickerDialog modal component', () => {
             expect(store.getActions()).toStrictEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        type: 'metafiles/fetchMetafile/fulfilled',
+                        type: 'metafiles/createMetafile/fulfilled',
                         payload: expect.objectContaining({
                             handler: 'Diff',
                             name: 'Δ undefined/turtle.asp -> undefined/test.js',
