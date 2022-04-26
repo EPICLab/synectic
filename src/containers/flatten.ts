@@ -1,5 +1,5 @@
 type ArrayElementType<T> = T extends Array<infer U> ? ArrayElementType<U> : T;
-type ObjectElementType<T> = T extends Record<string, infer U> ? ObjectElementType<U> : T;
+type ObjectElementType<T> = T extends Record<string | number | symbol, infer U> ? ObjectElementType<U> : T;
 
 /**
  * Flattens an n-depth array into a single level array containing all sub-array elements. Solutions for the problem of 
@@ -34,7 +34,8 @@ export const flattenArray = <T extends unknown[]>(arr: T): ArrayElementType<T>[]
  * @param obj Object containing key-value pairs that point to primitives, arrays, and other objects.
  * @return Object of depth 1, containing all sub-object elements (excluding keys for container objects).
  */
-export const flattenObject = <T extends Record<string, unknown>>(obj: T): Record<string, ObjectElementType<T>> => {
+export const flattenObject = <T extends Record<string | number | symbol, unknown>>(obj: T)
+  : Record<string | number | symbol, ObjectElementType<T>> => {
   const flattened: Record<string, ObjectElementType<T>> = {};
   Object.keys(obj).forEach((key) => {
     if (typeof obj[key] === 'object' && obj[key] !== null) {

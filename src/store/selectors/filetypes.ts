@@ -1,9 +1,9 @@
 import { RootState } from '../store';
 import { createSelector } from '@reduxjs/toolkit';
-import { filetypesAdapter } from '../slices/filetypes';
+import { filetypeAdapter } from '../slices/filetypes';
 import { CardType } from '../types';
 
-export const selectors = filetypesAdapter.getSelectors<RootState>(state => state.filetypes);
+export const selectors = filetypeAdapter.getSelectors<RootState>(state => state.filetypes);
 
 const selectByFiletype = createSelector(
     selectors.selectAll,

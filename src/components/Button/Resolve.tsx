@@ -5,10 +5,9 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { add } from '../../containers/git-plumbing';
 import { RootState } from '../../store/store';
-import { metafileUpdated } from '../../store/slices/metafiles';
+import { isFileMetafile } from '../../store/slices/metafiles';
 import { modalAdded } from '../../store/slices/modals';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
@@ -17,6 +16,7 @@ import branchSelectors from '../../store/selectors/branches';
 import { cardRemoved } from '../../store/slices/cards';
 import { resolveMerge } from '../../containers/merges';
 import { UUID } from '../../store/types';
+import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
 
 /**
  * Button for staging resolution changes for all previously conflicting files in a repository, committing the resolution the the repository,
@@ -39,16 +39,14 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
         .filter(m => m.status ? ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status) : false);
     const isCommitable = metafile && isConflictManagerMetafile(metafile) && conflictedMetafiles.length == 0;
 
-    const stage = async () => {
-        await Promise.all(unstaged
-            .filter(isFileMetafile)
-            .map(async metafile => {
-                await add(metafile.path);
-                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                dispatch(metafileUpdated({ ...metafile, ...vcs }));
-            })
-        );
-    };
+    const stage = async () => await Promise.all(unstaged
+        .filter(isFileMetafile)
+        .map(async metafile => {
+            await add(metafile.path);
+            console.log(`staging ${metafile.name}`);
+            dispatch(updatedVersionedMetafile(metafile));
+        })
+    );
 
     const commitDialog = async () => {
         if (metafile && metafile.merging && repo) {

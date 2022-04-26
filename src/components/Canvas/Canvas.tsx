@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactNode, useContext } from 'react';
+import React, { PropsWithChildren, ReactNode } from 'react';
 import { shell } from 'electron';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import CardComponent from '../Card';
 import Stack from '../Stack';
 import ModalComponent from '../Modal';
-import { popCard } from '../../store/thunks/stacks';
+import { popCards } from '../../store/thunks/stacks';
 import { stackUpdated } from '../../store/slices/stacks';
 import NavMenu from '../NavMenu';
 import { NavItemProps } from '../NavItem/NavItem';
@@ -24,11 +24,10 @@ import filetypeSelectors from '../../store/selectors/filetypes';
 import repoSelectors from '../../store/selectors/repos';
 import modalSelectors from '../../store/selectors/modals';
 import { Modal, modalAdded } from '../../store/slices/modals';
-import { FSCache } from '../../store/cache/FSCache';
-import { loadConflictManagers } from '../../containers/conflicts';
 import branchSelectors from '../../store/selectors/branches';
-import cachedSelectors from '../../store/selectors/cached';
+import cachedSelectors from '../../store/selectors/cache';
 import version from '../../../version';
+import { fetchConflictManagers } from '../../store/thunks/repos';
 
 export enum DnDItemType {
   CARD = 'CARD',
@@ -66,7 +65,6 @@ const Canvas = (props: PropsWithChildren<ReactNode>) => {
   const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const classes = useStyles();
-  const { cache } = useContext(FSCache);
 
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
@@ -78,7 +76,7 @@ const Canvas = (props: PropsWithChildren<ReactNode>) => {
           const delta = monitor.getDifferenceFromInitialOffset();
           if (!card || !delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
           if (card.captured) {
-            dispatch(popCard({ card: card, delta: delta }));
+            dispatch(popCards({ cards: [card.id], delta: delta }));
           } else {
             dispatch(cardUpdated({ ...card, left: Math.round(card.left + delta.x), top: Math.round(card.top + delta.y) }));
           }
@@ -114,7 +112,7 @@ const Canvas = (props: PropsWithChildren<ReactNode>) => {
 
   const showCache = () => {
     console.group(`FS Cache : ${DateTime.local().toHTTP()}`);
-    console.log(`CACHE [${cache.size}]`, Array.from(cached).map(m => { return { path: m.path, reserves: m.reserves } }));
+    console.log(`CACHE [${cached.length}]`, cached.map(m => { return { path: m.path, reserve: m.reserved } }));
     console.groupEnd();
   }
 
@@ -151,7 +149,7 @@ const Canvas = (props: PropsWithChildren<ReactNode>) => {
   const viewMenu: NavItemProps[] = [
     { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
     { label: 'Branches...', click: async () => dispatch(loadBranchVersions()) },
-    { label: 'Show Conflicts...', click: () => dispatch(loadConflictManagers()) },
+    { label: 'Show Conflicts...', click: () => dispatch(fetchConflictManagers()) },
   ];
 
   const sysMenu: NavItemProps[] = [

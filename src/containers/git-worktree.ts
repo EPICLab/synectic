@@ -17,13 +17,20 @@ import { Repository } from '../store/slices/repos';
 // API SOURCE: https://git-scm.com/docs/git-worktree
 
 export type Worktree = {
-  id: UUID; // The UUID for Worktree object.
-  path: fs.PathLike; // The relative or absolute path to the git worktree root repository.
-  bare: boolean; // A flag for indicating a bare git worktree.
-  detached: boolean; // A flag for indicating a detached HEAD state in the worktree.
-  main: boolean; // A flag for indicating a main worktree, as opposed to a linked worktree.
-  ref?: string; // A branch name or symbolic ref (can be abbreviated).
-  rev?: SHA1 | string; // A revision (or commit) representing the current state of `index` for the worktree.
+  /** The UUID for Worktree object. */
+  id: UUID;
+  /** The relative or absolute path to the git worktree root repository. */
+  path: fs.PathLike;
+  /** A flag for indicating a bare git worktree. */
+  bare: boolean;
+  /** A flag for indicating a detached HEAD state in the worktree. */
+  detached: boolean;
+  /** A flag for indicating a main worktree, as opposed to a linked worktree. */
+  main: boolean;
+  /** A branch name or symbolic ref (can be abbreviated). */
+  ref?: string;
+  /** A revision (or commit) representing the current state of `index` for the worktree. */
+  rev?: SHA1 | string;
 }
 
 /**
