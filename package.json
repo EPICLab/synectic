@@ -14,6 +14,7 @@
     "postversion": "git push --tags",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
+    "test:coverage": "jest --coverage --collectCoverageFrom=\"./src/**\"",
     "clean": "fse remove out; fse remove .webpack; fse remove dist",
     "clean:tests": "jest --clearCache; fse remove coverage/",
     "clean:builds": "yarn cache clean; yarn cache clean --mirror; fse remove yarn-error.log",
