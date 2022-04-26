@@ -7,7 +7,6 @@ import { DateTime } from 'luxon';
 // import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import sha1 from 'sha1';
-// import { ReadCommitResult } from 'isomorphic-git';
 
 /** Universal unique identifier based on RFC4122 version 4 for cryptographically-strong random values. */
 export type UUID = ReturnType<typeof v4>;
@@ -42,6 +41,5 @@ export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*
  * | `"unlinked"`          | no file linked to metafile, virtual metafile                                          |
  */
 export type FilesystemStatus = 'modified' | 'unmodified' | 'unlinked';
-
 export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'BranchTracker' | 'Merge' | 'SourceControl' | 'ConflictManager';
 export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewCardDialog' | 'SourcePicker' | 'CommitDialog' | 'Notification';

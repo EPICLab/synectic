@@ -16,9 +16,8 @@ import StageButton from '../Button/Stage';
 import UnstageButton from '../Button/Unstage';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { popCard, pushCards } from '../../store/thunks/stacks';
+import { popCards, pushCards } from '../../store/thunks/stacks';
 import { DnDItemType } from '../Canvas/Canvas';
-import { Card } from '../../store/slices/cards';
 
 type DragObject = {
   id: string,
@@ -64,10 +63,10 @@ const StackComponent = (props: PropsWithChildren<Stack>) => {
           const dropSource = cards[monitor.getItem().id];
           if (!dropTarget || !dropSource) return; // something isn't correct with this drop event
           if (dropSource.captured && dropSource.captured !== dropTarget.id) {
-            dispatch(popCard({ card: dropSource, delta: delta }));
-            dispatch(pushCards({ stack: dropTarget, cards: [dropSource] }));
+            dispatch(popCards({ cards: [dropSource.id], delta: delta }));
+            dispatch(pushCards({ stack: dropTarget.id, cards: [dropSource.id] }));
           } else if (!dropSource.captured) {
-            dispatch(pushCards({ stack: dropTarget, cards: [dropSource] }));
+            dispatch(pushCards({ stack: dropTarget.id, cards: [dropSource.id] }));
           }
           break;
         }
@@ -76,10 +75,8 @@ const StackComponent = (props: PropsWithChildren<Stack>) => {
           const dropSource = stacks[monitor.getItem().id];
           if (dropTarget && dropSource) {
             dispatch(pushCards({
-              stack: dropTarget,
+              stack: dropTarget.id,
               cards: dropSource.cards
-                .map(id => cards[id])
-                .filter((card): card is Card => card !== undefined)
             }));
             dispatch(stackRemoved(dropSource.id));
           }
@@ -88,9 +85,7 @@ const StackComponent = (props: PropsWithChildren<Stack>) => {
       }
     }
   });
-  const close = async () => {
-    await Promise.all(capturedCards.map(async card => await dispatch(popCard({ card: card }))));
-  }
+  const close = async () => await dispatch(popCards({ cards: capturedCards.map(c => c.id) }));
 
   const dragAndDrop = (elementOrNode: ConnectableElement) => {
     drag(elementOrNode);

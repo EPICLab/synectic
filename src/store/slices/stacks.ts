@@ -23,16 +23,16 @@ export type Stack = {
     readonly top: number;
 }
 
-export const stacksAdapter = createEntityAdapter<Stack>();
+export const stackAdapter = createEntityAdapter<Stack>();
 
 export const stacksSlice = createSlice({
     name: 'stacks',
-    initialState: stacksAdapter.getInitialState(),
+    initialState: stackAdapter.getInitialState(),
     reducers: {
-        stackAdded: stacksAdapter.addOne,
-        stackRemoved: stacksAdapter.removeOne,
+        stackAdded: stackAdapter.addOne,
+        stackRemoved: stackAdapter.removeOne,
         stackUpdated: (state, action: PayloadAction<Stack>) => {
-            stacksAdapter.upsertOne(state, {
+            stackAdapter.upsertOne(state, {
                 ...action.payload, modified: DateTime.local().valueOf()
             })
         }
@@ -40,7 +40,7 @@ export const stacksSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(PURGE, (state) => {
-                stacksAdapter.removeAll(state);
+                stackAdapter.removeAll(state);
             })
     }
 })

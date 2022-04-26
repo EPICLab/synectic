@@ -7,10 +7,10 @@ import { GitBranchIcon } from '../GitIcons';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { isFileMetafile } from '../../store/thunks/metafiles';
 import SourceFileComponent from './SourceFileComponent';
 import branchSelectors from '../../store/selectors/branches';
 import { UUID } from '../../store/types';
+import { isFileMetafile } from '../../store/slices/metafiles';
 
 const SourceControl = (props: { sourceControlId: UUID }) => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.sourceControlId));

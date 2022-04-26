@@ -232,7 +232,7 @@ export const branchDiff = async (
  * [`ignore`](https://github.com/kaelzhang/node-ignore) API documentation.
  */
 export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<Ignore> => {
-  const ignoreFiles = (await io.readDirAsyncDepth(dir)).filter(filename => io.extractFilename(filename) === '.gitignore');
+  const ignoreFiles = (await io.readDirAsyncDepth(dir, 2)).filter(filename => io.extractFilename(filename) === '.gitignore');
   const ignoreManager = ignore();
   ignoreFiles.map(async ignoreFile => {
     const content = await io.readFileAsync(ignoreFile, { encoding: 'utf-8' });
@@ -244,6 +244,8 @@ export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<
     // .gitignore files often incldue 'node_modules/' as a rule, but node-ignore requires the trailing '/' for directories and node 
     // `path` mismatches that by returning only the directory name. See: https://github.com/kaelzhang/node-ignore#2-filenames-and-dirnames
     ignoreManager.add('node_modules');
+    // A .DS_Store file is a Mac OS X folder information file that stores custom attributes of the containing folder.
+    ignoreManager.add('.DS_Store');
   }
   return ignoreManager;
 }

@@ -4,14 +4,14 @@ import { Add } from '@material-ui/icons';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { add } from '../../containers/git-plumbing';
-import { Metafile, metafileUpdated } from '../../store/slices/metafiles';
+import { isFileMetafile, Metafile } from '../../store/slices/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { fetchVersionControl, isFileMetafile } from '../../store/thunks/metafiles';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { UUID } from '../../store/types';
+import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
 
 /**
  * Button for managing the staging of changes for VCS-tracked cards. This button tracks the status of metafiles associated with the list
@@ -33,17 +33,14 @@ const StageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
     const hasConflicts = unstaged.find(m => m.conflicts && m.conflicts.length > 0) ? true : false;
     const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
 
-    const stage = async () => {
-        await Promise.all(unstaged
-            .filter(isFileMetafile)
-            .map(async metafile => {
-                await add(metafile.path);
-                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                console.log(`staging ${metafile.name}`, { vcs });
-                dispatch(metafileUpdated({ ...metafile, ...vcs }));
-            })
-        );
-    };
+    const stage = async () => await Promise.all(unstaged
+        .filter(isFileMetafile)
+        .map(async metafile => {
+            await add(metafile.path);
+            console.log(`staging ${metafile.name}`);
+            dispatch(updatedVersionedMetafile(metafile));
+        })
+    );
 
     const onHover = (target: Metafile[]) => {
         if (cards.length > 1) {
