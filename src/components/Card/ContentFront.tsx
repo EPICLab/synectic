@@ -14,11 +14,11 @@ const Content = (card: Card) => {
         case 'Loading':
             return (<Loading />);
         case 'Editor':
-            return (<Editor metafileId={card.metafile} />);
+            return (<Editor metafile={card.metafile} />);
         case 'Diff':
-            return (<Diff metafileId={card.metafile} />);
+            return (<Diff metafile={card.metafile} />);
         case 'Explorer':
-            return (<Explorer rootMetafileId={card.metafile} />);
+            return (<Explorer metafile={card.metafile} />);
         case 'SourceControl':
             return (<SourceControl sourceControlId={card.metafile} />);
         case 'Browser':

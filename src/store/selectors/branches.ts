@@ -1,10 +1,11 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import { Branch, branchesAdapter } from '../slices/branches';
+import { isEqualPaths } from '../../containers/io';
+import { Branch, branchAdapter } from '../slices/branches';
 import { Repository } from '../slices/repos';
 import { RootState } from '../store';
 
-const selectors = branchesAdapter.getSelectors<RootState>(state => state.branches);
+const selectors = branchAdapter.getSelectors<RootState>(state => state.branches);
 
 const selectByIds = createSelector(
     selectors.selectEntities,
@@ -21,13 +22,13 @@ const selectByRef = createSelector(
 const selectByRoot = createSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
-    (branches, root) => branches.filter(b => b.root === root)
+    (branches, root) => branches.find(b => isEqualPaths(root, b.root))
 )
 
 const selectByGitdir = createSelector(
     selectors.selectAll,
     (_state: RootState, gitdir: PathLike) => gitdir,
-    (branches, gitdir) => branches.filter(b => b.gitdir === gitdir)
+    (branches, gitdir) => branches.filter(b => isEqualPaths(gitdir, b.gitdir))
 )
 
 const selectByRepo = createSelector(

@@ -3,13 +3,14 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
-import { isFilebasedMetafile, revertStagedChanges } from '../../store/thunks/metafiles';
+import { revertStagedChanges } from '../../store/thunks/metafiles';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { SettingsBackupRestore } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { cardUpdated } from '../../store/slices/cards';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { UUID } from '../../store/types';
+import { isVersionedMetafile } from '../../store/slices/metafiles';
 
 /**
  * Button for resetting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
@@ -33,8 +34,8 @@ const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
 
     const revert = async () => {
         // map each staged and unstaged change
-        await Promise.all(unstaged.filter(isFilebasedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
-        await Promise.all(staged.filter(isFilebasedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
+        await Promise.all(unstaged.filter(isVersionedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
+        await Promise.all(staged.filter(isVersionedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
     }
 
     const isExplorer = metafiles.find(m => m.handler === 'Explorer');

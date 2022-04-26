@@ -7,8 +7,9 @@ import repoSelectors from '../../store/selectors/repos';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { removeUndefinedProperties } from '../../containers/format';
-import { checkoutBranch, switchCardMetafile } from '../../store/thunks/repos';
 import { UUID } from '../../store/types';
+import { cardUpdated } from '../../store/slices/cards';
+import { checkoutBranch } from '../../store/thunks/branches';
 
 export const useStyles = makeStyles({
   root: {
@@ -41,8 +42,13 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
     console.log(`checkout: ${newBranch}`);
     if (card && metafile) {
       const overwrite = removeUndefinedProperties({ overwrite: props.overwrite });
-      const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
-      if (updated) await dispatch(switchCardMetafile({ card: card, metafile: updated }));
+      const updated = await dispatch(checkoutBranch({ metafile: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
+      if (updated) dispatch(cardUpdated({
+        ...card,
+        name: updated.name,
+        modified: updated.modified,
+        metafile: updated.id
+      }));
       if (updated) setSelected(newBranch);
     }
   };

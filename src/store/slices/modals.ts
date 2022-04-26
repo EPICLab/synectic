@@ -16,23 +16,23 @@ export type Modal = {
     readonly options?: { [key: string]: string | number | boolean }
 }
 
-export const modalsAdapter = createEntityAdapter<Modal>();
+export const modalAdapter = createEntityAdapter<Modal>();
 
-export const modalsSlice = createSlice({
+export const modalSlice = createSlice({
     name: 'modals',
-    initialState: modalsAdapter.getInitialState(),
+    initialState: modalAdapter.getInitialState(),
     reducers: {
-        modalAdded: modalsAdapter.addOne,
-        modalRemoved: modalsAdapter.removeOne
+        modalAdded: modalAdapter.addOne,
+        modalRemoved: modalAdapter.removeOne
     },
     extraReducers: (builder) => {
         builder
             .addCase(PURGE, (state) => {
-                modalsAdapter.removeAll(state);
+                modalAdapter.removeAll(state);
             })
     }
 })
 
-export const { modalAdded, modalRemoved } = modalsSlice.actions;
+export const { modalAdded, modalRemoved } = modalSlice.actions;
 
-export default modalsSlice.reducer;
+export default modalSlice.reducer;

@@ -1,7 +1,27 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import useMap from './useMap';
-import { Metafile } from '../../store/slices/metafiles';
-import { basicMetafile, virtualMetafile } from '../../../__test__/__fixtures__/Metafile';
+import { FileMetafile, Metafile, VirtualMetafile } from '../../store/slices/metafiles';
+import { DateTime } from 'luxon';
+
+const basicMetafile: FileMetafile = {
+    id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
+    name: 'bar.js',
+    modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+    handler: 'Editor',
+    filetype: 'Javascript',
+    path: 'foo/bar.js',
+    state: 'unmodified',
+    content: 'file contents'
+};
+
+const virtualMetafile: VirtualMetafile = {
+    id: 'a5a6806b-f7e1-4f13-bca1-b1440ecd4431',
+    name: 'tap.js',
+    modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+    handler: 'Editor',
+    filetype: 'Javascript',
+    content: 'new content'
+};
 
 describe('containers/hooks/useMap', () => {
 

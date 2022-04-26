@@ -1,7 +1,7 @@
-import { stacksAdapter } from '../slices/stacks';
+import { stackAdapter } from '../slices/stacks';
 import { RootState } from '../store';
 
-const selectors = stacksAdapter.getSelectors<RootState>(state => state.stacks);
+const selectors = stackAdapter.getSelectors<RootState>(state => state.stacks);
 
 const stackSelectors = { ...selectors };
 

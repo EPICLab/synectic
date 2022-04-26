@@ -4,7 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 import { sep } from 'path';
 import { Typography } from '@material-ui/core';
 import { RootState } from '../../store/store';
-import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
+import { createStack, pushCards, popCards } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
@@ -68,21 +68,21 @@ const CardComponent = (card: Card) => {
           const dropSource = cards[monitor.getItem().id];
           if (dropSource && dropSource.captured) {
             const captureStack = stacks[dropSource.captured];
-            if (captureStack) dispatch(popCard({ card: dropSource, delta: delta }));
+            if (captureStack) dispatch(popCards({ cards: [dropSource.id], delta: delta }));
           }
           if (dropTarget && dropTarget.captured) {
             const capturingStack = stacks[dropTarget.captured];
-            if (capturingStack && dropSource) dispatch(pushCards({ stack: capturingStack, cards: [dropSource] }))
+            if (capturingStack && dropSource) dispatch(pushCards({ stack: capturingStack.id, cards: [dropSource.id] }))
           } else {
             if (dropTarget && dropSource)
-              dispatch(createStack({ name: 'New Stack', cards: [dropTarget, dropSource], note: 'Contains a new stack of items.' }));
+              dispatch(createStack({ name: 'New Stack', cards: [dropTarget.id, dropSource.id], note: 'Contains a new stack of items.' }));
           }
           break;
         }
         case DnDItemType.STACK: {
           if (!card.captured) {
             const dropSource = stacks[monitor.getItem().id];
-            if (dropTarget && dropSource) dispatch(pushCards({ stack: dropSource, cards: [dropTarget] }));
+            if (dropTarget && dropSource) dispatch(pushCards({ stack: dropSource.id, cards: [dropTarget.id] }));
           }
           break;
         }

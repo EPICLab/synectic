@@ -1,7 +1,7 @@
 import { PathLike } from 'fs-extra';
 import { useAppDispatch } from '../../store/hooks';
-import { metafileUpdated } from '../../store/slices/metafiles';
-import { fetchMetafilesByFilepath, fetchVersionControl } from '../../store/thunks/metafiles';
+import { isFilebasedMetafile } from '../../store/slices/metafiles';
+import { fetchMetafile, updatedVersionedMetafile } from '../../store/thunks/metafiles';
 import useWatcher, { WatchEventType, WatchListener } from './useWatcher';
 
 /**
@@ -20,11 +20,8 @@ const useGitWatcher = (root: PathLike | undefined, additionalEventHandler?: Watc
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
         if (!['unlink', 'unlinkDir'].includes(event)) {
-            const metafiles = await dispatch(fetchMetafilesByFilepath(filename)).unwrap();
-            await Promise.all(metafiles.map(async metafile => {
-                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                dispatch(metafileUpdated({ ...metafile, ...vcs }));
-            }));
+            const metafile = await dispatch(fetchMetafile(filename)).unwrap();
+            if (isFilebasedMetafile(metafile)) await dispatch(updatedVersionedMetafile(metafile));
         }
     }
 
