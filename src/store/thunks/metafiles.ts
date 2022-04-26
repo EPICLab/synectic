@@ -25,7 +25,6 @@ export const fetchMetafile = createAsyncThunk<Metafile, PathLike, AppThunkAPI>(
     'metafiles/fetchMetafile',
     async (filepath, thunkAPI) => {
         const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
-        console.log(`fetchMetafile => ${filepath.toString()} [existing: ${existing.length > 0 ? 'true' : 'false'}]`);
         return (existing.length > 0) ? existing[0] : await thunkAPI.dispatch(createMetafile({ path: filepath })).unwrap();
     }
 );
@@ -33,7 +32,6 @@ export const fetchMetafile = createAsyncThunk<Metafile, PathLike, AppThunkAPI>(
 export const createMetafile = createAsyncThunk<Metafile, ExactlyOne<{ path: PathLike, metafile: MetafileTemplate }>, AppThunkAPI>(
     'metafiles/createMetafile',
     async (input, thunkAPI) => {
-        console.log(`createMetafile => ${input.metafile ? 'metafile: ' + input.metafile.name : 'path: ' + input.path.toString()}`);
         const filetype = await thunkAPI.dispatch(fetchFiletype(input.path ? input.path : '')).unwrap();
         return thunkAPI.dispatch(metafileAdded({
             id: v4(),
@@ -52,7 +50,6 @@ export const updateFilebasedMetafile = createAsyncThunk<FilebasedMetafile, Fileb
     'metafiles/updateFilebasedMetafile',
     async (metafile, thunkAPI) => {
         if (metafile.filetype === 'Directory') {
-            console.log(`updateFilebasedMetafile => ${metafile.name} (${metafile.path})`);
             const state = thunkAPI.getState();
             const ignore = await getIgnore(metafile.path, true); // TODO: Load this once instead of doing it for every file
             const paths = (await readDirAsyncDepth(metafile.path, 1))
@@ -87,7 +84,6 @@ export const updateFilebasedMetafile = createAsyncThunk<FilebasedMetafile, Fileb
 export const updatedVersionedMetafile = createAsyncThunk<VersionedMetafile | FilebasedMetafile, FilebasedMetafile, AppThunkAPI>(
     'metafiles/updateVersionedMetafile',
     async (metafile, thunkAPI) => {
-        console.log(`updateVersionedMetafile => ${metafile.name}`);
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
         const status = await getStatus(metafile.path);
