@@ -1,7 +1,6 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
 import TreeView from '@material-ui/lab/TreeView';
 import type { MockInstance } from '../../test-utils/mock-fs';
 import { file, mock } from '../../test-utils/mock-fs';
@@ -108,16 +107,17 @@ describe('Directory', () => {
       </Provider>
     );
     expect(screen.getByRole('treeitem')).toBeInTheDocument();
-    expect(screen.queryByText('zap')).toBeInTheDocument();
+    expect(screen.getByText('zap')).toBeInTheDocument();
     expect(screen.queryByText('tap.js')).not.toBeInTheDocument();
 
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       const directory = screen.getByText('zap');
       fireEvent.click(directory);
     });
 
     // await user.click(screen.getByText('zap'));
-    expect(screen.queryByText('tap.js')).toBeInTheDocument();
+    expect(screen.getByText('tap.js')).toBeInTheDocument();
   });
 
 });

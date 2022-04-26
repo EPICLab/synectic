@@ -1,8 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { wrapWithTestBackend } from 'react-dnd-test-utils';
-import userEvent from '@testing-library/user-event';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
 import { file, mock, MockInstance } from '../../test-utils/mock-fs';
@@ -10,7 +9,6 @@ import CardComponent from './CardComponent';
 import { FilebasedMetafile, metafileAdded } from '../../store/slices/metafiles';
 import { DateTime } from 'luxon';
 import { createCard } from '../../store/thunks/cards';
-import { act } from 'react-dom/test-utils';
 
 const metafile: FilebasedMetafile = {
     id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',

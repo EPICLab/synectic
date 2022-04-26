@@ -32,7 +32,6 @@ const Directory = (props: { metafile: UUID }) => {
         if (!expanded && metafile && isFilebasedMetafile(metafile) && !isHydrated(metafile)) {
             await dispatch(updateFilebasedMetafile(metafile));
         }
-        console.log({ files });
         setExpanded(!expanded);
     }
 
