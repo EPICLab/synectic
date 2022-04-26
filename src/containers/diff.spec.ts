@@ -1,6 +1,6 @@
 import { diff } from './diff';
 
-describe('diff', () => {
+describe('containers/diff', () => {
   const good = 'Good dog\nGood dog\nBad dog';
   const bad = 'Bad dog\nGood dog\nGood dog';
 
