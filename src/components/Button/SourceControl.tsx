@@ -5,13 +5,13 @@ import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { loadCard } from '../../store/thunks/filetypes';
-import { fetchNewMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git-path';
 import { removeUndefinedProperties } from '../../containers/format';
 import branchSelectors from '../../store/selectors/branches';
 import { UUID } from '../../store/types';
+import { createCard } from '../../store/thunks/cards';
+import { createMetafile } from '../../store/thunks/metafiles';
 
 const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: UUID, metafileId: UUID, mode?: Mode }) => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
@@ -32,19 +32,19 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
 
         const branchName = branches[metafile.branch]?.ref;
         const optionals = branchName ? removeUndefinedProperties({ path: await getBranchRoot(repo.root, branchName) }) : {};
-        const sourceControl = await dispatch(fetchNewMetafile({
-            virtual: {
-                id: '',
-                modified: 0,
+        const sourceControl = await dispatch(createMetafile({
+            metafile: {
                 name: 'Source Control',
+                modified: 0,
                 handler: 'SourceControl',
+                filetype: '',
                 repo: repo.id,
                 branch: metafile.branch,
                 ...optionals
             }
         })).unwrap();
 
-        dispatch(loadCard({ metafile: sourceControl }));
+        dispatch(createCard({ metafile: sourceControl }));
     };
 
     return (

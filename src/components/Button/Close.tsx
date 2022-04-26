@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import { RootState } from '../../store/store';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { popCard } from '../../store/thunks/stacks';
+import { popCards } from '../../store/thunks/stacks';
 import { cardRemoved } from '../../store/slices/cards';
 import { UUID } from '../../store/types';
 
@@ -20,7 +20,7 @@ const CloseButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const close = async () => (card && card.captured) ? dispatch(popCard({ card: card })) : dispatch(cardRemoved(cardId));
+    const close = async () => (card && card.captured) ? dispatch(popCards({ cards: [card.id] })) : dispatch(cardRemoved(cardId));
 
     return (
         <>
