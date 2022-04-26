@@ -5,18 +5,18 @@ import { StyledTreeItem } from '../StyledTreeComponent';
 import { GitBranchIcon } from '../GitIcons';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
-import { loadCard } from '../../store/thunks/handlers';
-import { checkoutBranch } from '../../store/thunks/repos';
-import { fetchMetafile, fetchVersionControl, isFilebasedMetafile } from '../../store/thunks/metafiles';
 import branchSelectors from '../../store/selectors/branches';
 import { readDirAsync } from '../../containers/io';
 import { currentBranch } from '../../containers/git-porcelain';
-import { metafileUpdated } from '../../store/slices/metafiles';
+import { isFilebasedMetafile } from '../../store/slices/metafiles';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { DnDItemType } from '../Canvas/Canvas';
 import { modalAdded } from '../../store/slices/modals';
 import { Repository } from '../../store/slices/repos';
 import { Branch } from '../../store/slices/branches';
+import { fetchMetafile, updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { checkoutBranch } from '../../store/thunks/branches';
+import { createCard } from '../../store/thunks/cards';
 
 export type DragObject = {
     id: string,
@@ -73,14 +73,13 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
         const directoryContent = (await readDirAsync(props.branch.root));
         const empty = directoryContent.length == 0 || (directoryContent.length == 1 && directoryContent.includes('.git')); // a .git sub-directory still counts as empty
         const current = await currentBranch({ dir: props.branch.root });
-        let metafile = await dispatch(fetchMetafile({ filepath: props.branch.root })).unwrap();
-        const vcs = isFilebasedMetafile(metafile) ? await dispatch(fetchVersionControl(metafile)).unwrap() : undefined;
-        metafile = vcs ? dispatch(metafileUpdated({ ...metafile, ...vcs })).payload : metafile;
+        let metafile = await dispatch(fetchMetafile(props.branch.root)).unwrap();
+        metafile = isFilebasedMetafile(metafile) ? await dispatch(updatedVersionedMetafile(metafile)).unwrap() : metafile;
         const updated = (empty || props.branch.ref !== current)
-            ? await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: props.branch.ref })).unwrap()
+            ? await dispatch(checkoutBranch({ metafile: metafile.id, branchRef: props.branch.ref })).unwrap()
             : metafile;
         if (updated) {
-            dispatch(loadCard({ metafile: updated }));
+            dispatch(createCard({ metafile: updated }));
         }
     };
 

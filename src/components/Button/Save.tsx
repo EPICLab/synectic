@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Save } from '@material-ui/icons';
 import { fileSaveDialog } from '../../containers/dialogs';
 import { writeFileAsync } from '../../containers/io';
@@ -7,13 +7,13 @@ import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
-import { metafileUpdated } from '../../store/slices/metafiles';
+import { isFileMetafile, isVirtualMetafile, metafileUpdated } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
-import { fetchVersionControl, isFileMetafile, isVirtualMetafile } from '../../store/thunks/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { FSCache } from '../../store/cache/FSCache';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { UUID } from '../../store/types';
+import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import cachedSelectors from '../../store/selectors/cache';
 
 /**
  * Button for saving the content of modified metafiles to their associated files. This button tracks the state of metafiles associated
@@ -27,8 +27,8 @@ import { UUID } from '../../store/types';
 const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const { cache } = useContext(FSCache);
-    const modified = metafiles.filter(m => (isFileMetafile(m) && m.content !== cache.get(m.path)) || (isVirtualMetafile(m) && m.content && m.content.length > 0));
+    const cache = useAppSelector((state: RootState) => cachedSelectors.selectEntities(state));
+    const modified = metafiles.filter(m => (isFileMetafile(m) && m.content !== cache[m.path.toString()]?.content) || (isVirtualMetafile(m) && m.content && m.content.length > 0));
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
@@ -37,8 +37,8 @@ const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
             .filter(isFileMetafile)
             .map(async metafile => {
                 await writeFileAsync(metafile.path, metafile.content);
-                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                dispatch(metafileUpdated({ ...metafile, ...vcs, state: 'unmodified' }));
+                const updated = await dispatch(updatedVersionedMetafile(metafile)).unwrap();
+                dispatch(metafileUpdated({ ...updated, state: 'unmodified' }));
             })
         );
 

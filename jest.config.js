@@ -15,7 +15,7 @@ module.exports = {
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
     moduleNameMapper: {
         "ace-builds": "<rootDir>/node_modules/ace-builds",
-        "electron": "<rootDir>/__test__/__mocks__/electronMock.ts",
+        "electron": "<rootDir>/src/test-utils/mock-electron.ts",
         "^dnd-core$": "dnd-core/dist/cjs",
         "^react-dnd$": "react-dnd/dist/cjs",
         "^react-dnd-html5-backend$": "react-dnd-html5-backend/dist/cjs",

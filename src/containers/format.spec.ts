@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+import { FileMetafile } from '../store/slices/metafiles';
 import * as format from './format';
 
 describe('containers/format', () => {
@@ -59,6 +61,37 @@ describe('containers/format', () => {
     expect(filledResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
   });
 
+  const mockedMetafile: FileMetafile = {
+    id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
+    name: 'bar.js',
+    modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+    handler: 'Editor',
+    filetype: 'Javascript',
+    path: 'foo/bar.js',
+    state: 'unmodified',
+    content: 'file contents'
+  };
+
+  it('isUpdateable returns false for empty objects', () => {
+    expect(format.isUpdateable(mockedMetafile, {})).toBeFalsy();
+  });
+
+  it('isUpdateable returns false for exactly similar metafiles', () => {
+    expect(format.isUpdateable(mockedMetafile, mockedMetafile)).toBeFalsy();
+  });
+
+  it('isUpdateable returns true on new property', () => {
+    expect(format.isUpdateable(mockedMetafile, { repo: '23', branch: '101' })).toBeTruthy();
+  });
+
+  it('isUpdateable returns true on modified property', () => {
+    const updatedMetafile: FileMetafile = {
+      ...mockedMetafile,
+      content: 'new content'
+    };
+    expect(format.isUpdateable(mockedMetafile, updatedMetafile)).toBeTruthy();
+  });
+
   it('deserialize to parse a JSON string into a TypeScript object', () => {
     const json = '{"result":true, "count":42}';
     type typedJson = { result: boolean; count: number };
@@ -72,6 +105,22 @@ describe('containers/format', () => {
     // eslint-disable-next-line no-useless-escape
     const malformedJson = '{ "key": "Something \\\\"Name\\\\" something\", "anotherkey": "value" }';
     expect(() => format.deserialize(malformedJson)).toThrow(SyntaxError);
+  });
+
+  it('partition to split array using value-based predicate', () => {
+    const arr = [4, 6, 11, 10, 19, 5, 1, 0];
+    const predicate = (e: number) => e >= 10;
+    expect(format.partition(arr, predicate)).toStrictEqual([
+      [11, 10, 19], [4, 6, 5, 1, 0]
+    ]);
+  });
+
+  it('partition to split array using type-based predicate', () => {
+    const arr = ['4', 6, '11', '10', 19, 5, '1', 0];
+    const predicate = (e: number | string): e is number => typeof e === 'number';
+    expect(format.partition(arr, predicate)).toStrictEqual([
+      [6, 19, 5, 0], ['4', '11', '10', '1']
+    ]);
   });
 
   it('removeUndefined removes undefined from array of Primitive types', () => {
@@ -89,6 +138,11 @@ describe('containers/format', () => {
     expect(format.removeUndefined(arr)).toStrictEqual(arr);
   });
 
+  it('removeUndefined returns original array when no undefined are present', () => {
+    const arr = [{ a: 3 }, 'a', { b: 7 }, true];
+    expect(format.removeUndefined(arr)).toStrictEqual(arr);
+  });
+
   it('removeUndefinedProperties removes undefined from Object of Primitive types', () => {
     const obj = { a: 3, b: 'a', c: undefined, d: true };
     expect(format.removeUndefinedProperties(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
@@ -97,11 +151,6 @@ describe('containers/format', () => {
   it('removeUndefinedProperties removes top-level undefined from Object with nested Objects', () => {
     const obj = { a: undefined, b: { c: 3 }, d: { e: undefined }, f: { g: 7 } };
     expect(format.removeUndefinedProperties(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
-  });
-
-  it('removeUndefined returns original array when no undefined are present', () => {
-    const arr = [{ a: 3 }, 'a', { b: 7 }, true];
-    expect(format.removeUndefined(arr)).toStrictEqual(arr);
   });
 
   it('removeDuplicates removes duplicates from array of Primitive types', () => {
@@ -151,6 +200,51 @@ describe('containers/format', () => {
   it('objectifyPath converts array of path elements into object with value', () => {
     const expected = { user: { name: 3 } };
     expect(format.objectifyPath(['user', 'name'], 3)).toStrictEqual(expected);
+  });
+
+  it('equalMaps identifies equal and non-equal maps containing primitive types', () => {
+    const map1 = new Map<string, number | string>([['a', 13], ['b', 'thomas']]);
+    const map2 = new Map<string, number | string>([['a', 13], ['b', 'thomas']]);
+    const map3 = new Map<string, number | string>([['a', 13], ['b', 'ralph']]);
+    expect(format.equalMaps(map1, map2)).toBe(true);
+    expect(format.equalMaps(map1, map3)).toBe(false);
+  });
+
+  it('equalMaps identifies equal and non-equal maps containing Array types', () => {
+    const map1 = new Map<string, Array<number>>([['john', [3, 5]], ['mary', [7, 1]]]);
+    const map2 = new Map<string, Array<number>>([['john', [3, 5]], ['mary', [7, 1]]]);
+    const map3 = new Map<string, Array<number>>([['john', [3, 2]], ['mary', [7, 1]]]);
+    expect(format.equalMaps(map1, map2)).toBe(true);
+    expect(format.equalMaps(map1, map3)).toBe(false);
+  });
+
+  it('equalMaps identifies equal and non-equal maps containing nested object types', () => {
+    type NestedObject = { age: number, friends: { name: string }[] };
+    const map1 = new Map<string, NestedObject>([
+      ['john', { age: 40, friends: [{ name: 'mary' }, { name: 'thomas' }] }],
+      ['mary', { age: 35, friends: [{ name: 'john' }, { name: 'thomas' }] }]
+    ]);
+    const map2 = new Map<string, NestedObject>([
+      ['john', { age: 40, friends: [{ name: 'mary' }, { name: 'thomas' }] }],
+      ['mary', { age: 35, friends: [{ name: 'john' }, { name: 'thomas' }] }]
+    ]);
+    const map3 = new Map<string, NestedObject>([
+      ['john', { age: 40, friends: [{ name: 'mary' }, { name: 'thomas' }] }],
+      ['mary', { age: 35, friends: [{ name: 'john' }, { name: 'ralph' }] }]
+    ]);
+    expect(format.equalMaps(map1, map2)).toBe(true);
+    expect(format.equalMaps(map1, map3)).toBe(false);
+  });
+
+  it('equalArrays indentifies equal and non-equal arrays containing primitive types', () => {
+    expect(format.equalArrays([13, 'a', 14, 'b'], [13, 'a', 14, 'b'])).toBe(true);
+    expect(format.equalArrays([13, 'a', 14, 'b'], [13, 'a', 14, 'c'])).toBe(false);
+  });
+
+  it('equalArrays indentifies equal and non-equal arrays containing nested types', () => {
+    const arr = [13, 'a', [3, 2, 1], { name: 'john' }];
+    expect(format.equalArrays(arr, [13, 'a', [3, 2, 1], { name: 'john' }])).toBe(true);
+    expect(format.equalArrays(arr, [13, 'a', [3, 0, 1], { name: 'john' }])).toBe(false);
   });
 
   it('equalArrayBuffers identifies equal and non-equal Buffers containing UTF-8 string data', () => {

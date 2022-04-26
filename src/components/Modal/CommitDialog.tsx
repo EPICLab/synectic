@@ -9,12 +9,12 @@ import { commit, getConfig } from '../../containers/git-porcelain';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import repoSelectors from '../../store/selectors/repos';
-import { metafileUpdated } from '../../store/slices/metafiles';
-import { fetchContains, fetchContent, fetchVersionControl, isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from '../../store/thunks/metafiles';
-import { fetchRepoBranches } from '../../store/thunks/repos';
+import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafiles';
+import { fetchBranches } from '../../store/thunks/branches';
 import { repoUpdated } from '../../store/slices/repos';
 import FileComponent from '../Explorer/FileComponent';
 import { getRoot } from '../../containers/git-path';
+import { updateFilebasedMetafile, updatedVersionedMetafile } from '../../store/thunks/metafiles';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -92,19 +92,12 @@ const CommitDialog = (props: Modal) => {
             });
             console.log(`commit result: ${result}`);
             if (metafile && isFilebasedMetafile(metafile)) {
-                const vcs = await dispatch(fetchVersionControl(metafile)).unwrap();
-                const contentOrContains = await (isDirectoryMetafile(metafile) ?
-                    dispatch(fetchContains(metafile.path)) :
-                    dispatch(fetchContent({ filepath: metafile.path }))).unwrap();
-                dispatch(metafileUpdated({
-                    ...metafile,
-                    ...contentOrContains,
-                    ...vcs
-                }))
+                await dispatch(updateFilebasedMetafile(metafile));
+                await dispatch(updatedVersionedMetafile(metafile));
             }
             if (repo) {
-                const branches = await dispatch(fetchRepoBranches(repo.root)).unwrap();
-                dispatch(repoUpdated({ ...repo, ...branches }));
+                const branches = await dispatch(fetchBranches(repo.root)).unwrap();
+                dispatch(repoUpdated({ ...repo, ...{ local: branches.local.map(b => b.id), remote: branches.remote.map(b => b.id) } }));
             }
         }
         dispatch(modalRemoved(props.id));
@@ -129,7 +122,7 @@ const CommitDialog = (props: Modal) => {
                         defaultEndIcon={<div style={{ width: 8 }} />}
                     >
                         {staged.filter(isFileMetafile).sort((a, b) => a.name.localeCompare(b.name))
-                            .map(m => <FileComponent key={m.id} metafileId={m.id} />)}
+                            .map(m => <FileComponent key={m.id} metafile={m.id} />)}
                     </TreeView>
                     <Typography color='textSecondary' variant='body2'>
                         Enter a commit message.

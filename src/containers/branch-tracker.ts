@@ -1,24 +1,20 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
-import { v4 } from 'uuid';
 import { AppThunkAPI } from '../store/hooks';
-import { fetchMetafile } from '../store/thunks/metafiles';
-import { loadCard } from '../store/thunks/handlers';
+import { createMetafile } from '../store/thunks/metafiles';
+import { createCard } from '../store/thunks/cards';
 
 export const loadBranchVersions = createAsyncThunk<void, void, AppThunkAPI>(
   'cards/loadBranchVersion',
   async (_, thunkAPI) => {
-    thunkAPI.dispatch(fetchMetafile({
-      virtual: {
-        id: v4(),
-        modified: DateTime.local().valueOf(),
+    const metafile = await thunkAPI.dispatch(createMetafile({
+      metafile: {
         name: 'Branch Tracker',
-        handler: 'BranchTracker'
+        modified: DateTime.local().valueOf(),
+        handler: 'BranchTracker',
+        filetype: 'Text'
       }
-    }))
-      .unwrap()
-      .then(metafile => {
-        if (metafile) thunkAPI.dispatch(loadCard({ metafile: metafile }));
-      });
+    })).unwrap();
+    thunkAPI.dispatch(createCard({ metafile: metafile }));
   }
 )

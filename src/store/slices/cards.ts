@@ -18,7 +18,7 @@ export type Card = {
     /** The timestamp for last update to card properties. */
     readonly modified: Timestamp;
     /** The UUID for capturing Stack object, or undefined if not captured. */
-    readonly captured?: UUID | undefined;
+    readonly captured: UUID | undefined;
     /** The stack order of card relative to overlapping elements. */
     readonly zIndex: number;
     /** The horizontal position of card relative to parent object. */
@@ -29,16 +29,16 @@ export type Card = {
     readonly classes: string[];
 };
 
-export const cardsAdapter = createEntityAdapter<Card>();
+export const cardAdapter = createEntityAdapter<Card>();
 
-export const cardsSlice = createSlice({
+export const cardSlice = createSlice({
     name: 'cards',
-    initialState: cardsAdapter.getInitialState(),
+    initialState: cardAdapter.getInitialState(),
     reducers: {
-        cardAdded: cardsAdapter.addOne,
-        cardRemoved: cardsAdapter.removeOne,
+        cardAdded: cardAdapter.addOne,
+        cardRemoved: cardAdapter.removeOne,
         cardUpdated: (state, action: PayloadAction<Card>) => {
-            cardsAdapter.upsertOne(state, {
+            cardAdapter.upsertOne(state, {
                 ...action.payload, modified: DateTime.local().valueOf()
             })
         }
@@ -46,11 +46,11 @@ export const cardsSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(PURGE, (state) => {
-                cardsAdapter.removeAll(state);
+                cardAdapter.removeAll(state);
             })
     }
 })
 
-export const { cardAdded, cardRemoved, cardUpdated } = cardsSlice.actions;
+export const { cardAdded, cardRemoved, cardUpdated } = cardSlice.actions;
 
-export default cardsSlice.reducer;
+export default cardSlice.reducer;
