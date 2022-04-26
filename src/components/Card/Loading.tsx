@@ -1,6 +1,6 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import DataField from '../Card/DataField';
+import DataField from './DataField';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';

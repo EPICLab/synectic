@@ -1,138 +1,141 @@
+import * as fs from 'fs-extra';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { PathLike } from 'fs';
+import { PathLike } from 'fs-extra';
+import { listBranches } from 'isomorphic-git';
 import { v4 } from 'uuid';
-import { removeUndefined } from '../../containers/format';
-import { currentBranch, getConfig, log } from '../../containers/git-porcelain';
-import { AppThunkAPI } from '../hooks';
-import { fetchParentMetafile, FilebasedMetafile } from './metafiles';
+import { ExactlyOne, isDefined } from '../../containers/format';
 import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
-import { Branch, branchUpdated } from '../slices/branches';
+import { checkout, getConfig, log } from '../../containers/git-porcelain';
+import { AppThunkAPI } from '../hooks';
+import branchSelectors from '../selectors/branches';
+import { Branch, branchAdded } from '../slices/branches';
+import { FilebasedMetafile, isFilebasedMetafile, isVersionedMetafile, Metafile } from '../slices/metafiles';
+import { createMetafile, fetchParentMetafile, updatedVersionedMetafile } from './metafiles';
+import metafileSelectors from '../selectors/metafiles';
 import { UUID } from '../types';
+import { resolveWorktree } from '../../containers/git-worktree';
+import { join, relative } from 'path';
+import { extractStats } from '../../containers/io';
+import { Repository, repoUpdated } from '../slices/repos';
 
-export const fetchBranchById = createAsyncThunk<Branch | undefined, UUID, AppThunkAPI>(
-    'repos/fetchById',
-    async (id, thunkAPI) => {
-        return thunkAPI.getState().branches.entities[id];
-    }
-);
+type BranchIdentifiers = { root: PathLike, branch: string, scope: 'local' | 'remote' };
 
-export const fetchBranchByFilepath = createAsyncThunk<Branch | undefined, PathLike, AppThunkAPI>(
-    'branches/fetchByFilepath',
-    async (filepath, thunkAPI) => {
-        const worktree = await getWorktreePaths(filepath);
-        const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
-        const branches = removeUndefined(Object.values(thunkAPI.getState().branches.entities)
-            .filter(branch => branch && branch.root.toString() == root));
-        const current = root ? await currentBranch({ dir: root }) : undefined;
-        return current ? branches.find(b => b.ref === current) : undefined;
-    }
-);
-
-export const fetchBranch = createAsyncThunk<Branch | undefined, FilebasedMetafile, AppThunkAPI>(
+export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ branchIdentifiers: BranchIdentifiers, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'branches/fetchBranch',
-    async (metafile, thunkAPI) => {
-        // if metafile already has a branch UUID, return the matching branch
-        if (metafile.branch) {
-            const branch = thunkAPI.getState().branches.entities[metafile.branch];
+    async (input, thunkAPI) => {
+        const state = thunkAPI.getState();
+
+        if (input.metafile) {
+            // if metafile already has a branch UUID, check for matching branch
+            let branch: Branch | undefined = input.metafile.branch ? branchSelectors.selectById(state, input.metafile.branch) : undefined;
+            const parent = !branch ? await thunkAPI.dispatch(fetchParentMetafile(input.metafile)).unwrap() : undefined;
+            // otherwise if parent metafile already has a branch UUID, check for matching branch
+            branch = (parent && isVersionedMetafile(parent)) ? branchSelectors.selectById(state, parent.branch) : branch;
             if (branch) return branch;
         }
-
-        // if parent already has a branch UUID, return the matching branch
-        const parent = await thunkAPI.dispatch(fetchParentMetafile(metafile)).unwrap();
-        if (parent && parent.branch) {
-            const branch = thunkAPI.getState().branches.entities[parent.branch];
-            if (branch) return branch;
-        }
-
-        // if root path matches an existing branch, return the matching branch
-        const branch = await thunkAPI.dispatch(fetchBranchByFilepath(metafile.path)).unwrap();
-        if (branch) {
-            return branch;
-        }
-
-        const root = await getRoot(metafile.path);
-        const localBranch = root ? await thunkAPI.dispatch(fetchLocalBranch({ root: root })).unwrap() : undefined;
-        return localBranch;
+        const root: fs.PathLike | undefined = input.metafile ? await getRoot(input.metafile.path) : input.branchIdentifiers.root;
+        // if filepath has a root path, check for matching branch
+        let branch = root ? branchSelectors.selectByRoot(state, root) : undefined;
+        // otherwise create a new branch
+        branch = (!branch && input.branchIdentifiers) ? await thunkAPI.dispatch(createBranch(input.branchIdentifiers)).unwrap() : branch;
+        return branch;
     }
 );
 
-/**
- * Async thunk for generating a new local-scoped Branch object. This function is capable of resolving `root` paths for 
- * branches that exist on a linked worktree. Resolving to `fulfilled` state results in the `branchesSlice.extraReducer` 
- * automatically adding the new Branch to the Redux store.
- * @param root The worktree root directory of a valid branch in a git repository.
- * @param branchName An optional branch name to restrict the 
- * @return A remote-scoped Branch object.
- */
-export const fetchLocalBranch = createAsyncThunk<Branch | undefined, { root: PathLike, branchName?: string }, AppThunkAPI>(
-    'branches/fetchLocalBranch',
-    async (input, thunkAPI) => {
-        const branchRoot = input.branchName ? await getBranchRoot(input.root, input.branchName) : undefined;
-        const root = branchRoot ? branchRoot : input.root;
+export const createBranch = createAsyncThunk<Branch, BranchIdentifiers, AppThunkAPI>(
+    'branches/createBranch',
+    async (identifiers, thunkAPI) => {
+        const branchRoot = (identifiers.scope === 'local') ? await getBranchRoot(identifiers.root, identifiers.branch) : undefined;
+        const root = branchRoot ? branchRoot : identifiers.root;
         const { dir, gitdir, worktreeGitdir } = await getWorktreePaths(root);
-        if (!dir) {
-            thunkAPI.rejectWithValue(`No repository found at root directory: ${root.toString()}`);
-            return undefined;
-        }
-        const rootGitdir = worktreeGitdir ? worktreeGitdir : gitdir;
-        const current = root ? await currentBranch({ dir: root, fullname: false }) : undefined;
-        const branch = input.branchName ? input.branchName : !current ? 'HEAD' : current;
 
-        const config = branch !== 'HEAD' ? await getConfig({ dir: dir, keyPath: `branch.${branch}.remote` }) : undefined;
+        const rootGitdir = worktreeGitdir ? worktreeGitdir : (gitdir ? gitdir : '');
+        const config = await getConfig({ dir: dir ? dir : root, keyPath: `branch.${identifiers.branch}.remote` });
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
-        const commits = root ? (await log({ dir: root, ref: branch, depth: 50 })) : [];
+        const commits = await log({ dir: root, ref: identifiers.scope === 'local' ? identifiers.branch : `remotes/${remote}/${identifiers.branch}`, depth: 50 });
         const head = commits.length > 0 ? commits[0].oid : '';
 
-        const existing = removeUndefined(Object.values(thunkAPI.getState().branches.entities)).find(b => b.scope === 'local' && b.ref === branch);
-        if (existing) return thunkAPI.dispatch(branchUpdated({ ...existing, commits: commits, head: head })).payload;
-
-        return {
+        return thunkAPI.dispatch(branchAdded({
             id: v4(),
-            scope: 'local',
-            ref: branch,
-            root: root ? root : '',
-            gitdir: rootGitdir ? rootGitdir : '',
+            scope: identifiers.scope,
+            ref: identifiers.branch,
+            root: root,
+            gitdir: rootGitdir,
             remote: remote,
             commits: commits,
-            head: commits.length > 0 ? commits[0].oid : ''
-        };
+            head: head
+        })).payload;
     }
 );
 
-/**
- * Async thunk for generating a new remote-scoped Branch object. This function is capable of resolving `root` paths for 
- * branches that exist on a linked worktree. Resolving to `fulfilled` state results in the `branchesSlice.extraReducer` 
- * automatically adding the new Branch to the Redux store.
- * @param root The working tree directory path of a valid branch in a git repository.
- * @param branchName The branch name.
- * @return A remote-scoped Branch object.
- */
-export const fetchRemoteBranch = createAsyncThunk<Branch | undefined, { root: PathLike, branchName: string }, AppThunkAPI>(
-    'branches/fetchRemoteBranch',
+export const fetchBranches = createAsyncThunk<{ local: Branch[], remote: Branch[] }, PathLike, AppThunkAPI>(
+    'branches/fetchBranches',
+    async (root, thunkAPI) => {
+        const localBranches = await listBranches({ fs: fs, dir: root.toString() });
+        const local = (await Promise.all(localBranches
+            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which is only a reference pointer
+            .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: branch, scope: 'local' } })).unwrap())
+        )).filter(isDefined);
+
+        const remoteBranches = await listBranches({ fs: fs, dir: root.toString(), remote: 'origin' });
+        const remote = (await Promise.all(remoteBranches
+            .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which is only a reference pointer
+            .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: branch, scope: 'remote' } })).unwrap())
+        )).filter(isDefined);
+        return { local, remote };
+    }
+);
+
+type CheckoutOptions = { metafile: UUID, branchRef: string, progress?: boolean, overwrite?: boolean };
+/** Checkout git branches from remote to local scope and switch branch references in a targeted Metafile. */
+export const checkoutBranch = createAsyncThunk<Metafile | undefined, CheckoutOptions, AppThunkAPI<string>>(
+    'branches/checkoutBranch',
     async (input, thunkAPI) => {
-        const { dir, gitdir } = await getWorktreePaths(input.root);
-        if (!dir || !gitdir) {
-            thunkAPI.rejectWithValue(`No repository found at root directory: ${input.root.toString()}`);
-            return undefined;
+        const state = thunkAPI.getState();
+        const metafile = metafileSelectors.selectById(state, input.metafile);
+        const oldBranch = (metafile && isVersionedMetafile(metafile)) ? branchSelectors.selectById(state, metafile.branch) : undefined;
+        const newBranch = branchSelectors.selectByRef(state, input.branchRef)[0];
+        const repo: Repository | undefined = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
+
+        if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${input.metafile}'`);
+        if (!oldBranch) return thunkAPI.rejectWithValue(`Branch missing for metafile id:'${input.metafile}'`);
+        if (!newBranch) return thunkAPI.rejectWithValue(`Branch missing for target ref:'${input.branchRef}'`);
+        if (!repo) return thunkAPI.rejectWithValue(`Repository missing for metafile id:'${input.metafile}'`);
+        if (!isFilebasedMetafile(metafile)) return thunkAPI.rejectWithValue(`Cannot checkout branches for virtual metafile:'${input.metafile}'`);
+        if (!metafile || !repo) return undefined;
+
+        let updated: Metafile | undefined;
+        if (input.overwrite) {
+            // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
+            if (input.progress) await checkout({ dir: repo.root.toString(), ref: newBranch.ref, onProgress: (e) => console.log(e.phase) });
+            else await checkout({ dir: repo.root.toString(), ref: newBranch.ref });
+            updated = metafileSelectors.selectById(state, metafile.id);
+        } else {
+            // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
+            const oldWorktree = await resolveWorktree(repo, oldBranch.id, oldBranch.ref); // get an existing worktree
+            const newWorktree = await resolveWorktree(repo, newBranch.id, newBranch.ref); // get a new linked-worktree, including creating a directory (if needed)
+            if (!oldWorktree)
+                return thunkAPI.rejectWithValue(`No worktree could be resolved for current worktree =>\n\trepo: '${repo.name}'\n\told branch: '${oldBranch.ref}'\n\tnew branch: '${newBranch.ref}'`);
+            if (!newWorktree)
+                return thunkAPI.rejectWithValue(`No worktree could be resolved for new worktree =>\n\trepo: '${repo.name}'\n\told branch: '${oldBranch.ref}'\n\tnew branch: '${newBranch.ref}'`);
+            const relativePath = relative(oldWorktree.path.toString(), metafile.path.toString());
+            const absolutePath = join(newWorktree.path.toString(), relativePath);
+            const fileExists = (await extractStats(absolutePath)) ? true : false;
+            const existingMetafile = fileExists ? metafileSelectors.selectByFilepath(state, join(newWorktree.path.toString(), relativePath)) : undefined;
+            updated = (existingMetafile && existingMetafile.length > 0) ? existingMetafile[0]
+                : await thunkAPI.dispatch(createMetafile({ path: join(newWorktree.path.toString(), relativePath) })).unwrap();
+
+            // update branches in repo in case new local branches have been checked out
+            const branches = repo ? await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap() : undefined;
+            (repo && branches) ? thunkAPI.dispatch(repoUpdated({ ...repo, ...{ local: branches.local.map(b => b.id), remote: branches.remote.map(b => b.id) } })) : undefined;
         }
+        // get an updated metafile based on the updated worktree path
+        if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path: '${metafile.path}'`);
 
-        const config = await getConfig({ dir: dir, keyPath: `branch.${input.branchName}.remote` });
-        const remote = (config.scope !== 'none') ? config.value : 'origin';
-        const commits = (await log({ dir: dir, ref: `remotes/${remote}/${input.branchName}`, depth: 50 }));
-        const head = commits.length > 0 ? commits[0].oid : '';
-
-        const existing = removeUndefined(Object.values(thunkAPI.getState().branches.entities)).find(b => b.scope === 'remote' && b.ref === input.branchName);
-        if (existing) return thunkAPI.dispatch(branchUpdated({ ...existing, commits: commits, head: head })).payload;
-
-        return {
-            id: v4(),
-            scope: 'remote',
-            ref: input.branchName,
-            root: dir,
-            gitdir: gitdir,
-            remote: remote,
-            commits: commits,
-            head: commits.length > 0 ? commits[0].oid : ''
-        };
+        if (isFilebasedMetafile(updated)) {
+            updated = await thunkAPI.dispatch(updatedVersionedMetafile(updated)).unwrap();
+        }
+        if (input.progress) console.log('checkout complete...');
+        return updated;
     }
-);
+)

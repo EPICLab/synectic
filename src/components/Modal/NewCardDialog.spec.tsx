@@ -3,83 +3,59 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Provider } from 'react-redux';
-import { testStore } from '../../../__test__/__fixtures__/ReduxStore';
 import { mockStore } from '../../test-utils/mock-store';
 import NewCardDialog from './NewCardDialog';
-import { RootState } from '../../store/store';
 import { DateTime } from 'luxon';
 import { Modal } from '../../store/slices/modals';
 import userEvent from '@testing-library/user-event';
+import { emptyStore } from '../../test-utils/empty-store';
+import { Card, cardAdded } from '../../store/slices/cards';
+import { Filetype, filetypeAdded } from '../../store/slices/filetypes';
 
-const mockedStore: RootState = {
-    stacks: {
-        ids: [],
-        entities: {}
-    },
-    cards: {
-        ids: ['f6b3f2a3-9145-4b59-a4a1-bf414214f30b', '67406095-fd01-4441-8e52-b0fdbad3327a'],
-        entities: {
-            'f6b3f2a3-9145-4b59-a4a1-bf414214f30b': {
-                id: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
-                name: 'test.js',
-                type: 'Editor',
-                metafile: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
-                created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00').valueOf(),
-                modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
-                left: 10,
-                top: 10,
-                zIndex: 0,
-                classes: [],
-            },
-            '67406095-fd01-4441-8e52-b0fdbad3327a': {
-                id: '67406095-fd01-4441-8e52-b0fdbad3327a',
-                name: 'turtle.asp',
-                type: 'Editor',
-                metafile: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
-                created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00').valueOf(),
-                modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00').valueOf(),
-                left: 27,
-                top: 105,
-                zIndex: 0,
-                classes: [],
-            }
-        }
-    },
-    filetypes: {
-        ids: [],
-        entities: {}
-    },
-    metafiles: {
-        ids: [],
-        entities: {}
-    },
-    cached: {
-        ids: [],
-        entities: {}
-    },
-    repos: {
-        ids: [],
-        entities: {}
-    },
-    branches: {
-        ids: [],
-        entities: {}
-    },
-    modals: {
-        ids: ['97fa02bc-596c-46d6-b025-2968f0d32b91'],
-        entities: {
-            '97fa02bc-596c-46d6-b025-2968f0d32b91': {
-                id: '97fa02bc-596c-46d6-b025-2968f0d32b91',
-                type: 'NewCardDialog'
-            }
-        }
-    }
+const card1: Card = {
+    id: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
+    name: 'test.js',
+    type: 'Editor',
+    metafile: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
+    created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00').valueOf(),
+    modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
+    left: 10,
+    top: 10,
+    zIndex: 0,
+    classes: [],
+    captured: undefined
+};
+
+const card2: Card = {
+    id: '67406095-fd01-4441-8e52-b0fdbad3327a',
+    name: 'turtle.asp',
+    type: 'Editor',
+    metafile: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
+    created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00').valueOf(),
+    modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00').valueOf(),
+    left: 27,
+    top: 105,
+    zIndex: 0,
+    classes: [],
+    captured: undefined
+};
+
+const filetype1: Filetype = {
+    id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
+    filetype: 'JavaScript',
+    handler: 'Editor',
+    extensions: ['js', 'jsm']
 }
 
-const mockedModal = mockedStore.modals.entities['97fa02bc-596c-46d6-b025-2968f0d32b91'] as Modal;
+const newCardModal: Modal = {
+    id: '97fa02bc-596c-46d6-b025-2968f0d32b91',
+    type: 'NewCardDialog'
+};
 
 describe('NewCardDialog modal component', () => {
-    const store = mockStore(testStore);
+    const store = mockStore(emptyStore);
+    store.dispatch(cardAdded(card1));
+    store.dispatch(cardAdded(card2));
 
     const produceComponent = () => {
         return {
@@ -87,7 +63,7 @@ describe('NewCardDialog modal component', () => {
             ...render(
                 <Provider store={store}>
                     <DndProvider backend={HTML5Backend}>
-                        <NewCardDialog {...mockedModal} />
+                        <NewCardDialog {...newCardModal} />
                     </DndProvider>
                 </Provider>
             )
@@ -113,7 +89,7 @@ describe('NewCardDialog modal component', () => {
                 expect.arrayContaining([
                     expect.objectContaining({
                         type: 'modals/modalRemoved',
-                        payload: mockedModal.id
+                        payload: newCardModal.id
                     })
                 ])
             )
@@ -124,7 +100,9 @@ describe('NewCardDialog modal component', () => {
         const { user } = produceComponent();
 
         // using DOM selector method instead of RTL
+        // eslint-disable-next-line testing-library/no-node-access
         const backdrop = document.querySelector('.MuiBackdrop-root');
+
         if (backdrop) await user.click(backdrop);
 
         await waitFor(() => {
@@ -132,7 +110,7 @@ describe('NewCardDialog modal component', () => {
                 expect.arrayContaining([
                     expect.objectContaining({
                         type: 'modals/modalRemoved',
-                        payload: mockedModal.id
+                        payload: newCardModal.id
                     })
                 ])
             )
@@ -149,10 +127,12 @@ describe('NewCardDialog modal component', () => {
             target: { value: 'test.jsxw' }
         });
         expect(screen.getByText('Invalid Filename')).toBeInTheDocument();
+        // eslint-disable-next-line testing-library/no-node-access
         expect(screen.getByText('Create Card').closest('button')).toBeDisabled();
     });
 
     it('populates filetype on valid filename entry', async () => {
+        store.dispatch(filetypeAdded(filetype1));
         const { user } = produceComponent();
 
         // open the editor portion of dialog
@@ -162,6 +142,7 @@ describe('NewCardDialog modal component', () => {
             target: { value: 'test.js' }
         });
         expect(screen.getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
+        // eslint-disable-next-line testing-library/no-node-access
         expect(screen.getByText('Create Card').closest('button')).toBeEnabled();
 
         // click to attempt to create a card

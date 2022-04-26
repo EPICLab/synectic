@@ -111,11 +111,12 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
  * and `true` if `ref` is not provided.
  * @param dryRun Optional flag to simulate a checkout in order to test whether it would succeed; defaults to `false`.
  * @param force Optional flag where conflicts will be ignored and files will be overwritten regardless of local changes.
+ * @param onProgress Optional progress event callback.
  * @returns A Promise object for the checkout operation.
  */
 export const checkout = async ({
   dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', filepaths, remote = 'origin',
-  noCheckout = false, noUpdateHead = ref === undefined, dryRun = false, force = false
+  noCheckout = false, noUpdateHead = ref === undefined, dryRun = false, force = false, onProgress
 }: {
   dir: fs.PathLike;
   gitdir?: fs.PathLike;
@@ -126,8 +127,9 @@ export const checkout = async ({
   noUpdateHead?: boolean;
   dryRun?: boolean;
   force?: boolean;
+  onProgress?: isogit.ProgressCallback;
 }): Promise<void> => {
-  const optionals = removeUndefinedProperties({ filepaths: filepaths });
+  const optionals = removeUndefinedProperties({ filepaths: filepaths, onProgress: onProgress });
   return isogit.checkout({
     fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
     noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, ...optionals
