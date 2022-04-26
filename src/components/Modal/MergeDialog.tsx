@@ -11,9 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { merge } from '../../containers/merges';
-import { loadCard } from '../../store/thunks/filetypes';
-import { fetchConflicted, fetchMetafile } from '../../store/thunks/metafiles';
-import { v4 } from 'uuid';
+import { createMetafile, fetchConflicted } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { checkProject } from '../../containers/conflicts';
 import branchSelectors from '../../store/selectors/branches';
@@ -21,6 +19,7 @@ import { isDefined } from '../../containers/format';
 import { UUID } from '../../store/types';
 import BranchSelect from '../BranchSelect';
 import RepoSelect from '../RepoSelect';
+import { createCard } from '../../store/thunks/cards';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -98,18 +97,18 @@ const MergeDialog = (props: Modal) => {
     if (conflictStatus == 'Failing') {
       const conflicts = await checkProject(repo.root);
       await dispatch(fetchConflicted(conflicts)); // updates version control status in Redux store
-      const conflictManager = await dispatch(fetchMetafile({
-        virtual: {
-          id: v4(),
+      const conflictManager = await dispatch(createMetafile({
+        metafile: {
           modified: DateTime.local().valueOf(),
           name: `Conflicts`,
           handler: 'ConflictManager',
+          filetype: 'Text',
           repo: repo.id,
           path: repo.root,
           merging: { base: baseBranch.ref, compare: compareBranch.ref }
         }
       })).unwrap();
-      if (conflictManager) await dispatch(loadCard({ metafile: conflictManager }));
+      if (conflictManager) await dispatch(createCard({ metafile: conflictManager }));
       await delay(2500);
       dispatch(modalRemoved(props.id));
     }
