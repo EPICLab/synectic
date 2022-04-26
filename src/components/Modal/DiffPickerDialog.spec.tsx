@@ -170,7 +170,7 @@ describe('DiffPickerDialog modal component', () => {
             expect(store.getActions()).toStrictEqual(
                 expect.arrayContaining([
                     expect.objectContaining({
-                        type: 'metafiles/fetchMetafile/fulfilled',
+                        type: 'metafiles/createMetafile/fulfilled',
                         payload: expect.objectContaining({
                             handler: 'Diff',
                             name: 'Δ undefined/turtle.asp -> undefined/test.js',
