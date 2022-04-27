@@ -110,7 +110,7 @@
     "git-config-path": "^2.0.0",
     "ignore": "^5.2.0",
     "ini": "^3.0.0",
-    "isomorphic-git": "^1.17.0",
+    "isomorphic-git": "^1.17.1",
     "luxon": "^2.3.2",
     "parse-git-config": "^3.0.0",
     "parse-path": "^4.0.3",
