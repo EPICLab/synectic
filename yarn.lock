@@ -3883,10 +3883,10 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@18.0.0:
-  version "18.0.0"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-18.0.0.tgz#c43fda5b8470a69313cdd79ba370ee6e42cda5b8"
-  integrity sha512-olAmqc+pNCDM9/nvYnZxhbAwQlMF01lDCesTKJjwItu2DaWZZm959OFTD+1mc/Q/YHDq9eqyD7MjqxjKuoWgWQ==
+electron@18.1.0:
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-18.1.0.tgz#d92b76f301af1a8728adff8d6eeb42382e218fe8"
+  integrity sha512-P55wdHNTRMo7a/agC84ZEZDYEK/pTBcQdlp8lFbHcx3mO4Kr+Im/J5p2uQgiuXtown31HqNh2paL3V0p+E6rpQ==
   dependencies:
     "@electron/get" "^1.13.0"
     "@types/node" "^16.11.26"
@@ -9311,10 +9311,10 @@ ts-jest@^27.1.4:
     semver "7.x"
     yargs-parser "20.x"
 
-ts-loader@^9.2.8:
-  version "9.2.8"
-  resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-9.2.8.tgz#e89aa32fa829c5cad0a1d023d6b3adecd51d5a48"
-  integrity sha512-gxSak7IHUuRtwKf3FIPSW1VpZcqF9+MBrHOvBp9cjHh+525SjtCIJKVGjRKIAfxBwDGDGCFF00rTfzB1quxdSw==
+ts-loader@^9.2.9:
+  version "9.2.9"
+  resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-9.2.9.tgz#0653e07fa1b4f225d0ca57a84fddbfd43d930f9e"
+  integrity sha512-b0+vUY2/enb0qYtDQuNlDnJ9900NTiPiJcDJ6sY7ax1CCCwXfYIqPOMm/BwW7jsF1km+Oz8W9s31HLuD+FLIMg==
   dependencies:
     chalk "^4.1.0"
     enhanced-resolve "^5.0.0"
