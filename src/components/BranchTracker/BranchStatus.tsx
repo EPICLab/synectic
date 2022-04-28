@@ -40,7 +40,7 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
     // Enable BranchStatus as a drop target (i.e. allow other elements to be dropped on this component)
     const [{ isOver }, drop] = useDrop({
         accept: [DnDItemType.BRANCH],
-        canDrop: (item: { id: string; type: string; }, monitor: DropTargetMonitor<DragObject, void>) => {
+        canDrop: (_item, monitor: DropTargetMonitor<DragObject, void>) => {
             const dropTarget = props.branch;
             const dropSource = branches[monitor.getItem().id];
             // restrict dropped items from accepting a self-referencing drop (i.e. dropping a card on itself)
@@ -48,7 +48,7 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
             const sameRepo = dropSource ? props.repo.local.includes(dropSource.id) || props.repo.remote.includes(dropSource.id) : false;
             return nonSelf && sameRepo;
         },
-        drop: (item, monitor: DropTargetMonitor<DragObject, void>) => {
+        drop: (_item, monitor: DropTargetMonitor<DragObject, void>) => {
             const dropTarget = props.branch;
             const dropSource = branches[monitor.getItem().id];
             const delta = monitor.getDifferenceFromInitialOffset();
