@@ -16,26 +16,6 @@ import { GitStatus } from '../store/types';
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
 /**
- * Get the value of a symbolic ref or resolve a ref to its SHA1 object id; this function is a wrapper to the 
- * *isomorphic-git/resolveRef* function to inject the `fs` parameter and extend with additional special identifier
- * support (i.e. `HEAD` for the current commit, `HEAD~1` for the previous commit).
- * Ref: https://github.com/isomorphic-git/isomorphic-git/issues/1238#issuecomment-871220830
- * @param dir The relative or absolute path to the git root (i.e. `/Users/nelsonni/scratch/project`).
- * @param ref The git ref or symbolic-ref (i.e. `HEAD` or `HEAD~1`) to resolve against the current branch.
- * @returns A Promise object containing the SHA1 commit resolved from the provided ref, or undefined if no commit found.
- */
-export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string | undefined> => {
-  const re = /^HEAD~([0-9]+)$/;
-  const match = ref.match(re);
-  if (match) {
-    const count = +match[1];
-    const commits = await isogit.log({ dir: dir.toString(), fs, depth: count + 1 });
-    return commits.pop()?.oid;
-  }
-  return isogit.resolveRef({ dir: dir.toString(), fs, ref });
-}
-
-/**
  * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function to inject the `fs` parameter and extend with
  * additional local-only branch functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the
  * local-only repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
