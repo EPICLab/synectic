@@ -12,8 +12,41 @@ import { isDefined, removeUndefinedProperties } from './format';
 import { getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
+import { add } from './git-worktree';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
+
+/**
+ * Create a branch within an existing repository; this function is a wrapper to the *isomorphic-git/branch* function to inject the `fs` 
+ * parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a file, then `.git` points 
+ * to a file containing updated pathing to translate from the linked worktree to the `.git/worktree` directory in the main worktree and 
+ * this path must be used for branch checks.
+ * @param dir The worktree root directory.
+ * @param gitdir The wortkree git directory.
+ * @param repo A Repository object that points to the main worktree.
+ * @param ref The branch name for labeling the new branch.
+ * @param checkout Optional flag to update the working directory along with updating HEAD; defaults to `false`.
+ * @returns A Promise object containing the worktree root directory (which can vary from the `dir` parameter depending on whether a linked 
+ * worktree was created).
+ */
+export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), repo, ref, checkout = false }: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
+  repo: Repository;
+  ref: string;
+  checkout?: boolean;
+}): Promise<fs.PathLike> => {
+  if (checkout) {
+    await isogit.branch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref, checkout });
+    return dir;
+  } else {
+    // create a linked worktree with the new branch
+    const repoRef = io.extractFilename(repo.name);
+    const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${repoRef}/${ref}`);
+    await add(repo, linkedRoot, ref);
+    return linkedRoot;
+  }
+}
 
 /**
  * Clone a repository; this function is a wrapper to the *isomorphic-git/clone* function to inject the `fs` parameter and extend with
