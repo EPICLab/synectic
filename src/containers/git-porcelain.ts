@@ -96,8 +96,8 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
  * @returns A Promise object for the checkout operation.
  */
 export const checkout = async ({
-  dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', filepaths, remote = 'origin',
-  noCheckout = false, noUpdateHead = ref === undefined, dryRun = false, force = false, onProgress
+  dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', filepaths, remote = 'origin', noCheckout = false,
+  noUpdateHead = ref === undefined, dryRun = false, force = false, track = true, onProgress
 }: {
   dir: fs.PathLike;
   gitdir?: fs.PathLike;
@@ -108,12 +108,13 @@ export const checkout = async ({
   noUpdateHead?: boolean;
   dryRun?: boolean;
   force?: boolean;
+  track?: boolean;
   onProgress?: isogit.ProgressCallback;
 }): Promise<void> => {
-  const optionals = removeUndefinedProperties({ filepaths: filepaths, onProgress: onProgress });
+  const optionals = removeUndefinedProperties({ filepaths, onProgress });
   return isogit.checkout({
     fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
-    noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, ...optionals
+    noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, track: track, ...optionals
   });
 }
 
@@ -151,7 +152,7 @@ export const commit = async ({ dir, gitdir = path.join(dir.toString(), '.git'), 
   parent?: Array<string>;
   tree?: string;
 }): Promise<string> => {
-  const optionals = removeUndefinedProperties({ author: author, committer: committer, signingKey: signingKey, ref: ref, parent: parent, tree: tree });
+  const optionals = removeUndefinedProperties({ author, committer, signingKey, ref, parent, tree });
   return isogit.commit({
     fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), message: message, dryRun, noUpdateBranch, ...optionals
   });
@@ -174,7 +175,7 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => {
-  const optionals = removeUndefinedProperties({ fullname: fullname, test: test });
+  const optionals = removeUndefinedProperties({ fullname, test });
   const worktree = await getWorktreePaths(gitdir);
   return worktree.worktreeLink
     ? isogit.currentBranch({ fs: fs, dir: worktree.worktreeLink.toString(), gitdir: worktree.worktreeLink.toString(), ...optionals })
