@@ -236,8 +236,15 @@ export const add = async (repo: Repository, worktreeDir: fs.PathLike, commitish?
   const detached = (commitish && isHash(commitish, 'sha1')) ? commitish : undefined;
 
   // initialize the linked worktree
-  await clone({ repo: repo, dir: worktreeDir, ref: branch });
-  await checkout({ dir: worktreeDir, ref: branch });
+  await clone({ repo: repo, dir: worktreeDir, ref: branch, noCheckout: true });
+  const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
+  if (remoteBranches.includes(branch)) {
+    await checkout({ dir: worktreeDir, ref: branch });
+  } else {
+    // if no remote branch exists, then create a new local-only branch and switches branches in the linked worktree
+    await isogit.branch({ fs: fs, dir: repo.root.toString(), ref: branch, checkout: false });
+    checkout({ dir: worktreeDir, ref: branch, noCheckout: true })
+  }
 
   // branch must already exist in order to resolve worktreeLink path (`GIT_DIR/worktrees/{branch}`)
   const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await resolveRef({ dir: worktreeDir, ref: commitish }))
