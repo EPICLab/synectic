@@ -2,7 +2,6 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { PURGE } from 'redux-persist';
 import { isDefined } from '../../containers/format';
-// import { fetchNewRepo } from '../thunks/repos';
 import { UUID } from '../types';
 import { branchRemoved } from './branches';
 
@@ -50,9 +49,6 @@ export const repoSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // .addCase(fetchNewRepo.fulfilled, (state, action) => {
-            //     reposAdapter.addOne(state, action.payload);
-            // })
             .addCase(branchRemoved, (state, action) => {
                 const updatedRepos = Object.values(state.entities)
                     .filter(isDefined)

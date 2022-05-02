@@ -169,7 +169,6 @@ describe('containers/git-worktree.add', () => {
                     refs: {
                         heads: {
                             master: 'f39895c492e97f23d9ce252afefca347a656a4b2\n',
-                            hotfix: '6b35cb455b16b0d0247c9cfdcb4982a4de599b23\n'
                         },
                         tags: {}
                     }
@@ -202,7 +201,7 @@ describe('containers/git-worktree.add', () => {
             corsProxy: new URL('http://www.oregonstate.edu').toString(),
             url: parsePath('https://github.com/sampleUser/baseRepo').toString(),
             default: 'master',
-            local: ['master', 'hotfix'],
+            local: ['master'],
             remote: [],
             oauth: 'github',
             username: 'sampleUser',
@@ -214,7 +213,7 @@ describe('containers/git-worktree.add', () => {
             .resolves.toBe(`gitdir: ${path.join('baseRepo', '.git', 'worktrees', 'hotfix')}\n`);
         await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/hotfix\n');
         await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/ORIG_HEAD', { encoding: 'utf-8' }))
-            .resolves.toBe('6b35cb455b16b0d0247c9cfdcb4982a4de599b23\n');
+            .resolves.toBe('f39895c492e97f23d9ce252afefca347a656a4b2\n');
         await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/commondir', { encoding: 'utf-8' }))
             .resolves.toBe(`${path.normalize('../..')}\n`);
         await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/gitdir', { encoding: 'utf-8' }))
