@@ -42,4 +42,5 @@ export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*
  */
 export type FilesystemStatus = 'modified' | 'unmodified' | 'unlinked';
 export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'BranchTracker' | 'Merge' | 'SourceControl' | 'ConflictManager';
-export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewCardDialog' | 'SourcePicker' | 'CommitDialog' | 'Notification';
+export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewBranchDialog' | 'NewCardDialog' |
+    'SourcePicker' | 'CommitDialog' | 'Notification';
