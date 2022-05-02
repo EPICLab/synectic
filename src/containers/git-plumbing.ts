@@ -10,7 +10,7 @@ import { toHTTPS } from 'git-remote-protocol';
 // import { isHiddenFile } from 'is-hidden-file';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { currentBranch } from './git-porcelain';
+import { currentBranch, log } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from './format';
 import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
