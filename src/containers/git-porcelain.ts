@@ -63,9 +63,10 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
     const targetBranch = ref ? ref : existingBranch;
 
     if (targetBranch && !remoteBranches.includes(targetBranch)) {
-      // cloning a local-only branch via copy & checkout
+      // cloning a local-only branch via copy & branch
       await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) }); // do not copy node_modules/ directory
-      await checkout({ dir: dir, ref: targetBranch, noCheckout: noCheckout });
+      await isogit.branch({ fs: fs, dir: dir.toString(), ref: targetBranch, checkout: false });
+      if (!noCheckout) await checkout({ dir: dir, ref: targetBranch, track: false });
       return true;
     } else {
       // cloning an existing repository into a linked worktree root directory
@@ -86,7 +87,7 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
  * @param ref The branch name or SHA-1 commit hash to checkout files from; defaults to `HEAD`.
  * @param filepaths Limit the checkout to the given files and directories.
  * @param remote Which remote repository to use for the checkout process; defaults to `origin`.
- * @param noCheckout Optional flag to udate HEAD but not update the working directory; defaults to `false`.
+ * @param noCheckout Optional flag to update HEAD but not update the working directory; defaults to `false`.
  * @param noUpdateHead Optional flag to update the working directory but not update HEAD. Defaults to `false` when `ref` is provided, 
  * and `true` if `ref` is not provided.
  * @param dryRun Optional flag to simulate a checkout in order to test whether it would succeed; defaults to `false`.
