@@ -9,10 +9,11 @@ export type Branch = {
     readonly id: UUID;
     /** The name of branch. */
     readonly ref: string;
-    /** The relative or absolute path to the working tree directory path. This is the worktree root directory in the case of linked worktrees,
+    /** The relative or absolute path to the working tree directory path. This is the worktree directory in the case of linked worktrees,
      * and the parent of the root directory (.git) in the main worktree otherwise. */
     readonly root: PathLike;
-    /** The relative or absolute path to the git root directory (.git) in the main worktree. */
+    /** The relative or absolute path to the git root directory (.git) in the working tree directory path. This is the worktree root directory 
+     * in the case of linked worktrees, and the main worktree git directory in the main worktree otherwise. */
     readonly gitdir: PathLike;
     /** The reference scope of the branch; typically a branch will have an instance of both a `local` and `remote` branch. */
     readonly scope: 'local' | 'remote';
