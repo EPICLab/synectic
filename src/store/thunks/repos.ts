@@ -3,7 +3,7 @@ import { PathLike } from 'fs-extra';
 import { v4 } from 'uuid';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AppThunkAPI } from '../hooks';
-import { repoAdded, Repository, repoUpdated } from '../slices/repos';
+import { repoAdded, Repository } from '../slices/repos';
 import repoSelectors from '../selectors/repos';
 import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
 import { getBranchRoot, getWorktreePaths } from '../../containers/git-path';
@@ -99,11 +99,7 @@ export const cloneRepository = createAsyncThunk<Repository | undefined, { url: U
         const cloned = await clone({ url: input.url, dir: input.root, depth: 10, onProgress: input.onProgress });
         if (!cloned) return thunkAPI.rejectWithValue(`Clone failed for '${input.url.toString()}'; possibly unsupported URL type`);
 
-        const repo = await thunkAPI.dispatch(createRepo(input.root)).unwrap();
-        const branches = repo ? await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap() : undefined;
-        (repo && branches) ? thunkAPI.dispatch(repoUpdated({ ...repo, ...{ local: branches.local.map(b => b.id), remote: branches.remote.map(b => b.id) } })) : undefined;
-        if (repo) return repoSelectors.selectById(state, repo.id);
-        else return undefined;
+        return await thunkAPI.dispatch(createRepo(input.root)).unwrap();
     }
 );
 
