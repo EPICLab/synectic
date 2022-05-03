@@ -9,6 +9,7 @@ import MergeDialog from './MergeDialog';
 import NewCardDialog from './NewCardDialog';
 import Notification from './Notification';
 import SourcePickerDialog from './SourcePickerDialog';
+import NewBranchDialog from './NewBranchDialog';
 
 const ModalComponent = (props: Modal) => {
   switch (props.type) {
@@ -22,6 +23,8 @@ const ModalComponent = (props: Modal) => {
       return props.target ? (<GitGraph repo={props.target} />) : null;
     case 'MergeSelector':
       return (<MergeDialog {...props} />)
+    case 'NewBranchDialog':
+      return (<NewBranchDialog {...props} />);
     case 'NewCardDialog':
       return (<NewCardDialog {...props} />);
     case 'SourcePicker':

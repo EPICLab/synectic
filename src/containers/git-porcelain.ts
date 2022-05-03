@@ -12,27 +12,40 @@ import { isDefined, removeUndefinedProperties } from './format';
 import { getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
+import { add } from './git-worktree';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
 /**
- * Get the value of a symbolic ref or resolve a ref to its SHA1 object id; this function is a wrapper to the 
- * *isomorphic-git/resolveRef* function to inject the `fs` parameter and extend with additional special identifier
- * support (i.e. `HEAD` for the current commit, `HEAD~1` for the previous commit).
- * Ref: https://github.com/isomorphic-git/isomorphic-git/issues/1238#issuecomment-871220830
- * @param dir The relative or absolute path to the git root (i.e. `/Users/nelsonni/scratch/project`).
- * @param ref The git ref or symbolic-ref (i.e. `HEAD` or `HEAD~1`) to resolve against the current branch.
- * @returns A Promise object containing the SHA1 commit resolved from the provided ref, or undefined if no commit found.
+ * Create a branch within an existing repository; this function is a wrapper to the *isomorphic-git/branch* function to inject the `fs` 
+ * parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a file, then `.git` points 
+ * to a file containing updated pathing to translate from the linked worktree to the `.git/worktree` directory in the main worktree and 
+ * this path must be used for branch checks.
+ * @param dir The worktree root directory.
+ * @param gitdir The wortkree git directory.
+ * @param repo A Repository object that points to the main worktree.
+ * @param ref The branch name for labeling the new branch.
+ * @param checkout Optional flag to update the working directory along with updating HEAD; defaults to `false`.
+ * @returns A Promise object containing the worktree root directory (which can vary from the `dir` parameter depending on whether a linked 
+ * worktree was created).
  */
-export const resolveRef = async (dir: fs.PathLike, ref: string): Promise<string | undefined> => {
-  const re = /^HEAD~([0-9]+)$/;
-  const match = ref.match(re);
-  if (match) {
-    const count = +match[1];
-    const commits = await isogit.log({ dir: dir.toString(), fs, depth: count + 1 });
-    return commits.pop()?.oid;
+export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), repo, ref, checkout = false }: {
+  dir: fs.PathLike;
+  gitdir?: fs.PathLike;
+  repo: Repository;
+  ref: string;
+  checkout?: boolean;
+}): Promise<fs.PathLike> => {
+  if (checkout) {
+    await isogit.branch({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref, checkout });
+    return dir;
+  } else {
+    // create a linked worktree with the new branch
+    const repoRef = io.extractFilename(repo.name);
+    const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${repoRef}/${ref}`);
+    await add(repo, linkedRoot, ref);
+    return linkedRoot;
   }
-  return isogit.resolveRef({ dir: dir.toString(), fs, ref });
 }
 
 /**
@@ -83,9 +96,10 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
     const targetBranch = ref ? ref : existingBranch;
 
     if (targetBranch && !remoteBranches.includes(targetBranch)) {
-      // cloning a local-only branch via copy & checkout
+      // cloning a local-only branch via copy & branch
       await fs.copy(repo.root.toString(), dir.toString(), { filter: path => !(path.indexOf('node_modules') > -1) }); // do not copy node_modules/ directory
-      await checkout({ dir: dir, ref: targetBranch, noCheckout: noCheckout });
+      await isogit.branch({ fs: fs, dir: dir.toString(), ref: targetBranch, checkout: false });
+      if (!noCheckout) await checkout({ dir: dir, ref: targetBranch, track: false });
       return true;
     } else {
       // cloning an existing repository into a linked worktree root directory
@@ -106,7 +120,7 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
  * @param ref The branch name or SHA-1 commit hash to checkout files from; defaults to `HEAD`.
  * @param filepaths Limit the checkout to the given files and directories.
  * @param remote Which remote repository to use for the checkout process; defaults to `origin`.
- * @param noCheckout Optional flag to udate HEAD but not update the working directory; defaults to `false`.
+ * @param noCheckout Optional flag to update HEAD but not update the working directory; defaults to `false`.
  * @param noUpdateHead Optional flag to update the working directory but not update HEAD. Defaults to `false` when `ref` is provided, 
  * and `true` if `ref` is not provided.
  * @param dryRun Optional flag to simulate a checkout in order to test whether it would succeed; defaults to `false`.
@@ -115,8 +129,8 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
  * @returns A Promise object for the checkout operation.
  */
 export const checkout = async ({
-  dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', filepaths, remote = 'origin',
-  noCheckout = false, noUpdateHead = ref === undefined, dryRun = false, force = false, onProgress
+  dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', filepaths, remote = 'origin', noCheckout = false,
+  noUpdateHead = ref === undefined, dryRun = false, force = false, track = true, onProgress
 }: {
   dir: fs.PathLike;
   gitdir?: fs.PathLike;
@@ -127,12 +141,13 @@ export const checkout = async ({
   noUpdateHead?: boolean;
   dryRun?: boolean;
   force?: boolean;
+  track?: boolean;
   onProgress?: isogit.ProgressCallback;
 }): Promise<void> => {
-  const optionals = removeUndefinedProperties({ filepaths: filepaths, onProgress: onProgress });
+  const optionals = removeUndefinedProperties({ filepaths, onProgress });
   return isogit.checkout({
     fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
-    noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, ...optionals
+    noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, track: track, ...optionals
   });
 }
 
@@ -170,7 +185,7 @@ export const commit = async ({ dir, gitdir = path.join(dir.toString(), '.git'), 
   parent?: Array<string>;
   tree?: string;
 }): Promise<string> => {
-  const optionals = removeUndefinedProperties({ author: author, committer: committer, signingKey: signingKey, ref: ref, parent: parent, tree: tree });
+  const optionals = removeUndefinedProperties({ author, committer, signingKey, ref, parent, tree });
   return isogit.commit({
     fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), message: message, dryRun, noUpdateBranch, ...optionals
   });
@@ -193,7 +208,7 @@ export const currentBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
   fullname?: boolean;
   test?: boolean;
 }): Promise<string | void> => {
-  const optionals = removeUndefinedProperties({ fullname: fullname, test: test });
+  const optionals = removeUndefinedProperties({ fullname, test });
   const worktree = await getWorktreePaths(gitdir);
   return worktree.worktreeLink
     ? isogit.currentBranch({ fs: fs, dir: worktree.worktreeLink.toString(), gitdir: worktree.worktreeLink.toString(), ...optionals })

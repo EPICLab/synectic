@@ -5,7 +5,7 @@ import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
-import RepoStatus from '../RepoStatus';
+import RepoStatus from './RepoStatus';
 
 const BranchTracker = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));

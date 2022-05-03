@@ -6,7 +6,7 @@ import { AppThunkAPI } from '../hooks';
 import { repoAdded, Repository, repoUpdated } from '../slices/repos';
 import repoSelectors from '../selectors/repos';
 import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
-import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
+import { getBranchRoot, getWorktreePaths } from '../../containers/git-path';
 import { clone, defaultBranch, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
 import { extractFromURL, extractRepoName } from '../../containers/git-plumbing';
 import { extractFilename } from '../../containers/io';
@@ -32,10 +32,12 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ f
             repo = (parent && isVersionedMetafile(parent)) ? repoSelectors.selectById(state, parent.repo) : repo;
             if (repo) return repo;
         }
-        const root = await getRoot(filepath);
         // if filepath has a root path, check for matching repository
-        let repo = root ? repoSelectors.selectByRoot(state, root) : undefined;
+        const { dir, worktreeDir } = await getWorktreePaths(filepath);
+        let repo = dir ? repoSelectors.selectByRoot(state, dir) : undefined;
+
         // otherwise create a new repository
+        const root = worktreeDir ? worktreeDir : dir;
         repo = (!repo && root) ? await thunkAPI.dispatch(createRepo(root)).unwrap() : repo;
         return repo;
     }

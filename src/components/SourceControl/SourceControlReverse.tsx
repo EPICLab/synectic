@@ -18,6 +18,7 @@ const SourceControlReverse = (props: Card) => {
             <div className='buttons'></div>
             <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
             <DataField title='Branch' textField field={branch ? branch.ref : 'Untracked'} />
+            <DataField title='Root' textField field={branch ? branch.root.toString() : 'Untracked'} />
         </>
     );
 };

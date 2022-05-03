@@ -10,7 +10,7 @@ import { toHTTPS } from 'git-remote-protocol';
 // import { isHiddenFile } from 'is-hidden-file';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { currentBranch } from './git-porcelain';
+import { currentBranch, log } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from './format';
 import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
@@ -97,12 +97,14 @@ export const resolveURL = (url: string): string => {
 
 /**
  * Get the value of a symbolic ref or resolve a ref to its SHA-1 object id; this is a wrapper to the *isomorphic-git/resolveRef* function 
- * to inject the `fs` parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a file, then
+ * to inject the `fs` parameter and extend with additional worktree path resolving functionality and special identifier
+ * support (i.e. `HEAD` for the current commit, `HEAD~1` for the previous commit). If the `gitdir` parameter is a file, then
  * `.git` points to a file containing updated pathing to translate from the linked worktree to the main worktree and must be resolved 
  * before any refs can be resolved.
+ * Ref: https://github.com/isomorphic-git/isomorphic-git/issues/1238#issuecomment-871220830
  * @param dir The working tree directory path.
  * @param gitdir The git directory path.
- * @param ref The ref to resolve.
+ * @param ref The git ref or symbolic-ref (i.e. `HEAD` or `HEAD~1`) to resolve against the current branch.
  * @param depth How many symbolic references to follow before returning.
  * @return A Promise object containing the SHA-1 hash or branch name associated with the given `ref` depending on the `depth` parameter; 
  * e.g. `ref: 'HEAD', depth: 2` returns the current branch name, `ref: 'HEAD', depth: 1` returns the SHA-1 hash of the current commit 
@@ -115,11 +117,20 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   depth?: number;
 }): Promise<string> => {
   const worktree = await getWorktreePaths(dir);
-  const optional = removeUndefinedProperties({ depth: depth });
+  const re = /^HEAD~([0-9]+)$/;
+  const match = ref.match(re);
+  if (match) {
+    const count = +match[1];
+    const root = worktree.worktreeDir ? worktree.worktreeDir.toString() : worktree.dir ? worktree.dir.toString() : dir;
+    const commits = await log({ dir: root, depth: count + 1 });
+    const oid = commits.pop()?.oid;
+    if (oid) return oid;
+  }
   if (worktree.gitdir && worktree.worktreeLink && ref === 'HEAD') {
     const linkedRef = (await io.readFileAsync(path.join(worktree.worktreeLink.toString(), 'HEAD'), { encoding: 'utf-8' })).slice('ref: '.length).trim();
     return (await io.readFileAsync(path.join(worktree.gitdir.toString(), linkedRef), { encoding: 'utf-8' })).trim();
   }
+  const optional = removeUndefinedProperties({ depth: depth });
   return await isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, ...optional });
 }
 
