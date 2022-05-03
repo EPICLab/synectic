@@ -18,7 +18,7 @@ describe('Browser', () => {
     await user.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Hit Enter button
-    fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
+    fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 'Enter', charCode: 13 });
 
     expect(textBox).toHaveValue('https://google.com');
   });
@@ -38,7 +38,7 @@ describe('Browser', () => {
     await user.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Press Enter key
-    fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
+    fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 'Enter', charCode: 13 });
     expect(screen.getByRole('textbox')).toHaveValue('https://google.com');
 
     // Go back in history
@@ -67,7 +67,7 @@ describe('Browser', () => {
     await user.type(screen.getByRole('textbox'), 'https://google.com');
 
     // Press Enter key
-    fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 13, which: 13 });
+    fireEvent.keyDown(textBox, { key: 'Enter', keyCode: 'Enter', charCode: 13 });
 
     expect(textBox).toHaveValue('https://google.com');
     fireEvent.click(refreshButton);
