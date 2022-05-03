@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactNode } from 'react';
+import React from 'react';
 import { shell } from 'electron';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const isMac = process.platform === 'darwin';
 
-const Canvas = (props: PropsWithChildren<ReactNode>) => {
+const Canvas = () => {
   const cardsArray = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
   const stacksArray = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
@@ -184,7 +184,6 @@ const Canvas = (props: PropsWithChildren<ReactNode>) => {
       {stacksArray.map(stack => <Stack key={stack.id} {...stack} />)}
       {cardsArray.filter(card => !card.captured).map(card => <CardComponent key={card.id} {...card} />)}
       {modals.map(modal => <ModalComponent key={modal.id} {...modal} />)}
-      {props.children}
     </div >
   );
 }

@@ -5,14 +5,14 @@ import useGitGraph from '../../containers/hooks/useGitGraph';
 import layoutGraph from '../../containers/git-graph';
 import { UUID } from '../../store/types';
 
-const GitGraph = (props: { repo: UUID }) => {
+const GitGraph = ({ repo }: { repo: UUID }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const onConnect = (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds));
   const onInit = (reactFlowInstance: ReactFlowInstance) => { setReactFlowState(reactFlowInstance) };
 
   const [reactFlowState, setReactFlowState] = useState<ReactFlowInstance>();
-  const { graph, topological } = useGitGraph(props.repo);
+  const { graph, topological } = useGitGraph(repo);
 
   useEffect(() => { reactFlowState?.fitView() }, [nodes, edges]);
 
