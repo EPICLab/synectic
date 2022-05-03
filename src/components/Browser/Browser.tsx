@@ -18,14 +18,16 @@ const Browser = ({ mode = 'light' }: { mode?: Mode }) => {
     current: new URL('https://epiclab.github.io/'), index: 0
   });
 
-  const go = (e: React.KeyboardEvent) => {
-    if (e.keyCode != 13) return;
-    let history = browserState.history;
-    if (browserState.index > 0) {
-      history = history.slice(browserState.index);
-      setBrowserState({ ...browserState, index: 0 });
+  const go = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      let history = browserState.history;
+      if (browserState.index > 0) {
+        history = history.slice(browserState.index);
+        setBrowserState({ ...browserState, index: 0 });
+      }
+      setBrowserState({ ...browserState, current: new URL(urlInput), history: [new URL(urlInput), ...history] });
     }
-    setBrowserState({ ...browserState, current: new URL(urlInput), history: [new URL(urlInput), ...history] });
   }
 
   const backwards = () => {
