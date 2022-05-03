@@ -68,7 +68,7 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
     };
 
     // load a new Explorer card containing the root of the repository at the specified branch
-    const clickHandle = async () => {
+    const handleClick = async () => {
         // undefined root indicates the main worktree, and any linked worktrees, are not associated with that branch
         const directoryContent = (await readDirAsync(props.branch.root));
         const empty = directoryContent.length == 0 || (directoryContent.length == 1 && directoryContent.includes('.git')); // a .git sub-directory still counts as empty
@@ -92,7 +92,7 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
                 nodeId={`${props.repo}-${props.branch.id}`}
                 labelText={`${props.branch.ref} [${cards.length}]`}
                 labelIcon={GitBranchIcon}
-                onClick={clickHandle} />
+                onClick={handleClick} />
         </div>
     );
 };
