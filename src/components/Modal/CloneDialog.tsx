@@ -6,9 +6,8 @@ import { Modal, modalRemoved } from '../../store/slices/modals';
 import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git-plumbing';
 import { cloneDirectoryDialog } from '../../containers/dialogs';
 import { cloneRepository } from '../../store/thunks/repos';
-import StatusIcon, { Status } from '../StatusIcon';
+import { LinearProgressWithLabel, Status } from '../StatusIcon';
 import { loadBranchVersions } from '../../containers/branch-tracker';
-
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -53,8 +52,22 @@ const CloneDialog = (props: Modal) => {
     const [invalid, setInvalid] = useState(true);
     const [targetPath, setTargetPath] = useState('');
     const [status, setStatus] = useState<Status>('Unchecked');
+    const [progress, setProgress] = useState(0);
     const [log, setLog] = useState('');
     const dispatch = useAppDispatch();
+
+    const getSubtext = () => {
+        switch (status) {
+            case 'Running':
+                return log;
+            case 'Passing':
+                return `Clone completed from '${url}' to '${targetPath}'`;
+            case 'Failing':
+                return `Clone failed from '${url}' to '${targetPath}'`;
+            default:
+                return '';
+        }
+    }
 
     const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -67,6 +80,12 @@ const CloneDialog = (props: Modal) => {
         const path = await dispatch(cloneDirectoryDialog(extractRepoName(url))).unwrap();
         if (path) setTargetPath(path);
     }
+    const handleKeyDown = (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            getTargetPath();
+        }
+    }
 
     useEffect(() => {
         const initiateCloning = async () => {
@@ -75,7 +94,10 @@ const CloneDialog = (props: Modal) => {
                 const repo = await dispatch(cloneRepository({
                     url: new URL(url),
                     root: targetPath,
-                    onProgress: (progress) => setLog(`cloning objects: ${progress.loaded}/${progress.total}`)
+                    onProgress: (progress) => {
+                        setProgress(typeof progress.total === 'number' ? Math.round((progress.loaded / progress.total) * 100) : 0);
+                        setLog(`${progress.phase}: ${progress.loaded}` + (progress.total ? `/${progress.total}` : ''))
+                    }
                 })).unwrap();
                 if (!repo) throw new Error('Cloning failed');
                 setStatus('Passing');
@@ -83,6 +105,7 @@ const CloneDialog = (props: Modal) => {
                 await delay(2000);
                 dispatch(modalRemoved(props.id));
             } catch (error) {
+                console.log(error);
                 setStatus('Failing');
             }
         }
@@ -110,21 +133,22 @@ const CloneDialog = (props: Modal) => {
                 <div className={classes.section2}>
                     <Grid container alignItems='center' justifyContent='center' >
                         <Grid item xs={12} className={classes.input} >
-                            <TextField id='repoUrl' label='Repository URL' variant='outlined' className={classes.textfield}
-                                onChange={handleChange} error={invalid} helperText={invalid ? 'Invalid repository URL.' : ''} />
+                            <TextField
+                                id='repoUrl'
+                                label='Repository URL'
+                                variant='outlined'
+                                className={classes.textfield}
+                                onChange={handleChange}
+                                onKeyDown={(e) => handleKeyDown(e)}
+                                error={invalid}
+                                helperText={invalid ? 'Invalid repository URL.' : ''}
+                            />
                         </Grid>
                     </Grid>
                 </div>
                 {(targetPath !== '' && !invalid) ?
-                    <div className={classes.section3}>
-                        <StatusIcon status={status} />
-                        <div className={classes.content}>
-                            <Typography color='textSecondary' variant='body2'>
-                                {status === 'Running' ? log : null}
-                                {status === 'Passing' ? `Clone completed from '${url}' to '${targetPath}'` : null}
-                                {status === 'Failing' ? `Clone failed from '${url}' to '${targetPath}'` : null}
-                            </Typography>
-                        </div>
+                    <div className={classes.section2}>
+                        <LinearProgressWithLabel value={progress} subtext={getSubtext()} />
                     </div>
                     : null}
                 <div className={classes.section2}>
