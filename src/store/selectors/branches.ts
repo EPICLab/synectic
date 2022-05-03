@@ -22,7 +22,10 @@ const selectByRef = createSelector(
 const selectByRoot = createSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
-    (branches, root) => branches.find(b => isEqualPaths(root, b.root))
+    (_state: RootState, _root: PathLike, branch?: string) => branch,
+    (branches, root, branch) => branch
+        ? branches.find(b => isEqualPaths(root, b.root) && b.ref === branch)
+        : branches.find(b => isEqualPaths(root, b.root))
 )
 
 const selectByGitdir = createSelector(

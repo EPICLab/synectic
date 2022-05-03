@@ -5,7 +5,7 @@ import { listBranches } from 'isomorphic-git';
 import { v4 } from 'uuid';
 import { ExactlyOne, isDefined } from '../../containers/format';
 import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
-import { checkout, getConfig, log } from '../../containers/git-porcelain';
+import { checkout, currentBranch, getConfig, log } from '../../containers/git-porcelain';
 import { AppThunkAPI } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import { Branch, branchAdded } from '../slices/branches';
@@ -34,8 +34,8 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ bra
             if (branch) return branch;
         }
         const root: fs.PathLike | undefined = input.metafile ? await getRoot(input.metafile.path) : input.branchIdentifiers.root;
-        // if filepath has a root path, check for matching branch
-        let branch = root ? branchSelectors.selectByRoot(state, root) : undefined;
+        // if filepath has a root path, then check for a matching branch
+        let branch = root ? branchSelectors.selectByRoot(state, root, input.branchIdentifiers?.branch) : undefined;
         // otherwise create a new branch
         branch = (!branch && input.branchIdentifiers) ? await thunkAPI.dispatch(createBranch(input.branchIdentifiers)).unwrap() : branch;
         return branch;
