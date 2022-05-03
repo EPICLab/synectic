@@ -1,4 +1,4 @@
-import React, { createContext, PropsWithChildren, ReactNode, useEffect } from 'react';
+import React, { createContext, ReactNode, useEffect } from 'react';
 import { PathLike } from 'fs-extra';
 import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
@@ -16,7 +16,7 @@ import { fetchMetafile } from '../thunks/metafiles';
 
 export const FSCache = createContext({});
 
-export const FSCacheProvider = (props: PropsWithChildren<ReactNode>) => {
+export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
     const cacheIds = useAppSelector((state: RootState) => cacheSelectors.selectIds(state));
     const cache = useAppSelector((state: RootState) => cacheSelectors.selectEntities(state));
     const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher
@@ -72,7 +72,7 @@ export const FSCacheProvider = (props: PropsWithChildren<ReactNode>) => {
 
     return (
         <FSCache.Provider value={{}}>
-            {props.children}
+            {children}
         </FSCache.Provider>
     );
 }
