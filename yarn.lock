@@ -518,14 +518,7 @@
     "@babel/helper-simple-access" "^7.17.7"
     babel-plugin-dynamic-import-node "^2.3.3"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
-  version "7.17.8"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.17.8.tgz#3e56e4aff81befa55ac3ac6a0967349fd1c5bca2"
-  integrity sha512-dQpEpK0O9o6lj6oPu0gRDbbnk+4LeHlNcBpspf6Olzt3GIX4P1lWF1gS+pHLDFlaJvbR6q7jCfQ08zA4QJBnmA==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.17.9":
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.15.4", "@babel/runtime@^7.17.9", "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7", "@babel/runtime@^7.9.2":
   version "7.17.9"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.17.9.tgz#d19fbf802d01a8cb6cf053a64e472d42c434ba72"
   integrity sha512-lSiBBvodq29uShpWGNbgFdKYNiFDo5/HIYsaCEY9ff4sb10x9jizo2+pRrSyF4jKZCXqgzuqBOQKbUm90gQwJg==
@@ -8048,10 +8041,10 @@ react-error-boundary@^3.1.0:
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-react-flow-renderer@^10.2.0:
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/react-flow-renderer/-/react-flow-renderer-10.2.0.tgz#523ff558c36f143626d501eb41cc9a8c5cc011a7"
-  integrity sha512-F4E6sG9IEahK1Fosh3MXnJoMPbZZkXITjhJDfwNMUPaxQQAWw4A9F3pY8MvI1GIMXWi4Fvm3PKSLHl1ZIu/TfA==
+react-flow-renderer@^10.2.2:
+  version "10.2.2"
+  resolved "https://registry.yarnpkg.com/react-flow-renderer/-/react-flow-renderer-10.2.2.tgz#ac173d90ba4cc5c82eab5daad91f9222bc050e08"
+  integrity sha512-JCLKDbi5/IaXL/KU8rByxUyz7JyTG3wS0AiaSLVT/G1bNmopvH8jJFJ+856qKf7TI12jWG+yDASoCUUbIP7dtg==
   dependencies:
     "@babel/runtime" "^7.17.9"
     classcat "^5.0.3"
