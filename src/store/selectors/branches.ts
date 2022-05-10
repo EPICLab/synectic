@@ -36,9 +36,9 @@ const selectByGitdir = createSelector(
 
 const selectByRepo = createSelector(
     selectors.selectAll,
-    (_state: RootState, repo: Repository) => repo,
-    (_state: RootState, _repo: Repository, dedup?: boolean) => dedup ? dedup : false,
-    (branches, repo, dedup) => dedup
+    (_state: RootState, repo: Repository | undefined) => repo,
+    (_state: RootState, _repo: Repository | undefined, dedup?: boolean) => dedup ? dedup : false,
+    (branches, repo, dedup) => repo ? dedup
         ? branches.reduce((accumulator: Branch[], branch) => {
             if (repo.local.includes(branch.id)) {
                 // prefer local branches, remove matching remote branch if already added
@@ -51,6 +51,7 @@ const selectByRepo = createSelector(
             return accumulator;
         }, [])
         : branches.filter(branch => repo.local.includes(branch.id) || repo.remote.includes(branch.id))
+        : []
 )
 
 const branchSelectors = {
