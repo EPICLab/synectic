@@ -59,7 +59,7 @@ export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
     // replace the `commits` and `heads` states every time, since deep comparisons for all commits is computationally expensive
     setCommits(commitsCache);
     setHeads(headsCache);
-  }, [repo]);
+  }, [branches, repo]);
 
   return { commits, heads, update };
 }
