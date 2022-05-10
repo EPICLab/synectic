@@ -18,7 +18,7 @@ const ExplorerReverse = (props: Card) => {
     const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
     const { commits, heads, update } = useGitHistory(repo ? repo.id : '');
 
-    useEffect(() => { update(); }, [metafile?.repo]);
+    useEffect(() => { update(); }, [metafile?.repo, update]);
 
     const formatHeadCommit = (branchName: string | undefined) => {
         if (branchName) {
