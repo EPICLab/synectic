@@ -61,7 +61,7 @@ const NewBranchDialog = (props: Modal) => {
     const classes = useStyles();
     const dispatch = useAppDispatch();
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.target ? props.target : ''));
-    const branches = repo ? useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, repo, true)) : undefined;
+    const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, repo, true));
     const [branchName, setBranchName] = React.useState('');
     const isNoneDuplicate = !branches?.find(b => b.ref === branchName);
 
