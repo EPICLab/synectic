@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { InsertDriveFile as FileIcon, DeleteForever as Delete } from '@material-ui/icons';
 import { remove as removePath } from 'fs-extra';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -6,7 +6,7 @@ import { RootState } from '../../store/store';
 import { extractFilename } from '../../containers/io';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { isDefined, removeUndefinedProperties } from '../../containers/format';
+import { getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/format';
 import { getSourceMotif } from '../../containers/sourceMotif';
 import { UUID } from '../../store/types';
 import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafiles';
@@ -19,6 +19,7 @@ const FileComponent = (props: { metafile: UUID }) => {
     const loaded = isDefined(metafile) && isFilebasedMetafile(metafile) && isHydrated(metafile);
     const motif = metafile && isFileMetafile(metafile) ? getSourceMotif(metafile) : undefined;
     const optionals = removeUndefinedProperties({ color: motif?.color });
+    const [random] = useState(getRandomInt(55, 90));
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -50,7 +51,7 @@ const FileComponent = (props: { metafile: UUID }) => {
                     labelIcon={FileIcon}
                     enableHover={true}
                     onClick={handleClick} />
-                : <Skeleton variant='text' aria-label='loading' />}
+                : <Skeleton variant='text' aria-label='loading' width={`${random}%`} />}
         </>
     );
 };

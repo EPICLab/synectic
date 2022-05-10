@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { UUID } from '../../store/types';
-import { isDefined } from '../../containers/format';
+import { getRandomInt, isDefined } from '../../containers/format';
 import { isHydrated, updateFilebasedMetafile } from '../../store/thunks/metafiles';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
 
@@ -21,6 +21,7 @@ const Directory = (props: { metafile: UUID }) => {
     const files = metafiles.filter(file => file.filetype !== 'Directory').sort((a, b) => a.name.localeCompare(b.name));
     const loaded = isDefined(metafile) && isFilebasedMetafile(metafile) && isHydrated(metafile);
     const [expanded, setExpanded] = useState(false);
+    const [random] = useState(getRandomInt(55, 90));
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -47,7 +48,7 @@ const Directory = (props: { metafile: UUID }) => {
                     {directories.map(dir => <Directory key={dir.id} metafile={dir.id} />)}
                     {files.map(file => <FileComponent key={file.id} metafile={file.id} />)}
                 </StyledTreeItem >
-                : <Skeleton variant='text' aria-label='loading' />}
+                : <Skeleton variant='text' aria-label='loading' width={`${random}%`} />}
         </>
     );
 };
