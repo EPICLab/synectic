@@ -25,8 +25,8 @@ const useGitWatcher = (root: PathLike | undefined, additionalEventHandler?: Watc
         }
     }
 
-    if (root) useWatcher(root, eventHandler);
-    if (root && additionalEventHandler) useWatcher(root, additionalEventHandler);
+    useWatcher(root, eventHandler);
+    useWatcher(root, additionalEventHandler);
 }
 
 export default useGitWatcher;
