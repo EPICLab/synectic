@@ -43,10 +43,13 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
 
     useEffect(() => {
         process('branches');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [branches]);
+
     useEffect(() => {
         const changed = prevStaged ? diffArrays(prevStaged, staged).filter(change => change.added || change.removed).length > 0 : true;
         if (changed) process('staged');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [staged]);
 
     const process = async (target: 'branches' | 'staged') => {
@@ -234,6 +237,7 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
         return stack.reverse();
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const topological = useMemo(() => topologicalSort(graph), [graph]);
 
     const print = () => {
