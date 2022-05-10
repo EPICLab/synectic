@@ -1,6 +1,6 @@
 import React from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
-import { removeUndefinedProperties } from '../../containers/format';
+import { removeUndefinedProperties } from '../../containers/utils';
 
 export type NavItemProps = {
   label: string;

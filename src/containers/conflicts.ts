@@ -2,7 +2,7 @@ import * as path from 'path';
 import { PathLike } from 'fs-extra';
 import * as io from './io';
 import { getIgnore } from './git-plumbing';
-import { asyncFilter, isDefined, removeUndefined } from './format';
+import { asyncFilter, isDefined, removeUndefined } from './utils';
 import { Ignore } from 'ignore';
 import { getRoot, getWorktreePaths } from './git-path';
 import { VersionedMetafile } from '../store/slices/metafiles';

@@ -8,7 +8,7 @@ import { get as getProperty, set as setProperty, has as hasProperty, delete as d
 import getGitConfigPath from 'git-config-path';
 import * as io from './io';
 import { matrixEntry, matrixToStatus, statusMatrix } from './git-plumbing';
-import { isDefined, removeUndefinedProperties } from './format';
+import { isDefined, removeUndefinedProperties } from './utils';
 import { getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';

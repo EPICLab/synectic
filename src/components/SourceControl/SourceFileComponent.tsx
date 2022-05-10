@@ -2,7 +2,7 @@ import React from 'react';
 import { InsertDriveFile } from '@material-ui/icons';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { extractFilename } from '../../containers/io';
-import { isDefined, removeUndefinedProperties } from '../../containers/format';
+import { isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import metafileSelectors from '../../store/selectors/metafiles';

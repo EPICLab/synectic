@@ -3,7 +3,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { listBranches } from 'isomorphic-git';
 import { v4 } from 'uuid';
-import { ExactlyOne, isDefined } from '../../containers/format';
+import { ExactlyOne, isDefined } from '../../containers/utils';
 import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
 import { checkout, currentBranch, getConfig, log } from '../../containers/git-porcelain';
 import { AppThunkAPI } from '../hooks';

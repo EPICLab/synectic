@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { UUID } from '../../store/types';
-import { getRandomInt, isDefined } from '../../containers/format';
+import { getRandomInt, isDefined } from '../../containers/utils';
 import { isHydrated, updateFilebasedMetafile } from '../../store/thunks/metafiles';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
 

@@ -1,7 +1,7 @@
 import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import { repoRemoved } from './repos';
-import { filterObject, isDefined, Override } from '../../containers/format';
+import { filterObject, isDefined, Override } from '../../containers/utils';
 import { PURGE } from 'redux-persist';
 import { branchRemoved } from './branches';
 import { CardType, FilesystemStatus, GitStatus, Timestamp, UUID } from '../types';

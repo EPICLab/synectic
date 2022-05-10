@@ -6,7 +6,7 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { removeUndefinedProperties } from '../../containers/format';
+import { removeUndefinedProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import { cardUpdated } from '../../store/slices/cards';
 import { checkoutBranch } from '../../store/thunks/branches';

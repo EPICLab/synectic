@@ -6,7 +6,7 @@ import { RootState } from '../../store/store';
 import { extractFilename } from '../../containers/io';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/format';
+import { getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { getSourceMotif } from '../../containers/sourceMotif';
 import { UUID } from '../../store/types';
 import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafiles';

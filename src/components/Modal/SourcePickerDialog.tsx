@@ -9,7 +9,7 @@ import { createMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { getBranchRoot } from '../../containers/git-path';
 import branchSelectors from '../../store/selectors/branches';
-import { isDefined, removeUndefinedProperties } from '../../containers/format';
+import { isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import RepoSelect from '../RepoSelect';
 import BranchSelect from '../BranchSelect';

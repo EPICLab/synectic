@@ -4,7 +4,7 @@ import * as isogit from 'isomorphic-git';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
-import { isDefined, removeUndefinedProperties } from './format';
+import { isDefined, removeUndefinedProperties } from './utils';
 import * as io from './io';
 import { checkout, clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
 import { getIgnore, resolveOid, resolveRef } from './git-plumbing';

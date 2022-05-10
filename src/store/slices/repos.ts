@@ -1,7 +1,7 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { PURGE } from 'redux-persist';
-import { isDefined } from '../../containers/format';
+import { isDefined } from '../../containers/utils';
 import { UUID } from '../types';
 import { branchRemoved } from './branches';
 

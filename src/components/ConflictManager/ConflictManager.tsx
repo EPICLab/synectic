@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import { extractFilename, readFileAsync } from '../../containers/io';
 import ConflictRibbon from '../ConflictRibbon';
-import { WithRequired } from '../../containers/format';
+import { WithRequired } from '../../containers/utils';
 import { PathLike } from 'fs-extra';
 import { isFilebasedMetafile, Metafile, metafileUpdated } from '../../store/slices/metafiles';
 import { UUID } from '../../store/types';

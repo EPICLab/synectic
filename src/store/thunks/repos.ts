@@ -16,7 +16,7 @@ import { ProgressCallback } from 'isomorphic-git';
 import { checkProject, resolveConflictBranches } from '../../containers/conflicts';
 import { DateTime } from 'luxon';
 import { createCard } from './cards';
-import { ExactlyOne } from '../../containers/format';
+import { ExactlyOne } from '../../containers/utils';
 
 export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'repos/fetchRepo',

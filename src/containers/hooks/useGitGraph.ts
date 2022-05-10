@@ -9,7 +9,7 @@ import { Branch } from '../../store/slices/branches';
 import { RootState } from '../../store/store';
 import { UUID } from '../../store/types';
 import { checkProject } from '../conflicts';
-import { removeUndefined } from '../format';
+import { removeUndefined } from '../utils';
 import { hasStatus } from '../git-porcelain';
 import usePrevious from './usePrevious';
 

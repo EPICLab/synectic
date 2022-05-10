@@ -4,7 +4,7 @@ import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
 import { createRepo, fetchRepo } from './repos';
-import { isDefined } from '../../containers/format';
+import { isDefined } from '../../containers/utils';
 import { DirectoryMetafile, FilebasedMetafile, metafileAdded } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
 

@@ -5,7 +5,7 @@ import { dirname, relative } from 'path';
 import { v4 } from 'uuid';
 import { checkFilepath, Conflict } from '../../containers/conflicts';
 import { flattenArray } from '../../containers/flatten';
-import { ExactlyOne, isDefined, isUpdateable, removeUndefinedProperties } from '../../containers/format';
+import { ExactlyOne, isDefined, isUpdateable, removeUndefinedProperties } from '../../containers/utils';
 import { discardChanges, getIgnore } from '../../containers/git-plumbing';
 import { getStatus } from '../../containers/git-porcelain';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';

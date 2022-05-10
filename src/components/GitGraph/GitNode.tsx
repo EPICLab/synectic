@@ -3,7 +3,7 @@ import { clipboard } from 'electron';
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
 import { v4 } from 'uuid';
 import { ColorSet } from '../../containers/colors';
-import { removeUndefinedProperties } from '../../containers/format';
+import { removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch } from '../../store/hooks';
 import { modalAdded } from '../../store/slices/modals';
 import OutlinedCard from './GitGraphTag';

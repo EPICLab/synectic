@@ -15,7 +15,7 @@ import { createMetafile, fetchConflicted } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { checkProject } from '../../containers/conflicts';
 import branchSelectors from '../../store/selectors/branches';
-import { isDefined } from '../../containers/format';
+import { isDefined } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import BranchSelect from '../BranchSelect';
 import RepoSelect from '../RepoSelect';

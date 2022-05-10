@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import TreeItem, { TreeItemProps } from '@material-ui/lab/TreeItem';
 import { createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 import { SvgIconProps } from '@material-ui/core/SvgIcon';
-import { removeUndefinedProperties } from '../containers/format';
+import { removeUndefinedProperties } from '../containers/utils';
 
 declare module 'csstype' {
   interface Properties {

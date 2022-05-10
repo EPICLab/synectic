@@ -11,7 +11,7 @@ import { toHTTPS } from 'git-remote-protocol';
 import * as io from './io';
 import * as worktree from './git-worktree';
 import { currentBranch, log } from './git-porcelain';
-import { AtLeastOne, removeUndefinedProperties } from './format';
+import { AtLeastOne, removeUndefinedProperties } from './utils';
 import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
