@@ -22,7 +22,7 @@ const Content = (card: Card) => {
         case 'SourceControl':
             return (<SourceControl sourceControlId={card.metafile} />);
         case 'Browser':
-            return (<Browser />);
+            return (<Browser card={card.id} />);
         case 'BranchTracker':
             return (<BranchTracker />);
         case 'ConflictManager':
