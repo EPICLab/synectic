@@ -66,10 +66,8 @@ startAppListening({
                 const existing = cacheSelectors.selectById(state, metafile.path.toString());
                 if (existing) {
                     if (existing && existing.reserved.length > 1) {
-                        console.log(`AppListener saw ${action.type} action: unsubscribing to cache for ${existing.path}`);
                         listenerApi.dispatch(unsubscribe({ path: existing.path, metafile: metafile.id }));
                     } else {
-                        console.log(`AppListener saw ${action.type} action: removing cache for ${existing.path}`);
                         listenerApi.dispatch(cacheRemoved(existing.path));
                     }
                 }
