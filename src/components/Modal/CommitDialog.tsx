@@ -70,6 +70,7 @@ const CommitDialog = (props: Modal) => {
 
     useEffect(() => {
         if (staged.length < 1) dispatch(modalRemoved(props.id));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [staged]);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

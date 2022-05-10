@@ -28,6 +28,7 @@ const FileComponent = (props: { metafile: UUID }) => {
                 await dispatch(updateFilebasedMetafile(metafile));
         };
         asyncUpdate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [metafile]);
 
     const handleClick = () => (metafile && metafile.status && ['*deleted', 'deleted'].includes(metafile.status)) ? null :

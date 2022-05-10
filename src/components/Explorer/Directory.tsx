@@ -27,6 +27,7 @@ const Directory = (props: { metafile: UUID }) => {
     useEffect(() => {
         const asyncUpdates = async () => (metafile && isFilebasedMetafile(metafile) && !isHydrated(metafile)) ? await dispatch(updateFilebasedMetafile(metafile)) : undefined;
         asyncUpdates();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [metafile]);
 
     const clickHandle = async () => {

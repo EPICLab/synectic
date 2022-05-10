@@ -37,6 +37,7 @@ const ConflictManager = (props: { metafileId: UUID }) => {
             }));
         }
         asyncUpdate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [metafiles]);
 
     const handleClick = (filepath: PathLike) => setFilepath(filepath.toString());

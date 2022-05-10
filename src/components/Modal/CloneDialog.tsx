@@ -110,6 +110,7 @@ const CloneDialog = (props: Modal) => {
             }
         }
         if (targetPath !== '' && !invalid) initiateCloning();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [targetPath]);
 
     return (

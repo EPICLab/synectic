@@ -31,6 +31,7 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
             await Promise.all(removed.map(filepath => eventHandler('unlink', filepath)));
         }
         asyncUpdate();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cacheIds]);
 
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {

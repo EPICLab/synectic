@@ -49,6 +49,7 @@ const GitConfigForm = (props: { open: boolean, root: PathLike | undefined }) => 
       }
     };
     getConfigs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [globalCheck]);
 
   const isUpdateReady = () => (isEmail(email) && (username != existingUsername || email != existingEmail));

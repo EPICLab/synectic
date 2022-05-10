@@ -14,12 +14,14 @@ const GitGraph = ({ repo }: { repo: UUID }) => {
   const [reactFlowState, setReactFlowState] = useState<ReactFlowInstance>();
   const { graph, topological } = useGitGraph(repo);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { reactFlowState?.fitView() }, [nodes, edges]);
 
   useEffect(() => {
     const rfElements = layoutGraph(graph, topological);
     setNodes(rfElements.filter(isNode));
     setEdges(rfElements.filter(isEdge));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graph]);
 
   return (

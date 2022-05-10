@@ -46,9 +46,8 @@ const GitGraphSelect = () => {
   const dispatch = useAppDispatch();
   const classes = useStyles();
 
-  useEffect(() => {
-    clearMap();
-  }, [repos]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => clearMap(), [repos]);
 
   const updateMap = (selected: Repository) => {
     const modal = dispatch(modalAdded({ id: v4(), type: 'GitGraph', target: selected.id })).payload;

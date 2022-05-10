@@ -41,9 +41,8 @@ const StackComponent = (props: PropsWithChildren<Stack>) => {
     })
   }, [props.id]);
 
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true })
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { preview(getEmptyImage(), { captureDraggingState: true }) }, []);
 
   // Enable StackComponent as a drop target (i.e. allow other elements to be dropped on this stack)
   const [, drop] = useDrop({
