@@ -9,7 +9,7 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 import metafileSelectors from '../../store/selectors/metafiles';
-import { isFileMetafile, metafileUpdated } from '../../store/slices/metafiles';
+import { metafileUpdated } from '../../store/slices/metafiles';
 import { getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -19,7 +19,7 @@ import { Skeleton } from '@material-ui/lab';
 
 const Editor = (props: { metafile: UUID }) => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  const loaded = isDefined(metafile) && isFileMetafile(metafile) && isHydrated(metafile);
+  const loaded = isDefined(metafile) && isHydrated(metafile);
   const [code, setCode] = useState(metafile && metafile.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
   const [random] = useState(getRandomInt(55, 90));

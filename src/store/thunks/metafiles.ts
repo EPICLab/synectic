@@ -11,14 +11,24 @@ import { getStatus } from '../../containers/git-porcelain';
 import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { AppThunkAPI } from '../hooks';
 import metafileSelectors from '../selectors/metafiles';
-import { DirectoryMetafile, FilebasedMetafile, Metafile, MetafileTemplate, VersionedMetafile, metafileAdded, metafileUpdated } from '../slices/metafiles';
+import { DirectoryMetafile, FilebasedMetafile, Metafile, MetafileTemplate, VersionedMetafile, metafileAdded, metafileUpdated, isFilebasedMetafile, isVersionedMetafile, isDirectoryMetafile, isFileMetafile } from '../slices/metafiles';
 import { fetchBranch } from './branches';
 import { fetchFiletype } from './filetypes';
 import { fetchRepo } from './repos';
 
-export const isHydrated = (metafile: FilebasedMetafile) => {
-    return (metafile.filetype === 'Directory' && 'contains' in metafile) ||
-        (metafile.filetype !== 'Directory' && 'path' in metafile && 'content' in metafile)
+export const isHydrated = (metafile: Metafile): boolean => {
+    // if metafile is filebased, verify that DirectoryMetafile/FileMetafile fields are populated
+    const filebasedHydrated = isFilebasedMetafile(metafile) ?
+        (metafile.filetype === 'Directory' && isDirectoryMetafile(metafile)) ||
+        (metafile.filetype !== 'Directory' && isFileMetafile(metafile)) : true;
+
+    // if metafile is versioned, verify that VersionedMetafile fields are populated
+    const versionedHydrated = isVersionedMetafile(metafile) ?
+        (metafile as VersionedMetafile).branch !== undefined &&
+        (metafile as VersionedMetafile).status !== undefined &&
+        (metafile as VersionedMetafile).conflicts !== undefined : true;
+
+    return filebasedHydrated && versionedHydrated;
 }
 
 export const fetchMetafile = createAsyncThunk<Metafile, PathLike, AppThunkAPI>(
