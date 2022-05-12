@@ -5,10 +5,10 @@ import { dirname, relative } from 'path';
 import { v4 } from 'uuid';
 import { checkFilepath, Conflict } from '../../containers/conflicts';
 import { flattenArray } from '../../containers/flatten';
-import { ExactlyOne, isDefined, isUpdateable, removeUndefinedProperties } from '../../containers/utils';
+import { ExactlyOne, isDefined, isUpdateable, removeDuplicates, removeUndefinedProperties } from '../../containers/utils';
 import { discardChanges, getIgnore } from '../../containers/git-plumbing';
 import { getStatus } from '../../containers/git-porcelain';
-import { extractFilename, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
+import { extractFilename, isEqualPaths, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { AppThunkAPI } from '../hooks';
 import metafileSelectors from '../selectors/metafiles';
 import { DirectoryMetafile, FilebasedMetafile, Metafile, MetafileTemplate, VersionedMetafile, metafileAdded, metafileUpdated, isFilebasedMetafile, isVersionedMetafile, isDirectoryMetafile, isFileMetafile } from '../slices/metafiles';
@@ -170,11 +170,11 @@ export const revertStagedChanges = createAsyncThunk<void, VersionedMetafile, App
     }
 );
 
-// TODO: Refactor this fetch to be a Redux selector instead
-export const fetchConflicted = createAsyncThunk<Metafile[], Conflict[], AppThunkAPI>(
+export const updateConflicted = createAsyncThunk<Metafile[], Conflict[], AppThunkAPI>(
     'metafiles/fetchConflicted',
     async (conflicts, thunkAPI) => {
-        return flattenArray(await Promise.all(conflicts.map(async conflict => {
+        const conflictedFiles = removeDuplicates(conflicts, (c1, c2) => isEqualPaths(c1.path, c2.path));
+        return flattenArray(await Promise.all(conflictedFiles.map(async conflict => {
             const metafiles = metafileSelectors.selectByFilepath(thunkAPI.getState(), conflict.path);
             return await Promise.all(metafiles.map(m => thunkAPI.dispatch(updatedVersionedMetafile(m)).unwrap()));
         })));

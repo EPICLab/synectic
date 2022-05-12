@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { merge } from '../../containers/merges';
-import { createMetafile, fetchConflicted } from '../../store/thunks/metafiles';
+import { createMetafile, updateConflicted } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { checkProject } from '../../containers/conflicts';
 import branchSelectors from '../../store/selectors/branches';
@@ -96,7 +96,7 @@ const MergeDialog = (props: Modal) => {
 
     if (conflictStatus == 'Failing') {
       const conflicts = await checkProject(repo.root);
-      await dispatch(fetchConflicted(conflicts)); // updates version control status in Redux store
+      await dispatch(updateConflicted(conflicts)); // updates version control status in Redux store
       const conflictManager = await dispatch(createMetafile({
         metafile: {
           modified: DateTime.local().valueOf(),
