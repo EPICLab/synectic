@@ -7,7 +7,8 @@ import { v4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { UUID } from '../../store/types';
-import { Repository } from '../../store/slices/repos';
+import modalSelectors from '../../store/selectors/modals';
+import { shallowEqual } from 'react-redux';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({
@@ -40,30 +41,20 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const GitGraphSelect = () => {
-  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [repo, setRepo] = useState<UUID>();
-  const [graph, setGraph] = useState<UUID>();
-  const dispatch = useAppDispatch();
   const classes = useStyles();
+  const dispatch = useAppDispatch();
+  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const graphs = useAppSelector((state: RootState) => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
+  const [repo, setRepo] = useState<UUID | undefined>(graphs.length > 0 ? graphs[0].target : undefined);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => clearMap(), [repos]);
-
-  const updateMap = (selected: Repository) => {
-    const modal = dispatch(modalAdded({ id: v4(), type: 'GitGraph', target: selected.id })).payload;
-    setGraph(modal.id); // track the modal UUID so that we can remove the graph later
-    setRepo(selected.id); // update the select menu
-  }
-
-  const clearMap = () => {
-    if (graph) dispatch(modalRemoved(graph));
-    setGraph(undefined);
+  const handleSelection = async (event: React.ChangeEvent<{ value: UUID }>) => {
     setRepo(undefined);
-  }
-
-  const repoChange = async (event: React.ChangeEvent<{ value: UUID }>) => {
+    graphs.map(graph => dispatch(modalRemoved(graph.id)));
     const selected = repos.find(r => r.id === event.target.value);
-    selected ? updateMap(selected) : clearMap();
+    if (selected) {
+      setRepo(selected.id);
+      dispatch(modalAdded({ id: v4(), type: 'GitGraph', target: selected.id }));
+    }
   };
 
   return (
@@ -76,7 +67,7 @@ const GitGraphSelect = () => {
           displayEmpty
           disabled={repos.length === 0}
           defaultValue=''
-          onChange={repoChange}
+          onChange={handleSelection}
           input={<StyledInput />}
         >
           <MenuItem key='' value='' className={classes.defaultItem}>{repo ? 'Clear Map' : 'Repository Map'}</MenuItem>
