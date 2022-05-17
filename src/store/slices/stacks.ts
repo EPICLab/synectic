@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import { PURGE } from 'redux-persist';
 import { Timestamp, UUID } from '../types';
@@ -31,7 +31,7 @@ export const stacksSlice = createSlice({
     reducers: {
         stackAdded: stackAdapter.addOne,
         stackRemoved: stackAdapter.removeOne,
-        stackUpdated: (state, action: PayloadAction<Stack>) => {
+        stackUpdated: (state: EntityState<Stack>, action: PayloadAction<Stack>) => {
             stackAdapter.upsertOne(state, {
                 ...action.payload, modified: DateTime.local().valueOf()
             })

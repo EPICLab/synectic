@@ -1,4 +1,6 @@
-import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener } from '@reduxjs/toolkit';
+import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener, isAnyOf, isRejected, isFulfilled } from '@reduxjs/toolkit';
+import { DateTime } from 'luxon';
+import { isEqualPaths } from '../containers/io';
 import cacheSelectors from './selectors/cache';
 import metafileSelectors from './selectors/metafiles';
 import { cacheRemoved } from './slices/cache';
@@ -6,7 +8,8 @@ import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
 import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from './slices/metafiles';
 import { RootState, AppDispatch } from './store';
 import { subscribe, unsubscribe } from './thunks/cache';
-import { updatedVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
+import { createMetafile, fetchMetafile, fetchParentMetafile, updatedVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
+import { fetchRepo, createRepo } from './thunks/repos';
 
 export const listenerMiddleware = createListenerMiddleware<RootState>();
 
@@ -15,6 +18,17 @@ export type AppStartListening = TypedStartListening<RootState, AppDispatch>;
 export const startAppListening = listenerMiddleware.startListening as AppStartListening;
 
 export const addAppListener = addListener as TypedAddListener<RootState, AppDispatch>;
+
+const isRejectedAction = isRejected(fetchMetafile, createMetafile, updateFilebasedMetafile, updatedVersionedMetafile, fetchParentMetafile, fetchRepo, createRepo);
+
+startAppListening({
+    matcher: isRejectedAction,
+    effect: async (action) => {
+        console.group(`${action.type} : ${DateTime.local().toHTTP()}`);
+        console.log(action.error);
+        console.groupEnd();
+    }
+});
 
 startAppListening({
     predicate: (action, _, previousState) => {
