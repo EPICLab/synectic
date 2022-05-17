@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import { PURGE } from 'redux-persist';
 import { CardType, Timestamp, UUID } from '../types';
@@ -37,7 +37,7 @@ export const cardSlice = createSlice({
     reducers: {
         cardAdded: cardAdapter.addOne,
         cardRemoved: cardAdapter.removeOne,
-        cardUpdated: (state, action: PayloadAction<Card>) => {
+        cardUpdated: (state: EntityState<Card>, action: PayloadAction<Card>) => {
             cardAdapter.upsertOne(state, {
                 ...action.payload, modified: DateTime.local().valueOf()
             })

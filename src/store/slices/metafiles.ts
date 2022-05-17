@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import { repoRemoved } from './repos';
 import { filterObject, isDefined, Override } from '../../containers/utils';
@@ -108,7 +108,7 @@ export const metafileSlice = createSlice({
         metafileAdded: metafileAdapter.addOne,
         metafileRemoved: metafileAdapter.removeOne,
         metafileUpdated: {
-            reducer: (state, action: PayloadAction<Metafile>) => {
+            reducer: (state: EntityState<Metafile>, action: PayloadAction<Metafile>) => {
                 metafileAdapter.upsertOne(state, action.payload);
             },
             prepare: (metafile: Metafile) => {
@@ -116,7 +116,7 @@ export const metafileSlice = createSlice({
             }
         },
         metafilesUpdated: {
-            reducer: (state, action: PayloadAction<readonly Metafile[]>) => {
+            reducer: (state: EntityState<Metafile>, action: PayloadAction<readonly Metafile[]>) => {
                 metafileAdapter.upsertMany(state, action.payload);
             },
             prepare: (metafiles: readonly Metafile[]) => {
