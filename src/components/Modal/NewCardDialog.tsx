@@ -140,7 +140,8 @@ const NewCardDialog = (props: Modal) => {
           name: fileName,
           modified: DateTime.local().valueOf(),
           handler: 'Editor',
-          filetype: filetype
+          filetype: filetype,
+          loading: false
         }
       })).unwrap();
       if (metafile) await dispatch(createCard({ metafile: metafile }));
@@ -152,7 +153,8 @@ const NewCardDialog = (props: Modal) => {
           name: 'Browser',
           modified: DateTime.local().valueOf(),
           handler: 'Browser',
-          filetype: 'Text'
+          filetype: 'Text',
+          loading: false
         }
       })).unwrap();
       if (metafile) dispatch(createCard({ metafile: metafile }));

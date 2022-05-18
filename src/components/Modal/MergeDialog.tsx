@@ -103,6 +103,7 @@ const MergeDialog = (props: Modal) => {
           name: `Conflicts`,
           handler: 'ConflictManager',
           filetype: 'Text',
+          loading: false,
           repo: repo.id,
           path: repo.root,
           merging: { base: baseBranch.ref, compare: compareBranch.ref }

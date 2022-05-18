@@ -12,7 +12,8 @@ export const loadBranchVersions = createAsyncThunk<void, void, AppThunkAPI>(
         name: 'Branch Tracker',
         modified: DateTime.local().valueOf(),
         handler: 'BranchTracker',
-        filetype: 'Text'
+        filetype: 'Text',
+        loading: false
       }
     })).unwrap();
     thunkAPI.dispatch(createCard({ metafile: metafile }));

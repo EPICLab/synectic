@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
 import { RootState } from '../../store/store';
@@ -47,9 +47,20 @@ const GitGraphSelect = () => {
   const graphs = useAppSelector((state: RootState) => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
   const [repo, setRepo] = useState<UUID | undefined>(graphs.length > 0 ? graphs[0].target : undefined);
 
-  const handleSelection = async (event: React.ChangeEvent<{ value: UUID }>) => {
+  const clear = useCallback(() => {
     setRepo(undefined);
     graphs.map(graph => dispatch(modalRemoved(graph.id)));
+  }, [dispatch, graphs]);
+
+  useEffect(() => {
+    if (repo) {
+      const match = repos.find(r => r.id === repo);
+      if (match === undefined) clear();
+    }
+  }, [clear, repo, repos]);
+
+  const handleSelection = async (event: React.ChangeEvent<{ value: UUID }>) => {
+    clear();
     const selected = repos.find(r => r.id === event.target.value);
     if (selected) {
       setRepo(selected.id);

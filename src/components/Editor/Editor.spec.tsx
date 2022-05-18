@@ -14,6 +14,7 @@ const metafile: FilebasedMetafile = {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Typescript',
+    loading: false,
     path: 'foo/example.ts',
     state: 'unmodified',
     content: 'const rand = Math.floor(Math.random() * 6) + 1;',

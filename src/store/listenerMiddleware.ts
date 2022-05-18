@@ -1,11 +1,10 @@
-import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener, isAnyOf, isRejected, isFulfilled } from '@reduxjs/toolkit';
+import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener, isRejected } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
-import { isEqualPaths } from '../containers/io';
 import cacheSelectors from './selectors/cache';
 import metafileSelectors from './selectors/metafiles';
 import { cacheRemoved } from './slices/cache';
 import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
-import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile } from './slices/metafiles';
+import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileUpdated } from './slices/metafiles';
 import { RootState, AppDispatch } from './store';
 import { subscribe, unsubscribe } from './thunks/cache';
 import { createMetafile, fetchMetafile, fetchParentMetafile, updatedVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
@@ -27,6 +26,13 @@ startAppListening({
         console.group(`${action.type} : ${DateTime.local().toHTTP()}`);
         console.log(action.error);
         console.groupEnd();
+    }
+});
+
+startAppListening({
+    matcher: updatedVersionedMetafile.pending.match,
+    effect: async (action, listenerApi) => {
+        listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: true }));
     }
 });
 

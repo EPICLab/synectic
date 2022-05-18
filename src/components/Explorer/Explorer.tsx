@@ -1,7 +1,6 @@
 import React from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import { ArrowDropDown, ArrowRight } from '@material-ui/icons';
-import branchSelectors from '../../store/selectors/branches';
 import metafileSelectors from '../../store/selectors/metafiles';
 import BranchRibbon from '../BranchRibbon';
 import Directory from './Directory';
@@ -12,7 +11,6 @@ import { UUID } from '../../store/types';
 
 const Explorer = (props: { metafile: UUID }) => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
   const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByRoot(state, metafile && metafile.path ? metafile.path : ''));
   const directories = metafiles.filter(dir => dir.filetype === 'Directory' && !dir.name.startsWith('.')
     && dir.name !== 'node_modules' && dir.id !== metafile?.id);
@@ -21,7 +19,7 @@ const Explorer = (props: { metafile: UUID }) => {
   return (
     <>
       <div className='list-component' data-testid='explorer-component'>
-        {branch ? <BranchRibbon branch={branch.ref} /> : null}
+        <BranchRibbon metafile={metafile} />
         <TreeView
           defaultCollapseIcon={<ArrowDropDown />}
           defaultExpandIcon={<ArrowRight />}

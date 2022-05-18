@@ -23,7 +23,7 @@ const SourceControl = (props: { sourceControlId: UUID }) => {
     <>
       {branch ?
         <div className='list-component'>
-          <BranchRibbon branch={branch.ref} onClick={() => { console.log({ metafile, branch, staged, unstaged }) }} />
+          <BranchRibbon metafile={metafile} onClick={() => { console.log({ metafile, branch, staged, unstaged }) }} />
           <TreeView
             expanded={[`${repo ? repo.name : ''}-${branch.ref}-staged`, `${repo ? repo.name : ''}-${branch.ref}-changed`]}
           >

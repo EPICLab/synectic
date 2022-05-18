@@ -64,6 +64,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Explorer',
             filetype: 'Directory',
+            loading: false,
             path: 'foo/',
             state: 'unmodified',
             contains: ['6e55a704-99dc-4768-add0-063f0b51609f']
@@ -78,6 +79,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'foo/example.js',
             state: 'unmodified',
             content: 'var id = 300 * Math.floor(Math.random() * 10) - 15;'
@@ -91,6 +93,7 @@ describe('thunks/metafiles', () => {
             name: 'foo',
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Explorer',
+            loading: false,
             filetype: 'Directory',
             path: 'foo/',
             state: 'unmodified'
@@ -105,6 +108,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'foo/example.js',
             state: 'unmodified'
         };
@@ -127,6 +131,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             content: 'var rand = Math.floor(Math.random() * 3) * 2;'
         };
         const metafile = await store.dispatch(createMetafile({ metafile: template })).unwrap();
@@ -143,6 +148,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'bar/sample.js',
             state: 'unmodified'
         };
@@ -152,6 +158,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2022-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'bar/second.js',
             state: 'unmodified',
             content: 'var multi = 3 * 2;'
@@ -162,6 +169,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Explorer',
             filetype: 'Directory',
+            loading: false,
             path: 'bar/',
             state: 'unmodified'
         };
@@ -188,6 +196,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'bar/sample.js',
             state: 'unmodified',
             content: 'var rand = Math.floor(Math.random() * 8) + 5;'
@@ -231,6 +240,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'foo/example.js',
             state: 'modified',
             content: 'var id = 300 * Math.floor(Math.random() * 10) - 5;',
@@ -285,6 +295,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'foo/example.js',
             state: 'unmodified',
             content: 'var id = 300 * Math.floor(Math.random() * 10) - 15;'
@@ -310,6 +321,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
             handler: 'Explorer',
             filetype: 'Directory',
+            loading: false,
             path: 'foo/',
             state: 'unmodified',
             contains: ['a5d4d43d-9bbd-4d08-ac7e-bcde32428c94']
@@ -320,6 +332,7 @@ describe('thunks/metafiles', () => {
             modified: DateTime.fromISO('2020-01-29T07:44:15.276-08:00').valueOf(),
             handler: 'Editor',
             filetype: 'JavaScript',
+            loading: false,
             path: 'foo/example.js',
             state: 'unmodified',
             content: 'var id = 300 * Math.floor(Math.random() * 10) - 15;'
