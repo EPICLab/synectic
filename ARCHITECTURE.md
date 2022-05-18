@@ -40,7 +40,6 @@ Several Webpack Loaders are include in Synectic:
 
 Additionally, we take advantage of [Asset Modules](https://webpack.js.org/guides/asset-modules/) for using asset files (fonts, icons, etc.) without configuring additional loaders.
 
-
 **Packages:**
 * *`devDependencies`*
   * `@electron-forge/plugin-webpack`
@@ -93,7 +92,6 @@ Synectic has the following `CompilerOptions` set in `tsconfig.json`:
 | `baseUrl`                          | `"."`                               | Base directory to resolve non-absolute module names |
 | `paths`                            | `{"*": ["node_modules/*"]}`         | A series of entries which re-map imports to lookup locations relative to the `baseUrl` |
 
-
 # React
 
 [React](https://reactjs.org/) is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies. React is a declarative, component-based framework that works with JSX and TSX formats to manage state, route applications, and render HTML injections.
@@ -126,11 +124,11 @@ Synectic includes [Node.js intergration](https://electronjs.org/docs/tutorial/se
 
 Synectic uses Redux to manage stateful data about content that is displayed within React components in the user interface. For example, the state of code in a Code Editor card is managed through Redux and displayed in a React component element. Synectic follows the [Redux Toolkit](https://redux-toolkit.js.org/), which bundles the [`redux`](https://github.com/reduxjs/redux) core, [`redux-thunk`](https://github.com/reduxjs/redux-thunk), [`reselect`](https://github.com/reduxjs/reselect), and [`immer`](https://github.com/mweststrate/immer) modules and default configurations to simplify store setup, creating reducers, immutable update logic, combined as a strongly-typed infrastructure library.
 
-Synectic also uses the `redux-thunk` middleware to allow writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
+Synectic relies heavily on the use of `thunks` via the [`redux-thunk`](https://github.com/reduxjs/redux-thunk) module in [Redux Toolkit](https://redux-toolkit.js.org/), which allows writing action creators that return a function instead of an action. The [thunk](https://en.wikipedia.org/wiki/Thunk) can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met (i.e. asynchronous or conditional dispatch). The inner function receives the store methods `dispatch` and `getState` as parameters.
 
 The [`redux-devtools`](https://github.com/reduxjs/redux-devtools) module provides a Redux tab in Chrome DevTools for hot reloading, action replay, and a customizable UI for Redux state debugging.
 
-The [`@jedmao/redux-mock-store`](https://github.com/jedmao/redux-mock-store) module is a TypeScript fork of [`reduxjs/redux-mock-store`](https://github.com/reduxjs/redux-mock-store), which provides a mock store for testing Redux async action creators and middleware. The mock store will create an array of dispatched actions which serve as an action log for tests.
+The [`reduxjs/redux-mock-store`](https://github.com/reduxjs/redux-mock-store) module, which provides a mock store for testing Redux async action creators and middleware. The mock store will create an array of dispatched actions which serve as an action log for tests.
 
 The [`redux-persist`](https://github.com/rt2zz/redux-persist) module provides the ability to persist and rehydrate Redux store state between application refreshes and restarts.
 
@@ -143,7 +141,6 @@ The [`redux-persist`](https://github.com/rt2zz/redux-persist) module provides th
   * `redux-devtools`
   * `redux-mock-store`
   * `redux-persist`
-  * `@jedmao/redux-mock-store` __THIS MIGHT NOT BE NEEDED ANYMORE__
 
 # ESLint
 
@@ -153,17 +150,9 @@ Synectic uses ESLint to statically analyze TypeScript and React code for complia
 
 The TypeScript project has typically advocated and maintained [TSLint](https://palantir.github.io/tslint/) for TypeScript static analysis, but has more recently begun to transition towards ESLint in order to take advantage of the more-performant architecture and framework support (e.g. rules for React Hook or Vue); per the TypeScript [roadmap](https://github.com/Microsoft/TypeScript/issues/29288).  Therefore, we have followed the ESLint configuration steps described in a blog post from Christopher Pappas, ["From TSLint to ESLint, or How I Learned to Lint GraphQL Code"](https://artsy.github.io/blog/2019/01/29/from-tslint-to-eslint/) (published 2019.01.29).
 
-The [`@typescript-eslint/eslint-plugin`](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin) module is an ESLint-specific plugin which, when used in conjunction with `@typescript-eslint/parser`, allows for TypeScript-specific linting rules to run. The [`@typescript-eslint/parser`](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser) module provides an ESLint-specific parser which leverages `typescript-estree` and is designed to be used as a replacement for ESLint's default parser, `espree`. 
+The [`@typescript-eslint/eslint-plugin`](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin) module is an ESLint-specific plugin which, when used in conjunction with `@typescript-eslint/parser`, allows for TypeScript-specific linting rules to run. The [`@typescript-eslint/parser`](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser) module provides an ESLint-specific parser which leverages `typescript-estree` and is designed to be used as a replacement for ESLint's default parser, `espree`.
 
-The [`eslint-plugin-import`](https://www.npmjs.com/package/eslint-plugin-import) module intends to support linting of ES2015+ (ES6+) import/export syntax, and prevent issues with misspelling of file paths and import names.
-
-The [`eslint-plugin-react`](https://www.npmjs.com/package/eslint-plugin-react) module provides React specific rules for ESLint.
-
-The [`eslint-plugin-jest`](https://www.npmjs.com/package/eslint-plugin-jest) module exports a recommended configuration that enforces good testing practices.
-
-The [`eslint-plugin-testing-library`](https://www.npmjs.com/package/eslint-plugin-testing-library) module provides specific rules for following best practices and anticipating common mistakes when writing tests with [Testing Library](https://testing-library.com/).
-
-The [`eslint-plugin-jest-dom`](https://www.npmjs.com/package/eslint-plugin-jest-dom) module provides specific rules for best practices and anticipating common mistakes when writing tests with [`@testing-library/jest-dom`](https://www.npmjs.com/package/@testing-library/jest-dom).
+The [`eslint-plugin-import`](https://www.npmjs.com/package/eslint-plugin-import) module intends to support linting of ES2015+ (ES6+) import/export syntax, and prevent issues with misspelling of file paths and import names. The [`eslint-plugin-testing-library`](https://www.npmjs.com/package/eslint-plugin-testing-library) module provides specific rules for following best practices and anticipating common mistakes when writing tests with [Testing Library](https://testing-library.com/).
 
 **Packages:**
 * *`devDependencies`*
@@ -171,9 +160,6 @@ The [`eslint-plugin-jest-dom`](https://www.npmjs.com/package/eslint-plugin-jest-
   * `@typescript-eslint/eslint-plugin`
   * `@typescript-eslint/parser`
   * `eslint-plugin-import`
-  * `eslint-plugin-jest`
-  * `eslint-plugin-jest-dom`
-  * `eslint-plugin-react`
   * `eslint-plugin-react-hooks`
   * `eslint-plugin-testing-library`
 
@@ -255,11 +241,12 @@ The [`react-select-event`](https://testing-library.com/docs/ecosystem-react-sele
 
 The [`@testing-library/react-hooks`](https://github.com/testing-library/react-hooks-testing-library) module allows for React hooks testing by wrapping the hook in a function component, and providing various useful utility functions for updating the inputs and retrieving the outputs of custom hooks without having to construct, render, or interact with additional React components. It has peer dependencies with the `react` and `react-test-renderer` packages.
 
+The [`@testing-library/user-event`](https://github.com/testing-library/user-event) module provides the ability to simulate the real events that would happen in the browser as the user interacts with it. This enables adherence to Kent C. Dodd's principle idea that ["The more your tests resemble the way your software is used, the more confidence they can give you."](https://twitter.com/kentcdodds/status/977018512689455106).
+
 **Packages:**
 * *`devDependencies`*
   * `@testing-library/dom`
   * `@testing-library/jest-dom`
   * `@testing-library/react`
   * `@testing-library/react-hooks`
-  * `react-select-event`
-  * `react-test-renderer`
+  * `@testing-library/user-event`

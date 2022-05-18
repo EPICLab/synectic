@@ -7,7 +7,7 @@ The design for Synectic is based on bubbling up principles used in the underlyin
 
 This means that all data in Synectic follows the same lifecycle pattern, making the logic more predictable and easier to understand. A UI **view** is a result of the application **state**. **State** can only change when **actions** happen. And when **actions** happen, the **state** is updated. This principle encourages data normalization, so that we don't end up with multiple, independent copies of the same data that are unaware of one another (see [Single source of truth](#Single-source-of-truth), [State is read-only](#State-is-read-only), and [Changes are made with pure functions](#Changes-are-made-with-pure-functions)).
 
-Within our React component tree, this principles means that state is always owned by one component. Any data that is affected by this state can only affect components below it (i.e. it's children). Changing state on a component will never affect its parentt, or its siblings, or any other component in the application; just its children. For this reason, a lot of the state is moved up in the component tree so that it can be shared between components that need access to it.
+Within our React component tree, this principles means that state is always owned by one component. Any data that is affected by this state can only affect components below it (i.e. it's children). Changing state on a component will never affect its parent, or its siblings, or any other component in the application; just its children. For this reason, a lot of the state is moved up in the component tree so that it can be shared between components that need access to it.
 
 Derived from [Redux's Data Flow](https://redux.js.org/basics/data-flow).
 
