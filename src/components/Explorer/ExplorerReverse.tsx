@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 import branchSelectors from '../../store/selectors/branches';
 import DataField from '../Card/DataField';
@@ -8,7 +8,7 @@ import SourceControlButton from '../Button/SourceControl';
 import BranchList from '../BranchList';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
-import { useGitHistory } from '../../containers/hooks/useGitHistory';
+// import { useGitHistory } from '../../containers/hooks/useGitHistory';
 import { Card } from '../../store/slices/cards';
 
 const ExplorerReverse = (props: Card) => {
@@ -16,19 +16,19 @@ const ExplorerReverse = (props: Card) => {
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
     const [repo] = useState(metafile?.repo ? repos.find(r => r.id === metafile.repo) : undefined);
     const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
-    const { commits, heads, update } = useGitHistory(repo ? repo.id : '');
+    // const { commits, heads, update } = useGitHistory(repo ? repo.id : '');
 
-    useEffect(() => { update(); }, [metafile?.repo, update]);
+    // useEffect(() => { update(); }, [metafile?.repo, update]);
 
-    const formatHeadCommit = (branchName: string | undefined) => {
-        if (branchName) {
-            const sha1 = heads.get(`local/${branchName}`);
-            const commitInfo = sha1 ? commits.get(sha1) : undefined;
-            if (commitInfo)
-                return `${commitInfo.oid.slice(0, 6)}  ${commitInfo.commit.message.slice(0, 15)}`;
-        }
-        return '[detached]';
-    };
+    // const formatHeadCommit = (branchName: string | undefined) => {
+    //     if (branchName) {
+    //         const sha1 = heads.get(`local/${branchName}`);
+    //         const commitInfo = sha1 ? commits.get(sha1) : undefined;
+    //         if (commitInfo)
+    //             return `${commitInfo.oid.slice(0, 6)}  ${commitInfo.commit.message.slice(0, 15)}`;
+    //     }
+    //     return '[detached]';
+    // };
 
     return (
         <>
@@ -44,7 +44,7 @@ const ExplorerReverse = (props: Card) => {
                 <>
                     <DataField title='Status' textField field={metafile?.status} />
                     <DataField title='Branch' field={<BranchList cardId={props.id} repoId={repo.id} />} />
-                    <DataField title='Head' textField field={formatHeadCommit(branch.ref)} />
+                    {/* <DataField title='Head' textField field={formatHeadCommit(branch.ref)} /> */}
                 </>
                 : undefined}
         </>
