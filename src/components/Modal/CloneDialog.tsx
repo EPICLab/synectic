@@ -69,9 +69,14 @@ const CloneDialog = (props: Modal) => {
         }
     }
 
-    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+    const handleClose = (): void => {
+        if (status !== 'Running') dispatch(modalRemoved(props.id));
+        else console.log(`Cannot close dialog while cloning is running...`);
+    }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setInvalid(!isValidRepositoryURL(event.target.value));
         setUrl(resolveURL(event.target.value));
     }
@@ -102,7 +107,7 @@ const CloneDialog = (props: Modal) => {
                 if (!repo) throw new Error('Cloning failed');
                 setStatus('Passing');
                 await dispatch(loadBranchVersions());
-                await delay(2000);
+                // await delay(2000);
                 dispatch(modalRemoved(props.id));
             } catch (error) {
                 console.log(error);
@@ -114,7 +119,8 @@ const CloneDialog = (props: Modal) => {
     }, [targetPath]);
 
     return (
-        <Dialog id='dialog' open={true} onClose={() => dispatch(modalRemoved(props.id))}>
+        <Dialog id='dialog' open={true}
+            onClose={handleClose}>
             <div className={classes.root}>
                 <div className={classes.section1}>
                     <Grid container alignItems='center'>
