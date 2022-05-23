@@ -19,13 +19,14 @@ const useStyles = makeStyles({
 const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, onClick?: () => void }) => {
   const classes = useStyles();
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
+  const loading = metafile && metafile.loading && metafile.loading.includes('versioned');
 
   const ribbonText = `Branch: ${branch ? branch.ref : ''}`;
 
   return (
     <>
-      {metafile && metafile.loading
-        ? <div className={classes.branchRibbonPreview} onClick={onClick} >
+      {loading ?
+        <div className={classes.branchRibbonPreview} onClick={onClick} >
           <Skeleton variant='rect' aria-label='loading' animation='wave'>
             <div className={'branch-ribbon'} style={{ width: 250 }}>
               {ribbonText}

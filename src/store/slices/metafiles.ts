@@ -19,8 +19,8 @@ export type Metafile = {
     readonly handler: CardType;
     /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
     readonly filetype: string;
-    /** Indicator for pending state of versioned information. */
-    readonly loading: boolean;
+    /** Indicator for pending actions that will affect this metafile. */
+    readonly loading: ('versioned' | 'checkout')[];
 } & Partial<FilebasedProps>
     & Partial<FileProps>
     & Partial<DirectoryProps>
