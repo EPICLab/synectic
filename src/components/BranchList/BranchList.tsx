@@ -10,6 +10,7 @@ import { removeUndefinedProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import { cardUpdated } from '../../store/slices/cards';
 import { checkoutBranch } from '../../store/thunks/branches';
+import { Skeleton } from '@material-ui/lab';
 
 export const useStyles = makeStyles({
   root: {
@@ -35,6 +36,7 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, (metafile && metafile.branch) ? metafile.branch : ''));
   const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo, true) : []);
   const [selected, setSelected] = useState(branch ? branch.ref : '');
+  const loading = metafile && metafile.loading && metafile.loading.includes('checkout');
   const cssClasses = useStyles();
   const dispatch = useAppDispatch();
 
@@ -53,30 +55,34 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
     }
   };
 
-  return (
+  return (<>
     <FormControl id='branch-control' className={cssClasses.root}>
-      <TextField
-        id='branch-name'
-        select
-        value={selected}
-        onChange={(e) => checkout(e.target.value as string)}
-        variant='standard'
-        size='small'
-        InputProps={{
-          disableUnderline: true,
-        }}
-      >
-        {branches.filter(branch => branch.ref !== 'HEAD').map(branch => (
-          <MenuItem key={branch.id} value={branch.ref}>
-            <Typography variant='body2'>
-              {branch.ref}
-            </Typography>
-          </MenuItem>
-        ))}
-        {selected === '' && <MenuItem key={'untracked'} value={''}><Typography variant='body2'>untracked</Typography></MenuItem>}
-      </TextField>
+      {loading ? <Skeleton variant='text' aria-label='loading' animation='wave' >
+        <FormControl id='branch-control' className={cssClasses.root} style={{ width: 120 }} />
+      </Skeleton > :
+        <TextField
+          id='branch-name'
+          select
+          value={selected}
+          onChange={(e) => checkout(e.target.value as string)}
+          variant='standard'
+          size='small'
+          InputProps={{
+            disableUnderline: true,
+          }}
+        >
+          {branches.filter(branch => branch.ref !== 'HEAD').map(branch => (
+            <MenuItem key={branch.id} value={branch.ref}>
+              <Typography variant='body2'>
+                {branch.ref}
+              </Typography>
+            </MenuItem>
+          ))}
+          {selected === '' && <MenuItem key={'untracked'} value={''}><Typography variant='body2'>untracked</Typography></MenuItem>}
+        </TextField>
+      }
     </FormControl>
-  );
+  </>);
 };
 
 export default BranchList;

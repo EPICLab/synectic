@@ -16,7 +16,7 @@ const mockedMetafile1: FileMetafile = {
   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
   handler: 'Editor',
   filetype: 'Javascript',
-  loading: false,
+  loading: [],
   path: 'foo/bar.js',
   state: 'unmodified',
   content: 'file contents'
@@ -28,7 +28,7 @@ const mockedMetafile2: FileMetafile = {
   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
   handler: 'Editor',
   filetype: 'Javascript',
-  loading: false,
+  loading: [],
   path: 'zap/tap.js',
   state: 'unmodified',
   content: 'new content'
@@ -40,7 +40,7 @@ const unhydratedDirectory: FilebasedMetafile = {
   modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
   handler: 'Explorer',
   filetype: 'Directory',
-  loading: false,
+  loading: [],
   path: 'foo',
   state: 'unmodified'
 };
@@ -51,7 +51,7 @@ const hydratedDirectory: DirectoryMetafile = {
   modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
   handler: 'Explorer',
   filetype: 'Directory',
-  loading: false,
+  loading: [],
   path: 'zap',
   state: 'unmodified',
   contains: ['a5a6806b-f7e1-4f13-bca1-b1440ecd4431']

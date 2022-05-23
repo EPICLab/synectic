@@ -6,6 +6,7 @@ import { cacheRemoved } from './slices/cache';
 import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
 import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileUpdated } from './slices/metafiles';
 import { RootState, AppDispatch } from './store';
+import { checkoutBranch } from './thunks/branches';
 import { subscribe, unsubscribe } from './thunks/cache';
 import { createMetafile, fetchMetafile, fetchParentMetafile, updatedVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
 import { fetchRepo, createRepo } from './thunks/repos';
@@ -32,7 +33,15 @@ startAppListening({
 startAppListening({
     matcher: updatedVersionedMetafile.pending.match,
     effect: async (action, listenerApi) => {
-        listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: true }));
+        listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: [...action.meta.arg.loading, 'versioned'] }));
+    }
+});
+
+startAppListening({
+    matcher: checkoutBranch.pending.match,
+    effect: async (action, listenerApi) => {
+        const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafile);
+        if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'versioned'] }));
     }
 });
 
