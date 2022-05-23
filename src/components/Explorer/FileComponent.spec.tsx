@@ -15,7 +15,7 @@ const mockedMetafile: FilebasedMetafile = {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Javascript',
-    loading: false,
+    loading: [],
     path: 'foo/bar.js',
     state: 'unmodified'
 };

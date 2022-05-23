@@ -22,9 +22,9 @@ const selectByRef = createSelector(
 const selectByRoot = createSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
-    (_state: RootState, _root: PathLike, branch?: string) => branch,
+    (_state: RootState, _root: PathLike, branch?: { scope: 'local' | 'remote', ref: string }) => branch,
     (branches, root, branch) => branch
-        ? branches.find(b => isEqualPaths(root, b.root) && b.ref === branch)
+        ? branches.find(b => isEqualPaths(root, b.root) && b.ref === branch.ref && b.scope === branch.scope)
         : branches.find(b => isEqualPaths(root, b.root))
 )
 

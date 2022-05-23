@@ -54,7 +54,7 @@ const SourcePickerDialog = (props: Modal) => {
         modified: DateTime.local().valueOf(),
         handler: 'SourceControl',
         filetype: 'Text',
-        loading: false,
+        loading: [],
         repo: selectedRepo,
         branch: selectedBranch,
         ...optionals
