@@ -49,7 +49,7 @@ export const createMetafile = createAsyncThunk<Metafile, ExactlyOne<{ path: Path
             modified: DateTime.local().valueOf(),
             handler: input.metafile ? input.metafile.handler : (filetype ? filetype.handler : 'Editor'),
             filetype: filetype ? filetype.filetype : 'Text',
-            loading: input.metafile ? input.metafile.loading : false,
+            loading: input.metafile ? input.metafile.loading : [],
             ...(input.path ? { path: input.path } : {}),
             ...(input.path ? { state: 'unmodified' } : {}),
             ...(input.metafile ? input.metafile : {})
@@ -104,7 +104,7 @@ export const updatedVersionedMetafile = createAsyncThunk<VersionedMetafile | Fil
             && isUpdateable<Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: conflicted ? conflicted.conflicts : [] })) ?
             thunkAPI.dispatch(metafileUpdated({
                 ...metafile,
-                loading: false,
+                loading: metafile.loading.filter(flag => flag !== 'versioned'),
                 repo: repo.id,
                 branch: branch.id,
                 status: status,
