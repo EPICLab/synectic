@@ -12,7 +12,7 @@ const metafile: FileMetafile = {
     modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'TypeScript',
-    loading: false,
+    loading: [],
     path: 'foo/example.ts',
     state: 'unmodified',
     content: 'const rand = Math.floor(Math.random() * 6) + 1;'
