@@ -15,7 +15,7 @@ import { createMetafile, updateConflicted } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { checkProject } from '../../containers/conflicts';
 import branchSelectors from '../../store/selectors/branches';
-import { isDefined } from '../../containers/utils';
+import { delay, isDefined } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import BranchSelect from '../BranchSelect';
 import RepoSelect from '../RepoSelect';
@@ -63,7 +63,6 @@ const MergeDialog = (props: Modal) => {
   // const [buildStatus, setBuildStatus] = useState<CheckState>('Unchecked');
   const repo = repos[selectedRepo];
 
-  const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
   const mergeable = selectedRepo !== '' && selectedBase !== '' && selectedCompare !== '' && selectedBase !== selectedCompare;
 
   const check = async () => {
