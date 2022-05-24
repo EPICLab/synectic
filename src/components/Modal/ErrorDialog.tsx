@@ -6,7 +6,8 @@ import { Modal } from '../../store/slices/modals';
 
 const ErrorDialog = (props: Modal) => {
   const dispatch = useDispatch();
-  const message = props.options && props.options['message'] as string;
+  const subtype = props.options?.['subtype'];
+  const message = props.options?.['message'] ? props.options?.['message'] as string : '';
 
   const close = () => {
     dispatch(metafileRemoved(props.id))
@@ -14,7 +15,7 @@ const ErrorDialog = (props: Modal) => {
 
   return (
     <Dialog id='error-dialog' open={true} onClose={close} aria-labelledby='error-message-dialog'>
-      <DialogTitle id='error-dialog-title'>{props.subtype}</DialogTitle>
+      <DialogTitle id='error-dialog-title'>{subtype}</DialogTitle>
       <DialogContent>
         <DialogContentText id='error-dialog-message'>{message}</DialogContentText>
       </DialogContent>
