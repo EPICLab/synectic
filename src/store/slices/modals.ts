@@ -8,8 +8,6 @@ export type Modal = {
     readonly id: UUID;
     /** The type of modal (e.g. `NewCardDialog` or `Error`). */
     readonly type: ModalType;
-    /** A specific type to delineate a class of modals (e.g. `LoadError`) */
-    readonly subtype?: string;
     /** The UUID for related object that triggered the modal event. */
     readonly target?: UUID;
     /** Options targeting specific types of modals. */
