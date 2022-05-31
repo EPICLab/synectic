@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
-import { ExactlyOne } from '../../containers/utils';
+import { ExactlyOne, getRandomInt } from '../../containers/utils';
 import { extractFilename } from '../../containers/io';
 import { AppThunkAPI } from '../hooks';
 import { Card, cardAdded, cardUpdated } from '../slices/cards';
@@ -19,8 +19,8 @@ export const createCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, me
             modified: DateTime.local().valueOf(),
             captured: undefined,
             zIndex: 0,
-            left: 10,
-            top: 70,
+            left: getRandomInt(10, 50),
+            top: getRandomInt(70, 110),
             type: input.metafile ? input.metafile.handler : 'Loading',
             metafile: input.metafile ? input.metafile.id : '',
             classes: []
