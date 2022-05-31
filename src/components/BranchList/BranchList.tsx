@@ -71,7 +71,7 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
             disableUnderline: true,
           }}
         >
-          {branches.filter(branch => branch.ref !== 'HEAD').map(branch => (
+          {branches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref)).map(branch => (
             <MenuItem key={branch.id} value={branch.ref}>
               <Typography variant='body2'>
                 {branch.ref}
