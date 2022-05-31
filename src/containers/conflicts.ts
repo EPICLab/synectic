@@ -43,7 +43,7 @@ export const checkProject = async (root: PathLike | undefined, onProgress?: Prog
             // Emit progress event
             if (onProgress) {
                 await onProgress({
-                    phase: `Checking: ${f}`,
+                    phase: `Checking for conflicts: ${f}`,
                     loaded: ++count,
                     total: filepaths.length
                 });
