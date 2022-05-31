@@ -252,6 +252,7 @@ img.diff_icon {
 
 .branch-ribbon {
   display: block;
+  white-space: nowrap;
   background-color: rgb(88, 90, 194);
   color: rgb(200, 210, 220);
   font-family: Arial, Helvetica, sans-serif;
@@ -266,7 +267,7 @@ img.diff_icon {
 }
 
 .branch-ribbon-container {
-  background-color: rgba(72, 74, 212, 1);
+  background-color: rgb(88, 90, 194);
 }
 
 @keyframes scroll-text {
