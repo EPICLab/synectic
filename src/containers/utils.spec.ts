@@ -180,9 +180,8 @@ describe('containers/utils', () => {
 
   it('asyncFilter evaluates and returns array of await Primitive types', async () => {
     const arr = [3, 4, 1, 0, 2, 3];
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const predicate = async (e: number) => {
-      await delay(2);
+      await utils.delay(2);
       return e % 2 === 0;
     };
     return expect(utils.asyncFilter(arr, predicate)).resolves.toStrictEqual([4, 0, 2]);
