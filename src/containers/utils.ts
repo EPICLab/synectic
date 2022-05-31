@@ -259,3 +259,12 @@ export const toArrayBuffer = (buf: Buffer): ArrayBuffer => {
 export const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+/**
+ * Scheduled execution of a one-time no-op callback after a delay of `ms` milliseconds. Since this relies on 
+ * [`setTimeout()`](https://nodejs.org/api/timers.html#settimeoutcallback-delay-args) from Node.js, we do not guarantee the exact timing of when the callback will
+ * fire, nor of their ordering. The callback will be called as close as possible to the time specified.
+ * @param ms The number of milliseconds to wait before callback returns.
+ * @returns A Promise object containing a no-op callback.
+ */
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
