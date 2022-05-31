@@ -177,8 +177,10 @@ export const updateConflicted = createAsyncThunk<Metafile[], Conflict[], AppThun
     async (conflicts, thunkAPI) => {
         const conflictedFiles = removeDuplicates(conflicts, (c1, c2) => isEqualPaths(c1.path, c2.path));
         return flattenArray(await Promise.all(conflictedFiles.map(async conflict => {
-            const metafiles = metafileSelectors.selectByFilepath(thunkAPI.getState(), conflict.path);
-            return await Promise.all(metafiles.map(m => thunkAPI.dispatch(updatedVersionedMetafile(m)).unwrap()));
+            const metafile = await thunkAPI.dispatch(fetchMetafile(conflict.path)).unwrap();
+            return isFilebasedMetafile(metafile)
+                ? await thunkAPI.dispatch(updatedVersionedMetafile(metafile)).unwrap()
+                : metafile;
         })));
     }
 );

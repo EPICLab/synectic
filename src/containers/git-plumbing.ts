@@ -162,18 +162,25 @@ export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise
  * @param dir The working tree directory path.
  * @param branchA The base branch name.
  * @param branchB The compare branch name.
+ * @param onProgress Callback for listening to GitProgressEvent occurrences during branch log checks.
  * @return A Promise object containing a list of commits not found in both branches (i.e. the divergent set).
  */
-export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: string): Promise<isogit.ReadCommitResult[]> => {
+export const branchLog = async (
+  dir: fs.PathLike, branchA: string, branchB: string, onProgress?: isogit.ProgressCallback
+): Promise<isogit.ReadCommitResult[]> => {
   const basePath = path.join(dir.toString(), '.git', 'refs', 'heads');
 
+  if (onProgress) await onProgress({ phase: `Checking: ${branchA}`, loaded: 0, total: 2 });
   const logA = (await io.extractStats(path.join(basePath, branchA)))
     ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` })
     : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchA}` });
+  if (onProgress) await onProgress({ phase: `Checking: ${branchA}`, loaded: 1, total: 2 });
 
+  if (onProgress) await onProgress({ phase: `Checking: ${branchB}`, loaded: 1, total: 2 });
   const logB = (await io.extractStats(path.join(basePath, branchB)))
     ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` })
     : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchB}` });
+  if (onProgress) await onProgress({ phase: `Checking: ${branchB}`, loaded: 2, total: 2 });
 
   return logA
     .filter(commitA => !logB.some(commitB => commitA.oid === commitB.oid))

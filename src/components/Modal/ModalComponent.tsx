@@ -5,7 +5,7 @@ import CommitDialog from './CommitDialog';
 import DiffPickerDialog from './DiffPickerDialog';
 import ErrorDialog from './ErrorDialog';
 import GitGraph from '../GitGraph';
-import MergeDialog from './MergeDialog';
+import MergeDialog from '../MergeDialog';
 import NewCardDialog from './NewCardDialog';
 import Notification from './Notification';
 import SourcePickerDialog from './SourcePickerDialog';
