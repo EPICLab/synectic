@@ -74,8 +74,6 @@ const CloneDialog = (props: Modal) => {
         else console.log(`Cannot close dialog while cloning is running...`);
     }
 
-    // const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         setInvalid(!isValidRepositoryURL(event.target.value));
         setUrl(resolveURL(event.target.value));
@@ -107,7 +105,6 @@ const CloneDialog = (props: Modal) => {
                 if (!repo) throw new Error('Cloning failed');
                 setStatus('Passing');
                 await dispatch(loadBranchVersions());
-                // await delay(2000);
                 dispatch(modalRemoved(props.id));
             } catch (error) {
                 console.log(error);
