@@ -58,7 +58,6 @@ startAppListening({
         const metafile = metafileSelectors.selectById(listenerApi.getState(), action.payload.metafile);
 
         if (metafile && (cardAdded.match(action) || cardUpdated.match(action))) {
-            listenerApi.unsubscribe();
 
             if (isFilebasedMetafile(metafile)) {
                 const updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
@@ -75,8 +74,6 @@ startAppListening({
                     await listenerApi.dispatch(subscribe({ path: updated.path.toString(), metafile: updated.id }));
                 }
             }
-
-            listenerApi.subscribe();
         }
     },
 });
