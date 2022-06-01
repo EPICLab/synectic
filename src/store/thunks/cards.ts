@@ -19,8 +19,8 @@ export const createCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, me
             modified: DateTime.local().valueOf(),
             captured: undefined,
             zIndex: 0,
-            left: getRandomInt(10, 50),
-            top: getRandomInt(70, 110),
+            left: getRandomInt(10, 70),
+            top: getRandomInt(70, 130),
             type: input.metafile ? input.metafile.handler : 'Loading',
             metafile: input.metafile ? input.metafile.id : '',
             classes: []
