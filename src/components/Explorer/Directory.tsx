@@ -20,8 +20,8 @@ const Directory = (props: { metafile: UUID }) => {
         && dir.name !== 'node_modules' && dir.id !== metafile?.id);
     const files = metafiles.filter(file => file.filetype !== 'Directory').sort((a, b) => a.name.localeCompare(b.name));
     const loaded = isDefined(metafile) && isFilebasedMetafile(metafile) && isHydrated(metafile);
+    const skeletonWidth = metafile ? metafile.name.length * 15 : getRandomInt(55, 90);
     const [expanded, setExpanded] = useState(false);
-    const [random] = useState(getRandomInt(55, 90));
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -49,7 +49,7 @@ const Directory = (props: { metafile: UUID }) => {
                     {directories.map(dir => <Directory key={dir.id} metafile={dir.id} />)}
                     {files.map(file => <FileComponent key={file.id} metafile={file.id} />)}
                 </StyledTreeItem >
-                : <Skeleton variant='text' aria-label='loading' width={`${random}%`} />}
+                : <Skeleton variant='text' aria-label='loading' width={skeletonWidth} />}
         </>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { InsertDriveFile as FileIcon, DeleteForever as Delete } from '@material-ui/icons';
 import { remove as removePath } from 'fs-extra';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -19,7 +19,7 @@ const FileComponent = (props: { metafile: UUID }) => {
     const loaded = isDefined(metafile) && isFilebasedMetafile(metafile) && isHydrated(metafile);
     const motif = metafile && isFileMetafile(metafile) ? getSourceMotif(metafile) : undefined;
     const optionals = removeUndefinedProperties({ color: motif?.color });
-    const [random] = useState(getRandomInt(55, 90));
+    const skeletonWidth = metafile ? metafile.name.length * 15 : getRandomInt(55, 90);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -52,7 +52,7 @@ const FileComponent = (props: { metafile: UUID }) => {
                     labelIcon={FileIcon}
                     enableHover={true}
                     onClick={handleClick} />
-                : <Skeleton variant='text' aria-label='loading' width={`${random}%`} />}
+                : <Skeleton variant='text' aria-label='loading' width={skeletonWidth} />}
         </>
     );
 };
