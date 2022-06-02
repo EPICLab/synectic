@@ -19,6 +19,8 @@ export type Card = {
     readonly modified: Timestamp;
     /** The UUID for capturing Stack object, or undefined if not captured. */
     readonly captured: UUID | undefined;
+    /** Indicator for whether the card is expanded to fullscreen mode. */
+    readonly expanded: boolean;
     /** The stack order of card relative to overlapping elements. */
     readonly zIndex: number;
     /** The horizontal position of card relative to parent object. */

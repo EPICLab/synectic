@@ -18,6 +18,7 @@ export const createCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, me
             created: DateTime.local().valueOf(),
             modified: DateTime.local().valueOf(),
             captured: undefined,
+            expanded: false,
             zIndex: 0,
             left: getRandomInt(10, 70),
             top: getRandomInt(70, 130),

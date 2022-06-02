@@ -38,6 +38,13 @@ body {
   user-select: none;
 }
 
+.card.expanded {
+  left: 0;
+  top: 61px;
+  height: 100%;
+  width: 100%;
+}
+
 .drop-source {
   box-shadow: 0 0 3pt 1pt rgba(102, 204, 117, 0.75);
 }
