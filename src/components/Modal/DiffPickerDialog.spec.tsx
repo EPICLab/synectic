@@ -24,11 +24,12 @@ const mockedStore: RootState = {
                 metafile: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
                 created: DateTime.fromISO('2019-01-21T08:14:52.181-08:00').valueOf(),
                 modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
+                captured: undefined,
+                expanded: false,
                 left: 10,
                 top: 10,
                 zIndex: 0,
                 classes: [],
-                captured: undefined
             },
             '67406095-fd01-4441-8e52-b0fdbad3327a': {
                 id: '67406095-fd01-4441-8e52-b0fdbad3327a',
@@ -37,11 +38,12 @@ const mockedStore: RootState = {
                 metafile: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
                 created: DateTime.fromISO('1997-12-27T10:10:10.288-08:00').valueOf(),
                 modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00').valueOf(),
+                captured: undefined,
+                expanded: false,
                 left: 27,
                 top: 105,
                 zIndex: 0,
-                classes: [],
-                captured: undefined
+                classes: []
             }
         }
     },
