@@ -13,7 +13,7 @@ import { repoUpdated } from '../../store/slices/repos';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+        newBranchDialog: {
             width: '100%',
             maxWidth: 530,
             backgroundColor: theme.palette.background.paper,
@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const NewBranchDialog = (props: Modal) => {
-    const classes = useStyles();
+    const styles = useStyles();
     const dispatch = useAppDispatch();
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.target ? props.target : ''));
     const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, repo, true));
@@ -85,8 +85,8 @@ const NewBranchDialog = (props: Modal) => {
 
     return (
         <Dialog id='new-branch-dialog' data-testid='new-branch-dialog' open={true} onClose={handleClose} aria-labelledby='new-branch-dialog'>
-            <div className={classes.root}>
-                <div className={classes.section1}>
+            <div className={styles.newBranchDialog}>
+                <div className={styles.section1}>
                     <Grid container alignItems='center'>
                         <Grid item xs>
                             <Typography gutterBottom variant='h4'>
@@ -101,11 +101,11 @@ const NewBranchDialog = (props: Modal) => {
                     </Typography>
                 </div>
                 <Divider variant='middle' />
-                <div className={classes.section2}>
+                <div className={styles.section2}>
                     <TextField
                         id='new-branch-name'
                         variant='outlined'
-                        className={classes.formControl2}
+                        className={styles.formControl2}
                         label='Branch Name'
                         value={branchName}
                         onChange={handleBranchNameChange}
@@ -114,9 +114,9 @@ const NewBranchDialog = (props: Modal) => {
                         helperText={(branchName.length > 0 && !isNoneDuplicate) ? 'Branch name already exists' : ''}
                     />
                 </div>
-                <div className={classes.section3}>
+                <div className={styles.section3}>
                     <Button id='create-branch-button'
-                        className={classes.button}
+                        className={styles.button}
                         data-testid='create-branch-button'
                         variant='outlined'
                         color='primary'

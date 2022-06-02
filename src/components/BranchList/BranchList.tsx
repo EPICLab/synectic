@@ -13,7 +13,7 @@ import { checkoutBranch } from '../../store/thunks/branches';
 import { Skeleton } from '@material-ui/lab';
 
 export const useStyles = makeStyles({
-  root: {
+  formControl: {
     color: 'rgba(171, 178, 191, 1.0)',
     fontSize: 'small',
     fontFamily: '\'Lato\', Georgia, Serif',
@@ -37,7 +37,7 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
   const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo, true) : []);
   const [selected, setSelected] = useState(branch ? branch.ref : '');
   const loading = metafile && metafile.loading && metafile.loading.includes('checkout');
-  const cssClasses = useStyles();
+  const styles = useStyles();
   const dispatch = useAppDispatch();
 
   const checkout = async (newBranch: string) => {
@@ -56,9 +56,9 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
   };
 
   return (<>
-    <FormControl id='branch-control' className={cssClasses.root}>
+    <FormControl id='branch-control' className={styles.formControl}>
       {loading ? <Skeleton variant='text' aria-label='loading' animation='wave' >
-        <FormControl id='branch-control' className={cssClasses.root} style={{ width: 120 }} />
+        <FormControl id='branch-control' className={styles.formControl} style={{ width: 120 }} />
       </Skeleton > :
         <TextField
           id='branch-name'

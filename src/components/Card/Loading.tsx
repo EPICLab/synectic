@@ -8,7 +8,7 @@ import { CircularProgress, makeStyles } from '@material-ui/core';
 import { Card } from '../../store/slices/cards';
 
 const useStyles = makeStyles({
-    root: {
+    loading: {
         background: 'transparent',
         minWidth: '100%',
         minHeight: '100%',
@@ -27,11 +27,11 @@ const useStyles = makeStyles({
 });
 
 const Loading = () => {
-    const classes = useStyles();
+    const styles = useStyles();
 
     return (
-        <div className={classes.root}>
-            <CircularProgress className={classes.card} size={60} color='secondary' />
+        <div className={styles.loading}>
+            <CircularProgress className={styles.card} size={60} color='secondary' />
         </div>);
 }
 

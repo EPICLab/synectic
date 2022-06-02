@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 type Mode = 'light' | 'dark';
 
 const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
-  const classes = useStyles({ mode: mode });
+  const styles = useStyles({ mode: mode });
   const { state, set, goBack, goForward, canGoBack, canGoForward } = useHistory(new URL('https://epiclab.github.io/'));
 
   const refresh = () => {
@@ -70,7 +70,7 @@ const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
         canGoBack={canGoBack} back={back}
         canGoForward={canGoForward} forward={forward}
       />
-      <div className={classes.webviewContent}>
+      <div className={styles.webviewContent}>
         <webview id={`${card}-webview`} src={'https://epiclab.github.io/'}
           style={{ height: '100%', width: '100%', borderRadius: '10px!important' }} />
       </div>

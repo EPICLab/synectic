@@ -18,7 +18,7 @@ import { updateFilebasedMetafile, updatedVersionedMetafile } from '../../store/t
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+        commitDialog: {
             width: '100%',
             maxWidth: 530,
             minWidth: 330,
@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const CommitDialog = (props: Modal) => {
     const dispatch = useAppDispatch();
-    const classes = useStyles();
+    const styles = useStyles();
     const [message, setMessage] = useState('');
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
@@ -106,8 +106,8 @@ const CommitDialog = (props: Modal) => {
 
     return (
         <Dialog id='dialog' open={true} onClose={() => dispatch(modalRemoved(props.id))}>
-            <div className={classes.root}>
-                <div className={classes.section1}>
+            <div className={styles.commitDialog}>
+                <div className={styles.section1}>
                     <Grid container alignItems='center'>
                         <Grid item xs>
                             <Typography gutterBottom variant='h4'>
@@ -130,16 +130,16 @@ const CommitDialog = (props: Modal) => {
                     </Typography>
                 </div>
                 <Divider variant='middle' />
-                <div className={classes.section2}>
+                <div className={styles.section2}>
                     <Grid container alignItems='center' justifyContent='center' >
-                        <Grid item xs={12} className={classes.input} >
+                        <Grid item xs={12} className={styles.input} >
                             <TextField id='commitMsg' label='Commit Message' onChange={handleChange}
-                                variant='outlined' multiline rows={4} className={classes.textfield} />
+                                variant='outlined' multiline rows={4} className={styles.textfield} />
                         </Grid>
                     </Grid>
                 </div>
-                <div className={classes.section2}>
-                    <Button variant='outlined' color='primary' className={classes.button}
+                <div className={styles.section2}>
+                    <Button variant='outlined' color='primary' className={styles.button}
                         onClick={initiateCommit}>Commit</Button>
                 </div>
             </div>

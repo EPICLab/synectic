@@ -26,14 +26,14 @@ type MergeTimelineProps = {
 }
 
 const MergeTimeline = ({ status, progress, subtext }: MergeTimelineProps) => {
-    const classes = useStyles();
+    const styles = useStyles();
 
     return status === 'Unchecked' ? null :
-        <TimelineItem className={classes.item}>
+        <TimelineItem className={styles.item}>
             <TimelineSeparator>
                 <StatusIcon status={status} />
             </TimelineSeparator>
-            <TimelineContent className={classes.content}>
+            <TimelineContent className={styles.content}>
                 <MergeTimelineContent status={status} progress={progress} subtext={subtext} />
             </TimelineContent>
         </TimelineItem>;

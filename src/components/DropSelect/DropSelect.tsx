@@ -4,7 +4,7 @@ import { createStyles, FormControl, InputLabel, MenuItem, Select, Theme } from '
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+        dropSelect: {
             margin: theme.spacing(1),
             width: `calc(100% - ${theme.spacing(2)}px)`
         },
@@ -24,11 +24,11 @@ type DropSelectProps = {
 }
 
 const DropSelect = (props: DropSelectProps) => {
-    const classes = useStyles();
+    const styles = useStyles();
 
     return (
-        <FormControl variant='outlined' className={classes.root} margin='dense'>
-            <InputLabel id={`${props.label}-select-label`} className={classes.input}>{props.label}</InputLabel>
+        <FormControl variant='outlined' className={styles.dropSelect} margin='dense'>
+            <InputLabel id={`${props.label}-select-label`} className={styles.input}>{props.label}</InputLabel>
             <Select
                 MenuProps={{
                     anchorOrigin: { vertical: 'bottom', horizontal: 'left' },

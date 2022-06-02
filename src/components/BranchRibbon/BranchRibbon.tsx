@@ -17,7 +17,7 @@ const useStyles = makeStyles({
 });
 
 const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, onClick?: () => void }) => {
-  const classes = useStyles();
+  const styles = useStyles();
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
   const loading = metafile && metafile.loading && metafile.loading.includes('versioned');
 
@@ -26,7 +26,7 @@ const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, o
   return (
     <>
       {loading ?
-        <div className={classes.branchRibbonPreview} onClick={onClick} >
+        <div className={styles.branchRibbonPreview} onClick={onClick} >
           <Skeleton variant='rect' aria-label='loading' animation='wave'>
             <div className={'branch-ribbon'} style={{ width: 250 }}>
               {ribbonText}
@@ -34,7 +34,7 @@ const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, o
           </Skeleton>
         </div>
         : branch ?
-          <div className={classes.branchRibbonContainer} onClick={onClick} >
+          <div className={styles.branchRibbonContainer} onClick={onClick} >
             <div className={clsx('branch-ribbon', { 'long': ribbonText.length > 35 })}>
               {ribbonText}
             </div>

@@ -14,7 +14,7 @@ import { createCard } from '../../store/thunks/cards';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
+    newCardDialog: {
       width: '100%',
       maxWidth: 530,
       backgroundColor: theme.palette.background.paper,
@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const NewCardDialog = (props: Modal) => {
-  const classes = useStyles();
+  const styles = useStyles();
   const dispatch = useAppDispatch();
   const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
   const exts: string[] = flattenArray(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
@@ -164,8 +164,8 @@ const NewCardDialog = (props: Modal) => {
 
   return (
     <Dialog id='new-card-dialog' data-testid='new-card-dialog' open={true} onClose={handleClose} aria-labelledby='new-card-dialog'>
-      <div className={classes.root}>
-        <div className={classes.section1}>
+      <div className={styles.newCardDialog}>
+        <div className={styles.section1}>
           <Grid container alignItems='center'>
             <Grid item xs>
               <Typography gutterBottom variant='h4'>
@@ -180,18 +180,18 @@ const NewCardDialog = (props: Modal) => {
           </Typography>
         </div>
         <Divider variant='middle' />
-        <div className={classes.section2}>
-          <Button className={classes.button} data-testid='editor-button' variant={category === 'Editor' ? 'contained' : 'outlined'}
+        <div className={styles.section2}>
+          <Button className={styles.button} data-testid='editor-button' variant={category === 'Editor' ? 'contained' : 'outlined'}
             color='primary' onClick={() => setCategory('Editor')}>Editor</Button>
-          <Button className={classes.button} data-testid='browser-button' variant={category === 'Browser' ? 'contained' : 'outlined'}
+          <Button className={styles.button} data-testid='browser-button' variant={category === 'Browser' ? 'contained' : 'outlined'}
             color='primary' onClick={() => setCategory('Browser')}>Browser</Button>
         </div>
         {category === 'Editor' ?
-          <div className={classes.section2}>
+          <div className={styles.section2}>
             <TextField
               id='new-card-file-name'
               variant='outlined'
-              className={classes.formControl2}
+              className={styles.formControl2}
               label='Filename'
               value={fileName}
               onChange={handleFileNameChange}
@@ -200,7 +200,7 @@ const NewCardDialog = (props: Modal) => {
               error={fileName.length > 0 && !isFileNameValid}
               helperText={(fileName.length > 0 && !isFileNameValid) ? 'Invalid Filename' : ''}
             />
-            <FormControl data-testid='new-card-filetype-form' variant='outlined' className={classes.formControl2}>
+            <FormControl data-testid='new-card-filetype-form' variant='outlined' className={styles.formControl2}>
               <InputLabel htmlFor={'new-card-filetype-selector'} >Filetype</InputLabel>
               <Select
                 id='new-card-filetype-selector'
@@ -216,9 +216,9 @@ const NewCardDialog = (props: Modal) => {
             </FormControl>
           </div>
           : null}
-        <div className={classes.section3}>
+        <div className={styles.section3}>
           <Button id='create-card-button'
-            className={classes.button}
+            className={styles.button}
             data-testid='create-card-button'
             variant='outlined'
             color='primary'

@@ -21,7 +21,7 @@ import { checkDelta, runMerge } from './merge-actions';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+        mergeDialog: {
             width: '100%',
             maxWidth: 530,
             backgroundColor: theme.palette.background.paper,
@@ -50,7 +50,7 @@ const MergeDialog = (props: Modal) => {
     const repos = useAppSelector((state: RootState) => repoSelectors.selectEntities(state));
     const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
     const dispatch = useAppDispatch();
-    const classes = useStyles();
+    const styles = useStyles();
 
     const [repoId, setRepoId] = useState<UUID | undefined>(props.options?.['repo'] ? props.options?.['repo'] as UUID : undefined);
     const [baseId, setBaseId] = useState<UUID | undefined>(props.options?.['base'] ? props.options?.['base'] as UUID : undefined);
@@ -83,8 +83,8 @@ const MergeDialog = (props: Modal) => {
 
     return (
         <Dialog id='dialog' open={true} onClose={() => dispatch(modalRemoved(props.id))}>
-            <div className={classes.root}>
-                <div className={classes.section1}>
+            <div className={styles.mergeDialog}>
+                <div className={styles.section1}>
                     <Grid container alignItems='center'>
                         <Grid item xs>
                             <Typography gutterBottom variant='h4'>
@@ -99,7 +99,7 @@ const MergeDialog = (props: Modal) => {
                     </Typography>
                 </div>
                 <Divider variant='middle' />
-                <div className={classes.section2}>
+                <div className={styles.section2}>
                     <Grid container alignItems='center' justifyContent='center'>
                         <Grid item xs={12}>
                             <RepoSelect
@@ -127,14 +127,14 @@ const MergeDialog = (props: Modal) => {
                             />
                         </Grid>
                     </Grid>
-                    <Timeline align='left' className={classes.timeline}>
+                    <Timeline align='left' className={styles.timeline}>
                         <DeltaTimeline status={deltaStatus} connector={conflictStatus !== 'Unchecked'}
                             progress={deltaProgress} subtext={deltaLog} commits={deltaCommits} />
                         <MergeTimeline status={conflictStatus} progress={mergeProgress} subtext={mergeLog} />
                     </Timeline>
                 </div>
                 <GitConfigForm root={repo?.root} open={configs !== undefined} divider={conflictStatus === 'Failing'} />
-                <div className={classes.section2}>
+                <div className={styles.section2}>
                     <TimelineButtons id={props.id} status={conflictStatus} mergeable={mergeable} check={check} />
                 </div>
             </div>

@@ -38,7 +38,7 @@ const GitConfigForm = (props: { open: boolean, root: PathLike | undefined, divid
   const [existingEmail, setExistingEmail] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const classes = useStyles();
+  const styles = useStyles();
 
   useEffect(() => {
     const getConfigs = async () => {
@@ -72,9 +72,9 @@ const GitConfigForm = (props: { open: boolean, root: PathLike | undefined, divid
   return (
     <>
       {props.divider ? <Divider variant='middle' /> : null}
-      <div className={classes.wrap}>
+      <div className={styles.wrap}>
         <FormControlLabel
-          className={classes.formControl}
+          className={styles.formControl}
           value='write-to-global-gitconfig'
           control={
             <Switch
@@ -88,7 +88,7 @@ const GitConfigForm = (props: { open: boolean, root: PathLike | undefined, divid
           labelPlacement='end'
         />
         <Button
-          className={classes.button}
+          className={styles.button}
           variant='outlined'
           color='primary'
           disabled={!isUpdateReady()}
@@ -98,7 +98,7 @@ const GitConfigForm = (props: { open: boolean, root: PathLike | undefined, divid
           id='git-info-dialog-name'
           variant='outlined'
           size='small'
-          className={classes.textField}
+          className={styles.textField}
           label='Username'
           value={username}
           onChange={usernameChange}
@@ -107,7 +107,7 @@ const GitConfigForm = (props: { open: boolean, root: PathLike | undefined, divid
           id='git-info-dialog-email'
           variant='outlined'
           size='small'
-          className={classes.textField}
+          className={styles.textField}
           label='Email'
           value={email}
           onChange={emailChange}

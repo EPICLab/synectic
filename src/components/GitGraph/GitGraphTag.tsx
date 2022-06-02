@@ -47,12 +47,12 @@ const useStyles = makeStyles({
 });
 
 const OutlinedCard = (props: { content: string, placement: Placement }) => {
-  const classes = useStyles();
+  const styles = useStyles();
   const position = placementToPosition[props.placement];
 
   return (
     <StyledTag style={{ position: 'absolute', top: position.top, left: position.left }}>
-      <Typography className={classes.content}>
+      <Typography className={styles.content}>
         {props.content}
       </Typography>
     </StyledTag>

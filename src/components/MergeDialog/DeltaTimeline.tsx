@@ -28,15 +28,15 @@ type DeltaTimelineProps = {
 }
 
 const DeltaTimeline = ({ status, connector, progress, subtext, commits }: DeltaTimelineProps) => {
-    const classes = useStyles();
+    const styles = useStyles();
 
     return status === 'Unchecked' ? null :
-        <TimelineItem className={classes.item}>
+        <TimelineItem className={styles.item}>
             <TimelineSeparator>
                 <StatusIcon status={status} />
                 {connector ? <TimelineConnector /> : null}
             </TimelineSeparator>
-            <TimelineContent className={classes.content}>
+            <TimelineContent className={styles.content}>
                 <DeltaTimelineContent status={status} commits={commits}
                     progress={progress} subtext={subtext} />
             </TimelineContent>

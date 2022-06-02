@@ -44,7 +44,7 @@ const GitGraphSelect = () => {
   const [selected, setSelected] = useState('');
   const graphs = useAppSelector((state: RootState) => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
   const dispatch = useAppDispatch();
-  const classes = useStyles();
+  const styles = useStyles();
 
   const handleChange = (event: React.ChangeEvent<{ value: string }>) => setSelected(event.target.value);
 
@@ -57,7 +57,7 @@ const GitGraphSelect = () => {
 
   return (
     <div style={{ marginLeft: 'auto' }}>
-      <FormControl className={classes.margin}>
+      <FormControl className={styles.margin}>
         <Select
           labelId='repo-select-label'
           id='repo-select'
@@ -68,7 +68,7 @@ const GitGraphSelect = () => {
           onChange={handleChange}
           input={<StyledInput />}
         >
-          <MenuItem key='' value='' className={classes.defaultItem}>{selected ? 'Clear Map' : 'Repository Map'}</MenuItem>
+          <MenuItem key='' value='' className={styles.defaultItem}>{selected ? 'Clear Map' : 'Repository Map'}</MenuItem>
           {repos.map((repo) =>
             <MenuItem key={repo.id} value={repo.id}>
               {repo.name}

@@ -22,7 +22,7 @@ type TimelineButtonsProp = {
 };
 
 const TimelineButtons = ({ id, status, mergeable, check }: TimelineButtonsProp) => {
-    const classes = useStyles();
+    const styles = useStyles();
     const dispatch = useAppDispatch();
 
     switch (status) {
@@ -31,7 +31,7 @@ const TimelineButtons = ({ id, status, mergeable, check }: TimelineButtonsProp) 
                 <Button
                     variant='outlined'
                     color='primary'
-                    className={classes.button}
+                    className={styles.button}
                     onClick={() => dispatch(modalRemoved(id))}>
                     OK
                 </Button>
@@ -41,7 +41,7 @@ const TimelineButtons = ({ id, status, mergeable, check }: TimelineButtonsProp) 
                 <Button
                     variant='outlined'
                     color='primary'
-                    className={classes.button}
+                    className={styles.button}
                     onClick={() => dispatch(modalRemoved(id))}>
                     Close
                 </Button>
@@ -51,7 +51,7 @@ const TimelineButtons = ({ id, status, mergeable, check }: TimelineButtonsProp) 
                 <Button
                     variant='outlined'
                     color='primary'
-                    className={classes.button}
+                    className={styles.button}
                     disabled={!mergeable}
                     onClick={check}>
                     Merge

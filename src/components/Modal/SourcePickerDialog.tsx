@@ -17,7 +17,7 @@ import { createCard } from '../../store/thunks/cards';
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
+    sourcePickerDialog: {
       width: '100%',
       maxWidth: 410,
       backgroundColor: theme.palette.background.paper,
@@ -35,7 +35,7 @@ export const useStyles = makeStyles((theme: Theme) =>
 );
 
 const SourcePickerDialog = (props: Modal) => {
-  const classes = useStyles();
+  const styles = useStyles();
   const repos = useAppSelector((state: RootState) => repoSelectors.selectEntities(state));
   const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
@@ -66,8 +66,8 @@ const SourcePickerDialog = (props: Modal) => {
 
   return (
     <Dialog id='source-dialog' data-testid='source-picker-dialog' role='dialog' open={true} onClose={() => handleClose()}>
-      <div className={classes.root}>
-        <div className={classes.section1}>
+      <div className={styles.sourcePickerDialog}>
+        <div className={styles.section1}>
           <Grid container alignItems='center'>
             <Grid item xs>
               <Typography gutterBottom variant='h4'>
@@ -82,16 +82,16 @@ const SourcePickerDialog = (props: Modal) => {
           </Typography>
         </div>
         <Divider variant='middle' />
-        <div className={classes.section2}>
+        <div className={styles.section2}>
           <RepoSelect repos={Object.values(repos).filter(isDefined)} selectedRepo={selectedRepo} setSelectedRepo={setSelectedRepo} />
           <BranchSelect label='Branch' repo={repo} selectedBranch={selectedBranch} setSelectedBranch={setSelectedBranch} />
         </div>
-        <div className={classes.section2}>
+        <div className={styles.section2}>
           <Button id='create-source-control-button'
             data-testid='create-source-control-button'
             variant='outlined'
             color='primary'
-            className={classes.button}
+            className={styles.button}
             disabled={selectedRepo === '' || selectedBranch === ''}
             onClick={() => handleClick()}
           >

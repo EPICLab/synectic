@@ -92,7 +92,7 @@ type UrlBarProps = {
 }
 
 const UrlBar = ({ url, go, refresh, canGoBack, back, canGoForward, forward, mode = 'dark' }: UrlBarProps) => {
-    const classes = useStyles({ mode: mode });
+    const styles = useStyles({ mode: mode });
     const [input, setInput] = useState(url);
 
     const enter = (event: React.KeyboardEvent) => {
@@ -103,7 +103,7 @@ const UrlBar = ({ url, go, refresh, canGoBack, back, canGoForward, forward, mode
     }
 
     return (
-        <Box className={classes.topbar}>
+        <Box className={styles.topbar}>
             <TextField
                 fullWidth
                 id={`browserUrl`}
@@ -112,30 +112,30 @@ const UrlBar = ({ url, go, refresh, canGoBack, back, canGoForward, forward, mode
                 placeholder='URL'
                 value={input}
                 InputProps={{
-                    endAdornment: <InputAdornment position='end' classes={{ root: classes.adornedInput }}>
-                        <IconButton className={classes.iconButton} aria-label='refresh' edge='end' onClick={refresh}>
+                    endAdornment: <InputAdornment position='end' classes={{ root: styles.adornedInput }}>
+                        <IconButton className={styles.iconButton} aria-label='refresh' edge='end' onClick={refresh}>
                             <Refresh fontSize='small' />
                         </IconButton>
                     </InputAdornment>,
                     classes: {
-                        adornedEnd: classes.adornedEnd
+                        adornedEnd: styles.adornedEnd
                     }
                 }}
                 onKeyDown={enter}
                 onChange={e => setInput(new URL(e.target.value))}
             />
-            <Paper elevation={4} className={clsx(classes.hoverPad, classes.hoverPadLeft)} />
+            <Paper elevation={4} className={clsx(styles.hoverPad, styles.hoverPadLeft)} />
             <IconButton
-                className={clsx(classes.iconButton, classes.backButton)}
+                className={clsx(styles.iconButton, styles.backButton)}
                 aria-label='back'
                 onClick={back}
                 disabled={!canGoBack}
             >
                 <ArrowBackIos fontSize='small' />
             </IconButton>
-            <Paper elevation={4} className={clsx(classes.hoverPad, classes.hoverPadRight)} />
+            <Paper elevation={4} className={clsx(styles.hoverPad, styles.hoverPadRight)} />
             <IconButton
-                className={clsx(classes.iconButton, classes.forwardButton)}
+                className={clsx(styles.iconButton, styles.forwardButton)}
                 aria-label='forward'
                 onClick={forward}
                 disabled={!canGoForward}

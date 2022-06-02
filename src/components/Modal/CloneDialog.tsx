@@ -11,7 +11,7 @@ import { loadBranchVersions } from '../../containers/branch-tracker';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+        cloneDialog: {
             width: '100%',
             maxWidth: 530,
             minWidth: 330,
@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const CloneDialog = (props: Modal) => {
-    const classes = useStyles();
+    const styles = useStyles();
     const [url, setUrl] = useState('');
     const [invalid, setInvalid] = useState(true);
     const [targetPath, setTargetPath] = useState('');
@@ -118,8 +118,8 @@ const CloneDialog = (props: Modal) => {
     return (
         <Dialog id='dialog' open={true}
             onClose={handleClose}>
-            <div className={classes.root}>
-                <div className={classes.section1}>
+            <div className={styles.cloneDialog}>
+                <div className={styles.section1}>
                     <Grid container alignItems='center'>
                         <Grid item xs>
                             <Typography gutterBottom variant='h4'>
@@ -134,14 +134,14 @@ const CloneDialog = (props: Modal) => {
                     </Typography>
                 </div>
                 <Divider variant='middle' />
-                <div className={classes.section2}>
+                <div className={styles.section2}>
                     <Grid container alignItems='center' justifyContent='center' >
-                        <Grid item xs={12} className={classes.input} >
+                        <Grid item xs={12} className={styles.input} >
                             <TextField
                                 id='repoUrl'
                                 label='Repository URL'
                                 variant='outlined'
-                                className={classes.textfield}
+                                className={styles.textfield}
                                 onChange={handleChange}
                                 onKeyDown={(e) => handleKeyDown(e)}
                                 error={invalid}
@@ -151,12 +151,12 @@ const CloneDialog = (props: Modal) => {
                     </Grid>
                 </div>
                 {(targetPath !== '' && !invalid) ?
-                    <div className={classes.section2}>
+                    <div className={styles.section2}>
                         <LinearProgressWithLabel value={progress} subtext={getSubtext()} />
                     </div>
                     : null}
-                <div className={classes.section2}>
-                    <Button variant='outlined' color='primary' className={classes.button}
+                <div className={styles.section2}>
+                    <Button variant='outlined' color='primary' className={styles.button}
                         onClick={getTargetPath} disabled={invalid}>Clone</Button>
                 </div>
             </div>

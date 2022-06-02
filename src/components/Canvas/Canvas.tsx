@@ -42,7 +42,7 @@ type DragObject = {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
+    navBar: {
       display: 'flex',
       backgroundColor: 'rgba(232, 233, 233, 1)',
       padding: theme.spacing(0.25),
@@ -64,7 +64,7 @@ const Canvas = () => {
   const branches = useAppSelector((state: RootState) => branchSelectors.selectAll(state));
   const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
   const dispatch = useAppDispatch();
-  const classes = useStyles();
+  const styles = useStyles();
 
   // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
   const [, drop] = useDrop({
@@ -173,7 +173,7 @@ const Canvas = () => {
 
   return (
     <div className='canvas' ref={drop} data-testid='canvas-component'>
-      <div className={classes.root} >
+      <div className={styles.navBar} >
         <NavMenu label='File' submenu={fileMenu} />
         <NavMenu label='Action' submenu={actionMenu} />
         <NavMenu label='View' submenu={viewMenu} />
