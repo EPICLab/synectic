@@ -48,7 +48,7 @@ const MergeTimelineContent = ({ status, progress, subtext }: MergeTimelineProps)
         case 'Failing':
             return <>
                 <Typography color='secondary'>Merge failed: </Typography>
-                <Typography color='secondary' variant='body2'>Resolve conflicts and commit resolution</Typography>
+                <Typography color='secondary' variant='body2'>{subtext}</Typography>
             </>
         default:
             return null;
