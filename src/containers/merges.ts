@@ -54,10 +54,11 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
         }
     }
 
+    const branches = await isogit.listBranches({ fs: fs, dir: dir.toString() }); // branches found locally
     let mergeResults: { stdout: string; stderr: string; } = { stdout: '', stderr: '' };
     let mergeError: ExecError | undefined;
     try {
-        mergeResults = await promiseExec(`git merge ${base} ${compare}`, { cwd: dir.toString() });
+        mergeResults = await promiseExec(`git merge ${branches.includes(base) ? base : `origin/${base}`} ${branches.includes(compare) ? compare : `origin/${compare}`}`, { cwd: dir.toString() });
     } catch (error) {
         mergeError = error as ExecError;
         const conflictPattern = /(?<=conflict in ).*(?=\n)/gm;
