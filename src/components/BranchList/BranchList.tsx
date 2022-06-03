@@ -34,9 +34,10 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card ? card.metafile : ''));
   const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, (metafile && metafile.branch) ? metafile.branch : ''));
-  const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo, true) : []);
-  const [selected, setSelected] = useState(branch ? branch.ref : '');
+  const repoBranches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo, true) : []);
+  const branches = repoBranches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref));
   const loading = metafile && metafile.loading && metafile.loading.includes('checkout');
+  const [selected, setSelected] = useState(branch ? branch.ref : '');
   const styles = useStyles();
   const dispatch = useAppDispatch();
 
@@ -45,13 +46,13 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
     if (card && metafile) {
       const overwrite = removeUndefinedProperties({ overwrite: props.overwrite });
       const updated = await dispatch(checkoutBranch({ metafile: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
+      if (updated) setSelected(newBranch);
       if (updated) dispatch(cardUpdated({
         ...card,
         name: updated.name,
         modified: updated.modified,
         metafile: updated.id
       }));
-      if (updated) setSelected(newBranch);
     }
   };
 
@@ -71,7 +72,7 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
             disableUnderline: true,
           }}
         >
-          {branches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref)).map(branch => (
+          {branches.map(branch => (
             <MenuItem key={branch.id} value={branch.ref}>
               <Typography variant='body2'>
                 {branch.ref}
