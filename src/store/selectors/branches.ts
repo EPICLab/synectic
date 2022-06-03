@@ -16,7 +16,10 @@ const selectByIds = createSelector(
 const selectByRef = createSelector(
     selectors.selectAll,
     (_state: RootState, ref: string) => ref,
-    (branches, ref) => branches.filter(b => b.ref === ref)
+    (_state: RootState, _root: PathLike, scope?: 'local' | 'remote') => scope,
+    (branches, ref, scope) => scope
+        ? branches.filter(b => b.ref === ref && b.scope === scope)
+        : branches.filter(b => b.ref === ref)
 )
 
 const selectByRoot = createSelector(
