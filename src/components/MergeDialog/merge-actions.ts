@@ -43,6 +43,8 @@ export const runMerge = async (
     setConflicts('Running');
     const result = await merge(repo.root, base.ref, compare.ref);
     const isConflicting = result.mergeConflicts ? result.mergeConflicts.length > 0 : false;
+    const hasErrors = result.stderr.length > 0;
+    const hasMerged = result.mergeStatus.mergeCommit ? result.mergeStatus.mergeCommit : false;
     console.log(result);
 
     if (isConflicting) {
@@ -67,7 +69,15 @@ export const runMerge = async (
         })).unwrap();
         await dispatch(createCard({ metafile: manager }));
     }
-    return setConflicts(isConflicting ? 'Failing' : 'Passing');
+    if (isConflicting) {
+        setLog(`Resolve ${result.mergeConflicts ? result.mergeConflicts.length : 0} conflicts and commit resolution`);
+        return setConflicts('Failing');
+    }
+    if (hasErrors) {
+        setLog(result.stderr);
+        return setConflicts('Failing');
+    }
+    return setConflicts(hasMerged ? 'Passing' : 'Failing');
 }
 
 // const checkBuilds = async (
