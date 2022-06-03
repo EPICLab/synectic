@@ -34,7 +34,7 @@ export const isHydrated = (metafile: Metafile): boolean => {
 export const fetchMetafile = createAsyncThunk<Metafile, PathLike, AppThunkAPI>(
     'metafiles/fetchMetafile',
     async (filepath, thunkAPI) => {
-        const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
+        const existing: FilebasedMetafile[] = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
         return (existing.length > 0) ? existing[0] : await thunkAPI.dispatch(createMetafile({ path: filepath })).unwrap();
     }
 );
@@ -99,6 +99,19 @@ export const updatedVersionedMetafile = createAsyncThunk<VersionedMetafile | Fil
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
         const status = await getStatus(metafile.path);
         const conflicted = await checkFilepath(metafile.path);
+
+        if ((isDefined(repo) && isDefined(branch) && isDefined(status)
+            && isUpdateable<Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: conflicted ? conflicted.conflicts : [] }))) {
+            console.log(`updatedVersionedMetafile`, { metafile }, `updating with => repo: ${repo.id}, branch: ${branch.id}, statu: ${status}`);
+        } else {
+            const reasons: string[] = [];
+            if (!isDefined(repo)) reasons.push('repo undefined');
+            if (!isDefined(branch)) reasons.push('branch undefined');
+            if (!isDefined(status)) reasons.push('status undefined');
+            if ((isDefined(repo) && isDefined(branch) && isDefined(status)
+                && !isUpdateable<Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: conflicted ? conflicted.conflicts : [] }))) reasons.push('not updateable');
+            console.log(`updatedVersionedMetafile`, { metafile }, `unable to update`, { reasons });
+        }
 
         return (isDefined(repo) && isDefined(branch) && isDefined(status)
             && isUpdateable<Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: conflicted ? conflicted.conflicts : [] })) ?
