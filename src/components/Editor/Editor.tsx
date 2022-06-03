@@ -17,10 +17,11 @@ import { UUID } from '../../store/types';
 import { isHydrated } from '../../store/thunks/metafiles';
 import { Skeleton } from '@material-ui/lab';
 import cardSelectors from '../../store/selectors/cards';
+import { Card } from '../../store/slices/cards';
 
 const Editor = (props: { metafile: UUID }) => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  const card = useAppSelector((state: RootState) => cardSelectors.selectByMetafile(state, props.metafile))[0];
+  const card: Card | undefined = useAppSelector((state: RootState) => cardSelectors.selectByMetafile(state, props.metafile))[0];
   const loaded = isDefined(metafile) && isHydrated(metafile);
   const [code, setCode] = useState(metafile && metafile.content ? metafile.content : '');
   const [editorRef] = useState(React.createRef<AceEditor>());
@@ -29,7 +30,7 @@ const Editor = (props: { metafile: UUID }) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => (metafile && metafile.content) ? setCode(metafile.content) : undefined, [metafile]);
-  useEffect(() => editorRef.current?.editor.resize(), [editorRef, card.expanded]);
+  useEffect(() => editorRef.current?.editor.resize(), [editorRef, card?.expanded]);
 
   const onChange = async (newCode: string | undefined) => {
     setCode(newCode ? newCode : '');
@@ -43,7 +44,7 @@ const Editor = (props: { metafile: UUID }) => {
     <>
       {loaded ?
         <AceEditor {...mode} theme='monokai' onChange={onChange} name={props.metafile + '-editor'} value={code}
-          ref={editorRef} className='editor' height='100%' width='100%' showGutter={card.expanded} focus={false}
+          ref={editorRef} className='editor' height='100%' width='100%' showGutter={card?.expanded} focus={false}
           setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
         : <Skeleton variant='text' aria-label='loading' width={`${random}%`} />}
     </>
