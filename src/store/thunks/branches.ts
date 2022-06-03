@@ -8,14 +8,14 @@ import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-p
 import { checkout, currentBranch, getConfig, log } from '../../containers/git-porcelain';
 import { AppThunkAPI } from '../hooks';
 import branchSelectors from '../selectors/branches';
-import { Branch, branchAdded } from '../slices/branches';
+import { Branch, branchAdded, branchUpdated } from '../slices/branches';
 import { DirectoryMetafile, FilebasedMetafile, isFilebasedMetafile, isVersionedMetafile, Metafile, metafileUpdated } from '../slices/metafiles';
 import { createMetafile, fetchParentMetafile, updatedVersionedMetafile } from './metafiles';
 import metafileSelectors from '../selectors/metafiles';
 import { UUID } from '../types';
 import { resolveWorktree } from '../../containers/git-worktree';
 import { join, relative } from 'path';
-import { extractStats } from '../../containers/io';
+import { extractStats, isEqualPaths } from '../../containers/io';
 import { Repository, repoUpdated } from '../slices/repos';
 
 type BranchIdentifiers = { root: PathLike, branch: string, scope: 'local' | 'remote' };
@@ -44,7 +44,7 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ bra
                 scope: 'local',
                 ref: current
             } : undefined;
-        let branch: Branch | undefined = root ? branchSelectors.selectByRoot(state, root, branchSelectTarget) : undefined;
+        let branch = root && branchSelectTarget ? branchSelectors.selectByRef(state, branchSelectTarget.ref, branchSelectTarget.scope)[0] : undefined;
         // otherwise create a new branch
         branch = (!branch && input.branchIdentifiers) ? await thunkAPI.dispatch(createBranch(input.branchIdentifiers)).unwrap() : branch;
         return branch;
@@ -81,6 +81,7 @@ export const fetchBranches = createAsyncThunk<{ local: Branch[], remote: Branch[
     'branches/fetchBranches',
     async (root, thunkAPI) => {
         const localBranches = await listBranches({ fs: fs, dir: root.toString() });
+        console.log(`localBranches:`, { localBranches });
         const local = (await Promise.all(localBranches
             .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which is only a reference pointer
             .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: branch, scope: 'local' } })).unwrap())
@@ -103,31 +104,40 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, CheckoutOpt
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
         const metafile = metafileSelectors.selectById(state, input.metafile);
-        const oldBranch: Branch | undefined = (metafile && isVersionedMetafile(metafile)) ? branchSelectors.selectById(state, metafile.branch) : undefined;
-        const newBranch = branchSelectors.selectByRef(state, input.branchRef)[0];
         const repo: Repository | undefined = (metafile && metafile.repo) ? thunkAPI.getState().repos.entities[metafile.repo] : undefined;
+        const oldBranch: Branch | undefined = (metafile && isVersionedMetafile(metafile)) ? branchSelectors.selectById(state, metafile.branch) : undefined;
+        const targetBranch = branchSelectors.selectByRef(state, input.branchRef)[0];
 
+        // Error handling for all currently parsed data
         if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${input.metafile}'`);
-        if (!oldBranch) return thunkAPI.rejectWithValue(`Branch missing for metafile id:'${input.metafile}'`);
-        if (!newBranch) return thunkAPI.rejectWithValue(`Branch missing for target ref:'${input.branchRef}'`);
         if (!repo) return thunkAPI.rejectWithValue(`Repository missing for metafile id:'${input.metafile}'`);
+        if (!oldBranch) return thunkAPI.rejectWithValue(`Branch missing for metafile id:'${input.metafile}'`);
+        if (!targetBranch) return thunkAPI.rejectWithValue(`Branch missing for target ref:'${input.branchRef}'`);
         if (!isFilebasedMetafile(metafile)) return thunkAPI.rejectWithValue(`Cannot checkout branches for virtual metafile:'${input.metafile}'`);
         if (!metafile || !repo) return undefined;
 
         let updated: Metafile | undefined;
         if (input.overwrite) {
             // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
-            if (input.progress) await checkout({ dir: repo.root.toString(), ref: newBranch.ref, onProgress: (e) => console.log(e.phase) });
-            else await checkout({ dir: repo.root.toString(), ref: newBranch.ref });
+            if (input.progress) await checkout({ dir: repo.root.toString(), ref: targetBranch.ref, onProgress: (e) => console.log(e.phase) });
+            else await checkout({ dir: repo.root.toString(), ref: targetBranch.ref });
             updated = metafileSelectors.selectById(state, metafile.id);
         } else {
             // create a new linked worktree and checkout the target branch into it; non-destructive to uncommitted changes in the main worktree
             const oldWorktree = await resolveWorktree(repo, oldBranch.id, oldBranch.ref); // get an existing worktree
-            const newWorktree = await resolveWorktree(repo, newBranch.id, newBranch.ref); // get a new linked-worktree, including creating a directory (if needed)
+            const newWorktree = await resolveWorktree(repo, targetBranch.id, targetBranch.ref); // get a new linked-worktree, including creating a directory (if needed)
             if (!oldWorktree)
-                return thunkAPI.rejectWithValue(`No worktree could be resolved for current worktree =>\n\trepo: '${repo.name}'\n\told branch: '${oldBranch.ref}'\n\tnew branch: '${newBranch.ref}'`);
+                return thunkAPI.rejectWithValue(`No worktree could be resolved for current worktree =>\n\trepo: '${repo.name}'\n\told branch: '${oldBranch.ref}'\n\tnew branch: '${targetBranch.ref}'`);
             if (!newWorktree)
-                return thunkAPI.rejectWithValue(`No worktree could be resolved for new worktree =>\n\trepo: '${repo.name}'\n\told branch: '${oldBranch.ref}'\n\tnew branch: '${newBranch.ref}'`);
+                return thunkAPI.rejectWithValue(`No worktree could be resolved for new worktree =>\n\trepo: '${repo.name}'\n\told branch: '${oldBranch.ref}'\n\tnew branch: '${targetBranch.ref}'`);
+
+            // verify that a new local branch has been created for the linked worktree, regardless of whether there was a previous remote branch or possibly a local branch in the main worktree
+            let newBranch = targetBranch.scope === 'local' ? targetBranch : await thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: newWorktree.path, branch: targetBranch.ref, scope: 'local' } })).unwrap();
+            if (newBranch && isEqualPaths(targetBranch.root, repo.root)) {
+                newBranch = thunkAPI.dispatch(branchUpdated({ ...newBranch, root: newWorktree.path })).payload;
+            }
+
+            console.log(`NEW:`, { newWorktree, targetBranch, newBranch });
 
             // update branches in repo in case new local branches have been checked out
             const branches = repo ? await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap() : undefined;
