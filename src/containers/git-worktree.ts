@@ -199,7 +199,9 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
  * Get worktree path information for a branch within a repository. The main worktree is always listed, even when no linked
  * worktrees exist, so the base case is that the main worktree information is returned. If there is no worktree associated
  * with the target branch, a new worktree will be added (including checking out the code into a separate `.syn/{repo}/{branch}` 
- * directory outside of the root directory of the main worktree) and returned.
+ * directory outside of the root directory of the main worktree) and returned. If a branch was previously checked out into
+ * the repo root path, but is not the current root branch, then the branch refs will be cleared from `.git/refs/heads/{branch}`
+ * directory.
  * @param repo The Repository object that points to the main worktree.
  * @param branchId The UUID of a Branch object in the Redux store.
  * @param branchRef The local or remote branch ref that should be resolved into a worktree.
