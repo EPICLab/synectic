@@ -41,7 +41,7 @@ startAppListening({
     matcher: checkoutBranch.pending.match,
     effect: async (action, listenerApi) => {
         const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafile);
-        if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'versioned'] }));
+        if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'checkout'] }));
     }
 });
 

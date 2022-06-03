@@ -59,8 +59,8 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
   return (<>
     <FormControl id='branch-control' className={styles.formControl}>
       {loading ? <Skeleton variant='text' aria-label='loading' animation='wave' >
-        <FormControl id='branch-control' className={styles.formControl} style={{ width: 120 }} />
-      </Skeleton > :
+        <FormControl id='branch-control' className={styles.formControl} style={{ width: 100 }} />
+      </Skeleton> :
         <TextField
           id='branch-name'
           select

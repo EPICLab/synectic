@@ -81,7 +81,6 @@ export const fetchBranches = createAsyncThunk<{ local: Branch[], remote: Branch[
     'branches/fetchBranches',
     async (root, thunkAPI) => {
         const localBranches = await listBranches({ fs: fs, dir: root.toString() });
-        console.log(`localBranches:`, { localBranches });
         const local = (await Promise.all(localBranches
             .filter(branch => branch !== 'HEAD') // remove HEAD ref pointer, which is only a reference pointer
             .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: branch, scope: 'local' } })).unwrap())
@@ -136,8 +135,6 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, CheckoutOpt
             if (newBranch && isEqualPaths(targetBranch.root, repo.root)) {
                 newBranch = thunkAPI.dispatch(branchUpdated({ ...newBranch, root: newWorktree.path })).payload;
             }
-
-            console.log(`NEW:`, { newWorktree, targetBranch, newBranch });
 
             // update branches in repo in case new local branches have been checked out
             const branches = repo ? await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap() : undefined;
