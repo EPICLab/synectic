@@ -265,6 +265,7 @@ describe('thunks/metafiles', () => {
 
     it('updateVersionedMetafile adds version information to filebased metafile', async () => {
         jest.spyOn(gitPorcelain, 'getStatus').mockResolvedValue('unmodified');
+        jest.spyOn(gitPorcelain, 'currentBranch').mockResolvedValue('test');
         const repo: Repository = {
             id: 'c5739e69-9979-41fe-8605-5bb5ff341027',
             name: 'foo/myRepo',
