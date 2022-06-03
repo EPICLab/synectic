@@ -57,13 +57,13 @@ describe('thunks/cards', () => {
     });
 
     it('createCard resolves an Editor card via filepath', async () => {
-        expect.assertions(2);
+        expect.assertions(3);
         const card = await store.dispatch(createCard({ path: 'foo/example.ts' })).unwrap();
         expect(isUUID(card.id)).toBe(true);
+        expect(isUUID(card.metafile)).toBe(true);
         expect(card).toStrictEqual(expect.objectContaining({
             name: 'example.ts',
-            type: 'Editor',
-            metafile: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'
+            type: 'Editor'
         }));
     });
 
