@@ -163,7 +163,7 @@ export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<bool
  * @param filter An array of key strings that indicate which key-value pairs should be included or excluded.
  * @return The resulting object devoid of key-value fields that did not match the key filter, or an empty object.
  */
-export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: string[]): T | Record<string, never> => {
+export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: string[]): ReturnType<typeof flattenObject<T>> => {
   return Object.entries(flattenObject(obj))
     .filter(([key]) => filter.includes(key))
     .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
