@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import TreeItem, { TreeItemProps } from '@material-ui/lab/TreeItem';
 import { createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 import { SvgIconProps } from '@material-ui/core/SvgIcon';
-import { removeUndefinedProperties } from '../containers/format';
+import { removeUndefinedProperties } from '../containers/utils';
 
 declare module 'csstype' {
   interface Properties {
@@ -75,7 +75,7 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export const StyledTreeItem: React.FunctionComponent<StyledTreeItemProps> = props => {
+export const StyledTreeItem = (props: StyledTreeItemProps) => {
   const { labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler,
     color, bgColor, enableHover, labelInfoText, ...other } = props;
   const [hover, setHover] = useState(false);

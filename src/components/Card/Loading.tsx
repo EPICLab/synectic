@@ -1,14 +1,14 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import type { Card } from '../../types';
-import DataField from '../Card/DataField';
+import DataField from './DataField';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
 import { CircularProgress, makeStyles } from '@material-ui/core';
+import { Card } from '../../store/slices/cards';
 
 const useStyles = makeStyles({
-    root: {
+    loading: {
         background: 'transparent',
         minWidth: '100%',
         minHeight: '100%',
@@ -26,16 +26,16 @@ const useStyles = makeStyles({
     }
 });
 
-const Loading: React.FunctionComponent = () => {
-    const classes = useStyles();
+const Loading = () => {
+    const styles = useStyles();
 
     return (
-        <div className={classes.root}>
-            <CircularProgress className={classes.card} size={60} color='secondary' />
+        <div className={styles.loading}>
+            <CircularProgress className={styles.card} size={60} color='secondary' />
         </div>);
 }
 
-export const LoadingReverse: React.FunctionComponent<Card> = props => {
+export const LoadingReverse = (props: Card) => {
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
 
     return (

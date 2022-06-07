@@ -1,54 +1,64 @@
-import React, { useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { CSSTransition } from 'react-transition-group';
+import clsx from 'clsx';
 import { sep } from 'path';
 import { Typography } from '@material-ui/core';
-import type { Card } from '../../types';
 import { RootState } from '../../store/store';
-import { createStack, pushCards, popCard } from '../../store/thunks/stacks';
+import { createStack, pushCards, popCards } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
 import ContentBack from './ContentBack';
 import ContentFront from './ContentFront';
-import CloseButton from '../Button/CloseButton';
-import FlipButton from '../Button/FlipButton';
-import SaveButton from '../Button/SaveButton';
-import UndoButton from '../Button/UndoButton';
-import { DnDItemType } from '../CanvasComponent';
-import ResetButton from '../Button/ResetButton';
-import StageButton from '../Button/StageButton';
-import UnstageButton from '../Button/UnstageButton';
-import CommitButton from '../Button/CommitButton';
-import ResolveButton from '../Button/ResolveButton';
-import AbortButton from '../Button/AbortButton';
+import CloseButton from '../Button/Close';
+import FlipButton from '../Button/Flip';
+import SaveButton from '../Button/Save';
+import UndoButton from '../Button/Undo';
+import { DnDItemType } from '../Canvas/Canvas';
+import ResetButton from '../Button/Reset';
+import StageButton from '../Button/Stage';
+import UnstageButton from '../Button/Unstage';
+import CommitButton from '../Button/Commit';
+import ResolveButton from '../Button/Resolve';
+import AbortButton from '../Button/Abort';
+import { Card, cardUpdated } from '../../store/slices/cards';
 
 type DragObject = {
   id: string,
   type: string
 }
 
-const Header: React.FunctionComponent<{ title: string }> = props => {
-  return <div className='card-header'>
+const Header = (props: PropsWithChildren<{ title: string, expanded: boolean, expand: () => void }>) => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (event.detail === 2) props.expand();
+  };
+
+  return <div className='card-header' onClick={handleClick} style={{ cursor: props.expanded ? 'default' : 'move' }}>
     <div className='title'><Typography>{props.title}</Typography></div>
     <div className='buttons'>{props.children}</div>
   </div>;
 };
 
-const CardComponent: React.FunctionComponent<Card> = card => {
+const CardComponent = (card: Card) => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
 
+  const expand = () => {
+    !card.captured ? dispatch(cardUpdated({ ...card, expanded: !card.expanded })) : null;
+  }
+
   // Enable CardComponent as a drop source (i.e. allowing this card to be draggable)
   const [{ isDragging }, drag] = useDrag({
     type: DnDItemType.CARD,
     item: () => ({ id: card.id, type: DnDItemType.CARD }),
+    canDrag: !card.expanded,
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     })
-  }, [card.id]);
+  }, [card.id, card.expanded]);
 
   // Enable CardComponent as a drop target (i.e. allow other elements to be dropped on this card)
   const [{ isOver }, drop] = useDrop({
@@ -68,21 +78,21 @@ const CardComponent: React.FunctionComponent<Card> = card => {
           const dropSource = cards[monitor.getItem().id];
           if (dropSource && dropSource.captured) {
             const captureStack = stacks[dropSource.captured];
-            if (captureStack) dispatch(popCard({ card: dropSource, delta: delta }));
+            if (captureStack) dispatch(popCards({ cards: [dropSource.id], delta: delta }));
           }
           if (dropTarget && dropTarget.captured) {
             const capturingStack = stacks[dropTarget.captured];
-            if (capturingStack && dropSource) dispatch(pushCards({ stack: capturingStack, cards: [dropSource] }))
+            if (capturingStack && dropSource) dispatch(pushCards({ stack: capturingStack.id, cards: [dropSource.id] }))
           } else {
             if (dropTarget && dropSource)
-              dispatch(createStack({ name: 'New Stack', cards: [dropTarget, dropSource], note: 'Contains a new stack of items.' }));
+              dispatch(createStack({ name: 'New Stack', cards: [dropTarget.id, dropSource.id], note: 'Contains a new stack of items.' }));
           }
           break;
         }
         case DnDItemType.STACK: {
           if (!card.captured) {
             const dropSource = stacks[monitor.getItem().id];
-            if (dropTarget && dropSource) dispatch(pushCards({ stack: dropSource, cards: [dropTarget] }));
+            if (dropTarget && dropSource) dispatch(pushCards({ stack: dropSource.id, cards: [dropTarget.id] }));
           }
           break;
         }
@@ -100,10 +110,18 @@ const CardComponent: React.FunctionComponent<Card> = card => {
 
   return (
     <div ref={dragAndDrop} data-testid='card-component' id={card.id}
-      className={`card ${(isOver && !card.captured) ? 'drop-source' : ''} ${card.classes.join(' ')}`}
-      style={{ zIndex: card.zIndex, left: card.left, top: card.top, opacity: isDragging ? 0 : 1 }}
+      className={clsx('card', {
+        'drop-source': (isOver && !card.captured),
+        'expanded': card.expanded
+      })}
+      style={{
+        zIndex: card.expanded ? 999 : card.zIndex,
+        left: card.expanded ? 0 : card.left,
+        top: card.expanded ? 61 : card.top,
+        opacity: isDragging ? 0 : 1
+      }}
     >
-      <Header title={card.type === 'Explorer' ? `${sep}${card.name}` : card.name}>
+      <Header title={card.type === 'Explorer' ? `${sep}${card.name}` : card.name} expanded={card.expanded} expand={expand} >
         <ResetButton cardIds={[card.id]} />
         <StageButton cardIds={[card.id]} />
         <UnstageButton cardIds={[card.id]} />

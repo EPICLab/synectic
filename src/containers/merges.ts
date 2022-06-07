@@ -3,8 +3,7 @@ import util from 'util';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
-import { resolveRef } from './git-porcelain';
-import { branchLog } from './git-plumbing';
+import { branchLog, resolveRef } from './git-plumbing';
 import { getWorktreePaths } from './git-path';
 import { extractStats } from './io';
 
@@ -42,7 +41,7 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
 
     const commitDelta = root ? await branchLog(root, base, compare) : [];
     if (root && commitDelta.length == 0) {
-        const oid = worktree.dir ? await resolveRef(worktree.dir, 'HEAD') : '';
+        const oid = worktree.dir ? await resolveRef({ dir: worktree.dir, ref: 'HEAD' }) : '';
         return {
             mergeStatus: {
                 oid: oid ? oid : '',
@@ -55,16 +54,17 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
         }
     }
 
+    const branches = await isogit.listBranches({ fs: fs, dir: dir.toString() }); // branches found locally
     let mergeResults: { stdout: string; stderr: string; } = { stdout: '', stderr: '' };
     let mergeError: ExecError | undefined;
     try {
-        mergeResults = await promiseExec(`git merge ${base} ${compare}`, { cwd: dir.toString() });
+        mergeResults = await promiseExec(`git merge ${branches.includes(base) ? base : `origin/${base}`} ${branches.includes(compare) ? compare : `origin/${compare}`}`, { cwd: dir.toString() });
     } catch (error) {
         mergeError = error as ExecError;
         const conflictPattern = /(?<=conflict in ).*(?=\n)/gm;
         const mergeOutput = mergeError ? `${mergeError.stdout}\n${mergeError.stderr}` : '';
         const conflicts = mergeOutput.match(conflictPattern)?.map(filename => worktree.dir ? path.resolve(worktree.dir.toString(), filename) : filename);
-        const oid = worktree.dir ? await resolveRef(worktree.dir, 'HEAD') : '';
+        const oid = worktree.dir ? await resolveRef({ dir: worktree.dir, ref: 'HEAD' }) : '';
         return {
             mergeStatus: {
                 oid: oid ? oid : '',
@@ -77,7 +77,7 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string): Pr
             stderr: mergeError.stderr
         };
     }
-    const oid = worktree.dir ? await resolveRef(worktree.dir, 'HEAD') : '';
+    const oid = worktree.dir ? await resolveRef({ dir: worktree.dir, ref: 'HEAD' }) : '';
     return {
         mergeStatus: {
             oid: oid ? oid : '',

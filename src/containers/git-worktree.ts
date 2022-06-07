@@ -4,25 +4,33 @@ import * as isogit from 'isomorphic-git';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import isHash from 'validator/lib/isHash';
-import type { GitStatus, Repository, SHA1, UUID } from '../types';
-import { isDefined, removeUndefinedProperties } from './format';
+import { isDefined, removeUndefinedProperties } from './utils';
 import * as io from './io';
 import { checkout, clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
 import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
 import { parse } from './git-index';
 import { compareStats } from './io-stats';
 import { getWorktreePaths } from './git-path';
+import { GitStatus, SHA1, UUID } from '../store/types';
+import { Repository } from '../store/slices/repos';
 
 // API SOURCE: https://git-scm.com/docs/git-worktree
 
 export type Worktree = {
-  id: UUID; // The UUID for Worktree object.
-  path: fs.PathLike; // The relative or absolute path to the git worktree root repository.
-  bare: boolean; // A flag for indicating a bare git worktree.
-  detached: boolean; // A flag for indicating a detached HEAD state in the worktree.
-  main: boolean; // A flag for indicating a main worktree, as opposed to a linked worktree.
-  ref?: string; // A branch name or symbolic ref (can be abbreviated).
-  rev?: SHA1 | string; // A revision (or commit) representing the current state of `index` for the worktree.
+  /** The UUID for Worktree object. */
+  id: UUID;
+  /** The relative or absolute path to the git worktree root repository. */
+  path: fs.PathLike;
+  /** A flag for indicating a bare git worktree. */
+  bare: boolean;
+  /** A flag for indicating a detached HEAD state in the worktree. */
+  detached: boolean;
+  /** A flag for indicating a main worktree, as opposed to a linked worktree. */
+  main: boolean;
+  /** A branch name or symbolic ref (can be abbreviated). */
+  ref?: string;
+  /** A revision (or commit) representing the current state of `index` for the worktree. */
+  rev?: SHA1 | string;
 }
 
 /**
@@ -191,7 +199,9 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
  * Get worktree path information for a branch within a repository. The main worktree is always listed, even when no linked
  * worktrees exist, so the base case is that the main worktree information is returned. If there is no worktree associated
  * with the target branch, a new worktree will be added (including checking out the code into a separate `.syn/{repo}/{branch}` 
- * directory outside of the root directory of the main worktree) and returned.
+ * directory outside of the root directory of the main worktree) and returned. If a branch was previously checked out into
+ * the repo root path, but is not the current root branch, then the branch refs will be cleared from `.git/refs/heads/{branch}`
+ * directory.
  * @param repo The Repository object that points to the main worktree.
  * @param branchId The UUID of a Branch object in the Redux store.
  * @param branchRef The local or remote branch ref that should be resolved into a worktree.
@@ -228,8 +238,15 @@ export const add = async (repo: Repository, worktreeDir: fs.PathLike, commitish?
   const detached = (commitish && isHash(commitish, 'sha1')) ? commitish : undefined;
 
   // initialize the linked worktree
-  await clone({ repo: repo, dir: worktreeDir, ref: branch });
-  await checkout({ dir: worktreeDir, ref: branch });
+  await clone({ repo: repo, dir: worktreeDir, ref: branch, noCheckout: true });
+  const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
+  if (remoteBranches.includes(branch)) {
+    await checkout({ dir: worktreeDir, ref: branch });
+  } else {
+    // if no remote branch exists, then create a new local-only branch and switches branches in the linked worktree
+    await isogit.branch({ fs: fs, dir: repo.root.toString(), ref: branch, checkout: false });
+    checkout({ dir: worktreeDir, ref: branch, noCheckout: true })
+  }
 
   // branch must already exist in order to resolve worktreeLink path (`GIT_DIR/worktrees/{branch}`)
   const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await resolveRef({ dir: worktreeDir, ref: commitish }))

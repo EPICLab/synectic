@@ -1,10 +1,11 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import type { Branch, Repository } from '../../types';
-import { branchesAdapter } from '../slices/branches';
+import { isEqualPaths } from '../../containers/io';
+import { Branch, branchAdapter } from '../slices/branches';
+import { Repository } from '../slices/repos';
 import { RootState } from '../store';
 
-const selectors = branchesAdapter.getSelectors<RootState>(state => state.branches);
+const selectors = branchAdapter.getSelectors<RootState>(state => state.branches);
 
 const selectByIds = createSelector(
     selectors.selectEntities,
@@ -15,26 +16,32 @@ const selectByIds = createSelector(
 const selectByRef = createSelector(
     selectors.selectAll,
     (_state: RootState, ref: string) => ref,
-    (branches, ref) => branches.filter(b => b.ref === ref)
+    (_state: RootState, _root: PathLike, scope?: 'local' | 'remote') => scope,
+    (branches, ref, scope) => scope
+        ? branches.filter(b => b.ref === ref && b.scope === scope)
+        : branches.filter(b => b.ref === ref)
 )
 
 const selectByRoot = createSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
-    (branches, root) => branches.filter(b => b.root === root)
+    (_state: RootState, _root: PathLike, branch?: { scope: 'local' | 'remote', ref: string }) => branch,
+    (branches, root, branch) => branch
+        ? branches.find(b => isEqualPaths(root, b.root) && b.ref === branch.ref && b.scope === branch.scope)
+        : branches.find(b => isEqualPaths(root, b.root))
 )
 
 const selectByGitdir = createSelector(
     selectors.selectAll,
     (_state: RootState, gitdir: PathLike) => gitdir,
-    (branches, gitdir) => branches.filter(b => b.gitdir === gitdir)
+    (branches, gitdir) => branches.filter(b => isEqualPaths(gitdir, b.gitdir))
 )
 
 const selectByRepo = createSelector(
     selectors.selectAll,
-    (_state: RootState, repo: Repository) => repo,
-    (_state: RootState, _repo: Repository, dedup?: boolean) => dedup ? dedup : false,
-    (branches, repo, dedup) => dedup
+    (_state: RootState, repo: Repository | undefined) => repo,
+    (_state: RootState, _repo: Repository | undefined, dedup?: boolean) => dedup ? dedup : false,
+    (branches, repo, dedup) => repo ? dedup
         ? branches.reduce((accumulator: Branch[], branch) => {
             if (repo.local.includes(branch.id)) {
                 // prefer local branches, remove matching remote branch if already added
@@ -47,6 +54,7 @@ const selectByRepo = createSelector(
             return accumulator;
         }, [])
         : branches.filter(branch => repo.local.includes(branch.id) || repo.remote.includes(branch.id))
+        : []
 )
 
 const branchSelectors = {

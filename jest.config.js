@@ -1,18 +1,21 @@
 module.exports = {
     testEnvironment: 'jsdom',
     setupFilesAfterEnv: [
-        '<rootDir>/__test__/setupTests.ts'
+        '<rootDir>/src/test-utils/setupTests.ts'
     ],
     preset: 'ts-jest',
-    roots: ['<rootDir>/__test__'],
     snapshotSerializers: [
         'jest-serializer-path',
     ],
     clearMocks: true,
+    transformIgnorePatterns: [],
+    transform: {
+        "\\.m?js?$": "jest-esm-transformer"
+    },
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
     moduleNameMapper: {
         "ace-builds": "<rootDir>/node_modules/ace-builds",
-        "electron": "<rootDir>/__test__/__mocks__/electronMock.ts",
+        "electron": "<rootDir>/src/test-utils/mock-electron.ts",
         "^dnd-core$": "dnd-core/dist/cjs",
         "^react-dnd$": "react-dnd/dist/cjs",
         "^react-dnd-html5-backend$": "react-dnd-html5-backend/dist/cjs",

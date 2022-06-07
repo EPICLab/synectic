@@ -3,10 +3,10 @@ import { clipboard } from 'electron';
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
 import { v4 } from 'uuid';
 import { ColorSet } from '../../containers/colors';
-import { removeUndefinedProperties } from '../../containers/format';
-import { OutlinedCard } from './GitGraphTag';
+import { removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch } from '../../store/hooks';
 import { modalAdded } from '../../store/slices/modals';
+import OutlinedCard from './GitGraphTag';
 
 const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => removeUndefinedProperties({
   borderRadius: '50%',
@@ -29,7 +29,7 @@ type GitNodeProps = NodeProps & {
   }
 }
 
-export const GitNode: React.FunctionComponent<GitNodeProps> = props => {
+const GitNode = (props: GitNodeProps) => {
   const [isHovering, setIsHovering] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -62,4 +62,6 @@ export const GitNode: React.FunctionComponent<GitNodeProps> = props => {
 
 export const nodeTypes = {
   gitNode: GitNode
-}
+};
+
+export default GitNode;

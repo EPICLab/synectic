@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { shallowEqual } from 'react-redux';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
-import type { Repository, UUID } from '../../types';
 import { RootState } from '../../store/store';
-import { modalAdded, modalRemoved } from '../../store/slices/modals';
-import { v4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { v4 } from 'uuid';
 import repoSelectors from '../../store/selectors/repos';
+import modalSelectors from '../../store/selectors/modals';
+import { modalAdded, modalRemoved } from '../../store/slices/modals';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({
@@ -38,51 +39,45 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export const GitGraphSelect: React.FunctionComponent = () => {
+const GitGraphSelect = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [repo, setRepo] = useState<UUID>();
-  const [graph, setGraph] = useState<UUID>();
+  const [selected, setSelected] = useState('');
+  const graphs = useAppSelector((state: RootState) => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
   const dispatch = useAppDispatch();
-  const classes = useStyles();
+  const styles = useStyles();
+
+  const handleChange = (event: React.ChangeEvent<{ value: string }>) => setSelected(event.target.value);
 
   useEffect(() => {
-    clearMap();
-  }, [repos]);
-
-  const updateMap = (selected: Repository) => {
-    const modal = dispatch(modalAdded({ id: v4(), type: 'GitGraph', target: selected.id })).payload;
-    setGraph(modal.id); // track the modal UUID so that we can remove the graph later
-    setRepo(selected.id); // update the select menu
-  }
-
-  const clearMap = () => {
-    if (graph) dispatch(modalRemoved(graph));
-    setGraph(undefined);
-    setRepo(undefined);
-  }
-
-  const repoChange = async (event: React.ChangeEvent<{ value: UUID }>) => {
-    const selected = repos.find(r => r.id === event.target.value);
-    selected ? updateMap(selected) : clearMap();
-  };
+    if (graphs.length > 0) graphs.map(graph => dispatch(modalRemoved(graph.id)));
+    const selectedRepo = repos.find(r => r.id === selected);
+    if (selectedRepo) dispatch(modalAdded({ id: v4(), type: 'GitGraph', target: selected }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repos, selected]);
 
   return (
     <div style={{ marginLeft: 'auto' }}>
-      <FormControl className={classes.margin}>
+      <FormControl className={styles.margin}>
         <Select
           labelId='repo-select-label'
           id='repo-select'
-          value={repo ? repo : ''}
+          value={repos.find(r => r.id === selected) ? selected : ''}
+          defaultValue=''
           displayEmpty
           disabled={repos.length === 0}
-          defaultValue=''
-          onChange={repoChange}
+          onChange={handleChange}
           input={<StyledInput />}
         >
-          <MenuItem key='' value='' className={classes.defaultItem}>{repo ? 'Clear Map' : 'Repository Map'}</MenuItem>
-          {repos.map(r => <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>)}
+          <MenuItem key='' value='' className={styles.defaultItem}>{selected ? 'Clear Map' : 'Repository Map'}</MenuItem>
+          {repos.map((repo) =>
+            <MenuItem key={repo.id} value={repo.id}>
+              {repo.name}
+            </MenuItem>
+          )}
         </Select>
       </FormControl>
     </div>
   );
 }
+
+export default GitGraphSelect;

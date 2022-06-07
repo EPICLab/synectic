@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tooltip, Typography } from '@material-ui/core';
 
-const DataField: React.FunctionComponent<{ title: string, field: React.ReactNode, textField?: boolean }> = props => {
+const DataField = (props: { title: string, field: React.ReactNode, textField?: boolean }) => {
     return (
         <>
             <div className='title'><Typography variant='body2'>{props.title}:</Typography></div>

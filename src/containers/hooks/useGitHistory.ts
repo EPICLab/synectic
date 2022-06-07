@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react';
 import { ReadCommitResult } from 'isomorphic-git';
-import type { Branch, UUID } from '../../types';
 import { log } from '../git-porcelain';
 import { useAppSelector } from '../../store/hooks';
 import { RootState } from '../../store/store';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
+import { UUID } from '../../store/types';
+import { Branch } from '../../store/slices/branches';
 
 export type CommitInfo = ReadCommitResult & {
   branch: string,
@@ -58,7 +59,7 @@ export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
     // replace the `commits` and `heads` states every time, since deep comparisons for all commits is computationally expensive
     setCommits(commitsCache);
     setHeads(headsCache);
-  }, [repo]);
+  }, [branches, repo]);
 
   return { commits, heads, update };
 }

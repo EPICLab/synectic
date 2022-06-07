@@ -46,15 +46,17 @@ const useStyles = makeStyles({
   },
 });
 
-export const OutlinedCard: React.FunctionComponent<{ content: string, placement: Placement }> = props => {
-  const classes = useStyles();
+const OutlinedCard = (props: { content: string, placement: Placement }) => {
+  const styles = useStyles();
   const position = placementToPosition[props.placement];
 
   return (
     <StyledTag style={{ position: 'absolute', top: position.top, left: position.left }}>
-      <Typography className={classes.content}>
+      <Typography className={styles.content}>
         {props.content}
       </Typography>
     </StyledTag>
   );
 }
+
+export default OutlinedCard;

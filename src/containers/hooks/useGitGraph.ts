@@ -5,10 +5,11 @@ import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
+import { Branch } from '../../store/slices/branches';
 import { RootState } from '../../store/store';
-import type { Branch, UUID } from '../../types';
+import { UUID } from '../../store/types';
 import { checkProject } from '../conflicts';
-import { removeUndefined } from '../format';
+import { removeUndefined } from '../utils';
 import { hasStatus } from '../git-porcelain';
 import usePrevious from './usePrevious';
 
@@ -24,8 +25,11 @@ export type CommitVertex = ReadCommitResult & {
     conflicted: boolean
 }
 type useGitGraphHook = {
+    /** A map from commit oid to CommitVertex elements contained within a graph. */
     graph: GitGraph,
+    /** The ordered list of commit oids for the elements within the graph. */
     topological: Oid[],
+    /** A convenience function for printing both the graph and the topologically-sorted graph of elements. */
     print: () => void
 }
 
@@ -39,10 +43,13 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
 
     useEffect(() => {
         process('branches');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [branches]);
+
     useEffect(() => {
         const changed = prevStaged ? diffArrays(prevStaged, staged).filter(change => change.added || change.removed).length > 0 : true;
         if (changed) process('staged');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [staged]);
 
     const process = async (target: 'branches' | 'staged') => {
@@ -230,6 +237,7 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
         return stack.reverse();
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const topological = useMemo(() => topologicalSort(graph), [graph]);
 
     const print = () => {

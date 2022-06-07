@@ -6,14 +6,13 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 
-import type { Card, UUID } from '../../types';
 import { RootState } from '../../store/store';
 import { diff } from '../../containers/diff';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import cardSelectors from '../../store/selectors/cards';
-import { removeUndefinedProperties } from '../../containers/format';
-import DataField from '../Card/DataField';
+import { removeUndefinedProperties } from '../../containers/utils';
+import { UUID } from '../../store/types';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
   const markers: IMarker[] = [];
@@ -27,8 +26,8 @@ const extractMarkers = (diffOutput: string): IMarker[] => {
   return markers;
 };
 
-const Diff: React.FunctionComponent<{ metafileId: UUID }> = props => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafileId));
+const Diff = (props: { metafile: UUID }) => {
+  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
   const originalCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[0] ? metafile.targets[0] : ''));
   const original = useAppSelector((state: RootState) => metafileSelectors.selectById(state, originalCard ? originalCard.metafile : ''));
   const updatedCard = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[1] ? metafile.targets[1] : ''));
@@ -51,21 +50,6 @@ const Diff: React.FunctionComponent<{ metafileId: UUID }> = props => {
     <AceEditor {...mode} theme='github' name={original?.id + '-diff'} value={diffOutput}
       className='editor' height='100%' width='100%' readOnly={true} markers={markers} showGutter={false}
       setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
-  );
-};
-
-export const DiffReverse: React.FunctionComponent<Card> = props => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  const original = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[0] ? metafile.targets[0] : ''));
-  const updated = useAppSelector((state: RootState) => cardSelectors.selectById(state, metafile?.targets?.[1] ? metafile.targets[1] : ''));
-
-  return (
-    <>
-      <div className='buttons'>
-      </div>
-      <DataField title='Left' textField field={`${original ? original.name : '[Cannot locate original card]'} (...${original ? original.id.slice(-5) : '[uuid]'})`} />
-      <DataField title='Right' textField field={`${updated ? updated.name : '[Cannot locate updated card'} (...${updated ? updated.id.slice(-5) : '[uuid]'})`} />
-    </>
   );
 };
 

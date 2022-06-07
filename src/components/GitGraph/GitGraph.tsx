@@ -1,34 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import ReactFlow, { addEdge, Connection, Edge, FlowElement, OnLoadFunc, OnLoadParams } from 'react-flow-renderer';
-import type { UUID } from '../../types';
+import ReactFlow, { addEdge, Connection, Edge, isEdge, isNode, ReactFlowInstance, useEdgesState, useNodesState } from 'react-flow-renderer';
 import { nodeTypes } from './GitNode';
 import useGitGraph from '../../containers/hooks/useGitGraph';
 import layoutGraph from '../../containers/git-graph';
+import { UUID } from '../../store/types';
 
-export const GitGraph: React.FunctionComponent<{ repo: UUID }> = props => {
-  const [elements, setElements] = useState<FlowElement[]>([]);
-  const [reactFlowState, setReactFlowState] = useState<OnLoadParams>();
-  const { graph, topological } = useGitGraph(props.repo);
+const GitGraph = ({ repo }: { repo: UUID }) => {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const onConnect = (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds));
+  const onInit = (reactFlowInstance: ReactFlowInstance) => { setReactFlowState(reactFlowInstance) };
 
-  const onConnect = (params: Edge | Connection) => setElements((els) => addEdge(params, els));
-  const onLoad: OnLoadFunc = (rf) => { setReactFlowState(rf) };
+  const [reactFlowState, setReactFlowState] = useState<ReactFlowInstance>();
+  const { graph, topological } = useGitGraph(repo);
 
-  useEffect(() => { reactFlowState?.fitView() }, [elements]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { reactFlowState?.fitView() }, [nodes, edges]);
 
   useEffect(() => {
-    setElements(layoutGraph(graph, topological));
+    const rfElements = layoutGraph(graph, topological);
+    setNodes(rfElements.filter(isNode));
+    setEdges(rfElements.filter(isEdge));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graph]);
 
   return (
     <>
-      {/* <IconButton aria-label='print-graph' onClick={() => print()}>
-        <Info />
-      </IconButton> */}
       <ReactFlow
-        elements={elements}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         onConnect={onConnect}
-        onLoad={onLoad}
+        onInit={onInit}
+        fitView
         className='git-flow' />
     </>
   );

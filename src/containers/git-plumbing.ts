@@ -8,13 +8,14 @@ import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
 import { toHTTPS } from 'git-remote-protocol';
 // import { isHiddenFile } from 'is-hidden-file';
-import type { GitStatus, Repository } from '../types';
 import * as io from './io';
 import * as worktree from './git-worktree';
-import { currentBranch } from './git-porcelain';
-import { AtLeastOne, removeUndefinedProperties } from './format';
+import { currentBranch, log } from './git-porcelain';
+import { AtLeastOne, removeUndefinedProperties } from './utils';
 import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
+import { Repository } from '../store/slices/repos';
+import { GitStatus } from '../store/types';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -96,12 +97,14 @@ export const resolveURL = (url: string): string => {
 
 /**
  * Get the value of a symbolic ref or resolve a ref to its SHA-1 object id; this is a wrapper to the *isomorphic-git/resolveRef* function 
- * to inject the `fs` parameter and extend with additional worktree path resolving functionality. If the `gitdir` parameter is a file, then
+ * to inject the `fs` parameter and extend with additional worktree path resolving functionality and special identifier
+ * support (i.e. `HEAD` for the current commit, `HEAD~1` for the previous commit). If the `gitdir` parameter is a file, then
  * `.git` points to a file containing updated pathing to translate from the linked worktree to the main worktree and must be resolved 
  * before any refs can be resolved.
+ * Ref: https://github.com/isomorphic-git/isomorphic-git/issues/1238#issuecomment-871220830
  * @param dir The working tree directory path.
  * @param gitdir The git directory path.
- * @param ref The ref to resolve.
+ * @param ref The git ref or symbolic-ref (i.e. `HEAD` or `HEAD~1`) to resolve against the current branch.
  * @param depth How many symbolic references to follow before returning.
  * @return A Promise object containing the SHA-1 hash or branch name associated with the given `ref` depending on the `depth` parameter; 
  * e.g. `ref: 'HEAD', depth: 2` returns the current branch name, `ref: 'HEAD', depth: 1` returns the SHA-1 hash of the current commit 
@@ -114,11 +117,20 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   depth?: number;
 }): Promise<string> => {
   const worktree = await getWorktreePaths(dir);
-  const optional = removeUndefinedProperties({ depth: depth });
+  const re = /^HEAD~([0-9]+)$/;
+  const match = ref.match(re);
+  if (match) {
+    const count = +match[1];
+    const root = worktree.worktreeDir ? worktree.worktreeDir.toString() : worktree.dir ? worktree.dir.toString() : dir;
+    const commits = await log({ dir: root, depth: count + 1 });
+    const oid = commits.pop()?.oid;
+    if (oid) return oid;
+  }
   if (worktree.gitdir && worktree.worktreeLink && ref === 'HEAD') {
     const linkedRef = (await io.readFileAsync(path.join(worktree.worktreeLink.toString(), 'HEAD'), { encoding: 'utf-8' })).slice('ref: '.length).trim();
     return (await io.readFileAsync(path.join(worktree.gitdir.toString(), linkedRef), { encoding: 'utf-8' })).trim();
   }
+  const optional = removeUndefinedProperties({ depth: depth });
   return await isogit.resolveRef({ fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, ...optional });
 }
 
@@ -150,18 +162,25 @@ export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise
  * @param dir The working tree directory path.
  * @param branchA The base branch name.
  * @param branchB The compare branch name.
+ * @param onProgress Callback for listening to GitProgressEvent occurrences during branch log checks.
  * @return A Promise object containing a list of commits not found in both branches (i.e. the divergent set).
  */
-export const branchLog = async (dir: fs.PathLike, branchA: string, branchB: string): Promise<isogit.ReadCommitResult[]> => {
+export const branchLog = async (
+  dir: fs.PathLike, branchA: string, branchB: string, onProgress?: isogit.ProgressCallback
+): Promise<isogit.ReadCommitResult[]> => {
   const basePath = path.join(dir.toString(), '.git', 'refs', 'heads');
 
+  if (onProgress) await onProgress({ phase: `Checking: ${branchA}`, loaded: 0, total: 2 });
   const logA = (await io.extractStats(path.join(basePath, branchA)))
     ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` })
     : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchA}` });
+  if (onProgress) await onProgress({ phase: `Checking: ${branchA}`, loaded: 1, total: 2 });
 
+  if (onProgress) await onProgress({ phase: `Checking: ${branchB}`, loaded: 1, total: 2 });
   const logB = (await io.extractStats(path.join(basePath, branchB)))
     ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` })
     : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchB}` });
+  if (onProgress) await onProgress({ phase: `Checking: ${branchB}`, loaded: 2, total: 2 });
 
   return logA
     .filter(commitA => !logB.some(commitB => commitA.oid === commitB.oid))
@@ -231,7 +250,7 @@ export const branchDiff = async (
  * [`ignore`](https://github.com/kaelzhang/node-ignore) API documentation.
  */
 export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<Ignore> => {
-  const ignoreFiles = (await io.readDirAsyncDepth(dir)).filter(filename => io.extractFilename(filename) === '.gitignore');
+  const ignoreFiles = (await io.readDirAsyncDepth(dir, 2)).filter(filename => io.extractFilename(filename) === '.gitignore');
   const ignoreManager = ignore();
   ignoreFiles.map(async ignoreFile => {
     const content = await io.readFileAsync(ignoreFile, { encoding: 'utf-8' });
@@ -243,6 +262,8 @@ export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<
     // .gitignore files often incldue 'node_modules/' as a rule, but node-ignore requires the trailing '/' for directories and node 
     // `path` mismatches that by returning only the directory name. See: https://github.com/kaelzhang/node-ignore#2-filenames-and-dirnames
     ignoreManager.add('node_modules');
+    // A .DS_Store file is a Mac OS X folder information file that stores custom attributes of the containing folder.
+    ignoreManager.add('.DS_Store');
   }
   return ignoreManager;
 }

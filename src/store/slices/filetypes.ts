@@ -1,18 +1,30 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
-import type { Filetype } from '../../types';
+import { CardType, UUID } from '../types';
 
-export const filetypesAdapter = createEntityAdapter<Filetype>();
+/** A supported filetype with mapping to type of supporting card in Synectic. */
+export type Filetype = {
+    /** The UUID for Filetype object. */
+    readonly id: UUID;
+    /** The filetype format for encoding/decoding. */
+    readonly filetype: string;
+    /** The type of card that can load content for this filetype. */
+    readonly handler: CardType;
+    /** An array with all filetype extensions (e.g. `.py`, `.js`, `.gitignore`) associated with this filetype. */
+    readonly extensions: string[];
+}
 
-export const filetypesSlice = createSlice({
+export const filetypeAdapter = createEntityAdapter<Filetype>();
+
+export const filetypeSlice = createSlice({
     name: 'filetypes',
-    initialState: filetypesAdapter.getInitialState(),
+    initialState: filetypeAdapter.getInitialState(),
     reducers: {
-        filetypeAdded: filetypesAdapter.addOne,
-        filetypeRemoved: filetypesAdapter.removeOne,
-        filetypeUpdated: filetypesAdapter.upsertOne
+        filetypeAdded: filetypeAdapter.addOne,
+        filetypeRemoved: filetypeAdapter.removeOne,
+        filetypeUpdated: filetypeAdapter.upsertOne
     }
 })
 
-export const { filetypeAdded, filetypeRemoved, filetypeUpdated } = filetypesSlice.actions;
+export const { filetypeAdded, filetypeRemoved, filetypeUpdated } = filetypeSlice.actions;
 
-export default filetypesSlice.reducer;
+export default filetypeSlice.reducer;

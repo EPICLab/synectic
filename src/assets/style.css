@@ -12,8 +12,10 @@ body {
 
 .stack {
   background-color: rgba(102, 204, 117, 0.6);
-  height: calc((350px * 1.25) + 28px); /* scaled from card height */
-  width: calc((250px * 1.25) + 28px); /* scaled from card width */
+  /* scaled from card height */
+  height: calc((350px * 1.25) + 28px);
+  /* scaled from card width */
+  width: calc((250px * 1.25) + 28px);
   position: absolute;
   cursor: move;
   border: 0.5px solid rgba(125, 125, 125, 1);
@@ -24,14 +26,23 @@ body {
 .card {
   background: rgba(89, 87, 90, 1);
   color: rgba(171, 178, 191, 1);
-  height: 350px; /* 7:5 aspect ratio */
-  width: 250px; /* 7:5 aspect ratio */
+  /* 7:5 aspect ratio */
+  height: 350px;
+  /* 7:5 aspect ratio */
+  width: 250px;
   position: absolute;
   perspective: 1000px;
   border: 1px solid rgba(89, 87, 90, 1);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   border-radius: 10px;
   user-select: none;
+}
+
+.card.expanded {
+  left: 0;
+  top: 61px;
+  height: 100%;
+  width: 100%;
 }
 
 .drop-source {
@@ -140,7 +151,8 @@ body {
   margin-left: 5px;
 }
 
-.card-back .title *, .card-back .field * {
+.card-back .title *,
+.card-back .field * {
   font-size: small;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -150,7 +162,8 @@ body {
   text-transform: uppercase;
 }
 
-.card-back .title, .card-back .field {
+.card-back .title,
+.card-back .field {
   margin: auto 3px;
 }
 
@@ -246,6 +259,7 @@ img.diff_icon {
 
 .branch-ribbon {
   display: block;
+  white-space: nowrap;
   background-color: rgb(88, 90, 194);
   color: rgb(200, 210, 220);
   font-family: Arial, Helvetica, sans-serif;
@@ -260,13 +274,21 @@ img.diff_icon {
 }
 
 .branch-ribbon-container {
-  background-color: rgba(72, 74, 212, 1);
+  background-color: rgb(88, 90, 194);
 }
 
 @keyframes scroll-text {
-  0% { transform: translateX(0%); }
-  50% { transform: translateX(-40%); }
-  100% { transform: translateX(0%); }
+  0% {
+    transform: translateX(0%);
+  }
+
+  50% {
+    transform: translateX(-40%);
+  }
+
+  100% {
+    transform: translateX(0%);
+  }
 }
 
 .new-card-dialog-container {
@@ -293,46 +315,6 @@ img.diff_icon {
 
 #new-card-dialog-title {
   margin-top: -10px;
-}
-
-div.browser-topbar {
-  display: flex;
-  justify-content: space-evenly;
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
-button.arrow-left {
-  background: url('arrow-left-bold.svg') no-repeat center top/contain;
-  background-size: cover;
-  border-style: none;
-  outline: 0px;
-}
-
-button.arrow-right {
-  background: url('arrow-right-bold.svg') no-repeat center top/contain;
-  background-size: cover;
-  border-style: none;
-  outline: 0px;
-}
-
-button.refresh {
-  background: url('refresh.svg') no-repeat center top/contain;
-  background-size: cover;
-  border-style: none;
-  outline: 0px;
-}
-
-.url-bar-style {
-  height: 17px;
-  border-radius: 2px;
-  border: none;
-}
-
-div.browser-content {
-  border-radius: 0px 0px 10px 10px;
-  height: calc(100% - 25px);
-  width: 100%;
 }
 
 div.version-tracker {

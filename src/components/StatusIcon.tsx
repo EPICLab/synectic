@@ -1,6 +1,6 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { CircularProgress } from '@material-ui/core';
+import { Box, CircularProgress, LinearProgress, Typography } from '@material-ui/core';
 import { green, red } from '@material-ui/core/colors';
 import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -41,10 +41,12 @@ export type Status =
     | 'Passing'
     | 'Failing';
 
-const StatusIcon: React.FunctionComponent<{ status: Status }> = props => {
+const StatusIcon = (props: { status: Status, progress?: number }) => {
     switch (props.status) {
         case 'Running':
-            return <StyledCircularProgress size={18} />;
+            return props.progress ?
+                <StyledCircularProgress size={18} variant='determinate' value={props.progress} /> :
+                <StyledCircularProgress size={18} />;
         case 'Passing':
             return <StyledCheckIcon />;
         case 'Failing':
@@ -52,6 +54,27 @@ const StatusIcon: React.FunctionComponent<{ status: Status }> = props => {
         default:
             return null;
     }
+}
+
+export const LinearProgressWithLabel = (props: { value: number, subtext?: string }) => {
+    return (
+        <>
+            <Box display='flex' alignItems='center' ml={2} mr={1}>
+                <Box width='100%' mr={1}>
+                    <LinearProgress variant='determinate' {...props} />
+                </Box>
+                <Box minWidth={35}>
+                    <Typography variant='body2' color='textSecondary'>{`${Math.round(props.value,)}%`}</Typography>
+                </Box>
+            </Box>
+            {props.subtext ?
+                <Box width='100%' ml={2} mr={1}>
+                    <Typography variant='caption' color='textSecondary'>{props.subtext}</Typography>
+                </Box>
+                : undefined
+            }
+        </>
+    );
 }
 
 export default StatusIcon;
