@@ -7,7 +7,7 @@ import isHash from 'validator/lib/isHash';
 import { isDefined, removeUndefinedProperties } from './utils';
 import * as io from './io';
 import { checkout, clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
-import { getIgnore, resolveOid, resolveRef } from './git-plumbing';
+import { getIgnore, resolveEntry, resolveRef } from './git-plumbing';
 import { parse } from './git-index';
 import { compareStats } from './io-stats';
 import { getWorktreePaths } from './git-path';
@@ -66,7 +66,8 @@ const createWorktree = async (root: fs.PathLike, bare = false): Promise<Worktree
  */
 export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined> => {
   const { dir, worktreeDir, worktreeLink } = await getWorktreePaths(filepath);
-  if (!worktreeDir || !worktreeLink) return undefined; // filepath is not part of a linked worktree, must use `git-plumbing.matrixEntry` for main worktree
+  // if not part of a linked worktree, then `git-plumbing.matrixEntry` must be used for main worktree files
+  if (!worktreeDir || !worktreeLink) return undefined;
   if (!dir) return undefined; // not under version control
 
   const branch = await currentBranch({ dir: worktreeDir });
@@ -83,25 +84,47 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
   const indexBuffer = await io.readFileAsync(path.join(worktreeLink.toString(), 'index'));
   const index = parse(indexBuffer);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, prefer-const
+  let cache: any = {};
+  // recursively walk the tree to aggregate the status of multiple files at once
   const result = await isogit.walk({
     fs: fs,
     dir: worktreeDir.toString(),
     gitdir: worktreeLink.toString(),
     trees: [isogit.TREE({ ref: branch }), isogit.WORKDIR(), isogit.STAGE()],
+    cache: cache,
     map: async (filename: string, entries: (isogit.WalkerEntry | null)[]) => {
       if (!entries || filename === '.' || ignoreWorktree.ignores(filename)) return;
+      const filepath = path.join(worktreeDir.toString(), filename);
+
+      // determine oid for head tree
+      const head = await resolveEntry(path.join(worktreeDir.toString(), filename), branch, cache);
+      const headOid = head ? head.oid : undefined;
 
       const [workdir, stage] = entries.slice(1, 3);
 
-      // determine oid for head tree
-      const head = await resolveOid(path.join(worktreeDir.toString(), filename), branch);
+      const headType = head && head.type;
+      const [workdirType, stageType] = await Promise.all([
+        workdir && workdir.type(),
+        stage && stage.type()
+      ]);
+      const isBlob = [headType, workdirType, stageType].includes('blob');
+
+      // bail on directories unless the file is also a blob in another tree
+      if ((headType === 'tree') && !isBlob) return;
+      if (headType === 'commit') return null;
+
+      if ((workdirType === 'tree' || workdirType === 'special') && !isBlob) return;
+
+      if (stageType === 'commit') return null;
+      if ((stageType === 'tree' || stageType === 'special') && !isBlob) return;
 
       // determine oid for working directory tree
       let workdirOid;
-      if (!head && workdir && !stage) {
+      if (headType !== 'blob' && workdirType === 'blob' && stageType !== 'blob') {
         workdirOid = '42';
-      } else if (workdir) {
-        const content = await io.readFileAsync(path.join(worktreeDir.toString(), filename), { encoding: 'utf-8' });
+      } else if (workdirType === 'blob') {
+        const content = await io.readFileAsync(filepath, { encoding: 'utf-8' });
         const hash = (await isogit.hashBlob({ object: content }));
         workdirOid = hash.oid;
       }
@@ -110,7 +133,7 @@ export const statusMatrix = async (filepath: fs.PathLike): Promise<[string, 0 | 
       const indexEntry = index.entries.find(entry => entry.filePath === filename);
       const stageOid = indexEntry ? indexEntry.objectId.slice(2) : undefined;
 
-      const entry = [undefined, head, workdirOid, stageOid];
+      const entry = [undefined, headOid, workdirOid, stageOid];
       const result = entry.map(value => entry.indexOf(value));
       result.shift();
 
@@ -146,9 +169,9 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
   if (ignoreWorktree.ignores(relativePath)) return 'ignored';
 
   // determine oid for HEAD tree
-  const oid = await resolveOid(filepath, branch);
-  if (!oid) return undefined;
-  const treeOid = (await isogit.readBlob({ fs: fs, dir: dir.toString(), oid: oid })).oid;
+  const entry = await resolveEntry(filepath, branch);
+  if (!entry) return undefined;
+  const treeOid = (await isogit.readBlob({ fs: fs, dir: dir.toString(), oid: entry.oid })).oid;
 
   // parse the appropriate git index file for evaluating staged tree status
   const indexBuffer = await io.readFileAsync(path.join(worktreeLink.toString(), 'index'))
