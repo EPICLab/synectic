@@ -10,7 +10,7 @@ import { AppThunkAPI } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import { Branch, branchAdded, branchUpdated } from '../slices/branches';
 import { DirectoryMetafile, FilebasedMetafile, isFilebasedMetafile, isVersionedMetafile, Metafile, metafileUpdated } from '../slices/metafiles';
-import { createMetafile, fetchParentMetafile, updatedVersionedMetafile } from './metafiles';
+import { createMetafile, fetchParentMetafile } from './metafiles';
 import metafileSelectors from '../selectors/metafiles';
 import { UUID } from '../types';
 import { resolveWorktree } from '../../containers/git-worktree';
@@ -150,11 +150,8 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, CheckoutOpt
         }
         // get an updated metafile based on the updated worktree path
         if (!updated) return thunkAPI.rejectWithValue(`Cannot locate updated metafile with new branch for path: '${metafile.path}'`);
+        updated = thunkAPI.dispatch(metafileUpdated({ ...updated, loading: metafile.loading.filter(flag => flag !== 'checkout') })).payload;
 
-        if (isFilebasedMetafile(updated)) {
-            updated = await thunkAPI.dispatch(updatedVersionedMetafile(updated)).unwrap();
-            updated = thunkAPI.dispatch(metafileUpdated({ ...updated, loading: metafile.loading.filter(flag => flag !== 'checkout') })).payload;
-        }
         if (input.progress) console.log('checkout complete...');
         return updated;
     }
