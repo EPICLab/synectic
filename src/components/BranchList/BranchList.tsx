@@ -45,14 +45,18 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
     console.log(`checkout: ${newBranch}`);
     if (card && metafile) {
       const overwrite = removeUndefinedProperties({ overwrite: props.overwrite });
-      const updated = await dispatch(checkoutBranch({ metafile: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
-      if (updated) setSelected(newBranch);
-      if (updated) dispatch(cardUpdated({
-        ...card,
-        name: updated.name,
-        modified: updated.modified,
-        metafile: updated.id
-      }));
+      try {
+        const updated = await dispatch(checkoutBranch({ metafile: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
+        if (updated) setSelected(newBranch);
+        if (updated) dispatch(cardUpdated({
+          ...card,
+          name: updated.name,
+          modified: updated.modified,
+          metafile: updated.id
+        }));
+      } catch (error) {
+        console.error(`Checkout failed: `, error);
+      }
     }
   };
 
