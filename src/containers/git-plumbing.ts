@@ -135,23 +135,38 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
 }
 
 /**
- * Resolve a ref to its SHA-1 object id for a specific filepath contained within a git branch. The response represents an oid that 
- * can be provided directly to `resolveRef` in order to obtain a blob string containing the latest version on a particular branch 
- * (i.e. for determining whether the file has diverged from the latest version in git).
+ * Resolve a filepath ref to a simplified `TreeEntry` representation containing the SHA-1 object id for a specific filepath within
+ * a git branch. The response includes an oid that can be provided directly to `resolveRef` in order to obtain a blob string containing 
+ * the latest version on a particular branch (i.e. for determining whether the file has diverged from the latest version in git).
  * @param filepath The relative or absolute path to resolve.
  * @param branch The branch to reference for resolving the indicated filepath.
+ * @param cache A cache object for storing intermediate results and re-using them between commands. See: https://isomorphic-git.org/docs/en/cache
  * @returns A Promise object containing the SHA-1 hash associated with the filepath in the latest commit on the indicated branch.
  */
-export const resolveOid = async (filepath: fs.PathLike, branch: string): Promise<string | undefined> => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const resolveEntry = async (filepath: fs.PathLike, branch: string, cache?: any): Promise<isogit.TreeEntry | undefined> => {
   const root = await getRoot(filepath);
   const { dir } = await getWorktreePaths(filepath);
   if (!root || !dir) return undefined; // not under version control
 
-  const relativePath = path.relative(root.toString(), filepath.toString());
   const commit = await resolveRef({ dir: dir, ref: branch });
-  const tree = (await isogit.readCommit({ fs: fs, dir: dir.toString(), oid: commit })).commit.tree;
-  const entry = (await isogit.readTree({ fs: fs, dir: dir.toString(), oid: tree })).tree.find(entry => entry.path === relativePath);
-  return entry ? entry.oid : undefined;
+  const tree = (await isogit.readCommit({ fs: fs, dir: dir.toString(), oid: commit, cache })).commit.tree;
+
+  const relativePath = path.relative(root.toString(), filepath.toString());
+  const entry = await recurseTrees(relativePath, dir, tree, cache);
+  return entry;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const recurseTrees = async (relativePath: fs.PathLike, dir: fs.PathLike, tree: string, cache?: any): Promise<isogit.TreeEntry | undefined> => {
+  const pathSegments = relativePath.toString().split(/[\\/]/);
+  const trees = (await isogit.readTree({ fs: fs, dir: dir.toString(), oid: tree, cache })).tree;
+  const entry = trees.find(entry => entry.path === pathSegments[0]);
+  if (entry && entry.type === 'tree' && pathSegments.length > 1) {
+    pathSegments.shift();
+    return await recurseTrees(path.join(...pathSegments), dir, entry.oid, cache);
+  }
+  return entry;
 }
 
 /**
@@ -414,8 +429,8 @@ export const discardChanges = async (filepath: fs.PathLike): Promise<string | un
   const branch = await currentBranch({ dir: root, fullname: false });
   if (!branch) return undefined;
 
-  const oid = await resolveOid(filepath, branch);
-  if (!oid) return undefined;
-  const blob = await isogit.readBlob({ fs: fs, dir: dir.toString(), oid: oid });
+  const entry = await resolveEntry(filepath, branch);
+  if (!entry) return undefined;
+  const blob = await isogit.readBlob({ fs: fs, dir: dir.toString(), oid: entry.oid });
   return Buffer.from(blob.blob).toString('utf-8');
 }
