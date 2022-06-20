@@ -37,7 +37,7 @@
   "devDependencies": {
     "@atao60/fse-cli": "^0.1.7",
     "@electron-forge/cli": "^6.0.0-beta.64",
-    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.64",
     "@electron-forge/maker-dmg": "^6.0.0-beta.64",
     "@electron-forge/maker-rpm": "^6.0.0-beta.64",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.64",
@@ -111,7 +111,7 @@
     "git-config-path": "^2.0.0",
     "ignore": "^5.2.0",
     "ini": "^3.0.0",
-    "isomorphic-git": "^1.17.3",
+    "isomorphic-git": "^1.18.3",
     "luxon": "^2.4.0",
     "parse-git-config": "^3.0.0",
     "parse-path": "^4.0.4",
