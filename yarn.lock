@@ -888,13 +888,13 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
-"@electron-forge/maker-deb@^6.0.0-beta.63":
-  version "6.0.0-beta.63"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.63.tgz#7a56c0c36c474b1cce9f966aa852242a5336a4d4"
-  integrity sha512-6U4SQ9qFqd0UPCTfJU6358ifxnLvMxJmwyy3Z/4lZlYIfL2112gsQRyvlv7UcFXamw+1CZ9n9SY3f/K50susEQ==
+"@electron-forge/maker-deb@^6.0.0-beta.64":
+  version "6.0.0-beta.64"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.64.tgz#e5bba1c661cb67bee40a8af84ea8abca82ab8094"
+  integrity sha512-6dDcJ5xoiDMPPVnNzIl3M7St31hZtIvplVtJ8P9A01DDEPrA8gsQbWMgQDHg8EgbbvMlErqbGqiWSybzoqlBrw==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.63"
-    "@electron-forge/shared-types" "6.0.0-beta.63"
+    "@electron-forge/maker-base" "6.0.0-beta.64"
+    "@electron-forge/shared-types" "6.0.0-beta.64"
   optionalDependencies:
     electron-installer-debian "^3.0.0"
 
@@ -909,23 +909,23 @@
   optionalDependencies:
     electron-installer-dmg "^4.0.0"
 
-"@electron-forge/maker-rpm@^6.0.0-beta.63":
-  version "6.0.0-beta.63"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.63.tgz#ac37b05e76d00415a7e16244d7f06a383feb851d"
-  integrity sha512-htKNsA3/7nOd5PL6jjdrYCcSXrrIj43aJyOfIuFHswFpjFFmYEgsDCrN8lKZH5y1qdXQefaGOc9MapuBC0GO+w==
+"@electron-forge/maker-rpm@^6.0.0-beta.64":
+  version "6.0.0-beta.64"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.0-beta.64.tgz#b2fd2ca3bc30571424e9184ed72fea5eae4ea28c"
+  integrity sha512-j2WtseEqXRGCEgAsn0xiNMOwYvGUzTECpu2n5Lsvh6BRE+rZ2CFPIJHHbNmPRwi7FZ9X4Oz8jN+lzLJeRH33iQ==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.63"
-    "@electron-forge/shared-types" "6.0.0-beta.63"
+    "@electron-forge/maker-base" "6.0.0-beta.64"
+    "@electron-forge/shared-types" "6.0.0-beta.64"
   optionalDependencies:
     electron-installer-redhat "^3.2.0"
 
-"@electron-forge/maker-squirrel@^6.0.0-beta.63":
-  version "6.0.0-beta.63"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-squirrel/-/maker-squirrel-6.0.0-beta.63.tgz#6424f643ec256ed75746b7746bffadc272c5f076"
-  integrity sha512-18eLRQmMZ6zBcI1Jhuqvhm50bmmatRCbyOUHTaIbhVf1M6ksq34xXXVWKUGlqDiCNLLLNzVw5MIb9O04eUdfIg==
+"@electron-forge/maker-squirrel@^6.0.0-beta.64":
+  version "6.0.0-beta.64"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-squirrel/-/maker-squirrel-6.0.0-beta.64.tgz#052461d8bd3ace9766d481ef78bbbdc75eaeeb25"
+  integrity sha512-9+62bQwKBmmarb07/+E+wATOQwsIW3BAP6pjOM6oZeMzNTfPWyMyGU0ta6jO8Wmg2SKAG5b6iLoh7lso8gaiGg==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.63"
-    "@electron-forge/shared-types" "6.0.0-beta.63"
+    "@electron-forge/maker-base" "6.0.0-beta.64"
+    "@electron-forge/shared-types" "6.0.0-beta.64"
     fs-extra "^10.0.0"
   optionalDependencies:
     electron-winstaller "^5.0.0"
@@ -944,22 +944,22 @@
   dependencies:
     "@electron-forge/shared-types" "6.0.0-beta.64"
 
-"@electron-forge/plugin-webpack@6.0.0-beta.63":
-  version "6.0.0-beta.63"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.0.0-beta.63.tgz#2d81cd8765381e2dea80f0a4103e772b2ed06fef"
-  integrity sha512-ITDN6Be0Z/JgwXmN4aXfT+B8TUg5AcvSW2j/NTkATiqUaVyaqq97UxqJ+gx15ouraKW92szEvL2Mo2JwG7bXYg==
+"@electron-forge/plugin-webpack@6.0.0-beta.64":
+  version "6.0.0-beta.64"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.0.0-beta.64.tgz#29a24eb95d59b0d69391bca629288869f2531a31"
+  integrity sha512-kugI48W11LHg0YyOSDU/SJNn3BkcANRma5SE5PphxkUK8rjPBxLEwGUXo6DbkbXUF//dqMCdTGsE66zqyx01yg==
   dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.63"
-    "@electron-forge/core" "6.0.0-beta.63"
-    "@electron-forge/plugin-base" "6.0.0-beta.63"
-    "@electron-forge/shared-types" "6.0.0-beta.63"
-    "@electron-forge/web-multi-logger" "6.0.0-beta.63"
+    "@electron-forge/async-ora" "6.0.0-beta.64"
+    "@electron-forge/core" "6.0.0-beta.64"
+    "@electron-forge/plugin-base" "6.0.0-beta.64"
+    "@electron-forge/shared-types" "6.0.0-beta.64"
+    "@electron-forge/web-multi-logger" "6.0.0-beta.64"
     chalk "^4.0.0"
     debug "^4.3.1"
     fs-extra "^10.0.0"
     global "^4.3.2"
     html-webpack-plugin "^5.3.1"
-    webpack "^5.37.0"
+    webpack "^5.69.1"
     webpack-dev-server "^4.0.0"
     webpack-merge "^5.7.3"
 
@@ -1081,10 +1081,10 @@
     "@electron-forge/template-base" "6.0.0-beta.64"
     fs-extra "^10.0.0"
 
-"@electron-forge/web-multi-logger@6.0.0-beta.63":
-  version "6.0.0-beta.63"
-  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.0.0-beta.63.tgz#4d349ef929cc7a01ee7de5edbd7bc75583b604b2"
-  integrity sha512-FRo/7+oolFaSGu8XP+ukXXxDKcWOb5DSUiGWzFtYKIYc6HHGy/ErGNuxh3NQf3PMTM3nxfFwbAEtthSulW1Wrw==
+"@electron-forge/web-multi-logger@6.0.0-beta.64":
+  version "6.0.0-beta.64"
+  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.0.0-beta.64.tgz#b04a673481792332eb912497fef85a16aef184d6"
+  integrity sha512-0+xruclLP21mKtwXMTo6wHGLmHhRV3mqnS0Gy63UUaIQxXb2r9Ft6ttZTicdMkony1ZyGCjIh5b/glqIlk/OfQ==
   dependencies:
     express "^4.17.1"
     express-ws "^5.0.2"
@@ -1546,10 +1546,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@testing-library/dom@^8.0.0", "@testing-library/dom@^8.13.0":
-  version "8.13.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.13.0.tgz#bc00bdd64c7d8b40841e27a70211399ad3af46f5"
-  integrity sha512-9VHgfIatKNXQNaZTtLnalIy0jNZzY35a4S3oi08YAt9Hv1VsfZ/DfA45lM8D/UhtHBGJ4/lGwp0PZkVndRkoOQ==
+"@testing-library/dom@^8.0.0", "@testing-library/dom@^8.14.0":
+  version "8.14.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.14.0.tgz#c9830a21006d87b9ef6e1aae306cf49b0283e28e"
+  integrity sha512-m8FOdUo77iMTwVRCyzWcqxlEIk+GnopbrRI15a0EaLbpZSCinIVI4kSQzWhkShK83GogvEFJSsHF3Ws0z1vrqA==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@babel/runtime" "^7.12.5"
@@ -1853,10 +1853,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
-"@types/node@*", "@types/node@^17.0.40":
-  version "17.0.40"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.40.tgz#76ee88ae03650de8064a6cf75b8d95f9f4a16090"
-  integrity sha512-UXdBxNGqTMtm7hCwh9HtncFVLrXoqA3oJW30j6XWp5BH/wu3mVeaxo7cq5benFdBw34HB3XDT2TRPI7rXZ+mDg==
+"@types/node@*", "@types/node@^18.0.0":
+  version "18.0.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.0.0.tgz#67c7b724e1bcdd7a8821ce0d5ee184d3b4dd525a"
+  integrity sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==
 
 "@types/node@^16.11.26":
   version "16.11.26"
@@ -9909,7 +9909,7 @@ webpack-sources@^3.2.3:
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.2.3.tgz#2d4daab8451fd4b240cc27055ff6a0c2ccea0cde"
   integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
 
-webpack@^5.37.0, webpack@^5.73.0:
+webpack@^5.69.1, webpack@^5.73.0:
   version "5.73.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.73.0.tgz#bbd17738f8a53ee5760ea2f59dce7f3431d35d38"
   integrity sha512-svjudQRPPa0YiOYa2lM/Gacw0r6PvxptHj4FuEKQ2kX05ZLkjbVc5MnPs6its5j7IZljnIqSVo/OsY2X0IpHGA==
