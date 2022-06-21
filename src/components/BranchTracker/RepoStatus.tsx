@@ -16,7 +16,9 @@ const RepoStatus = (props: { repo: Repository; }) => {
 
     return (
         <StyledTreeItem key={props.repo.id} nodeId={props.repo.id} labelText={props.repo.name} labelIcon={GitRepoIcon}>
-            {branches.filter(branch => branch.ref !== 'HEAD').map(branch => <BranchStatus key={v4()} repo={props.repo} branch={branch} />)}
+            {branches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref)).map(branch =>
+                <BranchStatus key={v4()} repo={props.repo} branch={branch} />
+            )}
             <StyledTreeItem
                 key={`${props.repo}-newBranch`}
                 nodeId={`${props.repo}-newBranch`}
