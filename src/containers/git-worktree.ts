@@ -261,7 +261,7 @@ export const add = async (repo: Repository, worktreeDir: fs.PathLike, commitish?
   const detached = (commitish && isHash(commitish, 'sha1')) ? commitish : undefined;
 
   // initialize the linked worktree
-  await clone({ repo: repo, dir: worktreeDir, ref: branch, noCheckout: true });
+  await clone({ dir: worktreeDir, repo: { root: repo.root, url: repo.url }, ref: branch, noCheckout: true });
   const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
   if (remoteBranches.includes(branch)) {
     await checkout({ dir: worktreeDir, ref: branch });
