@@ -53,7 +53,9 @@ export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), 
  * additional local-only branch functionality. If the `ref` parameter or the current branch do not exist on the remote repository, then the
  * local-only repository (including the *.git* directory) is copied using the *fs.copy* function (excluding the `node_modules` directory).
  * @param dir The worktree root directory to contain the cloned repo.
- * @param repo A Repository object to be cloned.
+ * @param url The URL of a remote repository to be cloned.
+ * @param repo.root The worktree root directory of a local repository to be cloned.
+ * @param repo.url The URL associated with an existing local repository to be cloned.
  * @param ref An optional branch name or SHA-1 hash to target cloning to that specific branch or commit.
  * @param singleBranch Instead of the default behavior of fetching all the branches, only fetch a single branch.
  * @param noCheckout Only fetch the repo without checking out a branch. Skipping checkout can save a lot of time normally spent writing
@@ -68,7 +70,7 @@ export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), 
 export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheckout = false, noTags = false, depth, exclude, onProgress }: {
   dir: fs.PathLike;
   url?: URL;
-  repo?: Repository;
+  repo?: { root: fs.PathLike, url: string };
   ref?: string;
   singleBranch?: boolean;
   noCheckout?: boolean;
@@ -104,7 +106,7 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
     } else {
       // cloning an existing repository into a linked worktree root directory
       await isogit.clone({
-        fs: fs, http: http, dir: dir.toString(), url: repo.url, singleBranch: singleBranch, noCheckout: noCheckout,
+        fs: fs, http: http, dir: dir.toString(), url: repo.url.toString(), singleBranch: singleBranch, noCheckout: noCheckout,
         noTags: noTags, ...optionals
       });
       return true;
