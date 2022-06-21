@@ -142,7 +142,7 @@ export const checkout = async ({
   dryRun?: boolean;
   force?: boolean;
   track?: boolean;
-  onProgress?: isogit.ProgressCallback;
+  onProgress?: isogit.ProgressCallback | undefined;
 }): Promise<void> => {
   const optionals = removeUndefinedProperties({ filepaths, onProgress });
   return isogit.checkout({
