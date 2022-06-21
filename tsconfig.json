@@ -9,6 +9,7 @@
     "exactOptionalPropertyTypes": true,
     "useUnknownInCatchVariables": true,
     "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
     "sourceMap": true,
     "baseUrl": ".",
     "jsx": "react",
