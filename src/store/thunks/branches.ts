@@ -95,6 +95,16 @@ export const fetchBranches = createAsyncThunk<{ local: Branch[], remote: Branch[
     }
 );
 
+/** Verify that a repository is tracking all local and remote branches. */
+export const updateRepository = createAsyncThunk<Repository, Repository, AppThunkAPI>(
+    'branches/updateRepository',
+    async (repo, thunkAPI) => {
+        const branches = await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap();
+        const branchIds = { local: branches.local.map(b => b.id), remote: branches.remote.map(b => b.id) };
+        return thunkAPI.dispatch(repoUpdated({ ...repo, ...branchIds })).payload;
+    }
+);
+
 type CheckoutOptions = { metafile: UUID, branchRef: string, progress?: boolean, overwrite?: boolean };
 
 /** Checkout git branches from remote to local scope and switch branch references in a targeted Metafile. */
@@ -137,8 +147,7 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, CheckoutOpt
             }
 
             // update branches in repo in case new local branches have been checked out
-            const branches = repo ? await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap() : undefined;
-            (repo && branches) ? thunkAPI.dispatch(repoUpdated({ ...repo, ...{ local: branches.local.map(b => b.id), remote: branches.remote.map(b => b.id) } })) : undefined;
+            repo ? await thunkAPI.dispatch(updateRepository(repo)) : undefined;
 
             // either extract existing metafile or create a new metafile for the original metafile filepath
             const relativePath = relative(oldWorktree.path.toString(), metafile.path.toString());
