@@ -7,7 +7,7 @@ import { Branch } from '../../store/slices/branches';
 import { Repository } from '../../store/slices/repos';
 import { createCard } from '../../store/thunks/cards';
 import { createMetafile, updateConflicted } from '../../store/thunks/metafiles';
-import { Status } from '../StatusIcon';
+import { Status } from '../Status';
 
 type MissingGitConfigs = string[] | undefined;
 

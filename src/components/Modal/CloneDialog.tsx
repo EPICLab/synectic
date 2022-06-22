@@ -6,7 +6,7 @@ import { Modal, modalRemoved } from '../../store/slices/modals';
 import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git-plumbing';
 import { cloneDirectoryDialog } from '../../containers/dialogs';
 import { cloneRepository } from '../../store/thunks/repos';
-import { LinearProgressWithLabel, Status } from '../StatusIcon';
+import { LinearProgressWithLabel, Status } from '../Status';
 import { loadBranchVersions } from '../../containers/branch-tracker';
 
 const useStyles = makeStyles((theme: Theme) =>

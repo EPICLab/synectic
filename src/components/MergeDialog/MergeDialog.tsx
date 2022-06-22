@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { Status } from '../StatusIcon';
+import { Status } from '../Status';
 import { UUID } from '../../store/types';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';

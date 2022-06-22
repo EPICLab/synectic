@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Status } from '../StatusIcon';
+import { Status } from '../Status';
 import { useAppDispatch } from '../../store/hooks';
 import { modalRemoved } from '../../store/slices/modals';
 import { UUID } from '../../store/types';
