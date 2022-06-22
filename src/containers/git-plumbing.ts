@@ -17,6 +17,8 @@ import { getRoot, getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
 
+// TODO: Remove all Repository type references
+
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
 type Unpromisify<T> = T extends Promise<infer U> ? U : T;
@@ -120,7 +122,7 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
   const re = /^HEAD~([0-9]+)$/;
   const match = ref.match(re);
   if (match) {
-    const count = +match[1];
+    const count = +(match[1] as string);
     const root = worktree.worktreeDir ? worktree.worktreeDir.toString() : worktree.dir ? worktree.dir.toString() : dir;
     const commits = await log({ dir: root, depth: count + 1 });
     const oid = commits.pop()?.oid;

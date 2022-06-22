@@ -14,6 +14,8 @@ import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
 import { add } from './git-worktree';
 
+// TODO: Remove all Repository type references
+
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
 /**
@@ -42,8 +44,8 @@ export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), 
   } else {
     // create a linked worktree with the new branch
     const repoRef = io.extractFilename(repo.name);
-    const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${repoRef}/${ref}`);
-    await add(repo, linkedRoot, ref);
+    const linkedRoot = path.normalize(`${dir.toString()}/../.syn/${repoRef}/${ref}`);
+    await add(repo.root, linkedRoot, repo.url, ref);
     return linkedRoot;
   }
 }

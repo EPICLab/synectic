@@ -4,7 +4,6 @@ import * as path from 'path';
 import * as git from './git-porcelain';
 import * as worktree from './git-worktree';
 import { extractStats, readFileAsync, writeFileAsync } from './io';
-import { Repository } from '../store/slices/repos';
 import { file, mock, MockInstance } from '../test-utils/mock-fs';
 
 describe('containers/git-worktree.list', () => {
@@ -194,21 +193,10 @@ describe('containers/git-worktree.add', () => {
             await writeFileAsync(path.resolve('foo/.git/index'), '2349024234');
             await writeFileAsync(path.resolve('foo/.git/HEAD'), 'ref: refs/heads/hotfix\n');
         });
-        const repo: Repository = {
-            id: '23',
-            name: 'sampleUser/baseRepo',
-            root: 'baseRepo/',
-            corsProxy: new URL('http://www.oregonstate.edu').toString(),
-            url: parsePath('https://github.com/sampleUser/baseRepo').toString(),
-            default: 'master',
-            local: ['master'],
-            remote: [],
-            oauth: 'github',
-            username: 'sampleUser',
-            password: '12345',
-            token: '584n29dkj1683a67f302x009q164'
-        };
-        await worktree.add(repo, 'foo/', 'hotfix');
+        await worktree.add('baseRepo/', 'foo/',
+            parsePath('https://github.com/sampleUser/baseRepo').toString(),
+            'hotfix'
+        );
         await expect(readFileAsync('foo/.git', { encoding: 'utf-8' }))
             .resolves.toBe(`gitdir: ${path.join('baseRepo', '.git', 'worktrees', 'hotfix')}\n`);
         await expect(readFileAsync('baseRepo/.git/worktrees/hotfix/HEAD', { encoding: 'utf-8' })).resolves.toBe('ref: refs/heads/hotfix\n');
@@ -221,21 +209,10 @@ describe('containers/git-worktree.add', () => {
     })
 
     it('add resolves a linked worktree on SHA-1 commit hash', async () => {
-        const repo: Repository = {
-            id: '23',
-            name: 'sampleUser/baseRepo',
-            root: 'baseRepo/',
-            corsProxy: new URL('http://www.oregonstate.edu').toString(),
-            url: parsePath('https://github.com/sampleUser/baseRepo').toString(),
-            default: 'master',
-            local: ['master', 'hotfix'],
-            remote: [],
-            oauth: 'github',
-            username: 'sampleUser',
-            password: '12345',
-            token: '584n29dkj1683a67f302x009q164'
-        };
-        await worktree.add(repo, 'foo/', 'f204b02baf1322ee079fe9768e9593509d683412');
+        await worktree.add('baseRepo/', 'foo/',
+            parsePath('https://github.com/sampleUser/baseRepo').toString(),
+            'f204b02baf1322ee079fe9768e9593509d683412'
+        );
         await expect(readFileAsync('foo/.git', { encoding: 'utf-8' }))
             .resolves.toBe(`gitdir: ${path.join('baseRepo', '.git', 'worktrees', 'foo')}\n`);
         await expect(readFileAsync('baseRepo/.git/worktrees/foo/HEAD', { encoding: 'utf-8' }))

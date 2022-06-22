@@ -238,7 +238,7 @@ export const resolveWorktree = async (repo: Repository, branchId: UUID, branchRe
   if (existing) return existing;
   const repoRef = io.extractFilename(repo.name);
   const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${repoRef}/${branchRef}`);
-  await add(repo, linkedRoot, branchRef);
+  await add(repo.root, linkedRoot, repo.url, branchRef);
   const updatedWorktrees = await list(repo.root);
   return updatedWorktrees ? updatedWorktrees.find(w => w.ref === branchRef) : undefined;
 }
@@ -249,31 +249,33 @@ export const resolveWorktree = async (repo: Repository, branchId: UUID, branchRe
  * specific files such as `HEAD`, `index`, etc. Adheres to the specifications of the `git worktree add` command, see:
  * https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addltpathgtltcommit-ishgt
  * @param repo A Repository object that points to the main worktree.
+ * @param dir The relative or absolute path to the main worktree root directory.
  * @param worktreeDir The relative or absolute path to create the new linked worktree; will create a new directory if none is found.
+ * @param url The URL associated with a remote-hosted instances of the repository; use empty string if local-only repository.
  * @param commitish A branch name or symbolic ref.
  * @return A Promise object for the add worktree operation.
  */
-export const add = async (repo: Repository, worktreeDir: fs.PathLike, commitish?: string): Promise<void> => {
+export const add = async (dir: fs.PathLike, worktreeDir: fs.PathLike, url: string, commitish?: string): Promise<void> => {
   const branch = (commitish && !isHash(commitish, 'sha1')) ? commitish : io.extractDirname(worktreeDir);
   const worktreeGitdir = path.resolve(path.join(worktreeDir.toString(), '.git'));
-  const worktreeLink = path.join(repo.root.toString(), '.git', 'worktrees', branch);
-  const commondir = path.relative(worktreeLink, path.join(repo.root.toString(), '.git'));
+  const worktreeLink = path.join(dir.toString(), '.git', 'worktrees', branch);
+  const commondir = path.relative(worktreeLink, path.join(dir.toString(), '.git'));
   const detached = (commitish && isHash(commitish, 'sha1')) ? commitish : undefined;
 
   // initialize the linked worktree
-  await clone({ dir: worktreeDir, repo: { root: repo.root, url: repo.url }, ref: branch, noCheckout: true });
-  const remoteBranches = await isogit.listBranches({ fs: fs, dir: repo.root.toString(), remote: 'origin' });
+  await clone({ dir: worktreeDir, repo: { root: dir, url: url }, ref: branch, noCheckout: true });
+  const remoteBranches = await isogit.listBranches({ fs: fs, dir: dir.toString(), remote: 'origin' });
   if (remoteBranches.includes(branch)) {
     await checkout({ dir: worktreeDir, ref: branch });
   } else {
     // if no remote branch exists, then create a new local-only branch and switches branches in the linked worktree
-    await isogit.branch({ fs: fs, dir: repo.root.toString(), ref: branch, checkout: false });
+    await isogit.branch({ fs: fs, dir: dir.toString(), ref: branch, checkout: false });
     checkout({ dir: worktreeDir, ref: branch, noCheckout: true })
   }
 
   // branch must already exist in order to resolve worktreeLink path (`GIT_DIR/worktrees/{branch}`)
   const commit = commitish ? (isHash(commitish, 'sha1') ? commitish : await resolveRef({ dir: worktreeDir, ref: commitish }))
-    : await resolveRef({ dir: repo.root, ref: 'HEAD' });
+    : await resolveRef({ dir: dir, ref: 'HEAD' });
 
   // populate internal git files in main worktree to recognize the new linked worktree
   await fs.ensureDir(worktreeLink);
