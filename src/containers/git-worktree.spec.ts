@@ -1,6 +1,7 @@
 // import mock from 'mock-fs';
 import parsePath from 'parse-path';
 import * as path from 'path';
+import * as isogit from 'isomorphic-git';
 import * as git from './git-porcelain';
 import * as worktree from './git-worktree';
 import { extractStats, readFileAsync, writeFileAsync } from './io';
@@ -189,7 +190,7 @@ describe('containers/git-worktree.add', () => {
     });
 
     it('add resolves a linked worktree on new branch', async () => {
-        jest.spyOn(git, 'checkout').mockImplementation(async () => {
+        jest.spyOn(isogit, 'checkout').mockImplementation(async () => {
             await writeFileAsync(path.resolve('foo/.git/index'), '2349024234');
             await writeFileAsync(path.resolve('foo/.git/HEAD'), 'ref: refs/heads/hotfix\n');
         });
