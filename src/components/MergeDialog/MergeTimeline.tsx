@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import StatusIcon, { LinearProgressWithLabel, Status } from '../StatusIcon';
+import StatusIcon, { LinearProgressWithLabel, Status } from '../Status';
 import { TimelineContent, TimelineItem, TimelineSeparator } from '@material-ui/lab';
 import { Typography } from '@material-ui/core';
 
