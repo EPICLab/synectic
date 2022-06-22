@@ -70,7 +70,7 @@ const NewBranchDialog = (props: Modal) => {
     const handleClose = () => dispatch(modalRemoved(props.id));
     const handleClick = async () => {
         if (repo) {
-            const root = await branch({ dir: repo.root, repo: repo, ref: branchName });
+            const root = await branch({ dir: repo.root, url: repo.url, ref: branchName });
             const newBranch = await dispatch(createBranch({ root, branch: branchName, scope: 'local' })).unwrap();
             dispatch(repoUpdated({ ...repo, local: [...repo.local, newBranch.id] }));
         }

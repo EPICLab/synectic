@@ -10,11 +10,8 @@ import * as io from './io';
 import { matrixEntry, matrixToStatus, statusMatrix } from './git-plumbing';
 import { isDefined, removeUndefinedProperties } from './utils';
 import { getWorktreePaths } from './git-path';
-import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
 import { add } from './git-worktree';
-
-// TODO: Remove all Repository type references
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
@@ -25,16 +22,16 @@ export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: 
  * this path must be used for branch checks.
  * @param dir The worktree root directory.
  * @param gitdir The wortkree git directory.
- * @param repo A Repository object that points to the main worktree.
+ * @param url The URL associated with a remote-hosted instances of the repository; use empty string if local-only repository.
  * @param ref The branch name for labeling the new branch.
  * @param checkout Optional flag to update the working directory along with updating HEAD; defaults to `false`.
  * @returns A Promise object containing the worktree root directory (which can vary from the `dir` parameter depending on whether a linked 
  * worktree was created).
  */
-export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), repo, ref, checkout = false }: {
+export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), url, ref, checkout = false }: {
   dir: fs.PathLike;
   gitdir?: fs.PathLike;
-  repo: Repository;
+  url: string;
   ref: string;
   checkout?: boolean;
 }): Promise<fs.PathLike> => {
@@ -43,9 +40,9 @@ export const branch = async ({ dir, gitdir = path.join(dir.toString(), '.git'), 
     return dir;
   } else {
     // create a linked worktree with the new branch
-    const repoRef = io.extractFilename(repo.name);
-    const linkedRoot = path.normalize(`${dir.toString()}/../.syn/${repoRef}/${ref}`);
-    await add(repo.root, linkedRoot, repo.url, ref);
+    const repo = io.extractFilename(dir);
+    const linkedRoot = path.normalize(`${dir.toString()}/../.syn/${repo}/${ref}`);
+    await add(dir, linkedRoot, url, ref);
     return linkedRoot;
   }
 }

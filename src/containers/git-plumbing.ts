@@ -17,8 +17,6 @@ import { getRoot, getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
 
-// TODO: Remove all Repository type references
-
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
 type Unpromisify<T> = T extends Promise<infer U> ? U : T;
