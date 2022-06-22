@@ -248,7 +248,6 @@ export const resolveWorktree = async (repo: Repository, branchId: UUID, branchRe
  * new directory. The new working directory is linked to the current repository, sharing everything except working directory
  * specific files such as `HEAD`, `index`, etc. Adheres to the specifications of the `git worktree add` command, see:
  * https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addltpathgtltcommit-ishgt
- * @param repo A Repository object that points to the main worktree.
  * @param dir The relative or absolute path to the main worktree root directory.
  * @param worktreeDir The relative or absolute path to create the new linked worktree; will create a new directory if none is found.
  * @param url The URL associated with a remote-hosted instances of the repository; use empty string if local-only repository.
