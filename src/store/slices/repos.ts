@@ -12,7 +12,7 @@ export type Repository = {
     /** The name of repository. Either a qualified name for remote-tracking repositories (e.g. `EPICLab/synectic`), or the root
      * directory name for local-only repositories (e.g. `synectic`). */
     readonly name: string;
-    /** The relative or absolute path to the git root directory (.git) in the main worktree. */
+    /** The relative or absolute path to the main worktree root directory (e.g. *'/{project}'*). */
     readonly root: PathLike;
     /** The URL for a CORS proxy service that enables User-Agent Header requests that meet same-origin policies on web services
      * (including GitHub). */
