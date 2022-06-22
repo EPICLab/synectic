@@ -3,10 +3,10 @@ import * as path from 'path';
 import * as isogit from 'isomorphic-git';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
+import * as io from './io';
 import isHash from 'validator/lib/isHash';
 import { isDefined, removeUndefinedProperties } from './utils';
-import * as io from './io';
-import { checkout, clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
+import { clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
 import { getIgnore, resolveEntry, resolveRef } from './git-plumbing';
 import { parse } from './git-index';
 import { compareStats } from './io-stats';
@@ -265,11 +265,11 @@ export const add = async (dir: fs.PathLike, worktreeDir: fs.PathLike, url: strin
   await clone({ dir: worktreeDir, repo: { root: dir, url: url }, ref: branch, noCheckout: true });
   const remoteBranches = await isogit.listBranches({ fs: fs, dir: dir.toString(), remote: 'origin' });
   if (remoteBranches.includes(branch)) {
-    await checkout({ dir: worktreeDir, ref: branch });
+    await isogit.checkout({ fs: fs, dir: worktreeDir.toString(), ref: branch });
   } else {
     // if no remote branch exists, then create a new local-only branch and switches branches in the linked worktree
     await isogit.branch({ fs: fs, dir: dir.toString(), ref: branch, checkout: false });
-    checkout({ dir: worktreeDir, ref: branch, noCheckout: true })
+    await isogit.checkout({ fs: fs, dir: worktreeDir.toString(), ref: branch, noCheckout: true });
   }
 
   // branch must already exist in order to resolve worktreeLink path (`GIT_DIR/worktrees/{branch}`)
