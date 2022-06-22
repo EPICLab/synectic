@@ -126,7 +126,7 @@ describe('DiffPickerDialog modal component', () => {
 
     it('DiffPickerDialog tracks selection updates', async () => {
         produceComponent();
-        const trigger = screen.getAllByRole('button')[0];
+        const trigger = screen.getAllByRole('button')[0] as HTMLElement;
         // open the select component
         fireEvent.mouseDown(trigger);
 
@@ -135,7 +135,7 @@ describe('DiffPickerDialog modal component', () => {
 
         // // make a selection and close the select component
         act(() => {
-            options[1].click();
+            (options[1] as HTMLElement).click();
         });
 
         await waitFor(() => expect(trigger).toHaveFocus());
@@ -144,8 +144,8 @@ describe('DiffPickerDialog modal component', () => {
 
     it('DiffPickerDialog returns UUIDs for selected cards on run', async () => {
         produceComponent();
-        const leftSelector = screen.getAllByRole('button')[0];
-        const rightSelector = screen.getAllByRole('button')[1];
+        const leftSelector = screen.getAllByRole('button')[0] as HTMLElement;
+        const rightSelector = screen.getAllByRole('button')[1] as HTMLElement;
         const runButton = screen.queryByText(/Run Diff/i);
 
         // open the left select component
@@ -154,7 +154,7 @@ describe('DiffPickerDialog modal component', () => {
         expect(leftOptions[0]).toHaveFocus();
         // make selection and close left component
         act(() => {
-            leftOptions[1].click();
+            (leftOptions[1] as HTMLElement).click();
         });
 
         // open the right select component
@@ -163,7 +163,7 @@ describe('DiffPickerDialog modal component', () => {
         expect(rightOptions[0]).toHaveFocus();
         // make selection and close right component
         act(() => {
-            rightOptions[0].click();
+            (rightOptions[0] as HTMLElement).click();
         });
 
         if (runButton) fireEvent.click(runButton);

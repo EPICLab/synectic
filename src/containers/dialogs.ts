@@ -18,7 +18,7 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
     const properties: ('openFile' | 'openDirectory')[] = pickerType ? [pickerType] : (isMac ? ['openFile', 'openDirectory'] : ['openFile']);
     const paths: Electron.OpenDialogReturnValue = await ipcRenderer.invoke('fileOpenDialog', properties);
     if (!paths.canceled && paths.filePaths) {
-      if (paths.filePaths.length > 1) {
+      if (paths.filePaths[0]) {
         /** Multiple filepaths loading asynchronously can cause a race condition where all filepaths appear to require a new repo, which 
          * causes duplicated copies of the same repo to be added to the Redux store. Since selecting multiple files in the dialog results
          * in filepaths that all have the same root parent directory, and therefore share the same repo, we can fix it by resolving the 

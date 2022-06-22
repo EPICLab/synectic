@@ -24,16 +24,16 @@ const SecondsNanoseconds = (
   givenSeconds?: number,
   givenNanoseconds?: number,
   milliseconds?: number,
-) => {
+): [number, number] => {
   if (givenSeconds !== undefined && givenNanoseconds !== undefined) {
     return [givenSeconds, givenNanoseconds]
   }
   if (milliseconds === undefined) {
     milliseconds = date.valueOf()
   }
-  const seconds = Math.floor(milliseconds / 1000)
-  const nanoseconds = (milliseconds - seconds * 1000) * 1000000
-  return [seconds, nanoseconds]
+  const seconds = Math.floor(milliseconds / 1000);
+  const nanoseconds = (milliseconds - seconds * 1000) * 1000000;
+  return [seconds, nanoseconds];
 };
 
 const normalizeStats = (e: IndexEntry | fs.Stats) => {

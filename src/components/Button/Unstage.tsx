@@ -30,7 +30,7 @@ const UnstageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mo
 
     const isExplorer = metafiles.find(m => m.handler === 'Explorer');
     const hasStaged = staged.length > 0;
-    const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
+    const isCaptured = cards[0]?.captured !== undefined;
 
     const unstage = async () => await Promise.all(staged
         .filter(isFileMetafile)

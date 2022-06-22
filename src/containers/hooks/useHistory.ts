@@ -32,7 +32,7 @@ const reducer = (state: HistoryState, action: HistoryAction) => {
 
     switch (action.type) {
         case 'BACK': {
-            const previous = past[past.length - 1];
+            const previous = past[past.length - 1] as URL;
             const newPast = past.slice(0, past.length - 1);
 
             return {
@@ -42,7 +42,7 @@ const reducer = (state: HistoryState, action: HistoryAction) => {
             };
         }
         case 'FORWARD': {
-            const next = future[0];
+            const next = future[0] as URL;
             const newFuture = future.slice(1);
 
             return {

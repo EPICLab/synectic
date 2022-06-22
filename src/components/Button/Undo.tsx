@@ -42,9 +42,9 @@ const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
     }
 
     // check whether button is on a single card and also captured
-    const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
+    const isCaptured = cards[0]?.captured !== undefined;
     // check whether button is on a content-based card that can be undone based on file-content
-    const isUndoable = modified.length > 0 && modified[0].filetype !== 'Directory' && modified[0].handler === 'Editor';
+    const isUndoable = modified[0]?.filetype !== 'Directory' && modified[0]?.handler === 'Editor';
 
     const onHover = () => {
         if (cards.length > 1) {

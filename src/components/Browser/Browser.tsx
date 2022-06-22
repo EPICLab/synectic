@@ -35,7 +35,7 @@ const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
 
   const back = () => {
     if (canGoBack) {
-      const url = state.past[state.past.length - 1];
+      const url = state.past[state.past.length - 1] as URL;
       goBack();
       const webview: Electron.WebviewTag | null = document.querySelector(`[id="${card}-webview"]`);
       webview?.loadURL(url.href);
@@ -44,7 +44,7 @@ const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
 
   const forward = () => {
     if (canGoForward) {
-      const url = state.future[0];
+      const url = state.future[0] as URL;
       goForward();
       const webview: Electron.WebviewTag | null = document.querySelector(`[id="${card}-webview"]`);
       webview?.loadURL(url.href);

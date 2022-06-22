@@ -178,9 +178,10 @@ export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: str
  */
 export const objectifyPath = (path: Array<string | number>, value: string | boolean | number | undefined):
   Record<string | number, unknown> => {
+  const init = { [path[path.length - 1] as string | number]: value };
   return path
     .slice(0, -1)
-    .reduceRight((prev: Record<string | number, unknown>, curr) => { return { [curr]: prev } }, { [path[path.length - 1]]: value });
+    .reduceRight((prev: Record<string | number, unknown>, curr) => { return { [curr]: prev } }, init);
 };
 
 /**
@@ -244,7 +245,7 @@ export const toArrayBuffer = (buf: Buffer): ArrayBuffer => {
   const ab = new ArrayBuffer(buf.length);
   const view = new Uint8Array(ab);
   for (let i = 0; i < buf.length; i++) {
-    view[i] = buf[i];
+    view[i] = buf[i] as number;
   }
   return ab;
 };

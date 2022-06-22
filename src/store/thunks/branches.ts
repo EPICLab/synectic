@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import { listBranches } from 'isomorphic-git';
+import { listBranches, ReadCommitResult } from 'isomorphic-git';
 import { v4 } from 'uuid';
 import { ExactlyOne, isDefined } from '../../containers/utils';
 import { getBranchRoot, getRoot, getWorktreePaths } from '../../containers/git-path';
@@ -62,7 +62,7 @@ export const createBranch = createAsyncThunk<Branch, BranchIdentifiers, AppThunk
         const config = await getConfig({ dir: dir ? dir : root, keyPath: `branch.${identifiers.branch}.remote` });
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
         const commits = await log({ dir: root, ref: identifiers.scope === 'local' ? identifiers.branch : `remotes/${remote}/${identifiers.branch}`, depth: 50 });
-        const head = commits.length > 0 ? commits[0].oid : '';
+        const head = commits.length > 0 ? (commits[0] as ReadCommitResult).oid : '';
 
         return thunkAPI.dispatch(branchAdded({
             id: v4(),
