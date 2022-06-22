@@ -29,11 +29,11 @@ const CommitButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mod
     const dispatch = useAppDispatch();
 
     const hasStaged = staged.length > 0;
-    const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
+    const isCaptured = cards[0]?.captured !== undefined;
 
     const commit = async () => {
         const firstMetafile = staged[0];
-        if (firstMetafile.repo && firstMetafile.branch) {
+        if (firstMetafile && firstMetafile.repo && firstMetafile.branch) {
             const commitDialogModal: Modal = {
                 id: v4(),
                 type: 'CommitDialog',

@@ -9,7 +9,7 @@ import RepoStatus from './RepoStatus';
 
 const BranchTracker = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const [expanded, setExpanded] = React.useState(repos.length > 0 ? [repos[0].id] : []); // initial state; expand first listed repo
+  const [expanded, setExpanded] = React.useState(repos[0] ? [repos[0].id] : []); // initial state; expand first listed repo
 
   const handleToggle = (_event: React.ChangeEvent<Record<string, unknown>>, nodeIds: string[]) => setExpanded(nodeIds);
 

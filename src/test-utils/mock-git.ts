@@ -193,7 +193,7 @@ const gitReset = async (dir: string, ref: string, branch: string, hard = false) 
     const re = /^HEAD~([0-9]+)$/;
     const match = ref.match(re);
     if (match) {
-        const count = +match[1];
+        const count = +(match[1] as string);
         const commits = await git.log({ dir, fs, depth: count + 1 });
         return new Promise<void>((resolve, reject) => {
             if (commits.length < count + 1) {
@@ -224,7 +224,8 @@ const gitReset = async (dir: string, ref: string, branch: string, hard = false) 
 
 // given a set of filepaths, either targeted or randomly select file and update with additional content
 const randomFileUpdate = async (filepaths: fs.PathLike[], index = getRandomInt(filepaths.length)) => {
-    const filepath = path.resolve(filepaths[index].toString());
+    const randomSelection = filepaths[index] as fs.PathLike;
+    const filepath = path.resolve(randomSelection.toString());
     const fileContent = await readFileAsync(filepath, { encoding: 'utf-8' });
     await writeFileAsync(filepath, fileContent + casual.text);
 }

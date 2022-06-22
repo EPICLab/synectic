@@ -13,6 +13,7 @@ export const createStack = createAsyncThunk<Stack, { name: string, note: string,
     'stacks/createStack',
     async (input, thunkAPI) => {
         const cards = cardSelectors.selectByIds(thunkAPI.getState(), input.cards);
+
         const newStack = thunkAPI.dispatch(stackAdded({
             id: v4(),
             name: input.name,
@@ -20,8 +21,8 @@ export const createStack = createAsyncThunk<Stack, { name: string, note: string,
             modified: DateTime.local().valueOf(),
             note: input.note,
             cards: input.cards,
-            left: cards[0].left,
-            top: cards[0].top
+            left: cards[0] ? cards[0].left : 0,
+            top: cards[0] ? cards[0].top : 0
         })).payload;
         cards.map((card, index) => thunkAPI.dispatch(cardUpdated({
             ...card, captured: newStack.id, zIndex: index + 1, top: (10 * index + 50), left: (10 * index + 10)
@@ -66,7 +67,7 @@ export const popCards = createAsyncThunk<void, { cards: UUID[], delta?: XYCoord 
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
         const removingCards = cardSelectors.selectByIds(state, input.cards);
-        const stack = stackSelectors.selectById(state, removingCards[0].captured ? removingCards[0].captured : '');
+        const stack = stackSelectors.selectById(state, removingCards[0]?.captured ? removingCards[0].captured : '');
         if (stack) {
             // update the cards targetted for removal
             removingCards.map(card => thunkAPI.dispatch(cardUpdated({

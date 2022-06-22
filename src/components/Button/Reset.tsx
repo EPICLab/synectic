@@ -40,7 +40,7 @@ const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
 
     const isExplorer = metafiles.find(m => m.handler === 'Explorer');
     const hasChanges = (unstaged.length > 0 || staged.length > 0);
-    const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
+    const isCaptured = cards[0]?.captured !== undefined;
 
     const onHover = () => {
         if (cards.length > 1) {

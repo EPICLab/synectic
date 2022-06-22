@@ -64,7 +64,7 @@ export const resolveConflictBranches = async (root: PathLike): Promise<{ base: s
     const match = mergeMsg.match(branchPattern);
     return match
         ? match.length === 2
-            ? { base: match[0].replace(/['"]+/g, ''), compare: match[1].replace(/['"]+/g, '') }
-            : { base: undefined, compare: match[0].replace(/['"]+/g, '') }
+            ? { base: (match[0] as string).replace(/['"]+/g, ''), compare: (match[1] as string).replace(/['"]+/g, '') }
+            : { base: undefined, compare: (match[0] as string).replace(/['"]+/g, '') }
         : { base: undefined, compare: '' };
 };

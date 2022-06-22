@@ -34,8 +34,8 @@ export const isHydrated = (metafile: Metafile): boolean => {
 export const fetchMetafile = createAsyncThunk<Metafile, PathLike, AppThunkAPI>(
     'metafiles/fetchMetafile',
     async (filepath, thunkAPI) => {
-        const existing: FilebasedMetafile[] = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
-        return (existing.length > 0) ? existing[0] : await thunkAPI.dispatch(createMetafile({ path: filepath })).unwrap();
+        const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
+        return (existing.length > 0) ? existing[0] as FilebasedMetafile : await thunkAPI.dispatch(createMetafile({ path: filepath })).unwrap();
     }
 );
 

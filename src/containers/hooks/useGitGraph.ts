@@ -115,14 +115,14 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
                     commit: {
                         message: '',
                         tree: '',
-                        parent: [branch.commits[0].oid],
+                        parent: branch.commits[0] ? [branch.commits[0].oid] : [],
                         author: { name: '', email: '', timestamp: 0, timezoneOffset: 0 },
                         committer: { name: '', email: '', timestamp: 0, timezoneOffset: 0 }
                     },
                     payload: '',
                     scope: branch.scope,
                     branch: branch.ref,
-                    parents: [branch.commits[0].oid],
+                    parents: branch.commits[0] ? [branch.commits[0].oid] : [],
                     children: [],
                     head: false,
                     staged: true,
@@ -162,8 +162,8 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
         const prunable = Array.from(graph.values()).filter(vertex => vertex.parents.length == 1 && vertex.children.length == 1);
         for (const vertex of prunable) {
             const sequential = graph.get(vertex.oid);                  // retrieve any vertex updates between for-loop iterations
-            const parent = sequential ? graph.get(sequential.parents[0]) : undefined; // sequential type guarantees only 1 parent
-            const child = sequential ? graph.get(sequential.children[0]) : undefined; // sequential type guarantees only 1 child
+            const parent = sequential ? graph.get(sequential.parents[0] as string) : undefined; // sequential type guarantees only 1 parent
+            const child = sequential ? graph.get(sequential.children[0] as string) : undefined; // sequential type guarantees only 1 child
 
             if (sequential && parent && child) {
                 child.parents = child.parents.map(p => p === sequential.oid ? parent.oid : p);

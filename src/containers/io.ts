@@ -75,8 +75,8 @@ export const extractFilename = (filepath: fs.PathLike): string => {
 export const extractDirname = (filepath: fs.PathLike): string => {
   const trailingSeparator = filepath.toString().slice(-1)[0]?.match(/[\\/]/) !== null;
   const expandedPath = filepath.toString().split(/[\\/]/);
-  if (expandedPath.length > 1) return expandedPath[expandedPath.length - 2];
-  if (trailingSeparator) return expandedPath[expandedPath.length - 1];
+  if (expandedPath.length > 1) return expandedPath[expandedPath.length - 2] as string;
+  if (trailingSeparator) return expandedPath[expandedPath.length - 1] as string;
   else return '';
 };
 

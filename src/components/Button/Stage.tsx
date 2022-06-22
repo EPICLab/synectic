@@ -31,7 +31,7 @@ const StageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
     const isExplorer = metafiles.find(m => m.handler === 'Explorer') ? true : false;
     const hasUnstaged = unstaged.length > 0;
     const hasConflicts = unstaged.find(m => m.conflicts && m.conflicts.length > 0) ? true : false;
-    const isCaptured = cards.length == 1 && cards[0].captured !== undefined;
+    const isCaptured = cards[0]?.captured !== undefined;
 
     const stage = async () => await Promise.all(unstaged
         .filter(isFileMetafile)

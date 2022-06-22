@@ -50,7 +50,7 @@ export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
         (!commitsCache.has(commit.oid))
           ? commitsCache.set(commit.oid, { ...commit, branch: branch.ref, scope: branch.scope })
           : null);
-      if (!headsCache.has(`${branch.scope}/${branch.ref}`)) {
+      if (!headsCache.has(`${branch.scope}/${branch.ref}`) && branchCommits[0]) {
         headsCache.set(`${branch.scope}/${branch.ref}`, branchCommits[0].oid);
       }
     }
