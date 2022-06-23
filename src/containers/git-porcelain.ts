@@ -352,7 +352,7 @@ export const hasStatus = async (filepath: fs.PathLike, statusFilters: GitStatus[
  * @param forPush Optional flag to enable queries for `push` capabilities, otherwise queries are for `fetch` capabilities 
  * only; defaults to `false`.
  * @param headers Additional headers to include in the HTTP requests, similar to the `extraHeader` config in canonical git.
- * @returns 
+ * @returns A Promise object containing an object that lists the branches, tags, and capabilities of the remote.
  */
 export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', corsProxy, forPush = false, headers = {} }: {
   onAuth?: isogit.AuthCallback;
@@ -367,7 +367,42 @@ export const getRemoteInfo = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', 
   return isogit.getRemoteInfo({
     http: http, url: url, forPush: forPush, headers: headers, ...optionals
   })
-}
+};
+
+/**
+ * Fetch a list of refs (branches, tags, etc.) from a server; this function is a wrapper to inject the `http` parameter in to the
+ * *isomorphic-git/listServerRefs* function.
+ * @param onAuth Optional auth fill callback.
+ * @param onAuthFailure Optional auth rejection callback.
+ * @param onAuthSuccess Optional auth approved callback.
+ * @param url The URL of the remote repository. Will be retrieved from local `gitconfig` if absent.
+ * @param corsProxy Optional CORS proxy. Overrides value in repo config.
+ * @param forPush Optional flag to enable queries for `push` capabilities, otherwise queries are for `fetch` capabilities 
+ * only; defaults to `false`.
+ * @param headers Additional headers to include in the HTTP requests, similar to the `extraHeader` config in canonical git.
+ * @param protocolVersion Which version of the Git Protocol to use.
+ * @param prefix Only list refs that start with this prefix.
+ * @param symrefs Optional flag for including symbolic ref targets; defaults to `false`.
+ * @param peelTags Optional flag for including annotated tag peeled targets; defaults to `false`.
+ * @returns A Promise object containing an array of `ServerRef` objects.
+ */
+export const listServerRefs = ({ onAuth, onAuthFailure, onAuthSuccess, url = '', corsProxy, forPush = false, headers = {}, protocolVersion = 2,
+  prefix, symrefs = false, peelTags = false }: {
+    onAuth?: isogit.AuthCallback;
+    onAuthFailure?: isogit.AuthFailureCallback;
+    onAuthSuccess?: isogit.AuthSuccessCallback;
+    url?: string;
+    corsProxy?: string;
+    forPush?: boolean;
+    headers?: Record<string, string>;
+    protocolVersion?: 1 | 2;
+    prefix?: string;
+    symrefs?: boolean;
+    peelTags?: boolean;
+  }): Promise<Array<isogit.ServerRef>> => {
+  const optionals = removeUndefinedProperties({ onAuth: onAuth, onAuthFailure: onAuthFailure, onAuthSuccess: onAuthSuccess, corsProxy: corsProxy, prefix: prefix });
+  return isogit.listServerRefs({ http: http, url: url, forPush: forPush, headers: headers, protocolVersion: protocolVersion, symrefs: symrefs, peelTags: peelTags, ...optionals });
+};
 
 /**
  * Read an entry from git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality to resolve global 
