@@ -7,11 +7,11 @@ import parse from 'parse-git-config';
 import { get as getProperty, set as setProperty, has as hasProperty, delete as deleteProperty } from 'dot-prop';
 import getGitConfigPath from 'git-config-path';
 import * as io from './io';
-import { matrixEntry, matrixToStatus, statusMatrix } from './git-plumbing';
+import { matrixEntry, matrixToStatus, resolveRef, statusMatrix } from './git-plumbing';
 import { isDefined, removeUndefinedProperties } from './utils';
 import { getWorktreePaths } from './git-path';
 import { GitStatus } from '../store/types';
-import { add } from './git-worktree';
+import { add, list } from './git-worktree';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
@@ -115,10 +115,23 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
 };
 
 /**
- * Checkout a branch; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/checkout* function.
+ * Switch branches or restore working tree files. If the `overwrite` option is enabled, this function becomes a wrapper to inject the 
+ * `fs` parameter in to the *isomorphic-git/checkout* function. The `overwrite` option enables checking out the target branch into
+ * the main worktree root directory and is destructive to any uncommitted changes in the main worktree. If the branch is not found
+ * locally, then a new remote tracking branch will be created and set to track the remote branch of that name. This behavior is similar 
+ * to canonical *git*, except that uncommitted changes are not brought forward into the newly checked out branch.
+ * 
+ * When the `overwrite` option is disabled (which is the default behavior), this function utilizes linked worktrees to facilitate
+ * checking out the target branch into a separate linked worktree root directory. If the branch is not found locally, then a new linked
+ * worktree will be created to hold the new remote tracking branch which is set to track the remote branch of the same name. If the 
+ * branch is found locally as a remote tracking branch, then it will be converted to a linked worktree branch and set to track the 
+ * remote branch of the same name. If the target branch matches the current branch in the main worktree or a linked worktree, then 
+ * this is a no-op operation.
  * @param dir The worktree root directory.
  * @param gitdir The worktree git directory.
  * @param ref The branch name or SHA-1 commit hash to checkout files from; defaults to `HEAD`.
+ * @param overwrite Optional flag to checkout into the main worktree root directory; defaults to `false`.
+ * @param url The URL associated with a remote-hosted instances of the repository; use empty string if local-only repository.
  * @param filepaths Limit the checkout to the given files and directories.
  * @param remote Which remote repository to use for the checkout process; defaults to `origin`.
  * @param noCheckout Optional flag to update HEAD but not update the working directory; defaults to `false`.
@@ -130,12 +143,14 @@ export const clone = async ({ dir, url, repo, ref, singleBranch = false, noCheck
  * @returns A Promise object for the checkout operation.
  */
 export const checkout = async ({
-  dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', filepaths, remote = 'origin', noCheckout = false,
-  noUpdateHead = ref === undefined, dryRun = false, force = false, track = true, onProgress
+  dir, gitdir = path.join(dir.toString(), '.git'), ref = 'HEAD', overwrite = false, url = '', filepaths, remote = 'origin',
+  noCheckout = false, noUpdateHead = ref === undefined, dryRun = false, force = false, track = true, onProgress
 }: {
   dir: fs.PathLike;
   gitdir?: fs.PathLike;
   ref?: string;
+  overwrite?: boolean;
+  url?: string;
   filepaths?: string[];
   remote?: string;
   noCheckout?: boolean;
@@ -146,10 +161,30 @@ export const checkout = async ({
   onProgress?: isogit.ProgressCallback | undefined;
 }): Promise<void> => {
   const optionals = removeUndefinedProperties({ filepaths, onProgress });
-  return isogit.checkout({
-    fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
-    noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, track: track, ...optionals
-  });
+  if (overwrite) {
+    // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
+    return isogit.checkout({
+      fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
+      noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, track: track, ...optionals
+    });
+  } else {
+    const localBranches = await isogit.listBranches({ fs: fs, dir: dir.toString() });
+    if (localBranches.includes(ref)) {
+      const worktrees = await list(dir); // main working tree and any linked worktrees (non-worktree local branches are excluded)
+      const existing = worktrees ? worktrees.find(w => w.ref === ref) : undefined;
+      if (existing) return undefined; // target branch matches current branch in main worktree or a linked worktree; no-op operation
+      const currentCommit = await resolveRef({ dir: dir, ref: ref });
+      const remoteCommit = await listServerRefs({ url: url, prefix: `refs/heads/${ref}`, symrefs: true });
+      if (remoteCommit[0] && currentCommit !== remoteCommit[0].oid) return undefined; // local-only commits would be permanently destroyed
+      // removing non-worktree local branch reference before creating a new linked worktree version
+      isogit.deleteBranch({ fs: fs, dir: dir.toString(), ref: ref });
+    }
+    // create a new linked worktree set to track a remote branch of the same name, or a local-only branch if there is no remote
+    // tracking branch; this is non-destructive to any uncommitted changes in the main worktree
+    const repo = io.extractFilename(dir);
+    const linkedRoot = path.normalize(`${dir.toString()}/../.syn/${repo}/${ref}`);
+    await add(dir, linkedRoot, url, ref);
+  }
 }
 
 /**
@@ -341,9 +376,8 @@ export const hasStatus = async (filepath: fs.PathLike, statusFilters: GitStatus[
 }
 
 /**
- * List a remote servers branches, tags, and capabilities; this function is a wrapper to inject the `fs` parameter in to the 
+ * List a remote servers branches, tags, and capabilities; this function is a wrapper to inject the `http` parameter in to the 
  * *isomorphic-git/getRemoteInfo* function.
- * @param http An HTTP client (i.e. *isomorphic-git* provides a client in `isomorphic-git/http/node`).
  * @param onAuth Optional auth fill callback.
  * @param onAuthFailure Optional auth rejection callback.
  * @param onAuthSuccess Optional auth approved callback.
