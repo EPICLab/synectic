@@ -12,7 +12,6 @@ import { parse } from './git-index';
 import { compareStats } from './io-stats';
 import { getWorktreePaths } from './git-path';
 import { GitStatus, SHA1, UUID } from '../store/types';
-import { Repository } from '../store/slices/repos';
 
 // API SOURCE: https://git-scm.com/docs/git-worktree
 
@@ -216,31 +215,6 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
       return workdirOid === indexOid ? 'modified' : '*modified';
     }
   }
-}
-
-/**
- * Get worktree path information for a branch within a repository. The main worktree is always listed, even when no linked
- * worktrees exist, so the base case is that the main worktree information is returned. If there is no worktree associated
- * with the target branch, a new worktree will be added (including checking out the code into a separate `.syn/{repo}/{branch}` 
- * directory outside of the root directory of the main worktree) and returned. If a branch was previously checked out into
- * the repo root path, but is not the current root branch, then the branch refs will be cleared from `.git/refs/heads/{branch}`
- * directory.
- * @param repo The Repository object that points to the main worktree.
- * @param branchId The UUID of a Branch object in the Redux store.
- * @param branchRef The local or remote branch ref that should be resolved into a worktree.
- * @return A Worktree object containing a path to linked/main worktree root, a ref to current branch, and the current commit
- * revision hash at the head of the branch.
- */
-export const resolveWorktree = async (repo: Repository, branchId: UUID, branchRef: string): Promise<Worktree | undefined> => {
-  if (![...repo.local, ...repo.remote].includes(branchId)) return undefined; // unknown target branch
-  const worktrees = await list(repo.root);
-  const existing = worktrees ? worktrees.find(w => w.ref === branchRef) : undefined;
-  if (existing) return existing;
-  const repoRef = io.extractFilename(repo.name);
-  const linkedRoot = path.normalize(`${repo.root.toString()}/../.syn/${repoRef}/${branchRef}`);
-  await add(repo.root, linkedRoot, repo.url, branchRef);
-  const updatedWorktrees = await list(repo.root);
-  return updatedWorktrees ? updatedWorktrees.find(w => w.ref === branchRef) : undefined;
 }
 
 /**
