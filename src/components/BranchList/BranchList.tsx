@@ -46,7 +46,7 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
     if (card && metafile) {
       const overwrite = removeUndefinedProperties({ overwrite: props.overwrite });
       try {
-        const updated = await dispatch(checkoutBranch({ metafile: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
+        const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
         if (updated) setSelected(newBranch);
         if (updated) dispatch(cardUpdated({
           ...card,

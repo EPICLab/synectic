@@ -76,7 +76,7 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
         let metafile = await dispatch(fetchMetafile(props.branch.root)).unwrap();
         metafile = isFilebasedMetafile(metafile) ? await dispatch(updatedVersionedMetafile(metafile)).unwrap() : metafile;
         const updated = (empty || props.branch.ref !== current)
-            ? await dispatch(checkoutBranch({ metafile: metafile.id, branchRef: props.branch.ref })).unwrap()
+            ? await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: props.branch.ref })).unwrap()
             : metafile;
         if (updated) {
             dispatch(createCard({ metafile: updated }));
