@@ -114,7 +114,7 @@ export const updateRepository = createAsyncThunk<Repository, Repository, AppThun
 export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileId: UUID, branchRef: string, progress?: boolean, overwrite?: boolean }, AppThunkAPI<string>>(
     'branches/checkoutBranch',
     async ({ metafileId, branchRef, overwrite = false, progress = false }, thunkAPI) => {
-        const state = thunkAPI.getState();
+        let state = thunkAPI.getState();
         const metafile = metafileSelectors.selectById(state, metafileId);
         if (!metafile) return thunkAPI.rejectWithValue(`Cannot update non-existing metafile for id:'${metafileId}'`);
         if (!isFilebasedMetafile(metafile)) return thunkAPI.rejectWithValue(`Cannot update non-filebased metafile for id:'${metafileId}'`);
@@ -125,8 +125,7 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
 
         await checkout({ dir: repo.root.toString(), ref: branchRef, overwrite: overwrite, url: repo.url, onProgress: progress ? (e) => console.log(e.phase) : undefined });
         await thunkAPI.dispatch(updateRepository(repo)); // update branches in repo in case new local branches were created during checkout
-        const updatedState = thunkAPI.getState();
-        console.log({ updatedState });
+        state = thunkAPI.getState(); // updated branches wouldn't be available in the cached state created above
         const updatedBranch = branchSelectors.selectByRef(state, branchRef, 'local')[0];
         if (!updatedBranch) return thunkAPI.rejectWithValue(`Unable to find branch after checkout:'local/${branchRef}'`);
 
