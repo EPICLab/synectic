@@ -53,8 +53,8 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ bra
 export const createBranch = createAsyncThunk<Branch, BranchIdentifiers, AppThunkAPI>(
     'branches/createBranch',
     async (identifiers, thunkAPI) => {
-        const branchRoot = (identifiers.scope === 'local') ? await getBranchRoot(identifiers.root, identifiers.branch) : undefined;
-        const root = branchRoot ? branchRoot : identifiers.root;
+        const branchRoot = await getBranchRoot(identifiers.root, identifiers.branch);
+        const root = (identifiers.scope === 'local' && branchRoot) ? branchRoot : identifiers.root;
         const { dir, gitdir, worktreeGitdir } = await getWorktreePaths(root);
 
         const rootGitdir = worktreeGitdir ? worktreeGitdir : (gitdir ? gitdir : '');
@@ -123,8 +123,10 @@ export const checkoutBranch = createAsyncThunk<Metafile | undefined, { metafileI
         const currentBranch = branchSelectors.selectById(state, metafile.branch);
         if (!repo || !currentBranch) return thunkAPI.rejectWithValue(`Repository and/or branch missing for metafile id:'${metafileId}'`);
 
-        await checkout({ dir: repo.root.toString(), ref: branchRef, overwrite: overwrite, onProgress: progress ? (e) => console.log(e.phase) : undefined });
+        await checkout({ dir: repo.root.toString(), ref: branchRef, overwrite: overwrite, url: repo.url, onProgress: progress ? (e) => console.log(e.phase) : undefined });
         await thunkAPI.dispatch(updateRepository(repo)); // update branches in repo in case new local branches were created during checkout
+        const updatedState = thunkAPI.getState();
+        console.log({ updatedState });
         const updatedBranch = branchSelectors.selectByRef(state, branchRef, 'local')[0];
         if (!updatedBranch) return thunkAPI.rejectWithValue(`Unable to find branch after checkout:'local/${branchRef}'`);
 
