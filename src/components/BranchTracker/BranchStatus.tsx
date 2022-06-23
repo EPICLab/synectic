@@ -90,7 +90,7 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
                 style={{ opacity: isDragging ? 0 : 1 }}
                 key={`${props.repo}-${props.branch.id}`}
                 nodeId={`${props.repo}-${props.branch.id}`}
-                labelText={`${props.branch.ref} [${cards.length}]`}
+                labelText={`${props.branch.scope}/${props.branch.ref} [${cards.length}]`}
                 labelIcon={GitBranchIcon}
                 onClick={handleClick} />
         </div>
