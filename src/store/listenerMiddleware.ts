@@ -1,4 +1,4 @@
-import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener, isRejected } from '@reduxjs/toolkit';
+import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener, isRejected, isAnyOf, isPending } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import cacheSelectors from './selectors/cache';
 import metafileSelectors from './selectors/metafiles';
@@ -31,32 +31,28 @@ startAppListening({
 });
 
 startAppListening({
-    matcher: updatedVersionedMetafile.pending.match,
+    matcher: isAnyOf(updatedVersionedMetafile.pending, updatedVersionedMetafile.fulfilled, updatedVersionedMetafile.rejected),
     effect: async (action, listenerApi) => {
-        listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: [...action.meta.arg.loading, 'versioned'] }));
+        if (isPending(updatedVersionedMetafile)(action)) {
+            listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: [...action.meta.arg.loading, 'versioned'] }));
+        }
+        if (isAnyOf(updatedVersionedMetafile.fulfilled, updatedVersionedMetafile.rejected)(action)) {
+            listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: action.meta.arg.loading.filter(flag => flag !== 'versioned') }));
+        }
     }
 });
 
 startAppListening({
-    matcher: updatedVersionedMetafile.fulfilled.match,
+    matcher: isAnyOf(checkoutBranch.pending, checkoutBranch.fulfilled, checkoutBranch.rejected),
     effect: async (action, listenerApi) => {
-        listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: action.meta.arg.loading.filter(flag => flag !== 'versioned') }));
-    }
-});
-
-startAppListening({
-    matcher: checkoutBranch.pending.match,
-    effect: async (action, listenerApi) => {
-        const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
-        if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'checkout'] }));
-    }
-});
-
-startAppListening({
-    matcher: checkoutBranch.fulfilled.match,
-    effect: async (action, listenerApi) => {
-        const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
-        if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: metafile.loading.filter(flag => flag !== 'checkout') }));
+        if (isPending(checkoutBranch)(action)) {
+            const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
+            if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'checkout'] }));
+        }
+        if (isAnyOf(checkoutBranch.fulfilled, checkoutBranch.rejected)(action)) {
+            const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
+            if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: metafile.loading.filter(flag => flag !== 'checkout') }));
+        }
     }
 });
 
