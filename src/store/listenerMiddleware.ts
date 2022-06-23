@@ -38,10 +38,25 @@ startAppListening({
 });
 
 startAppListening({
+    matcher: updatedVersionedMetafile.fulfilled.match,
+    effect: async (action, listenerApi) => {
+        listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: action.meta.arg.loading.filter(flag => flag !== 'versioned') }));
+    }
+});
+
+startAppListening({
     matcher: checkoutBranch.pending.match,
     effect: async (action, listenerApi) => {
         const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
         if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'checkout'] }));
+    }
+});
+
+startAppListening({
+    matcher: checkoutBranch.fulfilled.match,
+    effect: async (action, listenerApi) => {
+        const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
+        if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: metafile.loading.filter(flag => flag !== 'checkout') }));
     }
 });
 

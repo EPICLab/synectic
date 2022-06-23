@@ -104,7 +104,6 @@ export const updatedVersionedMetafile = createAsyncThunk<VersionedMetafile | Fil
             && isUpdateable<Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: conflicted ? conflicted.conflicts : [] })) ?
             thunkAPI.dispatch(metafileUpdated({
                 ...metafile,
-                loading: metafile.loading.filter(flag => flag !== 'versioned'),
                 repo: repo.id,
                 branch: branch.id,
                 status: status,
