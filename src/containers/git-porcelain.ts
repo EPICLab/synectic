@@ -7,7 +7,7 @@ import parse from 'parse-git-config';
 import { get as getProperty, set as setProperty, has as hasProperty, delete as deleteProperty } from 'dot-prop';
 import getGitConfigPath from 'git-config-path';
 import * as io from './io';
-import { matrixEntry, matrixToStatus, resolveRef, statusMatrix } from './git-plumbing';
+import { extractRepoName, matrixEntry, matrixToStatus, resolveRef, statusMatrix } from './git-plumbing';
 import { isDefined, removeUndefinedProperties } from './utils';
 import { getWorktreePaths } from './git-path';
 import { GitStatus } from '../store/types';
@@ -181,7 +181,7 @@ export const checkout = async ({
     }
     // create a new linked worktree set to track a remote branch of the same name, or a local-only branch if there is no remote
     // tracking branch; this is non-destructive to any uncommitted changes in the main worktree
-    const repo = io.extractFilename(dir);
+    const repo = url.length > 0 ? extractRepoName(url) : io.extractFilename(dir);
     const linkedRoot = path.normalize(`${dir.toString()}/../.syn/${repo}/${ref}`);
     await add(dir, linkedRoot, url, ref);
   }
