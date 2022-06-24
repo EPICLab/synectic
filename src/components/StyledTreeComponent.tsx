@@ -96,8 +96,10 @@ export const StyledTreeItem = (props: StyledTreeItemProps) => {
         </div>
       }
       style={{
-        '--tree-view-color': color,
-        ...removeUndefinedProperties({ '--tree-view-bg-color': bgColor }),
+        ...removeUndefinedProperties({
+          '--tree-view-color': color,
+          '--tree-view-bg-color': bgColor
+        }),
       }}
       onMouseOver={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
