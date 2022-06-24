@@ -60,9 +60,6 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       padding: theme.spacing(0.5, 0),
     },
-    labelIcon: {
-      marginRight: theme.spacing(1),
-    },
     labelText: {
       fontWeight: 'inherit',
       flexGrow: 1
@@ -85,7 +82,7 @@ export const StyledTreeItem = (props: StyledTreeItemProps) => {
     <TreeItem
       label={
         <div className={classes.labelRoot}>
-          <LabelIcon color='inherit' className={classes.labelIcon} style={{ color: color }} />
+          <LabelIcon color='inherit' style={{ color: color }} />
           <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
             {labelText}
           </Typography>
