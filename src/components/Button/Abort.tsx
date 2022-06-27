@@ -11,6 +11,7 @@ import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { cardRemoved } from '../../store/slices/cards';
 import { UUID } from '../../store/types';
+import { getBranchRoot } from '../../containers/git-path';
 
 const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
@@ -22,7 +23,10 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
     const isAbortable = metafile && isConflictManagerMetafile(metafile) && repo;
 
     const abort = async () => {
-        if (repo) await abortMerge(repo.root);
+        if (repo && metafile?.branch) {
+            const branchRoot = await getBranchRoot(repo?.root, metafile.branch);
+            if (branchRoot) await abortMerge(branchRoot);
+        }
         dispatch(cardRemoved(cardId));
     }
 
