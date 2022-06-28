@@ -91,7 +91,8 @@ export const getWorktreePaths = async (target: fs.PathLike): Promise<WorktreePat
         const worktreeGitdir = (worktrees && branch) ?
             (await io.readFileAsync(path.join(worktrees, branch, 'gitdir'), { encoding: 'utf-8' })).trim() : undefined;
         const worktreeDir = worktreeGitdir ? path.join(worktreeGitdir, '..') : undefined;
-        const worktreeLink = worktreeGitdir ?
+        const worktreeGitdirExists = worktreeGitdir ? await fs.pathExists(worktreeGitdir) : false;
+        const worktreeLink = worktreeGitdir && worktreeGitdirExists ?
             (await io.readFileAsync(worktreeGitdir, { encoding: 'utf-8' })).slice('gitdir: '.length).trim() : undefined;
 
         return { dir, gitdir, worktrees, worktreeDir, worktreeGitdir, worktreeLink };
