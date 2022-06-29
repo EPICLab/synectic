@@ -299,6 +299,7 @@ export const list = async (target: fs.PathLike): Promise<Worktree[] | undefined>
    *       /path/to/bare-source            (bare)
    *       /path/to/linked-worktree        abcd1234 [master]
    *       /path/to/other-linked-worktree  1234abc  (detached HEAD)
+   *       /path/to/nonexistent-worktree   4321cba  [feature] prunable
    *
    * SOURCE: https://docs.oracle.com/cd/E88353_01/html/E37839/git-worktree-1.html
    */
