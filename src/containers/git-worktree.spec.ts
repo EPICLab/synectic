@@ -299,6 +299,7 @@ describe('containers/git-worktree.remove', () => {
             bare: false,
             detached: false,
             main: false,
+            prunable: false,
             ref: 'foo',
             rev: 'f204b02baf1322ee079fe9768e9593509d683412'
         }
@@ -316,6 +317,7 @@ describe('containers/git-worktree.remove', () => {
             bare: false,
             detached: false,
             main: false,
+            prunable: false,
             ref: 'foo',
             rev: 'f204b02baf1322ee079fe9768e9593509d683412'
         }
@@ -333,6 +335,7 @@ describe('containers/git-worktree.remove', () => {
             bare: false,
             detached: false,
             main: false,
+            prunable: false,
             ref: 'foo',
             rev: 'f204b02baf1322ee079fe9768e9593509d683412'
         }
@@ -350,6 +353,7 @@ describe('containers/git-worktree.remove', () => {
             bare: false,
             detached: false,
             main: false,
+            prunable: false,
             ref: 'foo',
             rev: 'f204b02baf1322ee079fe9768e9593509d683412'
         }
@@ -367,6 +371,7 @@ describe('containers/git-worktree.remove', () => {
             bare: false,
             detached: false,
             main: false,
+            prunable: false,
             ref: 'foo',
             rev: 'f204b02baf1322ee079fe9768e9593509d683412'
         }

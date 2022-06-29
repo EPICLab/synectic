@@ -27,6 +27,8 @@ export type Worktree = {
   /** A flag for indicating a main worktree, as opposed to a linked worktree. */
   main: boolean;
   /** A branch name or symbolic ref (can be abbreviated). */
+  prunable: boolean;
+  /** A flag for indicating a linked worktree can be pruned (using `prune` command). */
   ref?: string;
   /** A revision (or commit) representing the current state of `index` for the worktree. */
   rev?: SHA1 | string;
@@ -40,7 +42,7 @@ export type Worktree = {
  * @return A Worktree object 
  */
 const createWorktree = async (root: fs.PathLike, bare = false): Promise<Worktree> => {
-  const { worktreeDir } = await getWorktreePaths(root);
+  const { worktreeDir, worktreeLink } = await getWorktreePaths(root);
   const branch = await currentBranch({ dir: root.toString() });
   const commit = await resolveRef({ dir: root, ref: 'HEAD' });
   const ref = removeUndefinedProperties({ ref: branch ? branch : undefined });
@@ -50,6 +52,7 @@ const createWorktree = async (root: fs.PathLike, bare = false): Promise<Worktree
     bare: bare,
     detached: branch ? false : true,
     main: worktreeDir ? false : true,
+    prunable: worktreeDir && !worktreeLink ? true : false,
     rev: commit,
     ...ref,
   };
@@ -269,7 +272,8 @@ export const add = async (dir: fs.PathLike, worktreeDir: fs.PathLike, url: strin
 /**
  * List details of each working tree. Resulting array contains the main working tree as the first element, followed by each of the linked 
  * working trees found in `GIT_DIR/worktrees`. The output details include whether the working tree is bare, the revision currently checked 
- * out, the branch currently checked out (or "detached HEAD" if none), and "locked" if the worktree is locked.
+ * out, the branch currently checked out (or "detached HEAD" if none), "locked" if the worktree is locked, "main" if the worktree is the
+ * default branch in the main worktree, and "prunable" if the worktree root directory has been removed and the worktree link can be pruned.
  * @param target The relative or absolute path to any working tree directory (main or linked worktree).
  * @return A Promise containing an array of worktree details, or undefined if not under version control.
  */
