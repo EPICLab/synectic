@@ -186,18 +186,17 @@ export const branchLog = async (
 ): Promise<isogit.ReadCommitResult[]> => {
   const basePath = path.join(dir.toString(), '.git', 'refs', 'heads');
 
-  if (onProgress) await onProgress({ phase: `Checking: ${branchA}`, loaded: 0, total: 2 });
+  if (onProgress) await onProgress({ phase: `Checking branch history: ${branchA}`, loaded: 0, total: 2 });
   const logA = (await io.extractStats(path.join(basePath, branchA)))
     ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchA}` })
     : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchA}` });
-  if (onProgress) await onProgress({ phase: `Checking: ${branchA}`, loaded: 1, total: 2 });
 
-  if (onProgress) await onProgress({ phase: `Checking: ${branchB}`, loaded: 1, total: 2 });
+  if (onProgress) await onProgress({ phase: `Checking branch history: ${branchB}`, loaded: 1, total: 2 });
   const logB = (await io.extractStats(path.join(basePath, branchB)))
     ? await isogit.log({ fs: fs, dir: dir.toString(), ref: `heads/${branchB}` })
     : await isogit.log({ fs: fs, dir: dir.toString(), ref: `remotes/origin/${branchB}` });
-  if (onProgress) await onProgress({ phase: `Checking: ${branchB}`, loaded: 2, total: 2 });
 
+  if (onProgress) await onProgress({ phase: `Both branch histories checked: ${branchA}, ${branchB}`, loaded: 2, total: 2 });
   return logA
     .filter(commitA => !logB.some(commitB => commitA.oid === commitB.oid))
     .concat(logB.filter(commitB => !logA.some(commitA => commitB.oid === commitA.oid)));
@@ -338,6 +337,7 @@ export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | un
   const { dir, worktreeDir } = await getWorktreePaths(filepath);
   if (!dir) return undefined; // not under version control
 
+  console.log(`matrixEntry: ${filepath.toString()}, ${worktreeDir ? '[using git-worktree.status]' : '[using isogit.status]'}`);
   return worktreeDir
     ? worktree.status(filepath)
     : isogit.status({ fs: fs, dir: dir.toString(), filepath: path.relative(dir.toString(), filepath.toString()) });
@@ -361,6 +361,7 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
   const { worktreeDir } = await getWorktreePaths(dirpath);
   if (!root) return undefined; // not under version control
 
+  console.log(`statusMatrix: ${dirpath.toString()}, ${worktreeDir ? '[using git-worktree.statusMatrix]' : '[using isogit.statusMatrix]'}`);
   return worktreeDir
     ? worktree.statusMatrix(dirpath)
     : isogit.statusMatrix({ fs: fs, dir: dirpath.toString(), filter: f => !isHiddenFile(f) });
