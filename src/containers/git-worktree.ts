@@ -181,7 +181,6 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
   const indexBuffer = await io.readFileAsync(path.join(worktreeLink.toString(), 'index'))
   const index = parse(indexBuffer);
   const indexEntry = index.entries.find(entry => entry.filePath === relativePath);
-
   const stats = await io.extractStats(filepath);
   const indexOid = indexEntry ? indexEntry.objectId.slice(2) : undefined;
 
