@@ -37,7 +37,8 @@ export type Worktree = {
 /**
  * Utility function for compiling all necessary information for working with either linked or main working trees 
  * (see [git-worktree](https://git-scm.com/docs/git-worktree)). Capable of handling prunable worktrees (i.e. worktrees
- * that have had their root directory removed without the use of `git-worktree.remove`).
+ * that have had their root directory removed without the use of `git-worktree.remove`; which results in the worktreeLink 
+ * path `GIT_DIR/worktrees/{branch}` remaining on the filesystem).
  * @param filepath The relative or absolute path within a worktree (linked or main).
  * @param bare A flag indicating a bare git worktree.
  * @return A Worktree object.
