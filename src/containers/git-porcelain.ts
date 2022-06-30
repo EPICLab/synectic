@@ -297,6 +297,7 @@ export const log = async ({ dir, gitdir = path.join(dir.toString(), '.git'), ref
 }): Promise<isogit.ReadCommitResult[]> => {
   const optionals = removeUndefinedProperties({ since: since });
   const worktree = await getWorktreePaths(gitdir);
+  if (!worktree.dir && !worktree.worktreeDir) return []; // linked worktree might have been removed (i.e. prunable)
   return (worktree.dir && worktree.gitdir)
     ? isogit.log({ fs: fs, dir: worktree.dir.toString(), gitdir: worktree.gitdir.toString(), ref: ref, depth: depth, ...optionals })
     : isogit.log({ fs: fs, dir: dir.toString(), ref: ref, depth: depth, ...optionals });
