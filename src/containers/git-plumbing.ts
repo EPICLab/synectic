@@ -335,8 +335,6 @@ export const remove = async (filepath: fs.PathLike): Promise<void> => {
 export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   const { dir, worktreeDir } = await getWorktreePaths(filepath);
   if (!dir) return undefined; // not under version control
-
-  console.log(`matrixEntry: ${filepath.toString()}, ${worktreeDir ? '[using git-worktree.status]' : '[using isogit.status]'}`);
   return worktreeDir
     ? worktree.status(filepath)
     : isogit.status({ fs: fs, dir: dir.toString(), filepath: path.relative(dir.toString(), filepath.toString()) });
@@ -359,8 +357,6 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
   const root = await getRoot(dirpath);
   const { worktreeDir } = await getWorktreePaths(dirpath);
   if (!root) return undefined; // not under version control
-
-  console.log(`statusMatrix: ${dirpath.toString()}, ${worktreeDir ? '[using git-worktree.statusMatrix]' : '[using isogit.statusMatrix]'}`);
   return worktreeDir
     ? worktree.statusMatrix(dirpath)
     : isogit.statusMatrix({ fs: fs, dir: dirpath.toString(), filter: f => !isHiddenFile(f) });
