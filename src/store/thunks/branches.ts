@@ -57,7 +57,7 @@ export const createBranch = createAsyncThunk<Branch, BranchIdentifiers, AppThunk
         const root = (identifiers.scope === 'local' && branchRoot) ? branchRoot : identifiers.root;
         const { dir, gitdir, worktreeGitdir } = await getWorktreePaths(root);
 
-        const rootGitdir = worktreeGitdir ? worktreeGitdir : (gitdir ? gitdir : '');
+        const rootGitdir = worktreeGitdir ? worktreeGitdir : gitdir ? gitdir : '';
         const config = await getConfig({ dir: dir ? dir : root, keyPath: `branch.${identifiers.branch}.remote` });
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
         const commits = await log({ dir: root, ref: identifiers.scope === 'local' ? identifiers.branch : `remotes/${remote}/${identifiers.branch}`, depth: 50 });

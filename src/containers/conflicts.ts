@@ -4,18 +4,18 @@ import * as io from './io';
 import { getIgnore } from './git-plumbing';
 import { asyncFilter, isDefined, removeUndefined } from './utils';
 import { Ignore } from 'ignore';
-import { getRoot, getWorktreePaths } from './git-path';
+import { getWorktreePaths } from './git-path';
 import { VersionedMetafile } from '../store/slices/metafiles';
 import { ProgressCallback } from 'isomorphic-git';
 
 export type Conflict = Pick<VersionedMetafile, 'path' | 'conflicts'>;
 
 export const checkFilepath = async (filepath: PathLike, ignoreManager?: Ignore): Promise<Conflict | undefined> => {
-    const root = await getRoot(filepath);
-    if (root && !(await io.isDirectory(filepath))) {
+    const { dir } = await getWorktreePaths(filepath);
+    if (dir && !(await io.isDirectory(filepath))) {
         const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
-        const ignore = ignoreManager ? ignoreManager : (await getIgnore(root, true));
-        if (ignore.ignores(path.relative(root.toString(), filepath.toString()))) return undefined;
+        const ignore = ignoreManager ? ignoreManager : (await getIgnore(dir, true));
+        if (ignore.ignores(path.relative(dir.toString(), filepath.toString()))) return undefined;
         const content = await io.readFileAsync(filepath, { encoding: 'utf-8' });
         const matches = Array.from(content.matchAll(conflictPattern));
         const conflicts: [number, number][] = removeUndefined(matches.map(m => isDefined(m.index) ? [m.index, m.index + m.toString().length] : undefined));
