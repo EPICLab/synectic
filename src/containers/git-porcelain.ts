@@ -7,7 +7,7 @@ import parse from 'parse-git-config';
 import { get as getProperty, set as setProperty, has as hasProperty, delete as deleteProperty } from 'dot-prop';
 import getGitConfigPath from 'git-config-path';
 import * as io from './io';
-import { extractRepoName, matrixEntry, matrixToStatus, resolveRef, statusMatrix } from './git-plumbing';
+import { matrixEntry, matrixToStatus, resolveRef, statusMatrix } from './git-plumbing';
 import { isDefined, removeUndefinedProperties } from './utils';
 import { getWorktreePaths } from './git-path';
 import { GitStatus } from '../store/types';
@@ -163,6 +163,7 @@ export const checkout = async ({
   const optionals = removeUndefinedProperties({ filepaths, onProgress });
   if (overwrite) {
     // checkout the target branch into the main worktree; this is destructive to any uncommitted changes in the main worktree
+    if (onProgress) await onProgress({ phase: `Checkout target branch into main worktree: ${dir.toString()}`, loaded: 0, total: 1 });
     return isogit.checkout({
       fs: fs, dir: dir.toString(), gitdir: gitdir.toString(), ref: ref, remote: remote, noCheckout: noCheckout,
       noUpdateHead: noUpdateHead, dryRun: dryRun, force: force, track: track, ...optionals
@@ -170,6 +171,7 @@ export const checkout = async ({
   } else {
     const localBranches = await isogit.listBranches({ fs: fs, dir: dir.toString() });
     if (localBranches.includes(ref)) {
+      if (onProgress) await onProgress({ phase: `Removing non-worktree '${ref}' branch reference: ${dir.toString()}`, loaded: 0, total: 2 });
       const worktrees = await list(dir); // main working tree and any linked worktrees (non-worktree local branches are excluded)
       const existing = worktrees ? worktrees.find(w => w.ref === ref) : undefined;
       if (existing) return undefined; // target branch matches current branch in main worktree or a linked worktree; no-op operation
@@ -178,12 +180,15 @@ export const checkout = async ({
       if (remoteCommit[0] && currentCommit !== remoteCommit[0].oid) return undefined; // local-only commits would be permanently destroyed
       // removing non-worktree local branch reference before creating a new linked worktree version
       isogit.deleteBranch({ fs: fs, dir: dir.toString(), ref: ref });
+      if (onProgress) await onProgress({ phase: `Removed non-worktree '${ref}' branch reference: ${dir.toString()}`, loaded: 1, total: 2 });
     }
     // create a new linked worktree set to track a remote branch of the same name, or a local-only branch if there is no remote
     // tracking branch; this is non-destructive to any uncommitted changes in the main worktree
-    const repo = url.length > 0 ? extractRepoName(url) : io.extractFilename(dir);
+    const repo = io.extractFilename(dir);
     const linkedRoot = path.normalize(`${dir.toString()}/../.syn/${repo}/${ref}`);
+    if (onProgress) await onProgress({ phase: `Adding '${ref}' branch as linked-worktree: ${linkedRoot}`, loaded: 1, total: 2 });
     await add(dir, linkedRoot, url, ref);
+    if (onProgress) await onProgress({ phase: `Added '${ref}' branch as linked-worktree: ${linkedRoot}`, loaded: 2, total: 2 });
   }
 }
 
