@@ -36,25 +36,26 @@ export type Worktree = {
 
 /**
  * Utility function for compiling all necessary information for working with either linked or main working trees 
- * (see [git-worktree](https://git-scm.com/docs/git-worktree)).
- * @param root The working tree directory path (i.e. `dir` or `worktreeDir` in `WorktreePaths` type).
+ * (see [git-worktree](https://git-scm.com/docs/git-worktree)). Capable of handling prunable worktrees (i.e. worktrees
+ * that have had their root directory removed without the use of `git-worktree.remove`).
+ * @param filepath The relative or absolute path within a worktree (linked or main).
  * @param bare A flag indicating a bare git worktree.
- * @return A Worktree object 
+ * @return A Worktree object.
  */
-const createWorktree = async (root: fs.PathLike, bare = false): Promise<Worktree> => {
-  const { worktreeDir, worktreeLink } = await getWorktreePaths(root);
-  const branch = await currentBranch({ dir: root.toString() });
-  const commit = await resolveRef({ dir: root, ref: 'HEAD' });
-  const ref = removeUndefinedProperties({ ref: branch ? branch : undefined });
+const createWorktree = async (filepath: fs.PathLike, bare = false): Promise<Worktree> => {
+  const { dir, worktreeDir, worktreeLink } = await getWorktreePaths(filepath);
+  const root = worktreeDir ? worktreeDir : dir ? dir : undefined;
+  const branch = root ? await currentBranch({ dir: root.toString() }) : undefined;
+  const commit = root ? await resolveRef({ dir: root, ref: 'HEAD' }) : undefined;
+  const optionals = removeUndefinedProperties({ ref: branch ? branch : undefined, rev: commit });
   return {
     id: v4(),
-    path: path.resolve(root.toString()),
+    path: path.resolve(filepath.toString()),
     bare: bare,
     detached: branch ? false : true,
-    main: worktreeDir ? false : true,
-    prunable: worktreeDir && !worktreeLink ? true : false,
-    rev: commit,
-    ...ref,
+    main: (dir && !worktreeDir) ? true : false,
+    prunable: (worktreeDir && !worktreeLink) ? true : false,
+    ...optionals,
   };
 }
 
