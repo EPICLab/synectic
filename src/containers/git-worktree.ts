@@ -54,7 +54,7 @@ const createWorktree = async (filepath: fs.PathLike, bare = false): Promise<Work
     bare: bare,
     detached: branch ? false : true,
     main: (dir && !worktreeDir) ? true : false,
-    prunable: (worktreeDir && !worktreeLink) ? true : false,
+    prunable: (worktreeDir && !worktreeLink) || (!dir && !worktreeDir) ? true : false,
     ...optionals,
   };
 }
