@@ -139,9 +139,9 @@ const parseEntry = (buffer: Buffer, offset: number): IndexEntry => {
   const schema = entrySchema;
   return binarnia({
     offset,
-    schema,
-    endian,
     buffer,
+    endian,
+    schema,
   })
 }
 
