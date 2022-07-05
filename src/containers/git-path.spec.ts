@@ -44,18 +44,32 @@ describe('containers/git-path', () => {
         await expect(getRoot('foo/haze/test.js')).resolves.toBe('foo');
     });
 
-    it('getBranchRoot resolves `dir` path for branch on main worktree', async () => {
+    it('getBranchRoot resolves root path for main worktree from `dir` path', async () => {
         expect.assertions(1);
         const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
         jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
         await expect(getBranchRoot('foo', 'main')).resolves.toEqual('foo');
     });
 
-    it('getBranchRoot resolves `worktreeDir` path for branch on linked worktree', async () => {
+    it('getBranchRoot resolves root path for main worktree from `worktreeDir` path', async () => {
+        expect.assertions(1);
+        const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
+        jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
+        await expect(getBranchRoot('.syn/bad-branch', 'main')).resolves.toEqual('foo');
+    });
+
+    it('getBranchRoot resolves root path for linked worktree from `dir` path', async () => {
         expect.assertions(1);
         const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
         jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
         await expect(getBranchRoot('foo', 'bad-branch')).resolves.toEqual(path.normalize('.syn/bad-branch'));
+    });
+
+    it('getBranchRoot resolves root path for linked worktree from `worktreeDir` path', async () => {
+        expect.assertions(1);
+        const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
+        jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
+        await expect(getBranchRoot('.syn/bad-branch', 'bad-branch')).resolves.toEqual(path.normalize('.syn/bad-branch'));
     });
 
     it('getWorktreePaths resolves path to main worktree file', async () => {

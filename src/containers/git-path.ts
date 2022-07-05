@@ -41,27 +41,24 @@ export const getRoot = async (filepath: fs.PathLike): Promise<fs.PathLike | unde
  * Find the root git directory for a specific branch. For branches on a linked worktree, this corresponds to 
  * the `worktreeDir` in the `WorktreePaths` type. For all other locally tracked branches (i.e. branches that have 
  * previously been checked out), this corresponds to the `dir` in the `WorktreePaths` type.
- * @param dir The relative or absolute path to the main worktree root directory (i.e. the `dir` in the `WorktreePaths` type).
+ * @param root The relative or absolute path to a root directory (i.e. the `dir` or `worktreeDir` in the `WorktreePaths` type).
  * @param branch Name of the target branch.
  * @returns A Promise object containing the root git directory path, or undefined if no root git directory exists 
  * for the branch (i.e. the branch is remote-only or non-existent for the given repository).
  */
-export const getBranchRoot = async (dir: fs.PathLike, branch: string) => {
-    const existsLocal = (await listBranches({ fs: fs, dir: dir.toString() })).includes(branch);
+export const getBranchRoot = async (root: fs.PathLike, branch: string): Promise<fs.PathLike | undefined> => {
+    const { dir, worktrees } = await getWorktreePaths(root);
+    const existsLocal = dir ? (await listBranches({ fs: fs, dir: dir.toString() })).includes(branch) : false;
     if (!existsLocal) return undefined; // branch is either remote-only or non-existent
 
     // check to see if the branch matches one of the linked worktrees
-    const gitWorktrees = path.join(dir.toString(), '.git', 'worktrees');
-    const worktreeRoot = await fs.stat(gitWorktrees)
-        .then(async () => {
-            const worktreeBranches = await io.readDirAsync(gitWorktrees);
-            const match = worktreeBranches.find(w => w === branch);
-            if (match) {
-                // reading the `{dir}/.git/worktrees/{branch}/gitdir` file
-                return path.dirname((await io.readFileAsync(path.join(gitWorktrees, match, 'gitdir'), { encoding: 'utf-8' })).trim());
-            }
-        })
-        .catch(() => { return undefined });
+    const worktreeBranches = worktrees ? await io.readDirAsync(worktrees) : undefined;
+    const match = worktreeBranches ? worktreeBranches.find(w => w === branch) : undefined;
+
+    // reading the `{dir}/.git/worktrees/{branch}/gitdir` file
+    const worktreeRoot = (match && worktrees)
+        ? path.dirname((await io.readFileAsync(path.join(worktrees.toString(), match, 'gitdir'), { encoding: 'utf-8' })).trim())
+        : undefined;
 
     return worktreeRoot ? worktreeRoot : dir;
 }
