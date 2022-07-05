@@ -1883,14 +1883,14 @@
     semver "^7.3.7"
     tsutils "^3.21.0"
 
-"@typescript-eslint/parser@^5.29.0":
-  version "5.29.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.29.0.tgz#41314b195b34d44ff38220caa55f3f93cfca43cf"
-  integrity sha512-ruKWTv+x0OOxbzIw9nW5oWlUopvP/IQDjB5ZqmTglLIoDTctLlAJpAQFpNPJP/ZI7hTT9sARBosEfaKbcFuECw==
+"@typescript-eslint/parser@^5.30.4":
+  version "5.30.4"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-5.30.4.tgz#659411e8700b22c8d5400798ef24838425bf4567"
+  integrity sha512-/ge1HtU63wVoED4VnlU2o+FPFmi017bPYpeSrCmd8Ycsti4VSxXrmcpXXm7JpI4GT0Aa7qviabv1PEp6L5bboQ==
   dependencies:
-    "@typescript-eslint/scope-manager" "5.29.0"
-    "@typescript-eslint/types" "5.29.0"
-    "@typescript-eslint/typescript-estree" "5.29.0"
+    "@typescript-eslint/scope-manager" "5.30.4"
+    "@typescript-eslint/types" "5.30.4"
+    "@typescript-eslint/typescript-estree" "5.30.4"
     debug "^4.3.4"
 
 "@typescript-eslint/scope-manager@5.29.0":
