@@ -160,8 +160,9 @@ export const checkProject = async (dir: fs.PathLike, branch: string): Promise<Co
     const conflictedFiles = new Map<string, number[]>();
     checkResults.stdout.match(conflictPattern)?.forEach(match => {
         const [filename, position] = match.split(':').slice(0, 2) as [string, number];
-        const existing = conflictedFiles.get(filename);
-        conflictedFiles.set(filename, existing ? [...existing, position] : [position]);
+        const filepath = path.join(branchRoot.toString(), filename);
+        const existing = conflictedFiles.get(filepath);
+        conflictedFiles.set(filepath, existing ? [...existing, position] : [position]);
     });
     return Array.from(conflictedFiles).map(c => ({ path: c[0], conflicts: c[1] }));
 }
