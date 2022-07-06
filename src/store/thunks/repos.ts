@@ -5,12 +5,12 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AppThunkAPI } from '../hooks';
 import { repoAdded, Repository } from '../slices/repos';
 import repoSelectors from '../selectors/repos';
-import { FilebasedMetafile, isVersionedMetafile, isFilebasedMetafile } from '../slices/metafiles';
+import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
 import { getWorktreePaths } from '../../containers/git-path';
 import { clone, defaultBranch, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
 import { extractFromURL, extractRepoName } from '../../containers/git-plumbing';
 import { extractFilename } from '../../containers/io';
-import { createMetafile, fetchMetafile, fetchParentMetafile, updatedVersionedMetafile } from './metafiles';
+import { createMetafile, fetchParentMetafile, updateConflicted } from './metafiles';
 import { fetchBranches, updateRepository } from './branches';
 import { ProgressCallback } from 'isomorphic-git';
 import { DateTime } from 'luxon';
@@ -116,10 +116,7 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
                 const conflicts = branch ? await checkProject(branch.root, branch.ref) : undefined;
 
                 if (branch && conflicts && conflicts.length > 0) {
-                    conflicts.map(async conflict => {
-                        const metafile = await thunkAPI.dispatch(fetchMetafile(conflict.path)).unwrap();
-                        if (isFilebasedMetafile(metafile)) await thunkAPI.dispatch(updatedVersionedMetafile(metafile));
-                    });
+                    await thunkAPI.dispatch(updateConflicted(conflicts));
                     const { base, compare } = await resolveConflicts(branch.root);
                     const conflictManager = await thunkAPI.dispatch(createMetafile({
                         metafile: {
