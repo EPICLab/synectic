@@ -149,7 +149,7 @@ const Canvas = () => {
   const viewMenu: NavItemProps[] = [
     { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
     { label: 'Branches...', click: async () => dispatch(loadBranchVersions()) },
-    { label: 'Show Conflicts...', click: () => dispatch(fetchConflictManagers()) },
+    { label: 'Conflicts...', click: () => dispatch(fetchConflictManagers()) },
   ];
 
   const sysMenu: NavItemProps[] = [
