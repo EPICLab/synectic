@@ -179,7 +179,6 @@ export const abortMerge = async (dir: fs.PathLike): Promise<void> => {
 
     if (stats) {
         try {
-
             await promiseExec(`git merge --abort`, { cwd: dir.toString() });
         } catch (error) {
             console.error(error);
@@ -195,10 +194,32 @@ export const resolveMerge = async (dir: fs.PathLike, compareBranch: string): Pro
     }
 }
 
+/**
+ * Resolve the names of branches involved in a merge conflict, given the root directory path of the base branch. If the base branch is a linked worktree, then 
+ * this function will extract the branch names from the GIT_DIR/worktrees/{branch}/MERGE_MSG file which has content similar to:
+ * ```bash
+ * Merge remote-tracking branch 'origin/compare' into base
+ * 
+ * * # Conflicts:
+ * * #	components/list/index.tsx
+ * ```
+ * 
+ * If the base branch is located in the main worktree directory, then we extract the branch names from the GIT_DIR/MERGE_MSG file which has content similar to:
+ * ```bash
+ * Merge branch 'compare'
+ *
+ * # Conflicts:
+ * #	components/list/index.tsx
+ * ```
+ * @param root The root directory of the base branch involved in the conflicting merge; the main worktree or linked worktree are acceptable.
+ * @returns A Promise object containing the base branch name (or undefined if not included in the MERGE_MSG file) and the compare branch
+ * name.
+ */
 export const resolveConflicts = async (root: fs.PathLike): Promise<{ base: string | undefined, compare: string }> => {
-    const branchPattern = /(?<=^Merge branch(es)? .*)('.+?')+/gm;
-    const { gitdir } = await getWorktreePaths(root);
-    const mergeMsg = gitdir ? await io.readFileAsync(path.join(gitdir.toString(), 'MERGE_MSG'), { encoding: 'utf-8' }) : '';
+    const branchPattern = /(?<=Merge( remote-tracking)? branch(es)? .*)('.+?')+/gm; // Match linked worktree and main worktree patterns (shown above)
+    const { gitdir, worktreeLink } = await getWorktreePaths(root);
+    const mergeMsg = worktreeLink ? await io.readFileAsync(path.join(worktreeLink.toString(), 'MERGE_MSG'), { encoding: 'utf-8' })
+        : gitdir ? await io.readFileAsync(path.join(gitdir.toString(), 'MERGE_MSG'), { encoding: 'utf-8' }) : '';
     const match = mergeMsg.match(branchPattern);
     return match
         ? match.length === 2
