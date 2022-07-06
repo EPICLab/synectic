@@ -6,7 +6,7 @@ import * as isogit from 'isomorphic-git';
 import * as io from './io';
 import { branchLog, getIgnore, resolveRef, resolveURL } from './git-plumbing';
 import { getBranchRoot, getWorktreePaths } from './git-path';
-import { checkout, getConfig } from './git-porcelain';
+import { checkout, currentBranch, getConfig } from './git-porcelain';
 import { VersionedMetafile } from '../store/slices/metafiles';
 import { Ignore } from 'ignore';
 import { isDefined, removeUndefined } from './utils';
@@ -142,7 +142,11 @@ export const checkFilepath = async (filepath: fs.PathLike, ignoreManager?: Ignor
  */
 export const checkProject = async (dir: fs.PathLike, branch: string): Promise<Conflict[]> => {
     const branchRoot = await getBranchRoot(dir, branch);
-    if (!branchRoot) return [];
+    const worktree = await getWorktreePaths(dir);
+    const current = await currentBranch({ dir });
+    // skip any locally-tracked branches that are not checked out in the main worktree directory
+    const trackedLocalBranch = (branchRoot && worktree.dir) ? io.isEqualPaths(branchRoot, worktree.dir) && branch !== current : false;
+    if (!branchRoot || trackedLocalBranch) return [];
 
     let checkResults: { stdout: string; stderr: string; } = { stdout: '', stderr: '' };
     let checkError: ExecError | undefined;
