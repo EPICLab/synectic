@@ -17,6 +17,7 @@ import { DateTime } from 'luxon';
 import { createCard } from './cards';
 import { ExactlyOne } from '../../containers/utils';
 import { checkProject, resolveConflicts } from '../../containers/merges';
+import { modalAdded } from '../slices/modals';
 
 export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'repos/fetchRepo',
@@ -108,6 +109,7 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
     'metafiles/fetchConflictManagers',
     async (_, thunkAPI) => {
         const repos = repoSelectors.selectAll(thunkAPI.getState());
+        let hasConflicts = false;
 
         await Promise.all(repos.map(async repo => {
             const updated = await thunkAPI.dispatch(updateRepository(repo)).unwrap(); // update in case local/remote branches have changed
@@ -116,6 +118,7 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
                 const conflicts = branch ? await checkProject(branch.root, branch.ref) : undefined;
 
                 if (branch && conflicts && conflicts.length > 0) {
+                    hasConflicts = true;
                     await thunkAPI.dispatch(updateConflicted(conflicts));
                     const { base, compare } = await resolveConflicts(branch.root);
                     const conflictManager = await thunkAPI.dispatch(createMetafile({
@@ -134,5 +137,10 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
                 }
             }));
         }));
+
+        if (!hasConflicts) thunkAPI.dispatch(modalAdded({
+            id: v4(), type: 'Notification',
+            options: { 'message': `No conflicts found` }
+        }))
     }
 );
