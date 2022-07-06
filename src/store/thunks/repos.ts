@@ -5,18 +5,18 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AppThunkAPI } from '../hooks';
 import { repoAdded, Repository } from '../slices/repos';
 import repoSelectors from '../selectors/repos';
-import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
-import { getBranchRoot, getWorktreePaths } from '../../containers/git-path';
+import { FilebasedMetafile, isVersionedMetafile, isFilebasedMetafile } from '../slices/metafiles';
+import { getWorktreePaths } from '../../containers/git-path';
 import { clone, defaultBranch, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
 import { extractFromURL, extractRepoName } from '../../containers/git-plumbing';
 import { extractFilename } from '../../containers/io';
-import { createMetafile, fetchParentMetafile } from './metafiles';
-import { fetchBranches } from './branches';
+import { createMetafile, fetchMetafile, fetchParentMetafile, updatedVersionedMetafile } from './metafiles';
+import { fetchBranches, updateRepository } from './branches';
 import { ProgressCallback } from 'isomorphic-git';
-import { checkProject, resolveConflictBranches } from '../../containers/conflicts';
 import { DateTime } from 'luxon';
 import { createCard } from './cards';
 import { ExactlyOne } from '../../containers/utils';
+import { checkProject, resolveConflicts } from '../../containers/merges';
 
 export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'repos/fetchRepo',
@@ -108,19 +108,19 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
     'metafiles/fetchConflictManagers',
     async (_, thunkAPI) => {
         const repos = repoSelectors.selectAll(thunkAPI.getState());
-        // for all repos,
-        // for all local branches,
-        // check for conflicts
-        // load a conflictManager metafile if there are conflicts
-        // load a card for each conflictManager metafile
 
         await Promise.all(repos.map(async repo => {
-            await Promise.all(repo.local.map(async branchId => {
+            const updated = await thunkAPI.dispatch(updateRepository(repo)).unwrap(); // update in case local/remote branches have changed
+            await Promise.all(updated.local.map(async branchId => {
                 const branch = thunkAPI.getState().branches.entities[branchId];
-                const root = branch ? await getBranchRoot(repo.root, branch.ref) : undefined;
-                const conflicts = await checkProject(root);
-                if (branch && root && conflicts.length > 0) {
-                    const { base, compare } = await resolveConflictBranches(root);
+                const conflicts = branch ? await checkProject(branch.root, branch.ref) : undefined;
+
+                if (branch && conflicts && conflicts.length > 0) {
+                    conflicts.map(async conflict => {
+                        const metafile = await thunkAPI.dispatch(fetchMetafile(conflict.path)).unwrap();
+                        if (isFilebasedMetafile(metafile)) await thunkAPI.dispatch(updatedVersionedMetafile(metafile));
+                    });
+                    const { base, compare } = await resolveConflicts(branch.root);
                     const conflictManager = await thunkAPI.dispatch(createMetafile({
                         metafile: {
                             name: `Conflicts`,
@@ -128,8 +128,8 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
                             handler: 'ConflictManager',
                             filetype: 'Text',
                             loading: [],
-                            repo: repo.id,
-                            path: root,
+                            repo: updated.id,
+                            path: branch.root,
                             merging: { base: (base ? base : branch.ref), compare: compare }
                         }
                     })).unwrap();
