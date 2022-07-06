@@ -3,7 +3,6 @@ import { PathLike, remove } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { dirname, relative } from 'path';
 import { v4 } from 'uuid';
-import { checkFilepath, Conflict } from '../../containers/conflicts';
 import { flattenArray } from '../../containers/flatten';
 import { ExactlyOne, isDefined, isUpdateable, removeDuplicates, removeUndefinedProperties } from '../../containers/utils';
 import { discardChanges, getIgnore } from '../../containers/git-plumbing';
@@ -15,6 +14,7 @@ import { DirectoryMetafile, FilebasedMetafile, Metafile, MetafileTemplate, Versi
 import { fetchBranch } from './branches';
 import { fetchFiletype } from './filetypes';
 import { fetchRepo } from './repos';
+import { checkFilepath, Conflict } from '../../containers/merges';
 
 export const isHydrated = (metafile: Metafile): boolean => {
     // if metafile is filebased, verify that DirectoryMetafile/FileMetafile fields are populated

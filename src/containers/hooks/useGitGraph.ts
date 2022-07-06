@@ -8,7 +8,7 @@ import repoSelectors from '../../store/selectors/repos';
 import { Branch } from '../../store/slices/branches';
 import { RootState } from '../../store/store';
 import { UUID } from '../../store/types';
-import { checkProject } from '../conflicts';
+import { checkProject } from '../merges';
 import { removeUndefined } from '../utils';
 import { hasStatus } from '../git-porcelain';
 import usePrevious from './usePrevious';
@@ -86,7 +86,7 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
      */
     const parse = async (graph: GitGraph, branch: Branch) => {
         // check for conflicts in head commit
-        const conflicted = (await checkProject(branch.root)).length > 0;
+        const conflicted = (await checkProject(branch.root, branch.ref)).length > 0;
 
         branch.commits.map((commit, idx) => {
             !graph.has(commit.oid) ? graph.set(commit.oid, {
