@@ -14,7 +14,7 @@ const BranchTracker = () => {
   const handleToggle = (_event: React.ChangeEvent<Record<string, unknown>>, nodeIds: string[]) => setExpanded(nodeIds);
 
   return (
-    <div className='version-tracker'>
+    <div className='list-component'>
       <TreeView
         defaultCollapseIcon={<ArrowDropDown />}
         defaultExpandIcon={<ArrowRight />}
