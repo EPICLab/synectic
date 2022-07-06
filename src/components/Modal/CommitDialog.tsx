@@ -134,7 +134,7 @@ const CommitDialog = (props: Modal) => {
                     <Grid container alignItems='center' justifyContent='center' >
                         <Grid item xs={12} className={styles.input} >
                             <TextField id='commitMsg' label='Commit Message' onChange={handleChange}
-                                variant='outlined' multiline rows={4} className={styles.textfield} />
+                                variant='outlined' multiline minRows={4} className={styles.textfield} />
                         </Grid>
                     </Grid>
                 </div>
