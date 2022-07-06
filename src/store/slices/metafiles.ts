@@ -76,8 +76,8 @@ export type VersionedProps = {
     readonly branch: UUID;
     /** The latest Git status code for this metafile relative to the associated repository and branch. */
     readonly status: GitStatus;
-    /** An array of tuples indicating the start/end indices of each Git conflict in the content of this metafile. */
-    readonly conflicts: [number, number][];
+    /** An array indicating the starting index of each Git conflict in the content of this metafile. */
+    readonly conflicts: number[];
 };
 export const isVersionedMetafile = (metafile: Metafile): metafile is VersionedMetafile => {
     return isFilebasedMetafile(metafile) && (metafile as VersionedMetafile).repo !== undefined;
