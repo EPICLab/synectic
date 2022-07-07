@@ -11,7 +11,7 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { UUID } from '../../store/types';
 import cachedSelectors from '../../store/selectors/cache';
-import { updatedVersionedMetafile, updateFilebasedMetafile } from '../../store/thunks/metafiles';
+import { updateVersionedMetafile, updateFilebasedMetafile } from '../../store/thunks/metafiles';
 
 /**
  * Button for undoing changes back to the most recent version according to the filesystem for file-based cards. This button tracks the 
@@ -34,7 +34,7 @@ const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
             .filter(isFileMetafile)
             .map(async metafile => {
                 await dispatch(updateFilebasedMetafile(metafile));
-                await dispatch(updatedVersionedMetafile(metafile));
+                await dispatch(updateVersionedMetafile(metafile));
             })
         );
 

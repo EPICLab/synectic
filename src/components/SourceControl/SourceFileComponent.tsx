@@ -10,7 +10,7 @@ import { getSourceMotif, stagedCheck, unstagedCheck } from '../../containers/sou
 import { add, remove } from '../../containers/git-plumbing';
 import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafiles';
 import { UUID } from '../../store/types';
-import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 
 const SourceFileComponent = (props: { metafileId: UUID }) => {
     const metafile = useAppSelector((root: RootState) => metafileSelectors.selectById(root, props.metafileId));
@@ -20,14 +20,14 @@ const SourceFileComponent = (props: { metafileId: UUID }) => {
     const stage = async () => {
         if (metafile && isFileMetafile(metafile)) {
             await add(metafile.path);
-            await dispatch(updatedVersionedMetafile(metafile));
+            await dispatch(updateVersionedMetafile(metafile));
         }
     };
 
     const unstage = async () => {
         if (metafile && isFileMetafile(metafile)) {
             await remove(metafile.path);
-            await dispatch(updatedVersionedMetafile(metafile));
+            await dispatch(updateVersionedMetafile(metafile));
         }
     };
 

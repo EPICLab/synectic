@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { UUID } from '../../store/types';
-import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 
 /**
  * Button for managing the staging of changes for VCS-tracked cards. This button tracks the status of metafiles associated with the list
@@ -38,7 +38,7 @@ const StageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
         .map(async metafile => {
             await add(metafile.path);
             console.log(`staging ${metafile.name}`);
-            dispatch(updatedVersionedMetafile(metafile));
+            dispatch(updateVersionedMetafile(metafile));
         })
     );
 

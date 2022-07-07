@@ -8,7 +8,7 @@ import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileUpdat
 import { RootState, AppDispatch } from './store';
 import { checkoutBranch } from './thunks/branches';
 import { subscribe, unsubscribe } from './thunks/cache';
-import { createMetafile, fetchMetafile, fetchParentMetafile, updatedVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
+import { createMetafile, fetchMetafile, fetchParentMetafile, updateVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
 import { fetchRepo, createRepo } from './thunks/repos';
 
 export const listenerMiddleware = createListenerMiddleware<RootState>();
@@ -19,7 +19,7 @@ export const startAppListening = listenerMiddleware.startListening as AppStartLi
 
 export const addAppListener = addListener as TypedAddListener<RootState, AppDispatch>;
 
-const isRejectedAction = isRejected(fetchMetafile, createMetafile, updateFilebasedMetafile, updatedVersionedMetafile, fetchParentMetafile, fetchRepo, createRepo);
+const isRejectedAction = isRejected(fetchMetafile, createMetafile, updateFilebasedMetafile, updateVersionedMetafile, fetchParentMetafile, fetchRepo, createRepo);
 
 startAppListening({
     matcher: isRejectedAction,
@@ -31,12 +31,12 @@ startAppListening({
 });
 
 startAppListening({
-    matcher: isAnyOf(updatedVersionedMetafile.pending, updatedVersionedMetafile.fulfilled, updatedVersionedMetafile.rejected),
+    matcher: isAnyOf(updateVersionedMetafile.pending, updateVersionedMetafile.fulfilled, updateVersionedMetafile.rejected),
     effect: async (action, listenerApi) => {
-        if (isPending(updatedVersionedMetafile)(action)) {
+        if (isPending(updateVersionedMetafile)(action)) {
             listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: [...action.meta.arg.loading, 'versioned'] }));
         }
-        if (isAnyOf(updatedVersionedMetafile.fulfilled, updatedVersionedMetafile.rejected)(action)) {
+        if (isAnyOf(updateVersionedMetafile.fulfilled, updateVersionedMetafile.rejected)(action)) {
             listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: action.meta.arg.loading.filter(flag => flag !== 'versioned') }));
         }
     }
@@ -72,7 +72,7 @@ startAppListening({
 
             if (isFilebasedMetafile(metafile)) {
                 const updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-                await listenerApi.dispatch(updatedVersionedMetafile(metafile));
+                await listenerApi.dispatch(updateVersionedMetafile(metafile));
 
                 if (isDirectoryMetafile(updated)) {
                     const children = metafileSelectors.selectByIds(listenerApi.getState(), updated.contains);

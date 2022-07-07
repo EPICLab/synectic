@@ -5,7 +5,7 @@ import { AppThunkAPI } from '../store/hooks';
 import { isFilebasedMetafile, Metafile, metafileUpdated } from '../store/slices/metafiles';
 import { createCard } from '../store/thunks/cards';
 import { writeFileAsync } from './io';
-import { updatedVersionedMetafile } from '../store/thunks/metafiles';
+import { updateVersionedMetafile } from '../store/thunks/metafiles';
 import { fetchRepo } from '../store/thunks/repos';
 import metafileSelectors from '../store/selectors/metafiles';
 
@@ -46,7 +46,7 @@ export const fileSaveDialog = createAsyncThunk<boolean, Metafile, AppThunkAPI>(
       await Promise.all(
         metafileSelectors.selectByFilepath(thunkAPI.getState(), response.filePath)
           .filter(isFilebasedMetafile)
-          .map(async m => await thunkAPI.dispatch(updatedVersionedMetafile(m)))
+          .map(async m => await thunkAPI.dispatch(updateVersionedMetafile(m)))
       );
       return true;
     }

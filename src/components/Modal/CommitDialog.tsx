@@ -14,7 +14,7 @@ import { fetchBranches } from '../../store/thunks/branches';
 import { repoUpdated } from '../../store/slices/repos';
 import FileComponent from '../Explorer/FileComponent';
 import { getRoot } from '../../containers/git-path';
-import { updateFilebasedMetafile, updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { updateFilebasedMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -94,7 +94,7 @@ const CommitDialog = (props: Modal) => {
             console.log(`commit result: ${result}`);
             if (metafile && isFilebasedMetafile(metafile)) {
                 await dispatch(updateFilebasedMetafile(metafile));
-                await dispatch(updatedVersionedMetafile(metafile));
+                await dispatch(updateVersionedMetafile(metafile));
             }
             if (repo) {
                 const branches = await dispatch(fetchBranches(repo.root)).unwrap();

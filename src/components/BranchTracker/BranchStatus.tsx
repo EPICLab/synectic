@@ -14,7 +14,7 @@ import { DnDItemType } from '../Canvas/Canvas';
 import { modalAdded } from '../../store/slices/modals';
 import { Repository } from '../../store/slices/repos';
 import { Branch } from '../../store/slices/branches';
-import { fetchMetafile, updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { checkoutBranch } from '../../store/thunks/branches';
 import { createCard } from '../../store/thunks/cards';
 
@@ -74,7 +74,7 @@ const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
         const empty = directoryContent.length == 0 || (directoryContent.length == 1 && directoryContent.includes('.git')); // a .git sub-directory still counts as empty
         const current = await currentBranch({ dir: props.branch.root });
         let metafile = await dispatch(fetchMetafile(props.branch.root)).unwrap();
-        metafile = isFilebasedMetafile(metafile) ? await dispatch(updatedVersionedMetafile(metafile)).unwrap() : metafile;
+        metafile = isFilebasedMetafile(metafile) ? await dispatch(updateVersionedMetafile(metafile)).unwrap() : metafile;
         const updated = (empty || props.branch.ref !== current)
             ? await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: props.branch.ref })).unwrap()
             : metafile;

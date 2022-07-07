@@ -92,7 +92,7 @@ export const updateFilebasedMetafile = createAsyncThunk<FilebasedMetafile, Fileb
     }
 );
 
-export const updatedVersionedMetafile = createAsyncThunk<VersionedMetafile | FilebasedMetafile, FilebasedMetafile, AppThunkAPI>(
+export const updateVersionedMetafile = createAsyncThunk<VersionedMetafile | FilebasedMetafile, FilebasedMetafile, AppThunkAPI>(
     'metafiles/updateVersionedMetafile',
     async (metafile, thunkAPI) => {
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
@@ -178,7 +178,7 @@ export const updateConflicted = createAsyncThunk<Metafile[], Conflict[], AppThun
         return flattenArray(await Promise.all(conflictedFiles.map(async conflict => {
             const metafile = await thunkAPI.dispatch(fetchMetafile(conflict.path)).unwrap();
             return isFilebasedMetafile(metafile)
-                ? await thunkAPI.dispatch(updatedVersionedMetafile(metafile)).unwrap()
+                ? await thunkAPI.dispatch(updateVersionedMetafile(metafile)).unwrap()
                 : metafile;
         })));
     }

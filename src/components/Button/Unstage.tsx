@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { UUID } from '../../store/types';
-import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 
 /**
  * Button for managing the unstaging of changes for VCS-tracked cards. This button tracks the status of metafiles associated with the list
@@ -37,7 +37,7 @@ const UnstageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mo
         .map(async metafile => {
             await remove(metafile.path);
             console.log(`unstaging ${metafile.name}`);
-            dispatch(updatedVersionedMetafile(metafile));
+            dispatch(updateVersionedMetafile(metafile));
         })
     );
 

@@ -2,7 +2,7 @@ import { file, mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
 import { Filetype, filetypeAdded } from '../slices/filetypes';
-import { createMetafile, fetchParentMetafile, isHydrated, updatedVersionedMetafile, updateFilebasedMetafile } from './metafiles';
+import { createMetafile, fetchParentMetafile, isHydrated, updateVersionedMetafile, updateFilebasedMetafile } from './metafiles';
 import { DirectoryMetafile, FilebasedMetafile, FileMetafile, metafileAdded, MetafileTemplate } from '../slices/metafiles';
 import { DateTime, Settings } from 'luxon';
 import isUUID from 'validator/lib/isUUID';
@@ -252,7 +252,7 @@ describe('thunks/metafiles', () => {
         store.dispatch(metafileAdded(metafile));
         store.dispatch(repoAdded(repo));
         store.dispatch(branchAdded(branch));
-        const updated = await store.dispatch(updatedVersionedMetafile(metafile)).unwrap();
+        const updated = await store.dispatch(updateVersionedMetafile(metafile)).unwrap();
         expect(updated).toStrictEqual(
             expect.objectContaining({
                 repo: 'c5739e69-9979-41fe-8605-5bb5ff341027',
@@ -304,7 +304,7 @@ describe('thunks/metafiles', () => {
         store.dispatch(metafileAdded(metafile));
         store.dispatch(repoAdded(repo));
         store.dispatch(branchAdded(branch));
-        const updated = await store.dispatch(updatedVersionedMetafile(metafile)).unwrap();
+        const updated = await store.dispatch(updateVersionedMetafile(metafile)).unwrap();
         expect(updated).toStrictEqual(
             expect.objectContaining({
                 repo: 'c5739e69-9979-41fe-8605-5bb5ff341027',

@@ -16,7 +16,7 @@ import branchSelectors from '../../store/selectors/branches';
 import { cardRemoved } from '../../store/slices/cards';
 import { resolveMerge } from '../../containers/merges';
 import { UUID } from '../../store/types';
-import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 
 /**
  * Button for staging resolution changes for all previously conflicting files in a repository, committing the resolution the the repository,
@@ -44,7 +44,7 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
         .map(async metafile => {
             await add(metafile.path);
             console.log(`staging ${metafile.name}`);
-            dispatch(updatedVersionedMetafile(metafile));
+            dispatch(updateVersionedMetafile(metafile));
         })
     );
 

@@ -12,7 +12,7 @@ import { RootState } from '../../store/store';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { UUID } from '../../store/types';
-import { updatedVersionedMetafile } from '../../store/thunks/metafiles';
+import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 import cachedSelectors from '../../store/selectors/cache';
 
 /**
@@ -37,7 +37,7 @@ const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
             .filter(isFileMetafile)
             .map(async metafile => {
                 await writeFileAsync(metafile.path, metafile.content);
-                const updated = await dispatch(updatedVersionedMetafile(metafile)).unwrap();
+                const updated = await dispatch(updateVersionedMetafile(metafile)).unwrap();
                 dispatch(metafileUpdated({ ...updated, state: 'unmodified' }));
             })
         );
