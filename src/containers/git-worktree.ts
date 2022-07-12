@@ -8,7 +8,7 @@ import isHash from 'validator/lib/isHash';
 import { isDefined, removeUndefinedProperties } from './utils';
 import { clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
 import { getIgnore, resolveEntry, resolveRef } from './git-plumbing';
-import { parse } from './git-index';
+import { parse, IndexEntry } from './git-index';
 import { compareStats } from './io-stats';
 import { getWorktreePaths } from './git-path';
 import { GitStatus, SHA1, UUID } from '../store/types';
@@ -177,8 +177,8 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
   if (!entry) return undefined;
   const treeOid = (await isogit.readBlob({ fs: fs, dir: dir.toString(), oid: entry.oid })).oid;
 
-  // parse the appropriate git index file for evaluating staged tree status
-  const indexBuffer = await io.readFileAsync(path.join(worktreeLink.toString(), 'index'))
+  // parse the appropriate git index file for evaluating staged tree status (parse fails on branches undergoing merging; i.e. conflicts exist)
+  const indexBuffer = await io.readFileAsync(path.join(worktreeLink.toString(), 'index'));
   const index = parse(indexBuffer);
   const indexEntry = index.entries.find(entry => entry.filePath === relativePath);
   const stats = await io.extractStats(filepath);

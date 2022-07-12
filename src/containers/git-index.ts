@@ -3,9 +3,7 @@
 // Developed by: coderaiser <https://github.com/coderaiser>
 // Typed version by: Nicholas Nelson <https://github.com/nelsonni>
 
-// import * as binarnia from 'binarnia';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const binarnia = require('binarnia');
+import * as gitBinarnia from './binarnia/git-binarnia';
 
 export type IndexEntry = {
   dev: number,
@@ -36,13 +34,13 @@ type IndexHeader = {
   version: number,
   count: number
 }
-type Index = {
+export type Index = {
   header: IndexHeader,
   entries: IndexEntry[]
 }
 
 const endian = 'BE';
-const headerSchema = [{
+const headerSchema: gitBinarnia.Schema = [{
   'name': 'signature',
   'size': 4,
   'type': 'string'
@@ -55,7 +53,7 @@ const headerSchema = [{
   'size': 4,
   'type': 'value'
 }];
-const entrySchema = [{
+const entrySchema: gitBinarnia.Schema = [{
   'name': 'ctime',
   'size': 8,
   'type': 'value'
@@ -100,8 +98,8 @@ const entrySchema = [{
   'size': '<filePathSize>',
   'type': 'string'
 }];
-const offset: number = binarnia.sizeof(headerSchema);
-const entrySize: number = binarnia.sizeof(entrySchema);
+const offset: number = gitBinarnia.sizeof(headerSchema);
+const entrySize: number = gitBinarnia.sizeof(entrySchema);
 
 /**
  * NUL byte(s) 1 NUL byte to pad the entry to a multiple of eight bytes while keeping the name NUL-terminated.
@@ -114,11 +112,9 @@ const pad = (a: number): number => {
 
 const parseHeader = (buffer: Buffer): IndexHeader => {
   const schema = headerSchema;
-  return binarnia({
-    buffer,
-    endian,
-    schema,
-  })
+  const header = gitBinarnia.binarnia({ buffer, endian, schema, });
+
+  return header as IndexHeader;
 };
 
 const parseEntries = (index: Buffer, count: number, offset: number): IndexEntry[] => {
@@ -137,17 +133,15 @@ const parseEntries = (index: Buffer, count: number, offset: number): IndexEntry[
 
 const parseEntry = (buffer: Buffer, offset: number): IndexEntry => {
   const schema = entrySchema;
-  return binarnia({
-    offset,
-    buffer,
-    endian,
-    schema,
-  })
+  const result = gitBinarnia.binarnia({ offset, buffer, endian, schema, });
+
+  return result as IndexEntry;
 }
 
+/** WARNING: git-index.parse will fail if attempting to read git index files associated with an in-progress merge (i.e. if merge conflicts exist on the branch). */
 export const parse = (index: Buffer): Index => {
   const header = parseHeader(index);
-  const { count } = header;
+  const { count } = header; // encoded in hexidecimal
   const entries = parseEntries(index, count, offset);
 
   return {
@@ -155,4 +149,3 @@ export const parse = (index: Buffer): Index => {
     entries,
   }
 };
-
