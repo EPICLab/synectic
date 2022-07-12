@@ -171,7 +171,7 @@ export const checkout = async ({
   } else {
     const localBranches = await isogit.listBranches({ fs: fs, dir: dir.toString() });
     if (localBranches.includes(ref)) {
-      if (onProgress) await onProgress({ phase: `Removing non-worktree '${ref}' branch reference: ${dir.toString()}`, loaded: 0, total: 2 });
+      if (onProgress) await onProgress({ phase: `Removing non-worktree branch ref: '${ref}' in ${dir.toString()}`, loaded: 0, total: 2 });
       const worktrees = await list(dir); // main working tree and any linked worktrees (non-worktree local branches are excluded)
       const existing = worktrees ? worktrees.find(w => w.ref === ref) : undefined;
       if (existing) return undefined; // target branch matches current branch in main worktree or a linked worktree; no-op operation
@@ -180,15 +180,15 @@ export const checkout = async ({
       if (remoteCommit[0] && currentCommit !== remoteCommit[0].oid) return undefined; // local-only commits would be permanently destroyed
       // removing non-worktree local branch reference before creating a new linked worktree version
       isogit.deleteBranch({ fs: fs, dir: dir.toString(), ref: ref });
-      if (onProgress) await onProgress({ phase: `Removed non-worktree '${ref}' branch reference: ${dir.toString()}`, loaded: 1, total: 2 });
+      if (onProgress) await onProgress({ phase: `Removed non-worktree branch ref: '${ref}' in ${dir.toString()}`, loaded: 1, total: 2 });
     }
     // create a new linked worktree set to track a remote branch of the same name, or a local-only branch if there is no remote
     // tracking branch; this is non-destructive to any uncommitted changes in the main worktree
     const repo = io.extractFilename(dir);
     const linkedRoot = path.normalize(`${dir.toString()}/../.syn/${repo}/${ref}`);
-    if (onProgress) await onProgress({ phase: `Adding '${ref}' branch as linked-worktree: ${linkedRoot}`, loaded: 1, total: 2 });
+    if (onProgress) await onProgress({ phase: `Adding linked-worktree: '${ref}' in ${linkedRoot}`, loaded: 1, total: 2 });
     await add(dir, linkedRoot, url, ref);
-    if (onProgress) await onProgress({ phase: `Added '${ref}' branch as linked-worktree: ${linkedRoot}`, loaded: 2, total: 2 });
+    if (onProgress) await onProgress({ phase: `Added linked-worktree: '${ref}' in ${linkedRoot}`, loaded: 2, total: 2 });
   }
 }
 
@@ -351,14 +351,27 @@ export const merge = async (
  */
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   if (await io.isDirectory(filepath)) {
-    const statuses = await statusMatrix(filepath);
+    let statuses: [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined;
+    try {
+      statuses = await statusMatrix(filepath);
+    } catch (error) {
+      console.error(`Caught during statusMatrix(${filepath.toString()}):`, error);
+    }
+
     const changed = statuses ? statuses
       .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
       .map(row => row[0])                 // return the filenames only
       : [];                               // handle the case that `statusMatrix` returned undefined
     return (changed.length > 0) ? 'modified' : 'unmodified';
   }
-  return matrixEntry(filepath);
+
+  let status: GitStatus | undefined;
+  try {
+    status = await matrixEntry(filepath);
+  } catch (error) {
+    console.error(`Caught during matrixEntry(${filepath.toString()}):`, error);
+  }
+  return status;
 }
 
 /**
