@@ -24,7 +24,7 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
 
     const abort = async () => {
         if (repo && metafile?.branch) {
-            const branchRoot = await getBranchRoot(repo?.root, metafile.branch);
+            const branchRoot = await getBranchRoot(repo.root, metafile.branch);
             if (branchRoot) await abortMerge(branchRoot);
         }
         dispatch(cardRemoved(cardId));
