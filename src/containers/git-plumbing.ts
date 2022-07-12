@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as isogit from 'isomorphic-git';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
+import parseUrl from 'parse-url';
 import isUUID from 'validator/lib/isUUID';
 import ignore, { Ignore } from 'ignore';
 import { isWebUri } from 'valid-url';
@@ -32,7 +33,7 @@ export const isHiddenFile = (path: PathLike): boolean => {
  * @returns The repository name (e.g. 'username/repo').
  */
 export const extractRepoName = (url: URL | string): string => {
-  const parsedPath = (typeof url === 'string') ? parsePath(url) : parsePath(url.href);
+  const parsedPath = (typeof url === 'string') ? parseUrl(url) : parseUrl(url.href);
   return parsedPath.pathname.replace(/^(\/*)(?:snippets\/)?/, '').replace(/\.git$/, '');
 };
 
@@ -43,21 +44,21 @@ export const extractRepoName = (url: URL | string): string => {
  * @returns A JavaScript object (key-value) with the parsePath.ParsedPath object and OAuth resource name.
  */
 export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; oauth: Repository['oauth'] } => {
-  const parsedPath = (typeof url === 'string') ? parsePath(url) : parsePath(url.href);
+  const parsedUrl = (typeof url === 'string') ? parseUrl(url) : parseUrl(url.href);
   let oauth: Repository['oauth'] = 'github';
-  switch (parsedPath.resource) {
-    case (parsedPath.resource.match(/github\.com/) ? parsedPath.resource : undefined):
+  switch (parsedUrl.resource) {
+    case (parsedUrl.resource.match(/github\.com/) ? parsedUrl.resource : undefined):
       oauth = 'github';
       break;
-    case (parsedPath.resource.match(/bitbucket\.org/) ? parsedPath.resource : undefined):
+    case (parsedUrl.resource.match(/bitbucket\.org/) ? parsedUrl.resource : undefined):
       oauth = 'bitbucket';
       break;
-    case (parsedPath.resource.match(/gitlab.*\.com/) ? parsedPath.resource : undefined):
+    case (parsedUrl.resource.match(/gitlab.*\.com/) ? parsedUrl.resource : undefined):
       oauth = 'gitlab';
       break;
   }
   // TODO: Eventually, url should directly return parsedPath when git:// and ssh:// protocols are supported in isomorphic-git
-  return { url: parsePath(resolveURL(parsedPath.href)), oauth: oauth };
+  return { url: parsePath(resolveURL(parsedUrl.href)), oauth: oauth };
 }
 
 /**
