@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { Status } from '../Status';
+import { LinearProgressWithLabel, Status } from '../Status';
 import { UUID } from '../../store/types';
 import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -8,15 +8,19 @@ import repoSelectors from '../../store/selectors/repos';
 import branchSelectors from '../../store/selectors/branches';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Dialog, Divider, Grid, Typography } from '@material-ui/core';
-import { delay, isDefined } from '../../containers/utils';
+import { isDefined } from '../../containers/utils';
 import RepoSelect from '../RepoSelect';
 import BranchSelect from '../BranchSelect';
 import GitConfigForm from '../GitConfigForm';
-import { Timeline } from '@material-ui/lab';
-import DeltaTimeline from './DeltaTimeline';
-import MergeTimeline from './MergeTimeline';
 import TimelineButtons from './TimelineButtons';
-import { checkDelta, runMerge } from './merge-actions';
+import { merge, MergeResult } from '../../containers/merges';
+import { getBranchRoot } from '../../containers/git-path';
+import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
+import { DateTime } from 'luxon';
+import { createCard } from '../../store/thunks/cards';
+import { isFilebasedMetafile } from '../../store/slices/metafiles';
+import { PathLike } from 'fs-extra';
+import { updateRepository } from '../../store/thunks/branches';
 // import { build } from '../../containers/builds';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -55,13 +59,10 @@ const MergeDialog = (props: Modal) => {
     const [repoId, setRepoId] = useState<UUID | undefined>(props.options?.['repo'] ? props.options?.['repo'] as UUID : undefined);
     const [baseId, setBaseId] = useState<UUID | undefined>(props.options?.['base'] ? props.options?.['base'] as UUID : undefined);
     const [compareId, setCompareId] = useState<UUID | undefined>(props.options?.['compare'] ? props.options?.['compare'] as UUID : undefined);
-    const [deltaStatus, setDeltaStatus] = useState<Status>('Unchecked');
-    const [deltaCommits, setDeltaCommits] = useState(0);
-    const [deltaProgress, setDeltaProgress] = useState(0);
-    const [deltaLog, setDeltaLog] = useState('');
-    const [conflictStatus, setConflicts] = useState<Status>('Unchecked');
-    const [mergeProgress, setMergeProgress] = useState(0);
-    const [mergeLog, setMergeLog] = useState('');
+    const [status, setStatus] = useState<Status>('Unchecked');
+    const [progress, setProgress] = useState<{ percent: number, message: string }>({ percent: 0, message: '' });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [configs, setConfigs] = useState<MissingGitConfigs>(undefined);
     // const [builds, setBuilds] = useState<Status>('Unchecked');
 
@@ -70,13 +71,73 @@ const MergeDialog = (props: Modal) => {
     const compare = compareId ? branches[compareId] : undefined;
     const mergeable = isDefined(repo) && isDefined(base) && isDefined(compare) && `${base.scope}/${base.ref}` !== `${compare.scope}/${compare.ref}`;
 
-    const check = async () => {
+    const start = async () => {
         if (!mergeable) return;
-        await checkDelta(setDeltaStatus, setDeltaCommits, setDeltaProgress, setDeltaLog, repo, base, compare);
-        await runMerge(setConflicts, setConfigs, setMergeProgress, setMergeLog, dispatch, repo, base, compare);
-        if (conflictStatus === 'Failing') {
-            await delay(2500);
-            dispatch(modalRemoved(props.id));
+        setStatus('Running');
+        setProgress({ percent: 0, message: 'Merging' });
+
+        let result: MergeResult;
+        try {
+            result = await merge(repo.root, base.ref, compare.ref, (progress) => setProgress({
+                percent: Math.round((1 / 3 * progress.loaded / progress.total) * 100),
+                message: progress.phase
+            }));
+        } catch (error) {
+            console.error(`Caught during merging:`, error);
+            return;
+        }
+
+        const hasErrors = result.stderr.length > 0;
+        const hasMerged = result.mergeStatus.mergeCommit ? result.mergeStatus.mergeCommit : false;
+        console.log(result);
+
+        let branchRoot: PathLike | undefined;
+        try {
+            console.log(`MergeDialog start => calling getBranchRoot with root: ${repo.root.toString()}, branch: ${base.ref}`);
+            branchRoot = await getBranchRoot(repo.root, base.ref);
+        } catch (error) {
+            console.error(`Caught during getBranchRoot:`, error);
+            return;
+        }
+        console.log(`MergeDialog start => returned getBranchRoot from root: ${repo.root.toString()}, branch: ${base.ref}\nbranchRoot: ${branchRoot?.toString()}\nmergeResults: `, { result });
+
+        if (result.mergeConflicts && result.mergeConflicts.length > 0 && branchRoot) {
+            await dispatch(updateRepository(repo));
+            const conflicts = await Promise.all(result.mergeConflicts
+                .map(async filepath => {
+                    console.log(`MergeDialog start => fetching metafile for filepath: ${filepath.toString()}`);
+                    return dispatch(fetchMetafile(filepath)).unwrap();
+                }));
+            console.log(`MergeDialog start => all conflicted metafiles: `, { conflicts });
+            await Promise.all(conflicts.filter(isFilebasedMetafile)
+                .map(metafile => dispatch(updateVersionedMetafile(metafile)).unwrap()));
+            const manager = await dispatch(createMetafile({
+                metafile: {
+                    modified: DateTime.local().valueOf(),
+                    name: 'Conflicts',
+                    handler: 'ConflictManager',
+                    filetype: 'Text',
+                    loading: [],
+                    repo: repo.id,
+                    path: branchRoot,
+                    merging: { base: base.ref, compare: compare.ref }
+                }
+            })).unwrap();
+            await dispatch(createCard({ metafile: manager }));
+
+            setStatus('Failing');
+            setProgress({
+                percent: 100,
+                message: `Resolve ${result.mergeConflicts ? result.mergeConflicts.length : 0} conflict${result.mergeConflicts?.length == 1 ? '' : 's'} and commit resolution before continuing.`
+            });
+        }
+        if (hasErrors) {
+            setStatus('Failing');
+            setProgress(prev => ({ percent: prev.percent, message: result.stderr }));
+        }
+        if (hasMerged && status != 'Failing') {
+            setStatus('Passing');
+            setProgress({ percent: 100, message: 'Merged' });
         }
         // await checkBuilds(setBuilds, repo, base);
     }
@@ -127,15 +188,15 @@ const MergeDialog = (props: Modal) => {
                             />
                         </Grid>
                     </Grid>
-                    <Timeline align='left' className={styles.timeline}>
-                        <DeltaTimeline status={deltaStatus} connector={conflictStatus !== 'Unchecked'}
-                            progress={deltaProgress} subtext={deltaLog} commits={deltaCommits} />
-                        <MergeTimeline status={conflictStatus} progress={mergeProgress} subtext={mergeLog} />
-                    </Timeline>
+                    {(status !== 'Unchecked') ?
+                        <div className={styles.section2}>
+                            <LinearProgressWithLabel value={progress.percent} subtext={progress.message} />
+                        </div>
+                        : null}
                 </div>
-                <GitConfigForm root={repo?.root} open={configs !== undefined} divider={conflictStatus === 'Failing'} />
+                <GitConfigForm root={repo?.root} open={configs !== undefined} divider={status === 'Failing'} />
                 <div className={styles.section2}>
-                    <TimelineButtons id={props.id} status={conflictStatus} mergeable={mergeable} check={check} />
+                    <TimelineButtons id={props.id} status={status} mergeable={mergeable} start={start} />
                 </div>
             </div>
         </Dialog>
