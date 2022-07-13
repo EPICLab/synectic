@@ -14,5 +14,9 @@
     "plugin:testing-library/react",
     "plugin:react-hooks/recommended"
   ],
-  "parser": "@typescript-eslint/parser"
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    // named capture groups require ES2018 as either "lib" or "target", ES6 translates to ES2015
+    // "prefer-named-capture-group": "error"
+  }
 }

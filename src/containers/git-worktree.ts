@@ -8,7 +8,7 @@ import isHash from 'validator/lib/isHash';
 import { isDefined, removeUndefinedProperties } from './utils';
 import { clone, currentBranch, deleteBranch, getStatus } from './git-porcelain';
 import { getIgnore, resolveEntry, resolveRef } from './git-plumbing';
-import { parse, IndexEntry } from './git-index';
+import { parse } from './git-index';
 import { compareStats } from './io-stats';
 import { getWorktreePaths } from './git-path';
 import { GitStatus, SHA1, UUID } from '../store/types';

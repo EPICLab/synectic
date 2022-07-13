@@ -18,10 +18,10 @@ type TimelineButtonsProp = {
     id: UUID,
     status: Status,
     mergeable: boolean,
-    check: () => Promise<void>
+    start: () => Promise<void>
 };
 
-const TimelineButtons = ({ id, status, mergeable, check }: TimelineButtonsProp) => {
+const TimelineButtons = ({ id, status, mergeable, start }: TimelineButtonsProp) => {
     const styles = useStyles();
     const dispatch = useAppDispatch();
 
@@ -53,7 +53,7 @@ const TimelineButtons = ({ id, status, mergeable, check }: TimelineButtonsProp) 
                     color='primary'
                     className={styles.button}
                     disabled={!mergeable}
-                    onClick={check}>
+                    onClick={start}>
                     Merge
                 </Button>
             );
