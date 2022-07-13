@@ -1,5 +1,5 @@
 // import mock from 'mock-fs';
-import parsePath from 'parse-path';
+import parseUrl from 'parse-url';
 import * as path from 'path';
 import * as git from './git-porcelain';
 import * as worktree from './git-worktree';
@@ -199,7 +199,7 @@ describe('containers/git-worktree.add', () => {
             name: 'sampleUser/baseRepo',
             root: 'baseRepo/',
             corsProxy: new URL('http://www.oregonstate.edu').toString(),
-            url: parsePath('https://github.com/sampleUser/baseRepo').toString(),
+            url: parseUrl('https://github.com/sampleUser/baseRepo').toString(),
             default: 'master',
             local: ['master'],
             remote: [],
@@ -226,7 +226,7 @@ describe('containers/git-worktree.add', () => {
             name: 'sampleUser/baseRepo',
             root: 'baseRepo/',
             corsProxy: new URL('http://www.oregonstate.edu').toString(),
-            url: parsePath('https://github.com/sampleUser/baseRepo').toString(),
+            url: parseUrl('https://github.com/sampleUser/baseRepo').toString(),
             default: 'master',
             local: ['master', 'hotfix'],
             remote: [],
