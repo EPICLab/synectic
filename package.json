@@ -54,7 +54,7 @@
     "@types/ini": "^1.3.31",
     "@types/jest": "^27.5.0",
     "@types/luxon": "^2.3.2",
-    "@types/node": "^18.0.3",
+    "@types/node": "^18.0.6",
     "@types/pako": "^2.0.0",
     "@types/parse-git-config": "^3.0.1",
     "@types/parse-path": "^5.0.0",
