@@ -30,9 +30,10 @@ export type Timestamp = ReturnType<DateTime['valueOf']>;
  * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index              |
  * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
  * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
+ * | `"unmerged"`          | file has unmerged changes from an unresolved merge conflict                           |
 */
 export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*deleted' | '*added'
-    | 'absent' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified';
+    | 'absent' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified' | 'unmerged';
 /**
  * | status                | description                                                                           |
  * | --------------------- | ------------------------------------------------------------------------------------- |

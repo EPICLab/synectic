@@ -9,7 +9,7 @@ import { getBranchRoot, getWorktreePaths } from './git-path';
 import { checkout, currentBranch, getConfig } from './git-porcelain';
 import { VersionedMetafile } from '../store/slices/metafiles';
 import { Ignore } from 'ignore';
-import { isDefined, removeUndefined } from './utils';
+import { execute, isDefined, removeUndefined } from './utils';
 
 const promiseExec = util.promisify(exec);
 
@@ -86,7 +86,7 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string, onP
     let mergeError: ExecError | undefined;
     if (onProgress) await onProgress({ phase: `Merging: ${compare} into ${base}`, loaded: 1, total: 2 });
     try {
-        mergeResults = await promiseExec(`git -C ${branchRoot.toString()} merge ${base} ${branches.includes(compare) ? compare : `origin/${compare}`}`, { cwd: dir.toString() });
+        mergeResults = await promiseExec(`git merge ${base} ${branches.includes(compare) ? compare : `origin/${compare}`}`, { cwd: branchRoot.toString() });
     } catch (error) {
         mergeError = error as ExecError;
         const conflictPattern = /(?<=conflict in ).*(?=\n)/gm;
@@ -121,11 +121,18 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string, onP
 }
 
 export const checkFilepath = async (filepath: fs.PathLike, ignoreManager?: Ignore): Promise<Conflict | undefined> => {
-    const { dir } = await getWorktreePaths(filepath);
-    if (dir && !(await io.isDirectory(filepath))) {
+    const { dir, worktreeDir } = await getWorktreePaths(filepath);
+
+    const isDir = await io.isDirectory(filepath);
+    if (dir && !isDir) {
         const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
-        const ignore = ignoreManager ? ignoreManager : (await getIgnore(dir, true));
-        if (ignore.ignores(path.relative(dir.toString(), filepath.toString()))) return undefined;
+        const ignore = ignoreManager
+            ? ignoreManager
+            : (worktreeDir ? (await getIgnore(worktreeDir, true)) : (await getIgnore(dir, true)));
+        const relativePath = worktreeDir
+            ? path.relative(worktreeDir.toString(), filepath.toString())
+            : path.relative(dir.toString(), filepath.toString());
+        if (ignore.ignores(relativePath)) return undefined;
         const content = await io.readFileAsync(filepath, { encoding: 'utf-8' });
         const matches = Array.from(content.matchAll(conflictPattern));
         const conflicts: number[] = removeUndefined(matches.map(m => isDefined(m.index) ? m.index : undefined));
@@ -148,17 +155,11 @@ export const checkProject = async (dir: fs.PathLike, branch: string): Promise<Co
     const trackedLocalBranch = (branchRoot && worktree.dir) ? io.isEqualPaths(branchRoot, worktree.dir) && branch !== current : false;
     if (!branchRoot || trackedLocalBranch) return [];
 
-    let checkResults: { stdout: string; stderr: string; } = { stdout: '', stderr: '' };
-    let checkError: ExecError | undefined;
-    try {
-        checkResults = await promiseExec(`git -C ${branchRoot.toString()} diff --check`);
-    } catch (error) {
-        checkError = error as ExecError;
-        checkResults = { stdout: checkError.stdout, stderr: checkError.stderr };
-    }
+    const result = await execute(`git diff --check`, branchRoot.toString());
+
     const conflictPattern = /(.+?)(?<=:)(\d)*(?=:)/gm; // Matches `<filename>:<position>` syntax, with a `:` positive lookbehind.
     const conflictedFiles = new Map<string, number[]>();
-    checkResults.stdout.match(conflictPattern)?.forEach(match => {
+    result.stdout.match(conflictPattern)?.forEach(match => {
         const [filename, position] = match.split(':').slice(0, 2) as [string, number];
         const filepath = path.join(branchRoot.toString(), filename);
         const existing = conflictedFiles.get(filepath);
@@ -175,22 +176,27 @@ export const checkProject = async (dir: fs.PathLike, branch: string): Promise<Co
  */
 export const abortMerge = async (dir: fs.PathLike): Promise<void> => {
     const worktree = await getWorktreePaths(dir);
-    const stats = worktree.gitdir ? await io.extractStats(path.join(worktree.gitdir?.toString(), 'MERGE_HEAD')) : undefined;
+    const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
+    const gitdir = worktree.worktreeDir ? worktree.worktreeLink : worktree.gitdir;
+    const merging = gitdir ? await io.extractStats(path.join(gitdir.toString(), 'MERGE_HEAD')) : undefined;
 
-    if (stats) {
-        try {
-            await promiseExec(`git merge --abort`, { cwd: dir.toString() });
-        } catch (error) {
-            console.error(error);
-        }
+    if (root && merging) {
+        const result = await execute(`git merge --abort`, root.toString());
+        if (result.stderr.length > 0) console.log(`Abort failed: ${root.toString()}`);
+        else console.log(`Abort succeeded: ${root.toString()}`);
     }
 }
 
 export const resolveMerge = async (dir: fs.PathLike, compareBranch: string): Promise<void> => {
-    try {
-        await promiseExec(`git commit -m "Merge branch '${compareBranch}'"`, { cwd: dir.toString() });
-    } catch (error) {
-        console.error(error);
+    const worktree = await getWorktreePaths(dir);
+    const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
+    const gitdir = worktree.worktreeDir ? worktree.worktreeLink : worktree.gitdir;
+    const merging = gitdir ? await io.extractStats(path.join(gitdir.toString(), 'MERGE_HEAD')) : undefined;
+
+    if (root && merging) {
+        const result = await execute(`git commit -m "Merge branch '${compareBranch}'"`, root.toString());
+        if (result.stderr.length > 0) console.log(`Resolve failed: ${root.toString()}`);
+        else console.log(`Resolve succeeded: ${root.toString()}`);
     }
 }
 
@@ -216,6 +222,7 @@ export const resolveMerge = async (dir: fs.PathLike, compareBranch: string): Pro
  * name.
  */
 export const resolveConflicts = async (root: fs.PathLike): Promise<{ base: string | undefined, compare: string }> => {
+    console.log(`resolveConflicts => root: ${root.toString()}`);
     const branchPattern = /(?<=Merge( remote-tracking)? branch(es)? .*)('.+?')+/gm; // Match linked worktree and main worktree patterns (shown above)
     const { gitdir, worktreeLink } = await getWorktreePaths(root);
     const mergeMsg = worktreeLink ? await io.readFileAsync(path.join(worktreeLink.toString(), 'MERGE_MSG'), { encoding: 'utf-8' })
