@@ -9,7 +9,7 @@ import { getBranchRoot, getWorktreePaths } from './git-path';
 import { checkout, currentBranch, getConfig } from './git-porcelain';
 import { VersionedMetafile } from '../store/slices/metafiles';
 import { Ignore } from 'ignore';
-import { isDefined, removeUndefined } from './utils';
+import { execute, isDefined, removeUndefined } from './utils';
 
 const promiseExec = util.promisify(exec);
 
@@ -182,22 +182,25 @@ export const checkProject = async (dir: fs.PathLike, branch: string): Promise<Co
  */
 export const abortMerge = async (dir: fs.PathLike): Promise<void> => {
     const worktree = await getWorktreePaths(dir);
-    const stats = worktree.gitdir ? await io.extractStats(path.join(worktree.gitdir?.toString(), 'MERGE_HEAD')) : undefined;
+    const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
+    const gitdir = worktree.worktreeDir ? worktree.worktreeLink : worktree.gitdir;
+    const merging = gitdir ? await io.extractStats(path.join(gitdir.toString(), 'MERGE_HEAD')) : undefined;
 
-    if (stats) {
-        try {
-            await promiseExec(`git merge --abort`, { cwd: dir.toString() });
-        } catch (error) {
-            console.error(error);
-        }
+    if (root && merging) {
+        const result = execute(`git merge --abort`, root.toString());
+        console.log({ result });
     }
 }
 
 export const resolveMerge = async (dir: fs.PathLike, compareBranch: string): Promise<void> => {
-    try {
-        await promiseExec(`git commit -m "Merge branch '${compareBranch}'"`, { cwd: dir.toString() });
-    } catch (error) {
-        console.error(error);
+    const worktree = await getWorktreePaths(dir);
+    const root = worktree.worktreeDir ? worktree.worktreeDir : worktree.dir;
+    const gitdir = worktree.worktreeDir ? worktree.worktreeLink : worktree.gitdir;
+    const merging = gitdir ? await io.extractStats(path.join(gitdir.toString(), 'MERGE_HEAD')) : undefined;
+
+    if (root && merging) {
+        const result = execute(`git commit -m "Merge branch '${compareBranch}'"`, root.toString());
+        console.log({ result });
     }
 }
 
