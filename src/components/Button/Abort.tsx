@@ -4,7 +4,7 @@ import { ClearAll } from '@material-ui/icons';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { abortMerge } from '../../containers/merges';
+import { abortMerge, checkProject } from '../../containers/merges';
 import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { RootState } from '../../store/store';
@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { cardRemoved } from '../../store/slices/cards';
 import { UUID } from '../../store/types';
 import { getBranchRoot } from '../../containers/git-path';
+import { updateConflicted } from '../../store/thunks/metafiles';
 
 const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
@@ -23,9 +24,13 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
     const isAbortable = metafile && isConflictManagerMetafile(metafile) && repo;
 
     const abort = async () => {
-        if (repo && metafile?.branch) {
-            const branchRoot = await getBranchRoot(repo.root, metafile.branch);
-            if (branchRoot) await abortMerge(branchRoot);
+        if (repo && metafile?.merging?.base) {
+            const branchRoot = await getBranchRoot(repo.root, metafile.merging.base);
+            if (branchRoot) {
+                const conflicted = await checkProject(branchRoot, metafile.merging.base);
+                await abortMerge(branchRoot);
+                await dispatch(updateConflicted(conflicted));
+            }
         }
         dispatch(cardRemoved(cardId));
     }
