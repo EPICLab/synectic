@@ -10,8 +10,8 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<{ filepath: st
     if (!worktreeDir || !worktreeLink) return undefined; // filepath is not part of a linked worktree, must use `git-plumbing.matrixEntry` for main worktree
     if (!dir) return undefined; // not under version control
 
-    const statusCodeRaw = await execute(`git -C ${worktreeDir.toString()} status --porcelain`, dir.toString());
-    const diffCodeRaw = await execute(`git -C ${worktreeDir.toString()} diff-files --name-status`, dir.toString());
+    const statusCodeRaw = await execute(`git status --porcelain`, worktreeDir.toString());
+    const diffCodeRaw = await execute(`git diff-files --name-status`, worktreeDir.toString());
 
     const statusFilenamePattern = /(?<=[A-Z?! ]{2} ).*/gm;
     const statusFilenames = statusCodeRaw.stdout.match(statusFilenamePattern);
@@ -34,8 +34,8 @@ export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefin
     if (!dir) return undefined; // not under version control
 
     const relativePath = path.relative(worktreeDir.toString(), filepath.toString());
-    const statusCodeRaw = await execute(`git -C ${worktreeDir.toString()} status --porcelain --ignored ${relativePath}`, dir.toString());
-    const diffCodeRaw = await execute(`git -C ${worktreeDir.toString()} diff-files --name-status`, dir.toString());
+    const statusCodeRaw = await execute(`git status --porcelain --ignored ${relativePath}`, worktreeDir.toString());
+    const diffCodeRaw = await execute(`git diff-files --name-status`, worktreeDir.toString());
 
     const statusCodePattern = new RegExp('^[A-Z?! ]{2}(?= ' + relativePath.replace(/\./g, '\\.') + ')', 'gm');
     const statusCode = statusCodePattern.exec(statusCodeRaw.stdout)?.[0]; // Matches all status codes (always length 2)

@@ -86,7 +86,7 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string, onP
     let mergeError: ExecError | undefined;
     if (onProgress) await onProgress({ phase: `Merging: ${compare} into ${base}`, loaded: 1, total: 2 });
     try {
-        mergeResults = await promiseExec(`git -C ${branchRoot.toString()} merge ${base} ${branches.includes(compare) ? compare : `origin/${compare}`}`, { cwd: dir.toString() });
+        mergeResults = await promiseExec(`git merge ${base} ${branches.includes(compare) ? compare : `origin/${compare}`}`, { cwd: branchRoot.toString() });
     } catch (error) {
         mergeError = error as ExecError;
         const conflictPattern = /(?<=conflict in ).*(?=\n)/gm;
@@ -155,17 +155,11 @@ export const checkProject = async (dir: fs.PathLike, branch: string): Promise<Co
     const trackedLocalBranch = (branchRoot && worktree.dir) ? io.isEqualPaths(branchRoot, worktree.dir) && branch !== current : false;
     if (!branchRoot || trackedLocalBranch) return [];
 
-    let checkResults: { stdout: string; stderr: string; } = { stdout: '', stderr: '' };
-    let checkError: ExecError | undefined;
-    try {
-        checkResults = await promiseExec(`git -C ${branchRoot.toString()} diff --check`);
-    } catch (error) {
-        checkError = error as ExecError;
-        checkResults = { stdout: checkError.stdout, stderr: checkError.stderr };
-    }
+    const result = await execute(`git diff --check`, branchRoot.toString());
+
     const conflictPattern = /(.+?)(?<=:)(\d)*(?=:)/gm; // Matches `<filename>:<position>` syntax, with a `:` positive lookbehind.
     const conflictedFiles = new Map<string, number[]>();
-    checkResults.stdout.match(conflictPattern)?.forEach(match => {
+    result.stdout.match(conflictPattern)?.forEach(match => {
         const [filename, position] = match.split(':').slice(0, 2) as [string, number];
         const filepath = path.join(branchRoot.toString(), filename);
         const existing = conflictedFiles.get(filepath);
@@ -187,8 +181,9 @@ export const abortMerge = async (dir: fs.PathLike): Promise<void> => {
     const merging = gitdir ? await io.extractStats(path.join(gitdir.toString(), 'MERGE_HEAD')) : undefined;
 
     if (root && merging) {
-        const result = execute(`git merge --abort`, root.toString());
-        console.log({ result });
+        const result = await execute(`git merge --abort`, root.toString());
+        if (result.stderr.length > 0) console.log(`Abort failed: ${root.toString()}`);
+        else console.log(`Abort succeeded: ${root.toString()}`);
     }
 }
 
@@ -199,8 +194,9 @@ export const resolveMerge = async (dir: fs.PathLike, compareBranch: string): Pro
     const merging = gitdir ? await io.extractStats(path.join(gitdir.toString(), 'MERGE_HEAD')) : undefined;
 
     if (root && merging) {
-        const result = execute(`git commit -m "Merge branch '${compareBranch}'"`, root.toString());
-        console.log({ result });
+        const result = await execute(`git commit -m "Merge branch '${compareBranch}'"`, root.toString());
+        if (result.stderr.length > 0) console.log(`Resolve failed: ${root.toString()}`);
+        else console.log(`Resolve succeeded: ${root.toString()}`);
     }
 }
 
