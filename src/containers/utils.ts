@@ -1,4 +1,7 @@
+import util from 'util';
+import { exec } from 'child_process';
 import { flattenObject } from './flatten';
+const promiseExec = util.promisify(exec);
 
 /** Requires all properties in U to override types in the intersection of T & U.
  * Reused from: https://dev.to/vborodulin/ts-how-to-override-properties-with-type-intersection-554l
@@ -269,3 +272,37 @@ export const getRandomInt = (min: number, max: number): number => {
  * @returns A Promise object containing a no-op callback.
  */
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+type ExecError = {
+  killed: boolean,
+  code: number,
+  signal: string | null,
+  cmd: string,
+  stdout: string,
+  stderr: string
+};
+
+/**
+ * Spawns a shell then executes the command within that shell, buffering any generated output. The command string passed to the exec 
+ * function is processed directly by the shell and special characters (vary based on shell) need to be dealt with accordingly.
+ * 
+ * WARNING: Never pass unsanitized user input to this function. Any input containing shell metacharacters may be used to trigger 
+ * arbitrary command execution.
+ * @param command The command to run, with space-separated arguments.
+ * @param cwd The current working directory that the command should be executed in.
+ * @returns A Promise object containing the `stdout` and `stderr` strings with content based on the output of the command.
+ */
+export const execute = async (command: string, cwd?: string | URL | undefined) => {
+  let execResult: { stdout: string, stderr: string } = { stdout: '', stderr: '' };
+  let execError: ExecError | undefined;
+  try {
+    execResult = await promiseExec(command, { cwd });
+  } catch (error) {
+    execError = error as ExecError;
+    execResult = {
+      stdout: execError.stdout,
+      stderr: execError.stderr
+    };
+  }
+  return execResult;
+}
