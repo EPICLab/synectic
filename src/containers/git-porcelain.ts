@@ -9,9 +9,10 @@ import getGitConfigPath from 'git-config-path';
 import * as io from './io';
 import { matrixEntry, matrixToStatus, resolveRef, statusMatrix } from './git-plumbing';
 import { isDefined, removeUndefinedProperties } from './utils';
-import { getWorktreePaths } from './git-path';
+import { getRoot, getWorktreePaths } from './git-path';
 import { GitStatus } from '../store/types';
 import { add, list } from './git-worktree';
+import { statusMatrix as shimStatusMatrix } from './git-worktree-status-shim';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
@@ -351,27 +352,25 @@ export const merge = async (
  */
 export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
   if (await io.isDirectory(filepath)) {
-    let statuses: [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined;
-    try {
-      statuses = await statusMatrix(filepath);
-    } catch (error) {
-      console.error(`Caught during statusMatrix(${filepath.toString()}):`, error);
+    const root = await getRoot(filepath);
+    const { worktreeDir } = await getWorktreePaths(filepath);
+    if (!root) return undefined; // not under version control
+
+    if (worktreeDir) {
+      const statuses = await shimStatusMatrix(filepath);
+      const changed = statuses ? statuses.filter(row => row.status !== 'unmodified') : [];
+      return (changed.length > 0) ? 'modified' : 'unmodified';
+    } else {
+      const statuses = await statusMatrix(filepath);
+      const changed = statuses ? statuses
+        .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
+        .map(row => row[0])                 // return the filenames only
+        : [];                               // handle the case that `statusMatrix` returned undefined
+      return (changed.length > 0) ? 'modified' : 'unmodified';
     }
-
-    const changed = statuses ? statuses
-      .filter(row => row[1] !== row[2])   // filter for files that have been changed since the last commit
-      .map(row => row[0])                 // return the filenames only
-      : [];                               // handle the case that `statusMatrix` returned undefined
-    return (changed.length > 0) ? 'modified' : 'unmodified';
   }
 
-  let status: GitStatus | undefined;
-  try {
-    status = await matrixEntry(filepath);
-  } catch (error) {
-    console.error(`Caught during matrixEntry(${filepath.toString()}):`, error);
-  }
-  return status;
+  return await matrixEntry(filepath);
 }
 
 /**
