@@ -17,6 +17,7 @@ import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
+import { status as shimStatus } from './git-worktree-status-shim';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -337,7 +338,8 @@ export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | un
   const { dir, worktreeDir } = await getWorktreePaths(filepath);
   if (!dir) return undefined; // not under version control
   return worktreeDir
-    ? worktree.status(filepath)
+    // ? worktree.status(filepath)
+    ? shimStatus(filepath)
     : isogit.status({ fs: fs, dir: dir.toString(), filepath: path.relative(dir.toString(), filepath.toString()) });
 }
 
@@ -388,6 +390,14 @@ type statusMatrixTypes = {
   status: [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3]
 }
 
+/**
+ * Convert tuple values from `isomorphic-git/statusMatrix` output into a `GitStatus` value. The possible position values are:
+ *  * The HEAD status is either absent (0) or present (1).
+ *  * The WORKDIR status is either absent (0), identical to HEAD (1), or different from HEAD (2).
+ *  * The STAGE status is either absent (0), identical to HEAD (1), identical to WORKDIR (2), or different from WORKDIR (3).
+ * @param entry A `statusMatrix` tuple with positional values [1] for HEAD, [2] for WORKDIR, and [3] for STAGE trees.
+ * @returns A `GitStatus` object indicating the comparable status; or undefined if no conversion is possible for the given values.
+ */
 export const matrixToStatus = (entry: AtLeastOne<statusMatrixTypes>): GitStatus | undefined => {
   // [1] for HEAD, [2] for WORKDIR, [3] for STAGE trees
   const status: [number, number, number] = entry.matrixEntry ? [entry.matrixEntry[1], entry.matrixEntry[2], entry.matrixEntry[3]]
@@ -408,6 +418,26 @@ export const matrixToStatus = (entry: AtLeastOne<statusMatrixTypes>): GitStatus 
   if (tuplesEqual(status, [1, 2, 3])) return '*modified';
   if (tuplesEqual(status, [1, 0, 1])) return '*deleted';
   if (tuplesEqual(status, [1, 0, 0])) return 'deleted';
+  return undefined;
+}
+
+/**
+ * statusCode: https://git-scm.com/docs/git-status#_short_format
+ * diffCode: https://git-scm.com/docs/git-diff-files#Documentation/git-diff-files.txt---diff-filterACDMRTUXB82308203
+ * @param statusCode 
+ * @param diffCode 
+ * @returns 
+ */
+export const codeToStatus = (statusCode: string | undefined, diffCode: string | undefined): GitStatus | undefined => {
+  // statusCode for git-status codes, diffCode for git-diff-files codes
+  if (!statusCode) return 'unmodified';
+  if (statusCode == '!!') return 'ignored'; // git-ignore rules exclude this filepath
+  if (statusCode == '??') return 'absent'; // untracked path; not present in index or working tree
+  if (/(DD|AA|.U|U.)/.test(statusCode)) return 'unmerged'; // unmerged; merge conflict has occurred and has not yet been resolved
+  if (/M(?=[ MTD])/.test(statusCode)) return diffCode ? 'modified' : '*modified';
+  if (/A(?=[ MTD])/.test(statusCode)) return diffCode ? 'added' : '*added';
+  if (/D(?=[ MTD])/.test(statusCode)) return diffCode ? 'deleted' : '*deleted';
+  console.log(`Error: Unable to convert '${statusCode}' status code`);
   return undefined;
 }
 
