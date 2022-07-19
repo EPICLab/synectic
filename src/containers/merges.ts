@@ -121,11 +121,18 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string, onP
 }
 
 export const checkFilepath = async (filepath: fs.PathLike, ignoreManager?: Ignore): Promise<Conflict | undefined> => {
-    const { dir } = await getWorktreePaths(filepath);
-    if (dir && !(await io.isDirectory(filepath))) {
+    const { dir, worktreeDir } = await getWorktreePaths(filepath);
+
+    const isDir = await io.isDirectory(filepath);
+    if (dir && !isDir) {
         const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
-        const ignore = ignoreManager ? ignoreManager : (await getIgnore(dir, true));
-        if (ignore.ignores(path.relative(dir.toString(), filepath.toString()))) return undefined;
+        const ignore = ignoreManager
+            ? ignoreManager
+            : (worktreeDir ? (await getIgnore(worktreeDir, true)) : (await getIgnore(dir, true)));
+        const relativePath = worktreeDir
+            ? path.relative(worktreeDir.toString(), filepath.toString())
+            : path.relative(dir.toString(), filepath.toString());
+        if (ignore.ignores(relativePath)) return undefined;
         const content = await io.readFileAsync(filepath, { encoding: 'utf-8' });
         const matches = Array.from(content.matchAll(conflictPattern));
         const conflicts: number[] = removeUndefined(matches.map(m => isDefined(m.index) ? m.index : undefined));
@@ -216,6 +223,7 @@ export const resolveMerge = async (dir: fs.PathLike, compareBranch: string): Pro
  * name.
  */
 export const resolveConflicts = async (root: fs.PathLike): Promise<{ base: string | undefined, compare: string }> => {
+    console.log(`resolveConflicts => root: ${root.toString()}`);
     const branchPattern = /(?<=Merge( remote-tracking)? branch(es)? .*)('.+?')+/gm; // Match linked worktree and main worktree patterns (shown above)
     const { gitdir, worktreeLink } = await getWorktreePaths(root);
     const mergeMsg = worktreeLink ? await io.readFileAsync(path.join(worktreeLink.toString(), 'MERGE_MSG'), { encoding: 'utf-8' })
