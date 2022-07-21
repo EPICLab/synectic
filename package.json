@@ -2,7 +2,7 @@
   "name": "synectic",
   "productName": "Synectic",
   "version": "2.2.0",
-  "description": "My Electron application description",
+  "description": "Research IDE for examining context-centric, problem-solving in development tools.",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
