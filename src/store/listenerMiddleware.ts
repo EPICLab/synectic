@@ -1,6 +1,7 @@
 import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener, isRejected, isAnyOf, isPending } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import cacheSelectors from './selectors/cache';
+import cardSelectors from './selectors/cards';
 import metafileSelectors from './selectors/metafiles';
 import { cacheRemoved } from './slices/cache';
 import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
@@ -10,6 +11,7 @@ import { checkoutBranch } from './thunks/branches';
 import { subscribe, unsubscribe } from './thunks/cache';
 import { createMetafile, fetchMetafile, fetchParentMetafile, updateVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
 import { fetchRepo, createRepo } from './thunks/repos';
+import { UUID } from './types';
 
 export const listenerMiddleware = createListenerMiddleware<RootState>();
 
@@ -53,6 +55,14 @@ startAppListening({
             const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
             if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: metafile.loading.filter(flag => flag !== 'checkout') }));
         }
+    }
+});
+
+startAppListening({
+    actionCreator: cardRemoved,
+    effect: async (action, listenerApi) => {
+        const diffs = cardSelectors.selectByTarget(listenerApi.getState(), action.payload as UUID);
+        diffs.map(card => listenerApi.dispatch(cardRemoved(card.id)))
     }
 });
 

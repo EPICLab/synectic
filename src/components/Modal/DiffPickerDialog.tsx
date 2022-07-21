@@ -1,41 +1,46 @@
 import React, { useState } from 'react';
 import * as MUI from '@material-ui/core';
+import { DateTime } from 'luxon';
+import { UUID } from '../../store/types';
 import { RootState } from '../../store/store';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import cardSelectors from '../../store/selectors/cards';
-import { DateTime } from 'luxon';
-import { createMetafile } from '../../store/thunks/metafiles';
-import { UUID } from '../../store/types';
-import metafileSelectors from '../../store/selectors/metafiles';
 import { createCard } from '../../store/thunks/cards';
+import { createMetafile } from '../../store/thunks/metafiles';
+import cardSelectors from '../../store/selectors/cards';
+import metafileSelectors from '../../store/selectors/metafiles';
+import branchSelectors from '../../store/selectors/branches';
 
 const DiffPickerDialog = (props: Modal) => {
   const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectEntities(state));
+  const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
   const [selectedLeft, setSelectedLeft] = useState<UUID>('');
   const [selectedRight, setSelectedRight] = useState<UUID>('');
-  const leftMetafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, selectedLeft));
-  const rightMetafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, selectedRight));
 
   const handleClose = async (canceled: boolean, selected: [UUID, UUID]) => {
     if (canceled || selected[0] === '' || selected[1] === '') return dispatch(modalRemoved(props.id));
     const left = cards.find(c => c.id === selected[0]);
+    const leftMetafile = left && left.metafile ? metafiles[left.metafile] : undefined;
     const right = cards.find(c => c.id === selected[1]);
-    if (!left || !right) return dispatch(modalRemoved(props.id));
+    const rightMetafile = right && right.metafile ? metafiles[right.metafile] : undefined;
+    if (!left || !right || !leftMetafile || !rightMetafile) return dispatch(modalRemoved(props.id));
+    const leftBranch = leftMetafile.branch ? branches[leftMetafile.branch] : undefined;
+    const rightBranch = rightMetafile.branch ? branches[rightMetafile.branch] : undefined;
 
-    const diffCardName = `Δ ${leftMetafile?.branch}/${left.name} -> ${rightMetafile?.branch}/${right.name}`;
+    const diffCardName = `${leftBranch ? leftBranch.ref + '/' : ''}${left.name} Δ ${rightBranch ? rightBranch.ref + '/' : ''}${right.name}`;
     const diffMetafile = await dispatch(createMetafile({
       metafile: {
         name: diffCardName,
         modified: DateTime.local().valueOf(),
         handler: 'Diff',
-        filetype: leftMetafile ? leftMetafile.filetype : 'Text',
+        filetype: leftMetafile.filetype,
         loading: [],
         targets: [left.id, right.id]
       }
     })).unwrap();
-    if (diffMetafile && leftMetafile && rightMetafile) dispatch(createCard({ metafile: diffMetafile }));
+    dispatch(createCard({ metafile: diffMetafile }));
     return dispatch(modalRemoved(props.id));
   };
 
