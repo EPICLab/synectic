@@ -68,15 +68,6 @@ startAppListening({
 });
 
 startAppListening({
-    actionCreator: metafileUpdated,
-    effect: async (action, listenerApi) => {
-        const curr = action.payload;
-        const prev = listenerApi.getOriginalState().metafiles.entities[curr.id];
-        console.log(`<< metafileUpdated >>\n`, { curr, prev });
-    }
-});
-
-startAppListening({
     predicate: (action, _, previousState) => {
         if (cardAdded.match(action)) return true;
         if (cardUpdated.match(action)) {
