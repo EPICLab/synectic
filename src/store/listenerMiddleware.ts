@@ -39,7 +39,8 @@ startAppListening({
             listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: [...action.meta.arg.loading, 'versioned'] }));
         }
         if (isAnyOf(updateVersionedMetafile.fulfilled, updateVersionedMetafile.rejected)(action)) {
-            listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, loading: action.meta.arg.loading.filter(flag => flag !== 'versioned') }));
+            const metafile = listenerApi.getState().metafiles.entities[action.meta.arg.id];
+            if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: action.meta.arg.loading.filter(flag => flag !== 'versioned') }));
         }
     }
 });
@@ -63,6 +64,15 @@ startAppListening({
     effect: async (action, listenerApi) => {
         const diffs = cardSelectors.selectByTarget(listenerApi.getState(), action.payload as UUID);
         diffs.map(card => listenerApi.dispatch(cardRemoved(card.id)))
+    }
+});
+
+startAppListening({
+    actionCreator: metafileUpdated,
+    effect: async (action, listenerApi) => {
+        const curr = action.payload;
+        const prev = listenerApi.getOriginalState().metafiles.entities[curr.id];
+        console.log(`<< metafileUpdated >>\n`, { curr, prev });
     }
 });
 
