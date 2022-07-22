@@ -19,7 +19,6 @@ import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../st
 import { DateTime } from 'luxon';
 import { createCard } from '../../store/thunks/cards';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
-import { PathLike } from 'fs-extra';
 import { updateRepository } from '../../store/thunks/branches';
 // import { build } from '../../containers/builds';
 
@@ -86,29 +85,15 @@ const MergeDialog = (props: Modal) => {
             console.error(`Caught during merging:`, error);
             return;
         }
-
         const hasErrors = result.stderr.length > 0;
         const hasMerged = result.mergeStatus.mergeCommit ? result.mergeStatus.mergeCommit : false;
-        console.log(result);
+        await dispatch(updateRepository(repo));
 
-        let branchRoot: PathLike | undefined;
-        try {
-            console.log(`MergeDialog start => calling getBranchRoot with root: ${repo.root.toString()}, branch: ${base.ref}`);
-            branchRoot = await getBranchRoot(repo.root, base.ref);
-        } catch (error) {
-            console.error(`Caught during getBranchRoot:`, error);
-            return;
-        }
-        console.log(`MergeDialog start => returned getBranchRoot from root: ${repo.root.toString()}, branch: ${base.ref}\nbranchRoot: ${branchRoot?.toString()}\nmergeResults: `, { result });
+        const branchRoot = await getBranchRoot(repo.root, base.ref);
 
         if (result.mergeConflicts && result.mergeConflicts.length > 0 && branchRoot) {
-            await dispatch(updateRepository(repo));
             const conflicts = await Promise.all(result.mergeConflicts
-                .map(async filepath => {
-                    console.log(`MergeDialog start => fetching metafile for filepath: ${filepath.toString()}`);
-                    return dispatch(fetchMetafile(filepath)).unwrap();
-                }));
-            console.log(`MergeDialog start => all conflicted metafiles: `, { conflicts });
+                .map(async filepath => dispatch(fetchMetafile(filepath)).unwrap()));
             await Promise.all(conflicts.filter(isFilebasedMetafile)
                 .map(metafile => dispatch(updateVersionedMetafile(metafile)).unwrap()));
             const manager = await dispatch(createMetafile({
