@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles, Theme, withStyles } from '@material-ui/core/styles';
-import { Card, Typography } from '@material-ui/core';
+import { Card, CardContent, Typography } from '@material-ui/core';
 
 type Placement =
   'top-start' | 'top' | 'top-end' | 'left-start' | 'left' | 'left-end' |
@@ -39,10 +39,14 @@ const StyledTag = withStyles((theme: Theme) => ({
 }))(Card);
 
 const useStyles = makeStyles({
+  cardContent: {
+    padding: '0 !important',
+  },
   content: {
     fontSize: 6,
-    fontFamily: 'Lato, Georgia, Serif',
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
     color: 'rgba(0, 0, 0, 0.87)',
+    whiteSpace: 'pre-wrap'
   },
 });
 
@@ -52,9 +56,11 @@ const OutlinedCard = (props: { content: string, placement: Placement }) => {
 
   return (
     <StyledTag style={{ position: 'absolute', top: position.top, left: position.left }}>
-      <Typography className={styles.content}>
-        {props.content}
-      </Typography>
+      <CardContent className={styles.cardContent}>
+        <Typography className={styles.content}>
+          {props.content.replace(/\\n/g, '<br />')}
+        </Typography>
+      </CardContent>
     </StyledTag>
   );
 }
