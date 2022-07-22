@@ -52,8 +52,25 @@ const mockedStore: RootState = {
         entities: {}
     },
     metafiles: {
-        ids: [],
-        entities: {}
+        ids: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71', 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8'],
+        entities: {
+            '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71': {
+                id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
+                name: 'test.js',
+                modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
+                handler: 'Editor',
+                filetype: 'JavaScript',
+                loading: []
+            },
+            'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8': {
+                id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
+                name: 'turtle.asp',
+                modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00').valueOf(),
+                handler: 'Editor',
+                filetype: 'Razor',
+                loading: []
+            }
+        }
     },
     cache: {
         ids: [],
@@ -175,7 +192,7 @@ describe('DiffPickerDialog modal component', () => {
                         type: 'metafiles/createMetafile/fulfilled',
                         payload: expect.objectContaining({
                             handler: 'Diff',
-                            name: 'Δ undefined/turtle.asp -> undefined/test.js',
+                            name: 'turtle.asp Δ test.js',
                             targets: expect.arrayContaining([
                                 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b', '67406095-fd01-4441-8e52-b0fdbad3327a'
                             ])
