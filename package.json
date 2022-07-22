@@ -11,7 +11,7 @@
     "publish": "electron-forge publish",
     "preversion": "yarn test && yarn lint",
     "version": "genversion version.js && git add version.js",
-    "postversion": "git push --tags",
+    "postversion": "git push --atomic --tags",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
     "test:coverage": "jest --coverage --collectCoverageFrom=\"./src/**\"",
