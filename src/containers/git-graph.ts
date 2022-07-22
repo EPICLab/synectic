@@ -47,7 +47,9 @@ const getNode = (commit: CommitVertex): Node => {
             color: commit.conflicted ? colorSets[9] : colorSets[5],
             border: commit.staged ? 'dashed' : '',
             opacity: commit.staged ? '0.6' : '1.0',
-            branch: commit.head ? `${commit.scope}/${commit.branch}` : ''
+            branch: commit.head ? `${commit.scope}/${commit.branch}` : '',
+            author: `${commit.commit.author.name} <${commit.commit.author.email}>`,
+            message: commit.commit.message
         },
         position: { x: 0, y: 0 }
     };

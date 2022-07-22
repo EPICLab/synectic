@@ -53,6 +53,13 @@ const selectByStack = createSelector(
         .filter(c => c.captured === stackId)
 );
 
-const cardSelectors = { ...selectors, selectByIds, selectByMetafile, selectByMetafiles, selectByRepo, selectByStack };
+const selectByTarget = createSelector(
+    selectors.selectAll,
+    metafileSelectors.selectEntities,
+    (_state: RootState, target: UUID) => target,
+    (cards, metafiles, target) => cards.filter(c => c.type === 'Diff' && metafiles[c.metafile]?.targets?.includes(target))
+);
+
+const cardSelectors = { ...selectors, selectByIds, selectByMetafile, selectByMetafiles, selectByRepo, selectByStack, selectByTarget };
 
 export default cardSelectors;
