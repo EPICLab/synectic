@@ -25,6 +25,7 @@ type DropSelectProps = {
 
 const DropSelect = (props: DropSelectProps) => {
     const styles = useStyles();
+    const selected = props.target === '' || !props.options.find(o => o.key === props.target) ? '' : props.target;
 
     return (
         <FormControl variant='outlined' className={styles.dropSelect} margin='dense'>
@@ -37,7 +38,7 @@ const DropSelect = (props: DropSelectProps) => {
                 }}
                 labelId={`${props.label}-select-label`}
                 id={`${props.label}-select`}
-                value={props.target}
+                value={selected}
                 fullWidth={true}
                 onChange={(event) => props.setTarget(event.target.value as string)}
             >
