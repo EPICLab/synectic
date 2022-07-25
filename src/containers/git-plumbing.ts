@@ -17,7 +17,7 @@ import { unstage } from './unstage-shim';
 import { getRoot, getWorktreePaths } from './git-path';
 import { Repository } from '../store/slices/repos';
 import { GitStatus } from '../store/types';
-import { status as shimStatus } from './git-worktree-status-shim';
+import { status as shimStatus } from './git-worktree-shim';
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];

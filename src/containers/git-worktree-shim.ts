@@ -5,6 +5,18 @@ import { getWorktreePaths } from './git-path';
 import { codeToStatus } from './git-plumbing';
 import { execute } from './utils';
 
+export const add = async (dirpath: fs.PathLike, worktreeDir: fs.PathLike, url: string, commitish?: string): Promise<void> => {
+    const { dir } = await getWorktreePaths(dirpath);
+    if (!dir) return undefined; // not under version control
+
+    try {
+        await execute(`git worktree add ${worktreeDir?.toString()} ${commitish ? commitish : ''}`, dir.toString());
+    } catch (error) {
+        console.error(`git-worktree add error:`, error);
+    }
+    return;
+}
+
 export const statusMatrix = async (dirpath: fs.PathLike): Promise<{ filepath: string; status: GitStatus | undefined }[] | undefined> => {
     const { dir, worktreeDir, worktreeLink } = await getWorktreePaths(dirpath);
     if (!worktreeDir || !worktreeLink) return undefined; // filepath is not part of a linked worktree, must use `git-plumbing.matrixEntry` for main worktree

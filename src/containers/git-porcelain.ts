@@ -11,8 +11,8 @@ import { matrixEntry, matrixToStatus, resolveRef, statusMatrix } from './git-plu
 import { isDefined, removeUndefinedProperties } from './utils';
 import { getRoot, getWorktreePaths } from './git-path';
 import { GitStatus } from '../store/types';
-import { add, list } from './git-worktree';
-import { statusMatrix as shimStatusMatrix } from './git-worktree-status-shim';
+import { list } from './git-worktree';
+import { add, statusMatrix as shimStatusMatrix } from './git-worktree-shim';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
