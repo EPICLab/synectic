@@ -65,6 +65,7 @@ export const merge = async (dir: fs.PathLike, base: string, compare: string, onP
     const branches = await isogit.listBranches({ fs: fs, dir: dir.toString() }); // branches found locally
     const urlConfig = await getConfig({ dir: dir, keyPath: `remote.origin.url`, global: false });
     const url = urlConfig.scope !== 'none' ? resolveURL(urlConfig.value) : '';
+    // Checkout a remote base branch into a linked-worktree so that merge does not hit issue #831
     if (!branches.includes(base)) await checkout({ dir, ref: base, url, onProgress });
 
     const branchRoot = await getBranchRoot(dir, base);
