@@ -266,13 +266,7 @@ export const add = async (dir: fs.PathLike, worktreeDir: fs.PathLike, url: strin
 
   // // overwrite the internal git files in linked worktree to point to main worktree
   await fs.remove(worktreeGitdir);
-  console.log(`git-worktree.add => worktreeGitdir: ${worktreeGitdir}`);
-  try {
-    await io.writeFileAsync(worktreeGitdir, `gitdir: ${worktreeLink}\n`);
-  } catch (error) {
-    console.log(`git-worktree.add => error:`, error);
-  }
-  console.log(`git-worktree.add => worktreeGitdir: ${worktreeGitdir} successfully created [if no error]`);
+  await io.writeFileAsync(worktreeGitdir, `gitdir: ${worktreeLink}\n`);
   return;
 }
 
