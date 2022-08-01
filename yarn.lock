@@ -7543,6 +7543,13 @@ parse-path@^5.0.0:
   dependencies:
     protocols "^2.0.0"
 
+parse-path@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/parse-path/-/parse-path-6.0.0.tgz#4e41b6635164a0fd52e80e0bd140c2f264e22bb1"
+  integrity sha512-RNsbMvxeo2mQlFGfQm+o5jgv+4ZS9A8E1wZAC92NJK4rdJdIk4+w6glo4sX0QESl4NmaL5k9w98fYTFo+ij3og==
+  dependencies:
+    protocols "^2.0.0"
+
 parse-url@^7.0.2:
   version "7.0.2"
   resolved "https://registry.yarnpkg.com/parse-url/-/parse-url-7.0.2.tgz#d21232417199b8d371c6aec0cedf1406fd6393f0"
