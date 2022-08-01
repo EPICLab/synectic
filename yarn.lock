@@ -946,16 +946,16 @@
   dependencies:
     "@electron-forge/shared-types" "6.0.0-beta.65"
 
-"@electron-forge/plugin-webpack@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.0.0-beta.64.tgz#29a24eb95d59b0d69391bca629288869f2531a31"
-  integrity sha512-kugI48W11LHg0YyOSDU/SJNn3BkcANRma5SE5PphxkUK8rjPBxLEwGUXo6DbkbXUF//dqMCdTGsE66zqyx01yg==
+"@electron-forge/plugin-webpack@6.0.0-beta.65":
+  version "6.0.0-beta.65"
+  resolved "https://registry.yarnpkg.com/@electron-forge/plugin-webpack/-/plugin-webpack-6.0.0-beta.65.tgz#7eac893dc65b69c1f7beb2af4ec6374b180f30b7"
+  integrity sha512-hTHwhvu5QqXY0KJYCk+Gvhl5Rx/0pwSW5f2o+z7P8RgGu0pKtPHrLw0EyQrJijtIwmTaBp0B6zY4nHpxtiyECw==
   dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.64"
-    "@electron-forge/core" "6.0.0-beta.64"
-    "@electron-forge/plugin-base" "6.0.0-beta.64"
-    "@electron-forge/shared-types" "6.0.0-beta.64"
-    "@electron-forge/web-multi-logger" "6.0.0-beta.64"
+    "@electron-forge/async-ora" "6.0.0-beta.65"
+    "@electron-forge/core" "6.0.0-beta.65"
+    "@electron-forge/plugin-base" "6.0.0-beta.65"
+    "@electron-forge/shared-types" "6.0.0-beta.65"
+    "@electron-forge/web-multi-logger" "6.0.0-beta.65"
     chalk "^4.0.0"
     debug "^4.3.1"
     fs-extra "^10.0.0"
@@ -1083,10 +1083,10 @@
     "@electron-forge/template-base" "6.0.0-beta.65"
     fs-extra "^10.0.0"
 
-"@electron-forge/web-multi-logger@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.0.0-beta.64.tgz#b04a673481792332eb912497fef85a16aef184d6"
-  integrity sha512-0+xruclLP21mKtwXMTo6wHGLmHhRV3mqnS0Gy63UUaIQxXb2r9Ft6ttZTicdMkony1ZyGCjIh5b/glqIlk/OfQ==
+"@electron-forge/web-multi-logger@6.0.0-beta.65":
+  version "6.0.0-beta.65"
+  resolved "https://registry.yarnpkg.com/@electron-forge/web-multi-logger/-/web-multi-logger-6.0.0-beta.65.tgz#ce2d6fe9b7edbffeb8ddbb8dc6f77e6a069846f8"
+  integrity sha512-/Hh2OaTQFK70TMS4tv6wcS8g27ChUwM1KYqWpz8ABLvqjnSqJ4u7oCL0nhqM4o4x6qO5Sb7HgW/BC6pp3iT8Tg==
   dependencies:
     express "^4.17.1"
     express-ws "^5.0.2"
