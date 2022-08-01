@@ -7802,10 +7802,10 @@ react-error-boundary@^3.1.0:
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-react-flow-renderer@^10.3.11:
-  version "10.3.11"
-  resolved "https://registry.yarnpkg.com/react-flow-renderer/-/react-flow-renderer-10.3.11.tgz#f76e84ff0fa6d25f2d8ad7b39f237ad09638a931"
-  integrity sha512-pDqa+7MQ2qnTJJGv3CbTiA4Sr7Dsbx2eGsKTc2xf7pwkvUVfPedxE8SSDJvq9j6Ag2CLYC9Qv99zoA4+uk5hdw==
+react-flow-renderer@^10.3.12:
+  version "10.3.12"
+  resolved "https://registry.yarnpkg.com/react-flow-renderer/-/react-flow-renderer-10.3.12.tgz#ed603e7cab298aee7003e325cebc08372a4e2ca0"
+  integrity sha512-DTaz4HV0rA/qtvY80fjdb/QwIvtZEhqCQ2iAqfzFH08RjWCrLmESX4Nc400EB3CGcCK8/pDn/ta4cOS3udunTw==
   dependencies:
     "@babel/runtime" "^7.18.9"
     classcat "^5.0.3"
