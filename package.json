@@ -71,7 +71,7 @@
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "casual": "^1.6.2",
     "css-loader": "^6.7.1",
-    "electron": "19.0.10",
+    "electron": "20.0.1",
     "eslint": "^8.21.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-react-hooks": "^4.6.0",

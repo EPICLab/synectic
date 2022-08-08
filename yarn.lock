@@ -619,17 +619,6 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@electron-forge/async-ora@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/async-ora/-/async-ora-6.0.0-beta.64.tgz#40a35004b74aece2db8584dbaf034cf0d1f0864b"
-  integrity sha512-27ACgh9VhM+ahqTNIFeCfKuSoZxM/8dQp99ZMAgMFzcniKkNCXLxsbGF/7esu++zarDqhSUOhf70Z2bffgjX2w==
-  dependencies:
-    chalk "^4.0.0"
-    debug "^4.3.1"
-    log-symbols "^4.0.0"
-    ora "^5.0.0"
-    pretty-ms "^7.0.0"
-
 "@electron-forge/async-ora@6.0.0-beta.65":
   version "6.0.0-beta.65"
   resolved "https://registry.yarnpkg.com/@electron-forge/async-ora/-/async-ora-6.0.0-beta.65.tgz#2e9088942e55e7509550d821510ac17e8d3606b5"
@@ -765,15 +754,6 @@
     "@malept/cross-spawn-promise" "^2.0.0"
     fs-extra "^10.0.0"
 
-"@electron-forge/maker-base@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.0-beta.64.tgz#0f19563a06f0e5499892aec9fe8edd8853304b29"
-  integrity sha512-jQbZgnsTpDK60KXhJWiDhmo7aHsBMnfZIpbr4w9QhjPPbQKUqcUo6Geg2OFbX+9HTGOz1jUC4jDbVPvR+zmzuQ==
-  dependencies:
-    "@electron-forge/shared-types" "6.0.0-beta.64"
-    fs-extra "^10.0.0"
-    which "^2.0.2"
-
 "@electron-forge/maker-base@6.0.0-beta.65":
   version "6.0.0-beta.65"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-6.0.0-beta.65.tgz#79b4e2a4b418e3d97416db32003eca5c67c9233b"
@@ -857,16 +837,6 @@
   integrity sha512-tXIKS8/kK+Bh18BVdVeT6QaR/EJrlWQnOPVZrT0/CjfqEBMfuf5zYiwcqgakbV2WOFvH2oljprmduyqFvnrwow==
   dependencies:
     "@electron-forge/shared-types" "6.0.0-beta.65"
-
-"@electron-forge/shared-types@6.0.0-beta.64":
-  version "6.0.0-beta.64"
-  resolved "https://registry.yarnpkg.com/@electron-forge/shared-types/-/shared-types-6.0.0-beta.64.tgz#be87fe0bd4b27ca8d3b93b9bd943f59bf56befd4"
-  integrity sha512-E+uIpZsKPku4QHWzBGNm5RkcOyLXn98qHvJevziKnUOfRSe2y66XFpHyu9FmBnEYYoyGDvBktV70yK6gsjdigQ==
-  dependencies:
-    "@electron-forge/async-ora" "6.0.0-beta.64"
-    electron-packager "^15.4.0"
-    electron-rebuild "^3.2.6"
-    ora "^5.0.0"
 
 "@electron-forge/shared-types@6.0.0-beta.65":
   version "6.0.0-beta.65"
@@ -1927,14 +1897,6 @@
     "@typescript-eslint/typescript-estree" "5.32.0"
     debug "^4.3.4"
 
-"@typescript-eslint/scope-manager@5.30.7":
-  version "5.30.7"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.30.7.tgz#8269a931ef1e5ae68b5eb80743cc515c4ffe3dd7"
-  integrity sha512-7BM1bwvdF1UUvt+b9smhqdc/eniOnCKxQT/kj3oXtj3LqnTWCAM0qHRHfyzCzhEfWX0zrW7KqXXeE4DlchZBKw==
-  dependencies:
-    "@typescript-eslint/types" "5.30.7"
-    "@typescript-eslint/visitor-keys" "5.30.7"
-
 "@typescript-eslint/scope-manager@5.32.0":
   version "5.32.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/scope-manager/-/scope-manager-5.32.0.tgz#763386e963a8def470580cc36cf9228864190b95"
@@ -1952,28 +1914,10 @@
     debug "^4.3.4"
     tsutils "^3.21.0"
 
-"@typescript-eslint/types@5.30.7":
-  version "5.30.7"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.30.7.tgz#18331487cc92d0f1fb1a6f580c8ec832528079d0"
-  integrity sha512-ocVkETUs82+U+HowkovV6uxf1AnVRKCmDRNUBUUo46/5SQv1owC/EBFkiu4MOHeZqhKz2ktZ3kvJJ1uFqQ8QPg==
-
 "@typescript-eslint/types@5.32.0":
   version "5.32.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/types/-/types-5.32.0.tgz#484273021eeeae87ddb288f39586ef5efeb6dcd8"
   integrity sha512-EBUKs68DOcT/EjGfzywp+f8wG9Zw6gj6BjWu7KV/IYllqKJFPlZlLSYw/PTvVyiRw50t6wVbgv4p9uE2h6sZrQ==
-
-"@typescript-eslint/typescript-estree@5.30.7":
-  version "5.30.7"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/typescript-estree/-/typescript-estree-5.30.7.tgz#05da9f1b281985bfedcf62349847f8d168eecc07"
-  integrity sha512-tNslqXI1ZdmXXrHER83TJ8OTYl4epUzJC0aj2i4DMDT4iU+UqLT3EJeGQvJ17BMbm31x5scSwo3hPM0nqQ1AEA==
-  dependencies:
-    "@typescript-eslint/types" "5.30.7"
-    "@typescript-eslint/visitor-keys" "5.30.7"
-    debug "^4.3.4"
-    globby "^11.1.0"
-    is-glob "^4.0.3"
-    semver "^7.3.7"
-    tsutils "^3.21.0"
 
 "@typescript-eslint/typescript-estree@5.32.0":
   version "5.32.0"
@@ -1999,14 +1943,6 @@
     "@typescript-eslint/typescript-estree" "5.32.0"
     eslint-scope "^5.1.1"
     eslint-utils "^3.0.0"
-
-"@typescript-eslint/visitor-keys@5.30.7":
-  version "5.30.7"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.30.7.tgz#c093abae75b4fd822bfbad9fc337f38a7a14909a"
-  integrity sha512-KrRXf8nnjvcpxDFOKej4xkD7657+PClJs5cJVSG7NNoCNnjEdc46juNAQt7AyuWctuCgs6mVRc1xGctEqrjxWw==
-  dependencies:
-    "@typescript-eslint/types" "5.30.7"
-    eslint-visitor-keys "^3.3.0"
 
 "@typescript-eslint/visitor-keys@5.32.0":
   version "5.32.0"
@@ -3133,16 +3069,6 @@ concat-map@0.0.1:
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
 
-concat-stream@^1.6.2:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.2.tgz#904bdf194cd3122fc675c77fc4ac3d4ff0fd1a34"
-  integrity sha512-27HBghJxjiZtIk3Ycvn/4kbJk/1uZuJFfuPEns6LaEvpvG1f0hTea8lilrouyo9mVc2GWdcEZ8OLoGmSADlrCw==
-  dependencies:
-    buffer-from "^1.0.0"
-    inherits "^2.0.3"
-    readable-stream "^2.2.2"
-    typedarray "^0.0.6"
-
 config-chain@^1.1.11:
   version "1.1.13"
   resolved "https://registry.yarnpkg.com/config-chain/-/config-chain-1.1.13.tgz#fad0795aa6a6cdaff9ed1b68e9dff94372c232f4"
@@ -3895,14 +3821,14 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@19.0.10:
-  version "19.0.10"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-19.0.10.tgz#4d2f03f307fbb70a295ff419112130b75661eda9"
-  integrity sha512-EiWtPWdD7CzkRkp1cw7t0N9W2qhI5XZOudHX7daOh5wI076nsdV2dtlAf/XyTHhPNoKR5qhTWrSnYL9PY6D1vg==
+electron@20.0.1:
+  version "20.0.1"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-20.0.1.tgz#eaaa14a7b54b6c405b1768727be4c55976a95419"
+  integrity sha512-5c7zr8oy1JsCV86BaoIPVLo4yevDfvPEsMQcGlgfJ5PS7ouAVvR1aHt0tjF65bL1vYdoQ1olvpextg2T8FyICA==
   dependencies:
     "@electron/get" "^1.14.1"
     "@types/node" "^16.11.26"
-    extract-zip "^1.0.3"
+    extract-zip "^2.0.1"
 
 emittery@^0.8.1:
   version "0.8.1"
@@ -4345,17 +4271,7 @@ external-editor@^3.0.3:
     iconv-lite "^0.4.24"
     tmp "^0.0.33"
 
-extract-zip@^1.0.3:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/extract-zip/-/extract-zip-1.7.0.tgz#556cc3ae9df7f452c493a0cfb51cc30277940927"
-  integrity sha512-xoh5G1W/PB0/27lXgMQyIhP5DSY/LhoCsOyZgb+6iMmRtCwVBo55uKaMoEYrDCKQhWvqEip5ZPKAc6eFNyf/MA==
-  dependencies:
-    concat-stream "^1.6.2"
-    debug "^2.6.9"
-    mkdirp "^0.5.4"
-    yauzl "^2.10.0"
-
-extract-zip@^2.0.0:
+extract-zip@^2.0.0, extract-zip@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/extract-zip/-/extract-zip-2.0.1.tgz#663dca56fe46df890d5f131ef4a06d22bb8ba13a"
   integrity sha512-GDhU9ntwuKyGXdZBUgTIe+vXnWj0fppUEtMDL0+idd5Sta8TGpHssn/eusA9mrPr9qNDym6SxAYZjNvCn/9RBg==
@@ -6802,7 +6718,7 @@ minizlib@^2.0.0, minizlib@^2.1.1:
     minipass "^3.0.0"
     yallist "^4.0.0"
 
-mkdirp@^0.5.1, mkdirp@^0.5.4, mkdirp@^0.5.5:
+mkdirp@^0.5.1, mkdirp@^0.5.5:
   version "0.5.5"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.5.tgz#d91cefd62d1436ca0f41620e251288d420099def"
   integrity sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
@@ -7876,7 +7792,7 @@ read-uint@^2.0.0:
   resolved "https://registry.yarnpkg.com/read-uint/-/read-uint-2.0.0.tgz#81f79d83bbb82c897e4050d36d20c29c230f1574"
   integrity sha512-LftSSrKU+MrjrQCwppDCw8seWunN+/MP64ileQqPRNtceoYhNpODGC+x2a+WIGPlfJTQd2UDKAWPovtZKIhimQ==
 
-readable-stream@^2.0.1, readable-stream@^2.2.2:
+readable-stream@^2.0.1:
   version "2.3.7"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.3.7.tgz#1eca1cf711aef814c04f62252a36a62f6cb23b57"
   integrity sha512-Ebho8K4jIbHAxnuxi7o42OrZgF/ZTNcsZj6nRKyUmkhLFq8CHItp/fy6hQZuZmP/n3yZ9VBUbp4zz/mX8hmYPw==
@@ -9042,11 +8958,6 @@ typedarray-to-buffer@^3.1.5:
   integrity sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
   dependencies:
     is-typedarray "^1.0.0"
-
-typedarray@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
-  integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
 typescript@^4.7.4:
   version "4.7.4"
