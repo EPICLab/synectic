@@ -122,7 +122,7 @@
     "react-dnd-html5-backend": "^15.1.2",
     "react-dnd-preview": "^6.0.2",
     "react-dom": "^17.0.2",
-    "react-flow-renderer": "^10.3.12",
+    "react-flow-renderer": "^10.3.16",
     "react-redux": "^7.2.6",
     "react-transition-group": "^4.4.5",
     "redux": "^4.2.0",
