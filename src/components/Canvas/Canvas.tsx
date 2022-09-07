@@ -1,33 +1,38 @@
-import React from 'react';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { shell } from 'electron';
+import { DateTime } from 'luxon';
+import React from 'react';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
-import { DateTime } from 'luxon';
-import CardComponent from '../Card';
-import Stack from '../Stack';
-import ModalComponent from '../Modal';
-import { popCards } from '../../store/thunks/stacks';
-import { stackUpdated } from '../../store/slices/stacks';
-import NavMenu from '../NavMenu';
-import { NavItemProps } from '../NavItem/NavItem';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import version from '../../../version';
 import { fileOpenDialog } from '../../containers/dialogs';
 import { loadBranchVersions } from '../../containers/branch-tracker';
 import GitGraphSelect from '../GitGraph/GitGraphSelect';
 import { cardUpdated } from '../../store/slices/cards';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import branchSelectors from '../../store/selectors/branches';
+import cachedSelectors from '../../store/selectors/cache';
 import cardSelectors from '../../store/selectors/cards';
-import redux, { RootState } from '../../store/store';
-import stackSelectors from '../../store/selectors/stacks';
+import filetypeSelectors from '../../store/selectors/filetypes';
 import metafileSelectors from '../../store/selectors/metafiles';
 import filetypeSelectors from '../../store/selectors/filetypes';
 import repoSelectors from '../../store/selectors/repos';
 import modalSelectors from '../../store/selectors/modals';
+import repoSelectors from '../../store/selectors/repos';
+import stackSelectors from '../../store/selectors/stacks';
+import { cardUpdated } from '../../store/slices/cards';
 import { Modal, modalAdded } from '../../store/slices/modals';
-import branchSelectors from '../../store/selectors/branches';
-import cachedSelectors from '../../store/selectors/cache';
-import version from '../../../version';
-import { fetchConflictManagers } from '../../store/thunks/repos';
+import { stackUpdated } from '../../store/slices/stacks';
+import redux, { RootState } from '../../store/store';
+import { branchesCardAdded } from '../../store/thunks/cards';
+import { fetchConflictManagers } from '../../store/thunks/oldThunks/repos';
+import { popCards } from '../../store/thunks/stacks';
+import CardComponent from '../Card';
+import GitGraphSelect from '../GitGraph/GitGraphSelect';
+import ModalComponent from '../Modal';
+import { NavItemProps } from '../NavItem/NavItem';
+import NavMenu from '../NavMenu';
+import Stack from '../Stack';
 
 export enum DnDItemType {
   CARD = 'CARD',
@@ -148,7 +153,7 @@ const Canvas = () => {
 
   const viewMenu: NavItemProps[] = [
     { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
-    { label: 'Branches...', click: async () => dispatch(loadBranchVersions()) },
+    { label: 'Branches...', click: async () => dispatch(branchesCardAdded()) },
     { label: 'Conflicts...', click: () => dispatch(fetchConflictManagers()) },
   ];
 
