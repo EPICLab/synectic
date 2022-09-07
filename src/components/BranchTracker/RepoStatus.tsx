@@ -9,14 +9,22 @@ import branchSelectors from '../../store/selectors/branches';
 import { Repository } from '../../store/slices/repos';
 import BranchStatus from './BranchStatus';
 import { modalAdded } from '../../store/slices/modals';
+import RepoItem from '../Branches/RepoItem'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
+/**
+ * @deprecated This implementation has been updated with additional dynamic functionality, please use {@link RepoItem} instead.
+ * @param props Prop object for branches on a specific repository.
+ * @param props.repo The Repository object associated with the git branch.
+ * @returns {React.Component} A React function component.
+ */
 const RepoStatus = (props: { repo: Repository; }) => {
     const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, props.repo, true));
+    const sortedBranches = branches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref));
     const dispatch = useAppDispatch();
 
     return (
         <StyledTreeItem key={props.repo.id} nodeId={props.repo.id} labelText={props.repo.name} labelIcon={GitRepoIcon}>
-            {branches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref)).map(branch =>
+            {sortedBranches.map(branch =>
                 <BranchStatus key={v4()} repo={props.repo} branch={branch} />
             )}
             <StyledTreeItem

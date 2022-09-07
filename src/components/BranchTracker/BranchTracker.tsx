@@ -6,7 +6,12 @@ import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import RepoStatus from './RepoStatus';
+import Branches from '../Branches'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
+/**
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link Branches} instead.
+ * @returns {React.Component} A React function component.
+ */
 const BranchTracker = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [expanded, setExpanded] = React.useState(repos[0] ? [repos[0].id] : []); // initial state; expand first listed repo

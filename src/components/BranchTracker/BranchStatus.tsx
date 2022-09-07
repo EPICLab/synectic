@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import branchSelectors from '../../store/selectors/branches';
 import { readDirAsync } from '../../containers/io';
-import { currentBranch } from '../../containers/git-porcelain';
+import { currentBranch } from '../../containers/old-git/git-porcelain';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { DnDItemType } from '../Canvas/Canvas';
@@ -15,14 +15,22 @@ import { modalAdded } from '../../store/slices/modals';
 import { Repository } from '../../store/slices/repos';
 import { Branch } from '../../store/slices/branches';
 import { fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
-import { checkoutBranch } from '../../store/thunks/branches';
+import { checkoutBranch } from '../../store/thunks/oldThunks/branches';
 import { createCard } from '../../store/thunks/cards';
+import BranchItem from '../Branches/BranchItem'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 export type DragObject = {
     id: string,
     type: string
 }
 
+/**
+ * @deprecated This implementation has been updated with additional dynamic functionality, please use {@link BranchItem} instead.
+ * @param props Prop object for branches on a specific repository.
+ * @param props.repo The Repository object associated with the git branch.
+ * @param props.branch The Branch object associated with the git branch.
+ * @returns {React.Component} A React function component.
+ */
 const BranchStatus = (props: { repo: Repository; branch: Branch; }) => {
     const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByRepo(state, props.repo.id, props.branch.id));
