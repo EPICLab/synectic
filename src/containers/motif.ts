@@ -1,7 +1,8 @@
 import { FileMetafile } from '../store/slices/metafiles';
 import { Add, Remove, SvgIconComponent, Warning } from '@material-ui/icons';
+import { Branch } from '../store/slices/branches';
 
-export type SourceMotif = {
+export type Motif = {
     color: string | undefined,
     icon: SvgIconComponent | undefined
 }
@@ -10,7 +11,7 @@ export const conflictedCheck = (metafile: FileMetafile) => metafile.conflicts ? 
 export const stagedCheck = (metafile: FileMetafile) => metafile.status ? ['added', 'modified', 'deleted'].includes(metafile.status) : false;
 export const unstagedCheck = (metafile: FileMetafile) => metafile.status ? ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(metafile.status) : false;
 
-export const getSourceMotif = (metafile: FileMetafile): SourceMotif => {
+export const getSourceMotif = (metafile: FileMetafile): Motif => {
     if (metafile.status) {
         const conflicts = conflictedCheck(metafile);
         const staged = stagedCheck(metafile);
@@ -22,3 +23,9 @@ export const getSourceMotif = (metafile: FileMetafile): SourceMotif => {
     }
     return { color: undefined, icon: undefined };
 };
+
+export const getBranchMotif = (branch: Branch): Motif => {
+    // #61aeee => blue
+    const color = branch.linked ? '#61aeee' : undefined;
+    return { color: color, icon: undefined };
+}
