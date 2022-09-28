@@ -2,8 +2,8 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import { v4 } from 'uuid';
-import { getWorktreePaths, listBranch } from '../../containers/git';
-import { extractFromURL, extractRepoName } from '../../containers/old-git/git-plumbing';
+import { extractRepoName, extractFromURL, getWorktreePaths, listBranch } from '../../containers/git';
+
 import { getConfig, GitConfig } from '../../containers/old-git/git-porcelain';
 import { extractFilename } from '../../containers/io';
 import { ExactlyOne } from '../../containers/utils';

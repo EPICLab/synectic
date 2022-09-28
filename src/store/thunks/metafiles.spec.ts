@@ -1,14 +1,15 @@
-import { file, mock, MockInstance } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { emptyStore } from '../../test-utils/empty-store';
-import { Filetype, filetypeAdded } from '../slices/filetypes';
-import { createMetafile, fetchParentMetafile, isHydrated, updateVersionedMetafile, updateFilebasedMetafile } from './metafiles';
-import { DirectoryMetafile, FilebasedMetafile, FileMetafile, metafileAdded, MetafileTemplate } from '../slices/metafiles';
 import { DateTime, Settings } from 'luxon';
 import isUUID from 'validator/lib/isUUID';
-import * as gitPorcelain from '../../containers/git-porcelain';
-import { repoAdded, Repository } from '../slices/repos';
+import * as gitBranch from '../../containers/git/git-branch';
+import * as gitStatus from '../../containers/git/git-status';
+import { emptyStore } from '../../test-utils/empty-store';
+import { file, mock, MockInstance } from '../../test-utils/mock-fs';
+import { mockStore } from '../../test-utils/mock-store';
 import { Branch, branchAdded } from '../slices/branches';
+import { Filetype, filetypeAdded } from '../slices/filetypes';
+import { DirectoryMetafile, FilebasedMetafile, FileMetafile, metafileAdded, MetafileTemplate } from '../slices/metafiles';
+import { repoAdded, Repository } from '../slices/repos';
+import { createMetafile, fetchParentMetafile, isHydrated, updateFilebasedMetafile, updateVersionedMetafile } from './metafiles';
 
 const mockedFiletype1: Filetype = {
     id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
@@ -209,7 +210,7 @@ describe('thunks/metafiles', () => {
     });
 
     it('updateVersionedMetafile updates version information to filebased metafile', async () => {
-        jest.spyOn(gitPorcelain, 'getStatus').mockResolvedValue('unmodified');
+        jest.spyOn(gitStatus, 'fileStatus').mockResolvedValue('unmodified');
         const repo: Repository = {
             id: 'c5739e69-9979-41fe-8605-5bb5ff341027',
             name: 'foo/myRepo',
@@ -227,10 +228,13 @@ describe('thunks/metafiles', () => {
         const branch: Branch = {
             id: '9ae32e4a-10f2-4f7b-93d6-39ccb466c504',
             ref: 'test',
+            linked: false,
+            bare: false,
             root: 'foo/',
             gitdir: 'foo/.git',
             scope: 'local',
             remote: 'origin',
+            status: 'clean',
             commits: [],
             head: '987654321'
         };
@@ -264,8 +268,8 @@ describe('thunks/metafiles', () => {
     });
 
     it('updateVersionedMetafile adds version information to filebased metafile', async () => {
-        jest.spyOn(gitPorcelain, 'getStatus').mockResolvedValue('unmodified');
-        jest.spyOn(gitPorcelain, 'currentBranch').mockResolvedValue('test');
+        jest.spyOn(gitStatus, 'fileStatus').mockResolvedValue('unmodified');
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
         const repo: Repository = {
             id: 'c5739e69-9979-41fe-8605-5bb5ff341027',
             name: 'foo/myRepo',
@@ -283,10 +287,13 @@ describe('thunks/metafiles', () => {
         const branch: Branch = {
             id: '9ae32e4a-10f2-4f7b-93d6-39ccb466c504',
             ref: 'test',
+            linked: false,
+            bare: false,
             root: 'foo/',
             gitdir: 'foo/.git',
             scope: 'local',
             remote: 'origin',
+            status: 'clean',
             commits: [],
             head: '987654321'
         };

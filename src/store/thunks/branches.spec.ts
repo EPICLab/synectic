@@ -10,7 +10,7 @@ import { mockStore } from '../../test-utils/mock-store';
 import { Branch, branchAdded } from '../slices/branches';
 import { DirectoryMetafile, FilebasedMetafile, metafileAdded } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
-import { createBranch, fetchBranch } from './branches';
+import { buildBranch, fetchBranch } from './branches';
 
 const mockedMetafile1: FilebasedMetafile = {
     id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
@@ -177,7 +177,7 @@ describe('thunks/branches', () => {
             entries: []
         });
         expect.assertions(2);
-        const branch = await store.dispatch(createBranch({ root: 'foo/', branch: 'main', scope: 'local' })).unwrap();
+        const branch = await store.dispatch(buildBranch({ root: 'foo/', branch: 'main', scope: 'local' })).unwrap();
         expect(isUUID(branch.id)).toBe(true);
         expect(branch).toStrictEqual(expect.objectContaining({
             ref: 'main',
