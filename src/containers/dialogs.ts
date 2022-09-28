@@ -19,10 +19,12 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
     const paths: Electron.OpenDialogReturnValue = await ipcRenderer.invoke('fileOpenDialog', properties);
     if (!paths.canceled && paths.filePaths) {
       if (paths.filePaths[0]) {
-        /** Multiple filepaths loading asynchronously can cause a race condition where all filepaths appear to require a new repo, which 
+        /**
+         * Multiple filepaths loading asynchronously can cause a race condition where all filepaths appear to require a new repo, which 
          * causes duplicated copies of the same repo to be added to the Redux store. Since selecting multiple files in the dialog results
          * in filepaths that all have the same root parent directory, and therefore share the same repo, we can fix it by resolving the 
-         * repo of the first path before loading any other cards. */
+         * repo of the first path before loading any other cards.
+         */
         await thunkAPI.dispatch(fetchRepo({ filepath: paths.filePaths[0] }));
       }
       await Promise.all(paths.filePaths.map(async filePath => await thunkAPI.dispatch(createCard({ path: filePath }))));
