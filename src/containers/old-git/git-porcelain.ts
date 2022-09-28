@@ -12,14 +12,17 @@ import { isDefined, removeUndefinedProperties } from '../utils';
 import { getRoot, getWorktreePaths } from '../git';
 import { GitStatus } from '../../store/types';
 import { list } from './git-worktree';
-import { add, statusMatrix as shimStatusMatrix } from '../git-worktree-shim';
+import { add, statusMatrix as shimStatusMatrix } from './git-worktree-shim';
 import * as gitBranch from '../git/git-branch'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as gitCheckout from '../git/git-checkout'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as gitClone from '../git/git-clone'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import * as gitCommit from '../git/git-commit'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import * as gitConfig from '../git/git-config'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as gitLog from '../git/git-log'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as gitMerge from '../git/git-merge'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as gitStatus from '../git/git-status'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
+/** @deprecated */
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
 
 /**
@@ -213,6 +216,7 @@ export const checkout = async ({
 /**
  * Create a new commit; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/checkout* function.
  *
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link gitCommit.commit} instead.
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.gitdir - The worktree git directory.
@@ -308,7 +312,7 @@ export const defaultBranch = async ({ dir, gitdir = path.join(dir.toString(), '.
 /**
  * Delete a local branch; this function is a wrapper to inject the `fs` parameter in to the *isomorphic-git/deleteBranch* function.
  *
- * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link gitBranch.removeBranch} instead.
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link gitBranch.deleteBranch} instead.
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.gitdir - The git directory path.
@@ -392,7 +396,7 @@ export const merge = async (
  * then status checks will look at the index file in the `GIT_DIR/worktrees/{branch}` directory for determining HEAD, WORKDIR, and STAGE
  * status codes. Status codes are translated into the comparable `GitStatus` type.
  *
- * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link gitStatus.worktreeStatus} instead.
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link gitStatus.fileStatus} instead.
  * @param filepath - The relative or absolute path to evaluate.
  * @returns {Promise<GitStatus | undefined>} A Promise object containing undefined if the path is not contained within a directory under 
  * version control, or a git status indicator (see `GitStatus` type definition for all possible status values).
@@ -426,6 +430,7 @@ export const getStatus = async (filepath: fs.PathLike): Promise<GitStatus | unde
  * for determining HEAD, WORKDIR, and STAGE status codes. Status codes are translated into comparable `GitStatus` type before comparison
  * with the provided status filters.
  *
+ * @deprecated Use {@link gitStatus.worktreeStatus} instead.
  * @param filepath - The relative or absolute path to evaluate.
  * @param statusFilters - Array of `GitStatus` values to check against.
  * @returns {Promise<boolean>} A Promise object containing false if the path is not contained within a directory under version control, or 
@@ -514,6 +519,7 @@ export const listServerRefs = ({ onAuth, onAuthFailure, onAuthSuccess, url = '',
  * If the `local` or `global` parameter are disabled, set to `false`, then the search will not attempt to locate git-config files in that scope. If both
  * parameters are enabled, then `local` scope is searched first and only if there were no matches will the `global` scope then be searched.
  *
+ * @deprecated Use {@link gitConfig.getConfig} instead.
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The working tree directory path.
  * @param obj.gitdir - The git directory path.
@@ -559,6 +565,7 @@ export const getConfig = async ({ dir, gitdir = path.join(dir.toString(), '.git'
  * is specified, then a new entry will be added to the git-config file in `local` scope). Entries can be removed by setting value to
  * `undefined`; attempting to remove a non-existing entry will result in a no-op.
  *
+ * @deprecated Use {@link gitConfig.setConfig} instead.
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory path.
  * @param obj.gitdir - The worktree git file or directory path.

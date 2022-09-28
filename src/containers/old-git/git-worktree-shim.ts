@@ -1,10 +1,18 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { GitStatus } from '../store/types';
-import { getWorktreePaths } from './git-path';
+import { GitStatus } from '../../store/types';
+import { getWorktreePaths } from '../git';
+import { execute } from '../utils';
 import { codeToStatus } from './git-plumbing';
-import { execute } from './utils';
 
+/**
+ * @deprecated
+ * @param dirpath - X
+ * @param worktreeDir - X 
+ * @param url - X
+ * @param commitish - X 
+ * @returns {Promise<void>} X
+ */
 export const add = async (dirpath: fs.PathLike, worktreeDir: fs.PathLike, url: string, commitish?: string): Promise<void> => {
     const { dir } = await getWorktreePaths(dirpath);
     if (!dir) return undefined; // not under version control
@@ -17,6 +25,11 @@ export const add = async (dirpath: fs.PathLike, worktreeDir: fs.PathLike, url: s
     return;
 }
 
+/**
+ * @deprecated
+ * @param dirpath - X
+ * @returns {Promise<{ filepath: string; status: GitStatus | undefined }[] | undefined>} X
+ */
 export const statusMatrix = async (dirpath: fs.PathLike): Promise<{ filepath: string; status: GitStatus | undefined }[] | undefined> => {
     const { dir, worktreeDir, worktreeLink } = await getWorktreePaths(dirpath);
     if (!worktreeDir || !worktreeLink) return undefined; // filepath is not part of a linked worktree, must use `git-plumbing.matrixEntry` for main worktree
@@ -40,6 +53,11 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<{ filepath: st
     });
 }
 
+/**
+ * @deprecated
+ * @param filepath - X
+ * @returns {Promise<GitStatus | undefined>} X
+ */
 export const status = async (filepath: fs.PathLike): Promise<GitStatus | undefined> => {
     const { dir, worktreeDir, worktreeLink } = await getWorktreePaths(filepath);
     if (!worktreeDir || !worktreeLink) return undefined; // filepath is not part of a linked worktree, must use `git-plumbing.matrixEntry` for main worktree

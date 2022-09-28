@@ -2,23 +2,19 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as isogit from 'isomorphic-git';
 import { PathLike } from 'fs-extra';
-import parsePath from 'parse-path';
-import parseUrl from 'parse-url';
-import isUUID from 'validator/lib/isUUID';
 import ignore, { Ignore } from 'ignore';
-import { isWebUri } from 'valid-url';
-import { toHTTPS } from 'git-remote-protocol';
-// import { isHiddenFile } from 'is-hidden-file';
 import * as io from '../io';
 import * as worktree from './git-worktree';
 import { currentBranch, log } from './git-porcelain';
 import { AtLeastOne, removeUndefinedProperties } from '../utils';
 import { unstage } from '../unstage-shim';
-// import { getRoot, getWorktreePaths } from '../git-path';
-import { Repository } from '../../store/slices/repos';
 import { GitStatus } from '../../store/types';
-import { status as shimStatus } from '../git-worktree-shim';
+import { status as shimStatus } from './git-worktree-shim';
 import { getRoot, getWorktreePaths } from '../git';
+import * as gitAdd from '../git/git-add'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import * as gitLog from '../git/git-log'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import * as gitRestore from '../git/git-restore'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import * as gitStatus from '../git/git-status'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 export type BranchDiffResult = { path: string, type: 'equal' | 'modified' | 'added' | 'removed' };
 export type MatrixStatus = [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
@@ -30,80 +26,6 @@ export const isHiddenFile = (path: PathLike): boolean => {
 }
 
 /**
- * Parse a URL to extract Git repository name, typically based on the remote origin URL.
- * 
- * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
- * @returns {string} The repository name (e.g. 'username/repo').
- */
-export const extractRepoName = (url: URL | string): string => {
-  const parsedPath = (typeof url === 'string') ? parseUrl(url) : parseUrl(url.href);
-  return parsedPath.pathname.replace(/^(\/*)(?:snippets\/)?/, '').replace(/\.git$/, '');
-};
-
-/**
- * Parse a URL to extract components and protocols, along with the OAuth resource authority 
- * (GitHub, BitBucket, or GitLab) for processing with the isomorphic-git library module.
- * 
- * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
- * @returns {{ url: parsePath.ParsedPath; oauth: Repository['oauth'] }} A JavaScript object (key-value) with the parsePath.ParsedPath object and OAuth resource name.
- */
-export const extractFromURL = (url: URL | string): { url: parsePath.ParsedPath; oauth: Repository['oauth'] } => {
-  const parsedUrl = (typeof url === 'string') ? parseUrl(url) : parseUrl(url.href);
-  let oauth: Repository['oauth'] = 'github';
-  switch (parsedUrl.resource) {
-    case (parsedUrl.resource.match(/github\.com/) ? parsedUrl.resource : undefined):
-      oauth = 'github';
-      break;
-    case (parsedUrl.resource.match(/bitbucket\.org/) ? parsedUrl.resource : undefined):
-      oauth = 'bitbucket';
-      break;
-    case (parsedUrl.resource.match(/gitlab.*\.com/) ? parsedUrl.resource : undefined):
-      oauth = 'gitlab';
-      break;
-  }
-  // TODO: Eventually, url should directly return parsedPath when git:// and ssh:// protocols are supported in isomorphic-git
-  return { url: parsePath(resolveURL(parsedUrl.href)), oauth: oauth };
-}
-
-/**
- * Examines a Repository object to determine if it is well-formed. The `id` field is validated to be compliant 
- * with UUID version 4 (RFC4122), the `corsProxy` and `url` fields are validated to be well-formed HTTP or 
- * HTTPS URI (RFC3986), or valid SSH URI (Provisional IANA format standard) in the case of the `url` field.
- *
- * @param repo A Repository object.
- * @returns {boolean} A boolean indicating a well-formed Repository on true, and false otherwise.
- */
-export const isValidRepository = (repo: Repository): boolean => (
-  isUUID(repo.id, 4)
-  && repo.name.length > 0
-  && (isWebUri(repo.corsProxy) ? true : false)
-  && isValidRepositoryURL(repo.url)
-);
-
-/**
- * Checks for valid URL that is a well-formed HTTP or HTTPS URI (RFC3986), or valid SSH URI (Provisional IANA 
- * format standard).
- *
- * @param url A repository URL string.
- * @returns {boolean} A boolean indicating a well-formed repository URL on true, and false otherwise.
- */
-export const isValidRepositoryURL = (url: string): boolean =>
-  ((isWebUri(url) ? true : false) || (/((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(url)));
-
-/**
- * Checks for ssh or git protocols in use within a URL and converts to http/https. This is directly needed in order
- * to support **isomorphic-git** commands that require a URL, but do not currently support ssh or git protocols. See
- * https://github.com/isomorphic-git/isomorphic-git/issues/665 or https://github.com/isomorphic-git/isomorphic-git/issues/231.
- *
- * @param url The URL to evaluate; can use http, https, ssh, or git protocols.
- * @returns {string} A string containing an https protocol URL that matches to the incoming URL variant.
- */
-export const resolveURL = (url: string): string => {
-  const isSSH = /((git|ssh?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/.test(url);
-  return isSSH ? toHTTPS(url) : url;
-};
-
-/**
  * Get the value of a symbolic ref or resolve a ref to its SHA-1 object id; this is a wrapper to the *isomorphic-git/resolveRef* function 
  * to inject the `fs` parameter and extend with additional worktree path resolving functionality and special identifier
  * support (i.e. `HEAD` for the current commit, `HEAD~1` for the previous commit). If the `gitdir` parameter is a file, then
@@ -111,6 +33,7 @@ export const resolveURL = (url: string): string => {
  * before any refs can be resolved.
  * Ref: https://github.com/isomorphic-git/isomorphic-git/issues/1238#issuecomment-871220830
  *
+ * @deprecated
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The working tree directory path.
  * @param obj.gitdir - The git directory path.
@@ -149,6 +72,7 @@ export const resolveRef = async ({ dir, gitdir = path.join(dir.toString(), '.git
  * a git branch. The response includes an oid that can be provided directly to `resolveRef` in order to obtain a blob string containing 
  * the latest version on a particular branch (i.e. for determining whether the file has diverged from the latest version in git).
  *
+ * @deprecated
  * @param filepath The relative or absolute path to resolve.
  * @param branch The branch to reference for resolving the indicated filepath.
  * @param cache A cache object for storing intermediate results and re-using them between commands. See: https://isomorphic-git.org/docs/en/cache
@@ -186,6 +110,7 @@ const recurseTrees = async (relativePath: fs.PathLike, dir: fs.PathLike, tree: s
  * diverge and rejoin at several points. Therefore, we must determine the symmetric difference between the rev-list arrays
  * from the branches. Operates comparably to the native git command: `git log <branch-1>...<branch-2>`
  *
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link gitLog.log} with the `"<commit1>...<commit2>"` option instead.
  * @param dir The working tree directory path.
  * @param branchA The base branch name.
  * @param branchB The compare branch name.
@@ -301,6 +226,7 @@ export const getIgnore = async (dir: fs.PathLike, useGitRules = false): Promise<
  * Add a file to the git index (aka staging area). If the filepath is tracked by a branch in a linked worktree, then index updates
  * will occur on the index file in the `GIT_DIR/worktrees/{branch}` directory.
  *
+ * @deprecated Use {@link gitAdd.add} instead.
  * @param filepath The relative or absolute path to add.
  * @returns {Promise<void>} A Promise object for the add operation.
  */
@@ -318,6 +244,7 @@ export const add = async (filepath: fs.PathLike): Promise<void> => {
  * will occur on the index file in the `GIT_DIR/worktrees/{branch}` directory. This operation does not delete the file in the working 
  * directory, but does reset the index to discard any previously staged changes.
  *
+ * @deprecated Use {@link gitRestore.restore} with `staged` option instead.
  * @param filepath - The relative or absolute path to unstage.
  * @returns {Promise<void>} A Promise object for the remove operation.
  */
@@ -346,6 +273,7 @@ export const remove = async (filepath: fs.PathLike): Promise<void> => {
  * trees (see [`git-worktree`](https://git-scm.com/docs/git-worktree)) and returns the same git status indicators for the given 
  * filepath.
  *
+ * @deprecated Use {@link gitStatus.fileStatus} instead.
  * @param filepath - The relative or absolute path to evaluate.
  * @returns {Promise<GitStatus | undefined>} A Promise object containing undefined if the path is not contained within a directory under version control, or a git 
  * status indicator (see `GitStatus` type definition for all possible status values).
@@ -365,6 +293,7 @@ export const matrixEntry = async (filepath: fs.PathLike): Promise<GitStatus | un
  * worktrees (see [git-worktree](https://git-scm.com/docs/git-worktree)) and returns the same status matrix containing HEAD status, 
  * WORKDIR status, and STAGE status entries for each file or blob in the directory.
  *
+ * @deprecated Use {@link gitStatus.fileStatus} instead.
  * @param dirpath - The relative or absolute path to evaluate.
  * @returns {Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][] | undefined>} A Promise object containing undefined if the path is not 
  * contained within a directory under version control, or a 2D array of tuples alphabetically ordered according to the filename followed 
@@ -386,6 +315,7 @@ export const statusMatrix = async (dirpath: fs.PathLike): Promise<[string, 0 | 1
 /**
  * Select an individual file from the results of *statusMatrix* and convert the numeric tuple into a GitStatus string.
  *
+ * @deprecated Use {@link gitStatus.fileStatus} instead.
  * @param file - The relative or absolute path to evaluate.
  * @param matrix - The matrix results from calling *statusMatrix*.
  * @returns {Promise<GitStatus | undefined>} A Promise object containing undefined if the path is not contained within a 
@@ -417,6 +347,7 @@ type statusMatrixTypes = {
  *  The WORKDIR status is either absent (0), identical to HEAD (1), or different from HEAD (2).
  *  The STAGE status is either absent (0), identical to HEAD (1), identical to WORKDIR (2), or different from WORKDIR (3).
  *
+ * @deprecated Use {@link gitStatus.fileStatus} instead.
  * @param entry A `statusMatrix` tuple with positional values [1] for HEAD, [2] for WORKDIR, and [3] for STAGE trees.
  * @returns {GitStatus | undefined} A `GitStatus` object indicating the comparable status; or undefined if no conversion is 
  * possible for the given values.
@@ -448,6 +379,7 @@ export const matrixToStatus = (entry: AtLeastOne<statusMatrixTypes>): GitStatus 
  * statusCode: https://git-scm.com/docs/git-status#_short_format
  * diffCode: https://git-scm.com/docs/git-diff-files#Documentation/git-diff-files.txt---diff-filterACDMRTUXB82308203
  *
+ * @deprecated Use {@link gitStatus.fileStatus} instead.
  * @param statusCode - The status code from *git-status*.
  * @param diffCode - The status code from *git-diff-files*.
  * @returns {GitStatus | undefined} A `GitStatus` object indicating the comparable status; or undefined if no conversion is 
@@ -470,6 +402,7 @@ export const codeToStatus = (statusCode: string | undefined, diffCode: string | 
  * to the underlying file, but any metafiles will also need to be updated before those changes are reflected in Synectic. If the change was
  * the addition or deletion of a file, then this function should not be used; `fs-extra/remove` or `io/writeFileAsync` can be used instead.
  *
+ * @deprecated Use {@link gitRestore.restore} with no options enabled instead.
  * @param filepath The relative or absolute path to revert.
  * @returns {Promise<string | undefined>} A Promise object containing undefined if the path is not contained within a directory under version 
  * control, or the reverted file content from the head of the associated branch as a UTF-8 encoded string.
