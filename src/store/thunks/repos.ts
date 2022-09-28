@@ -1,23 +1,18 @@
-import parsePath from 'parse-path';
-import { PathLike } from 'fs-extra';
-import { v4 } from 'uuid';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { PathLike } from 'fs-extra';
+import parsePath from 'parse-path';
+import { v4 } from 'uuid';
+import { getWorktreePaths, listBranch } from '../../containers/git';
+import { extractFromURL, extractRepoName } from '../../containers/old-git/git-plumbing';
+import { getConfig, GitConfig } from '../../containers/old-git/git-porcelain';
+import { extractFilename } from '../../containers/io';
+import { ExactlyOne } from '../../containers/utils';
 import { AppThunkAPI } from '../hooks';
-import { repoAdded, Repository } from '../slices/repos';
 import repoSelectors from '../selectors/repos';
 import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
-import { getWorktreePaths } from '../../containers/git-path';
-import { clone, defaultBranch, getConfig, getRemoteInfo, GitConfig } from '../../containers/git-porcelain';
-import { extractFromURL, extractRepoName } from '../../containers/git-plumbing';
-import { extractFilename } from '../../containers/io';
-import { createMetafile, fetchParentMetafile, updateConflicted } from './metafiles';
-import { fetchBranches, updateRepository } from './branches';
-import { ProgressCallback } from 'isomorphic-git';
-import { DateTime } from 'luxon';
-import { createCard } from './cards';
-import { ExactlyOne } from '../../containers/utils';
-import { checkProject, resolveConflicts } from '../../containers/merges';
-import { modalAdded } from '../slices/modals';
+import { repoAdded, Repository } from '../slices/repos';
+import { fetchBranches } from './branches';
+import { fetchParentMetafile } from './metafiles';
 
 export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'repos/fetchRepo',
@@ -42,13 +37,14 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ f
         repo = (!repo && root) ? await thunkAPI.dispatch(createRepo(root)).unwrap() : repo;
         return repo;
     }
-);
+)
 
 export const createRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
     'repos/createRepo',
     async (filepath, thunkAPI) => {
         const { dir } = await getWorktreePaths(filepath);
         const { url, oauth } = await getRemoteConfig(dir);
+        const current = dir ? await listBranch({ dir: dir, showCurrent: true }) : [];
         const branches = dir ? await thunkAPI.dispatch(fetchBranches(dir)).unwrap() : { local: [], remote: [] };
         const { local, remote } = { local: branches.local.map(branch => branch.id), remote: branches.remote.map(branch => branch.id) };
         const { username, password } = await getCredentials(dir);
@@ -56,20 +52,23 @@ export const createRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
             id: v4(),
             name: url ? extractRepoName(url.href) : (dir ? extractFilename(dir) : ''),
             root: dir ? dir : '',
-            /** TODO: The corsProxy is just a stubbed URL for now, but eventually we need to support Cross-Origin 
-             * Resource Sharing (CORS) since isomorphic-git requires it */
+            /**
+             * TODO: The corsProxy is just a stubbed URL for now, but eventually we need to support Cross-Origin 
+             * Resource Sharing (CORS) since isomorphic-git requires it
+             */
             corsProxy: 'https://cors-anywhere.herokuapp.com',
             url: url ? url.href : '',
-            default: dir ? await defaultBranch({ dir: dir }) : '',
+            default: current[0] ? current[0].ref : '',
             local: local,
             remote: remote,
             oauth: oauth ? oauth : 'github',
             username: username,
             password: password,
             token: ''
+
         })).payload;
     }
-);
+)
 
 const getRemoteConfig = async (dir: PathLike | undefined)
     : Promise<{ url: parsePath.ParsedPath | undefined; oauth: Repository['oauth'] | undefined }> => {
@@ -85,62 +84,3 @@ const getCredentials = async (dir: PathLike | undefined): Promise<{ username: st
         password: passwordConfig.scope === 'none' ? '' : passwordConfig.value
     };
 };
-
-/** Create a local repository by cloning a remote repository. */
-export const cloneRepository = createAsyncThunk<Repository | undefined, { url: URL, root: PathLike, onProgress?: ProgressCallback }, AppThunkAPI<string>>(
-    'repos/clone',
-    async (input, thunkAPI) => {
-        const state = thunkAPI.getState();
-        const existing = repoSelectors.selectByRoot(state, input.root);
-        // if root points to a current repository, do not clone over it and instead use `fetchRepo`
-        if (existing) return thunkAPI.rejectWithValue(`Existing repository found at '${input.root.toString()}', open the root directory instead`);
-
-        const info = await getRemoteInfo({ url: input.url.toString() });
-        if (!info.HEAD) return thunkAPI.rejectWithValue('Repository not configured; HEAD is disconnected or not configured');
-        const cloned = await clone({ url: input.url, dir: input.root, depth: 10, onProgress: input.onProgress });
-        if (!cloned) return thunkAPI.rejectWithValue(`Clone failed for '${input.url.toString()}'; possibly unsupported URL type`);
-
-        return await thunkAPI.dispatch(createRepo(input.root)).unwrap();
-    }
-);
-
-// TODO: Refactor this fetch to be an automated process via the listenerMiddleware
-export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
-    'metafiles/fetchConflictManagers',
-    async (_, thunkAPI) => {
-        const repos = repoSelectors.selectAll(thunkAPI.getState());
-        let hasConflicts = false;
-
-        await Promise.all(repos.map(async repo => {
-            const updated = await thunkAPI.dispatch(updateRepository(repo)).unwrap(); // update in case local/remote branches have changed
-            await Promise.all(updated.local.map(async branchId => {
-                const branch = thunkAPI.getState().branches.entities[branchId];
-                const conflicts = branch ? await checkProject(branch.root, branch.ref) : undefined;
-
-                if (branch && conflicts && conflicts.length > 0) {
-                    hasConflicts = true;
-                    await thunkAPI.dispatch(updateConflicted(conflicts));
-                    const { base, compare } = await resolveConflicts(branch.root);
-                    const conflictManager = await thunkAPI.dispatch(createMetafile({
-                        metafile: {
-                            name: `Conflicts`,
-                            modified: DateTime.local().valueOf(),
-                            handler: 'ConflictManager',
-                            filetype: 'Text',
-                            loading: [],
-                            repo: updated.id,
-                            path: branch.root,
-                            merging: { base: (base ? base : branch.ref), compare: compare }
-                        }
-                    })).unwrap();
-                    await thunkAPI.dispatch(createCard({ metafile: conflictManager }));
-                }
-            }));
-        }));
-
-        if (!hasConflicts) thunkAPI.dispatch(modalAdded({
-            id: v4(), type: 'Notification',
-            options: { 'message': `No conflicts found` }
-        }))
-    }
-);
