@@ -55,7 +55,7 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ bra
 );
 
 /**
- * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link branches.createBranch} instead.
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link branches.buildBranch} instead.
  */
 export const createBranch = createAsyncThunk<Branch, BranchIdentifiers, AppThunkAPI>(
     'branches/createBranch',
@@ -112,7 +112,7 @@ export const fetchBranches = createAsyncThunk<{ local: Branch[], remote: Branch[
 );
 
 /**
- * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link branches.updateRepositoryBranches} instead.
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link branches.updateBranches} instead.
  */
 export const updateRepository = createAsyncThunk<Repository, Repository, AppThunkAPI>(
     'branches/updateRepository',

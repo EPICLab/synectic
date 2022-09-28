@@ -6,9 +6,9 @@ import { AppThunkAPI } from '../../hooks';
 import { repoAdded, Repository } from '../../slices/repos';
 import repoSelectors from '../../selectors/repos';
 import { FilebasedMetafile, isVersionedMetafile } from '../../slices/metafiles';
-import { getWorktreePaths } from '../../../containers/git';
+import { extractRepoName, extractFromURL, getWorktreePaths } from '../../../containers/git';
 import { defaultBranch, getConfig, getRemoteInfo, GitConfig } from '../../../containers/old-git/git-porcelain';
-import { extractFromURL, extractRepoName } from '../../../containers/old-git/git-plumbing';
+
 import { extractFilename } from '../../../containers/io';
 import { createMetafile, fetchParentMetafile, updateConflicted } from '../metafiles';
 import { fetchBranches, updateRepository } from './branches';
