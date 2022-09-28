@@ -84,7 +84,7 @@ export const mergeInProgress = async ({
     action
 }: {
     dir: PathLike;
-    action: 'continue' | 'abort' | 'quit'
+    action: 'continue' | 'abort' | 'quit';
 }) => {
     const output = await execute(`git merge --${action}`, dir.toString());
     // TODO: false should be returned when the output is `fatal: There is no merge in progress (MERGE_HEAD missing).`

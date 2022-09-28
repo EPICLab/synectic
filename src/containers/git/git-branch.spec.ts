@@ -1,6 +1,6 @@
 import * as worktree from './git-worktree';
 
-describe('containers/git.git-branch', () => {
+describe('containers/git/git-branch', () => {
     it('processBranchOutput handles bare worktree', () => {
         return expect(worktree.processWorktreeOutput('/path/to/bare-source            (bare)')).toStrictEqual(
             expect.arrayContaining([

@@ -23,7 +23,7 @@ type StatusOutput = {
  * @param obj.dir - The worktree root directory.
  * @param obj.pathspec - Pattern used to limit paths in *git* commands. 
  * See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
- * @param obj.ignored - Optional flag to include ignored files in the output.
+ * @param obj.ignored - Optional flag to include ignored files in the output; defaults to false.
  * @returns {Promise<StatusOutput | undefined>} A Promise object containing a {@link StatusOutput} object with branch status information,
  * or `undefined` if not contained within a directory tracked by version control.
  */

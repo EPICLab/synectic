@@ -24,9 +24,9 @@ export const checkoutBranch = async ({
 }: {
     dir: fs.PathLike;
     branch: string;
-    quiet: boolean;
-    force: boolean;
-    merge: boolean;
+    quiet?: boolean;
+    force?: boolean;
+    merge?: boolean;
 }): Promise<void> => {
     const output = await execute(`git checkout ${branch} ${force ? '--force' : ''} ${merge ? '--merge' : ''}`, dir.toString());
     if (!quiet && output.stderr.length > 0) console.error(output.stderr);

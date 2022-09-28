@@ -1,4 +1,4 @@
-import * as fs from 'fs-extra';
+import { PathLike } from 'fs-extra';
 import { Branch } from '../../store/slices/branches';
 import { execute, isDefined, WithRequired } from '../utils';
 
@@ -21,7 +21,7 @@ type BranchOutput = WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>;
 export const listBranch = async ({
     dir, showCurrent = false, all = false, remotes = false, verbose = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     showCurrent?: boolean;
     all?: boolean;
     remotes?: boolean;
@@ -70,7 +70,7 @@ export const listBranch = async ({
 export const createBranch = async ({
     dir, branchName, startPoint = 'HEAD', force = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     branchName: string;
     startPoint?: string;
     force?: boolean;
@@ -96,7 +96,7 @@ export const createBranch = async ({
 export const setUpstreamBranch = async ({
     dir, upstream, branchName
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     upstream: string;
     branchName?: string;
 }) => {
@@ -116,7 +116,7 @@ export const setUpstreamBranch = async ({
 export const unsetUpstreamBranch = async ({
     dir, branchName
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     branchName?: string;
 }) => {
     const output = await execute(`git branch --unset_upstream ${branchName ? branchName : ''}}`, dir.toString());
@@ -140,7 +140,7 @@ export const unsetUpstreamBranch = async ({
 export const moveBranch = async ({
     dir, newBranch, oldBranch, force = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     newBranch: string;
     oldBranch?: string;
     force?: boolean;
@@ -167,7 +167,7 @@ export const moveBranch = async ({
 export const copyBranch = async ({
     dir, newBranch, oldBranch, force = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     newBranch: string;
     oldBranch?: string;
     force?: boolean;
@@ -194,15 +194,14 @@ export const copyBranch = async ({
  * @param obj.force - Optional flag to allow deleting the branch irrespective of its merged status, or whether it even points to a valid commit.
  * @returns {Promise<boolean>} A Promise object containing a boolean indicating whether the branch was successfully deleted.
  */
-export const removeBranch = async ({
+export const deleteBranch = async ({
     dir, branchName, remote = false, force = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     branchName: string;
     remote?: boolean;
     force?: boolean;
 }) => {
-    console.log(`deleteBranch... dir: ${dir.toString()}, branchName: ${branchName}`);
     const output = await execute(`git branch ${force ? '--delete --force' : '--delete'} ${remote ? '-r' : ''} ${branchName}`, dir.toString());
     if (output.stderr.length > 0) {
         console.error(output.stderr);

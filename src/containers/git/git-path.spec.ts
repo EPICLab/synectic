@@ -3,7 +3,7 @@ import * as isogit from 'isomorphic-git';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
 
-describe('containers/git-path', () => {
+describe('containers/git/git-path', () => {
     let mockedInstance: MockInstance;
     beforeAll(async () => {
         const instance = await mock({

@@ -5,11 +5,40 @@ import { execute, isDefined } from '../utils';
 import { revParse } from './git-rev-parse';
 
 /**
- * Show commit logs.
- *
+ * Show commit logs. List commits that are reachable by following the parent links from the given commit(s), but exclude commits that are 
+ * reachable from the one(s) given with a ^ in front of them. The output is given in reverse chronological order by default. 
+ * 
+ * You can think of this as a set operation. Commits reachable from any of the commits given on the command line form a set, and then 
+ * commits reachable from any of the ones given with ^ in front are subtracted from that set. The remaining commits are what comes out 
+ * in the command’s output. Various other options and paths parameters can be used to further limit the result.
+ * 
+ * Thus, the following command:
+ * ```
+ * $ git log foo bar ^baz
+ * ```
+ * 
+ * means "list all the commits which are reachable from foo or bar, but not from baz".
+ * 
+ * A special notation `"<commit1>..<commit2>"` can be used as a short-hand for `"^<commit1> <commit2>"`. For example, either of the 
+ * following may be used interchangeably:
+ * ```
+ * $ git log origin..HEAD
+ * $ git log HEAD ^origin
+ * ```
+ * 
+ * Another special notation is `"<commit1>...<commit2>"` which is useful for merges. The resulting set of commits is the symmetric 
+ * difference between the two operands. The following two commands are equivalent:
+ * ```
+ * $ git log A B --not $(git merge-base --all A B)
+ * $ git log A...B
+ * ```
+ * 
+ * The command takes options applicable to the `git-rev-list` command to control what is shown and how, and options applicable to the 
+ * `git-diff` command to control how the changes each commit introduces are shown.
+ * 
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
- * @param obj.ref - The commit to begin walking backwards through the history from.
+ * @param obj.revRange - The revision range (or just SHA-1 commit hash) to begin walking backwards through the history from.
  * @param obj.maxCount - Optional limit of the number of commits to output; defaults to infinity.
  * @param obj.until - Optional threshold to limit commits older than a specific date.
  * @param obj.paths - Optional simplication for only including commits modifying the given paths.
@@ -17,18 +46,18 @@ import { revParse } from './git-rev-parse';
  * representing commit information.
  */
 export const log = async ({
-    dir, ref, maxCount = Infinity, until,
+    dir, revRange, maxCount = Infinity, until,
 }: {
     dir: PathLike;
-    ref?: string;
+    revRange?: string;
     maxCount?: number;
     until?: DateTime;
     paths?: PathLike[];
 }): Promise<CommitObject[]> => {
     const maxCountOption = maxCount ? `--max-count=${maxCount}` : '';
     const untilOption = until ? `--until=${until.toHTTP()}` : '';
-    const refOption = ref ?? '';
-    const output = await execute(`git log ${maxCountOption} ${untilOption} ${refOption}`, dir.toString());
+    const revOption = revRange ?? '';
+    const output = await execute(`git log ${maxCountOption} ${untilOption} ${revOption}`, dir.toString());
 
     if (output.stderr.length > 0) console.error(output.stderr);
     return processLogOutput(output.stdout, dir);
