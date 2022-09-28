@@ -2,7 +2,7 @@ import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { cloneDirectoryDialog } from '../../containers/dialogs';
-import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/old-git/git-plumbing';
+import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git';
 import { useAppDispatch } from '../../store/hooks';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { branchesCardAdded } from '../../store/thunks/cards';
