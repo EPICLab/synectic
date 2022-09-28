@@ -2,14 +2,16 @@ import { DeleteForever as Delete } from '@material-ui/icons';
 import React from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
-import { deleteBranch } from '../../containers/git';
+import { getBranchMotif } from '../../containers/motif';
+import { removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
-import cardSelectors from '../../store/selectors/cards';
 import repoSelectors from '../../store/selectors/repos';
 import { modalAdded } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
-import { updateRepositoryBranches } from '../../store/thunks/branches';
+import { addBranch, removeBranch, updateBranches } from '../../store/thunks/branches';
+import { createCard } from '../../store/thunks/cards';
+import { fetchMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import { DnDItemType } from '../Canvas/Canvas';
 import { GitBranchIcon } from '../GitIcons';
@@ -20,12 +22,12 @@ export type DragObject = {
     type: string
 }
 
-// TODO: Branches component is the translation of the BranchTracker/BranchStatus component
 const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
     const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
     const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.branchId));
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectByRepo(state, props.repoId, props.branchId));
+    const motif = branch ? getBranchMotif(branch) : undefined;
+    const optionals = removeUndefinedProperties({ color: motif?.color });
     const dispatch = useAppDispatch();
 
     // Enable BranchItem as a drop source (i.e. allowing this component to be draggable)
@@ -69,13 +71,21 @@ const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
 
     const handleLabelInfoClick = async (event: React.MouseEvent) => {
         event.stopPropagation(); // prevent propogating the click event to the StyleTreeItem onClick method
-        if (branch) {
-            const success = await deleteBranch({ dir: branch.root, branchName: branch.ref });
-            if (success && repo) dispatch(updateRepositoryBranches(repo));
+        if (branch && repo) {
+            const success = await dispatch(removeBranch({ repoId: repo.id, branch: branch })).unwrap();
             dispatch(modalAdded({
                 id: v4(), type: 'Notification',
                 options: { 'message': `Branch '${branch.ref}' ${success ? 'successfully' : 'cannot be'} deleted` }
             }));
+        }
+    }
+
+    const handleClick = async () => {
+        if (branch && repo) {
+            const updatedBranch = await dispatch(addBranch({ ref: branch.ref, root: repo.root })).unwrap();
+            if (updatedBranch) dispatch(updateBranches(repo));
+            const metafile = updatedBranch ? await dispatch(fetchMetafile(updatedBranch.root)).unwrap() : undefined;
+            if (metafile) dispatch(createCard({ metafile: metafile }));
         }
     }
 
@@ -87,16 +97,13 @@ const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
                 key={`${props.repoId}-${props.branchId}`}
                 nodeId={`${props.repoId}-${props.branchId}`}
                 labelText={`${branch?.scope}/${branch?.ref}`}
+                {...optionals}
                 labelIcon={GitBranchIcon}
                 labelInfo={Delete}
                 labelInfoClickHandler={handleLabelInfoClick}
                 enableHover={true}
-            >
-                <StyledTreeItem
-                    nodeId={`${props.repoId}-${props.branchId}-card-count`}
-                    labelText={`Cards: ${cards.length}`}
-                />
-            </StyledTreeItem>
+                onClick={handleClick}
+            />
         </div>
     )
 }

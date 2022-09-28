@@ -7,9 +7,8 @@ import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import BranchItem from './BranchItem';
 import NewBranchItem from './NewBranchItem';
-import { updateRepositoryBranches } from '../../store/thunks/branches';
+import { updateBranches } from '../../store/thunks/branches';
 
-// TODO: Branches component is the translation of the BranchTracker/RepoStatus component
 const RepoItem = (props: { repoId: string }) => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
     const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, repo, true));
@@ -18,7 +17,7 @@ const RepoItem = (props: { repoId: string }) => {
 
     const handleLabelInfoClick = async (event: React.MouseEvent) => {
         event.stopPropagation(); // prevent propogating the click event to the StyleTreeItem onClick method
-        if (repo) dispatch(updateRepositoryBranches(repo));
+        if (repo) dispatch(updateBranches(repo));
     };
 
     return (

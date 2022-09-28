@@ -5,7 +5,7 @@ import { createBranch } from '../../containers/git';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { RootState } from '../../store/store';
-import { updateRepositoryBranches } from '../../store/thunks/branches';
+import { updateBranches } from '../../store/thunks/branches';
 import { GitBranchIcon } from '../GitIcons';
 import { StyledTreeItem } from '../StyledTreeComponent';
 
@@ -39,15 +39,10 @@ const NewBranchItem = (props: { repoId: string }) => {
         if (event.key === 'Enter') {
             event.preventDefault();
             if (repo) {
-                // const current = (await listBranch({ dir: repo.root, showCurrent: true }))[0];
-                // if (current?.ref === branchName) {
-                //     const linkedRoot = normalize(`${repo.root.toString()}/../.syn/${repo.name}/${branchName}`);
-                //     const a = await worktreeAdd({ dir: repo.root, path: linkedRoot });
-                // }
                 const success = await createBranch({ dir: repo.root, branchName: branchName });
                 console.log(`creating branch: ${branchName} => ${success ? 'success' : 'failure'}`);
                 if (success) {
-                    await dispatch(updateRepositoryBranches(repo));
+                    await dispatch(updateBranches(repo));
                     setExpanded(false);
                 }
                 else console.log(`error`);

@@ -16,7 +16,6 @@ export const useStyles = makeStyles({
     },
 });
 
-// TODO: Branches component is the translation of the BranchTracker/BranchTracker component
 const Branches = () => {
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
     const [expanded, setExpanded] = React.useState(repos[0] ? [repos[0].id] : []); // initial state; expand first listed repo
