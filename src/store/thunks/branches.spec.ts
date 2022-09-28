@@ -1,14 +1,16 @@
 import { DateTime } from 'luxon';
+import isUUID from 'validator/lib/isUUID';
+import * as gitBranch from '../../containers/git/git-branch';
+import * as gitLog from '../../containers/git/git-log';
+import * as gitRevParse from '../../containers/git/git-rev-parse';
+import * as gitStatus from '../../containers/git/git-status';
+import { emptyStore } from '../../test-utils/empty-store';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
-import { emptyStore } from '../../test-utils/empty-store';
+import { Branch, branchAdded } from '../slices/branches';
 import { DirectoryMetafile, FilebasedMetafile, metafileAdded } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
-import { Branch, branchAdded } from '../slices/branches';
 import { createBranch, fetchBranch } from './branches';
-import isUUID from 'validator/lib/isUUID';
-import * as gitPorcelain from '../../containers/git-porcelain';
-import { ReadCommitResult } from 'isomorphic-git';
 
 const mockedMetafile1: FilebasedMetafile = {
     id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
@@ -84,10 +86,13 @@ const mockedRepository: Repository = {
 const mockedBranch: Branch = {
     id: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
     ref: 'main',
+    linked: false,
+    bare: false,
     root: 'foo/',
     gitdir: 'foo/.git',
     scope: 'local',
     remote: 'origin',
+    status: 'clean',
     commits: [],
     head: '987654321'
 };
@@ -145,24 +150,31 @@ describe('thunks/branches', () => {
     });
 
     it('fetchBranch resolves existing branch via root path', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
         const branch = await store.dispatch(fetchBranch({ branchIdentifiers: { root: 'foo/', branch: 'main', scope: 'local' } })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
 
     it('createBranch resolves a Branch object via root path', async () => {
-        jest.spyOn(gitPorcelain, 'log').mockImplementation(() => {
-            const commit: ReadCommitResult = {
+        jest.spyOn(gitLog, 'log').mockResolvedValue([
+            {
                 oid: '2a57bfcebde7479fd10578ae7da65c93fbb41514',
-                commit: {
-                    message: '',
-                    tree: '',
-                    parent: [],
-                    author: { name: '', email: '', timestamp: 3, timezoneOffset: 0 },
-                    committer: { name: '', email: '', timestamp: 3, timezoneOffset: 0 }
-                },
-                payload: ''
-            };
-            return new Promise(resolve => resolve([commit]));
+                message: 'example commit',
+                parents: [],
+                author: {
+                    name: 'John Doe',
+                    email: 'jdoe@company.com',
+                    timestamp: undefined
+                }
+            }
+        ]);
+        jest.spyOn(gitRevParse, 'revParse').mockResolvedValue('false');
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValue({
+            ref: 'main',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
         });
         expect.assertions(2);
         const branch = await store.dispatch(createBranch({ root: 'foo/', branch: 'main', scope: 'local' })).unwrap();
