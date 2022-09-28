@@ -1,4 +1,4 @@
-// Type definitions for synectic 2.0.0
+// Type definitions for synectic 3.0.0
 // Project: https://github.com/EPICLab/synectic
 // Definitions by: Nicholas Nelson <https://github.com/nelsonni>
 // TypeScript Version: 4.5
@@ -14,6 +14,22 @@ export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 /** Epoch millisecond representation of a valid DateTime value. */
 export type Timestamp = ReturnType<DateTime['valueOf']>;
+/** Detailed commit representation for Git. */
+export type CommitObject = {
+    oid: string;
+    message: string;
+    parents: string[];
+    author: {
+        name: string;
+        email: string;
+        timestamp: DateTime | undefined;
+    };
+    committer?: {
+        name: string;
+        email: string;
+        timestamp: DateTime | undefined;
+    };
+};
 /**
  * | status                | description                                                                            |
  * | --------------------- | -------------------------------------------------------------------------------------- |
