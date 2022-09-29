@@ -11,7 +11,7 @@ import { VersionedMetafile } from '../../store/slices/metafiles';
 
 export type Conflict = Pick<VersionedMetafile, 'path' | 'conflicts'>;
 
-type MergeOutput = {
+export type MergeOutput = {
     alreadyMerged: boolean;
     fastForward: boolean;
     mergeCommit?: SHA1;

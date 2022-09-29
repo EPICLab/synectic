@@ -1,14 +1,13 @@
 import { useCallback, useState } from 'react';
-import { ReadCommitResult } from 'isomorphic-git';
-import { log } from '../old-git/git-porcelain';
 import { useAppSelector } from '../../store/hooks';
-import { RootState } from '../../store/store';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
-import { UUID } from '../../store/types';
 import { Branch } from '../../store/slices/branches';
+import { RootState } from '../../store/store';
+import { CommitObject, UUID } from '../../store/types';
+import { log } from '../git';
 
-export type CommitInfo = ReadCommitResult & {
+export type CommitInfo = CommitObject & {
   branch: string,
   scope: 'local' | 'remote'
 }
@@ -45,8 +44,8 @@ export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
 
     const processCommits = async (branch: Branch): Promise<void> => {
       const branchCommits = (branch.scope === 'remote')
-        ? await log({ dir: repo.root.toString(), ref: `remotes/${branch.remote}/${branch.ref}` })
-        : await log({ dir: repo.root.toString(), ref: branch.ref });
+        ? await log({ dir: repo.root.toString(), revRange: `remotes/${branch.remote}/${branch.ref}` })
+        : await log({ dir: repo.root.toString(), revRange: branch.ref });
       // append to the caches only if no entries exist for the new commit or branch
       branchCommits.map(commit =>
         (!commitsCache.has(commit.oid))
