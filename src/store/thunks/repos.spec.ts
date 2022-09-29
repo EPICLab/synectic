@@ -132,7 +132,7 @@ describe('thunks/repos', () => {
     });
 
     it('fetchRepo resolves new repository via root path', async () => {
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValueOnce([{ ref: 'main' }]); // mock for current branch name
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'main' }]); // mock for current branch name
         expect.assertions(2);
         const repo = await store.dispatch(fetchRepo({ filepath: 'baz/qux.ts' })).unwrap();
         expect(isDefined(repo) && isUUID(repo.id)).toBeTruthy();
@@ -141,8 +141,8 @@ describe('thunks/repos', () => {
         }));
     });
 
-    it('createRepo resolves a supported repository', async () => {
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValueOnce([{ ref: 'main' }]); // mock for current branch name
+    it('buildRepo resolves a supported repository', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'main' }]); // mock for current branch name
         expect.assertions(2);
         const repo = await store.dispatch(buildRepo('foo')).unwrap();
         expect(isDefined(repo) && isUUID(repo.id)).toBeTruthy();
