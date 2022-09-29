@@ -10,7 +10,7 @@ import repoSelectors from '../../store/selectors/repos';
 import { modalAdded } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
 import { addBranch, removeBranch, updateBranches } from '../../store/thunks/branches';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 import { fetchMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import { DnDItemType } from '../Canvas/Canvas';
@@ -85,7 +85,7 @@ const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
             const updatedBranch = await dispatch(addBranch({ ref: branch.ref, root: repo.root })).unwrap();
             if (updatedBranch) dispatch(updateBranches(repo));
             const metafile = updatedBranch ? await dispatch(fetchMetafile(updatedBranch.root)).unwrap() : undefined;
-            if (metafile) dispatch(createCard({ metafile: metafile }));
+            if (metafile) dispatch(buildCard({ metafile: metafile }));
         }
     }
 

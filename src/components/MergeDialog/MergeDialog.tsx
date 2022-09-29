@@ -17,7 +17,7 @@ import { merge, MergeResult } from '../../containers/old-git/merges';
 import { getBranchRoot } from '../../containers/git';
 import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
 import * as git from '../../containers/git';
 import { updateBranches } from '../../store/thunks/branches';
@@ -120,7 +120,7 @@ const MergeDialog = (props: Modal) => {
                     merging: { base: base.ref, compare: compare.ref }
                 }
             })).unwrap();
-            await dispatch(createCard({ metafile: manager }));
+            await dispatch(buildCard({ metafile: manager }));
 
             setStatus('Failing');
             setProgress({

@@ -2,11 +2,11 @@ import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import { cloneDirectoryDialog } from '../../containers/dialogs';
-import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git';
+import { cloneRepo, extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git';
 import { useAppDispatch } from '../../store/hooks';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { branchesCardAdded } from '../../store/thunks/cards';
-import { cloneRepository } from '../../store/thunks/oldThunks/repos';
+import { addBranchCard } from '../../store/thunks/cards';
+import { buildRepo } from '../../store/thunks/repos';
 import { LinearProgressWithLabel, Status } from '../Status';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,13 +53,12 @@ const CloneDialog = (props: Modal) => {
     const [targetPath, setTargetPath] = useState('');
     const [status, setStatus] = useState<Status>('Unchecked');
     const [progress, setProgress] = useState(0);
-    const [log, setLog] = useState('');
     const dispatch = useAppDispatch();
 
     const getSubtext = () => {
         switch (status) {
             case 'Running':
-                return log;
+                return `Cloning '${url}' to '${targetPath}'`;
             case 'Passing':
                 return `Clone completed from '${url}' to '${targetPath}'`;
             case 'Failing':
@@ -94,17 +93,13 @@ const CloneDialog = (props: Modal) => {
         const initiateCloning = async () => {
             try {
                 setStatus('Running');
-                const repo = await dispatch(cloneRepository({
-                    url: new URL(url),
-                    root: targetPath,
-                    onProgress: (progress) => {
-                        setProgress(typeof progress.total === 'number' ? Math.round((progress.loaded / progress.total) * 100) : 0);
-                        setLog(`${progress.phase}: ${progress.loaded}` + (progress.total ? `/${progress.total}` : ''))
-                    }
-                })).unwrap();
-                if (!repo) throw new Error('Cloning failed');
+                setProgress(0);
+                const cloned = await cloneRepo({ dir: targetPath, repo: new URL(url) });
+                if (!cloned) throw new Error('Cloning failed');
+                await dispatch(buildRepo(targetPath)).unwrap();
                 setStatus('Passing');
-                await dispatch(branchesCardAdded());
+                setProgress(100);
+                await dispatch(addBranchCard());
                 dispatch(modalRemoved(props.id));
             } catch (error) {
                 console.log(error);

@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron';
 import { join } from 'path';
 import { AppThunkAPI } from '../store/hooks';
 import { isFilebasedMetafile, Metafile, metafileUpdated } from '../store/slices/metafiles';
-import { createCard } from '../store/thunks/cards';
+import { buildCard } from '../store/thunks/cards';
 import { writeFileAsync } from './io';
 import { updateVersionedMetafile } from '../store/thunks/metafiles';
 import { fetchRepo } from '../store/thunks/repos';
@@ -27,7 +27,7 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
          */
         await thunkAPI.dispatch(fetchRepo({ filepath: paths.filePaths[0] }));
       }
-      await Promise.all(paths.filePaths.map(async filePath => await thunkAPI.dispatch(createCard({ path: filePath }))));
+      await Promise.all(paths.filePaths.map(async filePath => await thunkAPI.dispatch(buildCard({ path: filePath }))));
     }
   }
 );

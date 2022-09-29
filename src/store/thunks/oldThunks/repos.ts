@@ -14,7 +14,7 @@ import { createMetafile, fetchParentMetafile, updateConflicted } from '../metafi
 import { fetchBranches, updateRepository } from './branches';
 import { ProgressCallback } from 'isomorphic-git';
 import { DateTime } from 'luxon';
-import { createCard } from '../cards';
+import { buildCard } from '../cards';
 import { ExactlyOne } from '../../../containers/utils';
 import { checkProject, resolveConflicts } from '../../../containers/old-git/merges';
 import { modalAdded } from '../../slices/modals';
@@ -50,7 +50,7 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ f
 );
 
 /**
- * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link repos.createRepo} instead.
+ * @deprecated This implementation uses old-git functions that rely on isomorphic-git, please use {@link repos.buildRepo} instead.
  */
 export const createRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
     'repos/createRepo',
@@ -152,7 +152,7 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
                             merging: { base: (base ? base : branch.ref), compare: compare }
                         }
                     })).unwrap();
-                    await thunkAPI.dispatch(createCard({ metafile: conflictManager }));
+                    await thunkAPI.dispatch(buildCard({ metafile: conflictManager }));
                 }
             }));
         }));

@@ -4,7 +4,7 @@ import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
 import * as gitBranch from '../../containers/git/git-branch';
-import { createRepo, fetchRepo } from './repos';
+import { buildRepo, fetchRepo } from './repos';
 import { isDefined } from '../../containers/utils';
 import { DirectoryMetafile, FilebasedMetafile, metafileAdded } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
@@ -144,7 +144,7 @@ describe('thunks/repos', () => {
     it('createRepo resolves a supported repository', async () => {
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValueOnce([{ ref: 'main' }]); // mock for current branch name
         expect.assertions(2);
-        const repo = await store.dispatch(createRepo('foo')).unwrap();
+        const repo = await store.dispatch(buildRepo('foo')).unwrap();
         expect(isDefined(repo) && isUUID(repo.id)).toBeTruthy();
         expect(repo).toStrictEqual(expect.objectContaining({
             name: 'foo',
