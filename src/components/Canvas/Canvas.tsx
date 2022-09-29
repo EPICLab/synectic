@@ -6,17 +6,12 @@ import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
 import version from '../../../version';
 import { fileOpenDialog } from '../../containers/dialogs';
-import { loadBranchVersions } from '../../containers/branch-tracker';
-import GitGraphSelect from '../GitGraph/GitGraphSelect';
-import { cardUpdated } from '../../store/slices/cards';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import cachedSelectors from '../../store/selectors/cache';
 import cardSelectors from '../../store/selectors/cards';
 import filetypeSelectors from '../../store/selectors/filetypes';
 import metafileSelectors from '../../store/selectors/metafiles';
-import filetypeSelectors from '../../store/selectors/filetypes';
-import repoSelectors from '../../store/selectors/repos';
 import modalSelectors from '../../store/selectors/modals';
 import repoSelectors from '../../store/selectors/repos';
 import stackSelectors from '../../store/selectors/stacks';
@@ -146,9 +141,14 @@ const Canvas = () => {
     id: v4(),
     type: 'SourcePicker'
   }
+  const gitExplorerModal: Modal = {
+    id: v4(),
+    type: 'GitExplorer'
+  }
   const actionMenu: NavItemProps[] = [
     { label: 'Diff...', disabled: (Object.values(cards).length < 2), click: () => dispatch(modalAdded(diffPickerModal)) },
     { label: 'Merge...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(mergeSelectorModal)) },
+    { label: 'Run...', click: () => dispatch(modalAdded(gitExplorerModal)) },
   ];
 
   const viewMenu: NavItemProps[] = [
