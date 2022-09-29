@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { createStyles, FormControl, InputLabel, MenuItem, Select, Theme } from '@material-ui/core';
+import { createStyles, FormControl, FormHelperText, InputLabel, MenuItem, Select, Theme } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -16,20 +16,30 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type DropSelectProps = {
-    label: string;
-    target: string;
-    setTarget: React.Dispatch<React.SetStateAction<string>>;
-    options: { key: string, value: string }[];
-    width?: number | undefined;
+    options: { label: string, value: string }[];
+    value: string;
+    setValue: React.Dispatch<React.SetStateAction<string>>;
+    label?: string | undefined;
+    width?: number | string | undefined;
+    required?: boolean;
+    error?: boolean;
+    helperText?: React.ReactNode;
 }
 
 const DropSelect = (props: DropSelectProps) => {
     const styles = useStyles();
-    const selected = props.target === '' || !props.options.find(o => o.key === props.target) ? '' : props.target;
+    const selected = props.value === '' || !props.options.find(o => o.label === props.value) ? '' : props.value;
 
     return (
-        <FormControl variant='outlined' className={styles.dropSelect} margin='dense'>
-            <InputLabel id={`${props.label}-select-label`} className={styles.input}>{props.label}</InputLabel>
+        <FormControl
+            variant='outlined'
+            required={props.required ? true : false}
+            error={props.error ? true : false}
+            className={styles.dropSelect}
+            style={{ width: props.width ? props.width : '' }}
+            margin='dense'
+        >
+            {props.label ? <InputLabel id={`${props.label}-select-label`} className={styles.input}>{props.label}</InputLabel> : undefined}
             <Select
                 MenuProps={{
                     anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
@@ -39,12 +49,13 @@ const DropSelect = (props: DropSelectProps) => {
                 labelId={`${props.label}-select-label`}
                 id={`${props.label}-select`}
                 value={selected}
-                fullWidth={true}
-                onChange={(event) => props.setTarget(event.target.value as string)}
+                fullWidth={props.width ? false : true}
+                onChange={(event) => props.setValue(event.target.value as string)}
             >
                 <MenuItem value='None' dense={true}>None</MenuItem>
-                {props.options.map(opt => <MenuItem key={opt.key} value={opt.key} dense={true}>{opt.value}</MenuItem>)}
+                {props.options.map(opt => <MenuItem key={opt.label} value={opt.label} dense={true}>{opt.value}</MenuItem>)}
             </Select>
+            {props.helperText ? <FormHelperText>{props.helperText}</FormHelperText> : undefined}
         </FormControl >
 
     );

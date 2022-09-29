@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra';
-import type { IndexEntry } from './git-index';
+import type { IndexEntry } from './old-git/git-index';
 
 export const compareStats = (entry: IndexEntry, stats: fs.Stats): boolean => {
   // Comparison based on the description in Paragraph 4 of
@@ -69,6 +69,9 @@ const normalizeStats = (e: IndexEntry | fs.Stats) => {
  *
  *  9-bit unix permission. Only 0755 and 0644 are valid for regular files.
  *  Symbolic links and gitlinks have value 0 in this field.
+ * 
+ * @param mode - A numerical encoding of the mode in a git index file.
+ * @returns {number} A UNIX permissions encoding representing the normalized mode of an index entry.
  */
 const normalizeMode = (mode: number): number => {
   // Note: BrowserFS will use -1 for "unknown"

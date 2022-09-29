@@ -89,6 +89,18 @@ const parseString = (hex: string, endian: Endian): string => {
     return result.join('');
 }
 
+
+
+/** 
+ * @deprecated This implementation is an internal rewrite of the `binarnia` package into TypeScript, please use `git ls-files` or 
+ * similar functionality found in the `containers/git/*` directory.  
+ * @param options - X
+ * @param options.schema - X
+ * @param options.buffer - X
+ * @param options.endian - X
+ * @param options.offset - X
+ * @returns {Map} X
+ */
 export const binarnia = (options: {
     schema: Schema,
     buffer: Buffer,

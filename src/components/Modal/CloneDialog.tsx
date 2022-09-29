@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import React, { useEffect, useState } from 'react';
+import { cloneDirectoryDialog } from '../../containers/dialogs';
+import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git';
 import { useAppDispatch } from '../../store/hooks';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { extractRepoName, isValidRepositoryURL, resolveURL } from '../../containers/git-plumbing';
-import { cloneDirectoryDialog } from '../../containers/dialogs';
-import { cloneRepository } from '../../store/thunks/repos';
+import { branchesCardAdded } from '../../store/thunks/cards';
+import { cloneRepository } from '../../store/thunks/oldThunks/repos';
 import { LinearProgressWithLabel, Status } from '../Status';
-import { loadBranchVersions } from '../../containers/branch-tracker';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -104,7 +104,7 @@ const CloneDialog = (props: Modal) => {
                 })).unwrap();
                 if (!repo) throw new Error('Cloning failed');
                 setStatus('Passing');
-                await dispatch(loadBranchVersions());
+                await dispatch(branchesCardAdded());
                 dispatch(modalRemoved(props.id));
             } catch (error) {
                 console.log(error);

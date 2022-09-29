@@ -20,6 +20,14 @@ const rmLeadingZeros = (a: string) => {
     return a.slice(i);
 }
 
+/**
+ * @deprecated This implementation is an internal rewrite of the `binarnia` package into TypeScript, please use `git ls-files` or 
+ * similar functionality found in the `containers/git/*` directory.  
+ * @param buf - X
+ * @param offset - X
+ * @param length - X
+ * @returns {string} X
+ */
 export const readUIntBE = (buf: Buffer, offset: number, length = 8) => {
     const data = [];
     let i = -1;
@@ -40,6 +48,14 @@ export const readUIntBE = (buf: Buffer, offset: number, length = 8) => {
     return `0x${result}`;
 }
 
+/**
+ * @deprecated This implementation is an internal rewrite of the `binarnia` package into TypeScript, please use `git ls-files` or 
+ * similar functionality found in the `containers/git/*` directory.  
+ * @param buf - X
+ * @param offset - X
+ * @param length - X
+ * @returns {string} X
+ */
 export const readUIntLE = (buf: Buffer, offset: number, length = 8) => {
     const data = [];
     let i = length;

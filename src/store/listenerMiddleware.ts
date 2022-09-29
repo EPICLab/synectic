@@ -7,11 +7,13 @@ import { cacheRemoved } from './slices/cache';
 import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
 import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileUpdated } from './slices/metafiles';
 import { RootState, AppDispatch } from './store';
-import { checkoutBranch } from './thunks/branches';
+
 import { subscribe, unsubscribe } from './thunks/cache';
-import { createMetafile, fetchMetafile, fetchParentMetafile, updateVersionedMetafile, updateFilebasedMetafile } from './thunks/metafiles';
+import { createMetafile, fetchMetafile, fetchParentMetafile, updateVersionedMetafile, updateFilebasedMetafile, switchBranch } from './thunks/metafiles';
 import { fetchRepo, createRepo } from './thunks/repos';
 import { UUID } from './types';
+import branchSelectors from './selectors/branches';
+import { removeBranch } from './thunks/branches';
 
 export const listenerMiddleware = createListenerMiddleware<RootState>();
 
@@ -23,6 +25,9 @@ export const addAppListener = addListener as TypedAddListener<RootState, AppDisp
 
 const isRejectedAction = isRejected(fetchMetafile, createMetafile, updateFilebasedMetafile, updateVersionedMetafile, fetchParentMetafile, fetchRepo, createRepo);
 
+/**
+ * Listen for rejected actions and log relevant information in the console.
+ */
 startAppListening({
     matcher: isRejectedAction,
     effect: async (action) => {
@@ -32,6 +37,9 @@ startAppListening({
     }
 });
 
+/**
+ * Listen for updates to Metafiles and toggle `loading` flags such that loading indicators can be shown to the user.
+ */
 startAppListening({
     matcher: isAnyOf(updateVersionedMetafile.pending, updateVersionedMetafile.fulfilled, updateVersionedMetafile.rejected),
     effect: async (action, listenerApi) => {
@@ -45,28 +53,49 @@ startAppListening({
     }
 });
 
+/**
+ * Listen for switch branch actions and update Metafiles to toggle `checkout` flags for UI indicators.
+ */
 startAppListening({
-    matcher: isAnyOf(checkoutBranch.pending, checkoutBranch.fulfilled, checkoutBranch.rejected),
+    matcher: isAnyOf(switchBranch.pending, switchBranch.fulfilled, switchBranch.rejected),
     effect: async (action, listenerApi) => {
-        if (isPending(checkoutBranch)(action)) {
-            const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
-            if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'checkout'] }));
+        if (isPending(switchBranch)(action)) {
+            const branch = branchSelectors.selectByRef(listenerApi.getState(), action.meta.arg.ref)[0];
+            const metafiles = branch ? metafileSelectors.selectByBranch(listenerApi.getState(), branch.id, action.meta.arg.root) : [];
+            metafiles.map(metafile => listenerApi.dispatch(metafileUpdated({ ...metafile, loading: [...metafile.loading, 'checkout'] })));
         }
-        if (isAnyOf(checkoutBranch.fulfilled, checkoutBranch.rejected)(action)) {
-            const metafile = metafileSelectors.selectById(listenerApi.getState(), action.meta.arg.metafileId);
-            if (metafile) listenerApi.dispatch(metafileUpdated({ ...metafile, loading: metafile.loading.filter(flag => flag !== 'checkout') }));
+        if (isAnyOf(switchBranch.fulfilled, switchBranch.rejected)(action)) {
+            const branch = branchSelectors.selectByRef(listenerApi.getState(), action.meta.arg.ref)[0];
+            const metafiles = branch ? metafileSelectors.selectByBranch(listenerApi.getState(), branch.id, action.meta.arg.root) : [];
+            metafiles.map(metafile => listenerApi.dispatch(metafileUpdated({ ...metafile, loading: metafile.loading.filter(flag => flag !== 'checkout') })));
         }
     }
 });
 
+/**
+ * Listen for card removal actions and remove any Diff cards that reference the removed card
+ */
 startAppListening({
     actionCreator: cardRemoved,
     effect: async (action, listenerApi) => {
         const diffs = cardSelectors.selectByTarget(listenerApi.getState(), action.payload as UUID);
-        diffs.map(card => listenerApi.dispatch(cardRemoved(card.id)))
+        diffs.map(card => listenerApi.dispatch(cardRemoved(card.id)));
     }
 });
 
+startAppListening({
+    actionCreator: removeBranch.fulfilled,
+    effect: async (action, listenerApi) => {
+        if (action.payload === true) {
+            const cards = cardSelectors.selectByRepo(listenerApi.getState(), action.meta.arg.repoId, action.meta.arg.branch.id);
+            cards.map(card => listenerApi.dispatch(cardRemoved(card.id)));
+        }
+    }
+});
+
+/**
+ * Listen for added or switched metafiles for Cards to update versioned fields, directory fields, and subscriptions
+ */
 startAppListening({
     predicate: (action, _, previousState) => {
         if (cardAdded.match(action)) return true;
@@ -100,6 +129,9 @@ startAppListening({
     },
 });
 
+/**
+ * Listen for card removal actions and update child Metafiles in directories, subscriptions, and cache removals
+ */
 startAppListening({
     actionCreator: cardRemoved,
     effect: async (action, listenerApi) => {

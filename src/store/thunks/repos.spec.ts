@@ -3,6 +3,7 @@ import isUUID from 'validator/lib/isUUID';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
+import * as gitBranch from '../../containers/git/git-branch';
 import { createRepo, fetchRepo } from './repos';
 import { isDefined } from '../../containers/utils';
 import { DirectoryMetafile, FilebasedMetafile, metafileAdded } from '../slices/metafiles';
@@ -113,6 +114,8 @@ describe('thunks/repos', () => {
 
     afterAll(() => mockedInstance.reset());
 
+    afterEach(() => jest.clearAllMocks());
+
     it('fetchRepo resolves existing repository via repo UUID in metafile', async () => {
         const repo = await store.dispatch(fetchRepo({ metafile: mockedMetafile1 })).unwrap();
         expect(repo).toStrictEqual(mockedRepository);
@@ -129,6 +132,7 @@ describe('thunks/repos', () => {
     });
 
     it('fetchRepo resolves new repository via root path', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValueOnce([{ ref: 'main' }]); // mock for current branch name
         expect.assertions(2);
         const repo = await store.dispatch(fetchRepo({ filepath: 'baz/qux.ts' })).unwrap();
         expect(isDefined(repo) && isUUID(repo.id)).toBeTruthy();
@@ -138,6 +142,7 @@ describe('thunks/repos', () => {
     });
 
     it('createRepo resolves a supported repository', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValueOnce([{ ref: 'main' }]); // mock for current branch name
         expect.assertions(2);
         const repo = await store.dispatch(createRepo('foo')).unwrap();
         expect(isDefined(repo) && isUUID(repo.id)).toBeTruthy();

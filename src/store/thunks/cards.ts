@@ -7,7 +7,7 @@ import { extractFilename } from '../../containers/io';
 import { AppThunkAPI } from '../hooks';
 import { Card, cardAdded, cardUpdated } from '../slices/cards';
 import { Metafile } from '../slices/metafiles';
-import { fetchMetafile } from './metafiles';
+import { createMetafile, fetchMetafile } from './metafiles';
 
 export const createCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, metafile: Metafile }>, AppThunkAPI>(
     'cards/createCard',
@@ -39,5 +39,21 @@ export const createCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, me
             }
         }
         return card;
+    }
+);
+
+export const branchesCardAdded = createAsyncThunk<Card, void, AppThunkAPI>(
+    'cards/createBranchesCard',
+    async (_, thunkAPI) => {
+        const metafile = await thunkAPI.dispatch(createMetafile({
+            metafile: {
+                name: 'Branches',
+                modified: DateTime.local().valueOf(),
+                handler: 'Branches',
+                filetype: 'Text',
+                loading: []
+            }
+        })).unwrap();
+        return await thunkAPI.dispatch(createCard({ metafile })).unwrap();
     }
 );

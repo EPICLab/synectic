@@ -10,16 +10,17 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import { isDefined } from '../../containers/utils';
 import RepoSelect from '../RepoSelect';
-import BranchSelect from '../BranchSelect';
+import BranchSelect from '../Branches/BranchSelect';
 import GitConfigForm from '../GitConfigForm';
 import TimelineButtons from './TimelineButtons';
-import { merge, MergeResult } from '../../containers/merges';
-import { getBranchRoot } from '../../containers/git-path';
+import { merge, MergeResult } from '../../containers/old-git/merges';
+import { getBranchRoot } from '../../containers/git';
 import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { createCard } from '../../store/thunks/cards';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
-import { updateRepository } from '../../store/thunks/branches';
+import * as git from '../../containers/git';
+import { updateBranches } from '../../store/thunks/branches';
 // import { build } from '../../containers/builds';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -75,6 +76,17 @@ const MergeDialog = (props: Modal) => {
         setStatus('Running');
         setProgress({ percent: 0, message: 'Merging' });
 
+        const newResult = await git.mergeBranch({
+            dir: repo.root,
+            base: base.ref,
+            commitish: compare.ref,
+            onProgress: (progress) => setProgress({
+                percent: Math.round((1 / 3 * progress.loaded / progress.total) * 100),
+                message: progress.phase
+            })
+        });
+        console.log({ newResult });
+
         let result: MergeResult;
         try {
             result = await merge(repo.root, base.ref, compare.ref, (progress) => setProgress({
@@ -87,7 +99,7 @@ const MergeDialog = (props: Modal) => {
         }
         const hasErrors = result.stderr.length > 0;
         const hasMerged = result.mergeStatus.mergeCommit ? result.mergeStatus.mergeCommit : false;
-        await dispatch(updateRepository(repo));
+        await dispatch(updateBranches(repo));
 
         const branchRoot = await getBranchRoot(repo.root, base.ref);
 
@@ -118,7 +130,7 @@ const MergeDialog = (props: Modal) => {
         }
         if (hasErrors) {
             setStatus('Failing');
-            setProgress(prev => ({ percent: prev.percent, message: result.stderr }));
+            setProgress({ percent: 0, message: result.stderr });
         }
         if (hasMerged && status != 'Failing') {
             setStatus('Passing');

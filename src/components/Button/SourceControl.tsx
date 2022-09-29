@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { getBranchRoot } from '../../containers/git-path';
+import { getBranchRoot } from '../../containers/git';
 import { removeUndefinedProperties } from '../../containers/utils';
 import branchSelectors from '../../store/selectors/branches';
 import { UUID } from '../../store/types';

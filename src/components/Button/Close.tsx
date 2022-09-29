@@ -12,8 +12,11 @@ import { UUID } from '../../store/types';
 /**
  * Button for closing and removing card, or popping the card off of a stack if captured. The button is only enabled
  * when the card is defined and not captured.
- * @param cardId The Card UUID that should be tracked by this button.
- * @param mode Optional mode for switching between light and dark themes.
+ * 
+ * @param obj - A destructured object for named props.
+ * @param obj.cardId - The Card UUID that should be tracked by this button.
+ * @param obj.mode - Optional mode for switching between light and dark themes.
+ * @returns {React.Component} A React function component.
  */
 const CloseButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));

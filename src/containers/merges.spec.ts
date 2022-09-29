@@ -1,5 +1,5 @@
 import { mock, MockInstance } from '../test-utils/mock-fs';
-import { checkFilepath } from './merges';
+import { checkFilepath } from './old-git/merges';
 
 describe('containers/merges', () => {
     let mockedInstance: MockInstance;

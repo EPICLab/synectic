@@ -1,5 +1,4 @@
 import React from 'react';
-import BranchTracker from '../BranchTracker';
 import Browser from '../Browser';
 import ConflictManager from '../ConflictManager';
 import Diff from '../Diff';
@@ -8,6 +7,7 @@ import Explorer from '../Explorer';
 import SourceControl from '../SourceControl';
 import Loading from './Loading';
 import { Card } from '../../store/slices/cards';
+import Branches from '../Branches';
 
 const Content = (card: Card) => {
     switch (card.type) {
@@ -23,8 +23,8 @@ const Content = (card: Card) => {
             return (<SourceControl sourceControlId={card.metafile} />);
         case 'Browser':
             return (<Browser card={card.id} />);
-        case 'BranchTracker':
-            return (<BranchTracker />);
+        case 'Branches':
+            return (<Branches />);
         case 'ConflictManager':
             return (<ConflictManager metafileId={card.metafile} />);
         default:
