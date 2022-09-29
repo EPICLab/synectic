@@ -1,26 +1,25 @@
-import React, { useState } from 'react';
-import { Modal, modalRemoved } from '../../store/slices/modals';
-import { LinearProgressWithLabel, Status } from '../Status';
-import { UUID } from '../../store/types';
-import { RootState } from '../../store/store';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import repoSelectors from '../../store/selectors/repos';
-import branchSelectors from '../../store/selectors/branches';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Dialog, Divider, Grid, Typography } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { DateTime } from 'luxon';
+import React, { useState } from 'react';
+import * as git from '../../containers/git';
+import { getBranchRoot, mergeBranch, MergeOutput } from '../../containers/git';
 import { isDefined } from '../../containers/utils';
-import RepoSelect from '../RepoSelect';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import branchSelectors from '../../store/selectors/branches';
+import repoSelectors from '../../store/selectors/repos';
+import { isFilebasedMetafile } from '../../store/slices/metafiles';
+import { Modal, modalRemoved } from '../../store/slices/modals';
+import { RootState } from '../../store/store';
+import { updateBranches } from '../../store/thunks/branches';
+import { buildCard } from '../../store/thunks/cards';
+import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
+import { UUID } from '../../store/types';
 import BranchSelect from '../Branches/BranchSelect';
 import GitConfigForm from '../GitConfigForm';
+import RepoSelect from '../RepoSelect';
+import { LinearProgressWithLabel, Status } from '../Status';
 import TimelineButtons from './TimelineButtons';
-import { merge, MergeResult } from '../../containers/old-git/merges';
-import { getBranchRoot } from '../../containers/git';
-import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
-import { DateTime } from 'luxon';
-import { createCard } from '../../store/thunks/cards';
-import { isFilebasedMetafile } from '../../store/slices/metafiles';
-import * as git from '../../containers/git';
-import { updateBranches } from '../../store/thunks/branches';
 // import { build } from '../../containers/builds';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -87,24 +86,20 @@ const MergeDialog = (props: Modal) => {
         });
         console.log({ newResult });
 
-        let result: MergeResult;
+        let result: MergeOutput;
         try {
-            result = await merge(repo.root, base.ref, compare.ref, (progress) => setProgress({
-                percent: Math.round((1 / 3 * progress.loaded / progress.total) * 100),
-                message: progress.phase
-            }));
+            result = await mergeBranch({ dir: repo.root, base: base.ref, commitish: compare.ref });
         } catch (error) {
             console.error(`Caught during merging:`, error);
             return;
         }
-        const hasErrors = result.stderr.length > 0;
-        const hasMerged = result.mergeStatus.mergeCommit ? result.mergeStatus.mergeCommit : false;
+        const hasMerged = result.mergeCommit ? result.mergeCommit : false;
         await dispatch(updateBranches(repo));
 
         const branchRoot = await getBranchRoot(repo.root, base.ref);
 
-        if (result.mergeConflicts && result.mergeConflicts.length > 0 && branchRoot) {
-            const conflicts = await Promise.all(result.mergeConflicts
+        if (result.conflicts && result.conflicts.length > 0 && branchRoot) {
+            const conflicts = await Promise.all(result.conflicts
                 .map(async filepath => dispatch(fetchMetafile(filepath)).unwrap()));
             await Promise.all(conflicts.filter(isFilebasedMetafile)
                 .map(metafile => dispatch(updateVersionedMetafile(metafile)).unwrap()));
@@ -120,17 +115,13 @@ const MergeDialog = (props: Modal) => {
                     merging: { base: base.ref, compare: compare.ref }
                 }
             })).unwrap();
-            await dispatch(createCard({ metafile: manager }));
+            await dispatch(buildCard({ metafile: manager }));
 
             setStatus('Failing');
             setProgress({
                 percent: 100,
-                message: `Resolve ${result.mergeConflicts ? result.mergeConflicts.length : 0} conflict${result.mergeConflicts?.length == 1 ? '' : 's'} and commit resolution before continuing.`
+                message: `Resolve ${result.conflicts ? result.conflicts.length : 0} conflict${result.conflicts?.length == 1 ? '' : 's'} and commit resolution before continuing.`
             });
-        }
-        if (hasErrors) {
-            setStatus('Failing');
-            setProgress({ percent: 0, message: result.stderr });
         }
         if (hasMerged && status != 'Failing') {
             setStatus('Passing');

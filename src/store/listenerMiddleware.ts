@@ -10,7 +10,7 @@ import { RootState, AppDispatch } from './store';
 
 import { subscribe, unsubscribe } from './thunks/cache';
 import { createMetafile, fetchMetafile, fetchParentMetafile, updateVersionedMetafile, updateFilebasedMetafile, switchBranch } from './thunks/metafiles';
-import { fetchRepo, createRepo } from './thunks/repos';
+import { fetchRepo, buildRepo } from './thunks/repos';
 import { UUID } from './types';
 import branchSelectors from './selectors/branches';
 import { removeBranch } from './thunks/branches';
@@ -23,7 +23,7 @@ export const startAppListening = listenerMiddleware.startListening as AppStartLi
 
 export const addAppListener = addListener as TypedAddListener<RootState, AppDispatch>;
 
-const isRejectedAction = isRejected(fetchMetafile, createMetafile, updateFilebasedMetafile, updateVersionedMetafile, fetchParentMetafile, fetchRepo, createRepo);
+const isRejectedAction = isRejected(fetchMetafile, createMetafile, updateFilebasedMetafile, updateVersionedMetafile, fetchParentMetafile, fetchRepo, buildRepo);
 
 /**
  * Listen for rejected actions and log relevant information in the console.
@@ -38,7 +38,7 @@ startAppListening({
 });
 
 /**
- * Listen for updates to Metafiles and toggle `loading` flags such that loading indicators can be shown to the user.
+ * Listen for pending updates to Metafiles to toggle `loading` flags for UI indicators.
  */
 startAppListening({
     matcher: isAnyOf(updateVersionedMetafile.pending, updateVersionedMetafile.fulfilled, updateVersionedMetafile.rejected),
@@ -73,7 +73,7 @@ startAppListening({
 });
 
 /**
- * Listen for card removal actions and remove any Diff cards that reference the removed card
+ * Listen for card removal actions and remove any Diff cards that reference it.
  */
 startAppListening({
     actionCreator: cardRemoved,
@@ -83,6 +83,9 @@ startAppListening({
     }
 });
 
+/**
+ * Listen for branch removal actions and remove any cards that reference it.
+ */
 startAppListening({
     actionCreator: removeBranch.fulfilled,
     effect: async (action, listenerApi) => {
@@ -94,7 +97,7 @@ startAppListening({
 });
 
 /**
- * Listen for added or switched metafiles for Cards to update versioned fields, directory fields, and subscriptions
+ * Listen for added or switched metafiles for Cards to update versioned fields, directory fields, and subscriptions.
  */
 startAppListening({
     predicate: (action, _, previousState) => {

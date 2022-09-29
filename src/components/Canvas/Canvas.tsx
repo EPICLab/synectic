@@ -19,8 +19,8 @@ import { cardUpdated } from '../../store/slices/cards';
 import { Modal, modalAdded } from '../../store/slices/modals';
 import { stackUpdated } from '../../store/slices/stacks';
 import redux, { RootState } from '../../store/store';
-import { branchesCardAdded } from '../../store/thunks/cards';
-import { fetchConflictManagers } from '../../store/thunks/oldThunks/repos';
+import { addBranchCard } from '../../store/thunks/cards';
+import { fetchConflictManagers } from '../../store/thunks/repos';
 import { popCards } from '../../store/thunks/stacks';
 import CardComponent from '../Card';
 import GitGraphSelect from '../GitGraph/GitGraphSelect';
@@ -153,7 +153,7 @@ const Canvas = () => {
 
   const viewMenu: NavItemProps[] = [
     { label: 'Source Control...', disabled: (Object.values(repos).length == 0), click: () => dispatch(modalAdded(sourcePickerModal)) },
-    { label: 'Branches...', click: async () => dispatch(branchesCardAdded()) },
+    { label: 'Branches...', click: async () => dispatch(addBranchCard()) },
     { label: 'Conflicts...', click: () => dispatch(fetchConflictManagers()) },
   ];
 

@@ -13,7 +13,7 @@ import { isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import RepoSelect from '../RepoSelect';
 import BranchSelect from '../Branches/BranchSelect';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,7 +60,7 @@ const SourcePickerDialog = (props: Modal) => {
         ...optionals
       }
     })).unwrap();
-    if (metafile) dispatch(createCard({ metafile: metafile }));
+    if (metafile) dispatch(buildCard({ metafile: metafile }));
     handleClose();
   }
 

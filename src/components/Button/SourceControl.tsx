@@ -10,7 +10,7 @@ import { getBranchRoot } from '../../containers/git';
 import { removeUndefinedProperties } from '../../containers/utils';
 import branchSelectors from '../../store/selectors/branches';
 import { UUID } from '../../store/types';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 import { createMetafile } from '../../store/thunks/metafiles';
 
 const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: UUID, metafileId: UUID, mode?: Mode }) => {
@@ -45,7 +45,7 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
             }
         })).unwrap();
 
-        dispatch(createCard({ metafile: sourceControl }));
+        dispatch(buildCard({ metafile: sourceControl }));
     };
 
     return (

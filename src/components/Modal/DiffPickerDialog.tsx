@@ -5,7 +5,7 @@ import { UUID } from '../../store/types';
 import { RootState } from '../../store/store';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 import { createMetafile } from '../../store/thunks/metafiles';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -40,7 +40,7 @@ const DiffPickerDialog = (props: Modal) => {
         targets: [left.id, right.id]
       }
     })).unwrap();
-    dispatch(createCard({ metafile: diffMetafile }));
+    dispatch(buildCard({ metafile: diffMetafile }));
     return dispatch(modalRemoved(props.id));
   };
 
