@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { normalize } from 'path';
 import isUUID from 'validator/lib/isUUID';
 import * as gitBranch from '../../containers/git/git-branch';
 import * as gitLog from '../../containers/git/git-log';
@@ -140,11 +141,13 @@ describe('thunks/branches', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('fetchBranch resolves existing branch via branch UUID in metafile', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile1 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
 
     it('fetchBranch resolves existing branch via branch UUID in parent metafile', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile2 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
@@ -155,7 +158,7 @@ describe('thunks/branches', () => {
         expect(branch).toStrictEqual(mockedBranch);
     });
 
-    it('createBranch resolves a Branch object via root path', async () => {
+    it('buildBranch resolves a Branch object via root path', async () => {
         jest.spyOn(gitLog, 'log').mockResolvedValue([
             {
                 oid: '2a57bfcebde7479fd10578ae7da65c93fbb41514',
@@ -182,7 +185,7 @@ describe('thunks/branches', () => {
         expect(branch).toStrictEqual(expect.objectContaining({
             ref: 'main',
             root: 'foo/',
-            gitdir: 'foo/.git',
+            gitdir: normalize('foo/.git'),
             scope: 'local'
         }));
     });

@@ -1,7 +1,7 @@
 import path from 'path';
-import * as isogit from 'isomorphic-git';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
+import * as gitBranch from './git-branch';
 
 describe('containers/git/git-path', () => {
     let mockedInstance: MockInstance;
@@ -46,29 +46,25 @@ describe('containers/git/git-path', () => {
 
     it('getBranchRoot resolves root path for main worktree from `dir` path', async () => {
         expect.assertions(1);
-        const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
-        jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
         await expect(getBranchRoot('foo', 'main')).resolves.toEqual('foo');
     });
 
     it('getBranchRoot resolves root path for main worktree from `worktreeDir` path', async () => {
         expect.assertions(1);
-        const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
-        jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
         await expect(getBranchRoot('.syn/bad-branch', 'main')).resolves.toEqual('foo');
     });
 
     it('getBranchRoot resolves root path for linked worktree from `dir` path', async () => {
         expect.assertions(1);
-        const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
-        jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
         await expect(getBranchRoot('foo', 'bad-branch')).resolves.toEqual(path.normalize('.syn/bad-branch'));
     });
 
     it('getBranchRoot resolves root path for linked worktree from `worktreeDir` path', async () => {
         expect.assertions(1);
-        const mockedBranches = new Promise<string[]>(resolve => resolve(['bad-branch', 'main']));
-        jest.spyOn(isogit, 'listBranches').mockReturnValue(mockedBranches);
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
         await expect(getBranchRoot('.syn/bad-branch', 'bad-branch')).resolves.toEqual(path.normalize('.syn/bad-branch'));
     });
 
