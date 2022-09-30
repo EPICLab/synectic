@@ -141,11 +141,13 @@ describe('thunks/branches', () => {
     afterEach(() => jest.clearAllMocks());
 
     it('fetchBranch resolves existing branch via branch UUID in metafile', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile1 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
 
     it('fetchBranch resolves existing branch via branch UUID in parent metafile', async () => {
+        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile2 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
