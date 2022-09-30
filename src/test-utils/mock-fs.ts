@@ -63,6 +63,12 @@ export type SymbolicLink = {
 
 export async function mock(config: DirectoryItems, gitRepo: MockedRepository): Promise<MockInstanceEnhanced>;
 export async function mock(config: DirectoryItems): Promise<MockInstance>;
+/**
+ * Configure the `fs` module so that it is backed by an in-memory file system.
+ * 
+ * @param config - A recursively-defined JavaScript object representing the structural information to compose a mocked file system.
+ * @param gitRepo - Optional mocked Git repository for further extension of the mocked file system.
+ */
 export async function mock(config: DirectoryItems, gitRepo?: MockedRepository | undefined): Promise<MockInstance | MockInstanceEnhanced> {
     const root = await dir({ unsafeCleanup: true });
     const cwd = process.cwd();
