@@ -7,11 +7,11 @@ import { extractFilename } from '../../containers/io';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/utils';
-import { getSourceMotif } from '../../containers/sourceMotif';
+import { getSourceMotif } from '../../containers/motif';
 import { UUID } from '../../store/types';
 import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafiles';
 import { isHydrated, updateFilebasedMetafile } from '../../store/thunks/metafiles';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 import { Skeleton } from '@material-ui/lab';
 
 const FileComponent = (props: { metafile: UUID }) => {
@@ -32,7 +32,7 @@ const FileComponent = (props: { metafile: UUID }) => {
     }, [metafile]);
 
     const handleClick = () => (metafile && metafile.status && ['*deleted', 'deleted'].includes(metafile.status)) ? null :
-        (metafile && metafile.path && dispatch(createCard({ path: metafile.path })));
+        (metafile && metafile.path && dispatch(buildCard({ path: metafile.path })));
 
     // expects a TreeView parent to encompass the StyledTreeItem below
     return (

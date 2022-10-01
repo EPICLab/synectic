@@ -44,7 +44,7 @@ export type FilebasedProps = {
 export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMetafile => {
     return metafile
         && (metafile as FilebasedMetafile).path !== undefined
-        && (metafile as FilebasedMetafile).state !== undefined
+        && (metafile as FilebasedMetafile).state !== undefined;
 };
 
 /** A metafile that contains file information related to a similar type of filesystem object. */
@@ -76,8 +76,12 @@ export type VersionedProps = {
     readonly branch: UUID;
     /** The latest Git status code for this metafile relative to the associated repository and branch. */
     readonly status: GitStatus;
-    /** An array indicating the starting index of each Git conflict in the content of this metafile. */
-    readonly conflicts: number[];
+    /**
+     * An array indicating paths to conflicting sub-files (in the case of a DirectoryMetafile), or an
+     * array indicating the starting index for each Git conflict chunk in the content of this metafile
+     * (in the case of a FileMetafile).
+     */
+    readonly conflicts: (number | PathLike)[];
 };
 export const isVersionedMetafile = (metafile: Metafile): metafile is VersionedMetafile => {
     return isFilebasedMetafile(metafile) && (metafile as VersionedMetafile).repo !== undefined;

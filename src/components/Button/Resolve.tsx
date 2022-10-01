@@ -1,28 +1,30 @@
+import { IconButton, Tooltip } from '@material-ui/core';
+import { DoneAll, ExitToApp } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { v4 } from 'uuid';
-import { DoneAll, ExitToApp } from '@material-ui/icons';
-import { IconButton, Tooltip } from '@material-ui/core';
+import { add, mergeInProgress } from '../../containers/git';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import branchSelectors from '../../store/selectors/branches';
+import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
-import { add } from '../../containers/git-plumbing';
-import { RootState } from '../../store/store';
+import repoSelectors from '../../store/selectors/repos';
+import { cardRemoved } from '../../store/slices/cards';
 import { isFileMetafile } from '../../store/slices/metafiles';
 import { modalAdded } from '../../store/slices/modals';
-import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import cardSelectors from '../../store/selectors/cards';
-import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
-import repoSelectors from '../../store/selectors/repos';
-import branchSelectors from '../../store/selectors/branches';
-import { cardRemoved } from '../../store/slices/cards';
-import { resolveMerge } from '../../containers/merges';
-import { UUID } from '../../store/types';
+import { RootState } from '../../store/store';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
+import { UUID } from '../../store/types';
+import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 /**
  * Button for staging resolution changes for all previously conflicting files in a repository, committing the resolution the the repository,
  * and cleaning up the merge conflict state within the repository afterwards.
- * @param cardId Card UUID that should be tracked by this button.
- * @param mode Optional mode setting for enabling the dark mode on this icon button.
+ * 
+ * @param props - Prop object for a card with unstaged merge conflict resolution changes.
+ * @param props.cardId - Card UUID that should be tracked by this button.
+ * @param props.mode - Optional mode setting for enabling the dark mode on this icon button.
+ * @returns {React.Component} A React function component.
  */
 const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
@@ -68,8 +70,7 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
 
     const resolve = async () => {
         if (metafile && metafile.merging) {
-            const compareBranch = metafile.merging.compare;
-            if (repo) await resolveMerge(repo.root, compareBranch);
+            if (repo) await mergeInProgress({ dir: repo.root, action: 'continue' });
             dispatch(cardRemoved(cardId));
         }
     }

@@ -20,9 +20,11 @@ import cachedSelectors from '../../store/selectors/cache';
  * with the list of cards supplied via props. The button is only enabled when at least one associated metafile has content that is
  * diverged from the cache (according to FSCache). Clicking on the button will trigger all modified metafiles to write their content
  * to the associates files. This button operates as the inverse operation to the `UndoButton`.
- * @param cardIds List of Card UUIDs that should be tracked by this button.
- * @param mode Optional theme mode for switching between light and dark themes.
- * @returns 
+ * 
+ * @param props - Prop object for cards associated with specific files.
+ * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.mode - Optional theme mode for switching between light and dark themes.
+ * @returns {React.Component} A React function component.
  */
 const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
