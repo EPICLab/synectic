@@ -10,6 +10,8 @@ import NewCardDialog from './NewCardDialog';
 import Notification from './Notification';
 import SourcePickerDialog from './SourcePickerDialog';
 import NewBranchDialog from './NewBranchDialog';
+import GitExplorer from '../GitExplorer/GitExplorer';
+import DirectExplorer from '../GitExplorer/DirectExplorer';
 
 const ModalComponent = (props: Modal) => {
   switch (props.type) {
@@ -33,6 +35,10 @@ const ModalComponent = (props: Modal) => {
       return (<CommitDialog {...props} />);
     case 'Notification':
       return (<Notification {...props} />);
+    case 'GitExplorer':
+      return (<GitExplorer {...props} />);
+    case 'DirectExplorer':
+      return (<DirectExplorer {...props} />);
     default:
       return null;
   }

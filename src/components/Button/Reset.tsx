@@ -18,9 +18,11 @@ import { isVersionedMetafile } from '../../store/slices/metafiles';
  * associated metafile has a VCS status of `added`, `*added`, `modified`, `*modified`, `deleted`, `*deleted`, `*modified`, or `*undeleted`.
  * Clicking on the button will trigger all changed metafiles to have their content reverted back to the most recent commit in the associated 
  * repository and branch.
- * @param cardIds List of Card UUIDs that should be tracked by this button.
- * @param mode Optional theme mode for switching between light and dark themes.
- * @returns 
+ * 
+ * @param props - Prop object for cards on a specific branch and repository.
+ * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.mode - Optional theme mode for switching between light and dark themes.
+ * @returns {React.Component} A React function component.
  */
 const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));

@@ -3,7 +3,7 @@ import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
 import { FilebasedMetafile, metafileAdded } from '../slices/metafiles';
-import { createCard } from './cards';
+import { buildCard } from './cards';
 import isUUID from 'validator/lib/isUUID';
 
 const mockedMetafile1: FilebasedMetafile = {
@@ -47,7 +47,7 @@ describe('thunks/cards', () => {
 
     it('createCard resolves an Editor card via metafile', async () => {
         expect.assertions(2);
-        const card = await store.dispatch(createCard({ metafile: mockedMetafile1 })).unwrap();
+        const card = await store.dispatch(buildCard({ metafile: mockedMetafile1 })).unwrap();
         expect(isUUID(card.id)).toBe(true);
         expect(card).toStrictEqual(expect.objectContaining({
             name: 'example.ts',
@@ -58,7 +58,7 @@ describe('thunks/cards', () => {
 
     it('createCard resolves an Editor card via filepath', async () => {
         expect.assertions(3);
-        const card = await store.dispatch(createCard({ path: 'foo/example.ts' })).unwrap();
+        const card = await store.dispatch(buildCard({ path: 'foo/example.ts' })).unwrap();
         expect(isUUID(card.id)).toBe(true);
         expect(isUUID(card.metafile)).toBe(true);
         expect(card).toStrictEqual(expect.objectContaining({
