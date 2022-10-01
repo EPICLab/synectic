@@ -1,19 +1,26 @@
-import React from 'react';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { ClearAll } from '@material-ui/icons';
+import React from 'react';
+import { checkUnmergedBranch, getBranchRoot, mergeInProgress } from '../../containers/git';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { abortMerge, checkProject } from '../../containers/merges';
+import { cardRemoved } from '../../store/slices/cards';
+import { RootState } from '../../store/store';
+import { updateConflicted } from '../../store/thunks/metafiles';
+import { UUID } from '../../store/types';
 import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { RootState } from '../../store/store';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { cardRemoved } from '../../store/slices/cards';
-import { UUID } from '../../store/types';
-import { getBranchRoot } from '../../containers/git-path';
-import { updateConflicted } from '../../store/thunks/metafiles';
 
+/**
+ * Button for aborting an in-progress merge that has halted due to conflicts.
+ * 
+ * @param props - Prop object for a card with unmerged changes.
+ * @param props.cardId - Card UUID that should be tracked by this button.
+ * @param props.mode - Optional mode for switching between light and dark themes.
+ * @returns {React.Component} A React function component.
+ */
 const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card?.metafile ? card.metafile : ''));
@@ -27,8 +34,8 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
         if (repo && metafile?.merging?.base) {
             const branchRoot = await getBranchRoot(repo.root, metafile.merging.base);
             if (branchRoot) {
-                const conflicted = await checkProject(branchRoot, metafile.merging.base);
-                await abortMerge(branchRoot);
+                const conflicted = await checkUnmergedBranch(branchRoot, metafile.merging.base);
+                await mergeInProgress({ dir: branchRoot, action: 'abort' });
                 await dispatch(updateConflicted(conflicted));
             }
         }

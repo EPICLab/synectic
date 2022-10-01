@@ -1,16 +1,15 @@
+import { FormControl, makeStyles, MenuItem, TextField, Typography } from '@material-ui/core';
+import { Skeleton } from '@material-ui/lab';
 import React, { useState } from 'react';
-import { FormControl, MenuItem, Typography, TextField, makeStyles } from '@material-ui/core';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { RootState } from '../../store/store';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { removeUndefinedProperties } from '../../containers/utils';
-import { UUID } from '../../store/types';
 import { cardUpdated } from '../../store/slices/cards';
-import { checkoutBranch } from '../../store/thunks/branches';
-import { Skeleton } from '@material-ui/lab';
+import { RootState } from '../../store/store';
+import { switchBranch } from '../../store/thunks/metafiles';
+import { UUID } from '../../store/types';
 
 export const useStyles = makeStyles({
   formControl: {
@@ -25,11 +24,13 @@ export const useStyles = makeStyles({
  * canvas. The list displays both local and remote branches, and allows for checking out any branch at any 
  * point (without concern for whether there are changes on a particular branch). Checkouts will only affect 
  * the contents of the indicated card.
- * @param cardId The UUID for the parent Card component displaying this component.
- * @param repoId The UUID of the repository used to find and display branches.
- * @param overwrite Optional boolean indicating whether all checkouts should update the main worktree (instead of using linked worktrees).
+ * 
+ * @param props Prop object for branches on a specific repository.
+ * @param props.cardId - The UUID for the parent Card component displaying this component.
+ * @param props.repoId - The UUID of the repository used to find and display branches.
+ * @returns {React.Component} A React function component.
  */
-const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; }) => {
+const BranchList = (props: { cardId: UUID; repoId: UUID; }) => {
   const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, props.cardId));
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card ? card.metafile : ''));
   const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
@@ -43,10 +44,9 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; overwrite?: boolean; })
 
   const checkout = async (newBranch: string) => {
     console.log(`checkout: ${newBranch}`);
-    if (card && metafile) {
-      const overwrite = removeUndefinedProperties({ overwrite: props.overwrite });
+    if (card && metafile && repo) {
       try {
-        const updated = await dispatch(checkoutBranch({ metafileId: metafile.id, branchRef: newBranch, ...overwrite })).unwrap();
+        const updated = await dispatch(switchBranch({ metafileId: metafile.id, ref: newBranch, root: repo.root })).unwrap();
         if (updated) setSelected(newBranch);
         if (updated) dispatch(cardUpdated({
           ...card,
