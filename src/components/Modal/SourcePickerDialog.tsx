@@ -7,13 +7,13 @@ import repoSelectors from '../../store/selectors/repos';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { createMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
-import { getBranchRoot } from '../../containers/git-path';
+import { getBranchRoot } from '../../containers/git';
 import branchSelectors from '../../store/selectors/branches';
 import { isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import RepoSelect from '../RepoSelect';
-import BranchSelect from '../BranchSelect';
-import { createCard } from '../../store/thunks/cards';
+import BranchSelect from '../Branches/BranchSelect';
+import { buildCard } from '../../store/thunks/cards';
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,7 +60,7 @@ const SourcePickerDialog = (props: Modal) => {
         ...optionals
       }
     })).unwrap();
-    if (metafile) dispatch(createCard({ metafile: metafile }));
+    if (metafile) dispatch(buildCard({ metafile: metafile }));
     handleClose();
   }
 
