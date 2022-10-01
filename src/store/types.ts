@@ -1,4 +1,4 @@
-// Type definitions for synectic 2.0.0
+// Type definitions for synectic 3.0.0
 // Project: https://github.com/EPICLab/synectic
 // Definitions by: Nicholas Nelson <https://github.com/nelsonni>
 // TypeScript Version: 4.5
@@ -14,34 +14,58 @@ export type UUID = ReturnType<typeof v4>;
 export type SHA1 = ReturnType<typeof sha1>;
 /** Epoch millisecond representation of a valid DateTime value. */
 export type Timestamp = ReturnType<DateTime['valueOf']>;
+/** Detailed commit representation for Git. */
+export type CommitObject = {
+    oid: string;
+    message: string;
+    parents: string[];
+    author: {
+        name: string;
+        email: string;
+        timestamp: DateTime | undefined;
+    };
+    committer?: {
+        name: string;
+        email: string;
+        timestamp: DateTime | undefined;
+    };
+};
 /**
- * | status                | description                                                                           |
- * | --------------------- | ------------------------------------------------------------------------------------- |
- * | `"ignored"`           | file ignored by a .gitignore rule                                                     |
- * | `"unmodified"`        | file unchanged from HEAD commit                                                       |
- * | `"*modified"`         | file has modifications, not yet staged                                                |
- * | `"*deleted"`          | file has been removed, but the removal is not yet staged                              |
- * | `"*added"`            | file is untracked, not yet staged                                                     |
- * | `"absent"`            | file not present in HEAD commit, staging area, or working dir                         |
- * | `"modified"`          | file has modifications, staged                                                        |
- * | `"deleted"`           | file has been removed, staged                                                         |
- * | `"added"`             | previously untracked file, staged                                                     |
- * | `"*unmodified"`       | working dir and HEAD commit match, but index differs                                  |
- * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index              |
- * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                      |
- * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir |
- * | `"unmerged"`          | file has unmerged changes from an unresolved merge conflict                           |
-*/
+ * | status                | description                                                                            |
+ * | --------------------- | -------------------------------------------------------------------------------------- |
+ * | `"ignored"`           | file ignored by a .gitignore rule                                                      |
+ * | `"unmodified"`        | file unchanged from HEAD commit                                                        |
+ * | `"*modified"`         | file has modifications, not yet staged                                                 |
+ * | `"*deleted"`          | file has been removed, but the removal is not yet staged                               |
+ * | `"*added"`            | file is untracked, not yet staged                                                      |
+ * | `"absent"`            | file not present in HEAD commit, staging area, or working dir                          |
+ * | `"modified"`          | file has modifications, staged                                                         |
+ * | `"deleted"`           | file has been removed, staged                                                          |
+ * | `"added"`             | previously untracked file, staged                                                      |
+ * | `"*unmodified"`       | working dir and HEAD commit match, but index differs                                   |
+ * | `"*absent"`           | file not present in working dir or HEAD commit, but present in the index               |
+ * | `"*undeleted"`        | file was deleted from the index, but is still in the working dir                       |
+ * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir  |
+ * | `"unmerged"`          | file has unmerged changes from an incomplete merge                                     |
+ */
 export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*deleted' | '*added'
     | 'absent' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified' | 'unmerged';
 /**
- * | status                | description                                                                           |
- * | --------------------- | ------------------------------------------------------------------------------------- |
- * | `"unmodified"`        | file unchanged from metafile content                                                  |
- * | `"modified"`          | file has modifications, not yet saved                                                 |
- * | `"unlinked"`          | no file linked to metafile, virtual metafile                                          |
+ * | status                | description                                                                            |
+ * | --------------------- | -------------------------------------------------------------------------------------- |
+ * | `"clean"`             | no untracked files and no modifications in tracked files                               |
+ * | `"uncommitted"`       | untracked files or uncommitted changes in tracked files exist                          |
+ * | `"unmerged"`          | unmerged paths exist in the worktree directory, indicates an unresolved merge conflict |
+ */
+export type BranchStatus = 'clean' | 'uncommitted' | 'unmerged';
+/**
+ * | status                | description                                                                            |
+ * | --------------------- | -------------------------------------------------------------------------------------- |
+ * | `"unmodified"`        | file unchanged from metafile content                                                   |
+ * | `"modified"`          | file has modifications, not yet saved                                                  |
+ * | `"unlinked"`          | no file linked to metafile, virtual metafile                                           |
  */
 export type FilesystemStatus = 'modified' | 'unmodified' | 'unlinked';
-export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'BranchTracker' | 'Merge' | 'SourceControl' | 'ConflictManager';
+export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Branches' | 'Merge' | 'SourceControl' | 'ConflictManager';
 export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewBranchDialog' | 'NewCardDialog' |
-    'SourcePicker' | 'CommitDialog' | 'Notification';
+    'SourcePicker' | 'CommitDialog' | 'Notification' | 'GitExplorer' | 'DirectExplorer';
