@@ -1,14 +1,13 @@
 import { useCallback, useState } from 'react';
-import { ReadCommitResult } from 'isomorphic-git';
-import { log } from '../git-porcelain';
 import { useAppSelector } from '../../store/hooks';
-import { RootState } from '../../store/store';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
-import { UUID } from '../../store/types';
 import { Branch } from '../../store/slices/branches';
+import { RootState } from '../../store/store';
+import { CommitObject, UUID } from '../../store/types';
+import { log } from '../git';
 
-export type CommitInfo = ReadCommitResult & {
+export type CommitInfo = CommitObject & {
   branch: string,
   scope: 'local' | 'remote'
 }
@@ -26,9 +25,11 @@ type useGitHistoryHook = {
  * will only be populated upon an update. The update method is optimized to collect caches of the commits and head refs for each branch 
  * before updating the observable maps of commits and head refs. Therefore, a React rerender will only occur after all branches have been 
  * evaluated.
- * @param repo The Repository that contains local and remote branches that should be tracked.
- * @return The states of `commits`, `heads`, and the `update` function. Both `commits` and `heads` are maps, where `commits` maps SHA-1 
- * commit hashes to commits and `heads` maps scoped branch names to the SHA-1 hash of the commit pointed to by HEAD on that branch.
+ * 
+ * @param repoId - The id corresponding to a Repository object that contains local and remote branches that should be tracked.
+ * @returns {useGitHistoryHook} The states of `commits`, `heads`, and the `update` function. Both `commits` and `heads` are maps, where 
+ * `commits` maps SHA-1 commit hashes to commits and `heads` maps scoped branch names to the SHA-1 hash of the commit pointed to by HEAD 
+ * on that branch.
  */
 export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
   const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
@@ -43,8 +44,8 @@ export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
 
     const processCommits = async (branch: Branch): Promise<void> => {
       const branchCommits = (branch.scope === 'remote')
-        ? await log({ dir: repo.root.toString(), ref: `remotes/${branch.remote}/${branch.ref}` })
-        : await log({ dir: repo.root.toString(), ref: branch.ref });
+        ? await log({ dir: repo.root.toString(), revRange: `remotes/${branch.remote}/${branch.ref}` })
+        : await log({ dir: repo.root.toString(), revRange: branch.ref });
       // append to the caches only if no entries exist for the new commit or branch
       branchCommits.map(commit =>
         (!commitsCache.has(commit.oid))

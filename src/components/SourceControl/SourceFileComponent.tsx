@@ -1,16 +1,16 @@
-import React from 'react';
 import { InsertDriveFile } from '@material-ui/icons';
-import { StyledTreeItem } from '../StyledTreeComponent';
+import React from 'react';
+import { add, restore } from '../../containers/git';
 import { extractFilename } from '../../containers/io';
+import { getSourceMotif, stagedCheck, unstagedCheck } from '../../containers/motif';
 import { isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { RootState } from '../../store/store';
 import metafileSelectors from '../../store/selectors/metafiles';
-import { getSourceMotif, stagedCheck, unstagedCheck } from '../../containers/sourceMotif';
-import { add, remove } from '../../containers/git-plumbing';
 import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafiles';
-import { UUID } from '../../store/types';
+import { RootState } from '../../store/store';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
+import { UUID } from '../../store/types';
+import { StyledTreeItem } from '../StyledTreeComponent';
 
 const SourceFileComponent = (props: { metafileId: UUID }) => {
     const metafile = useAppSelector((root: RootState) => metafileSelectors.selectById(root, props.metafileId));
@@ -26,7 +26,7 @@ const SourceFileComponent = (props: { metafileId: UUID }) => {
 
     const unstage = async () => {
         if (metafile && isFileMetafile(metafile)) {
-            await remove(metafile.path);
+            await restore({ filepath: metafile.path, staged: true });
             await dispatch(updateVersionedMetafile(metafile));
         }
     };
