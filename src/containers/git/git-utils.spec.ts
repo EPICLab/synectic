@@ -17,12 +17,18 @@ describe('containers/git/git-utils', () => {
         expect(extractRepoName('https://gitlab.com/gitlab-org/omnibus-gitlab.git')).toBe('gitlab-org/omnibus-gitlab');
     });
 
+
     it('extractRepoName resolves ssh://*.git', () => {
-        expect(extractRepoName('ssh://git@gitlab.com:labuser/lab-repo.git')).toBe('labuser/lab-repo');
+        expect(extractRepoName('ssh://git@gitlab.com/labuser/lab-repo.git')).toBe('labuser/lab-repo');
     });
+
 
     it('extractRepoName resolves https://gist', () => {
         expect(extractRepoName('https://bitbucket.org/snippets/vmaric/oed9AM/hello-json-message')).toBe('vmaric/oed9AM/hello-json-message');
+    });
+
+    it('extractRepoName resolves git@*.git', () => {
+        expect(extractRepoName('git@gitlab.com:Nada/algorand.git')).toBe('Nada/algorand');
     });
 
     it('extractRepoName resolves git@gist', () => {
@@ -31,5 +37,9 @@ describe('containers/git/git-utils', () => {
 
     it('extractRepoName resolves git+https://*.git#tag', () => {
         expect(extractRepoName('git+https://github.com/octo-org/octo-repo.git#2.7.0')).toBe('octo-org/octo-repo');
+    });
+
+    it('extractRepoName resolves git+ssh://*.git', () => {
+        expect(extractRepoName('git+ssh://github.com/octo-org/argyle.git')).toBe('octo-org/argyle');
     });
 });
