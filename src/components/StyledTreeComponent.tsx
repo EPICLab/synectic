@@ -15,11 +15,18 @@ type StyledTreeItemProps = TreeItemProps & {
   bgColor?: string;
   color?: string;
   enableHover?: boolean;
-  labelIcon: React.ElementType<SvgIconProps>;
+  labelIcon?: React.ElementType<SvgIconProps>;
   labelInfo?: React.ElementType<SvgIconProps>;
   labelInfoText?: string;
-  labelText: string;
   labelInfoClickHandler?: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
+} & LabelNodeOrContent;
+
+type LabelNodeOrContent = {
+  labelNode: React.ReactNode;
+  labelText?: never;
+} | {
+  labelNode?: never;
+  labelText?: string;
 };
 
 export const useTreeItemStyles = makeStyles((theme: Theme) =>
@@ -73,7 +80,7 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
 );
 
 export const StyledTreeItem = (props: StyledTreeItemProps) => {
-  const { labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler,
+  const { labelNode: LabelNode, labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler,
     color, bgColor, enableHover, labelInfoText, ...other } = props;
   const [hover, setHover] = useState(false);
   const classes = useTreeItemStyles();
@@ -82,14 +89,20 @@ export const StyledTreeItem = (props: StyledTreeItemProps) => {
     <TreeItem
       label={
         <div className={classes.labelRoot}>
-          <LabelIcon color='inherit' style={{ color: color }} />
-          <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
-            {labelText}
-          </Typography>
+          {LabelIcon && <LabelIcon color='inherit' style={{ color: color }} />}
+          {
+            LabelNode ??
+            <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
+              {labelText}
+            </Typography>
+          }
+
           {labelInfoText ? <Typography variant='body2' className={classes.labelInfo}>{labelInfoText}</Typography> : null}
-          {(LabelInfo && (!enableHover || (enableHover && hover)))
-            ? <LabelInfo color='inherit' className={classes.labelInfo} onClick={labelInfoClickHandler} style={{ color: color }} />
-            : null}
+          {(LabelInfo && (!enableHover || (enableHover && hover))) ?
+            <LabelInfo color='inherit' className={classes.labelInfo} onClick={labelInfoClickHandler} style={{ color: color }} />
+            :
+            null
+          }
         </div>
       }
       style={{

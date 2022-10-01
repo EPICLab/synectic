@@ -12,7 +12,7 @@ import { WithRequired } from '../../containers/utils';
 import { PathLike } from 'fs-extra';
 import { isFilebasedMetafile, Metafile } from '../../store/slices/metafiles';
 import { UUID } from '../../store/types';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 
 type ConflictManagerMetafile = WithRequired<Metafile, 'repo' | 'branch' | 'merging'>;
 
@@ -26,7 +26,7 @@ const ConflictManager = (props: { metafileId: UUID }) => {
     const conflictedMetafiles = useAppSelector((state: RootState) => metafileSelectors.selectByConflicted(state, repo ? repo.id : ''));
     const dispatch = useAppDispatch();
 
-    const handleClick = async (filepath: PathLike) => await dispatch(createCard({ path: filepath }));
+    const handleClick = async (filepath: PathLike) => await dispatch(buildCard({ path: filepath }));
 
     return (
         <div className='list-component'>
