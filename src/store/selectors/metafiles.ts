@@ -48,9 +48,11 @@ const selectByRepo = createSelector(
 
 const selectByBranch = createSelector(
     selectors.selectAll,
-    (_state: RootState, filepath: PathLike) => filepath,
-    (_state: RootState, _filepath: PathLike, branch: UUID) => branch,
-    (metafiles, filepath, branch) => metafiles.filter(m => m.path === filepath && m.branch === branch) as VersionedMetafile[]
+    (_state: RootState, branch: UUID) => branch,
+    (_state: RootState, _branch: UUID, filepath?: PathLike) => filepath,
+    (metafiles, filepath, branch) => filepath
+        ? metafiles.filter(m => m.path === filepath && m.branch === branch) as VersionedMetafile[]
+        : metafiles.filter(m => m.branch === branch) as VersionedMetafile[]
 );
 
 const selectByVirtual = createSelector(
