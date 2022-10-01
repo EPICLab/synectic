@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import util from 'util';
 import { readDirAsync } from './io';
-import { getBranchRoot, getWorktreePaths } from './git-path';
+import { getBranchRoot, getWorktreePaths } from './git';
 import { Repository } from '../store/slices/repos';
 
 const promiseExec = util.promisify(exec);

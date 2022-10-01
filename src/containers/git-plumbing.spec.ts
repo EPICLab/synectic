@@ -1,4 +1,4 @@
-import { extractRepoName } from "./git-plumbing";
+import { extractRepoName } from './git';
 
 describe('containers/git-plumbing', () => {
     it('extractRepoName resolves git://*', () => {

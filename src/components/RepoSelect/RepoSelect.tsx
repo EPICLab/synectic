@@ -12,8 +12,8 @@ type RepoSelectProps = {
 
 const RepoSelect = (props: RepoSelectProps) => {
     const predicate = props.optionsFilter ? props.optionsFilter : undefined; // Cannot descriminate types from variables; see https://github.com/microsoft/TypeScript/issues/10530
-    const options = (predicate ? props.repos.filter(r => predicate(r)) : props.repos).map(r => { return { key: r.id, value: r.name }; });
-    return (<DropSelect label='Repository' target={props.selectedRepo} setTarget={props.setSelectedRepo} options={options} />)
+    const options = (predicate ? props.repos.filter(r => predicate(r)) : props.repos).map(r => { return { label: r.id, value: r.name }; });
+    return (<DropSelect label='Repository' value={props.selectedRepo} setValue={props.setSelectedRepo} options={options} />)
 }
 
 export default RepoSelect;

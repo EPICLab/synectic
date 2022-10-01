@@ -47,7 +47,7 @@ const GitNode = (props: GitNodeProps) => {
   return (
     <>
       {props.data.branch ? <OutlinedCard content={props.data.branch} placement='right' /> : null}
-      {isHovering ? <OutlinedCard content={props.id} placement='bottom' /> : null}
+      {isHovering ? <OutlinedCard content={`commit ${props.id}\nAuthor: ${props.data.author}\nMessage: ${props.data.message}`} placement='bottom' /> : null}
       <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}
         onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}
         onClick={copyToClipboard}
