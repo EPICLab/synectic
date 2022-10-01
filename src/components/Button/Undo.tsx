@@ -18,8 +18,11 @@ import { updateVersionedMetafile, updateFilebasedMetafile } from '../../store/th
  * state of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one associated 
  * metafile has content that is diverged from the cache (according to FSCache). Clicking on the button will trigger all modified metafiles 
  * to have their content reset to the content in the associated files. This button operates as the inverse operation to the `SaveButton`.
- * @param cardIds List of Card UUIDs that should be tracked by this button.
- * @param mode Optional mode for switching between light and dark themes.
+ * 
+ * @param props - Prop object for cards with changes that differ from the filesystem version.
+ * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.mode - Optional mode for switching between light and dark themes.
+ * @returns {React.Component} A React function component.
  */
 const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));

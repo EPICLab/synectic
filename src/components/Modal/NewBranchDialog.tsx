@@ -6,10 +6,8 @@ import { Modal, modalRemoved } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
-// import { createBranch } from '../../store/thunks/branches';
-import { branch } from '../../containers/git-porcelain';
-import { createBranch } from '../../store/thunks/branches';
-import { repoUpdated } from '../../store/slices/repos';
+import { addBranch, updateBranches } from '../../store/thunks/branches';
+import { checkoutBranch } from '../../containers/git';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -70,9 +68,9 @@ const NewBranchDialog = (props: Modal) => {
     const handleClose = () => dispatch(modalRemoved(props.id));
     const handleClick = async () => {
         if (repo) {
-            const root = await branch({ dir: repo.root, url: repo.url, ref: branchName });
-            const newBranch = await dispatch(createBranch({ root, branch: branchName, scope: 'local' })).unwrap();
-            dispatch(repoUpdated({ ...repo, local: [...repo.local, newBranch.id] }));
+            await checkoutBranch({ dir: repo.root, branch: branchName });
+            await dispatch(addBranch({ ref: branchName, root: repo.root })).unwrap();
+            await dispatch(updateBranches(repo));
         }
         handleClose();
     };

@@ -10,7 +10,7 @@ import { Modal, modalRemoved } from '../../store/slices/modals';
 import { createMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { CardType } from '../../store/types';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -144,7 +144,7 @@ const NewCardDialog = (props: Modal) => {
           loading: []
         }
       })).unwrap();
-      if (metafile) await dispatch(createCard({ metafile: metafile }));
+      if (metafile) await dispatch(buildCard({ metafile: metafile }));
       handleClose();
     }
     if (category === 'Browser') {
@@ -157,7 +157,7 @@ const NewCardDialog = (props: Modal) => {
           loading: []
         }
       })).unwrap();
-      if (metafile) dispatch(createCard({ metafile: metafile }));
+      if (metafile) dispatch(buildCard({ metafile: metafile }));
       handleClose();
     }
   };
