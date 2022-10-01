@@ -12,7 +12,7 @@ import { Repository } from '../../store/slices/repos';
  * @returns {string} The repository name (e.g. 'username/repo').
  */
 export const extractRepoName = (url: URL | string): string => {
-    const parsedPath = (typeof url === 'string') ? parseUrl(url) : parseUrl(url.href);
+    const parsedPath = (typeof url === 'string') ? parseUrl(url, false) : parseUrl(url.href, false);
     return parsedPath.pathname.replace(/^(\/*)(?:snippets\/)?/, '').replace(/\.git$/, '');
 };
 
