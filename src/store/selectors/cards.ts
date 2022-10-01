@@ -31,6 +31,7 @@ const selectByMetafiles = createSelector(
  *  (1) have a metafile associated with them,
  *  (2) that metafile contains a repo that matches the parameter repo,
  *  (3) that metafile contains a branch that matches the parameter branch (if needed)
+ * 
  * @param state The state object for the Redux store.
  * @param repo The UUID of a Repository entry in the Redux store.
  * @param branch Git branch name or commit hash.
@@ -53,6 +54,13 @@ const selectByStack = createSelector(
         .filter(c => c.captured === stackId)
 );
 
-const cardSelectors = { ...selectors, selectByIds, selectByMetafile, selectByMetafiles, selectByRepo, selectByStack };
+const selectByTarget = createSelector(
+    selectors.selectAll,
+    metafileSelectors.selectEntities,
+    (_state: RootState, target: UUID) => target,
+    (cards, metafiles, target) => cards.filter(c => c.type === 'Diff' && metafiles[c.metafile]?.targets?.includes(target))
+);
+
+const cardSelectors = { ...selectors, selectByIds, selectByMetafile, selectByMetafiles, selectByRepo, selectByStack, selectByTarget };
 
 export default cardSelectors;

@@ -21,7 +21,7 @@ const Content = (card: Card) => {
             return (<SourceControlReverse {...card} />);
         case 'Browser':
             return (<BrowserReverse {...card} />);
-        case 'BranchTracker':
+        case 'Branches':
             return null;
         case 'ConflictManager':
             return null;

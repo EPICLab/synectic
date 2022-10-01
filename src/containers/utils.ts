@@ -3,52 +3,68 @@ import { exec } from 'child_process';
 import { flattenObject } from './flatten';
 const promiseExec = util.promisify(exec);
 
-/** Requires all properties in U to override types in the intersection of T & U.
+/**
+ * Requires all properties in U to override types in the intersection of T & U.
  * Reused from: https://dev.to/vborodulin/ts-how-to-override-properties-with-type-intersection-554l
-*/
+ */
 export type Override<T, U> = Omit<T, keyof U> & U;
 
-/** Requires all properties to be nullable (i.e. `null` or `undefined` or `void`).
+/**
+ * Requires all properties to be nullable (i.e. `null` or `undefined` or `void`).
  * Inspired by: https://javascript.plainenglish.io/typescript-advanced-mapped-and-conditional-types-2d10c96042fe
  */
 export type Nullable<T> = {
   [P in keyof T]: T[P] | null | undefined;
 };
 
-/** Requires properties to be defined, or excluded from the type otherwise. Allows for empty object.
+/**
+ * Requires properties to be defined, or excluded from the type otherwise. Allows for empty object.
  * Inspired by: https://stackoverflow.com/a/60574436
  */
 export type NonUndefinedProperties<T> = {
   [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
 } | Record<string, never>;
 
-/** Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
+/**
+ * Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
  * Inspired by: https://stackoverflow.com/questions/48230773/how-to-create-a-partial-like-that-requires-a-single-property-to-be-set/48244432#48244432
  */
 export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K>; }> =
   Partial<T> & U[keyof U];
 
-/** Requires exactly one type property in an object, no more and no less.
+/**
+ * Requires exactly one type property in an object, no more and no less.
  * Inspired by: https://github.com/sindresorhus/type-fest/blob/main/source/require-exactly-one.d.ts
  */
 export type ExactlyOne<T, U extends keyof T = keyof T> =
   { [K in U]: (Required<Pick<T, K>> & Partial<Record<Exclude<U, K>, never>>) }[U] & Omit<T, U>;
 
-/** From T, set as required all properties whose keys are in the union K
+/**
+ * From T, set as required all properties whose keys are in the union K
  * Inspired by: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
  */
 export type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 
-/** From T, set as optional all properties whose keys are in the union K
+/**
+ * From T, set as optional all properties whose keys are in the union K
  * Inspired by: https://github.com/bkinseyx/testing-react-redux-toolkit/blob/610c8a676b7e799ea20047bf46dc35c47b3b988b/src/utils/types.ts
  */
 export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
+export type GitProgressEvent = {
+  phase: string;
+  loaded: number;
+  total: number;
+};
+
+export type ProgressCallback = (progress: GitProgressEvent) => void | Promise<void>;
+
 /**
  * Removes `undefined` and `null` values from an Array or Object type via a `filter` and type guard.
  * Reused from: https://github.com/robertmassaioli/ts-is-present
+ *
  * @param t Object that includes at least one of `undefined`, `null` or `void` in the type signature.
- * @returns A type narrowed version of the same `t` object.
+ * @returns {object | undefined | null | void} A type narrowed version of the same `t` object.
  */
 export const isPresent = <T>(t: T | undefined | null | void): t is T => {
   return t !== undefined && t !== null;
@@ -57,8 +73,9 @@ export const isPresent = <T>(t: T | undefined | null | void): t is T => {
 /**
  * Removes `undefined` values from an Array or Object type via a `filter` and type guard.
  * Reused from: https://github.com/robertmassaioli/ts-is-present
+ *
  * @param t Object that includes `undefined` in the type signature.
- * @returns A type narrowed version of the same `t` object.
+ * @returns {object | undefined} A type narrowed version of the same `t` object.
  */
 export const isDefined = <T>(t: T | undefined): t is T => {
   return t !== undefined;
@@ -67,8 +84,9 @@ export const isDefined = <T>(t: T | undefined): t is T => {
 /**
  * Removes `null` values from an Array or Object type via a `filter` and type guard.
  * Reused from: https://github.com/robertmassaioli/ts-is-present
+ *
  * @param t Object that includes `null` in the type signature.
- * @returns A type narrowed version of the same `t` object.
+ * @returns {object | null} A type narrowed version of the same `t` object.
  */
 export const isFilled = <T>(t: T | null): t is T => {
   return t !== null;
@@ -76,9 +94,10 @@ export const isFilled = <T>(t: T | null): t is T => {
 
 /**
  * Generic for comparing possible updates against the current state of an object.
+ *
  * @param object The original state object.
  * @param properties The updated state properties.
- * @returns A boolean indicating true if at least one property is new or contains modified values, false otherwise.
+ * @returns {boolean} A boolean indicating true if at least one property is new or contains modified values, false otherwise.
  */
 export const isUpdateable = <T extends Record<string | number | symbol, unknown>>(object: T, properties: Partial<T>): boolean => {
   let prop: keyof typeof properties;
@@ -90,19 +109,32 @@ export const isUpdateable = <T extends Record<string | number | symbol, unknown>
 };
 
 /**
+ * Check for the existence of numeric values in a string object.
+ * Returns a Boolean value that indicates whether a String value contains only numeric values.
+ *
+ * @param maybeNumber A string possibly containing only numeric values.
+ * @returns {boolean} A boolean indicating true if the parameter is a number, false otherwise.
+ */
+export const isNumber = (maybeNumber: string | undefined): boolean => {
+  return isDefined(maybeNumber) && !isNaN(+maybeNumber);
+}
+
+/**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.
+ *
  * @param json A valid JSON string.
- * @return A typed object (or nested array of objects).
+ * @returns {object} A typed object (or nested array of objects).
  */
 export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
 
 /**
  * Generic for partitioning an array into two disjoint arrays given a predicate function
  * that indicates whether an element should be in the passing subarray or failing subarray.
+ *
  * @param array The given array of elements to partition.
  * @param predicate A predicate function that resolves to true if element `e` meets
  * the inclusion requirements, and false otherwise.
- * @returns The resulting array of arrays where elements that passed the predicate are in
+ * @returns {[object[], object[]]} The resulting array of arrays where elements that passed the predicate are in
  * the left subarray and elements that failed the predicate are in the right subarray.
  */
 export const partition = <T>(array: T[], predicate: (e: T) => boolean) => {
@@ -113,8 +145,9 @@ export const partition = <T>(array: T[], predicate: (e: T) => boolean) => {
 
 /**
  * Filters an array and removes any undefined elements contained within it.
+ *
  * @param array The given array of elements that should be filtered for undefined.
- * @return The resulting array devoid of any undefined elements.
+ * @returns {object[]} The resulting array devoid of any undefined elements.
  */
 export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
   return array.filter((item): item is T => typeof item !== 'undefined');
@@ -122,8 +155,9 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
 
 /**
  * Filters an object and removes any properties with undefined values.
+ *
  * @param obj The given object containing key-value properties that should be filtered for undefined.
- * @returns The resulting object devoid of any undefined values.
+ * @returns {object} The resulting object devoid of any undefined values.
  */
 export const removeUndefinedProperties = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NonUndefinedProperties<T> => {
   return Object.entries(obj)
@@ -134,10 +168,11 @@ export const removeUndefinedProperties = <V, T extends Record<string, V | undefi
 /**
  * Generic for deduplicating array of elements given a comparator function that
  * indicates whether a pair of elements should be considered duplicates.
+ *
  * @param arr An array of elements.
  * @param comparator A comparator function that indicates true if elements a
  * and b are duplicate, and false otherwise.
- * @return The resulting array devoid of duplicate elements.
+ * @returns {object[]} The resulting array devoid of duplicate elements.
  */
 export const removeDuplicates = <T>(arr: T[], comparator: (a: T, b: T) => boolean): T[] => {
   return arr.reduce((accumulator: T[], current) => {
@@ -150,10 +185,11 @@ export const removeDuplicates = <T>(arr: T[], comparator: (a: T, b: T) => boolea
  * Generic for asynchronously filtering an array of elements given an async predicate
  * function that resolves to indicate whether an element should be considered for
  * inclusion in the resulting array.
+ *
  * @param arr An array of elements.
  * @param predicate A predicate function that resolves to true if element `e` meets
  * the filter inclusion requirements, and false otherwise.
- * @return The resulting array devoid of elements that did not meet the predicate.
+ * @returns {Promise<object[]>} The resulting array devoid of elements that did not meet the predicate.
  */
 export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<boolean>): Promise<T[]> => {
   const results = await Promise.all(arr.map(predicate));
@@ -162,9 +198,10 @@ export const asyncFilter = async <T>(arr: T[], predicate: (e: T) => Promise<bool
 
 /**
  * Generic for flattening and filtering an object given a set of filtering keys for inclusion in the resulting object.
+ *
  * @param obj An object containing key-value indexed fields.
  * @param filter An array of key strings that indicate which key-value pairs should be included or excluded.
- * @return The resulting object devoid of key-value fields that did not match the key filter, or an empty object.
+ * @returns {object} The resulting object devoid of key-value fields that did not match the key filter, or an empty object.
  */
 export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: string[]): ReturnType<typeof flattenObject<T>> => {
   return Object.entries(flattenObject(obj))
@@ -175,9 +212,10 @@ export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: str
 /**
  * Expand an array of path elements (i.e. a dot-format path such as `user.name`) into a successive series of named
  * objects that contain any subsequent path elements and/or the updated value.
+ *
  * @param path An array of path elements ordered in sequence (i.e. `user.name.lastName` would be `[user, name, lastName]`).
  * @param value The value to insert or update at the specific path in the return object.
- * @return An object containing a key-value structure of embedded container objects according to the given path.
+ * @returns {object} An object containing a key-value structure of embedded container objects according to the given path.
  */
 export const objectifyPath = (path: Array<string | number>, value: string | boolean | number | undefined):
   Record<string | number, unknown> => {
@@ -191,9 +229,10 @@ export const objectifyPath = (path: Array<string | number>, value: string | bool
  * Compares two `Map` objects for equality; only supports `Map` and not objects with key-value pairs (i.e. 
  * `const map: {[key: string]: value}`). Checks for same map sizes, then tests all underlying key-value entries for 
  * equality between maps.
+ *
  * @param map1 A `Map` object.
  * @param map2 A `Map` object.
- * @returns A boolean indicating true if the `Map` objects are equal, or false otherwise.
+ * @returns {boolean} A boolean indicating true if the `Map` objects are equal, or false otherwise.
  */
 export const equalMaps = <K, V>(map1: Map<K, V>, map2: Map<K, V>): boolean => {
   if (map1.size !== map2.size) return false;
@@ -207,9 +246,10 @@ export const equalMaps = <K, V>(map1: Map<K, V>, map2: Map<K, V>): boolean => {
 /**
  * Compares two `Array` objects for equality. Checks for same array length, then tests all underlying elements
  * for equality between arrays.
+ *
  * @param arr1 An `Array` object.
  * @param arr2 An `Array` object.
- * @returns A boolean indicating true if the `Array` objects are equal, or false otherwise.
+ * @returns {boolean} A boolean indicating true if the `Array` objects are equal, or false otherwise.
  */
 export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
   if (arr1.length != arr2.length) return false;
@@ -225,9 +265,10 @@ export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
  * be used in lieu of this function. `TypedArray` is a class of objects, which includes all of the following: 
  * `Int8Array`, `Uint8Array`, `Uint8ClampedArray`, `Int16Array` ,`Int32Array`, `Uint32Array`, `Float32Array`, 
  * `Float64Array`, `BigInt64Array`, `BigUint64Array`.
+ *
  * @param buf1 An `ArrayBufferLike` object.
  * @param buf2 An `ArrayBufferLike` object.
- * @return A boolean indicating true if the `ArrayBufferLike` objects are equal, or false otherwise.
+ * @returns {boolean} A boolean indicating true if the `ArrayBufferLike` objects are equal, or false otherwise.
  */
 export const equalArrayBuffers = (buf1: ArrayBufferLike, buf2: ArrayBufferLike): boolean => {
   if (buf1.byteLength != buf2.byteLength) return false;
@@ -241,8 +282,9 @@ export const equalArrayBuffers = (buf1: ArrayBufferLike, buf2: ArrayBufferLike):
 
 /**
  * Convert a `Buffer` object into an `ArrayBuffer` object.
+ *
  * @param buf A `Buffer` object representing binary data in the form of a sequence of bytes.
- * @return A new `ArrayBuffer` object containing a copy of all data in `Buffer` object.
+ * @returns {ArrayBuffer} A new `ArrayBuffer` object containing a copy of all data in `Buffer` object.
  */
 export const toArrayBuffer = (buf: Buffer): ArrayBuffer => {
   const ab = new ArrayBuffer(buf.length);
@@ -256,9 +298,10 @@ export const toArrayBuffer = (buf: Buffer): ArrayBuffer => {
 /**
  * Generates a pseudo-random number bounded by inclusive minimum and maximum bounds.
  * Reused from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#getting_a_random_integer_between_two_values_inclusive
+ *
  * @param min Minimum range value.
  * @param max Maximum range value.
- * @returns A pseudo-random number between `min` and `max` (inclusive).
+ * @returns {number} A pseudo-random number between `min` and `max` (inclusive).
  */
 export const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -268,8 +311,9 @@ export const getRandomInt = (min: number, max: number): number => {
  * Scheduled execution of a one-time no-op callback after a delay of `ms` milliseconds. Since this relies on 
  * [`setTimeout()`](https://nodejs.org/api/timers.html#settimeoutcallback-delay-args) from Node.js, we do not guarantee the exact timing of when the callback will
  * fire, nor of their ordering. The callback will be called as close as possible to the time specified.
+ *
  * @param ms The number of milliseconds to wait before callback returns.
- * @returns A Promise object containing a no-op callback.
+ * @returns {Promise<unknown>} A Promise object containing a no-op callback.
  */
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -288,9 +332,10 @@ type ExecError = {
  * 
  * WARNING: Never pass unsanitized user input to this function. Any input containing shell metacharacters may be used to trigger 
  * arbitrary command execution.
+ *
  * @param command The command to run, with space-separated arguments.
  * @param cwd The current working directory that the command should be executed in.
- * @returns A Promise object containing the `stdout` and `stderr` strings with content based on the output of the command.
+ * @returns {Promise<{ stdout: string, stderr: string }>} A Promise object containing the `stdout` and `stderr` strings with content based on the output of the command.
  */
 export const execute = async (command: string, cwd?: string | URL | undefined) => {
   let execResult: { stdout: string, stderr: string } = { stdout: '', stderr: '' };

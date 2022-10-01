@@ -1,5 +1,5 @@
 import { mock, MockInstance } from '../test-utils/mock-fs';
-import { checkFilepath } from './merges';
+import { checkUnmergedPath } from './git';
 
 describe('containers/merges', () => {
     let mockedInstance: MockInstance;
@@ -29,15 +29,17 @@ describe('containers/merges', () => {
     afterAll(() => mockedInstance.reset());
 
     it('checkFilepath resolves to undefined on non-conflicting file', async () => {
-        await expect(checkFilepath('foo/bar.js')).resolves.toBeUndefined();
+        await expect(checkUnmergedPath('foo/bar.js')).resolves.toHaveLength(0);
     });
 
     it('checkFilepath resolves to a conflict array on conflicting file', async () => {
-        await expect(checkFilepath('foo/example.ts')).resolves.toStrictEqual(
-            expect.objectContaining({
-                path: 'foo/example.ts',
-                conflicts: [33, 183]
-            })
+        await expect(checkUnmergedPath('foo/example.ts')).resolves.toStrictEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    path: 'foo/example.ts',
+                    conflicts: [33, 183]
+                })
+            ])
         );
     });
 });

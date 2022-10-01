@@ -5,7 +5,7 @@ import { ArrowDropDown, ArrowRight } from '@material-ui/icons';
 import { TreeView } from '@material-ui/lab';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { commit, getConfig } from '../../containers/git-porcelain';
+
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import repoSelectors from '../../store/selectors/repos';
@@ -13,7 +13,7 @@ import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafile
 import { fetchBranches } from '../../store/thunks/branches';
 import { repoUpdated } from '../../store/slices/repos';
 import FileComponent from '../Explorer/FileComponent';
-import { getRoot } from '../../containers/git-path';
+import { commit, getRoot } from '../../containers/git';
 import { updateFilebasedMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -82,15 +82,7 @@ const CommitDialog = (props: Modal) => {
         const repo = (metafile && metafile.repo) ? repos.find(r => r.id === metafile.repo) : undefined;
         const dir = (metafile && metafile.path) ? await getRoot(metafile.path) : undefined;
         if (dir) {
-            const username = (await getConfig({ dir: dir, keyPath: 'user.name' }));
-            const email = await getConfig({ dir: dir, keyPath: 'user.email' });
-
-            const result = await commit({
-                dir: dir, message: message, author: {
-                    name: username.scope !== 'none' ? username.value : '',
-                    email: email.scope !== 'none' ? email.value : ''
-                }
-            });
+            const result = await commit({ dir: dir, message: message });
             console.log(`commit result: ${result}`);
             if (metafile && isFilebasedMetafile(metafile)) {
                 await dispatch(updateFilebasedMetafile(metafile));
