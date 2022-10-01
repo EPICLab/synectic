@@ -1,5 +1,4 @@
 import { diffArrays } from 'diff';
-import { ReadCommitResult } from 'isomorphic-git';
 import { useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
@@ -7,15 +6,14 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { Branch } from '../../store/slices/branches';
 import { RootState } from '../../store/store';
-import { UUID } from '../../store/types';
-import { checkProject } from '../merges';
+import { CommitObject, UUID } from '../../store/types';
 import { removeUndefined } from '../utils';
-import { hasStatus } from '../git-porcelain';
 import usePrevious from './usePrevious';
+import { checkUnmergedBranch, worktreeStatus } from '../git';
 
 type Oid = string;
 export type GitGraph = Map<Oid, CommitVertex>;
-export type CommitVertex = ReadCommitResult & {
+export type CommitVertex = CommitObject & {
     scope: 'local' | 'remote',
     branch: string,
     parents: Oid[],
@@ -81,19 +79,20 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
      * where `C` is the number of commits. However, most of the time this will be used in conjunction with traversing through all branches 
      * in repository, in which case the complexity becomes `O(B*C)` where `B` is the number of branches (local and remote instances of a 
      * branch are considered separately).
-     * @param graph The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
-     * @param branch A local or remote Branch object containing commits.
+     * 
+     * @param graph - The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
+     * @param branch - A local or remote Branch object containing commits.
      */
     const parse = async (graph: GitGraph, branch: Branch) => {
         // check for conflicts in head commit
-        const conflicted = (await checkProject(branch.root, branch.ref)).length > 0;
+        const conflicted = (await checkUnmergedBranch(branch.root, branch.ref)).length > 0;
 
         branch.commits.map((commit, idx) => {
             !graph.has(commit.oid) ? graph.set(commit.oid, {
                 ...commit,
                 scope: branch.scope,
                 branch: branch.ref,
-                parents: commit.commit.parent,
+                parents: commit.parents,
                 children: [],
                 head: idx === 0 ? true : false,
                 staged: false,
@@ -106,20 +105,20 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     const parseStaged = async (graph: GitGraph, branch: Branch) => {
         if (branch.scope === 'local') {
             const existing = graph.has(`${branch.scope}/${branch.ref}*`);
-            const hasStaged = await hasStatus(branch.root, ['added', 'modified', 'deleted']);
+            const staged = ['added', 'modified', 'deleted'];
+            const statuses = await worktreeStatus({ dir: branch.root });
+            const hasStaged = statuses ? statuses.entries.filter(e => staged.includes(e.status)).length > 0 : false;
 
             if (!existing && hasStaged) {
                 // add placeholder CommitVertex for newly staged files in the branch
                 graph.set(`${branch.scope}/${branch.ref}*`, {
                     oid: `${branch.scope}/${branch.ref}*`,
-                    commit: {
-                        message: '',
-                        tree: '',
-                        parent: branch.commits[0] ? [branch.commits[0].oid] : [],
-                        author: { name: '', email: '', timestamp: 0, timezoneOffset: 0 },
-                        committer: { name: '', email: '', timestamp: 0, timezoneOffset: 0 }
+                    message: '',
+                    author: {
+                        name: '',
+                        email: '',
+                        timestamp: undefined
                     },
-                    payload: '',
                     scope: branch.scope,
                     branch: branch.ref,
                     parents: branch.commits[0] ? [branch.commits[0].oid] : [],
@@ -139,6 +138,8 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     /**
      * Traverse all vertices and add backlinks to all child vertices. Time complexity is `O(V+E)`, where `V` is
      * the number of vertices and `E` is the number of edges. 
+     * 
+     * @param graph - The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
      */
     const link = (graph: GitGraph) => {
         for (const vertex of graph.values()) {
@@ -157,6 +158,8 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
      * sequential vertex from the graph. This breaks from the ground truth within git worktrees, but provides a 
      * minimum set of vertices for visualizing the repository graph. Time complexity is `O(V)`, where `V` is the number
      * of vertices (since `Map.get` and `Map.set` are `O(1)` constant operations).
+     * 
+     * @param graph - The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
      */
     const prune = (graph: GitGraph) => {
         const prunable = Array.from(graph.values()).filter(vertex => vertex.parents.length == 1 && vertex.children.length == 1);
@@ -178,8 +181,10 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     /**
      * Filter and partition commits in a branch into added, removed, and modified. Time complexity is `O(B*C)` where `B` is the
      * number of branches (local and remote instances are considered separately) and `C` is the number of commits in the repository.
-     * @returns A filtered object containing branches that have been added, branches that have been removed, and branches that
-     * contain modifications to the tracked commits, the commit pointed to by HEAD, or staged/unstaged files.
+     *
+     * @returns {{ added: Branch[], removed: boolean, modified: Branch[] }} A filtered object containing branches that have been added, 
+     * branches that have been removed, and branches that contain modifications to the tracked commits, the commit pointed to by HEAD, or 
+     * staged/unstaged files.
      */
     const partition = (): { added: Branch[], removed: boolean, modified: Branch[] } => {
         const removed = prevBranches ? prevBranches.some(branch => !branches.some(b => b.id === branch.id)) : false;
@@ -223,8 +228,9 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     /**
      * Topological sorting for Directed Acyclic Graph (DAG) is a linear ordering of vertices such that for every directed edge `u -> v`, 
      * vertex `u` comes before `v` in the ordering. Topological Sorting for a graph is not possible if the graph is not a DAG.
+     *
      * @param graph The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
-     * @returns An array of keys corresponding to the elements in the graph, but sorted in topological order.
+     * @returns {string[]} An array of keys corresponding to the elements in the graph, but sorted in topological order.
      */
     const topologicalSort = (graph: GitGraph) => {
         const visited: Map<string, boolean> = new Map([...graph.keys()].map(k => [k, false]));
