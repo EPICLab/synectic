@@ -8,7 +8,7 @@ import { file, mock, MockInstance } from '../../test-utils/mock-fs';
 import CardComponent from './CardComponent';
 import { FilebasedMetafile, metafileAdded } from '../../store/slices/metafiles';
 import { DateTime } from 'luxon';
-import { createCard } from '../../store/thunks/cards';
+import { buildCard } from '../../store/thunks/cards';
 
 const metafile: FilebasedMetafile = {
     id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
@@ -67,7 +67,7 @@ describe('CardComponent', () => {
     // });
 
     it('Card resolves props into React Component for Editor handler', async () => {
-        const card = await store.dispatch(createCard({ metafile: metafile })).unwrap();
+        const card = await store.dispatch(buildCard({ metafile: metafile })).unwrap();
         const [WrappedComponent] = wrapWithTestBackend(CardComponent);
         render(
             <Provider store={store}>
@@ -78,7 +78,7 @@ describe('CardComponent', () => {
     });
 
     it('Card resolves props into React Component for Diff handler', async () => {
-        const card = await store.dispatch(createCard({ metafile: metafile })).unwrap();
+        const card = await store.dispatch(buildCard({ metafile: metafile })).unwrap();
         const [WrappedComponent] = wrapWithTestBackend(CardComponent);
         render(
             <Provider store={store}>
@@ -100,7 +100,7 @@ describe('CardComponent', () => {
     // });
 
     it('Card resolves props into React Component for Browser handler', async () => {
-        const card = await store.dispatch(createCard({ metafile: metafile })).unwrap();
+        const card = await store.dispatch(buildCard({ metafile: metafile })).unwrap();
         const [WrappedComponent] = wrapWithTestBackend(CardComponent);
         render(
             <Provider store={store}>
@@ -111,7 +111,7 @@ describe('CardComponent', () => {
     });
 
     it('Card resolves props into React Component for Tracker handler', async () => {
-        const card = await store.dispatch(createCard({ metafile: metafile })).unwrap();
+        const card = await store.dispatch(buildCard({ metafile: metafile })).unwrap();
         const [WrappedComponent] = wrapWithTestBackend(CardComponent);
         render(
             <Provider store={store}>

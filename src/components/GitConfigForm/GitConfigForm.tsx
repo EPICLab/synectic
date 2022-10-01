@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Divider, FormControlLabel, Switch, TextField, Typography } from '@material-ui/core';
-import { getConfig, setConfig } from '../../containers/git-porcelain';
+
 import isEmail from 'validator/lib/isEmail';
 import { PathLike } from 'fs-extra';
+import { getConfig, setConfig } from '../../containers/git';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
