@@ -8,13 +8,15 @@ import FileComponent from './FileComponent';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
 import { UUID } from '../../store/types';
+import { isDescendant } from '../../containers/io';
 
 const Explorer = (props: { metafile: UUID }) => {
   const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByRoot(state, metafile && metafile.path ? metafile.path : ''));
-  const directories = metafiles.filter(dir => dir.filetype === 'Directory' && !dir.name.startsWith('.')
-    && dir.name !== 'node_modules' && dir.id !== metafile?.id);
-  const files = metafiles.filter(file => file.filetype !== 'Directory').sort((a, b) => a.name.localeCompare(b.name));
+  const descendants = useAppSelector((state: RootState) => metafileSelectors.selectByRoot(state, metafile?.path ?? ''));
+  const directories = descendants.filter(child => isDescendant(metafile?.path ?? '', child.path, true) && child.filetype === 'Directory' &&
+    !child.name.startsWith('.') && child.name !== 'node_modules' && child.id !== metafile?.id);
+  const files = descendants.filter(child => isDescendant(metafile?.path ?? '', child.path, true) && child.filetype !== 'Directory')
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
@@ -25,8 +27,8 @@ const Explorer = (props: { metafile: UUID }) => {
           defaultExpandIcon={<ArrowRight />}
           defaultEndIcon={<div style={{ width: 8 }} />}
         >
-          {directories.map(dir => <Directory key={dir.id} metafile={dir.id} />)}
-          {files.map(file => <FileComponent key={file.id} metafile={file.id} />)}
+          {directories.map(dir => <Directory key={dir.id} id={dir.id} metafiles={descendants} />)}
+          {files.map(file => <FileComponent key={file.id} metafile={file} />)}
         </TreeView>
       </div>
     </>
