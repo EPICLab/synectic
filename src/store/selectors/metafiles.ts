@@ -1,7 +1,6 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import { relative, sep } from 'path';
-import { isEqualPaths } from '../../containers/io';
+import { isDescendant, isEqualPaths } from '../../containers/io';
 import { Card } from '../slices/cards';
 import { FilebasedMetafile, isFilebasedMetafile, isFileMetafile, Metafile, metafileAdapter, VersionedMetafile, VirtualMetafile } from '../slices/metafiles';
 import { RootState } from '../store';
@@ -34,9 +33,7 @@ const selectByRoot = createSelector(
     (_state: RootState, root: PathLike) => root,
     (metafiles, root) => metafiles.filter(m =>
         isFilebasedMetafile(m) &&
-        m.path.toString() !== root.toString() &&
-        !relative(root.toString(), m.path.toString()).startsWith('..') &&
-        !relative(root.toString(), m.path.toString()).includes(sep)
+        isDescendant(root, m.path)
     ) as FilebasedMetafile[]
 );
 
