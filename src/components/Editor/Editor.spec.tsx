@@ -50,7 +50,7 @@ describe('Editor component', () => {
     it('Editor renders in the DOM', () => {
         render(
             <Provider store={store}>
-                <Editor metafile={metafile.id} />
+                <Editor metafileId={metafile.id} />
             </Provider>
         );
 
@@ -64,7 +64,7 @@ describe('Editor component', () => {
     it('Editor tracks content updates', () => {
         render(
             <Provider store={store}>
-                <Editor metafile={metafile.id} />
+                <Editor metafileId={metafile.id} />
             </Provider>
         );
         const textBox = screen.queryByRole('textbox');
