@@ -1737,10 +1737,10 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
-"@types/parse-path@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@types/parse-path/-/parse-path-5.0.0.tgz#62068457b6d2bcd698942f35ed1ce8bf724da964"
-  integrity sha512-vqEtc7yW96ncSyZfxi5iFM/eWfFsmTahNIJnEl9UT0BrpL4+2FF2ulhtcSdo4kH42rJcZKommA1warudhL+tlg==
+"@types/parse-path@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@types/parse-path/-/parse-path-7.0.0.tgz#4cca116adc986f5f020afca548f4bcfcad176606"
+  integrity sha512-6byy8kRKP/n0roDHjKzGnhwzq6ip+Db595CrRwjCQJwsFy4t6/DIz8ESwk7k9DqTh+0iPsX+SuOP5TBm+MA9eA==
 
 "@types/prettier@^2.1.5":
   version "2.7.1"
