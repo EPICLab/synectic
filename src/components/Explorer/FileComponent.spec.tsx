@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import TreeView from '@material-ui/lab/TreeView';
 import { DateTime } from 'luxon';
@@ -39,24 +39,12 @@ describe('FileComponent', () => {
         store.clearActions();
     });
 
-    it('FileComponent initially renders with loading indicator', () => {
-        render(
-            <Provider store={store} >
-                <TreeView><FileComponent metafile={mockedMetafile.id} /> </TreeView>
-            </Provider>
-        );
-        expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
-        expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
-    });
-
     it('FileComponent eventually renders file information', async () => {
         render(
             <Provider store={store}>
-                <TreeView><FileComponent metafile={mockedMetafile.id} /></TreeView>
+                <TreeView><FileComponent metafile={mockedMetafile} /></TreeView>
             </Provider>
         );
-        expect(screen.queryByText('bar.js')).not.toBeInTheDocument();
-        await waitForElementToBeRemoved(() => screen.queryByLabelText(/loading/i));
         expect(screen.getByText('bar.js')).toBeInTheDocument();
     });
 

@@ -126,7 +126,7 @@
     "react-dnd-preview": "^6.0.2",
     "react-dom": "^17.0.2",
     "react-flow-renderer": "^10.3.17",
-    "react-redux": "^7.2.6",
+    "react-redux": "^8.0.4",
     "react-transition-group": "^4.4.5",
     "redux": "^4.2.0",
     "redux-persist": "^6.0.0",
