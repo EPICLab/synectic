@@ -7782,12 +7782,10 @@ react-dnd-html5-backend@^15.1.2:
   dependencies:
     dnd-core "15.1.2"
 
-react-dnd-preview@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/react-dnd-preview/-/react-dnd-preview-6.0.2.tgz#dd34931c270853c80438e1275e6c9e77174f8afe"
-  integrity sha512-F2+uK4Be+q+7mZfNh9kaZols7wp1hX6G7UBTVaTpDsBpMhjFvY7/v7odxYSerSFBShh23MJl33a4XOVRFj1zoQ==
-  dependencies:
-    prop-types "^15.7.2"
+react-dnd-preview@^7.1.1:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/react-dnd-preview/-/react-dnd-preview-7.1.1.tgz#2d9316c670f623b4ed2c1a977bf10520671b3265"
+  integrity sha512-MFEiNF2YpI7MZOUt2ZyuO3eRZn5vPP0MfKGS43JDj1KzHXWgW3Z2iuOqR7Vxk46OmP0uSFU1OV+0jDyhhiEo5A==
 
 react-dnd-test-backend@^15.1.1:
   version "15.1.2"
