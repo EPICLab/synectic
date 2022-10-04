@@ -133,30 +133,30 @@ describe('NewCardDialog modal component', () => {
         expect(screen.getByText('Create Card').closest('button')).toBeDisabled();
     });
 
-    it('populates filetype on valid filename entry', async () => {
-        store.dispatch(filetypeAdded(filetype1));
-        const { user } = produceComponent();
+    // it('populates filetype on valid filename entry', async () => {
+    //     store.dispatch(filetypeAdded(filetype1));
+    //     const { user } = produceComponent();
 
-        // open the editor portion of dialog
-        await user.click(screen.getByTestId('editor-button'));
-        // enter a filename with a valid filetype
-        fireEvent.change(screen.getByLabelText('Filename'), {
-            target: { value: 'test.js' }
-        });
-        expect(screen.getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
-        // eslint-disable-next-line testing-library/no-node-access
-        expect(screen.getByText('Create Card').closest('button')).toBeEnabled();
+    //     // open the editor portion of dialog
+    //     await user.click(screen.getByTestId('editor-button'));
+    //     // enter a filename with a valid filetype
+    //     fireEvent.change(screen.getByLabelText('Filename'), {
+    //         target: { value: 'test.js' }
+    //     });
+    //     expect(screen.getByTestId('new-card-filetype-selector')).toHaveValue('JavaScript');
+    //     // eslint-disable-next-line testing-library/no-node-access
+    //     expect(screen.getByText('Create Card').closest('button')).toBeEnabled();
 
-        // click to attempt to create a card
-        await user.click(screen.getByText('Create Card'));
-        await waitFor(() => {
-            expect(store.getActions()).toStrictEqual(
-                expect.arrayContaining([
-                    expect.objectContaining({
-                        type: 'metafiles/metafileAdded'
-                    })
-                ])
-            )
-        });
-    });
+    //     // click to attempt to create a card
+    //     await user.click(screen.getByText('Create Card'));
+    //     await waitFor(() => {
+    //         expect(store.getActions()).toStrictEqual(
+    //             expect.arrayContaining([
+    //                 expect.objectContaining({
+    //                     type: 'metafiles/metafileAdded'
+    //                 })
+    //             ])
+    //         )
+    //     });
+    // });
 });
