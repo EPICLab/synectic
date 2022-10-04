@@ -114,6 +114,26 @@ describe('io.isEqualPaths', () => {
     });
 });
 
+describe('io.isDescendant', () => {
+    it('isDescendant resolves to true for child paths', () => {
+        expect.assertions(2);
+        expect(io.isDescendant('foo/', 'foo/bar/example.ts')).toBeTruthy();
+        expect(io.isDescendant('foo/bar/', 'qux/../foo/bar/example.ts')).toBeTruthy();
+    });
+
+    it('isDescendant resolves to true on direct child paths only with `direct` enabled', () => {
+        expect.assertions(2);
+        expect(io.isDescendant('foo/bar/', 'foo/bar/example.ts', true)).toBeTruthy();
+        expect(io.isDescendant('foo/', 'foo/bar/example.ts', true)).toBeFalsy();
+    });
+
+    it('isDescendant resolves to false for equivalent paths', () => {
+        expect.assertions(2);
+        expect(io.isDescendant('foo/bar/example.ts', 'foo/bar/example.ts')).toBeFalsy();
+        expect(io.isDescendant('foo/bar/example.ts', 'qux/../foo/bar/example.ts')).toBeFalsy();
+    });
+});
+
 describe('io.readFileAsync', () => {
     let mockedInstance: MockInstance;
     beforeAll(async () => {

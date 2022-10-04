@@ -14,7 +14,7 @@ const Content = (card: Card) => {
         case 'Loading':
             return (<Loading />);
         case 'Editor':
-            return (<Editor metafile={card.metafile} />);
+            return (<Editor metafileId={card.metafile} expanded={card.expanded} />);
         case 'Diff':
             return (<Diff metafile={card.metafile} />);
         case 'Explorer':
