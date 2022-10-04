@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import TreeView from '@material-ui/lab/TreeView';
 import type { MockInstance } from '../../test-utils/mock-fs';
@@ -81,46 +81,41 @@ describe('Directory', () => {
     jest.clearAllMocks();
   });
 
-  // it('Directory initially renders with loading indicator', () => {
-  //   render(
-  //     <Provider store={store} >
-  //       <TreeView><Directory metafile={unhydratedDirectory.id} /> </TreeView>
-  //     </Provider>
-  //   );
-  //   expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
-  //   expect(screen.queryByText('foo')).not.toBeInTheDocument();
-  // });
+  it('Directory initially renders with loading indicator', () => {
+    expect.assertions(2);
+    render(
+      <Provider store={store} >
+        <TreeView><Directory id={unhydratedDirectory.id} metafiles={[mockedMetafile1]} /> </TreeView>
+      </Provider>
+    );
+    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
+    expect(screen.queryByText('foo')).not.toBeInTheDocument();
+  });
 
-  // it('Directory eventually renders without expanding to display children', async () => {
-  //   render(
-  //     <Provider store={store} >
-  //       <TreeView><Directory metafile={unhydratedDirectory.id} /> </TreeView>
-  //     </Provider>
-  //   );
-  //   expect(screen.queryByText('foo')).not.toBeInTheDocument();
-  //   await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i));
-  //   expect(screen.getByRole('treeitem')).toBeInTheDocument();
-  //   expect(screen.queryByText('foo')).toBeInTheDocument();
-  // });
+  it('Directory eventually renders without expanding to display children', async () => {
+    expect.assertions(3);
+    render(
+      <Provider store={store} >
+        <TreeView><Directory id={unhydratedDirectory.id} metafiles={[unhydratedDirectory, mockedMetafile1]} /> </TreeView>
+      </Provider>
+    );
+    expect(screen.getByRole('treeitem')).toBeInTheDocument();
+    expect(screen.getByText('foo')).toBeInTheDocument();
+    expect(screen.queryByText('foo/bar.js')).not.toBeInTheDocument();
+  });
 
   it('Directory expands to display child files and directories', async () => {
-    // const user = userEvent.setup();
+    expect.assertions(4);
     render(
       <Provider store={store}>
-        <TreeView><Directory metafile={hydratedDirectory.id} /></TreeView>
+        <TreeView><Directory id={hydratedDirectory.id} metafiles={[hydratedDirectory, mockedMetafile2]} /></TreeView>
       </Provider>
     );
     expect(screen.getByRole('treeitem')).toBeInTheDocument();
     expect(screen.getByText('zap')).toBeInTheDocument();
     expect(screen.queryByText('tap.js')).not.toBeInTheDocument();
 
-    // eslint-disable-next-line testing-library/no-unnecessary-act
-    await act(async () => {
-      const directory = screen.getByText('zap');
-      fireEvent.click(directory);
-    });
-
-    // await user.click(screen.getByText('zap'));
+    fireEvent.click(screen.getByText('zap'));
     expect(screen.getByText('tap.js')).toBeInTheDocument();
   });
 

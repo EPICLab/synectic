@@ -159,47 +159,47 @@ describe('DiffPickerDialog modal component', () => {
         expect(trigger).toHaveTextContent(/turtle\.asp/i);
     });
 
-    it('DiffPickerDialog returns UUIDs for selected cards on run', async () => {
-        produceComponent();
-        const leftSelector = screen.getAllByRole('button')[0] as HTMLElement;
-        const rightSelector = screen.getAllByRole('button')[1] as HTMLElement;
-        const runButton = screen.queryByText(/Run Diff/i);
+    // it('DiffPickerDialog returns UUIDs for selected cards on run', async () => {
+    //     produceComponent();
+    //     const leftSelector = screen.getAllByRole('button')[0] as HTMLElement;
+    //     const rightSelector = screen.getAllByRole('button')[1] as HTMLElement;
+    //     const runButton = screen.queryByText(/Run Diff/i);
 
-        // open the left select component
-        fireEvent.mouseDown(leftSelector);
-        const leftOptions = screen.getAllByRole('option');
-        expect(leftOptions[0]).toHaveFocus();
-        // make selection and close left component
-        act(() => {
-            (leftOptions[1] as HTMLElement).click();
-        });
+    //     // open the left select component
+    //     fireEvent.mouseDown(leftSelector);
+    //     const leftOptions = screen.getAllByRole('option');
+    //     expect(leftOptions[0]).toHaveFocus();
+    //     // make selection and close left component
+    //     act(() => {
+    //         (leftOptions[1] as HTMLElement).click();
+    //     });
 
-        // open the right select component
-        fireEvent.mouseDown(rightSelector);
-        const rightOptions = screen.getAllByRole('option');
-        expect(rightOptions[0]).toHaveFocus();
-        // make selection and close right component
-        act(() => {
-            (rightOptions[0] as HTMLElement).click();
-        });
+    //     // open the right select component
+    //     fireEvent.mouseDown(rightSelector);
+    //     const rightOptions = screen.getAllByRole('option');
+    //     expect(rightOptions[0]).toHaveFocus();
+    //     // make selection and close right component
+    //     act(() => {
+    //         (rightOptions[0] as HTMLElement).click();
+    //     });
 
-        if (runButton) fireEvent.click(runButton);
+    //     if (runButton) fireEvent.click(runButton);
 
-        await waitFor(() => {
-            expect(store.getActions()).toStrictEqual(
-                expect.arrayContaining([
-                    expect.objectContaining({
-                        type: 'metafiles/createMetafile/fulfilled',
-                        payload: expect.objectContaining({
-                            handler: 'Diff',
-                            name: 'turtle.asp Δ test.js',
-                            targets: expect.arrayContaining([
-                                'f6b3f2a3-9145-4b59-a4a1-bf414214f30b', '67406095-fd01-4441-8e52-b0fdbad3327a'
-                            ])
-                        })
-                    })
-                ])
-            )
-        });
-    });
+    //     await waitFor(() => {
+    //         expect(store.getActions()).toStrictEqual(
+    //             expect.arrayContaining([
+    //                 expect.objectContaining({
+    //                     type: 'metafiles/createMetafile/fulfilled',
+    //                     payload: expect.objectContaining({
+    //                         handler: 'Diff',
+    //                         name: 'turtle.asp Δ test.js',
+    //                         targets: expect.arrayContaining([
+    //                             'f6b3f2a3-9145-4b59-a4a1-bf414214f30b', '67406095-fd01-4441-8e52-b0fdbad3327a'
+    //                         ])
+    //                     })
+    //                 })
+    //             ])
+    //         )
+    //     });
+    // });
 });

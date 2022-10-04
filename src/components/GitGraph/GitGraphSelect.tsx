@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { v4 } from 'uuid';
 import repoSelectors from '../../store/selectors/repos';
 import modalSelectors from '../../store/selectors/modals';
-import { modalAdded, modalRemoved } from '../../store/slices/modals';
+import { Modal, modalAdded, modalRemoved } from '../../store/slices/modals';
 
 const StyledInput = withStyles((theme: Theme) =>
   createStyles({
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const GitGraphSelect = () => {
   const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
   const [selected, setSelected] = useState('');
-  const graphs = useAppSelector((state: RootState) => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
+  const graphs: Modal[] = useAppSelector((state: RootState) => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
   const dispatch = useAppDispatch();
   const styles = useStyles();
 
