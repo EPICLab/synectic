@@ -4,54 +4,57 @@ import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import { Skeleton } from '@material-ui/lab';
 import FileComponent from './FileComponent';
 import { StyledTreeItem } from '../StyledTreeComponent';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import metafileSelectors from '../../store/selectors/metafiles';
-import { RootState } from '../../store/store';
+import { useAppDispatch } from '../../store/hooks';
 import { UUID } from '../../store/types';
 import { getRandomInt, isDefined } from '../../containers/utils';
 import { isHydrated, updateFilebasedMetafile } from '../../store/thunks/metafiles';
-import { isFilebasedMetafile } from '../../store/slices/metafiles';
+import { FilebasedMetafile } from '../../store/slices/metafiles';
+import { isDescendant } from '../../containers/io';
 
-const Directory = (props: { metafile: UUID }) => {
-    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByRoot(state,
-        metafile && isFilebasedMetafile(metafile) ? metafile.path : ''));
-    const directories = metafiles.filter(dir => dir.filetype === 'Directory' && !dir.name.startsWith('.')
-        && dir.name !== 'node_modules' && dir.id !== metafile?.id);
-    const files = metafiles.filter(file => file.filetype !== 'Directory').sort((a, b) => a.name.localeCompare(b.name));
-    const loaded = isDefined(metafile) && isFilebasedMetafile(metafile) && isHydrated(metafile);
-    const skeletonWidth = metafile ? metafile.name.length * 15 : getRandomInt(55, 90);
-    const [expanded, setExpanded] = useState(false);
+type DirectoryType = {
+    /** The UUID for the top-level `DirectoryMetafile` entry. */
+    id: UUID;
+    /** All relevant metafiles, including the top-level `DirectoryMetafile`. */
+    metafiles: FilebasedMetafile[];
+};
+
+const Directory = ({ id, metafiles }: DirectoryType) => {
+    const [expanded, toggle] = useState(false);
     const dispatch = useAppDispatch();
 
+    const metafile = metafiles.find(child => child.id === id);
+    const descendants = metafile ? metafiles.filter(child => isDescendant(metafile.path, child.path, true)) : [];
+    const directories = descendants.filter(child => child.filetype === 'Directory' && child.name !== 'node_modules');
+    const files = descendants.filter(child => child.filetype !== 'Directory').sort((a, b) => a.name.localeCompare(b.name));
+    const skeletonWidth = metafile ? metafile.name.length * 15 : getRandomInt(55, 90);
+
     useEffect(() => {
-        const asyncUpdates = async () => (metafile && isFilebasedMetafile(metafile) && !isHydrated(metafile)) ? await dispatch(updateFilebasedMetafile(metafile)) : undefined;
+        const asyncUpdates = async () => (metafile && !isHydrated(metafile)) ? await dispatch(updateFilebasedMetafile(metafile)) : undefined;
         asyncUpdates();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [metafile]);
+    }, []);
 
     const clickHandle = async () => {
-        if (!expanded && metafile && isFilebasedMetafile(metafile) && !isHydrated(metafile)) {
+        if (!expanded && metafile && !isHydrated(metafile)) {
             await dispatch(updateFilebasedMetafile(metafile));
         }
-        setExpanded(!expanded);
+        toggle(!expanded);
     }
 
-    // expects a TreeView parent to encompass the StyledTreeItem below
     return (
         <>
-            {loaded ?
-                <StyledTreeItem key={props.metafile} nodeId={props.metafile}
+            {isDefined(metafile) ?
+                <StyledTreeItem key={id} nodeId={id}
                     labelText={metafile ? metafile.name : ''}
                     labelIcon={expanded ? FolderOpenIcon : FolderIcon}
                     onClick={clickHandle}
                 >
-                    {directories.map(dir => <Directory key={dir.id} metafile={dir.id} />)}
-                    {files.map(file => <FileComponent key={file.id} metafile={file.id} />)}
+                    {directories.map(dir => <Directory id={dir.id} metafiles={metafiles} />)}
+                    {files.map(file => <FileComponent key={file.id} metafile={file} />)}
                 </StyledTreeItem >
                 : <Skeleton variant='text' aria-label='loading' width={skeletonWidth} />}
         </>
     );
-};
+}
 
 export default Directory;
