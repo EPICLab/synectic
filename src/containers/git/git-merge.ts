@@ -54,7 +54,7 @@ export const mergeBranch = async ({
     onProgress?: ProgressCallback
 }): Promise<MergeOutput> => {
     // TODO: false should be returned when `fastForwardOnly` is enabled and output is `fatal: Not possible to fast-forward, aborting.`
-    const conflictPattern = new RegExp('(?<=Merge conflict in).*(?=\\r?\\n)', 'gm');
+    const conflictPattern = new RegExp('(?<=Merge conflict in ).*(?=\\r?\\n)', 'gm');
 
     const baseBranch = base ? (await worktreeList({ dir: dir })).find(w => w.ref === base) : undefined;
     const root = baseBranch?.root ? baseBranch.root : dir;
