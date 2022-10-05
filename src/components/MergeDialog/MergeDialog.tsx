@@ -2,7 +2,6 @@ import { Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { DateTime } from 'luxon';
 import React, { useState } from 'react';
-import * as git from '../../containers/git';
 import { getBranchRoot, mergeBranch, MergeOutput } from '../../containers/git';
 import { isDefined } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -11,7 +10,7 @@ import repoSelectors from '../../store/selectors/repos';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
-import { updateBranches } from '../../store/thunks/branches';
+import { addBranch, updateBranches } from '../../store/thunks/branches';
 import { buildCard } from '../../store/thunks/cards';
 import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
@@ -75,20 +74,16 @@ const MergeDialog = (props: Modal) => {
         setStatus('Running');
         setProgress({ percent: 0, message: 'Merging' });
 
-        const newResult = await git.mergeBranch({
-            dir: repo.root,
-            base: base.ref,
-            commitish: compare.ref,
-            onProgress: (progress) => setProgress({
-                percent: Math.round((1 / 3 * progress.loaded / progress.total) * 100),
-                message: progress.phase
-            })
-        });
-        console.log({ newResult });
+        const baseBranch = await dispatch(addBranch({ ref: base.ref, root: repo.root })).unwrap();
+        const compareBranch = await dispatch(addBranch({ ref: compare.ref, root: repo.root })).unwrap();
 
         let result: MergeOutput;
         try {
-            result = await mergeBranch({ dir: repo.root, base: base.ref, commitish: compare.ref });
+            result = await mergeBranch({
+                dir: baseBranch?.root ?? repo.root,
+                base: baseBranch?.ref ?? base.ref,
+                commitish: compareBranch?.ref ?? compare.ref
+            });
         } catch (error) {
             console.error(`Caught during merging:`, error);
             return;
