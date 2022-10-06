@@ -13,7 +13,7 @@ import { PathLike } from 'fs-extra';
 import { isFilebasedMetafile, Metafile } from '../../store/slices/metafiles';
 import { UUID } from '../../store/types';
 import { buildCard } from '../../store/thunks/cards';
-import { fetchMetafile } from '../../store/thunks/metafiles';
+import { fetchMetafile, updateFilebasedMetafile } from '../../store/thunks/metafiles';
 
 type ConflictManagerMetafile = WithRequired<Metafile, 'repo' | 'branch' | 'merging'>;
 
@@ -28,7 +28,8 @@ const ConflictManager = (props: { metafileId: UUID }) => {
     const dispatch = useAppDispatch();
 
     const handleClick = async (filepath: PathLike) => {
-        const targetMetafile = await dispatch(fetchMetafile({ path: filepath, handlers: ['Editor', 'Explorer'] })).unwrap();
+        let targetMetafile = await dispatch(fetchMetafile({ path: filepath, handlers: ['Editor', 'Explorer'] })).unwrap();
+        targetMetafile = isFilebasedMetafile(targetMetafile) ? await dispatch(updateFilebasedMetafile(targetMetafile)).unwrap() : targetMetafile;
         await dispatch(buildCard({ metafile: targetMetafile }));
     }
 
