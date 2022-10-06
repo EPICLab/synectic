@@ -78,7 +78,7 @@ const selectByConflicted = createSelector(
     selectors.selectAll,
     (_state: RootState, repoId: UUID) => repoId,
     (metafiles, repo) => metafiles.filter(m =>
-        m.repo === repo && m.conflicts !== undefined && m.conflicts.length > 0) as VersionedMetafile[]
+        m.repo === repo && m.conflicts !== undefined && m.conflicts.length > 0 && ['Editor', 'Explorer'].includes(m.handler)) as VersionedMetafile[]
 );
 
 const selectStagedFieldsByRepo = createSelector(
