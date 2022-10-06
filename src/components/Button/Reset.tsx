@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
-import { revertStagedChanges } from '../../store/thunks/metafiles';
+import { revertStagedChanges, revertUnmergedChanges } from '../../store/thunks/metafiles';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { SettingsBackupRestore } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
@@ -31,6 +31,7 @@ const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
         .filter(m => m.status ? ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status) : false);
     const staged = metafiles
         .filter(m => m.status ? ['added', 'modified', 'deleted'].includes(m.status) : false);
+    const unmerged = metafiles.filter(m => m.status ? m.status === 'unmerged' : false);
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
@@ -38,10 +39,11 @@ const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
         // map each staged and unstaged change
         await Promise.all(unstaged.filter(isVersionedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
         await Promise.all(staged.filter(isVersionedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
+        await Promise.all(unmerged.filter(isVersionedMetafile).map(async m => await dispatch(revertUnmergedChanges(m))));
     }
 
     const isExplorer = metafiles.find(m => m.handler === 'Explorer');
-    const hasChanges = (unstaged.length > 0 || staged.length > 0);
+    const hasChanges = (unstaged.length > 0 || staged.length > 0 || unmerged.length > 0);
     const isCaptured = cards[0]?.captured !== undefined;
 
     const onHover = () => {
