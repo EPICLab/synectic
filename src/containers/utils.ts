@@ -51,6 +51,19 @@ export type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K
  */
 export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
+/**
+ * From T, set the value to never and optional for all properties that are exclusive to T (i.e. are not assignable to U).
+ * Reused from: https://github.com/ts-essentials/ts-essentials/blob/e0307a2e54bb6ae55666dfe434f840ccfc04e0c5/lib/types.ts
+ */
+export type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+
+/**
+ * Require type to exclusively match either T or U, but not both. This is a `mutually exclusive or` (XOR) operation between types.
+ * Reused from: https://github.com/ts-essentials/ts-essentials/blob/e0307a2e54bb6ae55666dfe434f840ccfc04e0c5/lib/types.ts
+ * Inspired from: https://github.com/Microsoft/TypeScript/issues/14094
+ */
+export type Either<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
+
 export type GitProgressEvent = {
   phase: string;
   loaded: number;

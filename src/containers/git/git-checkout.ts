@@ -1,5 +1,5 @@
-import * as fs from 'fs-extra';
-import { execute } from '../utils';
+import { PathLike } from 'fs-extra';
+import { Either, execute } from '../utils';
 
 /**
  * Updates the files in the working tree to match the version in the index or the specified tree. If no pathspec was
@@ -22,7 +22,7 @@ import { execute } from '../utils';
 export const checkoutBranch = async ({
     dir, branch, quiet = false, force = false, merge = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     branch: string;
     quiet?: boolean;
     force?: boolean;
@@ -54,15 +54,62 @@ export const checkoutBranch = async ({
 export const checkoutDetached = async ({
     dir, commitish, quiet = false, force = false, merge = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     commitish: string;
-    quiet: boolean;
-    force: boolean;
-    merge: boolean;
+    quiet?: boolean;
+    force?: boolean;
+    merge?: boolean;
 }): Promise<void> => {
     const output = await execute(`git checkout --detach ${commitish} ${force ? '--force' : ''} ${merge ? '--merge' : ''}`, dir.toString());
     if (!quiet && output.stderr.length > 0) console.error(output.stderr);
     if (!quiet && output.stdout.length > 0) console.log(output.stdout);
+}
+
+
+/**
+ * Overwrite the contents of the files that match the pathspec. When the <tree-ish> (most often a commit) is not given, overwrite working 
+ * tree with the contents in the index. When the <tree-ish> is given, overwrite both the index and the working tree with the contents at 
+ * the <tree-ish>.
+ * 
+ * The index may contain unmerged entries because of a previous failed merge. By default, if you try to check out such an entry from the 
+ * index, the checkout operation will fail and nothing will be checked out. Using -f will ignore these unmerged entries. The contents from 
+ * a specific side of the merge can be checked out of the index by using --ours or --theirs. With -m, changes made to the working tree 
+ * file can be discarded to re-create the original conflicted merge result.
+ * 
+ * @param obj - A destructured object for named parameters.
+ * @param obj.dir - The worktree root directory.
+ * @param obj.pathspec - Pattern used to limit paths in *git* commands. 
+ * See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
+ * @param obj.force - Ignore any unmerged entries in the index that may have been added during a previous failed merge. By default, if you
+ * try to check out such an entry from the index, the checkout operation will fail and nothing will be checked out.
+ * @param obj.ours - When checking out paths from the index, checkout stage #2 (ours) for unmerged paths.
+ * @param obj.theirs - When checking out paths from the index, checkout stage #3 (theirs) for unmerged paths.
+ * @param obj.merge - When switching branches, if you have local modifications to one or more files that are different between
+ * the current branch and the branch to which you are switching, the command refuses to switch branches in order to
+ * preserve your modifications in context. However, with this option, a three-way merge between the current branch,
+ * your working tree contents, and the new branch is done, and you will be on the new branch.
+ */
+export const checkoutPathspec = async ({
+    dir, pathspec, force = false, ours = false, theirs = false, merge = false
+}: Either<{
+    dir: PathLike;
+    pathspec: string;
+    force?: boolean;
+    ours?: boolean;
+    merge?: boolean;
+}, {
+    dir: PathLike;
+    pathspec: string;
+    force?: boolean;
+    theirs?: boolean;
+    merge?: boolean;
+}>): Promise<boolean> => {
+    const output = await execute(`git checkout ${force ? '--force' : ''} ${ours ? '--ours' : ''} ${theirs ? '--theirs' : ''} ${merge ? '--merge' : ''} -- ${pathspec}`, dir.toString());
+    if (output.stderr.length > 0) {
+        console.error(output.stderr);
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -79,10 +126,10 @@ export const checkoutDetached = async ({
 export const checkoutNewBranch = async ({
     dir, newBranch, startPoint, force = false
 }: {
-    dir: fs.PathLike;
+    dir: PathLike;
     newBranch: string;
     startPoint: string;
-    force: boolean;
+    force?: boolean;
 }): Promise<boolean> => {
     const output = await execute(`git checkout ${force ? '-B' : '-b'} ${newBranch} ${startPoint ? startPoint : ''}`, dir.toString());
     if (output.stderr.length > 0) {

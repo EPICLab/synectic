@@ -6,6 +6,7 @@ import * as casual from 'casual';
 import sha1 from 'sha1';
 import { MockInstance } from './mock-fs';
 import { readDirAsyncDepth, readFileAsync, writeFileAsync } from '../containers/io';
+import { Either } from '../containers/utils';
 
 /**
  * Accept some meta-information about the repository, and then a path to an existing .git directory
@@ -22,9 +23,7 @@ import { readDirAsyncDepth, readFileAsync, writeFileAsync } from '../containers/
 
 type SHA1 = ReturnType<typeof sha1>;
 
-// Descriminated union type for emulating a `mutually exclusive or` (XOR) operation between parameter types
-// Ref: https://github.com/microsoft/TypeScript/issues/14094#issuecomment-344768076
-type IncludeOrExcludeList = { include: fs.PathLike[], exclude?: never } | { include?: never, exclude: fs.PathLike[] };
+type IncludeOrExcludeList = Either<{ include: fs.PathLike[] }, { exclude: fs.PathLike[] }>;
 
 export type MockInstanceEnhanced = MockInstance & {
     getRepoRoot(): string;

@@ -1,11 +1,11 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import { relative, sep } from 'path';
-import { isEqualPaths } from '../../containers/io';
+import { isDescendant, isEqualPaths } from '../../containers/io';
+import { isDefined } from '../../containers/utils';
 import { Card } from '../slices/cards';
 import { FilebasedMetafile, isFilebasedMetafile, isFileMetafile, Metafile, metafileAdapter, VersionedMetafile, VirtualMetafile } from '../slices/metafiles';
 import { RootState } from '../store';
-import { FilesystemStatus, UUID } from '../types';
+import { CardType, FilesystemStatus, UUID } from '../types';
 
 const selectors = metafileAdapter.getSelectors<RootState>(state => state.metafiles);
 
@@ -18,8 +18,10 @@ const selectByIds = createSelector(
 const selectByFilepath = createSelector(
     selectors.selectAll,
     (_state: RootState, filepath: PathLike) => filepath,
-    (metafiles, filepath) => metafiles.filter(m =>
-        (m && m.path) && isEqualPaths(m.path, filepath)) as FilebasedMetafile[]
+    (_state: RootState, _filepath: PathLike, handlers?: CardType[]) => handlers,
+    (metafiles, filepath, handlers) => handlers
+        ? metafiles.filter(m => isDefined(m.path) && isEqualPaths(m.path, filepath) && handlers.includes(m.handler)) as FilebasedMetafile[]
+        : metafiles.filter(m => isDefined(m.path) && isEqualPaths(m.path, filepath)) as FilebasedMetafile[]
 );
 
 const selectByFilepaths = createSelector(
@@ -34,9 +36,7 @@ const selectByRoot = createSelector(
     (_state: RootState, root: PathLike) => root,
     (metafiles, root) => metafiles.filter(m =>
         isFilebasedMetafile(m) &&
-        m.path.toString() !== root.toString() &&
-        !relative(root.toString(), m.path.toString()).startsWith('..') &&
-        !relative(root.toString(), m.path.toString()).includes(sep)
+        isDescendant(root, m.path)
     ) as FilebasedMetafile[]
 );
 
@@ -78,7 +78,7 @@ const selectByConflicted = createSelector(
     selectors.selectAll,
     (_state: RootState, repoId: UUID) => repoId,
     (metafiles, repo) => metafiles.filter(m =>
-        m.repo === repo && m.conflicts !== undefined && m.conflicts.length > 0) as VersionedMetafile[]
+        m.repo === repo && m.conflicts !== undefined && m.conflicts.length > 0 && ['Editor', 'Explorer'].includes(m.handler)) as VersionedMetafile[]
 );
 
 const selectStagedFieldsByRepo = createSelector(

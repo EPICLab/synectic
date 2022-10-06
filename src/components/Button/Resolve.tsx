@@ -18,7 +18,7 @@ import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 /**
- * Button for staging resolution changes for all previously conflicting files in a repository, committing the resolution the the repository,
+ * Button for staging resolution changes for all previously conflicting files in a repository, committing the resolution to the repository,
  * and cleaning up the merge conflict state within the repository afterwards.
  * 
  * @param props - Prop object for a card with unstaged merge conflict resolution changes.
