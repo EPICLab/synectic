@@ -38,7 +38,7 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
         switch (event) {
             case 'add': {
                 const stats = await extractStats(filename);
-                const metafile = await dispatch(fetchMetafile(filename)).unwrap();
+                const metafile = await dispatch(fetchMetafile({ path: filename })).unwrap();
                 if (stats && !stats.isDirectory()) { // verify file exists on FS and is not a directory
                     dispatch(subscribe({ path: filename, metafile: metafile.id }));
                     const newWatcher = watch(filename.toString(), { ignoreInitial: true });

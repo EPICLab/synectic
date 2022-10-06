@@ -95,7 +95,7 @@ const MergeDialog = (props: Modal) => {
 
         if (result.conflicts && result.conflicts.length > 0 && branchRoot) {
             const conflicts = await Promise.all(result.conflicts
-                .map(async filepath => dispatch(fetchMetafile(filepath)).unwrap()));
+                .map(async filepath => dispatch(fetchMetafile({ path: filepath })).unwrap()));
             await Promise.all(conflicts.filter(isFilebasedMetafile)
                 .map(metafile => dispatch(updateVersionedMetafile(metafile)).unwrap()));
             const manager = await dispatch(createMetafile({

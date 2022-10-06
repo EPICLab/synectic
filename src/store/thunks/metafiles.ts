@@ -4,14 +4,14 @@ import { DateTime } from 'luxon';
 import { dirname, join, relative } from 'path';
 import { v4 } from 'uuid';
 import { flattenArray } from '../../containers/flatten';
-import { checkUnmergedPath, Conflict, fileStatus, getIgnore, restore } from '../../containers/git';
+import { checkoutPathspec, checkUnmergedPath, Conflict, fileStatus, getIgnore, restore } from '../../containers/git';
 import { extractFilename, isEqualPaths, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { ExactlyOne, isDefined, isUpdateable, removeDuplicates, removeUndefinedProperties } from '../../containers/utils';
 import { AppThunkAPI } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import metafileSelectors from '../selectors/metafiles';
 import * as metafilesSlice from '../slices/metafiles';
-import { UUID } from '../types';
+import { CardType, UUID } from '../types';
 import { addBranch, fetchBranch } from './branches';
 import { fetchFiletype } from './filetypes';
 import { fetchRepo } from './repos';
@@ -31,10 +31,14 @@ export const isHydrated = (metafile: metafilesSlice.Metafile): boolean => {
     return filebasedHydrated && versionedHydrated;
 }
 
-export const fetchMetafile = createAsyncThunk<metafilesSlice.Metafile, PathLike, AppThunkAPI>(
+export const fetchMetafile = createAsyncThunk<metafilesSlice.Metafile, { path: PathLike, handlers?: CardType[] }, AppThunkAPI>(
     'metafiles/fetchMetafile',
-    async (filepath, thunkAPI) => {
-        const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
+    async ({ path: filepath, handlers }, thunkAPI) => {
+        // TODO: Fix the problem that selecting a branch.root when conflicts previously exists results in a Conflicts metafile being found
+        console.log(`handlers:`, handlers);
+        const existing = handlers
+            ? metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath, handlers)
+            : metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
         return (existing.length > 0) ? existing[0] as metafilesSlice.FilebasedMetafile : await thunkAPI.dispatch(createMetafile({ path: filepath })).unwrap();
     }
 );
@@ -98,13 +102,13 @@ export const updateVersionedMetafile = createAsyncThunk<metafilesSlice.Versioned
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
         const status: Awaited<ReturnType<typeof fileStatus>> = await fileStatus(metafile.path);
-        const isDir = metafile.filetype === 'Directory';
+        const isDir: boolean = metafile.filetype === 'Directory';
 
         const conflicted: Awaited<ReturnType<typeof checkUnmergedPath>> = await checkUnmergedPath(metafile.path);
         const typedConflicts = isDir ? conflicted.map(c => c.path) : conflicted[0] ? conflicted[0].conflicts : [];
         if (isDir) {
             await Promise.all(conflicted.map(async conflict => {
-                const conflictedMetafile = await thunkAPI.dispatch(fetchMetafile(conflict.path)).unwrap();
+                const conflictedMetafile = await thunkAPI.dispatch(fetchMetafile({ path: conflict.path })).unwrap();
                 thunkAPI.dispatch(metafilesSlice.metafileUpdated({
                     ...conflictedMetafile,
                     status: 'unmerged',
@@ -159,11 +163,25 @@ export const switchBranch = createAsyncThunk<metafilesSlice.Metafile | undefined
         if (branch) {
             const relativePath = relative(currentBranch.root.toString(), metafile.path.toString()); // relative path from root to file
             const absolutePath = join(branch.root.toString(), relativePath); // absolute path from new linked worktree root to file
-            return await thunkAPI.dispatch(fetchMetafile(absolutePath)).unwrap();
+            return await thunkAPI.dispatch(fetchMetafile({ path: absolutePath })).unwrap();
         }
         return undefined;
     }
 );
+
+export const revertUnmergedChanges = createAsyncThunk<void, metafilesSlice.VersionedMetafile, AppThunkAPI>(
+    'metafiles/revertUnmergedChanges',
+    async (metafile, thunkAPI) => {
+        const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
+
+        if (metafile.status === 'unmerged' && branch) {
+            await checkoutPathspec({ dir: branch.root, pathspec: metafile.path.toString(), ours: true });
+            let updated = await thunkAPI.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+            updated = await thunkAPI.dispatch(updateVersionedMetafile(updated)).unwrap();
+            console.log(updated);
+        }
+    }
+)
 
 export const revertStagedChanges = createAsyncThunk<void, metafilesSlice.VersionedMetafile, AppThunkAPI>(
     'metafiles/revertStagedChanges',
@@ -222,7 +240,7 @@ export const updateConflicted = createAsyncThunk<metafilesSlice.Metafile[], Conf
     async (conflicts, thunkAPI) => {
         const conflictedFiles = removeDuplicates(conflicts, (c1, c2) => isEqualPaths(c1.path, c2.path));
         return flattenArray(await Promise.all(conflictedFiles.map(async conflict => {
-            const metafile = await thunkAPI.dispatch(fetchMetafile(conflict.path)).unwrap();
+            const metafile = await thunkAPI.dispatch(fetchMetafile({ path: conflict.path, handlers: ['Editor', 'Explorer'] })).unwrap();
             return metafilesSlice.isFilebasedMetafile(metafile)
                 ? await thunkAPI.dispatch(updateVersionedMetafile(metafile)).unwrap()
                 : metafile;

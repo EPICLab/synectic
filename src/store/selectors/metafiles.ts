@@ -1,10 +1,11 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { isDescendant, isEqualPaths } from '../../containers/io';
+import { isDefined } from '../../containers/utils';
 import { Card } from '../slices/cards';
 import { FilebasedMetafile, isFilebasedMetafile, isFileMetafile, Metafile, metafileAdapter, VersionedMetafile, VirtualMetafile } from '../slices/metafiles';
 import { RootState } from '../store';
-import { FilesystemStatus, UUID } from '../types';
+import { CardType, FilesystemStatus, UUID } from '../types';
 
 const selectors = metafileAdapter.getSelectors<RootState>(state => state.metafiles);
 
@@ -17,8 +18,10 @@ const selectByIds = createSelector(
 const selectByFilepath = createSelector(
     selectors.selectAll,
     (_state: RootState, filepath: PathLike) => filepath,
-    (metafiles, filepath) => metafiles.filter(m =>
-        (m && m.path) && isEqualPaths(m.path, filepath)) as FilebasedMetafile[]
+    (_state: RootState, _filepath: PathLike, handlers?: CardType[]) => handlers,
+    (metafiles, filepath, handlers) => handlers
+        ? metafiles.filter(m => isDefined(m.path) && isEqualPaths(m.path, filepath) && handlers.includes(m.handler)) as FilebasedMetafile[]
+        : metafiles.filter(m => isDefined(m.path) && isEqualPaths(m.path, filepath)) as FilebasedMetafile[]
 );
 
 const selectByFilepaths = createSelector(

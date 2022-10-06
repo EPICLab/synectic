@@ -28,7 +28,7 @@ export const buildCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, met
         })).payload;
 
         if (input.path) {
-            const metafile = await thunkAPI.dispatch(fetchMetafile(input.path)).unwrap();
+            const metafile = await thunkAPI.dispatch(fetchMetafile({ path: input.path })).unwrap();
             if (metafile) {
                 card = thunkAPI.dispatch(cardUpdated({
                     ...card,

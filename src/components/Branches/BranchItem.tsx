@@ -84,7 +84,7 @@ const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
         if (branch && repo) {
             const updatedBranch = await dispatch(addBranch({ ref: branch.ref, root: repo.root })).unwrap();
             if (updatedBranch) dispatch(updateBranches(repo));
-            const metafile = updatedBranch ? await dispatch(fetchMetafile(updatedBranch.root)).unwrap() : undefined;
+            const metafile = updatedBranch ? await dispatch(fetchMetafile({ path: updatedBranch.root, handlers: ['Explorer', 'Editor'] })).unwrap() : undefined;
             if (metafile) dispatch(buildCard({ metafile: metafile }));
         }
     }
