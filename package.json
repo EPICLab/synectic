@@ -130,7 +130,7 @@
     "react-transition-group": "^4.4.5",
     "redux": "^4.2.0",
     "redux-persist": "^6.0.0",
-    "semver": "^7.3.7",
+    "semver": "^7.3.8",
     "sha1": "^1.1.1",
     "uuid": "^9.0.0"
   }
