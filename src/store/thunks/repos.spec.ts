@@ -92,6 +92,7 @@ describe('thunks/repos', () => {
         store.dispatch(repoAdded(mockedRepository));
         const instance = await mock({
             foo: {
+                'bar.js': 'content',
                 'example.ts': 'const rand = Math.floor(Math.random() * 6) + 1;',
                 '.git': {
                     config: '',
