@@ -1,5 +1,5 @@
 import { pathExists, PathLike } from 'fs-extra';
-import { dirname, join, normalize, relative } from 'path';
+import { dirname, join, normalize, parse, relative } from 'path';
 import { extractStats, isDirectory, readDirAsync, readFileAsync } from '../io';
 import { listBranch } from './git-branch';
 import { findUp, Match } from 'find-up';
@@ -26,8 +26,9 @@ export type WorktreePaths = {
  * Find the root git directory. Starting at filepath, walks upward until it finds a directory that contains a *.git* subdirectory (i.e. the 
  * `dir` in the `WorktreePaths` type). In the case of linked worktrees (see [git-worktree](https://git-scm.com/docs/git-worktree)), this 
  * will find and return a directory that contains a *.git* file instead (i.e. the `worktreeDir` in the `WorktreePaths` type). The resulting
- * path will be absolute if the input `filepath` is absolute, and relative if the input `filepath` is relative. A `ENOENT` error is thrown
- * if the input `filepath` does not exist on the filesystem.
+ * path is relative to the earliest directory in the given `filepath` (i.e. `/user/dir/file.txt` returns `/user/dir` even though 
+ * `/home/user/dir` might be the full path to that directory); this translates into absolute paths yielding absolute paths, and relative
+ * paths yielding relative paths.
  *
  * @param filepath - The relative or absolute path to evaluate.
  * @returns {Promise<PathLike | undefined>} A Promise object containing the root git directory path, or undefined if no root git directory 
@@ -47,10 +48,11 @@ export const getRoot = async (filepath: PathLike): Promise<PathLike | undefined>
     console.log(`getRoot => findUp.dir: ${dir}`);
     if (!dir) return undefined;
 
-    const base = filepath.toString().split(/[\\/]/)[0];
-    const root = base ? join(base, relative(base, dir)) : dir;
+    const parsed = parse(filepath.toString()); // does not output relative root for relative filepaths
+    const inputRoot = parsed.root.length > 0 ? parsed.root : filepath.toString().split(/[\\/]/)[0];
+    const root = inputRoot ? join(inputRoot, relative(inputRoot, dir)) : dir;
 
-    console.log(`getRoot => base: ${base}, root: ${root}, result: ${normalize(root)}`);
+    console.log(`getRoot => inputRoot: ${inputRoot}, root: ${root}, result: ${normalize(root)}`);
 
     return normalize(root);
 };
