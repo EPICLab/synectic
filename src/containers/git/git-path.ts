@@ -35,6 +35,7 @@ export type WorktreePaths = {
  */
 export const getRoot = async (filepath: PathLike): Promise<PathLike | undefined> => {
     const exists = await pathExists(filepath.toString());
+    console.log(`getRoot => filepath: ${filepath.toString()} [${exists ? 'exists' : 'non-existent'}]`);
     if (!exists) throw new Error(`ENOENT: no such file or directory, getRoot '${filepath.toString()}'`);
 
     const matcher: ((directory: string) => (Match | Promise<Match>)) = async (directory: string) => {
@@ -43,10 +44,13 @@ export const getRoot = async (filepath: PathLike): Promise<PathLike | undefined>
     }
 
     const dir = await findUp(matcher, { cwd: filepath.toString(), type: 'directory' });
+    console.log(`getRoot => findUp.dir: ${dir}`);
     if (!dir) return undefined;
 
     const base = filepath.toString().split(/[\\/]/)[0];
     const root = base ? join(base, relative(base, dir)) : dir;
+
+    console.log(`getRoot => base: ${base}, root: ${root}, result: ${normalize(root)}`);
 
     return normalize(root);
 };
