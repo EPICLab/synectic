@@ -1,4 +1,4 @@
-import path, { join } from 'path';
+import path from 'path';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
 import * as gitBranch from './git-branch';
@@ -45,16 +45,16 @@ describe('containers/git/git-path', () => {
         await expect(getRoot('baz/alpha.ts')).resolves.toBeUndefined(); // file
         await expect(getRoot('baz')).resolves.toBeUndefined(); // directory
         // mockedInstance.getRoot() must be used since __dirname will escape the mocked FS
-        const absoluteFilepath = join(mockedInstance.getRoot(), 'baz');
+        const absoluteFilepath = path.join(mockedInstance.getRoot(), 'baz');
         await expect(getRoot(absoluteFilepath)).resolves.toBeUndefined(); // absolute filepath
     });
 
     it('getRoot resolves to Git root directory on filepath in tracked directories', async () => {
         expect.assertions(3);
         await expect(getRoot('foo/add.ts')).resolves.toBe('foo'); // file
-        await expect(getRoot('baz/subproject')).resolves.toBe('baz/subproject'); // directory
-        const absoluteFilepath = join(mockedInstance.getRoot(), 'bar', 'beta.ts');
-        const absoluteGitRoot = join(mockedInstance.getRoot(), 'bar');
+        await expect(getRoot('baz/subproject')).resolves.toBe(path.normalize('baz/subproject')); // directory
+        const absoluteFilepath = path.join(mockedInstance.getRoot(), 'bar', 'beta.ts');
+        const absoluteGitRoot = path.join(mockedInstance.getRoot(), 'bar');
         await expect(getRoot(absoluteFilepath)).resolves.toBe(absoluteGitRoot); // absolute filepath
     });
 
