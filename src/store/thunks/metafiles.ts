@@ -34,8 +34,6 @@ export const isHydrated = (metafile: metafilesSlice.Metafile): boolean => {
 export const fetchMetafile = createAsyncThunk<metafilesSlice.Metafile, { path: PathLike, handlers?: CardType[] }, AppThunkAPI>(
     'metafiles/fetchMetafile',
     async ({ path: filepath, handlers }, thunkAPI) => {
-        // TODO: Fix the problem that selecting a branch.root when conflicts previously exists results in a Conflicts metafile being found
-        console.log(`handlers:`, handlers);
         const existing = handlers
             ? metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath, handlers)
             : metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
