@@ -1,7 +1,7 @@
 {
   "name": "synectic",
   "productName": "Synectic",
-  "version": "2.3.1",
+  "version": "3.0.0",
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
   "main": ".webpack/main",
   "scripts": {
@@ -53,8 +53,8 @@
     "@types/git-config-path": "^2.0.1",
     "@types/ini": "^1.3.31",
     "@types/jest": "^27.5.0",
-    "@types/node": "^18.8.0",
     "@types/luxon": "^3.0.0",
+    "@types/node": "^18.8.0",
     "@types/pako": "^2.0.0",
     "@types/parse-git-config": "^3.0.1",
     "@types/parse-path": "^7.0.0",
@@ -67,8 +67,8 @@
     "@types/uuid": "^8.3.4",
     "@types/valid-url": "^1.0.3",
     "@types/validator": "^13.7.7",
-    "@typescript-eslint/parser": "^5.32.0",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.40.0",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
     "casual": "^1.6.2",
     "css-loader": "^6.7.1",
