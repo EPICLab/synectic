@@ -699,6 +699,11 @@
     debug "^4.1.1"
     minimatch "^3.0.4"
 
+"@humanwhocodes/gitignore-to-minimatch@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@humanwhocodes/gitignore-to-minimatch/-/gitignore-to-minimatch-1.0.2.tgz#316b0a63b91c10e53f242efb4ace5c3b34e8728d"
+  integrity sha512-rSqmMJDdLFUsyxR6FMtD00nfQKKLFb1kv+qBbOVKqErvloEIJLo5bDTJTQNTYgeyp78JsA7u/NPi5jT1GR/MuA==
+
 "@humanwhocodes/module-importer@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/module-importer/-/module-importer-1.0.1.tgz#af5b2691a22b44be847b0ca81641c5fb6ad0172c"
@@ -3785,6 +3790,31 @@ electron-osx-sign@^0.5.0:
     isbinaryfile "^3.0.2"
     minimist "^1.2.0"
     plist "^3.0.1"
+
+electron-packager@^16.0.0:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-16.0.0.tgz#2eb7f14114e06b545207496ef66b10c24b7c8ba1"
+  integrity sha512-7Ey4UUaHg3FYhA7ktsAvCWP8srp9+iPljGdeJBsNaZBakU6HWhvRC+Pc7LWXGCgAVIN5BQsUwR3xrCbFno91VA==
+  dependencies:
+    "@electron/get" "^2.0.0"
+    "@electron/universal" "^1.2.1"
+    asar "^3.1.0"
+    cross-spawn-windows-exe "^1.2.0"
+    debug "^4.0.1"
+    electron-notarize "^1.1.1"
+    electron-osx-sign "^0.5.0"
+    extract-zip "^2.0.0"
+    filenamify "^4.1.0"
+    fs-extra "^10.1.0"
+    galactus "^0.2.1"
+    get-package-info "^1.0.0"
+    junk "^3.1.0"
+    parse-author "^2.0.0"
+    plist "^3.0.0"
+    rcedit "^3.0.1"
+    resolve "^1.1.6"
+    semver "^7.1.3"
+    yargs-parser "^21.1.1"
 
 electron-packager@^16.0.0:
   version "16.0.0"
