@@ -19,7 +19,6 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ f
     'repos/fetchRepo',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
-        const filepath: PathLike = input.metafile ? input.metafile.path : input.filepath;
 
         if (input.metafile) {
             // if metafile already has a repo UUID, check for matching repository
@@ -30,6 +29,7 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ f
             if (repo) return repo;
         }
         // if filepath has a root path, check for matching repository
+        const filepath: PathLike = input.metafile ? input.metafile.path : input.filepath;
         const { dir, worktreeDir } = await getWorktreePaths(filepath);
         let repo = dir ? repoSelectors.selectByRoot(state, dir) : undefined;
 
