@@ -1,4 +1,5 @@
 import { PathLike } from 'fs-extra';
+import { dirname } from 'path';
 import { execute } from '../utils';
 
 /**
@@ -31,11 +32,12 @@ export const cloneRepo = async ({
     singleBranch?: boolean;
     noCheckout?: boolean;
 }): Promise<boolean> => {
+    const parentDir = dirname(dir.toString()); // the `dir` directory doesn't exist yet, so start from parent
     const bareOption = bare ? `--bare` : '';
     const noCheckoutOption = noCheckout ? `--no-checkout` : '';
     const singleBranchOption = singleBranch ? `--single-branch` : '';
     const branchOption = branch ? `--branch ${branch}` : '';
-    const output = await execute(`git clone ${repo.toString()} ${dir.toString()} ${branchOption} ${bareOption} ${noCheckoutOption} ${singleBranchOption}`, dir.toString());
+    const output = await execute(`git clone ${repo.toString()} ${dir.toString()} ${branchOption} ${bareOption} ${noCheckoutOption} ${singleBranchOption}`, parentDir.toString());
 
     if (output.stderr.length > 0) {
         console.error(output.stderr);
