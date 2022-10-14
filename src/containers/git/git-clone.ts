@@ -1,4 +1,4 @@
-import { PathLike } from 'fs-extra';
+import { pathExists, PathLike } from 'fs-extra';
 import { dirname } from 'path';
 import { execute } from '../utils';
 
@@ -33,6 +33,7 @@ export const cloneRepo = async ({
     noCheckout?: boolean;
 }): Promise<boolean> => {
     const parentDir = dirname(dir.toString()); // the `dir` directory doesn't exist yet, so start from parent
+    if (!(await pathExists(parentDir))) throw new Error(`ENOENT: no such file or directory, clone attempted in '${parentDir}'`);
     const bareOption = bare ? `--bare` : '';
     const noCheckoutOption = noCheckout ? `--no-checkout` : '';
     const singleBranchOption = singleBranch ? `--single-branch` : '';
