@@ -1,6 +1,6 @@
 import { pathExists, PathLike } from 'fs-extra';
 import { dirname } from 'path';
-import { execute, isDefined } from '../utils';
+import { execute } from '../utils';
 
 /**
  * Clone a repository into a new directory.
