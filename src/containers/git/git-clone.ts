@@ -1,6 +1,6 @@
 import { pathExists, PathLike } from 'fs-extra';
 import { dirname } from 'path';
-import { execute } from '../utils';
+import { execute, isDefined } from '../utils';
 
 /**
  * Clone a repository into a new directory.
@@ -40,13 +40,11 @@ export const cloneRepo = async ({
     const branchOption = branch ? `--branch ${branch}` : '';
     const output = await execute(`git clone ${repo.toString()} ${dir.toString()} ${branchOption} ${bareOption} ${noCheckoutOption} ${singleBranchOption}`, parentDir.toString());
 
-    if (output.stderr.length > 0) {
+    const successfulClonePattern = new RegExp(/Cloning into '.*'.../, 'g');
+    if (output.stderr.length > 0 && (output.stderr.split(/\\r?\\n/).length > 1 || successfulClonePattern.test(output.stderr) === false)) {
         console.error(output.stderr);
         return false;
     }
-    if (output.stdout.length > 0) {
-        console.log(output.stdout);
-        return true;
-    }
-    return false;
+    console.log(output.stdout);
+    return true;
 }
