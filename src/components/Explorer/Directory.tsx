@@ -49,7 +49,7 @@ const Directory = ({ id, metafiles }: DirectoryType) => {
                     labelIcon={expanded ? FolderOpenIcon : FolderIcon}
                     onClick={clickHandle}
                 >
-                    {directories.map(dir => <Directory id={dir.id} metafiles={metafiles} />)}
+                    {directories.map(dir => <Directory key={dir.id} id={dir.id} metafiles={metafiles} />)}
                     {files.map(file => <FileComponent key={file.id} metafile={file} />)}
                 </StyledTreeItem >
                 : <Skeleton variant='text' aria-label='loading' width={skeletonWidth} />}
