@@ -23,13 +23,11 @@ export const startAppListening = listenerMiddleware.startListening as AppStartLi
 
 export const addAppListener = addListener as TypedAddListener<RootState, AppDispatch>;
 
-const isRejectedAction = isRejected(fetchMetafile, createMetafile, updateFilebasedMetafile, updateVersionedMetafile, fetchParentMetafile, fetchRepo, buildRepo);
-
 /**
  * Listen for rejected actions and log relevant information in the console.
  */
 startAppListening({
-    matcher: isRejectedAction,
+    matcher: isRejected,
     effect: async (action) => {
         console.group(`${action.type} : ${DateTime.local().toHTTP()}`);
         console.log(action.error);
