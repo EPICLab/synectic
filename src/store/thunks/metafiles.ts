@@ -180,12 +180,12 @@ export const switchBranch = createAsyncThunk<metafilesSlice.Metafile | undefined
     }
 );
 
-export const revertUnmergedChanges = createAsyncThunk<void, metafilesSlice.VersionedMetafile, AppThunkAPI>(
+export const revertChanges = createAsyncThunk<void, VersionedMetafile, AppThunkAPI>(
     'metafiles/revertUnmergedChanges',
     async (metafile, thunkAPI) => {
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
 
-        if (metafile.status === 'unmerged' && branch) {
+        if (metafile.status !== 'unmodified' && branch) {
             await checkoutPathspec({ dir: branch.root, pathspec: metafile.path.toString(), ours: true });
             let updated = await thunkAPI.dispatch(updateFilebasedMetafile(metafile)).unwrap();
             updated = await thunkAPI.dispatch(updateVersionedMetafile(updated)).unwrap();
@@ -194,59 +194,7 @@ export const revertUnmergedChanges = createAsyncThunk<void, metafilesSlice.Versi
     }
 )
 
-export const revertStagedChanges = createAsyncThunk<void, metafilesSlice.VersionedMetafile, AppThunkAPI>(
-    'metafiles/revertStagedChanges',
-    async (metafile, thunkAPI) => {
-        switch (metafile.status) {
-            case '*added': // Fallthrough
-            case 'added': {
-                // added file; removing file and refetch as virtual metafile
-                remove(metafile.path.toString(), (error) => thunkAPI.rejectWithValue(`${error.name}: ${error.message}`));
-                const status = await fileStatus(metafile.path);
-                thunkAPI.dispatch(metafilesSlice.metafileUpdated({
-                    ...metafile,
-                    ...removeUndefinedProperties({ filetype: undefined, handler: metafile.handler, path: undefined, status: status })
-                }));
-                break;
-            }
-            case '*modified': // Fallthrough
-            case 'modified': {
-                // modified; overwrite metafile with original content from file (if changed)
-                const restored = await restore({ filepath: metafile.path });
-                const updatedContent = restored ? await readFileAsync(metafile.path, { encoding: 'utf-8' }) : undefined;
-                if (updatedContent) {
-                    const status = await fileStatus(metafile.path);
-                    thunkAPI.dispatch(metafilesSlice.metafileUpdated({
-                        ...metafile,
-                        content: updatedContent,
-                        state: 'unmodified',
-                        ...removeUndefinedProperties({ status: status, conflicts: undefined })
-                    }));
-                }
-                break;
-            }
-            case '*deleted': // Fallthrough
-            case 'deleted': {
-                // deleted; rewrite file content to discard changes
-                const restored = await restore({ filepath: metafile.path });
-                const content = restored ? await readFileAsync(metafile.path, { encoding: 'utf-8' }) : undefined;
-                if (content) {
-                    await writeFileAsync(metafile.path, content);
-                    const status = await fileStatus(metafile.path);
-                    thunkAPI.dispatch(metafilesSlice.metafileUpdated({
-                        ...metafile,
-                        content: content,
-                        state: 'unmodified',
-                        ...removeUndefinedProperties({ status: status, conflicts: undefined })
-                    }));
-                }
-                break;
-            }
-        }
-    }
-);
-
-export const updateConflicted = createAsyncThunk<metafilesSlice.Metafile[], Conflict[], AppThunkAPI>(
+export const updateConflicted = createAsyncThunk<Metafile[], Conflict[], AppThunkAPI>(
     'metafiles/fetchConflicted',
     async (conflicts, thunkAPI) => {
         const conflictedFiles = removeDuplicates(conflicts, (c1, c2) => isEqualPaths(c1.path, c2.path));
