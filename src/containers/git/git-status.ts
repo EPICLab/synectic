@@ -102,7 +102,7 @@ export const fileStatus = async (filepath: PathLike): Promise<GitStatus | undefi
                 return 'unmerged';
         }
     } else {
-        return branchStatus.entries.find(e => isEqualPaths(e.path, relative(root.toString(), filepath.toString())))?.status ?? 'unmodified';
+        return branchStatus.entries.find(e => isEqualPaths(e.path, resolve(root.toString(), filepath.toString())))?.status ?? 'unmodified';
     }
 }
 
