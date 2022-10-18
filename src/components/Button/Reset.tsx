@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
-import { revertStagedChanges, revertUnmergedChanges } from '../../store/thunks/metafiles';
+import { revertChanges } from '../../store/thunks/metafiles';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { SettingsBackupRestore } from '@material-ui/icons';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
@@ -37,9 +37,9 @@ const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
 
     const revert = async () => {
         // map each staged and unstaged change
-        await Promise.all(unstaged.filter(isVersionedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
-        await Promise.all(staged.filter(isVersionedMetafile).map(async m => await dispatch(revertStagedChanges(m))));
-        await Promise.all(unmerged.filter(isVersionedMetafile).map(async m => await dispatch(revertUnmergedChanges(m))));
+        await Promise.all(unstaged.filter(isVersionedMetafile).map(async m => await dispatch(revertChanges(m))));
+        await Promise.all(staged.filter(isVersionedMetafile).map(async m => await dispatch(revertChanges(m))));
+        await Promise.all(unmerged.filter(isVersionedMetafile).map(async m => await dispatch(revertChanges(m))));
     }
 
     const isExplorer = metafiles.find(m => m.handler === 'Explorer');
