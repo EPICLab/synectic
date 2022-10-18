@@ -65,7 +65,7 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
                 break;
             }
             case 'unlinkDir': {
-                console.log(`ERROR: FSCache saw 'unlinkDir' on ${filename.toString()}`);
+                console.error(`ERROR: FSCache saw 'unlinkDir' on ${filename.toString()}`);
                 break;
             }
         }
