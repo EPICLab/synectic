@@ -6,7 +6,7 @@ import { WatchEventType } from '../../containers/hooks/useWatcher';
 import { extractStats, isEqualPaths, readFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { RootState } from '../store';
-import { metafileRemoved } from '../slices/metafiles';
+import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileRemoved } from '../slices/metafiles';
 import cacheSelectors from '../selectors/cache';
 import { diffArrays } from 'diff';
 import { flattenArray } from '../../containers/flatten';
@@ -16,6 +16,7 @@ import { fetchMetafile } from '../thunks/metafiles';
 import cardSelectors from '../selectors/cards';
 import metafileSelectors from '../selectors/metafiles';
 import { isDefined } from '../../containers/utils';
+import { Card } from '../slices/cards';
 
 export const FSCache = createContext({});
 
@@ -39,15 +40,28 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cacheIds]);
 
+    const selectByFilepath = (filepath: PathLike): Card | undefined => {
+        return cards.filter(c => {
+            const metafile = metafiles[c.metafile];
+            if (isDefined(metafile) && isFileMetafile(metafile)) {
+                return isEqualPaths(metafile.path, filepath);
+            } else if (isDefined(metafile) && isDirectoryMetafile(metafile)) {
+                return metafile.contains.filter(m => {
+                    const child = metafiles[m];
+                    return isDefined(child) && isFilebasedMetafile(child) && isEqualPaths(child.path, filepath);
+                }).length > 0;
+            }
+        })[0];
+    }
+
     const eventHandler = async (event: WatchEventType, filename: PathLike) => {
+        console.log(`FSCache event: ${event}, filename: ${filename.toString()}`);
         switch (event) {
             case 'add': {
                 const stats = await extractStats(filename);
                 const metafile = await dispatch(fetchMetafile({ path: filename })).unwrap();
-                const card = cards.find(c => {
-                    const metafile = metafiles[c.metafile];
-                    return isDefined(metafile) && isDefined(metafile.path) && isEqualPaths(metafile.path, filename);
-                })
+                const card = selectByFilepath(filename);
+                console.log(`filename: ${filename.toString()}, metafile: ${metafile.id}, card: ${card?.id}`);
                 if (card && stats && !stats.isDirectory()) { // verify file exists on FS and is not a directory
                     dispatch(subscribe({ path: filename, card: card.id }));
                     const newWatcher = watch(filename.toString(), { ignoreInitial: true });

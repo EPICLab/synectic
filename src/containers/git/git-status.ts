@@ -97,7 +97,7 @@ export const fileStatus = async (filepath: PathLike): Promise<GitStatus | undefi
             case 'clean':
                 return 'unmodified';
             case 'uncommitted':
-                return 'modified';
+                return '*modified';
             case 'unmerged':
                 return 'unmerged';
         }
