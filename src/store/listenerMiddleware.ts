@@ -5,12 +5,11 @@ import cardSelectors from './selectors/cards';
 import metafileSelectors from './selectors/metafiles';
 import { cacheRemoved } from './slices/cache';
 import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
-import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileUpdated } from './slices/metafiles';
+import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileRemoved, metafileUpdated } from './slices/metafiles';
 import { RootState, AppDispatch } from './store';
 
 import { subscribe, unsubscribe } from './thunks/cache';
-import { createMetafile, fetchMetafile, fetchParentMetafile, updateVersionedMetafile, updateFilebasedMetafile, switchBranch } from './thunks/metafiles';
-import { fetchRepo, buildRepo } from './thunks/repos';
+import { updateVersionedMetafile, updateFilebasedMetafile, switchBranch } from './thunks/metafiles';
 import { UUID } from './types';
 import branchSelectors from './selectors/branches';
 import { removeBranch } from './thunks/branches';
@@ -71,7 +70,7 @@ startAppListening({
 });
 
 /**
- * Listen for card removal actions and remove any Diff cards that reference it.
+ * Listen for card removal actions and remove any Diff cards that reference that card.
  */
 startAppListening({
     actionCreator: cardRemoved,
@@ -82,7 +81,7 @@ startAppListening({
 });
 
 /**
- * Listen for branch removal actions and remove any cards that reference it.
+ * Listen for branch removal actions and remove any cards that reference that branch.
  */
 startAppListening({
     actionCreator: removeBranch.fulfilled,
@@ -95,7 +94,7 @@ startAppListening({
 });
 
 /**
- * Listen for added or switched metafiles for Cards to update versioned fields, directory fields, and subscriptions.
+ * Listen for card adding/switching actions and update child Metafiles in directories, subscriptions, and cache adding.
  */
 startAppListening({
     predicate: (action, _, previousState) => {
@@ -115,23 +114,22 @@ startAppListening({
                 const updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
                 await listenerApi.dispatch(updateVersionedMetafile(metafile));
 
+                if (isFileMetafile(updated)) {
+                    await listenerApi.dispatch(subscribe({ path: updated.path.toString(), card: action.payload.id }));
+                }
                 if (isDirectoryMetafile(updated)) {
                     const children = metafileSelectors.selectByIds(listenerApi.getState(), updated.contains);
-                    await Promise.all(children.filter(isFilebasedMetafile).map(child =>
-                        listenerApi.dispatch(updateFilebasedMetafile(child))
-                    ));
-                }
-
-                if (isFileMetafile(updated)) {
-                    await listenerApi.dispatch(subscribe({ path: updated.path.toString(), metafile: updated.id }));
+                    children.filter(isFilebasedMetafile).forEach(async metafile => {
+                        await listenerApi.dispatch(subscribe({ path: metafile.path.toString(), card: action.payload.id }));
+                    });
                 }
             }
         }
-    },
+    }
 });
 
 /**
- * Listen for card removal actions and update child Metafiles in directories, subscriptions, and cache removals
+ * Listen for card removal actions and update child Metafiles in directories, subscriptions, and cache removals.
  */
 startAppListening({
     actionCreator: cardRemoved,
@@ -147,9 +145,12 @@ startAppListening({
                 const existing = cacheSelectors.selectById(state, metafile.path.toString());
                 if (existing) {
                     if (existing && existing.reserved.length > 1) {
-                        listenerApi.dispatch(unsubscribe({ path: existing.path, metafile: metafile.id }));
+                        console.log(`unsubscribing for ${existing.path}`);
+                        listenerApi.dispatch(unsubscribe({ path: existing.path, card: card.id }));
                     } else {
+                        console.log(`removing cache and metafile for ${existing.path}`);
                         listenerApi.dispatch(cacheRemoved(existing.path));
+                        listenerApi.dispatch(metafileRemoved(metafile.id));
                     }
                 }
             });

@@ -3,7 +3,7 @@ import { PathLike } from 'fs-extra';
 import { FSWatcher, watch } from 'chokidar';
 import useMap from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
-import { extractStats, readFileAsync } from '../../containers/io';
+import { extractStats, isEqualPaths, readFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { RootState } from '../store';
 import { metafileRemoved } from '../slices/metafiles';
@@ -13,12 +13,17 @@ import { flattenArray } from '../../containers/flatten';
 import { cacheRemoved, cacheUpdated } from '../slices/cache';
 import { subscribe } from '../thunks/cache';
 import { fetchMetafile } from '../thunks/metafiles';
+import cardSelectors from '../selectors/cards';
+import metafileSelectors from '../selectors/metafiles';
+import { isDefined } from '../../containers/utils';
 
 export const FSCache = createContext({});
 
 export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
     const cacheIds = useAppSelector((state: RootState) => cacheSelectors.selectIds(state));
     const cache = useAppSelector((state: RootState) => cacheSelectors.selectEntities(state));
+    const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectEntities(state));
     const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher
     const dispatch = useAppDispatch();
 
@@ -39,8 +44,12 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
             case 'add': {
                 const stats = await extractStats(filename);
                 const metafile = await dispatch(fetchMetafile({ path: filename })).unwrap();
-                if (stats && !stats.isDirectory()) { // verify file exists on FS and is not a directory
-                    dispatch(subscribe({ path: filename, metafile: metafile.id }));
+                const card = cards.find(c => {
+                    const metafile = metafiles[c.metafile];
+                    return isDefined(metafile) && isDefined(metafile.path) && isEqualPaths(metafile.path, filename);
+                })
+                if (card && stats && !stats.isDirectory()) { // verify file exists on FS and is not a directory
+                    dispatch(subscribe({ path: filename, card: card.id }));
                     const newWatcher = watch(filename.toString(), { ignoreInitial: true });
                     newWatcher.on('all', eventHandler);
                     watcherActions.set(filename, newWatcher);
