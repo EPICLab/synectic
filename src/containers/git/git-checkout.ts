@@ -78,8 +78,7 @@ export const checkoutDetached = async ({
  * 
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
- * @param obj.pathspec - Pattern used to limit paths in *git* commands. 
- * See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
+ * @param obj.pathspec - Pattern used to limit paths in *git* commands. See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
  * @param obj.force - Ignore any unmerged entries in the index that may have been added during a previous failed merge. By default, if you
  * try to check out such an entry from the index, the checkout operation will fail and nothing will be checked out.
  * @param obj.ours - When checking out paths from the index, checkout stage #2 (ours) for unmerged paths.
