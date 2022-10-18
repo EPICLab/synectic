@@ -109,10 +109,9 @@ startAppListening({
         const metafile = metafileSelectors.selectById(listenerApi.getState(), action.payload.metafile);
 
         if (metafile && (cardAdded.match(action) || cardUpdated.match(action))) {
-
             if (isFilebasedMetafile(metafile)) {
-                const updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-                await listenerApi.dispatch(updateVersionedMetafile(metafile));
+                let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+                updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
 
                 if (isFileMetafile(updated)) {
                     await listenerApi.dispatch(subscribe({ path: updated.path.toString(), card: action.payload.id }));
@@ -145,10 +144,8 @@ startAppListening({
                 const existing = cacheSelectors.selectById(state, metafile.path.toString());
                 if (existing) {
                     if (existing && existing.reserved.length > 1) {
-                        console.log(`unsubscribing for ${existing.path}`);
                         listenerApi.dispatch(unsubscribe({ path: existing.path, card: card.id }));
                     } else {
-                        console.log(`removing cache and metafile for ${existing.path}`);
                         listenerApi.dispatch(cacheRemoved(existing.path));
                         listenerApi.dispatch(metafileRemoved(metafile.id));
                     }
