@@ -1,5 +1,5 @@
 import { PathLike } from 'fs-extra';
-import { relative } from 'path';
+import { relative, resolve } from 'path';
 import { BranchStatus, GitStatus } from '../../store/types';
 import { isDirectory, isEqualPaths } from '../io';
 import { execute } from '../utils';
@@ -21,8 +21,7 @@ type StatusOutput = {
  * 
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
- * @param obj.pathspec - Pattern used to limit paths in *git* commands. 
- * See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
+ * @param obj.pathspec - Pattern used to limit paths in *git* commands. See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
  * @param obj.ignored - Optional flag to include ignored files in the output; defaults to false.
  * @returns {Promise<StatusOutput | undefined>} A Promise object containing a {@link StatusOutput} object with branch status information,
  * or `undefined` if not contained within a directory tracked by version control.
@@ -34,19 +33,29 @@ export const worktreeStatus = async ({
     pathspec?: PathLike | string;
     ignored?: boolean;
 }): Promise<StatusOutput | undefined> => {
-    const branchesPattern = new RegExp('^## ([\\w/]+)...([\\w/]+)', 'gm');
-    const entriesPattern = new RegExp('(?<=\\r?\\n)(.{2}) ([\\w.]+)', 'gm');
+    /**
+     * Regex pattern matches with the following capture groups:
+     * [1] base branch ref (e.g. `main` from `## main`)
+     * [2] optional compare branch ref (e.g. `origin/main` from `## main...origin/main`)
+     */
+    const branchesPattern = new RegExp('^## (.+?)(?:(?:\\.\\.\\.)(.+?))?$', 'gm');
+    /**
+     * Regex pattern matches with the following capture groups:
+     * [1] status code (e.g. ` M` or `DD`)
+     * [2] relative filepath from root path (e.g. `src/component/Dialog`)
+     */
+    const entriesPattern = new RegExp('(?<=\\r?\\n)(.{2}) (.*)', 'gm');
     const root = await getRoot(dir);
     if (!root) return undefined;
     const ignore = await getIgnore(root);
 
     const output = await execute(`git status --porcelain --branch ${ignored ? '--ignored' : ''} ${pathspec?.toString()}`, dir.toString());
-    const ref = output.stdout.match(branchesPattern)?.[1];
+    const ref = branchesPattern.exec(output.stdout)?.[1];
     const entries: { path: PathLike, status: GitStatus }[] = Array.from(output.stdout.matchAll(entriesPattern))
         .map(e => {
             const filepath = e[2] as string;
             const isIgnored = ignore.ignores(filepath);
-            return { path: filepath, status: isIgnored ? 'ignored' : processStatusCode(e[1]) };
+            return { path: resolve(root.toString(), filepath), status: isIgnored ? 'ignored' : processStatusCode(e[1]) };
         });
     const status: BranchStatus = entries.length == 0 ? 'clean' : entries.find(e => e.status === 'unmerged') ? 'unmerged' : 'uncommitted';
 
