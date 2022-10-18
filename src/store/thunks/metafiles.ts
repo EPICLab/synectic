@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 import { dirname, join, relative } from 'path';
 import { v4 } from 'uuid';
 import { flattenArray } from '../../containers/flatten';
-import { checkoutPathspec, checkUnmergedPath, Conflict, fileStatus, getIgnore, restore } from '../../containers/git';
+import { checkoutPathspec, checkUnmergedPath, Conflict, fileStatus, getIgnore, getRoot, restore, worktreeStatus } from '../../containers/git';
 import { extractFilename, isEqualPaths, readDirAsyncDepth, readFileAsync, writeFileAsync } from '../../containers/io';
 import { ExactlyOne, isDefined, isUpdateable, removeDuplicates, removeUndefinedProperties } from '../../containers/utils';
 import { AppThunkAPI } from '../hooks';
@@ -99,12 +99,24 @@ export const updateVersionedMetafile = createAsyncThunk<metafilesSlice.Versioned
     async (metafile, thunkAPI) => {
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
-        const status: Awaited<ReturnType<typeof fileStatus>> = await fileStatus(metafile.path);
         const isDir: boolean = metafile.filetype === 'Directory';
-
         const conflicted: Awaited<ReturnType<typeof checkUnmergedPath>> = await checkUnmergedPath(metafile.path);
         const typedConflicts = isDir ? conflicted.map(c => c.path) : conflicted[0] ? conflicted[0].conflicts : [];
+
         if (isDir) {
+            const root = await getRoot(metafile.path);
+            const statuses = root ? (await worktreeStatus({ dir: root, pathspec: metafile.path }))?.entries : undefined;
+            if (statuses && isDefined(repo) && isDefined(branch)) {
+                await Promise.all(statuses.map(async entry => {
+                    const metafile = await thunkAPI.dispatch(fetchMetafile({ path: entry.path })).unwrap();
+                    thunkAPI.dispatch(metafilesSlice.metafileUpdated({
+                        ...metafile,
+                        repo: repo.id,
+                        branch: branch.id,
+                        status: entry.status
+                    })).payload;
+                }));
+            }
             await Promise.all(conflicted.map(async conflict => {
                 const conflictedMetafile = await thunkAPI.dispatch(fetchMetafile({ path: conflict.path })).unwrap();
                 thunkAPI.dispatch(metafilesSlice.metafileUpdated({
@@ -114,6 +126,7 @@ export const updateVersionedMetafile = createAsyncThunk<metafilesSlice.Versioned
                 }));
             }));
         }
+        const status: Awaited<ReturnType<typeof fileStatus>> = await fileStatus(metafile.path);
 
         return (isDefined(repo) && isDefined(branch) && isDefined(status)
             && isUpdateable<metafilesSlice.Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: typedConflicts })) ?
