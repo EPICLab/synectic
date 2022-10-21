@@ -10,7 +10,7 @@ import repoSelectors from '../../store/selectors/repos';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
-import { addBranch, updateBranches } from '../../store/thunks/branches';
+import { addBranch, updateBranch, updateBranches } from '../../store/thunks/branches';
 import { buildCard } from '../../store/thunks/cards';
 import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
@@ -106,10 +106,12 @@ const MergeDialog = (props: Modal) => {
                     filetype: 'Text',
                     loading: [],
                     repo: repo.id,
+                    branch: base.id,
                     path: branchRoot,
                     merging: { base: base.ref, compare: compare.ref }
                 }
             })).unwrap();
+            await dispatch(updateBranch({ ...base, status: 'unmerged' }));
             await dispatch(buildCard({ metafile: manager }));
 
             setStatus('Failing');
