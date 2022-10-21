@@ -44,16 +44,15 @@ const ConflictManager = (props: { metafileId: UUID }) => {
                         labelIcon={Info}
                     />
                 }
-                {repo && metafile && isConflictManagerMetafile(metafile) && conflictedMetafiles.length > 0 &&
-                    conflictedMetafiles.filter(isFilebasedMetafile).map(conflict =>
-                        <StyledTreeItem key={`${repo.id}-${metafile.branch}-${conflict.path.toString()}`}
-                            nodeId={`${repo.id}-${metafile.branch}-${conflict.path.toString()}`}
-                            color={'#da6473'} // red
-                            labelText={`${extractFilename(conflict.path)} [${conflict.conflicts?.length}]`}
-                            labelIcon={Warning}
-                            onClick={() => handleClick(conflict.path)}
-                        />
-                    )}
+                {repo && metafile && conflictedMetafiles.filter(m => m.handler === 'Editor').map(conflict =>
+                    <StyledTreeItem key={`${repo.id}-${metafile.branch}-${conflict.path.toString()}`}
+                        nodeId={`${repo.id}-${metafile.branch}-${conflict.path.toString()}`}
+                        color={'#da6473'} // red
+                        labelText={`${extractFilename(conflict.path)} [${conflict.conflicts?.length}]`}
+                        labelIcon={Warning}
+                        onClick={() => handleClick(conflict.path)}
+                    />
+                )}
             </TreeView>
         </div>
     );
