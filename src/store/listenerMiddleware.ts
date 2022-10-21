@@ -1,18 +1,19 @@
-import { createListenerMiddleware, addListener, TypedStartListening, TypedAddListener, isRejected, isAnyOf, isPending } from '@reduxjs/toolkit';
+import { addListener, createListenerMiddleware, isAnyOf, isPending, isRejected, TypedAddListener, TypedStartListening } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
+import { isConflictManagerMetafile } from '../components/ConflictManager/ConflictManager';
+import { checkUnmergedBranch } from '../containers/git';
+import branchSelectors from './selectors/branches';
 import cacheSelectors from './selectors/cache';
 import cardSelectors from './selectors/cards';
 import metafileSelectors from './selectors/metafiles';
 import { cacheRemoved } from './slices/cache';
 import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
-import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileRemoved, metafileUpdated } from './slices/metafiles';
-import { RootState, AppDispatch } from './store';
-
-import { subscribe, unsubscribe } from './thunks/cache';
-import { updateVersionedMetafile, updateFilebasedMetafile, switchBranch } from './thunks/metafiles';
-import { UUID } from './types';
-import branchSelectors from './selectors/branches';
+import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, Metafile, metafileRemoved, metafileUpdated } from './slices/metafiles';
+import { AppDispatch, RootState } from './store';
 import { removeBranch } from './thunks/branches';
+import { subscribe, unsubscribe } from './thunks/cache';
+import { switchBranch, updateConflicted, updateFilebasedMetafile, updateVersionedMetafile } from './thunks/metafiles';
+import { UUID } from './types';
 
 export const listenerMiddleware = createListenerMiddleware<RootState>();
 
@@ -106,22 +107,25 @@ startAppListening({
         return false;
     },
     effect: async (action, listenerApi) => {
-        const metafile = metafileSelectors.selectById(listenerApi.getState(), action.payload.metafile);
+        if (cardAdded.match(action) || cardUpdated.match(action)) {
+            const metafile = listenerApi.getState().metafiles.entities[action.payload.metafile];
 
-        if (metafile && (cardAdded.match(action) || cardUpdated.match(action))) {
-            if (isFilebasedMetafile(metafile)) {
-                let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-                updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
+            if (metafile) {
+                let metafiles: Metafile[] = [];
 
-                if (isFileMetafile(updated)) {
-                    await listenerApi.dispatch(subscribe({ path: updated.path.toString(), card: action.payload.id }));
+                if (isConflictManagerMetafile(metafile)) {
+                    const branch = listenerApi.getState().branches.entities[metafile.branch];
+                    const conflicts = branch ? await checkUnmergedBranch(branch.root, branch.ref) : undefined;
+                    metafiles = conflicts ? await listenerApi.dispatch(updateConflicted(conflicts)).unwrap() : [];
+                } else if (isFilebasedMetafile(metafile)) {
+                    let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+                    updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
+                    metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
+                        isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
                 }
-                if (isDirectoryMetafile(updated)) {
-                    const children = metafileSelectors.selectByIds(listenerApi.getState(), updated.contains);
-                    children.filter(isFilebasedMetafile).forEach(async metafile => {
-                        await listenerApi.dispatch(subscribe({ path: metafile.path.toString(), card: action.payload.id }));
-                    });
-                }
+                metafiles.filter(isFileMetafile).forEach(async metafile => {
+                    await listenerApi.dispatch(subscribe({ path: metafile.path.toString(), card: action.payload.id }));
+                });
             }
         }
     }
@@ -133,15 +137,24 @@ startAppListening({
 startAppListening({
     actionCreator: cardRemoved,
     effect: async (action, listenerApi) => {
-        const state = listenerApi.getState();
         const card = listenerApi.getOriginalState().cards.entities[action.payload];
-        const metafile = card ? state.metafiles.entities[card.metafile] : undefined;
+        const metafile = card ? listenerApi.getState().metafiles.entities[card.metafile] : undefined;
+
         if (card && metafile) {
-            const childIds = isDirectoryMetafile(metafile) ? metafile.contains :
-                isFileMetafile(metafile) ? [metafile.id] : [];
-            const metafiles = metafileSelectors.selectByIds(state, childIds);
-            metafiles.filter(isFilebasedMetafile).forEach(metafile => {
-                const existing = cacheSelectors.selectById(state, metafile.path.toString());
+            let metafiles: Metafile[] = [];
+
+            if (isConflictManagerMetafile(metafile)) {
+                const branch = listenerApi.getState().branches.entities[metafile.branch];
+                const conflicts = branch ? await checkUnmergedBranch(branch.root, branch.ref) : undefined;
+                metafiles = conflicts ? await listenerApi.dispatch(updateConflicted(conflicts)).unwrap() : [];
+            } else if (isFilebasedMetafile(metafile)) {
+                let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+                updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
+                metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
+                    isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
+            }
+            metafiles.filter(isFileMetafile).forEach(metafile => {
+                const existing = cacheSelectors.selectById(listenerApi.getState(), metafile.path.toString());
                 if (existing) {
                     if (existing && existing.reserved.length > 1) {
                         listenerApi.dispatch(unsubscribe({ path: existing.path, card: card.id }));
