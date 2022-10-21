@@ -1,11 +1,12 @@
 import React from 'react';
-import EditorReverse from '../Editor/EditorReverse';
+import { Card } from '../../store/slices/cards';
+import BrowserReverse from '../Browser/BrowserReverse';
+import ConflictManagerReverse from '../ConflictManager/ConflictManagerReverse';
 import DiffReverse from '../Diff/DiffReverse';
+import EditorReverse from '../Editor/EditorReverse';
 import ExplorerReverse from '../Explorer/ExplorerReverse';
 import SourceControlReverse from "../SourceControl/SourceControlReverse";
-import BrowserReverse from '../Browser/BrowserReverse';
 import { LoadingReverse } from './Loading';
-import { Card } from '../../store/slices/cards';
 
 const Content = (card: Card) => {
     switch (card.type) {
@@ -24,6 +25,7 @@ const Content = (card: Card) => {
         case 'Branches':
             return null;
         case 'ConflictManager':
+            return (<ConflictManagerReverse {...card} />);
             return null;
         default:
             return null;
