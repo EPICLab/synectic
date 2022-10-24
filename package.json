@@ -75,7 +75,7 @@
     "electron": "21.1.0",
     "eslint": "^8.25.0",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsdoc": "^39.3.4",
+    "eslint-plugin-jsdoc": "^39.3.23",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-testing-library": "^5.7.2",
     "file-loader": "^6.2.0",
