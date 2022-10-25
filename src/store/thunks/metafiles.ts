@@ -44,17 +44,17 @@ export const fetchMetafile = createAsyncThunk<Metafile, { path: PathLike, handle
 export const createMetafile = createAsyncThunk<Metafile, ExactlyOne<{ path: PathLike, metafile: MetafileTemplate }>, AppThunkAPI>(
     'metafiles/createMetafile',
     async (input, thunkAPI) => {
-        const filetype = await thunkAPI.dispatch(fetchFiletype(input.path ? input.path : '')).unwrap();
+        const filetype = await thunkAPI.dispatch(fetchFiletype(input.path ?? '')).unwrap();
         return thunkAPI.dispatch(metafileAdded({
             id: v4(),
             name: input.metafile ? input.metafile.name : extractFilename(input.path),
             modified: DateTime.local().valueOf(),
-            handler: input.metafile ? input.metafile.handler : (filetype ? filetype.handler : 'Editor'),
-            filetype: filetype ? filetype.filetype : 'Text',
-            loading: input.metafile ? input.metafile.loading : [],
+            handler: input.metafile?.handler ?? filetype?.handler ?? 'Editor',
+            filetype: filetype?.filetype ?? 'Text',
+            flags: input.metafile?.flags ?? [],
             ...(input.path ? { path: input.path } : {}),
             ...(input.path ? { state: 'unmodified' } : {}),
-            ...(input.metafile ? input.metafile : {})
+            ...(input.metafile ?? {})
         })).payload;
     }
 );
@@ -101,7 +101,7 @@ export const updateVersionedMetafile = createAsyncThunk<VersionedMetafile | File
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
         const isDir: boolean = metafile.filetype === 'Directory';
         const conflicted: Awaited<ReturnType<typeof checkUnmergedPath>> = await checkUnmergedPath(metafile.path);
-        const typedConflicts = isDir ? conflicted.map(c => c.path) : conflicted[0] ? conflicted[0].conflicts : [];
+        const typedConflicts = isDir ? conflicted.map(c => c.path) : conflicted[0]?.conflicts ?? [];
 
         if (isDir) {
             const root = await getRoot(metafile.path);
