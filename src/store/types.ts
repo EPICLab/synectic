@@ -69,3 +69,4 @@ export type FilesystemStatus = 'modified' | 'unmodified' | 'unlinked';
 export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Branches' | 'Merge' | 'SourceControl' | 'ConflictManager';
 export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewBranchDialog' | 'NewCardDialog' |
     'SourcePicker' | 'CommitDialog' | 'Notification' | 'GitExplorer' | 'DirectExplorer';
+export type Flag = 'checkout' | 'updating';

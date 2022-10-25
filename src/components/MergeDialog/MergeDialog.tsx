@@ -104,7 +104,7 @@ const MergeDialog = (props: Modal) => {
                     name: 'Conflicts',
                     handler: 'ConflictManager',
                     filetype: 'Text',
-                    loading: [],
+                    flags: [],
                     repo: repo.id,
                     branch: base.id,
                     path: branchRoot,

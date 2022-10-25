@@ -67,7 +67,7 @@ describe('containers/utils', () => {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Javascript',
-    loading: [],
+    flags: [],
     path: 'foo/bar.js',
     state: 'unmodified',
     content: 'file contents'

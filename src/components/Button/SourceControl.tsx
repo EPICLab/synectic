@@ -38,7 +38,7 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
                 modified: 0,
                 handler: 'SourceControl',
                 filetype: '',
-                loading: [],
+                flags: [],
                 repo: repo.id,
                 branch: metafile.branch,
                 ...optionals

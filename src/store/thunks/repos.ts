@@ -109,7 +109,7 @@ export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
                             modified: DateTime.local().valueOf(),
                             handler: 'ConflictManager',
                             filetype: 'Text',
-                            loading: [],
+                            flags: [],
                             repo: updated.id,
                             path: branch.root,
                             merging: { base: (base ? base : branch.ref), compare: compare ?? '' }

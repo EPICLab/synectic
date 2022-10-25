@@ -4,7 +4,7 @@ import { repoRemoved } from './repos';
 import { filterObject, isDefined, Override } from '../../containers/utils';
 import { PURGE } from 'redux-persist';
 import { branchRemoved } from './branches';
-import { CardType, FilesystemStatus, GitStatus, Timestamp, UUID } from '../types';
+import { CardType, FilesystemStatus, Flag, GitStatus, Timestamp, UUID } from '../types';
 import { PathLike } from 'fs-extra';
 
 /** A metafile representing specifications and state for files, directories, diffs, and virtual content loaded into Synectic. */
@@ -19,8 +19,8 @@ export type Metafile = {
     readonly handler: CardType;
     /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
     readonly filetype: string;
-    /** Indicator for pending actions that will affect this metafile. */
-    readonly loading: ('versioned' | 'checkout')[];
+    /** Flags indicating in-progress actions that might affect values in this metafile. */
+    readonly flags: Flag[];
 } & Partial<FilebasedProps>
     & Partial<FileProps>
     & Partial<DirectoryProps>
@@ -139,7 +139,7 @@ export const metafileSlice = createSlice({
                     .filter(m => m.repo === action.payload)
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['repo', 'branch', 'status']) };
-                    })
+                    });
                 metafileAdapter.updateMany(state, updatedMetafiles);
             })
             .addCase(branchRemoved, (state, action) => {
@@ -148,7 +148,7 @@ export const metafileSlice = createSlice({
                     .filter(m => m.branch === action.payload)
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['branch', 'status']) }
-                    })
+                    });
                 metafileAdapter.updateMany(state, updatedMetafiles);
             })
             .addCase(PURGE, (state) => {

@@ -37,7 +37,7 @@ const BranchList = (props: { cardId: UUID; repoId: UUID; }) => {
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, (metafile && metafile.branch) ? metafile.branch : ''));
   const repoBranches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo, true) : []);
   const branches = repoBranches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref));
-  const loading = metafile && metafile.loading && metafile.loading.includes('checkout');
+  const loading = metafile?.flags?.includes('checkout') ?? false;
   const [selected, setSelected] = useState(branch ? branch.ref : '');
   const styles = useStyles();
   const dispatch = useAppDispatch();

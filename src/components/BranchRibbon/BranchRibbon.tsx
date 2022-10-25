@@ -19,7 +19,7 @@ const useStyles = makeStyles({
 const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, onClick?: () => void }) => {
   const styles = useStyles();
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
-  const loading = metafile && metafile.loading && metafile.loading.includes('versioned');
+  const loading = metafile?.flags?.includes('updating') ?? false;
 
   const ribbonText = `Branch: ${branch ? branch.ref : ''}`;
 

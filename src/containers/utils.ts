@@ -154,7 +154,7 @@ export const partition = <T>(array: T[], predicate: (e: T) => boolean) => {
   return array.reduce((accumulator: [T[], T[]], item) => predicate(item)
     ? (accumulator[0].push(item), accumulator)
     : (accumulator[1].push(item), accumulator), [[], []]);
-}
+};
 
 /**
  * Filters an array and removes any undefined elements contained within it.
@@ -220,7 +220,7 @@ export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: str
   return Object.entries(flattenObject(obj))
     .filter(([key]) => filter.includes(key))
     .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
-}
+};
 
 /**
  * Expand an array of path elements (i.e. a dot-format path such as `user.name`) into a successive series of named
@@ -254,7 +254,7 @@ export const equalMaps = <K, V>(map1: Map<K, V>, map2: Map<K, V>): boolean => {
     if (JSON.stringify(testVal) !== JSON.stringify(val) || (testVal === undefined && !map2.has(key))) return false;
   }
   return true;
-}
+};
 
 /**
  * Compares two `Array` objects for equality. Checks for same array length, then tests all underlying elements
@@ -270,7 +270,7 @@ export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
     if (JSON.stringify(arr1[i]) != JSON.stringify(arr2[i]) || arr1[i] === undefined) return false;
   }
   return true;
-}
+};
 
 /**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 
@@ -291,7 +291,7 @@ export const equalArrayBuffers = (buf1: ArrayBufferLike, buf2: ArrayBufferLike):
     if (dv1[i] != dv2[i]) return false;
   }
   return true;
-}
+};
 
 /**
  * Convert a `Buffer` object into an `ArrayBuffer` object.
@@ -318,7 +318,7 @@ export const toArrayBuffer = (buf: Buffer): ArrayBuffer => {
  */
 export const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1) + min);
-}
+};
 
 /**
  * Scheduled execution of a one-time no-op callback after a delay of `ms` milliseconds. Since this relies on 
@@ -363,4 +363,4 @@ export const execute = async (command: string, cwd?: string | URL | undefined) =
     };
   }
   return execResult;
-}
+};
