@@ -183,8 +183,9 @@ export const updateBranch = createAsyncThunk<Branch, Branch, AppThunkAPI>(
 
         const linked = isDefined(worktreeDir);
         const updatedRoot = linked ? worktreeDir : branch.root;
+        const status = (await worktreeStatus({ dir: updatedRoot }))?.status ?? 'uncommitted';
 
-        return thunkAPI.dispatch(branchUpdated({ ...branch, linked: linked, root: updatedRoot })).payload;
+        return thunkAPI.dispatch(branchUpdated({ ...branch, linked: linked, root: updatedRoot, status: status })).payload;
     }
 );
 
@@ -197,6 +198,7 @@ export const updateBranches = createAsyncThunk<Repository, Repository, AppThunkA
     'branches/updateBranches',
     async (repo, thunkAPI) => {
         const branches = await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap();
+        await Promise.all(branches.local.map(branch => thunkAPI.dispatch(updateBranch(branch))));
         const branchIds = { local: branches.local.map(b => b.id), remote: branches.remote.map(b => b.id) };
         return thunkAPI.dispatch(repoUpdated({ ...repo, ...branchIds })).payload;
     }
