@@ -22,7 +22,7 @@ export const getSourceMotif = (metafile: FileMetafile): Motif => {
 };
 
 export const getBranchMotif = (branch: Branch): Motif => {
-    // #61aeee => blue
-    const color = branch.linked ? '#61aeee' : undefined;
+    // #da6473 => red, #61aeee => blue
+    const color = branch.status === 'unmerged' ? '#da6473' : branch.linked ? '#61aeee' : undefined;
     return { color: color, icon: undefined };
 }
