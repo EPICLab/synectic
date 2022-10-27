@@ -11,6 +11,7 @@ import { cardUpdated } from '../../store/slices/cards';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { UUID } from '../../store/types';
 import { isVersionedMetafile } from '../../store/slices/metafiles';
+import { isStaged, isUnstaged } from '../../containers/utils';
 
 /**
  * Button for resetting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
@@ -27,10 +28,8 @@ import { isVersionedMetafile } from '../../store/slices/metafiles';
 const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const unstaged = metafiles
-        .filter(m => m.status ? ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status) : false);
-    const staged = metafiles
-        .filter(m => m.status ? ['added', 'modified', 'deleted'].includes(m.status) : false);
+    const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isUnstaged(m.status));
+    const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
     const unmerged = metafiles.filter(m => m.status ? m.status === 'unmerged' : false);
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });

@@ -3,13 +3,14 @@ import { DoneAll, ExitToApp } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { v4 } from 'uuid';
 import { add, mergeInProgress } from '../../containers/git';
+import { isUnstaged } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { cardRemoved } from '../../store/slices/cards';
-import { isFileMetafile } from '../../store/slices/metafiles';
+import { isFileMetafile, isVersionedMetafile } from '../../store/slices/metafiles';
 import { modalAdded } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
@@ -37,8 +38,7 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const unstaged = metafiles
-        .filter(m => m.status ? ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status) : false);
+    const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isUnstaged(m.status));
     const isCommitable = metafile && isConflictManagerMetafile(metafile) && conflictedMetafiles.length == 0;
 
     const stage = async () => await Promise.all(unstaged

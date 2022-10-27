@@ -1,9 +1,9 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { isDescendant, isEqualPaths } from '../../containers/io';
-import { isDefined } from '../../containers/utils';
+import { isDefined, isStaged, isUnstaged } from '../../containers/utils';
 import { Card } from '../slices/cards';
-import { FilebasedMetafile, isFilebasedMetafile, isFileMetafile, Metafile, metafileAdapter, VersionedMetafile, VirtualMetafile } from '../slices/metafiles';
+import { FilebasedMetafile, isFilebasedMetafile, isFileMetafile, isVersionedMetafile, Metafile, metafileAdapter, VersionedMetafile, VirtualMetafile } from '../slices/metafiles';
 import { RootState } from '../store';
 import { CardType, FilesystemStatus, UUID } from '../types';
 
@@ -85,7 +85,7 @@ const selectStagedFieldsByRepo = createSelector(
     selectors.selectAll,
     (_state: RootState, repoId: UUID) => repoId,
     (metafiles, repo) => metafiles.filter(isFileMetafile)
-        .filter(m => m.repo === repo && m.status && ['added', 'modified', 'deleted'].includes(m.status))
+        .filter(m => m.repo === repo && isVersionedMetafile(m) && isStaged(m.status))
         .map(m => { return { id: m.id, repo: m.repo, branch: m.branch, status: m.status } })
 )
 
@@ -100,7 +100,7 @@ const selectUnstagedByBranch = createSelector(
     selectors.selectAll,
     (_state: RootState, branchId: UUID) => branchId,
     (metafiles, branch) => metafiles.filter(isFileMetafile)
-        .filter(m => m.branch === branch && m.status && ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(m.status))
+        .filter(m => m.branch === branch && isVersionedMetafile(m) && isUnstaged(m.status))
 )
 
 const metafileSelectors = {

@@ -2,12 +2,13 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
 import React from 'react';
 import { add } from '../../containers/git';
+import { isUnstaged } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
-import { isFileMetafile, Metafile } from '../../store/slices/metafiles';
+import { isFileMetafile, isVersionedMetafile, Metafile } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
@@ -26,8 +27,7 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 const StageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const unstaged = metafiles
-        .filter(m => m.status ? ['*absent', '*added', '*undeleted', '*modified', '*deleted', 'unmerged'].includes(m.status) : false);
+    const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isUnstaged(m.status));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 

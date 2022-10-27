@@ -1,6 +1,7 @@
 import util from 'util';
 import { exec } from 'child_process';
 import { flattenObject } from './flatten';
+import { GitStatus } from '../store/types';
 const promiseExec = util.promisify(exec);
 
 /**
@@ -131,6 +132,30 @@ export const isUpdateable = <T extends Record<string | number | symbol, unknown>
 export const isNumber = (maybeNumber: string | undefined): boolean => {
   return isDefined(maybeNumber) && !isNaN(+maybeNumber);
 }
+
+/**
+ * Check for status indicating a file is unmerged and contains merge conflict chunks.
+ * 
+ * @param status An enumerated git status value.
+ * @returns {boolean} A boolean indicating true if conflicted and unmerged, and false otherwise.
+ */
+export const isConflicted = (status: GitStatus): boolean => status === 'unmerged';
+
+/**
+ * Check for status indicating changes to a file have been staged; i.e. the file contents have been added to the index (staging area).
+ * 
+ * @param status An enumerated git status value.
+ * @returns {boolean} A boolean indicating true if modified and staged, and false otherwise.
+ */
+export const isStaged = (status: GitStatus): boolean => ['added', 'modified', 'deleted'].includes(status);
+
+/**
+ * Filter statuses into specific sub-categories that are relevant for taking specific actions on file content.
+ * 
+ * @param status An enumerated git status value.
+ * @returns {boolean} A boolean indicating true if modified and unstaged, and false otherwise.
+ */
+export const isUnstaged = (status: GitStatus): boolean => ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(status);
 
 /**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.

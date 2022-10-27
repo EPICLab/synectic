@@ -11,7 +11,8 @@ import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import { Modal, modalAdded } from '../../store/slices/modals';
 import { UUID } from '../../store/types';
-import { Metafile } from '../../store/slices/metafiles';
+import { isVersionedMetafile, Metafile } from '../../store/slices/metafiles';
+import { isStaged } from '../../containers/utils';
 
 /**
  * Button for initiating commits to a specific branch and repository. This button tracks the status of metafiles associated with the list of 
@@ -26,8 +27,7 @@ import { Metafile } from '../../store/slices/metafiles';
 const CommitButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const staged = metafiles
-        .filter(m => m.status ? ['added', 'modified', 'deleted'].includes(m.status) : false);
+    const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
