@@ -111,7 +111,6 @@ const MergeDialog = (props: Modal) => {
                     merging: { base: base.ref, compare: compare.ref }
                 }
             })).unwrap();
-            await dispatch(updateBranch({ ...base, status: 'unmerged' }));
             await dispatch(buildCard({ metafile: manager }));
 
             setStatus('Failing');
