@@ -117,14 +117,6 @@ export const updateVersionedMetafile = createAsyncThunk<VersionedMetafile | File
                     })).payload;
                 }));
             }
-            await Promise.all(conflicted.map(async conflict => {
-                const conflictedMetafile = await thunkAPI.dispatch(fetchMetafile({ path: conflict.path })).unwrap();
-                thunkAPI.dispatch(metafileUpdated({
-                    ...conflictedMetafile,
-                    status: 'unmerged',
-                    conflicts: conflict.conflicts
-                }));
-            }));
         }
         const status: Awaited<ReturnType<typeof fileStatus>> = await fileStatus(metafile.path);
 
