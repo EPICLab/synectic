@@ -17,7 +17,7 @@ const RepoItem = (props: { repoId: string }) => {
 
     const handleLabelInfoClick = async (event: React.MouseEvent) => {
         event.stopPropagation(); // prevent propogating the click event to the StyleTreeItem onClick method
-        if (repo) dispatch(updateBranches(repo));
+        if (repo) await dispatch(updateBranches(repo));
     };
 
     return (
