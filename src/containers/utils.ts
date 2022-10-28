@@ -134,14 +134,6 @@ export const isNumber = (maybeNumber: string | undefined): boolean => {
 }
 
 /**
- * Check for status indicating a file is unmerged and contains merge conflict chunks.
- * 
- * @param status An enumerated git status value.
- * @returns {boolean} A boolean indicating true if conflicted and unmerged, and false otherwise.
- */
-export const isConflicted = (status: GitStatus): boolean => status === 'unmerged';
-
-/**
  * Check for status indicating changes to a file have been staged; i.e. the file contents have been added to the index (staging area).
  * 
  * @param status An enumerated git status value.
@@ -156,6 +148,27 @@ export const isStaged = (status: GitStatus): boolean => ['added', 'modified', 'd
  * @returns {boolean} A boolean indicating true if modified and unstaged, and false otherwise.
  */
 export const isUnstaged = (status: GitStatus): boolean => ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(status);
+
+/**
+ * Check for status indicating a file has unmerged changes from an incomplete merge.
+ * 
+ * **Warning:** This does not guarantee that the file _currently_ contains conflicting chunks.
+ * 
+ * @param status An enumerated git status value.
+ * @returns {boolean} A boolean indicating true if unmerged, and false otherwise.
+ */
+export const isUnmerged = (status: GitStatus): boolean => status === 'unmerged';
+
+/**
+ * Check for conflicting chunks in a string (i.e. code surrounded by `<<<<<<<` and `>>>>>>>`).
+ * 
+ * @param content A string containing code that possibly includes conflicting chunks.
+ * @returns {number[]} An array of indices representing the starting point for each conflicting chunk found in the string, or empty if clean.
+ */
+export const getConflictingChunks = (content: string): number[] => {
+  const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
+  return removeUndefined(Array.from(content.matchAll(conflictPattern)).map(m => isDefined(m.index) ? m.index : undefined));
+}
 
 /**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.

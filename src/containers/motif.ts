@@ -1,7 +1,7 @@
 import { FileMetafile } from '../store/slices/metafiles';
 import { Add, Remove, SvgIconComponent, Warning } from '@material-ui/icons';
 import { Branch } from '../store/slices/branches';
-import { isConflicted, isStaged, isUnstaged } from './utils';
+import { isUnmerged, isStaged, isUnstaged } from './utils';
 
 export type Motif = {
     color: string | undefined,
@@ -10,7 +10,7 @@ export type Motif = {
 
 export const getSourceMotif = (metafile: FileMetafile): Motif => {
     if (metafile.status) {
-        const conflicted = isConflicted(metafile.status);
+        const conflicted = isUnmerged(metafile.status);
         const staged = isStaged(metafile.status);
         const unstaged = isUnstaged(metafile.status);
         const icon = conflicted ? Warning : staged ? Remove : unstaged ? Add : undefined;
