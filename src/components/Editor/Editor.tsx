@@ -10,7 +10,7 @@ import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 import metafileSelectors from '../../store/selectors/metafiles';
 import { metafileUpdated } from '../../store/slices/metafiles';
-import { getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/utils';
+import { getConflictingChunks, getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { UUID } from '../../store/types';
 import { isHydrated } from '../../store/thunks/metafiles';
@@ -28,12 +28,14 @@ const Editor = ({ metafileId: id, expanded = false }: { metafileId: UUID, expand
   useEffect(() => editorRef.current?.editor.resize(), [editorRef, expanded]);
 
   const onChange = async (newCode: string | undefined) => {
-    setCode(newCode ? newCode : '');
+    setCode(newCode ?? '');
+    const conflicts = getConflictingChunks(newCode ?? '');
+    if (conflicts.length > 0) console.log(`[has ${conflicts.length} conflicts]`);
 
     if (metafile) {
       dispatch(metafileUpdated({
         ...metafile,
-        content: newCode ? newCode : '',
+        content: newCode ?? '',
         state: newCode !== metafile.content ? 'modified' : 'unmodified'
       }));
     }
