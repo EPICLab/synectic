@@ -26,7 +26,7 @@ const EditorReverse = (props: Card) => {
             <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
             {repo && metafile ?
                 <>
-                    <DataField title='Status' textField field={metafile.conflicts && metafile.conflicts?.length > 0 ? `${metafile.status} [CONFLICT]` : metafile.status} />
+                    <DataField title='Status' textField field={metafile.status} />
                     <DataField title='Branch' field={<BranchList cardId={props.id} repoId={repo.id} />} />
                 </>
                 : undefined}

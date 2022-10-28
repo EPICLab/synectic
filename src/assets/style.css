@@ -77,6 +77,14 @@ body {
   align-items: center;
 }
 
+.card-header.unmerged {
+  background: rgba(218, 100, 115, 1);
+}
+
+.card-header.unmerged .title {
+  color: rgba(0, 0, 0, 0.54);
+}
+
 .card-header .title {
   grid-column-start: title;
   margin-left: 5px;
