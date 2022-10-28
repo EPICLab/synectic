@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { SHA1 } from '../../store/types';
-import { execute, isDefined, ProgressCallback, removeUndefined, removeUndefinedProperties } from '../utils'
+import { execute, getConflictingChunks, ProgressCallback, removeUndefinedProperties } from '../utils'
 import { worktreeList } from './git-worktree';
 import { PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';
@@ -100,7 +100,7 @@ export const mergeInProgress = async ({
 
 
 /**
- * Check for conflicting chunks within a specific directory or file based.
+ * Check for conflicting chunks within a specific directory or file.
  * 
  * @param filepath - The relative or absolute path to evaluate.
  * @returns {Promise<Conflict[]>} A Promise object containing an array of conflict information found in the specified
@@ -122,10 +122,8 @@ const checkUnmergedFile = async (filepath: PathLike): Promise<Conflict[]> => {
         : path.relative(dir.toString(), filepath.toString());
     if (ignore.ignores(relativePath)) return [];
 
-    const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
     const content = await readFileAsync(filepath, { encoding: 'utf-8' });
-    const matches = Array.from(content.matchAll(conflictPattern));
-    const conflicts: number[] = removeUndefined(matches.map(m => isDefined(m.index) ? m.index : undefined));
+    const conflicts = getConflictingChunks(content);
     if (conflicts.length == 0) return [];
 
     return [{ path: filepath, conflicts: conflicts }];
