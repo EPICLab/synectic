@@ -179,8 +179,8 @@ export const getConflictingChunks = (content: string): number[] => {
 export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
 
 /**
- * Generic for partitioning an array into two disjoint arrays given a predicate function
- * that indicates whether an element should be in the passing subarray or failing subarray.
+ * Generic for partitioning an array into two disjoint arrays given a predicate function that indicates whether an 
+ * element should be in the passing subarray or failing subarray.
  *
  * @param array The given array of elements to partition.
  * @param predicate A predicate function that resolves to true if element `e` meets
@@ -188,10 +188,33 @@ export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
  * @returns {[object[], object[]]} The resulting array of arrays where elements that passed the predicate are in
  * the left subarray and elements that failed the predicate are in the right subarray.
  */
-export const partition = <T>(array: T[], predicate: (e: T) => boolean) => {
+export const partition = <T>(array: T[], predicate: (e: T) => boolean): [T[], T[]] => {
   return array.reduce((accumulator: [T[], T[]], item) => predicate(item)
     ? (accumulator[0].push(item), accumulator)
     : (accumulator[1].push(item), accumulator), [[], []]);
+};
+
+/**
+ * Generic for partitioning two arrays into the symmetric differences, also known as the disjunctive union, and the
+ * intersection given a predicate that indicates whether an element should be in the intersection subarray.
+ * 
+ * @param array1 An array of elements.
+ * @param array2 An array of elements.
+ * @param predicate A predicate function that resolves to true if element `e1` from `array1` has a equivalent complement
+ * in `array2`, and false otherwise.
+ * @returns {[object[], object[], object[]]} The resulting array of arrays where symmetrically different elements from `array1` 
+ * are in the left subarray, intersection subarray containing pairs of element `e1` from `array1` and the complementary element
+ * `e2` from `array2` in the center subarray, and the symmetrically different elements from `array2` are in the right subarray.
+ */
+export const symmetrical = <T, U>(array1: T[], array2: U[], predicate: (e1: T, e2: U) => boolean): [T[], [T, U][], U[]] => {
+  const intersection: [T, U][] = [];
+  const leftComplement: T[] = array1.filter(t => {
+    const match = array2.find(u => predicate(t, u));
+    if (match) intersection.push([t, match]);
+    return match ? false : true;
+  });
+  const rightComplement: U[] = array2.filter(u => !array1.some(t => predicate(t, u)));
+  return [leftComplement, intersection, rightComplement];
 };
 
 /**

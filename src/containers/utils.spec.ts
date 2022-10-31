@@ -108,7 +108,7 @@ describe('containers/utils', () => {
     expect(() => utils.deserialize(malformedJson)).toThrow(SyntaxError);
   });
 
-  it('partition to split array using value-based predicate', () => {
+  it('partition splits array using value-based predicate', () => {
     const arr = [4, 6, 11, 10, 19, 5, 1, 0];
     const predicate = (e: number) => e >= 10;
     expect(utils.partition(arr, predicate)).toStrictEqual([
@@ -116,12 +116,30 @@ describe('containers/utils', () => {
     ]);
   });
 
-  it('partition to split array using type-based predicate', () => {
+  it('partition splits array using type-based predicate', () => {
     const arr = ['4', 6, '11', '10', 19, 5, '1', 0];
     const predicate = (e: number | string): e is number => typeof e === 'number';
     expect(utils.partition(arr, predicate)).toStrictEqual([
       [6, 19, 5, 0], ['4', '11', '10', '1']
     ]);
+  });
+
+  it('symmetrical splits arrays of primitive types into symmetrical differences and intersection', () => {
+    expect(utils.symmetrical([1, 2, 3], [2, 3, 4], (e1, e2) => e1 === e2)).toStrictEqual(
+      expect.arrayContaining([[1], [[2, 2], [3, 3]], [4]])
+    );
+  });
+
+  it('symmetrical splits arrays of dissimilar types into symmetrical differences and intersection', () => {
+    const arr1 = [[151, 'John'], [203, 'Mary'], [681, 'Sue'], [750, 'Isiah']];
+    const arr2 = [{ id: 151, name: 'John', rank: 3 }, { id: 681, name: 'Robert', rank: 1 }, { id: 85, name: 'Isiah', rank: 4 }];
+    expect(utils.symmetrical(arr1, arr2, (e1, e2) => e1[0] === e2.id && e1[1] === e2.name)).toStrictEqual(
+      expect.arrayContaining([
+        [[203, 'Mary'], [681, 'Sue'], [750, 'Isiah']],
+        [[[151, 'John'], { id: 151, name: 'John', rank: 3 }]],
+        [{ id: 681, name: 'Robert', rank: 1 }, { id: 85, name: 'Isiah', rank: 4 }]
+      ])
+    );
   });
 
   it('removeUndefined removes undefined from array of Primitive types', () => {
