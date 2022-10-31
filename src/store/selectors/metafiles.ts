@@ -77,8 +77,12 @@ const selectByCards = createSelector(
 const selectByConflicted = createSelector(
     selectors.selectAll,
     (_state: RootState, repoId: UUID) => repoId,
-    (metafiles, repo) => metafiles.filter(m =>
-        m.repo === repo && m.status === 'unmerged' && ['Editor', 'Explorer'].includes(m.handler)) as VersionedMetafile[]
+    (_state: RootState, _repo: UUID, branchId?: UUID) => branchId,
+    (metafiles, repo, branch) => branch
+        ? metafiles.filter(m => m.repo === repo && m.branch === branch && (m.status === 'unmerged' || (m.conflicts?.length ?? 0) > 0)
+            && ['Editor', 'Explorer'].includes(m.handler)) as VersionedMetafile[]
+        : metafiles.filter(m => m.repo === repo && (m.status === 'unmerged' || (m.conflicts?.length ?? 0) > 0)
+            && ['Editor', 'Explorer'].includes(m.handler)) as VersionedMetafile[]
 );
 
 const selectStagedFieldsByRepo = createSelector(
