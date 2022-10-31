@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 import { flattenArray } from '../../containers/flatten';
 import { checkoutPathspec, checkUnmergedPath, Conflict, fileStatus, getIgnore, getRoot, worktreeStatus } from '../../containers/git';
 import { extractFilename, isEqualPaths, readDirAsyncDepth, readFileAsync } from '../../containers/io';
-import { ExactlyOne, isDefined, isUpdateable, removeDuplicates } from '../../containers/utils';
+import { ExactlyOne, isDefined, isUpdateable, removeDuplicates, symmetrical } from '../../containers/utils';
 import { AppThunkAPI } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import metafileSelectors from '../selectors/metafiles';
@@ -105,16 +105,34 @@ export const updateVersionedMetafile = createAsyncThunk<VersionedMetafile | File
 
         if (isDir) {
             const root = await getRoot(metafile.path);
+            const descendants = root ? metafileSelectors.selectByRoot(thunkAPI.getState(), root) : [];
             const statuses = root ? (await worktreeStatus({ dir: root, pathspec: metafile.path }))?.entries : undefined;
+
             if (statuses && isDefined(repo) && isDefined(branch)) {
-                await Promise.all(statuses.map(async entry => {
-                    const metafile = await thunkAPI.dispatch(fetchMetafile({ path: entry.path })).unwrap();
+                const [newEntries, updatedMetafiles, unmodifiedMetafiles] = symmetrical(statuses, descendants,
+                    (status, descendant) => isEqualPaths(status.path, descendant.path)
+                );
+
+                // update all matching metafiles with their complementary status
+                updatedMetafiles.map(([status, metafile]) => thunkAPI.dispatch(metafileUpdated({
+                    ...metafile,
+                    repo: repo.id,
+                    branch: branch.id,
+                    status: status.status
+                })));
+
+                // descendants without a matching status update have not been modified, so update to `unmodified` status
+                unmodifiedMetafiles.map(metafile => thunkAPI.dispatch(metafileUpdated({ ...metafile, status: 'unmodified' })));
+
+                // status entries without a matching metafile in the Redux store need to be created
+                await Promise.all(newEntries.map(async file => {
+                    const metafile = await thunkAPI.dispatch(fetchMetafile({ path: file.path })).unwrap();
                     thunkAPI.dispatch(metafileUpdated({
                         ...metafile,
                         repo: repo.id,
                         branch: branch.id,
-                        status: entry.status
-                    })).payload;
+                        status: file.status
+                    }));
                 }));
             }
         }
