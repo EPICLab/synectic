@@ -37,7 +37,7 @@ const isPendingMetafileUpdate = isAnyOf(updateFilebasedMetafile.pending, updateV
 const isResolvedMetafileUpdate = isAnyOf(updateFilebasedMetafile.fulfilled, updateVersionedMetafile.fulfilled, updateFilebasedMetafile.rejected, updateVersionedMetafile.rejected);
 
 /**
- * Listen for pending Metafile update actions and add the `updating` flag.
+ * Listen for pending Metafile async thunk update actions and add the `updating` flag.
  */
 startAppListening({
     matcher: isPendingMetafileUpdate,
@@ -49,7 +49,7 @@ startAppListening({
 });
 
 /**
- * Listen for fulfilled/rejected Metafile update actions and remove the `updating` flag.
+ * Listen for fulfilled/rejected Metafile async thunk update actions and remove the `updating` flag.
  */
 startAppListening({
     matcher: isResolvedMetafileUpdate,
