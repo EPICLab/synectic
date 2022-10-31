@@ -1,4 +1,4 @@
-import { addListener, createListenerMiddleware, isAnyOf, isRejected, TypedAddListener, TypedStartListening } from '@reduxjs/toolkit';
+import { addListener, createListenerMiddleware, isAnyOf, isFulfilled, isRejected, TypedAddListener, TypedStartListening } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 import { isConflictManagerMetafile } from '../components/ConflictManager/ConflictManager';
 import { checkUnmergedBranch } from '../containers/git';
@@ -33,16 +33,13 @@ startAppListening({
     }
 });
 
-const isPendingMetafileUpdate = isAnyOf(updateFilebasedMetafile.pending, updateVersionedMetafile.pending);
-const isResolvedMetafileUpdate = isAnyOf(updateFilebasedMetafile.fulfilled, updateVersionedMetafile.fulfilled, updateFilebasedMetafile.rejected, updateVersionedMetafile.rejected);
-
 /**
  * Listen for pending Metafile async thunk update actions and add the `updating` flag.
  */
 startAppListening({
-    matcher: isPendingMetafileUpdate,
+    matcher: isAnyOf(updateFilebasedMetafile.pending, updateVersionedMetafile.pending),
     effect: async (action, listenerApi) => {
-        if (isPendingMetafileUpdate(action) && action.meta.arg.flags.every(flag => flag !== 'updating')) {
+        if (isAnyOf(updateFilebasedMetafile.pending, updateVersionedMetafile.pending)(action) && action.meta.arg.flags.every(flag => flag !== 'updating')) {
             listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, flags: [...action.meta.arg.flags, 'updating'] }));
         }
     }
@@ -52,9 +49,12 @@ startAppListening({
  * Listen for fulfilled/rejected Metafile async thunk update actions and remove the `updating` flag.
  */
 startAppListening({
-    matcher: isResolvedMetafileUpdate,
+    matcher: isAnyOf(updateFilebasedMetafile.fulfilled, updateVersionedMetafile.fulfilled, updateFilebasedMetafile.rejected, updateVersionedMetafile.rejected),
     effect: async (action, listenerApi) => {
-        if (isResolvedMetafileUpdate(action)) {
+        if (isFulfilled(updateFilebasedMetafile, updateVersionedMetafile)(action)) {
+            listenerApi.dispatch(metafileUpdated({ ...action.payload, flags: action.meta.arg.flags.filter(flag => flag !== 'updating') }));
+        }
+        if (isRejected(updateFilebasedMetafile, updateVersionedMetafile)(action)) {
             listenerApi.dispatch(metafileUpdated({ ...action.meta.arg, flags: action.meta.arg.flags.filter(flag => flag !== 'updating') }));
         }
     }
@@ -130,6 +130,7 @@ startAppListening({
                     metafiles = conflicts ? await listenerApi.dispatch(updateConflicted(conflicts)).unwrap() : [];
                 } else if (isFilebasedMetafile(metafile)) {
                     let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+                    console.log(`updating version info for: `, { updated });
                     updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
                     metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
                         isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
@@ -165,6 +166,7 @@ startAppListening({
                 metafiles = conflicts ? await listenerApi.dispatch(updateConflicted(conflicts)).unwrap() : [];
             } else if (isFilebasedMetafile(metafile)) {
                 let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+                console.log(`updating version info for: `, { updated });
                 updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
                 metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
                     isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
