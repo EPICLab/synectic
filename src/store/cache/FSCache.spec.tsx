@@ -91,6 +91,7 @@ describe('cache/FSCache', () => {
         jest.resetAllMocks();
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const produceComponent = () => {
         render(
             <Provider store={store} >
