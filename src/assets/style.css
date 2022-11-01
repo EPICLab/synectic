@@ -261,24 +261,33 @@ img.diff_icon {
   white-space: nowrap;
 }
 
+.branch-ribbon-container {
+  background-color: rgba(88, 90, 194, 1);
+  color: rgb(200, 210, 220);
+}
+
+.branch-ribbon-container.unmerged {
+  background-color: rgba(218, 100, 115, 1);
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.branch-ribbon-container.preview {
+  background-color: rgba(72, 74, 212, 0.6);
+}
+
 .branch-ribbon {
   display: block;
   white-space: nowrap;
-  background-color: rgb(88, 90, 194);
-  color: rgb(200, 210, 220);
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   padding: 0.3rem;
+  width: 250px;
 }
 
 .branch-ribbon.long:hover {
   animation: scroll-text 8s linear infinite;
   animation-timing-function: ease-out;
   animation-fill-mode: forwards;
-}
-
-.branch-ribbon-container {
-  background-color: rgb(88, 90, 194);
 }
 
 @keyframes scroll-text {
