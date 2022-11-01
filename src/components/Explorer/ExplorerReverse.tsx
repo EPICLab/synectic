@@ -9,6 +9,7 @@ import BranchList from '../BranchList';
 import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
 import { Card } from '../../store/slices/cards';
+import RefreshButton from '../Button/Refresh';
 
 const ExplorerReverse = (props: Card) => {
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
@@ -20,6 +21,7 @@ const ExplorerReverse = (props: Card) => {
         <>
             <div className='buttons'>
                 {repo && metafile && <SourceControlButton repoId={repo.id} metafileId={metafile.id} mode='dark' />}
+                {metafile && <RefreshButton metafileIds={[metafile.id]} mode='dark' />}
             </div>
             <DataField title='UUID' textField field={props.id} />
             <DataField title='Path' textField field={metafile?.path?.toString()} />
