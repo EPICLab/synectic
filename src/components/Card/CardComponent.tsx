@@ -3,7 +3,7 @@ import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-d
 import { CSSTransition } from 'react-transition-group';
 import clsx from 'clsx';
 import { sep } from 'path';
-import { Badge, Typography, withStyles } from '@material-ui/core';
+import { Badge, Typography } from '@material-ui/core';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCards } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
