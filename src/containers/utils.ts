@@ -142,12 +142,12 @@ export const isNumber = (maybeNumber: string | undefined): boolean => {
 export const isStaged = (status: GitStatus): boolean => ['added', 'modified', 'deleted'].includes(status);
 
 /**
- * Filter statuses into specific sub-categories that are relevant for taking specific actions on file content.
+ * Check for status indicating changes to a file that differ from the index, but have not been staged.
  * 
  * @param status An enumerated git status value.
  * @returns {boolean} A boolean indicating true if modified and unstaged, and false otherwise.
  */
-export const isUnstaged = (status: GitStatus): boolean => ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(status);
+export const isModified = (status: GitStatus): boolean => ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(status);
 
 /**
  * Check for status indicating a file has unmerged changes from an incomplete merge.

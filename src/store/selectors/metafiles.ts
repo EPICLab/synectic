@@ -1,7 +1,7 @@
 import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { isDescendant, isEqualPaths } from '../../containers/io';
-import { isDefined, isStaged, isUnstaged } from '../../containers/utils';
+import { isDefined, isStaged, isModified } from '../../containers/utils';
 import { Card } from '../slices/cards';
 import { FilebasedMetafile, isFilebasedMetafile, isFileMetafile, isVersionedMetafile, Metafile, metafileAdapter, VersionedMetafile, VirtualMetafile } from '../slices/metafiles';
 import { RootState } from '../store';
@@ -104,7 +104,7 @@ const selectUnstagedByBranch = createSelector(
     selectors.selectAll,
     (_state: RootState, branchId: UUID) => branchId,
     (metafiles, branch) => metafiles.filter(isFileMetafile)
-        .filter(m => m.branch === branch && isVersionedMetafile(m) && isUnstaged(m.status))
+        .filter(m => m.branch === branch && isVersionedMetafile(m) && isModified(m.status))
 )
 
 const metafileSelectors = {

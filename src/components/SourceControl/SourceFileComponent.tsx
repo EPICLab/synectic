@@ -3,7 +3,7 @@ import React from 'react';
 import { add, restore } from '../../containers/git';
 import { extractFilename } from '../../containers/io';
 import { getSourceMotif } from '../../containers/motif';
-import { isDefined, isStaged, isUnstaged, removeUndefinedProperties } from '../../containers/utils';
+import { isDefined, isStaged, isModified, removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { isFilebasedMetafile, isFileMetafile, isVersionedMetafile } from '../../store/slices/metafiles';
@@ -33,7 +33,7 @@ const SourceFileComponent = (props: { metafileId: UUID }) => {
 
     const handleLabelClick = async () => {
         if (metafile && isVersionedMetafile(metafile)) {
-            isStaged(metafile.status) ? await unstage() : isUnstaged(metafile.status) ? await stage() : undefined;
+            isStaged(metafile.status) ? await unstage() : isModified(metafile.status) ? await stage() : undefined;
         }
     }
 

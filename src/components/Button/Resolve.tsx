@@ -3,7 +3,7 @@ import { DoneAll, ExitToApp } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { v4 } from 'uuid';
 import { add, mergeInProgress } from '../../containers/git';
-import { isUnstaged } from '../../containers/utils';
+import { isModified } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import cardSelectors from '../../store/selectors/cards';
@@ -38,7 +38,7 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isUnstaged(m.status));
+    const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isModified(m.status));
     const isCommitable = metafile && isConflictManagerMetafile(metafile) && conflictedMetafiles.length == 0;
 
     const stage = async () => await Promise.all(unstaged
