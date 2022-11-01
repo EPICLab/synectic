@@ -30,13 +30,13 @@ const Editor = ({ metafileId: id, expanded = false }: { metafileId: UUID, expand
   const onChange = async (newCode: string | undefined) => {
     setCode(newCode ?? '');
     const conflicts = getConflictingChunks(newCode ?? '');
-    if (conflicts.length > 0) console.log(`[has ${conflicts.length} conflicts]`);
 
     if (metafile) {
       dispatch(metafileUpdated({
         ...metafile,
         content: newCode ?? '',
-        state: newCode !== metafile.content ? 'modified' : 'unmodified'
+        state: newCode !== metafile.content ? 'modified' : 'unmodified',
+        conflicts: conflicts
       }));
     }
   };
