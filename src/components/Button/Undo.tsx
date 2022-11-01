@@ -32,7 +32,8 @@ const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
-    const undo = async () => {
+    const undo = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         await Promise.all(modified
             .filter(isFileMetafile)
             .map(async metafile => {

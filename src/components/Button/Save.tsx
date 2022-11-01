@@ -34,7 +34,8 @@ const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
-    const save = async () => {
+    const save = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         await Promise.all(modified
             .filter(isFileMetafile)
             .map(async metafile => {

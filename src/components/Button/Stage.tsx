@@ -35,14 +35,17 @@ const StageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
     const hasUnstaged = unstaged.length > 0;
     const isCaptured = cards[0]?.captured !== undefined;
 
-    const stage = async () => await Promise.all(unstaged
-        .filter(isFileMetafile)
-        .map(async metafile => {
-            await add(metafile.path);
-            console.log(`staging ${metafile.name}`);
-            dispatch(updateVersionedMetafile(metafile));
-        })
-    );
+    const stage = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
+        await Promise.all(unstaged
+            .filter(isFileMetafile)
+            .map(async metafile => {
+                await add(metafile.path);
+                console.log(`staging ${metafile.name}`);
+                dispatch(updateVersionedMetafile(metafile));
+            })
+        );
+    };
 
     const onHover = (target: Metafile[]) => {
         if (cards.length > 1) {

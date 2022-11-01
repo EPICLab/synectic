@@ -22,11 +22,16 @@ const FlipButton = ({ cardId, onClickHandler, mode = 'light' }: { cardId: UUID, 
 
     const isCaptured = card && card.captured !== undefined;
 
+    const handleClick = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
+        onClickHandler();
+    }
+
     return (
         <>
             {!isCaptured &&
                 <Tooltip title='Flip'>
-                    <IconButton className={classes.root} aria-label='flip' onClick={onClickHandler}>
+                    <IconButton className={classes.root} aria-label='flip' onClick={handleClick}>
                         <Flip />
                     </IconButton>
                 </Tooltip>}

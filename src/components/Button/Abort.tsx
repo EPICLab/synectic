@@ -30,7 +30,8 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
 
     const isAbortable = metafile && isConflictManagerMetafile(metafile) && repo;
 
-    const abort = async () => {
+    const abort = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         if (repo && metafile?.merging?.base) {
             const branchRoot = await getBranchRoot(repo.root, metafile.merging.base);
             if (branchRoot) {

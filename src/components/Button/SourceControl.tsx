@@ -20,7 +20,8 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const loadSourceControl = async () => {
+    const loadSourceControl = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         if (!repo) {
             console.log(`Repository missing for metafile id:'${metafileId}'`);
             return;
@@ -52,7 +53,11 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
         <>
             {repo && metafile &&
                 <Tooltip title='Source Control'>
-                    <IconButton className={classes.root} aria-label='source-control' onClick={loadSourceControl}>
+                    <IconButton
+                        className={classes.root}
+                        aria-label='source-control'
+                        onClick={loadSourceControl}
+                    >
                         <VersionControl />
                     </IconButton>
                 </Tooltip>}

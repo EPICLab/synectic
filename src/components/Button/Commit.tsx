@@ -34,7 +34,8 @@ const CommitButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mod
     const hasStaged = staged.length > 0;
     const isCaptured = cards[0]?.captured !== undefined;
 
-    const commit = async () => {
+    const commit = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         const firstMetafile = staged[0];
         if (firstMetafile && firstMetafile.repo && firstMetafile.branch) {
             const commitDialogModal: Modal = {

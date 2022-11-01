@@ -68,11 +68,18 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
         }
     };
 
-    const resolve = async () => {
+    const resolve = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         if (metafile && metafile.merging) {
             if (repo) await mergeInProgress({ dir: repo.root, action: 'continue' });
             dispatch(cardRemoved(cardId));
         }
+    }
+
+    const resolution = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
+        await stage();
+        await commitDialog();
     }
 
     return (
@@ -81,10 +88,7 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
                 <IconButton
                     className={classes.root}
                     aria-label='resolution'
-                    onClick={async () => {
-                        await stage();
-                        await commitDialog();
-                    }}
+                    onClick={resolution}
                 >
                     <DoneAll />
                 </IconButton>

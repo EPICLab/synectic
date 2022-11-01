@@ -16,8 +16,8 @@ import { isStaged, isModified } from '../../containers/utils';
 /**
  * Button for resetting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
  * tracks the status of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one 
- * associated metafile has a VCS status of `added`, `*added`, `modified`, `*modified`, `deleted`, `*deleted`, `*modified`, or `*undeleted`.
- * Clicking on the button will trigger all changed metafiles to have their content reverted back to the most recent commit in the associated 
+ * associated metafile has a VCS status that indicate it hsa modified, staged, or unmerged changes. Clicking on the button will trigger 
+ * all changed metafiles observed by this button to have their content reverted back to the most recent commit in the associated 
  * repository and branch.
  * 
  * @param props - Prop object for cards on a specific branch and repository.
@@ -35,7 +35,7 @@ const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
     const classes = useIconButtonStyle({ mode: mode });
 
     const revert = async () => {
-        // map each staged and unstaged change
+        // map each staged and unstaged change to revert
         await Promise.all(unstaged.filter(isVersionedMetafile).map(async m => await dispatch(revertChanges(m))));
         await Promise.all(staged.filter(isVersionedMetafile).map(async m => await dispatch(revertChanges(m))));
         await Promise.all(unmerged.filter(isVersionedMetafile).map(async m => await dispatch(revertChanges(m))));

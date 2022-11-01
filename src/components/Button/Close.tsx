@@ -23,7 +23,10 @@ const CloseButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const close = async () => (card && card.captured) ? dispatch(popCards({ cards: [card.id] })) : dispatch(cardRemoved(cardId));
+    const close = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
+        (card && card.captured) ? dispatch(popCards({ cards: [card.id] })) : dispatch(cardRemoved(cardId));
+    }
 
     return (
         <>
