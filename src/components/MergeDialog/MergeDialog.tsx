@@ -1,18 +1,19 @@
 import { Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 import { getBranchRoot, mergeBranch, MergeOutput } from '../../containers/git';
 import { isDefined } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
+import cardSelectors from '../../store/selectors/cards';
 import repoSelectors from '../../store/selectors/repos';
-import { isFilebasedMetafile } from '../../store/slices/metafiles';
+import { branchUpdated } from '../../store/slices/branches';
+import { isFilebasedMetafile, metafileUpdated } from '../../store/slices/metafiles';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
-import { addBranch, updateBranch, updateBranches } from '../../store/thunks/branches';
+import { addBranch, updateBranches } from '../../store/thunks/branches';
 import { buildCard } from '../../store/thunks/cards';
-import { createMetafile, fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
+import { fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import BranchSelect from '../Branches/BranchSelect';
 import GitConfigForm from '../GitConfigForm';
@@ -49,6 +50,8 @@ const useStyles = makeStyles((theme: Theme) =>
 type MissingGitConfigs = string[] | undefined;
 
 const MergeDialog = (props: Modal) => {
+    const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
+    // const cardsByMetafile = useAppSelector((state: RootState) => cardSelectors.selectByMetafi
     const repos = useAppSelector((state: RootState) => repoSelectors.selectEntities(state));
     const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
     const dispatch = useAppDispatch();
@@ -98,20 +101,20 @@ const MergeDialog = (props: Modal) => {
                 .map(async filepath => dispatch(fetchMetafile({ path: filepath })).unwrap()));
             await Promise.all(conflicts.filter(isFilebasedMetafile)
                 .map(metafile => dispatch(updateVersionedMetafile(metafile)).unwrap()));
-            const manager = await dispatch(createMetafile({
-                metafile: {
-                    modified: DateTime.local().valueOf(),
-                    name: 'Conflicts',
-                    handler: 'ConflictManager',
-                    filetype: 'Text',
-                    flags: [],
-                    repo: repo.id,
-                    branch: base.id,
-                    path: branchRoot,
-                    merging: { base: base.ref, compare: compare.ref }
-                }
-            })).unwrap();
-            await dispatch(buildCard({ metafile: manager }));
+
+            if (baseBranch) dispatch(branchUpdated({
+                ...baseBranch,
+                status: 'unmerged'
+            }));
+
+            const baseMetafile = await dispatch(fetchMetafile({ path: base.root, handlers: ['Explorer'] })).unwrap();
+            const updatedMetafile = dispatch(metafileUpdated({
+                ...baseMetafile,
+                merging: { base: base.ref, compare: compare.ref }
+            })).payload;
+
+            const card = cards.find(c => c.metafile === updatedMetafile.id);
+            if (!card) await dispatch(buildCard({ metafile: updatedMetafile }));
 
             setStatus('Failing');
             setProgress({

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card } from '../../store/slices/cards';
 import BrowserReverse from '../Browser/BrowserReverse';
-import ConflictManagerReverse from '../ConflictManager/ConflictManagerReverse';
 import DiffReverse from '../Diff/DiffReverse';
 import EditorReverse from '../Editor/EditorReverse';
 import ExplorerReverse from '../Explorer/ExplorerReverse';
@@ -23,9 +22,6 @@ const Content = (card: Card) => {
         case 'Browser':
             return (<BrowserReverse {...card} />);
         case 'Branches':
-            return null;
-        case 'ConflictManager':
-            return (<ConflictManagerReverse {...card} />);
             return null;
         default:
             return null;

@@ -121,15 +121,8 @@ startAppListening({
         if (cardAdded.match(action) || cardUpdated.match(action)) {
             const metafile = listenerApi.getState().metafiles.entities[action.payload.metafile];
 
-            if (metafile) {
-                let metafiles: Metafile[] = [];
-
-                if (isConflictManagerMetafile(metafile)) {
-                    const branch = listenerApi.getState().branches.entities[metafile.branch];
-                    const conflicts = branch ? await checkUnmergedBranch(branch.root, branch.ref) : undefined;
-                    metafiles = conflicts ? await listenerApi.dispatch(updateConflicted(conflicts)).unwrap() : [];
-                } else if (isFilebasedMetafile(metafile)) {
-                    let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+            if (metafile && isFilebasedMetafile(metafile)) {
+                let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
                     console.log(`updating version info for: `, { updated });
                     updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
                     metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :

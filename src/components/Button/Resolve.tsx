@@ -3,20 +3,21 @@ import { DoneAll, ExitToApp } from '@material-ui/icons';
 import React, { useState } from 'react';
 import { v4 } from 'uuid';
 import { add, mergeInProgress } from '../../containers/git';
-import { isModified } from '../../containers/utils';
+import { isDefined, isModified } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { cardRemoved } from '../../store/slices/cards';
-import { isFileMetafile, isVersionedMetafile } from '../../store/slices/metafiles';
+import { isFileMetafile, isMergingMetafile, isVersionedMetafile, Metafile, VersionedMetafile } from '../../store/slices/metafiles';
 import { modalAdded } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
-import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
+
+const isCommitable = (metafile: Metafile | undefined, conflictedMetafiles: VersionedMetafile[]) => isDefined(metafile) && isMergingMetafile(metafile) && conflictedMetafiles.length == 0;
 
 /**
  * Button for staging resolution changes for all previously conflicting files in a repository, committing the resolution to the repository,
@@ -28,7 +29,7 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * @returns {React.Component} A React function component.
  */
 const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
-    const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
+    const card = useAppSelector(state => cardSelectors.selectById(state, cardId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card?.metafile ? card.metafile : ''));
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile?.repo ? metafile.repo : ''));
     const branches = useAppSelector((state: RootState) => branchSelectors.selectAll(state));
@@ -39,7 +40,6 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
     const dispatch = useAppDispatch();
 
     const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isModified(m.status));
-    const isCommitable = metafile && isConflictManagerMetafile(metafile) && conflictedMetafiles.length == 0;
 
     const stage = async () => await Promise.all(unstaged
         .filter(isFileMetafile)
@@ -84,7 +84,7 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
 
     return (
         <>
-            {isCommitable && !isResolvable && <Tooltip title='Commit Resolution'>
+            {isCommitable(metafile, conflictedMetafiles) && !isResolvable && <Tooltip title='Commit Resolution'>
                 <IconButton
                     className={classes.root}
                     aria-label='resolution'

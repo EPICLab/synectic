@@ -1,17 +1,19 @@
 import { IconButton, Tooltip } from '@material-ui/core';
-import { ClearAll } from '@material-ui/icons';
+import { Cancel } from '@material-ui/icons';
 import React from 'react';
 import { checkUnmergedBranch, getBranchRoot, mergeInProgress } from '../../containers/git';
+import { isDefined } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
-import { cardRemoved } from '../../store/slices/cards';
+import { isMergingMetafile, Metafile } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
 import { updateConflicted } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
-import { isConflictManagerMetafile } from '../ConflictManager/ConflictManager';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
+
+export const isAbortable = (metafile: Metafile | undefined) => isDefined(metafile) && isMergingMetafile(metafile);
 
 /**
  * Button for aborting an in-progress merge that has halted due to conflicts.
@@ -28,8 +30,6 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const isAbortable = metafile && isConflictManagerMetafile(metafile) && repo;
-
     const abort = async (event: React.MouseEvent) => {
         event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         if (repo && metafile?.merging?.base) {
@@ -40,18 +40,17 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
                 await dispatch(updateConflicted(conflicted));
             }
         }
-        dispatch(cardRemoved(cardId));
     }
 
     return (
         <>
-            {isAbortable && <Tooltip title='Abort Merge'>
+            {isAbortable(metafile) && <Tooltip title='Abort Merge'>
                 <IconButton
                     className={classes.root}
                     aria-label='abort'
                     onClick={abort}
                 >
-                    <ClearAll />
+                    <Cancel />
                 </IconButton>
             </Tooltip>}
         </>

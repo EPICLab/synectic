@@ -21,7 +21,7 @@ import StageButton from '../Button/Stage';
 import UnstageButton from '../Button/Unstage';
 import CommitButton from '../Button/Commit';
 import ResolveButton from '../Button/Resolve';
-import AbortButton from '../Button/Abort';
+import AbortButton, { isAbortable } from '../Button/Abort';
 import { Card, cardUpdated } from '../../store/slices/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 
@@ -130,7 +130,7 @@ const CardComponent = (card: Card) => {
       }}
     >
       <Header title={card.type === 'Explorer' ? `${sep}${card.name}` : card.name} expanded={card.expanded} expand={expand}
-        conflicts={metafiles[card.metafile]?.conflicts?.length ?? 0}>
+        conflicts={metafiles[card.metafile]?.handler === 'Editor' ? metafiles[card.metafile]?.conflicts?.length ?? 0 : 0}>
         <ResetButton cardIds={[card.id]} />
         <StageButton cardIds={[card.id]} />
         <UnstageButton cardIds={[card.id]} />
