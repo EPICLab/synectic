@@ -9,7 +9,6 @@
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/recommended",
-    "plugin:import/electron",
     "plugin:import/typescript",
     "plugin:testing-library/react",
     "plugin:react-hooks/recommended",
@@ -20,5 +19,10 @@
     "jsdoc/require-param-type": "off"
     // named capture groups require ES2018 as either "lib" or "target", ES6 translates to ES2015
     // "prefer-named-capture-group": "error"
+  },
+  "settings": {
+    "import/core-modules": [
+      "electron"
+    ]
   }
 }
