@@ -1,18 +1,16 @@
 import { addListener, createListenerMiddleware, isAnyOf, isFulfilled, isRejected, TypedAddListener, TypedStartListening } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
-import { isConflictManagerMetafile } from '../components/ConflictManager/ConflictManager';
-import { checkUnmergedBranch } from '../containers/git';
 import branchSelectors from './selectors/branches';
 import cacheSelectors from './selectors/cache';
 import cardSelectors from './selectors/cards';
 import metafileSelectors from './selectors/metafiles';
 import { cacheRemoved } from './slices/cache';
 import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
-import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, Metafile, metafileRemoved, metafileUpdated } from './slices/metafiles';
+import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileRemoved, metafileUpdated } from './slices/metafiles';
 import { AppDispatch, RootState } from './store';
 import { removeBranch } from './thunks/branches';
 import { subscribe, unsubscribe } from './thunks/cache';
-import { switchBranch, updateConflicted, updateFilebasedMetafile, updateVersionedMetafile } from './thunks/metafiles';
+import { switchBranch, updateFilebasedMetafile, updateVersionedMetafile } from './thunks/metafiles';
 import { UUID } from './types';
 
 export const listenerMiddleware = createListenerMiddleware<RootState>();
@@ -60,8 +58,6 @@ startAppListening({
     }
 });
 
-const isSwitchedBranch = isAnyOf(switchBranch.fulfilled, switchBranch.rejected);
-
 /**
  * Listen for pending Branch switches and add the `checkout` flag to all related Metafiles.
  */
@@ -81,9 +77,9 @@ startAppListening({
  * Listen for switch branch actions and update Metafiles to toggle `checkout` flags for UI indicators.
  */
 startAppListening({
-    matcher: isSwitchedBranch,
+    matcher: isAnyOf(switchBranch.fulfilled, switchBranch.rejected),
     effect: async (action, listenerApi) => {
-        if (isSwitchedBranch(action)) {
+        if (isAnyOf(switchBranch.fulfilled, switchBranch.rejected)(action)) {
             const branch = branchSelectors.selectByRef(listenerApi.getState(), action.meta.arg.ref)[0];
             const metafiles = branch ? metafileSelectors.selectByBranch(listenerApi.getState(), branch.id, action.meta.arg.root) : [];
             metafiles
@@ -123,11 +119,10 @@ startAppListening({
 
             if (metafile && isFilebasedMetafile(metafile)) {
                 let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-                    console.log(`updating version info for: `, { updated });
-                    updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
-                    metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
-                        isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
-                }
+                updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
+                const metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
+                    isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
+
                 metafiles.filter(isFileMetafile).forEach(async metafile => {
                     await listenerApi.dispatch(subscribe({ path: metafile.path.toString(), card: action.payload.id }));
                 });
@@ -150,20 +145,12 @@ startAppListening({
         const diffs = cardSelectors.selectByTarget(listenerApi.getState(), action.payload as UUID);
         diffs.map(card => listenerApi.dispatch(cardRemoved(card.id)));
 
-        if (card && metafile) {
-            let metafiles: Metafile[] = [];
+        if (card && metafile && isFilebasedMetafile(metafile)) {
+            let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+            updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
+            const metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
+                isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
 
-            if (isConflictManagerMetafile(metafile)) {
-                const branch = listenerApi.getState().branches.entities[metafile.branch];
-                const conflicts = branch ? await checkUnmergedBranch(branch.root, branch.ref) : undefined;
-                metafiles = conflicts ? await listenerApi.dispatch(updateConflicted(conflicts)).unwrap() : [];
-            } else if (isFilebasedMetafile(metafile)) {
-                let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-                console.log(`updating version info for: `, { updated });
-                updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
-                metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
-                    isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
-            }
             metafiles.filter(isFileMetafile).forEach(metafile => {
                 const existing = cacheSelectors.selectById(listenerApi.getState(), metafile.path.toString());
                 if (existing) {
