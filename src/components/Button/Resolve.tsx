@@ -25,10 +25,11 @@ const isCommitable = (metafile: Metafile | undefined, conflictedMetafiles: Versi
  * 
  * @param props - Prop object for a card with unstaged merge conflict resolution changes.
  * @param props.cardId - Card UUID that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional mode setting for enabling the dark mode on this icon button.
  * @returns {React.Component} A React function component.
  */
-const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
+const ResolveButton = ({ cardId, enabled = true, mode = 'light' }: { cardId: UUID, enabled?: boolean, mode?: Mode }) => {
     const card = useAppSelector(state => cardSelectors.selectById(state, cardId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card?.metafile ? card.metafile : ''));
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile?.repo ? metafile.repo : ''));
@@ -82,28 +83,31 @@ const ResolveButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }
         await commitDialog();
     }
 
-    return (
+    return (enabled && isCommitable(metafile, conflictedMetafiles)) ? (
         <>
-            {isCommitable(metafile, conflictedMetafiles) && !isResolvable && <Tooltip title='Commit Resolution'>
-                <IconButton
-                    className={classes.root}
-                    aria-label='resolution'
-                    onClick={resolution}
-                >
-                    <DoneAll />
-                </IconButton>
-            </Tooltip>}
-            {isResolvable && <Tooltip title='Resolve Merge'>
-                <IconButton
-                    className={classes.root}
-                    aria-label='resolve'
-                    onClick={resolve}
-                >
-                    <ExitToApp />
-                </IconButton>
-            </Tooltip>}
+            {isResolvable ?
+                <Tooltip title='Resolve Merge'>
+                    <IconButton
+                        className={classes.root}
+                        aria-label='resolve'
+                        onClick={resolve}
+                    >
+                        <ExitToApp />
+                    </IconButton >
+                </Tooltip >
+                :
+                <Tooltip title='Commit Resolution'>
+                    <IconButton
+                        className={classes.root}
+                        aria-label='resolution'
+                        onClick={resolution}
+                    >
+                        <DoneAll />
+                    </IconButton>
+                </Tooltip>
+            }
         </>
-    );
+    ) : null;
 };
 
 export default ResolveButton;

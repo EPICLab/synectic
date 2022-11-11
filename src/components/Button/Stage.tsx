@@ -21,10 +21,11 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * 
  * @param props - Prop object for cards containing version tracked metafiles that can be staged.
  * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const StageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
+const StageButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isModified(m.status));
@@ -58,22 +59,19 @@ const StageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {!isExplorer && hasUnstaged && !isCaptured &&
-                <Tooltip title='Stage'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='stage'
-                        onClick={stage}
-                        onMouseEnter={() => onHover(unstaged)}
-                        onMouseLeave={offHover}
-                    >
-                        <Add />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && !isExplorer && hasUnstaged && !isCaptured) ? (
+        <Tooltip title='Stage'>
+            <IconButton
+                className={classes.root}
+                aria-label='stage'
+                onClick={stage}
+                onMouseEnter={() => onHover(unstaged)}
+                onMouseLeave={offHover}
+            >
+                <Add />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default StageButton;

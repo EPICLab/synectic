@@ -21,10 +21,11 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * 
  * @param props - Prop object for cards with staged changes according to VCS.
  * @param props.cardIds List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const UnstageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
+const UnstageButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
@@ -58,22 +59,19 @@ const UnstageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mo
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {!isExplorer && hasStaged && !isCaptured &&
-                <Tooltip title='Unstage'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='unstage'
-                        onClick={unstage}
-                        onMouseEnter={() => onHover(staged)}
-                        onMouseLeave={offHover}
-                    >
-                        <Remove />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && !isExplorer && hasStaged && !isCaptured) ? (
+        <Tooltip title='Unstage'>
+            <IconButton
+                className={classes.root}
+                aria-label='unstage'
+                onClick={unstage}
+                onMouseEnter={() => onHover(staged)}
+                onMouseLeave={offHover}
+            >
+                <Remove />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default UnstageButton;

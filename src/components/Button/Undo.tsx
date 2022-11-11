@@ -21,10 +21,11 @@ import { updateVersionedMetafile, updateFilebasedMetafile } from '../../store/th
  * 
  * @param props - Prop object for cards with changes that differ from the filesystem version.
  * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
+const UndoButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const cache = useAppSelector((state: RootState) => cachedSelectors.selectEntities(state));
@@ -61,22 +62,19 @@ const UndoButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {isUndoable && !isCaptured &&
-                <Tooltip title='Undo'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='undo'
-                        onClick={undo}
-                        onMouseEnter={onHover}
-                        onMouseLeave={offHover}
-                    >
-                        <Undo />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && isUndoable && !isCaptured) ? (
+        <Tooltip title='Undo'>
+            <IconButton
+                className={classes.root}
+                aria-label='undo'
+                onClick={undo}
+                onMouseEnter={onHover}
+                onMouseLeave={offHover}
+            >
+                <Undo />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 
 }
 

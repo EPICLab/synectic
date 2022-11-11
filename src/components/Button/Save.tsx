@@ -23,10 +23,11 @@ import cachedSelectors from '../../store/selectors/cache';
  * 
  * @param props - Prop object for cards associated with specific files.
  * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional theme mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
+const SaveButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const cache = useAppSelector((state: RootState) => cachedSelectors.selectEntities(state));
@@ -69,22 +70,19 @@ const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {isSaveable && !isCaptured &&
-                <Tooltip title='Save'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='save'
-                        onClick={save}
-                        onMouseEnter={onHover}
-                        onMouseLeave={offHover}
-                    >
-                        <Save />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && isSaveable && !isCaptured) ? (
+        <Tooltip title='Save'>
+            <IconButton
+                className={classes.root}
+                aria-label='save'
+                onClick={save}
+                onMouseEnter={onHover}
+                onMouseLeave={offHover}
+            >
+                <Save />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default SaveButton;

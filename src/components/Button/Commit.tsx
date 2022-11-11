@@ -15,16 +15,17 @@ import { isVersionedMetafile, Metafile } from '../../store/slices/metafiles';
 import { isStaged } from '../../containers/utils';
 
 /**
- * Button for initiating commits to a specific branch and repository. This button tracks the status of metafiles associated with the list of 
- * cards supplied via props. The button is only enabled when at least one associated metafile has a VCS status of `added`, `modified`, or 
- * `deleted`. Clicking on the button will trigger a `CommitDialog` modal to be loaded.
+ * Button for initiating commits to a specific branch and repository. This button tracks the status of metafiles associated 
+ * with the list of cards supplied via props. The button is only enabled when at least one associated metafile has a VCS 
+ * status of `added`, `modified`, or `deleted`. Clicking on the button will trigger a `CommitDialog` modal to be loaded.
  * 
  * @param props - Prop object for cards on a specific branch and repository.
  * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const CommitButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
+const CommitButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
@@ -61,22 +62,19 @@ const CommitButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mod
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {hasStaged && !isCaptured &&
-                <Tooltip title='Commit'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='commit'
-                        onClick={commit}
-                        onMouseEnter={() => onHover(staged)}
-                        onMouseLeave={offHover}
-                    >
-                        <Done />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && hasStaged && !isCaptured) ? (
+        <Tooltip title='Commit'>
+            <IconButton
+                className={classes.root}
+                aria-label='commit'
+                onClick={commit}
+                onMouseEnter={() => onHover(staged)}
+                onMouseLeave={offHover}
+            >
+                <Done />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default CommitButton;

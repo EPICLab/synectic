@@ -15,15 +15,22 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 export const isAbortable = (metafile: Metafile | undefined) => isDefined(metafile) && isMergingMetafile(metafile);
 
+type AbortButtonProps = {
+    cardId: UUID,
+    enabled?: boolean,
+    mode?: Mode
+}
+
 /**
  * Button for aborting an in-progress merge that has halted due to conflicts.
  * 
  * @param props - Prop object for a card with unmerged changes.
  * @param props.cardId - Card UUID that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) => {
+const AbortButton = ({ cardId, enabled = true, mode = 'light' }: AbortButtonProps) => {
     const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, card?.metafile ? card.metafile : ''));
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile?.repo ? metafile.repo : ''));
@@ -42,19 +49,17 @@ const AbortButton = ({ cardId, mode = 'light' }: { cardId: UUID, mode?: Mode }) 
         }
     }
 
-    return (
-        <>
-            {isAbortable(metafile) && <Tooltip title='Abort Merge'>
-                <IconButton
-                    className={classes.root}
-                    aria-label='abort'
-                    onClick={abort}
-                >
-                    <Cancel />
-                </IconButton>
-            </Tooltip>}
-        </>
-    );
+    return (enabled && isAbortable(metafile)) ? (
+        <Tooltip title='Abort Merge'>
+            <IconButton
+                className={classes.root}
+                aria-label='abort'
+                onClick={abort}
+            >
+                <Cancel />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default AbortButton;

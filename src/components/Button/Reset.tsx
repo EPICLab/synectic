@@ -14,18 +14,19 @@ import { isVersionedMetafile } from '../../store/slices/metafiles';
 import { isStaged, isModified } from '../../containers/utils';
 
 /**
- * Button for resetting changes back to the most recent version according to the version control system for VCS-tracked cards. This button 
- * tracks the status of metafiles associated with the list of cards supplied via props. The button is only enabled when at least one 
- * associated metafile has a VCS status that indicate it hsa modified, staged, or unmerged changes. Clicking on the button will trigger 
- * all changed metafiles observed by this button to have their content reverted back to the most recent commit in the associated 
- * repository and branch.
+ * Button for resetting changes back to the most recent version according to the version control system for VCS-tracked 
+ * cards. This button tracks the status of metafiles associated with the list of cards supplied via props. The button is 
+ * only enabled when at least one associated metafile has a VCS status that indicate it hsa modified, staged, or 
+ * unmerged changes. Clicking on the button will trigger all changed metafiles observed by this button to have their 
+ * content reverted back to the most recent commit in the associated repository and branch.
  * 
  * @param props - Prop object for cards on a specific branch and repository.
  * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional theme mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
+const ResetButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isModified(m.status));
@@ -56,22 +57,19 @@ const ResetButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {!isExplorer && hasChanges && !isCaptured &&
-                <Tooltip title='Reset'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='reset'
-                        onClick={revert}
-                        onMouseEnter={onHover}
-                        onMouseLeave={offHover}
-                    >
-                        <SettingsBackupRestore />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    )
+    return (enabled && !isExplorer && hasChanges && !isCaptured) ? (
+        <Tooltip title='Reset'>
+            <IconButton
+                className={classes.root}
+                aria-label='reset'
+                onClick={revert}
+                onMouseEnter={onHover}
+                onMouseLeave={offHover}
+            >
+                <SettingsBackupRestore />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default ResetButton;

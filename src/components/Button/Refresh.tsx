@@ -14,10 +14,11 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * 
  * @param props - Prop object for metafiles.
  * @param props.metafileIds - List of Metafile UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional theme mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const RefreshButton = ({ metafileIds, mode = 'light' }: { metafileIds: UUID[], mode?: Mode }) => {
+const RefreshButton = ({ metafileIds, enabled = true, mode = 'light' }: { metafileIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, metafileIds));
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
@@ -32,7 +33,7 @@ const RefreshButton = ({ metafileIds, mode = 'light' }: { metafileIds: UUID[], m
         }));
     }
 
-    return (
+    return enabled ? (
         <Tooltip title='Refresh'>
             <IconButton
                 className={classes.root}
@@ -42,7 +43,7 @@ const RefreshButton = ({ metafileIds, mode = 'light' }: { metafileIds: UUID[], m
                 <Refresh />
             </IconButton>
         </Tooltip>
-    );
+    ) : null;
 }
 
 export default RefreshButton;

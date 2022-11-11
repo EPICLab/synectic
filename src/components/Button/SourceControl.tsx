@@ -7,13 +7,30 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { isDefined, removeUndefinedProperties } from '../../containers/utils';
 import branchSelectors from '../../store/selectors/branches';
 import { UUID } from '../../store/types';
 import { buildCard } from '../../store/thunks/cards';
 import { createMetafile } from '../../store/thunks/metafiles';
 
-const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: UUID, metafileId: UUID, mode?: Mode }) => {
+type SourceControlProps = {
+    repoId: UUID,
+    metafileId: UUID,
+    enabled?: boolean,
+    mode?: Mode
+}
+
+/**
+ * Button for opening a new `SourceControl` card tracking the repository associated with this button.
+ * 
+ * @param props - A destructured object for named props.
+ * @param props.repoId - The Repository UUID that should be opened on click event.
+ * @param props.metafileId - The Metafile UUID that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
+ * @param props.mode - Optional mode for switching between light and dark themes.
+ * @returns {React.Component} A React function component.
+ */
+const SourceControlButton = ({ repoId, metafileId, enabled = true, mode = 'light' }: SourceControlProps) => {
     const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
     const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, metafileId));
     const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
@@ -49,20 +66,17 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
         dispatch(buildCard({ metafile: sourceControl }));
     };
 
-    return (
-        <>
-            {repo && metafile &&
-                <Tooltip title='Source Control'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='source-control'
-                        onClick={loadSourceControl}
-                    >
-                        <VersionControl />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && isDefined(repo) && isDefined(metafile)) ? (
+        <Tooltip title='Source Control'>
+            <IconButton
+                className={classes.root}
+                aria-label='source-control'
+                onClick={loadSourceControl}
+            >
+                <VersionControl />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 };
 
 export default SourceControlButton;
