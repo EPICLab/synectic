@@ -16,19 +16,30 @@ import { UUID } from '../../store/types';
 import { isHydrated } from '../../store/thunks/metafiles';
 import { Skeleton } from '@material-ui/lab';
 
-const Editor = ({ metafileId: id, expanded = false }: { metafileId: UUID, expanded?: boolean }) => {
+type EditorProps = {
+  metafileId: UUID,
+  expanded?: boolean
+};
+
+/**
+ * React Component to display an interactive editor for the content of a specific file. Virtual files can be
+ * loaded into this component.
+ * 
+ * @param props - Prop object for editable content in a specific file.
+ * @param props.metafileId - The UUID for the metafile used to represent the contents of this component.
+ * @param props.expanded - An optional toggle for enabling fullscreen mode in the editor; defaults to false.
+ * @returns {React.Component} A React function component.
+ */
+const Editor = ({ metafileId: id, expanded = false }: EditorProps) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
   const [editorRef] = useState(React.createRef<AceEditor>());
   const mode = removeUndefinedProperties({ mode: metafile?.filetype?.toLowerCase() });
-  const [code, setCode] = useState(metafile && metafile.content ? metafile.content : '');
   const skeletonWidth = getRandomInt(55, 90);
   const dispatch = useAppDispatch();
 
-  useEffect(() => (metafile && metafile.content) ? setCode(metafile.content) : undefined, [metafile]);
   useEffect(() => editorRef.current?.editor.resize(), [editorRef, expanded]);
 
   const onChange = async (newCode: string | undefined) => {
-    setCode(newCode ?? '');
     const conflicts = getConflictingChunks(newCode ?? '');
 
     if (metafile) {
@@ -44,12 +55,12 @@ const Editor = ({ metafileId: id, expanded = false }: { metafileId: UUID, expand
   return (
     <>
       {isDefined(metafile) && isHydrated(metafile) ?
-        <AceEditor {...mode} theme='monokai' onChange={onChange} name={id + '-editor'} value={code}
+        <AceEditor {...mode} theme='monokai' onChange={onChange} name={id + '-editor'} value={metafile.content ?? ''}
           ref={editorRef} className='editor' height='100%' width='100%' showGutter={expanded} focus={false}
           setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />
         : <Skeleton variant='text' aria-label='loading' width={`${skeletonWidth}%`} />}
     </>
   );
-}
+};
 
 export default Editor;
