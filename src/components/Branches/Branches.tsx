@@ -16,6 +16,11 @@ export const useStyles = makeStyles({
     },
 });
 
+/**
+ * React Component to display a list of git repositories and the local and remote branches tracked within them.
+ * 
+ * @returns {React.Component} A React function component.
+ */
 const Branches = () => {
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
     const [expanded, setExpanded] = React.useState(repos[0] ? [repos[0].id] : []); // initial state; expand first listed repo
