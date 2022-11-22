@@ -183,6 +183,7 @@ Synectic has the following ESLint options set in `.eslintrc.json`:
 | `extends`                                  | `["plugin:testing-library/react"]` | ESLint rules to enforce recommended rules for [React Testing Library](#React-Testing-Library-(RTL)), per [eslint-plugin-testing-library](https://github.com/testing-library/eslint-plugin-testing-library#react) installation instructions |
 | `extends`                                  | `["plugin:react-hooks/recommended"]` | ESLint rules to enforce the [Rules of Hooks](), per [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks) installation instructions |
 | `rules` : `jsdoc/require-param-type`       | `off` | Disables ESLint rule that requires each `@param` in a JSDoc comment to have a `type` value |
+| `rules` : `jsdoc/no-multi-astericks` : `allowWhitespace` | `true` | Allow astericks after a space (as with Markdown) in JSDoc comments |
 | `settings` : `import/core-modules`         | `[ "electron" ]` | Sets ESLint import resolver to include `electron` as a core module |
 
 # Jest
