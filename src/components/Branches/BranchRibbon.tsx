@@ -1,11 +1,11 @@
 import { Skeleton } from '@material-ui/lab';
-import React from 'react';
 import clsx from 'clsx';
+import React from 'react';
 import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
+import metafileSelectors from '../../store/selectors/metafiles';
 import { Metafile } from '../../store/slices/metafiles';
 import { RootState } from '../../store/store';
-import metafileSelectors from '../../store/selectors/metafiles';
 
 const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, onClick?: () => void }) => {
   const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile?.branch ?? ''));
