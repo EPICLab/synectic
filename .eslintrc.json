@@ -17,9 +17,12 @@
   "parser": "@typescript-eslint/parser",
   "rules": {
     "jsdoc/require-param-type": "off",
-    "jsdoc/no-multi-astericks": {
-      "allowWhitespace": true
-    }
+    "jsdoc/no-multi-asterisks": [
+      "warn",
+      {
+        "allowWhitespace": true
+      }
+    ]
     // named capture groups require ES2018 as either "lib" or "target", ES6 translates to ES2015
     // "prefer-named-capture-group": "error"
   },
