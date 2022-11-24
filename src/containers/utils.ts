@@ -228,6 +228,18 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
 };
 
 /**
+ * Remove property from object by immutably destructuring the object properties into a new object.
+ * 
+ * @param obj The initial source object.
+ * @param key The key of the property to be removed.
+ * @returns {object} New object containing all properties except for the one associated with the key.
+ */
+export const removeObjectProperty = <V, T extends Record<string, V>, K extends keyof T>(obj: T, key: K): Omit<T, K> => {
+  const { [key]: _removedProp, ...objRest } = obj; // eslint-disable-line @typescript-eslint/no-unused-vars
+  return objRest;
+}
+
+/**
  * Filters an object and removes any properties with undefined values.
  *
  * @param obj The given object containing key-value properties that should be filtered for undefined.

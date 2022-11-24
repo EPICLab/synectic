@@ -162,6 +162,11 @@ describe('containers/utils', () => {
     expect(utils.removeUndefined(arr)).toStrictEqual(arr);
   });
 
+  it('removeObjectProperty removes target property from Object', () => {
+    const obj = { a: 3, b: 'alpha', c: { d: 4, e: 'z' } };
+    expect(utils.removeObjectProperty(obj, 'c')).toStrictEqual({ a: 3, b: 'alpha' });
+  });
+
   it('removeUndefinedProperties removes undefined from Object of Primitive types', () => {
     const obj = { a: 3, b: 'a', c: undefined, d: true };
     expect(utils.removeUndefinedProperties(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
