@@ -3,12 +3,12 @@ import { PathLike } from 'fs-extra';
 import { normalize } from 'path';
 import { v4 } from 'uuid';
 import isBoolean from 'validator/lib/isBoolean';
-import { deleteBranch, getBranchRoot, getConfig, getRoot, getWorktreePaths, listBranch, log, revParse, worktreeAdd, worktreeList, worktreeRemove, worktreeStatus } from '../../containers/git';
-import { ExactlyOne, isDefined } from '../../containers/utils';
+import { deleteBranch, fetchMergingBranches, getBranchRoot, getConfig, getRoot, getWorktreePaths, listBranch, log, revParse, worktreeAdd, worktreeList, worktreeRemove, worktreeStatus } from '../../containers/git';
+import { ExactlyOne, isDefined, removeObjectProperty } from '../../containers/utils';
 import { AppThunkAPI } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import repoSelectors from '../selectors/repos';
-import { Branch, branchAdded, branchUpdated } from '../slices/branches';
+import { Branch, branchAdded, branchReplaced, isMergingBranch } from '../slices/branches';
 import { DirectoryMetafile, FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
 import { Repository, repoUpdated } from '../slices/repos';
 import { CommitObject, UUID } from '../types';
@@ -172,7 +172,8 @@ export const removeBranch = createAsyncThunk<boolean, { repoId: UUID, branch: Br
 
 /**
  * Update the root directory path and linked worktree status of a Branch to reflect the current filesystem and git 
- * status of a branch. This function updates the store state to reflect any recent changes to these fields.
+ * status of a branch. Also appends/removes merging information in the case of an in-progress merge where this branch
+ * is the base. This function updates the store state to reflect any recent changes to these fields.
  */
 export const updateBranch = createAsyncThunk<Branch, Branch, AppThunkAPI>(
     'branches/updateBranch',
@@ -184,8 +185,11 @@ export const updateBranch = createAsyncThunk<Branch, Branch, AppThunkAPI>(
         const linked = isDefined(worktreeDir);
         const updatedRoot = linked ? worktreeDir : branch.root;
         const status = (await worktreeStatus({ dir: updatedRoot }))?.status ?? 'uncommitted';
+        const merging = (await fetchMergingBranches(updatedRoot))?.compare;
 
-        return thunkAPI.dispatch(branchUpdated({ ...branch, linked: linked, root: updatedRoot, status: status })).payload;
+        const updates: Branch = { ...branch, linked: linked, root: updatedRoot, status: status };
+        const updatedBranch = merging ? { ...updates, merging: merging } : isMergingBranch(updates) ? removeObjectProperty(updates, 'merging') : updates;
+        return thunkAPI.dispatch(branchReplaced(updatedBranch)).payload;
     }
 );
 
