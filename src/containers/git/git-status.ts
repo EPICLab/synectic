@@ -1,10 +1,10 @@
-import { PathLike } from 'fs-extra';
-import { relative, resolve } from 'path';
+import { pathExists, PathLike } from 'fs-extra';
+import { join, relative, resolve } from 'path';
 import { BranchStatus, GitStatus } from '../../store/types';
 import { isDirectory, isEqualPaths } from '../io';
 import { execute } from '../utils';
 import { getIgnore } from './git-ignore';
-import { getRoot } from './git-path';
+import { getRoot, getWorktreePaths } from './git-path';
 
 type StatusOutput = {
     ref: string;
@@ -21,7 +21,7 @@ type StatusOutput = {
  * 
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
- * @param obj.pathspec - Pattern used to limit paths in *git* commands. See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
+ * @param obj.pathspec - Pattern used to limit paths in *git* commands. See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}.
  * @param obj.ignored - Optional flag to include ignored files in the output; defaults to false.
  * @returns {Promise<StatusOutput | undefined>} A Promise object containing a {@link StatusOutput} object with branch status information,
  * or `undefined` if not contained within a directory tracked by version control.
@@ -57,7 +57,9 @@ export const worktreeStatus = async ({
             const isIgnored = ignore.ignores(filepath);
             return { path: resolve(root.toString(), filepath), status: isIgnored ? 'ignored' : processStatusCode(e[1]) };
         });
-    const status: BranchStatus = entries.length == 0 ? 'clean' : entries.find(e => e.status === 'unmerged') ? 'unmerged' : 'uncommitted';
+    const { worktreeLink } = await getWorktreePaths(root);
+    const mergingHead = worktreeLink ? await pathExists(join(worktreeLink.toString(), 'MERGE_HEAD')) : false; // check for an in-progress merge
+    const status: BranchStatus = entries.find(e => e.status === 'unmerged') || mergingHead ? 'unmerged' : entries.length == 0 ? 'clean' : 'uncommitted';
 
     if (output.stderr.length > 0) console.error(output.stderr);
     return {

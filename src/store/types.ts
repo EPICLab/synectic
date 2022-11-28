@@ -55,7 +55,7 @@ export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*
  * | --------------------- | -------------------------------------------------------------------------------------- |
  * | `"clean"`             | no untracked files and no modifications in tracked files                               |
  * | `"uncommitted"`       | untracked files or uncommitted changes in tracked files exist                          |
- * | `"unmerged"`          | unmerged paths exist in the worktree directory, indicates an unresolved merge conflict |
+ * | `"unmerged"`          | unmerged paths possibly exist in the worktree directory, indicates incomplete merge    |
  */
 export type BranchStatus = 'clean' | 'uncommitted' | 'unmerged';
 /**
