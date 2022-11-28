@@ -25,8 +25,7 @@ export type Metafile = {
     & Partial<FileProps>
     & Partial<DirectoryProps>
     & Partial<VersionedProps>
-    & Partial<DiffProps>
-    & Partial<MergingProps>;
+    & Partial<DiffProps>;
 
 /** A metafile without the requisite ID field, which can be used for composing valid Metafiles prior to them being assigned an ID. */
 export type MetafileTemplate = Omit<Metafile, 'id'>;
@@ -96,15 +95,6 @@ export const isDiffMetafile = (metafile: Metafile): metafile is DiffMetafile => 
     return (metafile as DiffMetafile).targets !== undefined;
 };
 
-export type MergingMetafile = Override<Metafile, MergingProps>;
-export type MergingProps = {
-    /** Object containing base branch and compare branch names involved in an in-progress branch merge. */
-    readonly merging: { base: string, compare: string }
-};
-export const isMergingMetafile = (metafile: Metafile): metafile is MergingMetafile => {
-    return (metafile as MergingMetafile).merging !== undefined;
-};
-
 export const metafileAdapter = createEntityAdapter<Metafile>();
 
 export const metafileSlice = createSlice({
@@ -157,6 +147,6 @@ export const metafileSlice = createSlice({
     }
 })
 
-export const { metafileAdded, metafileRemoved, metafileUpdated, metafilesUpdated } = metafileSlice.actions;
+export const { metafileAdded, metafileRemoved, metafileReplaced, metafileUpdated, metafilesUpdated } = metafileSlice.actions;
 
 export default metafileSlice.reducer;
