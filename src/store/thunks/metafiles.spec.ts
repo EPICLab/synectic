@@ -212,6 +212,13 @@ describe('thunks/metafiles', () => {
     it('updateVersionedMetafile updates version information to filebased metafile', async () => {
         jest.spyOn(gitStatus, 'fileStatus').mockResolvedValue('unmodified');
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'test',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         const repo: Repository = {
             id: 'c5739e69-9979-41fe-8605-5bb5ff341027',
             name: 'foo/myRepo',
@@ -270,6 +277,13 @@ describe('thunks/metafiles', () => {
 
     it('updateVersionedMetafile adds version information to filebased metafile', async () => {
         jest.spyOn(gitStatus, 'fileStatus').mockResolvedValue('unmodified');
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'test',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
         const repo: Repository = {
             id: 'c5739e69-9979-41fe-8605-5bb5ff341027',
