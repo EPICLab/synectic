@@ -2,7 +2,7 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { PURGE } from 'redux-persist';
 import { Override } from '../../containers/utils';
-import { BranchStatus, CommitObject, SHA1, UUID } from '../types';
+import { BranchStatus, CommitObject, UUID } from '../types';
 
 // TODO: (bare) branches don't have a branch name, but have everything else (including possibly a linked-worktree)
 // TODO: (detached HEAD) branches don't have a branch name
