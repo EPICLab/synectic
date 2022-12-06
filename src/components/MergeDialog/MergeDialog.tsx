@@ -7,8 +7,8 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import cardSelectors from '../../store/selectors/cards';
 import repoSelectors from '../../store/selectors/repos';
-import { branchUpdated } from '../../store/slices/branches';
-import { isFilebasedMetafile, metafileUpdated } from '../../store/slices/metafiles';
+import { branchUpdated, MergingBranch } from '../../store/slices/branches';
+import { isFilebasedMetafile } from '../../store/slices/metafiles';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { RootState } from '../../store/store';
 import { addBranch, updateBranches } from '../../store/thunks/branches';
@@ -104,17 +104,14 @@ const MergeDialog = (props: Modal) => {
 
             if (baseBranch) dispatch(branchUpdated({
                 ...baseBranch,
-                status: 'unmerged'
-            }));
+                status: 'unmerged',
+                merging: compare.ref
+            } as MergingBranch));
 
             const baseMetafile = await dispatch(fetchMetafile({ path: base.root, handlers: ['Explorer'] })).unwrap();
-            const updatedMetafile = dispatch(metafileUpdated({
-                ...baseMetafile,
-                merging: { base: base.ref, compare: compare.ref }
-            })).payload;
 
-            const card = cards.find(c => c.metafile === updatedMetafile.id);
-            if (!card) await dispatch(buildCard({ metafile: updatedMetafile }));
+            const card = cards.find(c => c.metafile === baseMetafile.id);
+            if (!card) await dispatch(buildCard({ metafile: baseMetafile }));
 
             setStatus('Failing');
             setProgress({
