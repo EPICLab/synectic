@@ -6,6 +6,7 @@ import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import cardSelectors from '../../store/selectors/cards';
 import repoSelectors from '../../store/selectors/repos';
+import { isMergingBranch } from '../../store/slices/branches';
 import { Metafile } from '../../store/slices/metafiles';
 
 const StyledTableRow = withStyles((theme: Theme) =>
@@ -39,7 +40,8 @@ const Metadata = ({ metafile }: { metafile: Metafile }) => {
     const targetA = useAppSelector(state => cardSelectors.selectById(state, metafile.targets?.[0] ?? ''));
     const targetB = useAppSelector(state => cardSelectors.selectById(state, metafile.targets?.[1] ?? ''));
 
-    const { modified, path, merging, conflicts, ...stringifiedOnly } = metafile;
+    const { modified, path, conflicts, ...stringifiedOnly } = metafile;
+    const merging = isDefined(branch) && isMergingBranch(branch) ? branch.merging : undefined;
 
     const stringRows = Object.entries(stringifiedOnly)
         .filter(([k]) => !['content', 'contains', 'flags'].includes(k))
@@ -54,8 +56,8 @@ const Metadata = ({ metafile }: { metafile: Metafile }) => {
     const convertedRows = [
         ['modified', DateTime.fromMillis(modified).toLocaleString(DateTime.DATETIME_SHORT)],
         path ? ['path', path.toString()] : undefined,
-        merging ? ['merging', `{ base: ${merging.base}, compare: ${merging.compare}}`] : undefined,
-        conflicts ? ['conflicts', JSON.stringify(conflicts.map(c => c.toString()))] : undefined
+        merging ? ['merging', merging] : undefined,
+        conflicts && conflicts.length > 0 ? ['conflicts', JSON.stringify(conflicts.map(c => c.toString()))] : undefined
     ].filter(isDefined);
 
     const rows = [...stringRows, ...convertedRows];
