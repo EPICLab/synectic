@@ -142,18 +142,39 @@ describe('thunks/branches', () => {
 
     it('fetchBranch resolves existing branch via branch UUID in metafile', async () => {
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'main',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile1 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
 
     it('fetchBranch resolves existing branch via branch UUID in parent metafile', async () => {
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'main',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile2 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
 
     it('fetchBranch resolves existing branch via root path', async () => {
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'main',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         const branch = await store.dispatch(fetchBranch({ branchIdentifiers: { root: 'foo/', branch: 'main', scope: 'local' } })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
@@ -172,7 +193,7 @@ describe('thunks/branches', () => {
             }
         ]);
         jest.spyOn(gitRevParse, 'revParse').mockResolvedValue('false');
-        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValue({
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
             ref: 'main',
             root: 'foo/',
             status: 'clean',
