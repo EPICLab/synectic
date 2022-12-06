@@ -2,7 +2,7 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
 import React from 'react';
 import { add } from '../../containers/git';
-import { isModified } from '../../containers/utils';
+import { isModified, isUnmerged } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import cardSelectors from '../../store/selectors/cards';
@@ -28,7 +28,7 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 const StageButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isModified(m.status));
+    const unstaged = metafiles.filter(m => isVersionedMetafile(m) && (isModified(m.status) || isUnmerged(m.status)));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
