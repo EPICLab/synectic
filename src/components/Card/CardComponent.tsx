@@ -21,7 +21,7 @@ import StageButton from '../Button/Stage';
 import UnstageButton from '../Button/Unstage';
 import CommitButton from '../Button/Commit';
 import ResolveButton from '../Button/Resolve';
-import AbortButton, { isAbortable } from '../Button/Abort';
+import AbortButton from '../Button/Abort';
 import { Card, cardUpdated } from '../../store/slices/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 
