@@ -2,7 +2,7 @@ import * as path from 'path';
 import { SHA1 } from '../../store/types';
 import { execute, getConflictingChunks, ProgressCallback, removeUndefinedProperties } from '../utils'
 import { worktreeList } from './git-worktree';
-import { PathLike } from 'fs-extra';
+import { pathExists, PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';
 import { isDirectory, isEqualPaths, readFileAsync } from '../io';
 import { getIgnore } from './git-ignore';
@@ -198,9 +198,9 @@ export const checkUnmergedBranch = async (dir: PathLike, branch: string): Promis
 export const fetchMergingBranches = async (root: PathLike): Promise<{ base: string | undefined, compare: string | undefined }> => {
     const branchPattern = /(?<=Merge( remote-tracking)? branch(es)? .*)('.+?')+/gm; // Match linked worktree and main worktree patterns
     const { gitdir, worktreeLink } = await getWorktreePaths(root);
-    const mergeMsg = worktreeLink ? await readFileAsync(path.join(worktreeLink.toString(), 'MERGE_MSG'), { encoding: 'utf-8' })
-        : gitdir ? await readFileAsync(path.join(gitdir.toString(), 'MERGE_MSG'), { encoding: 'utf-8' }) : '';
-    const match = mergeMsg.match(branchPattern);
+    const mergeMsg = worktreeLink ? path.join(worktreeLink.toString(), 'MERGE_MSG') : gitdir ? path.join(gitdir.toString(), 'MERGE_MSG') : '';
+    const message = (await pathExists(mergeMsg)) ? await readFileAsync(mergeMsg, { encoding: 'utf-8' }) : '';
+    const match = message.match(branchPattern);
     return match
         ? match.length === 2
             ? { base: (match[0] as string).replace(/['"]+/g, ''), compare: (match[1] as string).replace(/['"]+/g, '') }
