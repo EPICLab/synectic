@@ -340,17 +340,6 @@
     ora "^5.0.0"
     pretty-ms "^7.0.0"
 
-"@electron-forge/async-ora@6.0.0-beta.67":
-  version "6.0.0-beta.67"
-  resolved "https://registry.yarnpkg.com/@electron-forge/async-ora/-/async-ora-6.0.0-beta.67.tgz#c5740d19e4d836cb856ac4c0ca897acbdc11da83"
-  integrity sha512-pqQlxHRnECDAAQhi3U2JgSj60TBv3e3ZLvL9Wv+dIBVv64Oc2QTRrryO5Svd7w2J1t+enVwQue18IrVaYUjw0w==
-  dependencies:
-    chalk "^4.0.0"
-    debug "^4.3.1"
-    log-symbols "^4.0.0"
-    ora "^5.0.0"
-    pretty-ms "^7.0.0"
-
 "@electron-forge/cli@^6.0.0-beta.67":
   version "6.0.0-beta.67"
   resolved "https://registry.yarnpkg.com/@electron-forge/cli/-/cli-6.0.0-beta.67.tgz#399a528d5aa1bf4df0dc87b0feee3b1341207752"
@@ -709,11 +698,6 @@
     "@humanwhocodes/object-schema" "^1.2.1"
     debug "^4.1.1"
     minimatch "^3.0.4"
-
-"@humanwhocodes/gitignore-to-minimatch@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@humanwhocodes/gitignore-to-minimatch/-/gitignore-to-minimatch-1.0.2.tgz#316b0a63b91c10e53f242efb4ace5c3b34e8728d"
-  integrity sha512-rSqmMJDdLFUsyxR6FMtD00nfQKKLFb1kv+qBbOVKqErvloEIJLo5bDTJTQNTYgeyp78JsA7u/NPi5jT1GR/MuA==
 
 "@humanwhocodes/module-importer@^1.0.1":
   version "1.0.1"
@@ -2012,14 +1996,6 @@
     eslint-scope "^5.1.1"
     eslint-utils "^3.0.0"
     semver "^7.3.7"
-
-"@typescript-eslint/visitor-keys@5.40.0":
-  version "5.40.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.40.0.tgz#dd2d38097f68e0d2e1e06cb9f73c0173aca54b68"
-  integrity sha512-ijJ+6yig+x9XplEpG2K6FUdJeQGGj/15U3S56W9IqXKJqleuD7zJ2AX/miLezwxpd7ZxDAqO87zWufKg+RPZyQ==
-  dependencies:
-    "@typescript-eslint/types" "5.40.0"
-    eslint-visitor-keys "^3.3.0"
 
 "@typescript-eslint/visitor-keys@5.40.0":
   version "5.40.0"
@@ -3809,31 +3785,6 @@ electron-osx-sign@^0.5.0:
     isbinaryfile "^3.0.2"
     minimist "^1.2.0"
     plist "^3.0.1"
-
-electron-packager@^16.0.0:
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/electron-packager/-/electron-packager-16.0.0.tgz#2eb7f14114e06b545207496ef66b10c24b7c8ba1"
-  integrity sha512-7Ey4UUaHg3FYhA7ktsAvCWP8srp9+iPljGdeJBsNaZBakU6HWhvRC+Pc7LWXGCgAVIN5BQsUwR3xrCbFno91VA==
-  dependencies:
-    "@electron/get" "^2.0.0"
-    "@electron/universal" "^1.2.1"
-    asar "^3.1.0"
-    cross-spawn-windows-exe "^1.2.0"
-    debug "^4.0.1"
-    electron-notarize "^1.1.1"
-    electron-osx-sign "^0.5.0"
-    extract-zip "^2.0.0"
-    filenamify "^4.1.0"
-    fs-extra "^10.1.0"
-    galactus "^0.2.1"
-    get-package-info "^1.0.0"
-    junk "^3.1.0"
-    parse-author "^2.0.0"
-    plist "^3.0.0"
-    rcedit "^3.0.1"
-    resolve "^1.1.6"
-    semver "^7.1.3"
-    yargs-parser "^21.1.1"
 
 electron-packager@^16.0.0:
   version "16.0.0"
