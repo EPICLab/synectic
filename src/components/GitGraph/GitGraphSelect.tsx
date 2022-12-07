@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { createStyles, FormControl, makeStyles, MenuItem, Select, Theme, withStyles } from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
-import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { v4 } from 'uuid';
 import repoSelectors from '../../store/selectors/repos';
@@ -40,9 +39,9 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const GitGraphSelect = () => {
-  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+  const repos = useAppSelector(state => repoSelectors.selectAll(state));
   const [selected, setSelected] = useState('');
-  const graphs: Modal[] = useAppSelector((state: RootState) => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
+  const graphs: Modal[] = useAppSelector(state => modalSelectors.selectByType(state, 'GitGraph'), shallowEqual);
   const dispatch = useAppDispatch();
   const styles = useStyles();
 

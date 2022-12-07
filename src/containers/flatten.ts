@@ -14,10 +14,11 @@ type ObjectElementType<T> = T extends Record<string | number | symbol, infer U> 
  * Originally, this solution was a partial type enhancement that resulted in a `<any[]>`-typed return array. This previous
  * solution was type-aware and used an efficient recursive reduce function in order to prevent non-array inputs, but could only 
  * guarantee that the output is an array (prior to TS 4.1, we could not recursively infer the types of each sub-array and bubble 
- * those types up to a combined intersection type). This solution was originally posted by 
- * @maroun-baydoun (@link https://qiita.com/maroun-baydoun/items/dbd65b56b3ef2365f583).
+ * those types up to a combined intersection type). This solution was originally posted by @maroun-baydoun 
+ * (@link https://qiita.com/maroun-baydoun/items/dbd65b56b3ef2365f583).
+ * 
  * @param arr Array containing primitive values, objects, and other arrays.
- * @return Array of depth 1, containing all sub-array elements.
+ * @returns {ArrayElementType[]} Array of depth 1, containing all sub-array elements.
  */
 export const flattenArray = <T extends unknown[]>(arr: T): ArrayElementType<T>[] => {
   const reducer = (prev: ArrayElementType<T>[], curr: unknown): ArrayElementType<T>[] => {
@@ -31,8 +32,10 @@ export const flattenArray = <T extends unknown[]>(arr: T): ArrayElementType<T>[]
  * contain an object value, it is necessary to discard the key name of the outer container object and only hoist the inner pair.
  * Some type casting is required (but should be type-safe) in order to handle the gradual typing of results from square bracket
  * property accessors.
+ *
  * @param obj Object containing key-value pairs that point to primitives, arrays, and other objects.
- * @return Object of depth 1, containing all sub-object elements (excluding keys for container objects).
+ * @returns {Record<string | number | symbol, ObjectElementType>} d Object of depth 1, containing all sub-object elements 
+ * (excluding keys for container objects).
  */
 export const flattenObject = <T extends Record<string | number | symbol, unknown>>(obj: T)
   : Record<string | number | symbol, ObjectElementType<T>> => {

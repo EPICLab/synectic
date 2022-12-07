@@ -60,7 +60,7 @@ const mockedStore: RootState = {
                 modified: DateTime.fromISO('2019-11-19T19:22:47.572-08:00').valueOf(),
                 handler: 'Editor',
                 filetype: 'JavaScript',
-                loading: []
+                flags: []
             },
             'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8': {
                 id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
@@ -68,7 +68,7 @@ const mockedStore: RootState = {
                 modified: DateTime.fromISO('1998-01-01T20:20:20.144-08:00').valueOf(),
                 handler: 'Editor',
                 filetype: 'Razor',
-                loading: []
+                flags: []
             }
         }
     },

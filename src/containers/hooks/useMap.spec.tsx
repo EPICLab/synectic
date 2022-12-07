@@ -9,7 +9,7 @@ const basicMetafile: FileMetafile = {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Javascript',
-    loading: [],
+    flags: [],
     path: 'foo/bar.js',
     state: 'unmodified',
     content: 'file contents'
@@ -21,7 +21,7 @@ const virtualMetafile: VirtualMetafile = {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Javascript',
-    loading: [],
+    flags: [],
     content: 'new content'
 };
 

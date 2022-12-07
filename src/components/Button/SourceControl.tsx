@@ -1,26 +1,43 @@
 import React from 'react';
 import { DeviceHub as VersionControl } from '@material-ui/icons';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { isDefined, removeUndefinedProperties } from '../../containers/utils';
 import branchSelectors from '../../store/selectors/branches';
 import { UUID } from '../../store/types';
 import { buildCard } from '../../store/thunks/cards';
 import { createMetafile } from '../../store/thunks/metafiles';
 
-const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: UUID, metafileId: UUID, mode?: Mode }) => {
-    const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
-    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, metafileId));
-    const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
+type SourceControlProps = {
+    repoId: UUID,
+    metafileId: UUID,
+    enabled?: boolean,
+    mode?: Mode
+}
+
+/**
+ * Button for opening a new `SourceControl` card tracking the repository associated with this button.
+ * 
+ * @param props - A destructured object for named props.
+ * @param props.repoId - The Repository UUID that should be opened on click event.
+ * @param props.metafileId - The Metafile UUID that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
+ * @param props.mode - Optional mode for switching between light and dark themes.
+ * @returns {React.Component} A React function component.
+ */
+const SourceControlButton = ({ repoId, metafileId, enabled = true, mode = 'light' }: SourceControlProps) => {
+    const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
+    const metafile = useAppSelector(state => metafileSelectors.selectById(state, metafileId));
+    const branches = useAppSelector(state => branchSelectors.selectEntities(state));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
-    const loadSourceControl = async () => {
+    const loadSourceControl = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         if (!repo) {
             console.log(`Repository missing for metafile id:'${metafileId}'`);
             return;
@@ -38,7 +55,7 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
                 modified: 0,
                 handler: 'SourceControl',
                 filetype: '',
-                loading: [],
+                flags: [],
                 repo: repo.id,
                 branch: metafile.branch,
                 ...optionals
@@ -48,16 +65,17 @@ const SourceControlButton = ({ repoId, metafileId, mode = 'light' }: { repoId: U
         dispatch(buildCard({ metafile: sourceControl }));
     };
 
-    return (
-        <>
-            {repo && metafile &&
-                <Tooltip title='Source Control'>
-                    <IconButton className={classes.root} aria-label='source-control' onClick={loadSourceControl}>
-                        <VersionControl />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && isDefined(repo) && isDefined(metafile)) ? (
+        <Tooltip title='Source Control'>
+            <IconButton
+                className={classes.root}
+                aria-label='source-control'
+                onClick={loadSourceControl}
+            >
+                <VersionControl />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 };
 
 export default SourceControlButton;

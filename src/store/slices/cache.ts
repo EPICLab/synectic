@@ -7,7 +7,7 @@ import { UUID } from '../types';
 export type Cache = {
     /** The absolute path to the cached file; also used as the unique ID. */
     readonly path: string;
-    /** The list of Metafile UUIDs with an interest in this cache object. */
+    /** The list of Card UUIDs with an interest in this cache object. */
     readonly reserved: UUID[];
     /** The cached content associated with the underlying object content in the filesystem. */
     readonly content: string;

@@ -1,69 +1,22 @@
-import * as worktree from './git-worktree';
+import * as branch from './git-branch';
 
 describe('containers/git/git-branch', () => {
-    it('processBranchOutput handles bare worktree', () => {
-        return expect(worktree.processWorktreeOutput('/path/to/bare-source            (bare)')).toStrictEqual(
+    it('processBranchOutput handles local branches', () => {
+        const output = '  bugfix/handleHTTPS                                            efa41605007195577e57f71446d6195489d4e329 [gone] Add HTTPS processor\n  main                                                                      31e4d1636e687737f02905f29b9c0d0e5c442f4e Fail only on stderr messages';
+        return expect(branch.processBranchOutput(output)).toStrictEqual(
             expect.arrayContaining([
-                expect.objectContaining({ ref: '', bare: true, scope: 'local', root: '/path/to/bare-source' })
+                expect.objectContaining({ ref: 'main', scope: 'local', remote: 'origin', head: '31e4d1636e687737f02905f29b9c0d0e5c442f4e' }),
+                expect.objectContaining({ ref: 'bugfix/handleHTTPS', scope: 'local', remote: 'origin', head: 'efa41605007195577e57f71446d6195489d4e329' })
             ])
         );
-    })
+    });
 
-    it('processWorktreeOutput handles bare worktree (porcelain)', () => {
-        return expect(worktree.processWorktreeOutput(`worktree /path/to/bare-source\nbare`, true)).toStrictEqual(
+    it('processBranchOutput handles remote branches', () => {
+        const output = '  remotes/origin/feature-ext                                    4a72a5333ef48a0668a3c1228787db9f326096bd demonstration sorting algorithm\n  remotes/origin/main                                                       31e4d1636e687737f02905f29b9c0d0e5c442f4e Fail only on stderr messages';
+        return expect(branch.processBranchOutput(output)).toStrictEqual(
             expect.arrayContaining([
-                expect.objectContaining({ ref: '', bare: true, scope: 'local', root: '/path/to/bare-source' })
+                expect.objectContaining({ ref: 'main', scope: 'remote', remote: 'origin', head: '31e4d1636e687737f02905f29b9c0d0e5c442f4e' })
             ])
         );
-    })
-
-    it('processWorktreeOutput handles linked worktree', () => {
-        return expect(worktree.processWorktreeOutput('/path/to/linked-worktree              abcd1234 [master]')).toStrictEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ ref: 'master', scope: 'local', root: '/path/to/linked-worktree', head: 'abcd1234' })
-            ])
-        );
-    })
-
-    it('processWorktreeOutput handles linked worktree (porcelain)', () => {
-        return expect(worktree.processWorktreeOutput(`worktree /path/to/linked-worktree\nHEAD abcd1234abcd1234abcd1234abcd1234abcd1234\nbranch refs/heads/master`, true)).toStrictEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ ref: 'master', bare: false, scope: 'local', root: '/path/to/linked-worktree', head: 'abcd1234abcd1234abcd1234abcd1234abcd1234' })
-            ])
-        );
-    })
-
-    it('processWorktreeOutput handles locked worktree with no reason', () => {
-        return expect(worktree.processWorktreeOutput('/path/to/locked-worktree-no-reason    abcd5678 (detached HEAD) locked')).toStrictEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ ref: 'detached', bare: false, scope: 'local', root: '/path/to/locked-worktree-no-reason', head: 'abcd5678' })
-            ])
-        );
-    })
-
-    it('processWorktreeOutput handles prunable worktree with no reason', () => {
-        return expect(worktree.processWorktreeOutput('/path/to/prunable-worktree-no-reason  98765dcb (detached HEAD) prunable')).toStrictEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ ref: 'detached', bare: false, scope: 'local', root: '/path/to/prunable-worktree-no-reason', head: '98765dcb' })
-            ])
-        );
-    })
-
-    it('processWorktreeOutput handles locked worktree with reason', () => {
-        return expect(worktree.processWorktreeOutput(`/path/to/locked-worktree-with-reason  1234abcd (brancha)
-        locked: worktree path is mounted on a portable device`)).toStrictEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ ref: 'brancha', scope: 'local', root: '/path/to/locked-worktree-with-reason', head: '1234abcd' })
-            ])
-        );
-    })
-
-    it('processWorktreeOutput handles prunable worktree with reason', () => {
-        return expect(worktree.processWorktreeOutput(`/path/to/prunable-worktree            5678abc1 (detached HEAD)
-        prunable: gitdir file points to non-existent location`)).toStrictEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ ref: 'detached', bare: false, scope: 'local', root: '/path/to/prunable-worktree', head: '5678abc1' })
-            ])
-        );
-    })
+    });
 });
