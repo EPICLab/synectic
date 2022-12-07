@@ -9,7 +9,7 @@ import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
 import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileRemoved, metafileUpdated } from './slices/metafiles';
 import { AppDispatch, RootState } from './store';
 import { removeBranch } from './thunks/branches';
-import { subscribe, unsubscribe } from './thunks/cache';
+import { subscribeAll, unsubscribe } from './thunks/cache';
 import { switchBranch, updateFilebasedMetafile, updateVersionedMetafile } from './thunks/metafiles';
 import { UUID } from './types';
 
@@ -102,19 +102,55 @@ startAppListening({
 });
 
 /**
- * Listen for card adding/switching actions and update child Metafiles in directories, subscriptions, and cache adding.
+ * Listen for card add actions and update cache subscriptions.
  */
 startAppListening({
-    predicate: (action, _, previousState) => {
-        if (cardAdded.match(action)) return true;
-        if (cardUpdated.match(action)) {
-            const prev = previousState.cards.entities[action.payload.id];
-            return prev ? action.payload.metafile !== prev.metafile : false;
-        }
-        return false;
-    },
+    actionCreator: cardAdded,
     effect: async (action, listenerApi) => {
-        if (cardAdded.match(action) || cardUpdated.match(action)) {
+        const metafile = listenerApi.getState().metafiles.entities[action.payload.metafile];
+
+        if (metafile && isFilebasedMetafile(metafile)) {
+            let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+            updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
+            const metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
+                isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
+            const paths = metafiles.filter(isFileMetafile).map(m => m.path);
+            listenerApi.dispatch(subscribeAll({ paths: paths, card: action.payload.id }));
+        }
+    }
+});
+
+/**
+ * Listen for card update actions and update cache subscriptions.
+ */
+startAppListening({
+    actionCreator: cardUpdated,
+    effect: async (action, listenerApi) => {
+        const prevCard = listenerApi.getOriginalState().cards.entities[action.payload.id];
+
+        // if there is a previous metafile, then we might need to update subscriptions
+        if (prevCard?.metafile) {
+            const previous = listenerApi.getOriginalState().metafiles.entities[prevCard.metafile];
+            const current = listenerApi.getState().metafiles.entities[action.payload.metafile];
+
+            if (previous && current && previous.id != current.id) { // handle when previous and current metafile differ (e.g. 'metafiles/switchBranch')
+                if (isFilebasedMetafile(previous)) { // unsubscribe from the previous metafile
+                    await listenerApi.dispatch(unsubscribe({ path: previous.path.toString(), card: action.payload.id }));
+                }
+
+                if (isFilebasedMetafile(current)) { // subscribe to the current metafile
+                    let updated = await listenerApi.dispatch(updateFilebasedMetafile(current)).unwrap();
+                    updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
+                    const metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
+                        isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [current.id]) : [];
+                    const paths = metafiles.filter(isFileMetafile).map(m => m.path);
+                    listenerApi.dispatch(subscribeAll({ paths: paths, card: action.payload.id }));
+                }
+            }
+        }
+
+        // if no previous metafile, then check for a current metafile and subscribe to it
+        if (!prevCard || !prevCard.metafile) {
             const metafile = listenerApi.getState().metafiles.entities[action.payload.metafile];
 
             if (metafile && isFilebasedMetafile(metafile)) {
@@ -122,18 +158,16 @@ startAppListening({
                 updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
                 const metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
                     isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
-
-                metafiles.filter(isFileMetafile).forEach(async metafile => {
-                    await listenerApi.dispatch(subscribe({ path: metafile.path.toString(), card: action.payload.id }));
-                });
+                const paths = metafiles.filter(isFileMetafile).map(m => m.path);
+                listenerApi.dispatch(subscribeAll({ paths: paths, card: action.payload.id }))
             }
         }
+        console.groupEnd();
     }
 });
 
 /**
- * Listen for card removal actions and update child Metafiles in directories, subscriptions, and cache removals.
- * Also remove any Diff cards that reference that card.
+ * Listen for card removed actions and update cache subscriptions; specifically handling the case of Diff cards that might ref the removed card.
  */
 startAppListening({
     actionCreator: cardRemoved,
