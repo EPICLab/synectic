@@ -9,6 +9,7 @@ const selectors = repoAdapter.getSelectors<RootState>(state => state.repos);
 
 /**
  * Custom Redux selector for locating a repository in the Redux store based on name.
+ * 
  * @param state The state object for the Redux store.
  * @param name The repository name.
  * @returns A Repository object or undefined if no match.
@@ -27,6 +28,7 @@ const selectByRoot = createSelector(
 
 /**
  * Custom Redux selector for locating a repository in the Redux store based on URL.
+ * 
  * @param state The state object for the Redux store.
  * @param url The remote URL of a repository; can use http, https, ssh, or git protocols.
  * @returns A Repository object or undefined if no match.

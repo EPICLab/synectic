@@ -1,6 +1,5 @@
 import React from 'react';
 import Browser from '../Browser';
-import ConflictManager from '../ConflictManager';
 import Diff from '../Diff';
 import Editor from '../Editor';
 import Explorer from '../Explorer';
@@ -25,8 +24,6 @@ const Content = (card: Card) => {
             return (<Browser card={card.id} />);
         case 'Branches':
             return (<Branches />);
-        case 'ConflictManager':
-            return (<ConflictManager metafileId={card.metafile} />);
         default:
             return null;
     }
