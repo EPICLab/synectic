@@ -1,6 +1,5 @@
 import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import DropSelect from '../DropSelect';
-import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import { Repository } from '../../store/slices/repos';
@@ -31,8 +30,8 @@ type BranchSelectProps = {
 }
 
 const BranchSelect = (props: BranchSelectProps) => {
-    const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, props.repo ? props.repo : emptyRepo, true));
-    const branchLookup = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
+    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, props.repo ? props.repo : emptyRepo, true));
+    const branchLookup = useAppSelector(state => branchSelectors.selectEntities(state));
     const predicate = props.optionsFilter ? props.optionsFilter : undefined; // Cannot descriminate types from variables; see https://github.com/microsoft/TypeScript/issues/10530
     const options = (predicate ? branches.filter(b => predicate(b)) : branches).map(b => { return { label: b.id, value: b.ref }; });
 

@@ -1,6 +1,7 @@
 import util from 'util';
 import { exec } from 'child_process';
 import { flattenObject } from './flatten';
+import { GitStatus } from '../store/types';
 const promiseExec = util.promisify(exec);
 
 /**
@@ -133,6 +134,43 @@ export const isNumber = (maybeNumber: string | undefined): boolean => {
 }
 
 /**
+ * Check for status indicating changes to a file have been staged; i.e. the file contents have been added to the index (staging area).
+ * 
+ * @param status An enumerated git status value.
+ * @returns {boolean} A boolean indicating true if modified and staged, and false otherwise.
+ */
+export const isStaged = (status: GitStatus): boolean => ['added', 'modified', 'deleted'].includes(status);
+
+/**
+ * Check for status indicating changes to a file that differ from the index, but have not been staged.
+ * 
+ * @param status An enumerated git status value.
+ * @returns {boolean} A boolean indicating true if modified and unstaged, and false otherwise.
+ */
+export const isModified = (status: GitStatus): boolean => ['*absent', '*added', '*undeleted', '*modified', '*deleted'].includes(status);
+
+/**
+ * Check for status indicating a file has unmerged changes from an incomplete merge.
+ * 
+ * **Warning:** This does not guarantee that the file _currently_ contains conflicting chunks.
+ * 
+ * @param status An enumerated git status value.
+ * @returns {boolean} A boolean indicating true if unmerged, and false otherwise.
+ */
+export const isUnmerged = (status: GitStatus): boolean => status === 'unmerged';
+
+/**
+ * Check for conflicting chunks in a string (i.e. code surrounded by `<<<<<<<` and `>>>>>>>`).
+ * 
+ * @param content A string containing code that possibly includes conflicting chunks.
+ * @returns {number[]} An array of indices representing the starting point for each conflicting chunk found in the string, or empty if clean.
+ */
+export const getConflictingChunks = (content: string): number[] => {
+  const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
+  return removeUndefined(Array.from(content.matchAll(conflictPattern)).map(m => isDefined(m.index) ? m.index : undefined));
+}
+
+/**
  * Converts a JavaScript Object Notation (JSON) string into a typed object.
  *
  * @param json A valid JSON string.
@@ -141,8 +179,8 @@ export const isNumber = (maybeNumber: string | undefined): boolean => {
 export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
 
 /**
- * Generic for partitioning an array into two disjoint arrays given a predicate function
- * that indicates whether an element should be in the passing subarray or failing subarray.
+ * Generic for partitioning an array into two disjoint arrays given a predicate function that indicates whether an 
+ * element should be in the passing subarray or failing subarray.
  *
  * @param array The given array of elements to partition.
  * @param predicate A predicate function that resolves to true if element `e` meets
@@ -150,11 +188,34 @@ export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
  * @returns {[object[], object[]]} The resulting array of arrays where elements that passed the predicate are in
  * the left subarray and elements that failed the predicate are in the right subarray.
  */
-export const partition = <T>(array: T[], predicate: (e: T) => boolean) => {
+export const partition = <T>(array: T[], predicate: (e: T) => boolean): [T[], T[]] => {
   return array.reduce((accumulator: [T[], T[]], item) => predicate(item)
     ? (accumulator[0].push(item), accumulator)
     : (accumulator[1].push(item), accumulator), [[], []]);
-}
+};
+
+/**
+ * Generic for partitioning two arrays into the symmetric differences, also known as the disjunctive union, and the
+ * intersection given a predicate that indicates whether an element should be in the intersection subarray.
+ * 
+ * @param array1 An array of elements.
+ * @param array2 An array of elements.
+ * @param predicate A predicate function that resolves to true if element `e1` from `array1` has a equivalent complement
+ * in `array2`, and false otherwise.
+ * @returns {[object[], object[], object[]]} The resulting array of arrays where symmetrically different elements from `array1` 
+ * are in the left subarray, intersection subarray containing pairs of element `e1` from `array1` and the complementary element
+ * `e2` from `array2` in the center subarray, and the symmetrically different elements from `array2` are in the right subarray.
+ */
+export const symmetrical = <T, U>(array1: T[], array2: U[], predicate: (e1: T, e2: U) => boolean): [T[], [T, U][], U[]] => {
+  const intersection: [T, U][] = [];
+  const leftComplement: T[] = array1.filter(t => {
+    const match = array2.find(u => predicate(t, u));
+    if (match) intersection.push([t, match]);
+    return match ? false : true;
+  });
+  const rightComplement: U[] = array2.filter(u => !array1.some(t => predicate(t, u)));
+  return [leftComplement, intersection, rightComplement];
+};
 
 /**
  * Filters an array and removes any undefined elements contained within it.
@@ -165,6 +226,18 @@ export const partition = <T>(array: T[], predicate: (e: T) => boolean) => {
 export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
   return array.filter((item): item is T => typeof item !== 'undefined');
 };
+
+/**
+ * Remove property from object by immutably destructuring the object properties into a new object.
+ * 
+ * @param obj The initial source object.
+ * @param key The key of the property to be removed.
+ * @returns {object} New object containing all properties except for the one associated with the key.
+ */
+export const removeObjectProperty = <V, T extends Record<string, V>, K extends keyof T>(obj: T, key: K): Omit<T, K> => {
+  const { [key]: _removedProp, ...objRest } = obj; // eslint-disable-line @typescript-eslint/no-unused-vars
+  return objRest;
+}
 
 /**
  * Filters an object and removes any properties with undefined values.
@@ -220,7 +293,7 @@ export const filterObject = <V, T extends Record<string, V>>(obj: T, filter: str
   return Object.entries(flattenObject(obj))
     .filter(([key]) => filter.includes(key))
     .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
-}
+};
 
 /**
  * Expand an array of path elements (i.e. a dot-format path such as `user.name`) into a successive series of named
@@ -254,7 +327,7 @@ export const equalMaps = <K, V>(map1: Map<K, V>, map2: Map<K, V>): boolean => {
     if (JSON.stringify(testVal) !== JSON.stringify(val) || (testVal === undefined && !map2.has(key))) return false;
   }
   return true;
-}
+};
 
 /**
  * Compares two `Array` objects for equality. Checks for same array length, then tests all underlying elements
@@ -270,7 +343,7 @@ export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
     if (JSON.stringify(arr1[i]) != JSON.stringify(arr2[i]) || arr1[i] === undefined) return false;
   }
   return true;
-}
+};
 
 /**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 
@@ -291,7 +364,7 @@ export const equalArrayBuffers = (buf1: ArrayBufferLike, buf2: ArrayBufferLike):
     if (dv1[i] != dv2[i]) return false;
   }
   return true;
-}
+};
 
 /**
  * Convert a `Buffer` object into an `ArrayBuffer` object.
@@ -318,7 +391,7 @@ export const toArrayBuffer = (buf: Buffer): ArrayBuffer => {
  */
 export const getRandomInt = (min: number, max: number): number => {
   return Math.floor(Math.random() * (max - min + 1) + min);
-}
+};
 
 /**
  * Scheduled execution of a one-time no-op callback after a delay of `ms` milliseconds. Since this relies on 
@@ -363,4 +436,4 @@ export const execute = async (command: string, cwd?: string | URL | undefined) =
     };
   }
   return execResult;
-}
+};

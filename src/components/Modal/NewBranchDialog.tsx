@@ -3,7 +3,6 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { RootState } from '../../store/store';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
 import { addBranch, updateBranches } from '../../store/thunks/branches';
@@ -58,8 +57,8 @@ const useStyles = makeStyles((theme: Theme) =>
 const NewBranchDialog = (props: Modal) => {
     const styles = useStyles();
     const dispatch = useAppDispatch();
-    const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.target ? props.target : ''));
-    const branches = useAppSelector((state: RootState) => branchSelectors.selectByRepo(state, repo, true));
+    const repo = useAppSelector(state => repoSelectors.selectById(state, props.target ? props.target : ''));
+    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, repo, true));
     const [branchName, setBranchName] = React.useState('');
     const isNoneDuplicate = !branches?.find(b => b.ref === branchName);
 

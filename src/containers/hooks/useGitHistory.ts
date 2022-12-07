@@ -3,7 +3,6 @@ import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
 import { Branch } from '../../store/slices/branches';
-import { RootState } from '../../store/store';
 import { CommitObject, UUID } from '../../store/types';
 import { log } from '../git';
 
@@ -32,8 +31,8 @@ type useGitHistoryHook = {
  * on that branch.
  */
 export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
-  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
-  const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo) : []);
+  const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
+  const branches = useAppSelector(state => repo ? branchSelectors.selectByRepo(state, repo) : []);
   const [commits, setCommits] = useState(new Map<string, CommitInfo>());
   const [heads, setHeads] = useState(new Map<string, string>());
 
