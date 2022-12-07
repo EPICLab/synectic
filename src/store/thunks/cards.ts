@@ -51,7 +51,7 @@ export const addBranchCard = createAsyncThunk<Card, void, AppThunkAPI>(
                 modified: DateTime.local().valueOf(),
                 handler: 'Branches',
                 filetype: 'Text',
-                loading: []
+                flags: []
             }
         })).unwrap();
         return await thunkAPI.dispatch(buildCard({ metafile })).unwrap();

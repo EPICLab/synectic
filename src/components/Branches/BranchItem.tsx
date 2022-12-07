@@ -8,10 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
 import { modalAdded } from '../../store/slices/modals';
-import { RootState } from '../../store/store';
-import { addBranch, removeBranch, updateBranches } from '../../store/thunks/branches';
-import { buildCard } from '../../store/thunks/cards';
-import { fetchMetafile } from '../../store/thunks/metafiles';
+import { removeBranch } from '../../store/thunks/branches';
 import { UUID } from '../../store/types';
 import { DnDItemType } from '../Canvas/Canvas';
 import { GitBranchIcon } from '../GitIcons';
@@ -22,22 +19,28 @@ export type DragObject = {
     type: string
 }
 
-const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
-    const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
-    const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, props.branchId));
-    const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
-    const motif = branch ? getBranchMotif(branch) : undefined;
-    const optionals = removeUndefinedProperties({ color: motif?.color });
+type BranchItemProps = {
+    repoId: UUID;
+    branchId: UUID;
+    deletable?: boolean;
+    highlight?: boolean;
+    onClickHandler?: React.MouseEventHandler<HTMLLIElement> | undefined;
+}
+
+const BranchItem = ({ repoId, branchId, deletable = false, highlight = false, onClickHandler = undefined }: BranchItemProps) => {
+    const branches = useAppSelector(state => branchSelectors.selectEntities(state));
+    const branch = useAppSelector(state => branchSelectors.selectById(state, branchId));
+    const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
     const dispatch = useAppDispatch();
 
     // Enable BranchItem as a drop source (i.e. allowing this component to be draggable)
     const [{ isDragging }, drag] = useDrag({
         type: DnDItemType.BRANCH,
-        item: () => ({ id: props.branchId, type: DnDItemType.CARD }),
+        item: () => ({ id: branchId, type: DnDItemType.CARD }),
         collect: monitor => ({
             isDragging: !!monitor.isDragging()
         })
-    }, [props.branchId]);
+    }, [branchId]);
 
     // Enable BranchItem as a drop target (i.e. allow other elements to be dropped on this component)
     const [{ isOver }, drop] = useDrop({
@@ -57,7 +60,7 @@ const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
             if (!delta)
                 return; // no dragging is occurring, perhaps a draggable element was picked up and dropped without dragging
             if (dropSource && dropTarget)
-                dispatch(modalAdded({ id: v4(), type: 'MergeSelector', options: { repo: props.repoId, base: dropTarget.id, compare: dropSource.id } }));
+                dispatch(modalAdded({ id: v4(), type: 'MergeSelector', options: { repo: repoId, base: dropTarget.id, compare: dropSource.id } }));
         },
         collect: monitor => ({
             isOver: !!monitor.isOver() // return isOver prop to highlight drop sources that accept hovered item
@@ -80,29 +83,25 @@ const BranchItem = (props: { repoId: UUID, branchId: UUID }) => {
         }
     }
 
-    const handleClick = async () => {
-        if (branch && repo) {
-            const updatedBranch = await dispatch(addBranch({ ref: branch.ref, root: repo.root })).unwrap();
-            if (updatedBranch) dispatch(updateBranches(repo));
-            const metafile = updatedBranch ? await dispatch(fetchMetafile({ path: updatedBranch.root, handlers: ['Explorer', 'Editor'] })).unwrap() : undefined;
-            if (metafile) dispatch(buildCard({ metafile: metafile }));
-        }
-    }
+    const motif = branch ? getBranchMotif(branch) : undefined;
+    const optionals = removeUndefinedProperties({
+        color: motif?.color,
+        labelInfo: deletable ? Delete : undefined,
+        labelInfoClickHandler: deletable ? handleLabelInfoClick : undefined
+    });
 
     return (
         <div ref={dragAndDrop}>
             <StyledTreeItem
                 className={`${isOver ? 'drop-source' : ''}`}
-                style={{ opacity: isDragging ? 0 : 1 }}
-                key={`${props.repoId}-${props.branchId}`}
-                nodeId={`${props.repoId}-${props.branchId}`}
+                style={{ backgroundColor: highlight ? 'rgba(255, 192, 203, 0.5)' : undefined, opacity: isDragging ? 0 : 1 }}
+                key={`${repoId}-${branchId}`}
+                nodeId={`${repoId}-${branchId}`}
                 labelText={`${branch?.scope}/${branch?.ref}`}
                 {...optionals}
                 labelIcon={GitBranchIcon}
-                labelInfo={Delete}
-                labelInfoClickHandler={handleLabelInfoClick}
                 enableHover={true}
-                onClick={handleClick}
+                onClick={onClickHandler}
             />
         </div>
     )
