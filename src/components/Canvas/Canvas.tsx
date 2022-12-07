@@ -18,7 +18,7 @@ import stackSelectors from '../../store/selectors/stacks';
 import { cardUpdated } from '../../store/slices/cards';
 import { Modal, modalAdded } from '../../store/slices/modals';
 import { stackUpdated } from '../../store/slices/stacks';
-import redux, { RootState } from '../../store/store';
+import redux from '../../store/store';
 import { addBranchCard } from '../../store/thunks/cards';
 import { popCards } from '../../store/thunks/stacks';
 import CardComponent from '../Card';
@@ -52,16 +52,16 @@ const useStyles = makeStyles((theme: Theme) =>
 const isMac = process.platform === 'darwin';
 
 const Canvas = () => {
-  const cardsArray = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-  const stacksArray = useAppSelector((state: RootState) => stackSelectors.selectAll(state));
-  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
-  const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
-  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
-  const cached = useAppSelector((state: RootState) => cachedSelectors.selectAll(state));
-  const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-  const branches = useAppSelector((state: RootState) => branchSelectors.selectAll(state));
-  const modals = useAppSelector((state: RootState) => modalSelectors.selectAll(state));
+  const cardsArray = useAppSelector(state => cardSelectors.selectAll(state));
+  const stacksArray = useAppSelector(state => stackSelectors.selectAll(state));
+  const stacks = useAppSelector(state => stackSelectors.selectEntities(state));
+  const cards = useAppSelector(state => cardSelectors.selectEntities(state));
+  const filetypes = useAppSelector(state => filetypeSelectors.selectAll(state));
+  const metafiles = useAppSelector(state => metafileSelectors.selectAll(state));
+  const cached = useAppSelector(state => cachedSelectors.selectAll(state));
+  const repos = useAppSelector(state => repoSelectors.selectAll(state));
+  const branches = useAppSelector(state => branchSelectors.selectAll(state));
+  const modals = useAppSelector(state => modalSelectors.selectAll(state));
   const dispatch = useAppDispatch();
   const styles = useStyles();
 

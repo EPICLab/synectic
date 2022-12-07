@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
-import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
 import { Modal, modalRemoved } from '../../store/slices/modals';
@@ -36,8 +35,8 @@ export const useStyles = makeStyles((theme: Theme) =>
 
 const SourcePickerDialog = (props: Modal) => {
   const styles = useStyles();
-  const repos = useAppSelector((state: RootState) => repoSelectors.selectEntities(state));
-  const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
+  const repos = useAppSelector(state => repoSelectors.selectEntities(state));
+  const branches = useAppSelector(state => branchSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
   const [selectedRepo, setSelectedRepo] = useState<UUID>('');
   const [selectedBranch, setSelectedBranch] = useState<UUID>('');
