@@ -1,4 +1,5 @@
-import { PathLike } from 'fs-extra';
+import { pathExists, PathLike } from 'fs-extra';
+import { dirname } from 'path';
 import { execute } from '../utils';
 
 /**
@@ -31,19 +32,19 @@ export const cloneRepo = async ({
     singleBranch?: boolean;
     noCheckout?: boolean;
 }): Promise<boolean> => {
+    const parentDir = dirname(dir.toString()); // the `dir` directory doesn't exist yet, so start from parent
+    if (!(await pathExists(parentDir))) throw new Error(`ENOENT: no such file or directory, clone attempted in '${parentDir}'`);
     const bareOption = bare ? `--bare` : '';
     const noCheckoutOption = noCheckout ? `--no-checkout` : '';
     const singleBranchOption = singleBranch ? `--single-branch` : '';
     const branchOption = branch ? `--branch ${branch}` : '';
-    const output = await execute(`git clone ${repo.toString()} ${dir.toString()} ${branchOption} ${bareOption} ${noCheckoutOption} ${singleBranchOption}`, dir.toString());
+    const output = await execute(`git clone ${repo.toString()} ${dir.toString()} ${branchOption} ${bareOption} ${noCheckoutOption} ${singleBranchOption}`, parentDir.toString());
 
-    if (output.stderr.length > 0) {
+    const successfulClonePattern = new RegExp(/Cloning into '.*'.../, 'g');
+    if (output.stderr.length > 0 && (output.stderr.split(/\\r?\\n/).length > 1 || successfulClonePattern.test(output.stderr) === false)) {
         console.error(output.stderr);
         return false;
     }
-    if (output.stdout.length > 0) {
-        console.log(output.stdout);
-        return true;
-    }
-    return false;
+    console.log(output.stdout);
+    return true;
 }

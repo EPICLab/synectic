@@ -1,14 +1,14 @@
-import React from 'react';
-import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
-import { wrapWithTestBackend } from 'react-dnd-test-utils';
+// import React from 'react';
+// import { Provider } from 'react-redux';
+// import { render, screen } from '@testing-library/react';
+// import { wrapWithTestBackend } from 'react-dnd-test-utils';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
 import { file, mock, MockInstance } from '../../test-utils/mock-fs';
-import CardComponent from './CardComponent';
+// import CardComponent from './CardComponent';
 import { FilebasedMetafile, metafileAdded } from '../../store/slices/metafiles';
 import { DateTime } from 'luxon';
-import { buildCard } from '../../store/thunks/cards';
+// import { buildCard } from '../../store/thunks/cards';
 
 const metafile: FilebasedMetafile = {
     id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
@@ -16,7 +16,7 @@ const metafile: FilebasedMetafile = {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Typescript',
-    loading: [],
+    flags: [],
     path: 'foo/example.ts',
     state: 'unmodified',
     content: 'const rand = Math.floor(Math.random() * 6) + 1;',

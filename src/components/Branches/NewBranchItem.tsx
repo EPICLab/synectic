@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { createBranch } from '../../containers/git';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
-import { RootState } from '../../store/store';
 import { updateBranches } from '../../store/thunks/branches';
 import { GitBranchIcon } from '../GitIcons';
 import { StyledTreeItem } from '../StyledTreeComponent';
@@ -29,7 +28,7 @@ export const useStyles = makeStyles({
 });
 
 const NewBranchItem = (props: { repoId: string }) => {
-    const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, props.repoId));
+    const repo = useAppSelector(state => repoSelectors.selectById(state, props.repoId));
     const [expanded, setExpanded] = useState(false);
     const [branchName, setBranchName] = useState('');
     const dispatch = useAppDispatch();

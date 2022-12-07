@@ -1,6 +1,7 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { PURGE } from 'redux-persist';
+import { Override } from '../../containers/utils';
 import { BranchStatus, CommitObject, UUID } from '../types';
 
 // TODO: (bare) branches don't have a branch name, but have everything else (including possibly a linked-worktree)
@@ -11,7 +12,7 @@ export type Branch = {
     readonly id: UUID;
     /** The name of branch, or `detached` if the branch points directly to a commit. */
     readonly ref: string | 'detached';
-    /** The branch exists in a linked worktree; i.e.  */
+    /** The branch exists in a linked worktree; i.e. the branch is not the current branch in the main worktree directory. */
     readonly linked: boolean;
     /** No working tree exists because the directory is part of a bare repository; i.e. commits cannot be made to it. */
     readonly bare: boolean;
@@ -37,6 +38,15 @@ export type Branch = {
     readonly head: string;
 }
 
+export type MergingBranch = Override<Branch, MergingProps>;
+export type MergingProps = {
+    /** The branch name (or SHA-1 commit hash) of the compare revision for an in-progress merge where this branch is the base. */
+    readonly merging: string;
+};
+export const isMergingBranch = (branch: Branch): branch is MergingBranch => {
+    return (branch as MergingBranch).merging !== undefined;
+};
+
 export const branchAdapter = createEntityAdapter<Branch>();
 
 export const branchSlice = createSlice({
@@ -45,7 +55,8 @@ export const branchSlice = createSlice({
     reducers: {
         branchAdded: branchAdapter.addOne,
         branchRemoved: branchAdapter.removeOne,
-        branchUpdated: branchAdapter.upsertOne
+        branchUpdated: branchAdapter.upsertOne,
+        branchReplaced: branchAdapter.setOne
     },
     extraReducers: (builder) => {
         builder
@@ -55,6 +66,6 @@ export const branchSlice = createSlice({
     }
 });
 
-export const { branchAdded, branchRemoved, branchUpdated } = branchSlice.actions;
+export const { branchAdded, branchRemoved, branchReplaced, branchUpdated } = branchSlice.actions;
 
 export default branchSlice.reducer;

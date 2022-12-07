@@ -1,7 +1,6 @@
 import React from 'react';
 import { TreeView } from '@material-ui/lab';
-import { RootState } from '../../store/store';
-import BranchRibbon from '../BranchRibbon';
+import BranchRibbon from '../Branches/BranchRibbon';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { GitBranchIcon } from '../GitIcons';
 import { useAppSelector } from '../../store/hooks';
@@ -13,11 +12,11 @@ import { UUID } from '../../store/types';
 import { isFileMetafile } from '../../store/slices/metafiles';
 
 const SourceControl = (props: { sourceControlId: UUID }) => {
-  const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.sourceControlId));
-  const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile && metafile.repo ? metafile.repo : ''));
-  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
-  const staged = useAppSelector((state: RootState) => metafileSelectors.selectStagedByBranch(state, branch ? branch.id : ''));
-  const unstaged = useAppSelector((state: RootState) => metafileSelectors.selectUnstagedByBranch(state, branch ? branch.id : ''));
+  const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.sourceControlId));
+  const repo = useAppSelector(state => repoSelectors.selectById(state, metafile && metafile.repo ? metafile.repo : ''));
+  const branch = useAppSelector(state => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
+  const staged = useAppSelector(state => metafileSelectors.selectStagedByBranch(state, branch ? branch.id : ''));
+  const unstaged = useAppSelector(state => metafileSelectors.selectUnstagedByBranch(state, branch ? branch.id : ''));
 
   return (
     <>
