@@ -19,7 +19,7 @@ const mockedMetafile1: FilebasedMetafile = {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Typescript',
-    loading: [],
+    flags: [],
     path: 'foo/example.ts',
     state: 'unmodified',
     content: 'const rand = Math.floor(Math.random() * 6) + 1;',
@@ -35,7 +35,7 @@ const mockedMetafile2: FilebasedMetafile = {
     modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Javascript',
-    loading: [],
+    flags: [],
     path: 'foo/test.js',
     state: 'unmodified',
     content: 'var rand: number = Math.floor(Math.random() * 6) + 1;'
@@ -47,7 +47,7 @@ const mockedMetafile3: FilebasedMetafile = {
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
     handler: 'Editor',
     filetype: 'Javascript',
-    loading: [],
+    flags: [],
     path: 'foo/bar.js',
     state: 'unmodified',
     content: 'file contents'
@@ -59,7 +59,7 @@ const mockedDirectoryMetafile: DirectoryMetafile = {
     modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
     handler: 'Explorer',
     filetype: 'Directory',
-    loading: [],
+    flags: [],
     path: 'foo',
     state: 'unmodified',
     contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'],
@@ -142,18 +142,39 @@ describe('thunks/branches', () => {
 
     it('fetchBranch resolves existing branch via branch UUID in metafile', async () => {
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'main',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile1 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
 
     it('fetchBranch resolves existing branch via branch UUID in parent metafile', async () => {
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'main',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         const branch = await store.dispatch(fetchBranch({ metafile: mockedMetafile2 })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
 
     it('fetchBranch resolves existing branch via root path', async () => {
         jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
+            ref: 'main',
+            root: 'foo/',
+            status: 'clean',
+            bare: false,
+            entries: []
+        });
         const branch = await store.dispatch(fetchBranch({ branchIdentifiers: { root: 'foo/', branch: 'main', scope: 'local' } })).unwrap();
         expect(branch).toStrictEqual(mockedBranch);
     });
@@ -172,7 +193,7 @@ describe('thunks/branches', () => {
             }
         ]);
         jest.spyOn(gitRevParse, 'revParse').mockResolvedValue('false');
-        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValue({
+        jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
             ref: 'main',
             root: 'foo/',
             status: 'clean',

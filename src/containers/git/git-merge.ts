@@ -1,8 +1,8 @@
 import * as path from 'path';
 import { SHA1 } from '../../store/types';
-import { execute, isDefined, ProgressCallback, removeUndefined, removeUndefinedProperties } from '../utils'
+import { execute, getConflictingChunks, ProgressCallback, removeUndefinedProperties } from '../utils'
 import { worktreeList } from './git-worktree';
-import { PathLike } from 'fs-extra';
+import { pathExists, PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';
 import { isDirectory, isEqualPaths, readFileAsync } from '../io';
 import { getIgnore } from './git-ignore';
@@ -100,7 +100,7 @@ export const mergeInProgress = async ({
 
 
 /**
- * Check for conflicting chunks within a specific directory or file based.
+ * Check for conflicting chunks within a specific directory or file.
  * 
  * @param filepath - The relative or absolute path to evaluate.
  * @returns {Promise<Conflict[]>} A Promise object containing an array of conflict information found in the specified
@@ -122,10 +122,8 @@ const checkUnmergedFile = async (filepath: PathLike): Promise<Conflict[]> => {
         : path.relative(dir.toString(), filepath.toString());
     if (ignore.ignores(relativePath)) return [];
 
-    const conflictPattern = /<<<<<<<[^]+?=======[^]+?>>>>>>>/gm;
     const content = await readFileAsync(filepath, { encoding: 'utf-8' });
-    const matches = Array.from(content.matchAll(conflictPattern));
-    const conflicts: number[] = removeUndefined(matches.map(m => isDefined(m.index) ? m.index : undefined));
+    const conflicts = getConflictingChunks(content);
     if (conflicts.length == 0) return [];
 
     return [{ path: filepath, conflicts: conflicts }];
@@ -174,7 +172,7 @@ export const checkUnmergedBranch = async (dir: PathLike, branch: string): Promis
 }
 
 /**
- * Resolve the names of branches involved in a merge conflict, given the root directory path of the base branch. If the base branch is a 
+ * Resolve the names of branches involved in an in-progress merge, given the root directory path of the base branch. If the base branch is a 
  * linked worktree, then this function will extract the branch names from the `GIT_DIR/worktrees/{branch}/MERGE_MSG` file which has 
  * content similar to:
  * ```bash
@@ -193,16 +191,16 @@ export const checkUnmergedBranch = async (dir: PathLike, branch: string): Promis
  * #	components/list/index.tsx
  * ```
  *
- * @param root The root directory of the base branch involved in the conflicting merge; either main or linked worktree path can be resolved.
+ * @param root The root directory of the base branch involved in the merge; either a main or linked worktree path can be resolved.
  * @returns {Promise<{ base: string | undefined; compare: string | undefined; }>} A Promise object containing the base branch name (or 
  * undefined if not included in the `MERGE_MSG` file) and the compare branch name.
  */
-export const fetchConflictBranches = async (root: PathLike): Promise<{ base: string | undefined, compare: string | undefined }> => {
+export const fetchMergingBranches = async (root: PathLike): Promise<{ base: string | undefined, compare: string | undefined }> => {
     const branchPattern = /(?<=Merge( remote-tracking)? branch(es)? .*)('.+?')+/gm; // Match linked worktree and main worktree patterns
     const { gitdir, worktreeLink } = await getWorktreePaths(root);
-    const mergeMsg = worktreeLink ? await readFileAsync(path.join(worktreeLink.toString(), 'MERGE_MSG'), { encoding: 'utf-8' })
-        : gitdir ? await readFileAsync(path.join(gitdir.toString(), 'MERGE_MSG'), { encoding: 'utf-8' }) : '';
-    const match = mergeMsg.match(branchPattern);
+    const mergeMsg = worktreeLink ? path.join(worktreeLink.toString(), 'MERGE_MSG') : gitdir ? path.join(gitdir.toString(), 'MERGE_MSG') : '';
+    const message = (await pathExists(mergeMsg)) ? await readFileAsync(mergeMsg, { encoding: 'utf-8' }) : '';
+    const match = message.match(branchPattern);
     return match
         ? match.length === 2
             ? { base: (match[0] as string).replace(/['"]+/g, ''), compare: (match[1] as string).replace(/['"]+/g, '') }

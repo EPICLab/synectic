@@ -4,7 +4,7 @@ import { repoRemoved } from './repos';
 import { filterObject, isDefined, Override } from '../../containers/utils';
 import { PURGE } from 'redux-persist';
 import { branchRemoved } from './branches';
-import { CardType, FilesystemStatus, GitStatus, Timestamp, UUID } from '../types';
+import { CardType, FilesystemStatus, Flag, GitStatus, Timestamp, UUID } from '../types';
 import { PathLike } from 'fs-extra';
 
 /** A metafile representing specifications and state for files, directories, diffs, and virtual content loaded into Synectic. */
@@ -19,14 +19,13 @@ export type Metafile = {
     readonly handler: CardType;
     /** The filetype format for encoding/decoding contents, as well as determining syntax highlighting. */
     readonly filetype: string;
-    /** Indicator for pending actions that will affect this metafile. */
-    readonly loading: ('versioned' | 'checkout')[];
+    /** Flags indicating in-progress actions that might affect values in this metafile. */
+    readonly flags: Flag[];
 } & Partial<FilebasedProps>
     & Partial<FileProps>
     & Partial<DirectoryProps>
     & Partial<VersionedProps>
-    & Partial<DiffProps>
-    & Partial<MergingProps>;
+    & Partial<DiffProps>;
 
 /** A metafile without the requisite ID field, which can be used for composing valid Metafiles prior to them being assigned an ID. */
 export type MetafileTemplate = Omit<Metafile, 'id'>;
@@ -96,15 +95,6 @@ export const isDiffMetafile = (metafile: Metafile): metafile is DiffMetafile => 
     return (metafile as DiffMetafile).targets !== undefined;
 };
 
-export type MergingMetafile = Override<Metafile, MergingProps>;
-export type MergingProps = {
-    /** Object containing base branch and compare branch names involved in an in-progress branch merge. */
-    readonly merging: { base: string, compare: string }
-};
-export const isMergingMetafile = (metafile: Metafile): metafile is MergingMetafile => {
-    return (metafile as MergingMetafile).merging !== undefined;
-};
-
 export const metafileAdapter = createEntityAdapter<Metafile>();
 
 export const metafileSlice = createSlice({
@@ -139,7 +129,7 @@ export const metafileSlice = createSlice({
                     .filter(m => m.repo === action.payload)
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['repo', 'branch', 'status']) };
-                    })
+                    });
                 metafileAdapter.updateMany(state, updatedMetafiles);
             })
             .addCase(branchRemoved, (state, action) => {
@@ -148,7 +138,7 @@ export const metafileSlice = createSlice({
                     .filter(m => m.branch === action.payload)
                     .map(m => {
                         return { id: m.id, changes: filterObject(m, ['branch', 'status']) }
-                    })
+                    });
                 metafileAdapter.updateMany(state, updatedMetafiles);
             })
             .addCase(PURGE, (state) => {
@@ -157,6 +147,6 @@ export const metafileSlice = createSlice({
     }
 })
 
-export const { metafileAdded, metafileRemoved, metafileUpdated, metafilesUpdated } = metafileSlice.actions;
+export const { metafileAdded, metafileRemoved, metafileReplaced, metafileUpdated, metafilesUpdated } = metafileSlice.actions;
 
 export default metafileSlice.reducer;
