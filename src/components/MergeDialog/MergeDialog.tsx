@@ -10,7 +10,6 @@ import repoSelectors from '../../store/selectors/repos';
 import { branchUpdated, MergingBranch } from '../../store/slices/branches';
 import { isFilebasedMetafile } from '../../store/slices/metafiles';
 import { Modal, modalRemoved } from '../../store/slices/modals';
-import { RootState } from '../../store/store';
 import { addBranch, updateBranches } from '../../store/thunks/branches';
 import { buildCard } from '../../store/thunks/cards';
 import { fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
@@ -50,10 +49,10 @@ const useStyles = makeStyles((theme: Theme) =>
 type MissingGitConfigs = string[] | undefined;
 
 const MergeDialog = (props: Modal) => {
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-    // const cardsByMetafile = useAppSelector((state: RootState) => cardSelectors.selectByMetafi
-    const repos = useAppSelector((state: RootState) => repoSelectors.selectEntities(state));
-    const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
+    const cards = useAppSelector(state => cardSelectors.selectAll(state));
+    // const cardsByMetafile = useAppSelector(state => cardSelectors.selectByMetafi
+    const repos = useAppSelector(state => repoSelectors.selectEntities(state));
+    const branches = useAppSelector(state => branchSelectors.selectEntities(state));
     const dispatch = useAppDispatch();
     const styles = useStyles();
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import * as MUI from '@material-ui/core';
 import { DateTime } from 'luxon';
 import { UUID } from '../../store/types';
-import { RootState } from '../../store/store';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { buildCard } from '../../store/thunks/cards';
@@ -12,9 +11,9 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import branchSelectors from '../../store/selectors/branches';
 
 const DiffPickerDialog = (props: Modal) => {
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectEntities(state));
-  const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
+  const cards = useAppSelector(state => cardSelectors.selectAll(state));
+  const metafiles = useAppSelector(state => metafileSelectors.selectEntities(state));
+  const branches = useAppSelector(state => branchSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
   const [selectedLeft, setSelectedLeft] = useState<UUID>('');
   const [selectedRight, setSelectedRight] = useState<UUID>('');
