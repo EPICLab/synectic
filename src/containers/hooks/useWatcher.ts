@@ -11,6 +11,7 @@ export type WatchListener<T> = (event: WatchEventType, filename: T) => void;
  * this hook becomes a no-op and will skip opening any FS watchers; similarly if the event handler is undefined. 
  * This hook initializes FS watchers upon initialization, and will close all watchers based on the context 
  * closure of the calling component.
+ * 
  * @param filepath The relative or absolute path to a file or directory (recursively includes all subdirectories 
  * and files) that should be watched for changes.
  * @param eventHandler The event callback function that should be called on all detected change events.

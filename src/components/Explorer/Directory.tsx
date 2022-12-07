@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import FolderIcon from '@material-ui/icons/Folder';
 import FolderOpenIcon from '@material-ui/icons/FolderOpen';
 import { Skeleton } from '@material-ui/lab';
@@ -28,11 +28,6 @@ const Directory = ({ id, metafiles }: DirectoryType) => {
     const files = descendants.filter(child => child.filetype !== 'Directory').sort((a, b) => a.name.localeCompare(b.name));
     const skeletonWidth = metafile ? metafile.name.length * 15 : getRandomInt(55, 90);
 
-    useEffect(() => {
-        const asyncUpdates = async () => (metafile && !isHydrated(metafile)) ? await dispatch(updateFilebasedMetafile(metafile)) : undefined;
-        asyncUpdates();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const clickHandle = async () => {
         if (!expanded && metafile && !isHydrated(metafile)) {

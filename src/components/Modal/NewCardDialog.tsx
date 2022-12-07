@@ -141,7 +141,7 @@ const NewCardDialog = (props: Modal) => {
           modified: DateTime.local().valueOf(),
           handler: 'Editor',
           filetype: filetype,
-          loading: []
+          flags: []
         }
       })).unwrap();
       if (metafile) await dispatch(buildCard({ metafile: metafile }));
@@ -154,7 +154,7 @@ const NewCardDialog = (props: Modal) => {
           modified: DateTime.local().valueOf(),
           handler: 'Browser',
           filetype: 'Text',
-          loading: []
+          flags: []
         }
       })).unwrap();
       if (metafile) dispatch(buildCard({ metafile: metafile }));

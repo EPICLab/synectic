@@ -1,7 +1,7 @@
 import React from 'react';
 import { TreeView } from '@material-ui/lab';
 import { RootState } from '../../store/store';
-import BranchRibbon from '../BranchRibbon';
+import BranchRibbon from '../Branches/BranchRibbon';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import { GitBranchIcon } from '../GitIcons';
 import { useAppSelector } from '../../store/hooks';

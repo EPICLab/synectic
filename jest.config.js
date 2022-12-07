@@ -22,7 +22,7 @@ module.exports = {
         "^react-dnd-touch-backend$": "react-dnd-touch-backend/dist/cjs",
         "^react-dnd-test-backend$": "react-dnd-test-backend/dist/cjs",
         "^react-dnd-test-utils$": "react-dnd-test-utils/dist/cjs",
-        "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": '<rootDir>/__mocks__/fileMock.js',
-        "\\.(css|less)$": 'identity-obj-proxy'
+        "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
+        "\\.(css|less)$": "identity-obj-proxy"
     }
 };

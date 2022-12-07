@@ -36,7 +36,7 @@ const DiffPickerDialog = (props: Modal) => {
         modified: DateTime.local().valueOf(),
         handler: 'Diff',
         filetype: leftMetafile.filetype,
-        loading: [],
+        flags: [],
         targets: [left.id, right.id]
       }
     })).unwrap();
