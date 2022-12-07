@@ -9,12 +9,13 @@ import { Modal, modalRemoved } from '../../store/slices/modals';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { RootState } from '../../store/store';
 import repoSelectors from '../../store/selectors/repos';
-import { isFilebasedMetafile, isFileMetafile } from '../../store/slices/metafiles';
+import { isFilebasedMetafile, isFileMetafile, isVersionedMetafile } from '../../store/slices/metafiles';
 import { fetchBranches } from '../../store/thunks/branches';
 import { repoUpdated } from '../../store/slices/repos';
 import FileComponent from '../Explorer/FileComponent';
 import { commit, getRoot } from '../../containers/git';
 import { updateFilebasedMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
+import { isStaged } from '../../containers/utils';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -60,13 +61,12 @@ const CommitDialog = (props: Modal) => {
     const [message, setMessage] = useState('');
     const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
     const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
-    const staged = metafiles.filter(m => {
-        return props.options &&
-            m.status &&
-            m.repo === props.options['repo'] &&
-            m.branch === props.options['branch'] &&
-            ['added', 'modified', 'deleted'].includes(m.status);
-    });
+    const staged = metafiles.filter(m =>
+        props.options?.['repo'] === m.repo &&
+        props.options?.['branch'] === m.branch &&
+        isVersionedMetafile(m) &&
+        isStaged(m.status)
+    );
 
     useEffect(() => {
         if (staged.length < 1) dispatch(modalRemoved(props.id));

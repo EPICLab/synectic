@@ -3,7 +3,7 @@ import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-d
 import { CSSTransition } from 'react-transition-group';
 import clsx from 'clsx';
 import { sep } from 'path';
-import { Typography } from '@material-ui/core';
+import { Badge, Typography } from '@material-ui/core';
 import { RootState } from '../../store/store';
 import { createStack, pushCards, popCards } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -23,27 +23,35 @@ import CommitButton from '../Button/Commit';
 import ResolveButton from '../Button/Resolve';
 import AbortButton from '../Button/Abort';
 import { Card, cardUpdated } from '../../store/slices/cards';
+import metafileSelectors from '../../store/selectors/metafiles';
 
 type DragObject = {
   id: string,
   type: string
 }
 
-const Header = (props: PropsWithChildren<{ title: string, expanded: boolean, expand: () => void }>) => {
+const Header = (props: PropsWithChildren<{ title: string, expanded: boolean, expand: () => void, conflicts: number }>) => {
   const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (event.detail === 2) props.expand();
   };
 
-  return <div className='card-header' onClick={handleClick} style={{ cursor: props.expanded ? 'default' : 'move' }}>
-    <div className='title'><Typography>{props.title}</Typography></div>
-    <div className='buttons'>{props.children}</div>
-  </div>;
+  return (
+    <div className={clsx('card-header', { 'unmerged': props.conflicts > 0 })} onClick={handleClick}
+      style={{ cursor: props.expanded ? 'default' : 'move' }} >
+      <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left' }} color='error' overlap='rectangular'
+        badgeContent={props.conflicts}>
+        <div className='title'><Typography>{props.title}</Typography></div>
+      </Badge>
+      <div className='buttons'>{props.children}</div>
+    </div>
+  );
 };
 
 const CardComponent = (card: Card) => {
   const [flipped, setFlipped] = useState(false);
   const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
   const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
+  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
 
   const expand = () => {
@@ -121,7 +129,8 @@ const CardComponent = (card: Card) => {
         opacity: isDragging ? 0 : 1
       }}
     >
-      <Header title={card.type === 'Explorer' ? `${sep}${card.name}` : card.name} expanded={card.expanded} expand={expand} >
+      <Header title={card.type === 'Explorer' ? `${sep}${card.name}` : card.name} expanded={card.expanded} expand={expand}
+        conflicts={metafiles[card.metafile]?.handler === 'Editor' ? metafiles[card.metafile]?.conflicts?.length ?? 0 : 0}>
         <ResetButton cardIds={[card.id]} />
         <StageButton cardIds={[card.id]} />
         <UnstageButton cardIds={[card.id]} />
@@ -141,7 +150,7 @@ const CardComponent = (card: Card) => {
           }
         </>
       </CSSTransition>
-    </div>
+    </div >
   );
 };
 

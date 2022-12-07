@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import TreeItem, { TreeItemProps } from '@material-ui/lab/TreeItem';
 import { createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 import { SvgIconProps } from '@material-ui/core/SvgIcon';
-import { removeUndefinedProperties } from '../containers/utils';
+import { Either, removeUndefinedProperties } from '../containers/utils';
 
 declare module 'csstype' {
   interface Properties {
@@ -21,13 +21,12 @@ type StyledTreeItemProps = TreeItemProps & {
   labelInfoClickHandler?: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
 } & LabelNodeOrContent;
 
-type LabelNodeOrContent = {
-  labelNode: React.ReactNode;
-  labelText?: never;
-} | {
-  labelNode?: never;
-  labelText?: string;
-};
+type LabelNodeOrContent = Either<{
+  labelNode: React.ReactNode
+}, {
+  labelText: string;
+  onHoverText?: string;
+}>;
 
 export const useTreeItemStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -80,7 +79,7 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
 );
 
 export const StyledTreeItem = (props: StyledTreeItemProps) => {
-  const { labelNode: LabelNode, labelText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler,
+  const { labelNode: LabelNode, labelText, onHoverText, labelIcon: LabelIcon, labelInfo: LabelInfo, labelInfoClickHandler,
     color, bgColor, enableHover, labelInfoText, ...other } = props;
   const [hover, setHover] = useState(false);
   const classes = useTreeItemStyles();
@@ -92,9 +91,17 @@ export const StyledTreeItem = (props: StyledTreeItemProps) => {
           {LabelIcon && <LabelIcon color='inherit' style={{ color: color }} />}
           {
             LabelNode ??
-            <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
-              {labelText}
-            </Typography>
+            <>
+              <Typography variant='body2' className={classes.labelText} style={{ color: color }} >
+                {labelText}
+              </Typography>
+              {(onHoverText && enableHover && hover) ?
+                <Typography variant='caption' className={classes.labelText} style={{ color: color }} >
+                  {onHoverText}
+                </Typography>
+                : null
+              }
+            </>
           }
 
           {labelInfoText ? <Typography variant='body2' className={classes.labelInfo}>{labelInfoText}</Typography> : null}

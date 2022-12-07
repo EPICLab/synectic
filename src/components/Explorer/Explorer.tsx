@@ -2,7 +2,7 @@ import React from 'react';
 import TreeView from '@material-ui/lab/TreeView';
 import { ArrowDropDown, ArrowRight } from '@material-ui/icons';
 import metafileSelectors from '../../store/selectors/metafiles';
-import BranchRibbon from '../BranchRibbon';
+import BranchRibbon from '../Branches/BranchRibbon';
 import Directory from './Directory';
 import FileComponent from './FileComponent';
 import { RootState } from '../../store/store';
