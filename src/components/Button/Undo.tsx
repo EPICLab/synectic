@@ -6,7 +6,6 @@ import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
 import { isFileMetafile } from '../../store/slices/metafiles';
-import { RootState } from '../../store/store';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { UUID } from '../../store/types';
@@ -26,9 +25,9 @@ import { updateVersionedMetafile, updateFilebasedMetafile } from '../../store/th
  * @returns {React.Component} A React function component.
  */
 const UndoButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const cache = useAppSelector((state: RootState) => cachedSelectors.selectEntities(state));
+    const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
+    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    const cache = useAppSelector(state => cachedSelectors.selectEntities(state));
     const modified = metafiles.filter(m => m.path && m.content !== cache[m.path.toString()]?.content);
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });

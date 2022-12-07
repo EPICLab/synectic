@@ -5,7 +5,6 @@ import { Done } from '@material-ui/icons';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { cardUpdated } from '../../store/slices/cards';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
@@ -26,8 +25,8 @@ import { isStaged } from '../../containers/utils';
  * @returns {React.Component} A React function component.
  */
 const CommitButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
+    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();

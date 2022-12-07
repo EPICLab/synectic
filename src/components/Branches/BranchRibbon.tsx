@@ -4,10 +4,9 @@ import React from 'react';
 import { useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import { Metafile } from '../../store/slices/metafiles';
-import { RootState } from '../../store/store';
 
 const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, onClick?: () => void }) => {
-  const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile?.branch ?? ''));
+  const branch = useAppSelector(state => branchSelectors.selectById(state, metafile?.branch ?? ''));
   const loading = (metafile?.flags?.length ?? 0) > 0;
   const ribbonText = `Branch: ${branch ? branch.ref : ''}`;
 

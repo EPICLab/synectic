@@ -1,7 +1,6 @@
 import React from 'react';
 import { DeviceHub as VersionControl } from '@material-ui/icons';
 import { IconButton, Tooltip } from '@material-ui/core';
-import { RootState } from '../../store/store';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
@@ -31,9 +30,9 @@ type SourceControlProps = {
  * @returns {React.Component} A React function component.
  */
 const SourceControlButton = ({ repoId, metafileId, enabled = true, mode = 'light' }: SourceControlProps) => {
-    const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
-    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, metafileId));
-    const branches = useAppSelector((state: RootState) => branchSelectors.selectEntities(state));
+    const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
+    const metafile = useAppSelector(state => metafileSelectors.selectById(state, metafileId));
+    const branches = useAppSelector(state => branchSelectors.selectEntities(state));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 

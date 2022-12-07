@@ -4,7 +4,6 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { isFilebasedMetafile, isVersionedMetafile } from '../../store/slices/metafiles';
-import { RootState } from '../../store/store';
 import { updateFilebasedMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
@@ -19,7 +18,7 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * @returns {React.Component} A React function component.
  */
 const RefreshButton = ({ metafileIds, enabled = true, mode = 'light' }: { metafileIds: UUID[], enabled?: boolean, mode?: Mode }) => {
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, metafileIds));
+    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, metafileIds));
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 

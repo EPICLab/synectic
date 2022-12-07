@@ -3,7 +3,6 @@ import React from 'react';
 import { Close } from '@material-ui/icons';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
-import { RootState } from '../../store/store';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { popCards } from '../../store/thunks/stacks';
 import { cardRemoved } from '../../store/slices/cards';
@@ -21,7 +20,7 @@ import { isDefined } from '../../containers/utils';
  * @returns {React.Component} A React function component.
  */
 const CloseButton = ({ cardId, enabled = true, mode = 'light' }: { cardId: UUID, enabled?: boolean, mode?: Mode }) => {
-    const card = useAppSelector((state: RootState) => cardSelectors.selectById(state, cardId));
+    const card = useAppSelector(state => cardSelectors.selectById(state, cardId));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 

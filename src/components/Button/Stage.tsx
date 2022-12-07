@@ -9,7 +9,6 @@ import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
 import { isFileMetafile, isVersionedMetafile, Metafile } from '../../store/slices/metafiles';
-import { RootState } from '../../store/store';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
@@ -26,8 +25,8 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * @returns {React.Component} A React function component.
  */
 const StageButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
+    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles.filter(m => isVersionedMetafile(m) && (isModified(m.status) || isUnmerged(m.status)));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
