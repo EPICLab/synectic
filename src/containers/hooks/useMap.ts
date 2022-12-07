@@ -17,8 +17,9 @@ type Return<K, V> = [Omit<Map<K, V>, 'set' | 'clear' | 'delete'>, Actions<K, V>]
 /**
  * Custom React Hook for providing an API to interact with a `Map` data structure. It takes an array of tuples in 
  * the `[key, value]` format and returns an interface for interacting with the Map instance via common map functions.
+ * 
  * @param initialState An initial `Map` entry or nothing.
- * @returns An instance of `Map` (including `foreach`, `get`, `has`, `entries`, `keys`, `values`, and `size`),
+ * @returns {[Map, Actions]} An instance of `Map` (including `foreach`, `get`, `has`, `entries`, `keys`, `values`, and `size`),
  * and an object of methods (`set`, `setAll`, `remove`, and `reset`) for updating the map.
  */
 function useMap<K, V>(

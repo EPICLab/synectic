@@ -10,7 +10,7 @@ import { Modal } from '../../store/slices/modals';
 import userEvent from '@testing-library/user-event';
 import { emptyStore } from '../../test-utils/empty-store';
 import { Card, cardAdded } from '../../store/slices/cards';
-import { Filetype, filetypeAdded } from '../../store/slices/filetypes';
+// import { Filetype } from '../../store/slices/filetypes';
 
 const card1: Card = {
     id: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
@@ -42,12 +42,12 @@ const card2: Card = {
     classes: []
 };
 
-const filetype1: Filetype = {
-    id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
-    filetype: 'JavaScript',
-    handler: 'Editor',
-    extensions: ['js', 'jsm']
-}
+// const filetype1: Filetype = {
+//     id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
+//     filetype: 'JavaScript',
+//     handler: 'Editor',
+//     extensions: ['js', 'jsm']
+// }
 
 const newCardModal: Modal = {
     id: '97fa02bc-596c-46d6-b025-2968f0d32b91',

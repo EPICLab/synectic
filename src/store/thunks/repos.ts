@@ -1,19 +1,16 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import { DateTime } from 'luxon';
 import parsePath from 'parse-path';
 import { v4 } from 'uuid';
-import { checkUnmergedBranch, extractFromURL, extractRepoName, fetchConflictBranches, getConfig, getWorktreePaths, GitConfig, listBranch } from '../../containers/git';
+import { extractFromURL, extractRepoName, getConfig, getWorktreePaths, GitConfig, listBranch } from '../../containers/git';
 import { extractFilename } from '../../containers/io';
 import { ExactlyOne } from '../../containers/utils';
 import { AppThunkAPI } from '../hooks';
 import repoSelectors from '../selectors/repos';
 import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
-import { modalAdded } from '../slices/modals';
 import { repoAdded, Repository } from '../slices/repos';
-import { fetchBranches, updateBranches } from './branches';
-import { buildCard } from './cards';
-import { createMetafile, fetchParentMetafile, updateConflicted } from './metafiles';
+import { fetchBranches } from './branches';
+import { fetchParentMetafile } from './metafiles';
 
 export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>, AppThunkAPI>(
     'repos/fetchRepo',
@@ -85,44 +82,3 @@ const getCredentials = async (dir: PathLike | undefined): Promise<{ username: st
         password: passwordConfig.scope === 'none' ? '' : passwordConfig.value
     };
 };
-
-// TODO: Refactor this fetch to be an automated process via the listenerMiddleware
-export const fetchConflictManagers = createAsyncThunk<void, void, AppThunkAPI>(
-    'metafiles/fetchConflictManagers',
-    async (_, thunkAPI) => {
-        const repos = repoSelectors.selectAll(thunkAPI.getState());
-        let hasConflicts = false;
-
-        await Promise.all(repos.map(async repo => {
-            const updated = await thunkAPI.dispatch(updateBranches(repo)).unwrap(); // update in case local/remote branches have changed
-            await Promise.all(updated.local.map(async branchId => {
-                const branch = thunkAPI.getState().branches.entities[branchId];
-                const conflicts = branch ? await checkUnmergedBranch(branch.root, branch.ref) : undefined;
-
-                if (branch && conflicts && conflicts.length > 0) {
-                    hasConflicts = true;
-                    await thunkAPI.dispatch(updateConflicted(conflicts));
-                    const { base, compare } = await fetchConflictBranches(branch.root);
-                    const conflictManager = await thunkAPI.dispatch(createMetafile({
-                        metafile: {
-                            name: `Conflicts`,
-                            modified: DateTime.local().valueOf(),
-                            handler: 'ConflictManager',
-                            filetype: 'Text',
-                            loading: [],
-                            repo: updated.id,
-                            path: branch.root,
-                            merging: { base: (base ? base : branch.ref), compare: compare ?? '' }
-                        }
-                    })).unwrap();
-                    await thunkAPI.dispatch(buildCard({ metafile: conflictManager }));
-                }
-            }));
-        }));
-
-        if (!hasConflicts) thunkAPI.dispatch(modalAdded({
-            id: v4(), type: 'Notification',
-            options: { 'message': `No conflicts found` }
-        }))
-    }
-);

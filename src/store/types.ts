@@ -55,7 +55,7 @@ export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*
  * | --------------------- | -------------------------------------------------------------------------------------- |
  * | `"clean"`             | no untracked files and no modifications in tracked files                               |
  * | `"uncommitted"`       | untracked files or uncommitted changes in tracked files exist                          |
- * | `"unmerged"`          | unmerged paths exist in the worktree directory, indicates an unresolved merge conflict |
+ * | `"unmerged"`          | unmerged paths possibly exist in the worktree directory, indicates incomplete merge    |
  */
 export type BranchStatus = 'clean' | 'uncommitted' | 'unmerged';
 /**
@@ -66,6 +66,7 @@ export type BranchStatus = 'clean' | 'uncommitted' | 'unmerged';
  * | `"unlinked"`          | no file linked to metafile, virtual metafile                                           |
  */
 export type FilesystemStatus = 'modified' | 'unmodified' | 'unlinked';
-export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Branches' | 'Merge' | 'SourceControl' | 'ConflictManager';
+export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Branches' | 'Merge' | 'SourceControl';
 export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewBranchDialog' | 'NewCardDialog' |
     'SourcePicker' | 'CommitDialog' | 'Notification' | 'GitExplorer' | 'DirectExplorer';
+export type Flag = 'checkout' | 'updating';

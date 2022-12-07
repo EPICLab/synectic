@@ -4,7 +4,6 @@ import { TreeView } from '@material-ui/lab';
 import React from 'react';
 import { useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
-import { RootState } from '../../store/store';
 import { StyledTreeItem } from '../StyledTreeComponent';
 import RepoItem from './RepoItem';
 
@@ -16,8 +15,13 @@ export const useStyles = makeStyles({
     },
 });
 
+/**
+ * React Component to display a list of git repositories and the local and remote branches tracked within them.
+ * 
+ * @returns {React.Component} A React function component.
+ */
 const Branches = () => {
-    const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+    const repos = useAppSelector(state => repoSelectors.selectAll(state));
     const [expanded, setExpanded] = React.useState(repos[0] ? [repos[0].id] : []); // initial state; expand first listed repo
 
     const handleToggle = (_event: React.ChangeEvent<Record<string, unknown>>, nodeIds: string[]) => setExpanded(nodeIds);
