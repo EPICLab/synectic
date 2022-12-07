@@ -1,7 +1,6 @@
 
 import React, { PropsWithChildren, useEffect } from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
-import { RootState } from '../../store/store';
 import StackPreview from './StackPreview';
 import CardComponent from '../Card';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -25,9 +24,9 @@ type DragObject = {
 }
 
 const StackComponent = (props: PropsWithChildren<Stack>) => {
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
-  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
-  const capturedCards = useAppSelector((state: RootState) => cardSelectors.selectByStack(state, props.id));
+  const cards = useAppSelector(state => cardSelectors.selectEntities(state));
+  const stacks = useAppSelector(state => stackSelectors.selectEntities(state));
+  const capturedCards = useAppSelector(state => cardSelectors.selectByStack(state, props.id));
   const dispatch = useAppDispatch();
   const classes = useIconButtonStyle({ mode: 'light' });
 

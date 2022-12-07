@@ -2,7 +2,6 @@ import React from 'react';
 import { DateTime } from 'luxon';
 import DataField from './DataField';
 import metafileSelectors from '../../store/selectors/metafiles';
-import { RootState } from '../../store/store';
 import { useAppSelector } from '../../store/hooks';
 import { CircularProgress, makeStyles } from '@material-ui/core';
 import { Card } from '../../store/slices/cards';
@@ -36,7 +35,7 @@ const Loading = () => {
 }
 
 export const LoadingReverse = (props: Card) => {
-    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
+    const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.metafile));
 
     return (
         <>

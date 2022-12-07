@@ -1,24 +1,24 @@
-import React from 'react';
-import { RootState } from '../../store/store';
+import React, { useState } from 'react';
+import { isDefined } from '../../containers/utils';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
-import repoSelectors from '../../store/selectors/repos';
-import branchSelectors from '../../store/selectors/branches';
-import DataField from '../Card/DataField';
 import { Card } from '../../store/slices/cards';
+import MetadataViewButton from '../Button/MetadataView';
+import Metadata from '../Card/Metadata';
 
 
 const SourceControlReverse = (props: Card) => {
-    const metafile = useAppSelector((state: RootState) => metafileSelectors.selectById(state, props.metafile));
-    const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, metafile && metafile.repo ? metafile.repo : ''));
-    const branch = useAppSelector((state: RootState) => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
+    const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.metafile));
+    const [view, setView] = useState('metadata');
 
     return (
         <>
-            <div className='buttons'></div>
-            <DataField title='Repo' textField field={repo ? repo.name : 'Untracked'} />
-            <DataField title='Branch' textField field={branch ? branch.ref : 'Untracked'} />
-            <DataField title='Root' textField field={branch ? branch.root.toString() : 'Untracked'} />
+            <div className='buttons'>
+                <MetadataViewButton onClickHandler={() => setView('metadata')} enabled={isDefined(metafile)} mode='dark' />
+            </div>
+            <div className='area'>
+                {view === 'metadata' && isDefined(metafile) ? <Metadata metafile={metafile} /> : undefined}
+            </div>
         </>
     );
 };

@@ -6,11 +6,11 @@ import cacheSelectors from '../selectors/cache';
 import { Cache, cacheRemoved, cacheUpdated } from '../slices/cache';
 import { UUID } from '../types';
 
-export const subscribe = createAsyncThunk<Cache, { path: PathLike, metafile: UUID }, AppThunkAPI>(
+export const subscribe = createAsyncThunk<Cache, { path: PathLike, card: UUID }, AppThunkAPI>(
     'cache/subscribe',
-    async ({ path, metafile }, thunkAPI) => {
+    async ({ path, card }, thunkAPI) => {
         const existing = cacheSelectors.selectById(thunkAPI.getState(), path.toString());
-        const reserved = existing ? existing.reserved.includes(metafile) ? existing.reserved : [...existing.reserved, metafile] : [metafile];
+        const reserved = existing ? existing.reserved.includes(card) ? existing.reserved : [...existing.reserved, card] : [card];
 
         return thunkAPI.dispatch(cacheUpdated({
             path: path.toString(),
@@ -20,14 +20,14 @@ export const subscribe = createAsyncThunk<Cache, { path: PathLike, metafile: UUI
     }
 );
 
-export const unsubscribe = createAsyncThunk<undefined, { path: PathLike, metafile: UUID }, AppThunkAPI>(
+export const unsubscribe = createAsyncThunk<undefined, { path: PathLike, card: UUID }, AppThunkAPI>(
     'cache/unsubscribe',
-    async ({ path, metafile }, thunkAPI) => {
+    async ({ path, card }, thunkAPI) => {
         const existing = cacheSelectors.selectById(thunkAPI.getState(), path.toString());
-        if (existing?.reserved.includes(metafile)) {
+        if (existing?.reserved.includes(card)) {
             const updated = thunkAPI.dispatch(cacheUpdated({
                 ...existing,
-                reserved: existing.reserved.filter(m => m != metafile)
+                reserved: existing.reserved.filter(c => c != card)
             })).payload;
             if (updated.reserved.length === 0) thunkAPI.dispatch(cacheRemoved(existing.path));
         }

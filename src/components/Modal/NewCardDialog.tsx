@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@material-ui/core';
-import { RootState } from '../../store/store';
 import * as io from '../../containers/io';
 import { flattenArray } from '../../containers/flatten';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -61,7 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const NewCardDialog = (props: Modal) => {
   const styles = useStyles();
   const dispatch = useAppDispatch();
-  const filetypes = useAppSelector((state: RootState) => filetypeSelectors.selectAll(state));
+  const filetypes = useAppSelector(state => filetypeSelectors.selectAll(state));
   const exts: string[] = flattenArray(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
   // configExts is a list of all .config extensions found within exts:
   const configExts: string[] = flattenArray((filetypes.map(filetype =>
@@ -141,7 +140,7 @@ const NewCardDialog = (props: Modal) => {
           modified: DateTime.local().valueOf(),
           handler: 'Editor',
           filetype: filetype,
-          loading: []
+          flags: []
         }
       })).unwrap();
       if (metafile) await dispatch(buildCard({ metafile: metafile }));
@@ -154,7 +153,7 @@ const NewCardDialog = (props: Modal) => {
           modified: DateTime.local().valueOf(),
           handler: 'Browser',
           filetype: 'Text',
-          loading: []
+          flags: []
         }
       })).unwrap();
       if (metafile) dispatch(buildCard({ metafile: metafile }));

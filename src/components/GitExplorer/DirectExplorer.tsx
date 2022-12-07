@@ -3,7 +3,6 @@ import { Button, createStyles, Dialog, makeStyles, TextField, Theme } from '@mat
 import { Modal, modalRemoved } from '../../store/slices/modals';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { createBranch, listBranch } from '../../containers/git';
-import { RootState } from '../../store/store';
 import repoSelectors from '../../store/selectors/repos';
 
 export const useStyles = makeStyles((theme: Theme) =>
@@ -47,7 +46,7 @@ export const useStyles = makeStyles((theme: Theme) =>
 const DirectExplorer = (props: Modal) => {
     const styles = useStyles();
     const dispatch = useAppDispatch();
-    const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+    const repos = useAppSelector(state => repoSelectors.selectAll(state));
     const [name, setName] = useState('');
 
     const handleClose = () => dispatch(modalRemoved(props.id));

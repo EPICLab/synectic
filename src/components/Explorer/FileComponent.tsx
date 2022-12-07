@@ -18,7 +18,8 @@ type FileType = {
 
 const FileComponent = ({ metafile }: FileType) => {
     const motif = metafile && isFileMetafile(metafile) ? getSourceMotif(metafile) : undefined;
-    const optionals = removeUndefinedProperties({ color: motif?.color });
+    const onHoverText = metafile.status !== 'unmodified' ? metafile.status : undefined;
+    const optionals = removeUndefinedProperties({ color: motif?.color, onHoverText: onHoverText });
     const skeletonWidth = metafile ? metafile.name.length * 15 : getRandomInt(55, 90);
     const dispatch = useAppDispatch();
 
