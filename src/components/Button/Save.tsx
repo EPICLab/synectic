@@ -8,7 +8,6 @@ import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
 import { isFileMetafile, isVirtualMetafile, metafileUpdated } from '../../store/slices/metafiles';
-import { RootState } from '../../store/store';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { UUID } from '../../store/types';
@@ -23,18 +22,20 @@ import cachedSelectors from '../../store/selectors/cache';
  * 
  * @param props - Prop object for cards associated with specific files.
  * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional theme mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const cache = useAppSelector((state: RootState) => cachedSelectors.selectEntities(state));
+const SaveButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
+    const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
+    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    const cache = useAppSelector(state => cachedSelectors.selectEntities(state));
     const modified = metafiles.filter(m => (isFileMetafile(m) && m.content !== cache[m.path.toString()]?.content) || (isVirtualMetafile(m) && m.content && m.content.length > 0));
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
-    const save = async () => {
+    const save = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
         await Promise.all(modified
             .filter(isFileMetafile)
             .map(async metafile => {
@@ -68,22 +69,19 @@ const SaveButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode 
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {isSaveable && !isCaptured &&
-                <Tooltip title='Save'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='save'
-                        onClick={save}
-                        onMouseEnter={onHover}
-                        onMouseLeave={offHover}
-                    >
-                        <Save />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && isSaveable && !isCaptured) ? (
+        <Tooltip title='Save'>
+            <IconButton
+                className={classes.root}
+                aria-label='save'
+                onClick={save}
+                onMouseEnter={onHover}
+                onMouseLeave={offHover}
+            >
+                <Save />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default SaveButton;

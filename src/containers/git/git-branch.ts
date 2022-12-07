@@ -29,6 +29,12 @@ export const listBranch = async ({
 }): Promise<ReturnType<typeof processBranchOutput>> => {
     const verboseOption = verbose ? '--verbose --no-abbrev' : '';
 
+    // Remove any remote-tracking references that no longer exist on the remote
+    // TODO: Migrate into any future `git-fetch` implementation
+    const cleanup = await execute(`git fetch --prune -a`, dir.toString());
+    if (cleanup.stderr.length > 0) console.error(cleanup.stderr);
+    if (cleanup.stdout.length > 0) console.log(cleanup.stdout);
+
     if (showCurrent) {
         const output = await execute(`git branch --show-current`, dir.toString());
         if (output.stderr.length > 0) console.error(output.stderr);
@@ -225,10 +231,10 @@ export const processBranchOutput = (output: string): BranchOutput[] => {
 
         /**
          * Regex pattern matches with the following capture groups:
-         * [1] remote repository alias (i.e. only present if no local copy of the branch exists; typically set to `origin`)
+         * [1] remote repository alias (i.e. only present if ref is for a remote branch; typically set to `origin`)
          * [2] branch ref (e.g. `main`)
          */
-        const refPattern = new RegExp('(?:remotes/)?(?:(\\w+)/)?(.*)', 'g');
+        const refPattern = new RegExp('(?:remotes/(?:(\\w+)/))?(.*)', 'g');
 
         const lineResult = linePattern.exec(line);
         const branchRef = lineResult?.[2];

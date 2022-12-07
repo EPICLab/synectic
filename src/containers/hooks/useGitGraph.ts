@@ -5,7 +5,6 @@ import branchSelectors from '../../store/selectors/branches';
 import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { Branch } from '../../store/slices/branches';
-import { RootState } from '../../store/store';
 import { CommitObject, UUID } from '../../store/types';
 import { removeUndefined } from '../utils';
 import usePrevious from './usePrevious';
@@ -32,10 +31,10 @@ type useGitGraphHook = {
 }
 
 const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
-    const repo = useAppSelector((state: RootState) => repoSelectors.selectById(state, repoId));
-    const staged = useAppSelector((state: RootState) => metafileSelectors.selectStagedFieldsByRepo(state, repo ? repo.id : ''));
+    const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
+    const staged = useAppSelector(state => metafileSelectors.selectStagedFieldsByRepo(state, repo ? repo.id : ''));
     const prevStaged = usePrevious(staged);
-    const branches = useAppSelector((state: RootState) => repo ? branchSelectors.selectByRepo(state, repo) : []);
+    const branches = useAppSelector(state => repo ? branchSelectors.selectByRepo(state, repo) : []);
     const prevBranches = usePrevious(branches);
     const [graph, setGraph] = useState(new Map<Oid, CommitVertex>());
 

@@ -2,13 +2,13 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import { Remove } from '@material-ui/icons';
 import React from 'react';
 import { restore } from '../../containers/git';
+import { isStaged } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
-import { isFileMetafile, Metafile } from '../../store/slices/metafiles';
-import { RootState } from '../../store/store';
+import { isFileMetafile, isVersionedMetafile, Metafile } from '../../store/slices/metafiles';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
@@ -20,14 +20,14 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * 
  * @param props - Prop object for cards with staged changes according to VCS.
  * @param props.cardIds List of Card UUIDs that should be tracked by this button.
+ * @param props.enabled - Optional flag for including logic that hides this button if false; defaults to true.
  * @param props.mode - Optional mode for switching between light and dark themes.
  * @returns {React.Component} A React function component.
  */
-const UnstageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mode }) => {
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectByIds(state, cardIds));
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
-    const staged = metafiles
-        .filter(m => m.status ? ['added', 'modified', 'deleted'].includes(m.status) : false);
+const UnstageButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
+    const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
+    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
@@ -35,14 +35,17 @@ const UnstageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mo
     const hasStaged = staged.length > 0;
     const isCaptured = cards[0]?.captured !== undefined;
 
-    const unstage = async () => await Promise.all(staged
-        .filter(isFileMetafile)
-        .map(async metafile => {
-            await restore({ filepath: metafile.path, staged: true });
-            console.log(`unstaging ${metafile.name}`);
-            dispatch(updateVersionedMetafile(metafile));
-        })
-    );
+    const unstage = async (event: React.MouseEvent) => {
+        event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
+        await Promise.all(staged
+            .filter(isFileMetafile)
+            .map(async metafile => {
+                await restore({ filepath: metafile.path, staged: true });
+                console.log(`unstaging ${metafile.name}`);
+                dispatch(updateVersionedMetafile(metafile));
+            })
+        );
+    };
 
     const onHover = (target: Metafile[]) => {
         if (cards.length > 1) {
@@ -55,22 +58,19 @@ const UnstageButton = ({ cardIds, mode = 'light' }: { cardIds: UUID[], mode?: Mo
         cards.map(c => dispatch(cardUpdated({ ...c, classes: removeItemInArray(c.classes, 'selected-card') })));
     }
 
-    return (
-        <>
-            {!isExplorer && hasStaged && !isCaptured &&
-                <Tooltip title='Unstage'>
-                    <IconButton
-                        className={classes.root}
-                        aria-label='unstage'
-                        onClick={unstage}
-                        onMouseEnter={() => onHover(staged)}
-                        onMouseLeave={offHover}
-                    >
-                        <Remove />
-                    </IconButton>
-                </Tooltip>}
-        </>
-    );
+    return (enabled && !isExplorer && hasStaged && !isCaptured) ? (
+        <Tooltip title='Unstage'>
+            <IconButton
+                className={classes.root}
+                aria-label='unstage'
+                onClick={unstage}
+                onMouseEnter={() => onHover(staged)}
+                onMouseLeave={offHover}
+            >
+                <Remove />
+            </IconButton>
+        </Tooltip>
+    ) : null;
 }
 
 export default UnstageButton;
