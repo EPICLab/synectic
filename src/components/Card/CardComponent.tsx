@@ -4,7 +4,6 @@ import { CSSTransition } from 'react-transition-group';
 import clsx from 'clsx';
 import { sep } from 'path';
 import { Badge, Typography } from '@material-ui/core';
-import { RootState } from '../../store/store';
 import { createStack, pushCards, popCards } from '../../store/thunks/stacks';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
@@ -49,9 +48,9 @@ const Header = (props: PropsWithChildren<{ title: string, expanded: boolean, exp
 
 const CardComponent = (card: Card) => {
   const [flipped, setFlipped] = useState(false);
-  const cards = useAppSelector((state: RootState) => cardSelectors.selectEntities(state));
-  const stacks = useAppSelector((state: RootState) => stackSelectors.selectEntities(state));
-  const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectEntities(state));
+  const cards = useAppSelector(state => cardSelectors.selectEntities(state));
+  const stacks = useAppSelector(state => stackSelectors.selectEntities(state));
+  const metafiles = useAppSelector(state => metafileSelectors.selectEntities(state));
   const dispatch = useAppDispatch();
 
   const expand = () => {

@@ -7,7 +7,6 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { Modal, modalRemoved } from '../../store/slices/modals';
 
 import metafileSelectors from '../../store/selectors/metafiles';
-import { RootState } from '../../store/store';
 import repoSelectors from '../../store/selectors/repos';
 import { isFilebasedMetafile, isFileMetafile, isVersionedMetafile } from '../../store/slices/metafiles';
 import { fetchBranches } from '../../store/thunks/branches';
@@ -59,8 +58,8 @@ const CommitDialog = (props: Modal) => {
     const dispatch = useAppDispatch();
     const styles = useStyles();
     const [message, setMessage] = useState('');
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectAll(state));
-    const repos = useAppSelector((state: RootState) => repoSelectors.selectAll(state));
+    const metafiles = useAppSelector(state => metafileSelectors.selectAll(state));
+    const repos = useAppSelector(state => repoSelectors.selectAll(state));
     const staged = metafiles.filter(m =>
         props.options?.['repo'] === m.repo &&
         props.options?.['branch'] === m.branch &&

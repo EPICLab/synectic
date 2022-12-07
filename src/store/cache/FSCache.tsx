@@ -5,7 +5,6 @@ import useMap from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
 import { extractStats, isEqualPaths, readFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { RootState } from '../store';
 import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileRemoved } from '../slices/metafiles';
 import cacheSelectors from '../selectors/cache';
 import { diffArrays } from 'diff';
@@ -21,10 +20,10 @@ import { Card } from '../slices/cards';
 export const FSCache = createContext({});
 
 export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
-    const cacheIds = useAppSelector((state: RootState) => cacheSelectors.selectIds(state));
-    const cache = useAppSelector((state: RootState) => cacheSelectors.selectEntities(state));
-    const cards = useAppSelector((state: RootState) => cardSelectors.selectAll(state));
-    const metafiles = useAppSelector((state: RootState) => metafileSelectors.selectEntities(state));
+    const cacheIds = useAppSelector(state => cacheSelectors.selectIds(state));
+    const cache = useAppSelector(state => cacheSelectors.selectEntities(state));
+    const cards = useAppSelector(state => cardSelectors.selectAll(state));
+    const metafiles = useAppSelector(state => metafileSelectors.selectEntities(state));
     const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher
     const dispatch = useAppDispatch();
 
