@@ -20,6 +20,13 @@ export const subscribe = createAsyncThunk<Cache, { path: PathLike, card: UUID },
     }
 );
 
+export const subscribeAll = createAsyncThunk<Cache[], { paths: PathLike[], card: UUID }, AppThunkAPI>(
+    'cache/subscribeAll',
+    async ({ paths, card }, thunkAPI) => {
+        return await Promise.all(paths.map(async p => await thunkAPI.dispatch(subscribe({ path: p, card: card })).unwrap()));
+    }
+);
+
 export const unsubscribe = createAsyncThunk<undefined, { path: PathLike, card: UUID }, AppThunkAPI>(
     'cache/unsubscribe',
     async ({ path, card }, thunkAPI) => {
@@ -31,6 +38,14 @@ export const unsubscribe = createAsyncThunk<undefined, { path: PathLike, card: U
             })).payload;
             if (updated.reserved.length === 0) thunkAPI.dispatch(cacheRemoved(existing.path));
         }
+        return undefined;
+    }
+);
+
+export const unsubscribeAll = createAsyncThunk<undefined, { paths: PathLike[], card: UUID }, AppThunkAPI>(
+    'cache/unsubscribeAll',
+    async ({ paths, card }, thunkAPI) => {
+        paths.forEach(async p => await thunkAPI.dispatch(unsubscribe({ path: p, card: card })));
         return undefined;
     }
 );
