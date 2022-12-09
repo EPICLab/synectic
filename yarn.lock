@@ -482,13 +482,13 @@
     fs-extra "^10.0.0"
     which "^2.0.2"
 
-"@electron-forge/maker-deb@^6.0.0-beta.67":
-  version "6.0.0-beta.67"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.0-beta.67.tgz#cc642b0400058f00d83baa80c106b4fcc70ed908"
-  integrity sha512-15JNmyoPi/xMFL24z67UxcEp9blWtAmSLI919qtv8DQuZpXS9DDathjgXLAZqEHEbsotevH8wgi5dJq/bFyPAg==
+"@electron-forge/maker-deb@^6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-deb/-/maker-deb-6.0.4.tgz#5ac9a844f31898e0bd33b73919622583cc7ded75"
+  integrity sha512-kBqRiPqAInPqBEZD1iRYiF2yb7Mhcdlrn80kCtTwTF8oAA6d081g6mcrMt12sf5GBGF8IXKzm6JqbqelpYbKww==
   dependencies:
-    "@electron-forge/maker-base" "6.0.0-beta.67"
-    "@electron-forge/shared-types" "6.0.0-beta.67"
+    "@electron-forge/maker-base" "^6.0.4"
+    "@electron-forge/shared-types" "^6.0.4"
   optionalDependencies:
     electron-installer-debian "^3.0.0"
 
@@ -2053,14 +2053,6 @@
     eslint-scope "^5.1.1"
     eslint-utils "^3.0.0"
     semver "^7.3.7"
-
-"@typescript-eslint/visitor-keys@5.45.0":
-  version "5.45.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/visitor-keys/-/visitor-keys-5.45.0.tgz#e0d160e9e7fdb7f8da697a5b78e7a14a22a70528"
-  integrity sha512-jc6Eccbn2RtQPr1s7th6jJWQHBHI6GBVQkCHoJFQ5UreaKm59Vxw+ynQUPPY2u2Amquc+7tmEoC2G52ApsGNNg==
-  dependencies:
-    "@typescript-eslint/types" "5.45.0"
-    eslint-visitor-keys "^3.3.0"
 
 "@typescript-eslint/visitor-keys@5.45.0":
   version "5.45.0"
