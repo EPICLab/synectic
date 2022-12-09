@@ -22,14 +22,14 @@ jobs:
       contents: write
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Get package version
       id: get_version
       uses: daschaa/package-version@v1.1.0
       with:
         path: './package.json'
     - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'yarn'
