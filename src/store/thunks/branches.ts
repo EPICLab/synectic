@@ -1,11 +1,10 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { normalize } from 'path';
 import { v4 } from 'uuid';
 import isBoolean from 'validator/lib/isBoolean';
 import { deleteBranch, fetchMergingBranches, getBranchRoot, getConfig, getRoot, getWorktreePaths, listBranch, log, revParse, worktreeAdd, worktreeList, worktreeRemove, worktreeStatus } from '../../containers/git';
 import { ExactlyOne, isDefined, removeObjectProperty } from '../../containers/utils';
-import { AppThunkAPI } from '../hooks';
+import { createAppAsyncThunk } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import repoSelectors from '../selectors/repos';
 import { Branch, branchAdded, branchReplaced, isMergingBranch } from '../slices/branches';
@@ -16,7 +15,7 @@ import { fetchParentMetafile } from './metafiles';
 
 type BranchIdentifiers = { root: PathLike, branch: string, scope: 'local' | 'remote' };
 
-export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ branchIdentifiers: BranchIdentifiers, metafile: FilebasedMetafile }>, AppThunkAPI>(
+export const fetchBranch = createAppAsyncThunk<Branch | undefined, ExactlyOne<{ branchIdentifiers: BranchIdentifiers, metafile: FilebasedMetafile }>>(
     'branches/fetchBranch',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -47,7 +46,7 @@ export const fetchBranch = createAsyncThunk<Branch | undefined, ExactlyOne<{ bra
     }
 );
 
-export const fetchBranches = createAsyncThunk<{ local: Branch[], remote: Branch[] }, PathLike, AppThunkAPI>(
+export const fetchBranches = createAppAsyncThunk<{ local: Branch[], remote: Branch[] }, PathLike>(
     'branches/fetchBranches',
     async (root, thunkAPI) => {
         const branches: Awaited<ReturnType<typeof listBranch>> = await listBranch({ dir: root, all: true });
@@ -69,7 +68,7 @@ export const fetchBranches = createAsyncThunk<{ local: Branch[], remote: Branch[
  * a repository worktree (i.e. it does not interact with the filesystem). Instead, this function updates the 
  * store state to reflect any newly created branches.
  */
-export const buildBranch = createAsyncThunk<Branch, BranchIdentifiers, AppThunkAPI>(
+export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
     'branches/buildBranch',
     async (identifiers, thunkAPI) => {
         const branchRoot: Awaited<ReturnType<typeof getBranchRoot>> = await getBranchRoot(identifiers.root, identifiers.branch);
@@ -112,7 +111,7 @@ export const buildBranch = createAsyncThunk<Branch, BranchIdentifiers, AppThunkA
  * @returns {Branch} A new Branch object representing the updated worktree information, or an existing Branch if `ref` matches
  * the existing current branch in the repository root directory.
  */
-export const addBranch = createAsyncThunk<Branch | undefined, { ref: string, root: PathLike }, AppThunkAPI>(
+export const addBranch = createAppAsyncThunk<Branch | undefined, { ref: string, root: PathLike }>(
     'branches/addBranch',
     async ({ ref, root }, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -153,7 +152,7 @@ export const addBranch = createAsyncThunk<Branch | undefined, { ref: string, roo
  * @param obj.branch - The name of the branch to remove.
  * @returns {boolean} A boolean indicating whether the branch was successfully removed.
  */
-export const removeBranch = createAsyncThunk<boolean, { repoId: UUID, branch: Branch }, AppThunkAPI>(
+export const removeBranch = createAppAsyncThunk<boolean, { repoId: UUID, branch: Branch }>(
     'branches/removeBranch',
     async ({ repoId, branch }, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -175,7 +174,7 @@ export const removeBranch = createAsyncThunk<boolean, { repoId: UUID, branch: Br
  * status of a branch. Also appends/removes merging information in the case of an in-progress merge where this branch
  * is the base. This function updates the store state to reflect any recent changes to these fields.
  */
-export const updateBranch = createAsyncThunk<Branch, Branch, AppThunkAPI>(
+export const updateBranch = createAppAsyncThunk<Branch, Branch>(
     'branches/updateBranch',
     async (branch, thunkAPI) => {
         const branchRoot = await getBranchRoot(branch.root, branch.ref);
@@ -198,7 +197,7 @@ export const updateBranch = createAsyncThunk<Branch, Branch, AppThunkAPI>(
  * added/removed branches so that the repository remains up-to-date with the state of branches in the underlying
  * git repository on the filesystem.
  */
-export const updateBranches = createAsyncThunk<Repository, Repository, AppThunkAPI>(
+export const updateBranches = createAppAsyncThunk<Repository, Repository>(
     'branches/updateBranches',
     async (repo, thunkAPI) => {
         const branches = await thunkAPI.dispatch(fetchBranches(repo.root)).unwrap();

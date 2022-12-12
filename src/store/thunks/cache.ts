@@ -1,12 +1,11 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { readFileAsync } from '../../containers/io';
-import { AppThunkAPI } from '../hooks';
+import { createAppAsyncThunk } from '../hooks';
 import cacheSelectors from '../selectors/cache';
 import { Cache, cacheRemoved, cacheUpdated } from '../slices/cache';
 import { UUID } from '../types';
 
-export const subscribe = createAsyncThunk<Cache, { path: PathLike, card: UUID }, AppThunkAPI>(
+export const subscribe = createAppAsyncThunk<Cache, { path: PathLike, card: UUID }>(
     'cache/subscribe',
     async ({ path, card }, thunkAPI) => {
         const existing = cacheSelectors.selectById(thunkAPI.getState(), path.toString());
@@ -20,14 +19,14 @@ export const subscribe = createAsyncThunk<Cache, { path: PathLike, card: UUID },
     }
 );
 
-export const subscribeAll = createAsyncThunk<Cache[], { paths: PathLike[], card: UUID }, AppThunkAPI>(
+export const subscribeAll = createAppAsyncThunk<Cache[], { paths: PathLike[], card: UUID }>(
     'cache/subscribeAll',
     async ({ paths, card }, thunkAPI) => {
         return await Promise.all(paths.map(async p => await thunkAPI.dispatch(subscribe({ path: p, card: card })).unwrap()));
     }
 );
 
-export const unsubscribe = createAsyncThunk<undefined, { path: PathLike, card: UUID }, AppThunkAPI>(
+export const unsubscribe = createAppAsyncThunk<undefined, { path: PathLike, card: UUID }>(
     'cache/unsubscribe',
     async ({ path, card }, thunkAPI) => {
         const existing = cacheSelectors.selectById(thunkAPI.getState(), path.toString());
@@ -42,7 +41,7 @@ export const unsubscribe = createAsyncThunk<undefined, { path: PathLike, card: U
     }
 );
 
-export const unsubscribeAll = createAsyncThunk<undefined, { paths: PathLike[], card: UUID }, AppThunkAPI>(
+export const unsubscribeAll = createAppAsyncThunk<undefined, { paths: PathLike[], card: UUID }>(
     'cache/unsubscribeAll',
     async ({ paths, card }, thunkAPI) => {
         paths.forEach(async p => await thunkAPI.dispatch(unsubscribe({ path: p, card: card })));

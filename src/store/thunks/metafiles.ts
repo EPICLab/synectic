@@ -1,4 +1,3 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { dirname, join, relative } from 'path';
@@ -7,7 +6,7 @@ import { flattenArray } from '../../containers/flatten';
 import { checkoutPathspec, checkUnmergedPath, Conflict, fileStatus, getIgnore, getRoot, worktreeStatus } from '../../containers/git';
 import { extractFilename, isEqualPaths, readDirAsyncDepth, readFileAsync } from '../../containers/io';
 import { ExactlyOne, isDefined, isUpdateable, removeDuplicates, symmetrical } from '../../containers/utils';
-import { AppThunkAPI } from '../hooks';
+import { createAppAsyncThunk } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import metafileSelectors from '../selectors/metafiles';
 import { DirectoryMetafile, FilebasedMetafile, isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, isVersionedMetafile, Metafile, metafileAdded, MetafileTemplate, metafileUpdated, VersionedMetafile } from '../slices/metafiles';
@@ -31,7 +30,7 @@ export const isHydrated = (metafile: Metafile): boolean => {
     return filebasedHydrated && versionedHydrated;
 }
 
-export const fetchMetafile = createAsyncThunk<Metafile, { path: PathLike, handlers?: CardType[] }, AppThunkAPI>(
+export const fetchMetafile = createAppAsyncThunk<Metafile, { path: PathLike, handlers?: CardType[] }>(
     'metafiles/fetchMetafile',
     async ({ path: filepath, handlers }, thunkAPI) => {
         const existing = handlers
@@ -41,7 +40,7 @@ export const fetchMetafile = createAsyncThunk<Metafile, { path: PathLike, handle
     }
 );
 
-export const createMetafile = createAsyncThunk<Metafile, ExactlyOne<{ path: PathLike, metafile: MetafileTemplate }>, AppThunkAPI>(
+export const createMetafile = createAppAsyncThunk<Metafile, ExactlyOne<{ path: PathLike, metafile: MetafileTemplate }>>(
     'metafiles/createMetafile',
     async (input, thunkAPI) => {
         const filetype = await thunkAPI.dispatch(fetchFiletype(input.path ?? '')).unwrap();
@@ -59,7 +58,7 @@ export const createMetafile = createAsyncThunk<Metafile, ExactlyOne<{ path: Path
     }
 );
 
-export const updateFilebasedMetafile = createAsyncThunk<FilebasedMetafile, FilebasedMetafile, AppThunkAPI>(
+export const updateFilebasedMetafile = createAppAsyncThunk<FilebasedMetafile, FilebasedMetafile>(
     'metafiles/updateFilebasedMetafile',
     async (metafile, thunkAPI) => {
         if (metafile.filetype === 'Directory') {
@@ -94,7 +93,7 @@ export const updateFilebasedMetafile = createAsyncThunk<FilebasedMetafile, Fileb
     }
 );
 
-export const updateVersionedMetafile = createAsyncThunk<VersionedMetafile | FilebasedMetafile, FilebasedMetafile, AppThunkAPI>(
+export const updateVersionedMetafile = createAppAsyncThunk<VersionedMetafile | FilebasedMetafile, FilebasedMetafile>(
     'metafiles/updateVersionedMetafile',
     async (metafile, thunkAPI) => {
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
@@ -150,7 +149,7 @@ export const updateVersionedMetafile = createAsyncThunk<VersionedMetafile | File
     }
 );
 
-export const fetchParentMetafile = createAsyncThunk<DirectoryMetafile | undefined, FilebasedMetafile, AppThunkAPI>(
+export const fetchParentMetafile = createAppAsyncThunk<DirectoryMetafile | undefined, FilebasedMetafile>(
     'metafiles/fetchParent',
     async (metafile, thunkAPI) => {
         const metafiles: ReturnType<typeof metafileSelectors.selectByFilepath> = metafileSelectors.selectByFilepath(thunkAPI.getState(), dirname(metafile.path.toString()));
@@ -170,7 +169,7 @@ export const fetchParentMetafile = createAsyncThunk<DirectoryMetafile | undefine
  * @returns {Metafile | undefined} A new Metafile object pointing to the same file as the metafile referenced in the parameters except
  * rooted in the new worktree, or undefined if a linked worktred could not be created.
  */
-export const switchBranch = createAsyncThunk<Metafile | undefined, { metafileId: UUID, ref: string, root: PathLike }, AppThunkAPI>(
+export const switchBranch = createAppAsyncThunk<Metafile | undefined, { metafileId: UUID, ref: string, root: PathLike }>(
     'metafiles/switchBranch',
     async ({ metafileId, ref, root }, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -190,7 +189,7 @@ export const switchBranch = createAsyncThunk<Metafile | undefined, { metafileId:
     }
 );
 
-export const revertChanges = createAsyncThunk<void, VersionedMetafile, AppThunkAPI>(
+export const revertChanges = createAppAsyncThunk<void, VersionedMetafile>(
     'metafiles/revertUnmergedChanges',
     async (metafile, thunkAPI) => {
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
@@ -204,7 +203,7 @@ export const revertChanges = createAsyncThunk<void, VersionedMetafile, AppThunkA
     }
 )
 
-export const updateConflicted = createAsyncThunk<Metafile[], Conflict[], AppThunkAPI>(
+export const updateConflicted = createAppAsyncThunk<Metafile[], Conflict[]>(
     'metafiles/fetchConflicted',
     async (conflicts, thunkAPI) => {
         const conflictedFiles = removeDuplicates(conflicts, (c1, c2) => isEqualPaths(c1.path, c2.path));

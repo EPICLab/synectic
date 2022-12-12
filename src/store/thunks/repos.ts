@@ -1,18 +1,17 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import { v4 } from 'uuid';
 import { extractFromURL, extractRepoName, getConfig, getWorktreePaths, GitConfig, listBranch } from '../../containers/git';
 import { extractFilename } from '../../containers/io';
 import { ExactlyOne } from '../../containers/utils';
-import { AppThunkAPI } from '../hooks';
+import { createAppAsyncThunk } from '../hooks';
 import repoSelectors from '../selectors/repos';
 import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
 import { fetchBranches } from './branches';
 import { fetchParentMetafile } from './metafiles';
 
-export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>, AppThunkAPI>(
+export const fetchRepo = createAppAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>>(
     'repos/fetchRepo',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -37,7 +36,7 @@ export const fetchRepo = createAsyncThunk<Repository | undefined, ExactlyOne<{ f
     }
 )
 
-export const buildRepo = createAsyncThunk<Repository, PathLike, AppThunkAPI>(
+export const buildRepo = createAppAsyncThunk<Repository, PathLike>(
     'repos/buildRepo',
     async (filepath, thunkAPI) => {
         const { dir } = await getWorktreePaths(filepath);

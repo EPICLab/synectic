@@ -1,15 +1,14 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { XYCoord } from 'react-dnd';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import { Stack, stackAdded, stackRemoved, stackUpdated } from '../slices/stacks';
 import { cardUpdated } from '../slices/cards';
 import { UUID } from '../types';
-import { AppThunkAPI } from '../hooks';
+import { createAppAsyncThunk } from '../hooks';
 import cardSelectors from '../selectors/cards';
 import stackSelectors from '../selectors/stacks';
 
-export const createStack = createAsyncThunk<Stack, { name: string, note: string, cards: UUID[] }, AppThunkAPI>(
+export const createStack = createAppAsyncThunk<Stack, { name: string, note: string, cards: UUID[] }>(
     'stacks/createStack',
     async (input, thunkAPI) => {
         const cards = cardSelectors.selectByIds(thunkAPI.getState(), input.cards);
@@ -32,7 +31,7 @@ export const createStack = createAsyncThunk<Stack, { name: string, note: string,
 );
 
 /** Add cards to an existing Stack object. */
-export const pushCards = createAsyncThunk<void, { stack: UUID, cards: UUID[] }, AppThunkAPI>(
+export const pushCards = createAppAsyncThunk<void, { stack: UUID, cards: UUID[] }>(
     'stacks/pushCards',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -64,7 +63,7 @@ export const pushCards = createAsyncThunk<void, { stack: UUID, cards: UUID[] }, 
  * parameter is provide (in which case the card is arbitrarily positioned outside of the stack). If the `delta` parameter used, then the
  * `{x,y}` values can be gathered from `DropTargetMonitor.getDifferenceFromInitialOffset()`. 
  */
-export const popCards = createAsyncThunk<void, { cards: UUID[], delta?: XYCoord }, AppThunkAPI>(
+export const popCards = createAppAsyncThunk<void, { cards: UUID[], delta?: XYCoord }>(
     'stacks/pushCards',
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
