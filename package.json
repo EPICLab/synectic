@@ -27,7 +27,7 @@
   },
   "license": "MIT",
   "config": {
-    "forge": "./forge.config.json"
+    "forge": "./forge.config.ts"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0",
@@ -95,6 +95,7 @@
     "style-loader": "^3.3.1",
     "ts-jest": "^27.1.4",
     "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.4",
     "valid-url": "^1.0.9",
     "validator": "^13.7.0",
