@@ -1,7 +1,6 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ipcRenderer } from 'electron';
 import { join } from 'path';
-import { AppThunkAPI } from '../store/hooks';
+import { createAppAsyncThunk } from '../store/hooks';
 import { isFilebasedMetafile, Metafile, metafileUpdated } from '../store/slices/metafiles';
 import { buildCard } from '../store/thunks/cards';
 import { writeFileAsync } from './io';
@@ -11,7 +10,7 @@ import metafileSelectors from '../store/selectors/metafiles';
 
 type PickerType = 'openFile' | 'openDirectory';
 
-export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunkAPI>(
+export const fileOpenDialog = createAppAsyncThunk<void, PickerType | void>(
   'dialogs/fileOpenDialog',
   async (pickerType, thunkAPI) => {
     const isMac = process.platform === 'darwin';
@@ -32,7 +31,7 @@ export const fileOpenDialog = createAsyncThunk<void, PickerType | void, AppThunk
   }
 );
 
-export const fileSaveDialog = createAsyncThunk<boolean, Metafile, AppThunkAPI>(
+export const fileSaveDialog = createAppAsyncThunk<boolean, Metafile>(
   'dialogs/fileSaveDialog',
   async (metafile, thunkAPI) => {
     const isMac = process.platform === 'darwin';
@@ -56,7 +55,7 @@ export const fileSaveDialog = createAsyncThunk<boolean, Metafile, AppThunkAPI>(
   }
 );
 
-export const cloneDirectoryDialog = createAsyncThunk<string | null, string, AppThunkAPI>(
+export const cloneDirectoryDialog = createAppAsyncThunk<string | null, string>(
   'dialogs/cloneDirectoryDialog',
   async (repoName) => {
     const isMac = process.platform === 'darwin';

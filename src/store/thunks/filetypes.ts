@@ -1,12 +1,11 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
 import { PathLike } from 'fs';
-import { AppThunkAPI } from '../hooks';
+import { createAppAsyncThunk } from '../hooks';
 import { Filetype, filetypeAdded } from '../slices/filetypes';
 import { extractExtension, extractStats } from '../../containers/io';
 import filetypeSelectors from '../selectors/filetypes';
 
-export const fetchFiletype = createAsyncThunk<Filetype | undefined, PathLike, AppThunkAPI>(
+export const fetchFiletype = createAppAsyncThunk<Filetype | undefined, PathLike>(
     'filetypes/fetchFiletype',
     async (filepath, thunkAPI) => {
         const state = thunkAPI.getState();
@@ -18,7 +17,7 @@ export const fetchFiletype = createAsyncThunk<Filetype | undefined, PathLike, Ap
     }
 );
 
-export const importFiletypes = createAsyncThunk<void, Omit<Filetype, 'id'>[], AppThunkAPI>(
+export const importFiletypes = createAppAsyncThunk<void, Omit<Filetype, 'id'>[]>(
     'filetypes/importFiletypes',
     async (filetypes, thunkAPI) => {
         filetypes.map(filetype => {

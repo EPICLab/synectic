@@ -1,15 +1,14 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { v4 } from 'uuid';
 import { ExactlyOne, getRandomInt } from '../../containers/utils';
 import { extractFilename } from '../../containers/io';
-import { AppThunkAPI } from '../hooks';
+import { createAppAsyncThunk } from '../hooks';
 import { Card, cardAdded, cardUpdated } from '../slices/cards';
 import { Metafile } from '../slices/metafiles';
 import { createMetafile, fetchMetafile } from './metafiles';
 
-export const buildCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, metafile: Metafile }>, AppThunkAPI>(
+export const buildCard = createAppAsyncThunk<Card, ExactlyOne<{ path: PathLike, metafile: Metafile }>>(
     'cards/buildCard',
     async (input, thunkAPI) => {
         let card: Card = thunkAPI.dispatch(cardAdded({
@@ -42,7 +41,7 @@ export const buildCard = createAsyncThunk<Card, ExactlyOne<{ path: PathLike, met
     }
 );
 
-export const addBranchCard = createAsyncThunk<Card, void, AppThunkAPI>(
+export const addBranchCard = createAppAsyncThunk<Card, void>(
     'cards/addBranchCard',
     async (_, thunkAPI) => {
         const metafile = await thunkAPI.dispatch(createMetafile({
