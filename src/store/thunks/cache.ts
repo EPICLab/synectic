@@ -5,6 +5,13 @@ import cacheSelectors from '../selectors/cache';
 import { Cache, cacheRemoved, cacheUpdated } from '../slices/cache';
 import { UUID } from '../types';
 
+export const fetchCache = createAppAsyncThunk<Cache | undefined, PathLike>(
+    'cache/fetch',
+    async (path, thunkAPI) => {
+        return cacheSelectors.selectById(thunkAPI.getState(), path.toString());
+    }
+);
+
 export const subscribe = createAppAsyncThunk<Cache, { path: PathLike, card: UUID }>(
     'cache/subscribe',
     async ({ path, card }, thunkAPI) => {
