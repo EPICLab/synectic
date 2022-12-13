@@ -10,7 +10,7 @@ import cacheSelectors from '../selectors/cache';
 import { diffArrays } from 'diff';
 import { flattenArray } from '../../containers/flatten';
 import { cacheRemoved, cacheUpdated } from '../slices/cache';
-import { subscribe } from '../thunks/cache';
+import { fetchCache, subscribe } from '../thunks/cache';
 import { fetchMetafile } from '../thunks/metafiles';
 import cardSelectors from '../selectors/cards';
 import metafileSelectors from '../selectors/metafiles';
@@ -21,7 +21,6 @@ export const FSCache = createContext({});
 
 export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
     const cacheIds = useAppSelector(state => cacheSelectors.selectIds(state));
-    const cache = useAppSelector(state => cacheSelectors.selectEntities(state));
     const cards = useAppSelector(state => cardSelectors.selectAll(state));
     const metafiles = useAppSelector(state => metafileSelectors.selectEntities(state));
     const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher
@@ -70,7 +69,7 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
                 break;
             }
             case 'change': {
-                const existing = cache[filename.toString()];
+                const existing = await dispatch(fetchCache(filename.toString())).unwrap();
                 if (existing) dispatch(cacheUpdated({
                     ...existing,
                     content: await readFileAsync(filename, { encoding: 'utf-8' })
