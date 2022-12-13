@@ -61,4 +61,11 @@ Installation is required; see [CLI](#CLI) for installation instructions. The fol
 
 We welcome contributions to this open source project on Github. When contributing, please follow the [Contributing Code Guide](https://github.com/EPICLab/synectic/blob/master/CONTRIBUTING.md). Also, any new contributors should include a commit that updates this `README.md` document to include your name and a link to your GitHub profile page (unless you wish to be anonymous).
 
-Nicholas Nelson ([@nelsonni](https://github.com/nelsonni)), Andrea Tongsak ([@andrealit](https://github.com/andrealit)), Jett Seale ([@jettseale](https://github.com/jettseale)), Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde)), Marjan Adeli ([@Marjan-Adeli](https://github.com/Marjan-Adeli)), Hayden Coffey ([@hcoffey1](https://github.com/hcoffey1)), Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau)), Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar))
+- Nicholas Nelson ([@nelsonni](https://github.com/nelsonni))
+- Andrea Tongsak ([@andrealit](https://github.com/andrealit))
+- Jett Seale ([@jettseale](https://github.com/jettseale))
+- Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde))
+- Marjan Adeli ([@Marjan-Adeli](https://github.com/Marjan-Adeli))
+- Hayden Coffey ([@hcoffey1](https://github.com/hcoffey1))
+- Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau))
+- Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar))
