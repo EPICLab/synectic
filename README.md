@@ -50,12 +50,12 @@ Follow the instructions in [Install](#Install) section to install dependencies. 
 # Testing
 
 Installation is required; see [CLI](#CLI) for installation instructions. The following commands can be used from within the project root directory:
-* `yarn test` - executes [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) tests located in `__test__` directory
+* `yarn test` - executes [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
 # Linting
 
 Installation is required; see [CLI](#CLI) for installation instructions. The following commands can be used from within the project root directory:
-* `yarn lint` - executes [ESLint](https://eslint.org/) and evalutes against `eslint:recommended`, `@typescript-eslint/recommended`, and `react/recommended` rules
+* `yarn lint` - executes [ESLint](https://eslint.org/) and evalutes against `eslint:recommended`, `@typescript-eslint/recommended`, `react-hooks/recommended`, and `jsdoc/recommended` rules
 
 # Contributors
 
