@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { SHA1 } from '../../store/types';
-import { execute, getConflictingChunks, ProgressCallback, removeUndefinedProperties } from '../utils'
+import { execute, getConflictingChunks, ProgressCallback, removeUndefinedProperties } from '../utils';
 import { worktreeList } from './git-worktree';
 import { pathExists, PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';
@@ -8,15 +8,19 @@ import { isDirectory, isEqualPaths, readFileAsync } from '../io';
 import { getIgnore } from './git-ignore';
 import { listBranch } from './git-branch';
 import { VersionedMetafile } from '../../store/slices/metafiles';
+import { Status } from '../../components/Status';
+import { log } from './git-log';
 
 export type Conflict = Pick<VersionedMetafile, 'path' | 'conflicts'>;
 
 export type MergeOutput = {
-    alreadyMerged: boolean;
-    fastForward: boolean;
-    mergeCommit?: SHA1;
-    conflicts?: PathLike[];
-}
+    status: Status,
+    alreadyMerged: boolean,
+    fastForward: boolean,
+    mergeCommit?: SHA1,
+    output?: string,
+    conflicts?: PathLike[]
+};
 
 /**
  * Incorporate changes from the named commits (since the time their histories diverged from the current branch) into the
@@ -53,30 +57,23 @@ export const mergeBranch = async ({
     message?: string;
     onProgress?: ProgressCallback
 }): Promise<MergeOutput> => {
-    // TODO: false should be returned when `fastForwardOnly` is enabled and output is `fatal: Not possible to fast-forward, aborting.`
-    const conflictPattern = new RegExp('(?<=Merge conflict in ).*(?=\\r?\\n)', 'gm');
-
     const baseBranch = base ? (await worktreeList({ dir: dir })).find(w => w.ref === base) : undefined;
     const root = baseBranch?.root ? baseBranch.root : dir;
 
-    if (onProgress) await onProgress({ phase: `Merging '${commitish}' in ${root.toString()}`, loaded: 0, total: 2 });
+    if (!quiet && onProgress) await onProgress({ phase: `Merging '${commitish}' in ${root.toString()}`, loaded: 0, total: 2 });
     const output = await execute(`git merge ${squash ? '--squash' : ''} ${quiet ? '--quiet' : ''} ${!verify ? '--no-verify' : ''} ` +
         `${fastForwardOnly ? '--ff-only' : ''} ${commitish} ${message ? `-m ${message}` : ''}`, root.toString());
-    const conflicts = output.stdout.match(conflictPattern)?.map(filepath => path.resolve(root.toString(), filepath));
 
-    if (output.stderr.length > 0) {
+    if (!quiet && output.stderr.length > 0) {
         if (onProgress) await onProgress({ phase: output.stderr, loaded: 1, total: 2 });
         console.error(output.stderr);
     }
-    if (output.stdout.length > 0) {
+    if (!quiet && output.stdout.length > 0) {
         if (onProgress) await onProgress({ phase: output.stdout, loaded: 2, total: 2 });
         console.log(output.stdout);
     }
-    return {
-        alreadyMerged: false,
-        fastForward: false,
-        ...removeUndefinedProperties({ conflicts: conflicts })
-    };
+
+    return await processMergeOutput(output, root);
 }
 
 export const mergeInProgress = async ({
@@ -206,4 +203,34 @@ export const fetchMergingBranches = async (root: PathLike): Promise<{ base: stri
             ? { base: (match[0] as string).replace(/['"]+/g, ''), compare: (match[1] as string).replace(/['"]+/g, '') }
             : { base: undefined, compare: (match[0] as string).replace(/['"]+/g, '') }
         : { base: undefined, compare: undefined };
+};
+
+export const processMergeOutput = async (output: Awaited<ReturnType<typeof execute>>, root: PathLike): Promise<MergeOutput> => {
+    const failedPattern = new RegExp('fatal:', 'gm');
+    const alreadyMergedPattern = new RegExp('Already up to date.', 'gm');
+    const conflictPattern = new RegExp('(?<=Merge conflict in ).*(?=\\r?\\n)', 'gm');
+    const fastForwardPattern = new RegExp('(?<!fatal.*)Fast-forward', 'gim');
+    const mergeStrategyPattern = new RegExp('Merge made by the \'(.*)\' strategy.', 'gm');
+    const rebasePattern = new RegExp('Successfully rebased and updated', 'gm');
+
+    const alreadyMerged = output.stdout.match(alreadyMergedPattern) ? true : false;
+    const fastForward = output.stdout.match(fastForwardPattern) ? true : false;
+    const conflicts = output.stdout.match(conflictPattern)?.map(filepath => path.resolve(root.toString(), filepath));
+    const rebaseStrategy = output.stdout.match(rebasePattern) ? true : false;
+    const mergeStrategy = mergeStrategyPattern.exec(output.stdout)?.[1];
+    const mergeCommit = mergeStrategy ? (await log({ dir: root }))[0]?.oid : undefined;
+    const failed = output.stderr.match(failedPattern) ? true : false;
+
+    const mergeOutput: MergeOutput = {
+        status: failed || (conflicts && conflicts.length > 0) ? 'Failing' : 'Passing',
+        alreadyMerged: alreadyMerged,
+        fastForward: fastForward,
+        output: failed ? output.stderr : output.stdout,
+        ...removeUndefinedProperties({
+            mergeCommit: mergeCommit,
+            mergeStrategy: rebaseStrategy ? 'rebase' : mergeStrategy,
+            conflicts: conflicts
+        })
+    };
+    return mergeOutput;
 };
