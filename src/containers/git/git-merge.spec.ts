@@ -127,11 +127,11 @@ Fast-forward
 
     it('processMergeOutput handles halted merges with unmerged files', async () => {
         const output = {
-            stdout: '',
-            stderr: `error: Merging is not possible because you have unmerged files.
-            hint: Fix them up in the work tree, and then use 'git add/rm <file>'
-            hint: as appropriate to mark resolution and make a commit.
-            fatal: Exiting because of an unresolved conflict.`
+            stdout: 'Updating 4796a15..75b2762',
+            stderr: `error: Your local changes to the following files would be overwritten by merge:
+    add.ts
+Please commit your changes or stash them before you merge.
+Aborting`
         };
         return expect(merge.processMergeOutput(output, 'foo/')).resolves.toStrictEqual({
             status: 'Failing',

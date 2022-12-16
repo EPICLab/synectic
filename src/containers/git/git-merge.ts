@@ -10,6 +10,7 @@ import { listBranch } from './git-branch';
 import { VersionedMetafile } from '../../store/slices/metafiles';
 import { Status } from '../../components/Status';
 import { log } from './git-log';
+import { revList } from './git-rev-list';
 
 export type Conflict = Pick<VersionedMetafile, 'path' | 'conflicts'>;
 
@@ -60,16 +61,21 @@ export const mergeBranch = async ({
     const baseBranch = base ? (await worktreeList({ dir: dir })).find(w => w.ref === base) : undefined;
     const root = baseBranch?.root ? baseBranch.root : dir;
 
-    if (!quiet && onProgress) await onProgress({ phase: `Merging '${commitish}' in ${root.toString()}`, loaded: 0, total: 2 });
+    if (!quiet && onProgress && baseBranch) {
+        const commits = (await revList({ dir: root, commitish: [baseBranch.ref, `^` + commitish] })).split(/\r?\n/);
+        await Promise.all(commits.map(async (commit, idx) =>
+            await onProgress({ phase: `Merging commit '${commit}' into '${baseBranch.ref}' branch`, loaded: idx, total: commits.length })
+        ));
+    }
     const output = await execute(`git merge ${squash ? '--squash' : ''} ${quiet ? '--quiet' : ''} ${!verify ? '--no-verify' : ''} ` +
         `${fastForwardOnly ? '--ff-only' : ''} ${commitish} ${message ? `-m ${message}` : ''}`, root.toString());
 
     if (!quiet && output.stderr.length > 0) {
-        if (onProgress) await onProgress({ phase: output.stderr, loaded: 1, total: 2 });
+        if (onProgress) await onProgress({ phase: output.stderr, loaded: 1, total: 1 });
         console.error(output.stderr);
     }
     if (!quiet && output.stdout.length > 0) {
-        if (onProgress) await onProgress({ phase: output.stdout, loaded: 2, total: 2 });
+        if (onProgress) await onProgress({ phase: output.stdout, loaded: 1, total: 1 });
         console.log(output.stdout);
     }
 
@@ -206,7 +212,7 @@ export const fetchMergingBranches = async (root: PathLike): Promise<{ base: stri
 };
 
 export const processMergeOutput = async (output: Awaited<ReturnType<typeof execute>>, root: PathLike): Promise<MergeOutput> => {
-    const failedPattern = new RegExp('fatal:', 'gm');
+    const failedPattern = new RegExp('(fatal|error):', 'gm');
     const alreadyMergedPattern = new RegExp('Already up to date.', 'gm');
     const conflictPattern = new RegExp('(?<=Merge conflict in ).*(?=\\r?\\n)', 'gm');
     const fastForwardPattern = new RegExp('(?<!fatal.*)Fast-forward', 'gim');
