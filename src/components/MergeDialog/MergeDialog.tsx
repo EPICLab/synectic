@@ -1,4 +1,4 @@
-import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
+import { Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useState } from 'react';
 import { mergeBranch, MergeOutput } from '../../containers/git';
