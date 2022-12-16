@@ -15,13 +15,13 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type TimelineButtonsProp = {
-    id: UUID,
+    modalId: UUID,
     status: Status,
     mergeable: boolean,
     start: () => Promise<void>
 };
 
-const TimelineButtons = ({ id, status, mergeable, start }: TimelineButtonsProp) => {
+const MergeButtons = ({ modalId: id, status, mergeable, start }: TimelineButtonsProp) => {
     const styles = useStyles();
     const dispatch = useAppDispatch();
 
@@ -60,4 +60,4 @@ const TimelineButtons = ({ id, status, mergeable, start }: TimelineButtonsProp) 
     }
 }
 
-export default TimelineButtons;
+export default MergeButtons;
