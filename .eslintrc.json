@@ -16,6 +16,30 @@
   ],
   "parser": "@typescript-eslint/parser",
   "rules": {
+    "@typescript-eslint/naming-convention": [
+      "warn",
+      {
+        "selector": [
+          "variable",
+          "function"
+        ],
+        "format": [
+          "camelCase",
+          "PascalCase"
+        ],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "memberLike",
+        "modifiers": [
+          "private"
+        ],
+        "format": [
+          "camelCase"
+        ],
+        "leadingUnderscore": "require"
+      }
+    ],
     "jsdoc/require-param-type": "off",
     "jsdoc/no-multi-asterisks": [
       "warn",
