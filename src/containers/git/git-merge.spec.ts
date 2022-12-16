@@ -149,13 +149,13 @@ Automatic merge failed; fix conflicts and then commit the result.`,
             stderr: ''
         };
         // mockedInstance.getRoot() must be used since __dirname will escape the mocked FS
-        const absoluteFilepath = join('/private', mockedInstance.getRoot(), 'foo', 'merge.txt');
+        const absoluteFilepath = join(mockedInstance.getRoot(), 'foo', 'merge.txt');
         return expect(merge.processMergeOutput(output, 'foo/')).resolves.toStrictEqual({
             status: 'Failing',
             alreadyMerged: false,
             fastForward: false,
             output: output.stdout,
-            conflicts: [absoluteFilepath]
+            conflicts: expect.arrayContaining([expect.stringContaining(absoluteFilepath)])
         });
     });
 
@@ -172,13 +172,13 @@ Automatic merge failed; fix conflicts and then commit the result.`,
             stderr: ''
         };
         // mockedInstance.getRoot() must be used since __dirname will escape the mocked FS
-        const absoluteFilepath = join('/private', mockedInstance.getRoot(), 'foo', 'git_rebase', 'script2.sh');
+        const absoluteFilepath = join(mockedInstance.getRoot(), 'foo', 'git_rebase', 'script2.sh');
         return expect(merge.processMergeOutput(output, 'foo/')).resolves.toStrictEqual({
             status: 'Failing',
             alreadyMerged: false,
             fastForward: false,
             output: output.stdout,
-            conflicts: [absoluteFilepath]
+            conflicts: expect.arrayContaining([expect.stringContaining(absoluteFilepath)])
         });
     });
 });
