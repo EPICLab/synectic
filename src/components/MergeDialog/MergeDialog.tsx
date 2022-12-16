@@ -1,7 +1,7 @@
-import { Dialog, Divider, Grid, Typography } from '@material-ui/core';
+import { Button, Dialog, Divider, Grid, Typography } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import React, { useState } from 'react';
-import { getBranchRoot, mergeBranch, MergeOutput } from '../../containers/git';
+import { mergeBranch, MergeOutput } from '../../containers/git';
 import { isDefined } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
@@ -15,11 +15,9 @@ import { buildCard } from '../../store/thunks/cards';
 import { fetchMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import BranchSelect from '../Branches/BranchSelect';
-import GitConfigForm from '../GitConfigForm';
 import RepoSelect from '../RepoSelect';
-import { LinearProgressWithLabel, Status } from '../Status';
-import TimelineButtons from './TimelineButtons';
-// import { build } from '../../containers/builds';
+import MergeStatus from './MergeStatus';
+import MergeButtons from './MergeButtons';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -46,11 +44,8 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-type MissingGitConfigs = string[] | undefined;
-
 const MergeDialog = (props: Modal) => {
     const cards = useAppSelector(state => cardSelectors.selectAll(state));
-    // const cardsByMetafile = useAppSelector(state => cardSelectors.selectByMetafi
     const repos = useAppSelector(state => repoSelectors.selectEntities(state));
     const branches = useAppSelector(state => branchSelectors.selectEntities(state));
     const dispatch = useAppDispatch();
@@ -59,12 +54,7 @@ const MergeDialog = (props: Modal) => {
     const [repoId, setRepoId] = useState<UUID | undefined>(props.options?.['repo'] ? props.options?.['repo'] as UUID : undefined);
     const [baseId, setBaseId] = useState<UUID | undefined>(props.options?.['base'] ? props.options?.['base'] as UUID : undefined);
     const [compareId, setCompareId] = useState<UUID | undefined>(props.options?.['compare'] ? props.options?.['compare'] as UUID : undefined);
-    const [status, setStatus] = useState<Status>('Unchecked');
-    const [progress, setProgress] = useState<{ percent: number, message: string }>({ percent: 0, message: '' });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [configs, setConfigs] = useState<MissingGitConfigs>(undefined);
-    // const [builds, setBuilds] = useState<Status>('Unchecked');
+    const [result, setResult] = useState<MergeOutput | undefined>(undefined);
 
     const repo = repoId ? repos[repoId] : undefined;
     const base = baseId ? branches[baseId] : undefined;
@@ -73,8 +63,6 @@ const MergeDialog = (props: Modal) => {
 
     const start = async () => {
         if (!mergeable) return;
-        setStatus('Running');
-        setProgress({ percent: 0, message: 'Merging' });
 
         const baseBranch = await dispatch(addBranch({ ref: base.ref, root: repo.root })).unwrap();
         const compareBranch = await dispatch(addBranch({ ref: compare.ref, root: repo.root })).unwrap();
@@ -86,16 +74,21 @@ const MergeDialog = (props: Modal) => {
                 base: baseBranch?.ref ?? base.ref,
                 commitish: compareBranch?.ref ?? compare.ref
             });
+            console.log(`INPER:`, { result });
+            setResult(result);
         } catch (error) {
-            console.error(`Caught during merging:`, error);
+            setResult({
+                status: 'Failing',
+                alreadyMerged: false,
+                fastForward: false,
+                output: error as string
+            });
             return;
         }
-        const hasMerged = result.mergeCommit ? result.mergeCommit : false;
+
         await dispatch(updateBranches(repo));
 
-        const branchRoot = await getBranchRoot(repo.root, base.ref);
-
-        if (result.conflicts && result.conflicts.length > 0 && branchRoot) {
+        if (result.conflicts) {
             const conflicts = await Promise.all(result.conflicts
                 .map(async filepath => dispatch(fetchMetafile({ path: filepath })).unwrap()));
             await Promise.all(conflicts.filter(isFilebasedMetafile)
@@ -111,18 +104,7 @@ const MergeDialog = (props: Modal) => {
 
             const card = cards.find(c => c.metafile === baseMetafile.id);
             if (!card) await dispatch(buildCard({ metafile: baseMetafile }));
-
-            setStatus('Failing');
-            setProgress({
-                percent: 100,
-                message: `Resolve ${result.conflicts ? result.conflicts.length : 0} conflict${result.conflicts?.length == 1 ? '' : 's'} and commit resolution before continuing.`
-            });
         }
-        if (hasMerged && status != 'Failing') {
-            setStatus('Passing');
-            setProgress({ percent: 100, message: 'Merged' });
-        }
-        // await checkBuilds(setBuilds, repo, base);
     }
 
     return (
@@ -171,15 +153,10 @@ const MergeDialog = (props: Modal) => {
                             />
                         </Grid>
                     </Grid>
-                    {(status !== 'Unchecked') ?
-                        <div className={styles.section2}>
-                            <LinearProgressWithLabel value={progress.percent} subtext={progress.message} />
-                        </div>
-                        : null}
+                    <MergeStatus result={result} />
                 </div>
-                <GitConfigForm root={repo?.root} open={configs !== undefined} divider={status === 'Failing'} />
                 <div className={styles.section2}>
-                    <TimelineButtons id={props.id} status={status} mergeable={mergeable} start={start} />
+                    <MergeButtons modalId={props.id} status={result?.status ?? 'Unchecked'} mergeable={mergeable} start={start} />
                 </div>
             </div>
         </Dialog>
