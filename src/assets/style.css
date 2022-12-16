@@ -265,6 +265,7 @@ img.diff_icon {
 
 .card-front .list-component {
   height: 100%;
+  overflow-x: hidden;
 }
 
 .branch-ribbon-container {
