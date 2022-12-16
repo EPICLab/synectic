@@ -1,7 +1,7 @@
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import { v4 } from 'uuid';
-import { extractFromURL, extractRepoName, getConfig, getWorktreePaths, GitConfig, listBranch } from '../../containers/git';
+import { extractFromURL, extractRepoName, getConfig, getWorktreePaths, GitConfig, listBranch, worktreePrune } from '../../containers/git';
 import { extractFilename } from '../../containers/io';
 import { ExactlyOne } from '../../containers/utils';
 import { createAppAsyncThunk } from '../hooks';
@@ -41,6 +41,7 @@ export const buildRepo = createAppAsyncThunk<Repository, PathLike>(
     async (filepath, thunkAPI) => {
         const { dir } = await getWorktreePaths(filepath);
         const { url, oauth } = await getRemoteConfig(dir);
+        if (dir) await worktreePrune({ dir: dir, verbose: true }); // Prune worktree information to remove stale linked branches
         const current = dir ? await listBranch({ dir: dir, showCurrent: true }) : [];
         const branches = dir ? await thunkAPI.dispatch(fetchBranches(dir)).unwrap() : { local: [], remote: [] };
         const { local, remote } = { local: branches.local.map(branch => branch.id), remote: branches.remote.map(branch => branch.id) };
