@@ -3909,12 +3909,12 @@ dot-case@^3.0.4:
     no-case "^3.0.4"
     tslib "^2.0.3"
 
-dot-prop@6.0.1:
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-6.0.1.tgz#fc26b3cf142b9e59b74dbd39ed66ce620c681083"
-  integrity sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==
+dot-prop@7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/dot-prop/-/dot-prop-7.2.0.tgz#468172a3529779814d21a779c1ba2f6d76609809"
+  integrity sha512-Ol/IPXUARn9CSbkrdV4VJo7uCy1I3VuSiWCaFSg+8BdUOzF9n3jefIpcgAydvUZbTdEBZs2vEiTiS9m61ssiDA==
   dependencies:
-    is-obj "^2.0.0"
+    type-fest "^2.11.2"
 
 ds-store@^0.1.5:
   version "0.1.6"
@@ -5747,11 +5747,6 @@ is-number@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/is-number/-/is-number-7.0.0.tgz#7535345b896734d5f80c4d06c50955527a14f12b"
   integrity sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==
-
-is-obj@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/is-obj/-/is-obj-2.0.0.tgz#473fb05d973705e3fd9620545018ca8e22ef4982"
-  integrity sha512-drqDG3cbczxxEJRoOXcOjtdp1J/lyp1mNn0xaznRs8+muBhgQcrnbspox5X5fOw0HnMnbfDzvnEMEtqDEJEo8w==
 
 is-path-inside@^3.0.3:
   version "3.0.3"
@@ -9343,6 +9338,11 @@ type-fest@^1.0.2:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-1.4.0.tgz#e9fb813fe3bf1744ec359d55d1affefa76f14be1"
   integrity sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==
+
+type-fest@^2.11.2:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.19.0.tgz#88068015bb33036a598b952e55e9311a60fd3a9b"
+  integrity sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==
 
 type-is@~1.6.18:
   version "1.6.18"
