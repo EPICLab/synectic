@@ -114,7 +114,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "find-up": "^6.3.0",
     "git-config-path": "^2.0.0",
-    "ignore": "^5.2.1",
+    "ignore": "^5.2.4",
     "ini": "^3.0.0",
     "isomorphic-git": "^1.19.1",
     "luxon": "^3.1.1",
