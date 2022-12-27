@@ -1,4 +1,4 @@
-import { delete as deleteProperty, get as getProperty, has as hasProperty, set as setProperty } from 'dot-prop';
+import { deleteProperty, getProperty, hasProperty, setProperty } from 'dot-prop';
 import { PathLike } from 'fs-extra';
 import getGitConfigPath from 'git-config-path';
 import * as ini from 'ini';
