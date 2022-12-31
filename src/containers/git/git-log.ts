@@ -46,7 +46,7 @@ import { revParse } from './git-rev-parse';
  * representing commit information.
  */
 export const log = async ({
-    dir, revRange, maxCount = Infinity, until,
+    dir, revRange, maxCount, until,
 }: {
     dir: PathLike;
     revRange?: string;
@@ -57,8 +57,9 @@ export const log = async ({
     const maxCountOption = maxCount ? `--max-count=${maxCount}` : '';
     const untilOption = until ? `--until=${until.toHTTP()}` : '';
     const revOption = revRange ?? '';
-    const output = await execute(`git log ${maxCountOption} ${untilOption} ${revOption}`, dir.toString());
-
+    const command = `git log ${maxCountOption} ${untilOption} ${revOption}`;
+    const output = await execute(command, dir.toString());
+    console.log(`git-log:`, { command, dir, output });
     if (output.stderr.length > 0) console.error(output.stderr);
     return processLogOutput(output.stdout, dir);
 };
@@ -71,8 +72,9 @@ export const processLogOutput = async (output: string, dir: PathLike): Promise<C
      * [3] author name
      * [4] author email
      * [5] timestamp for commit (in RFC2822 format, including timezone offset)
+     * [6] commit message (e.g. `Bump dot-prop from 6.0.1 to 7.2.0 (#1070)`)
      */
-    const linePattern = new RegExp('^(?:commit )(\\w*)(?:(?: \\()(.*?)(?:\\)))?(?:\\r?\\nAuthor: )(.*?)(?:<)(.*)?(?:>)(?:\\r?\\nDate: {3})(.*)$', 'gm');
+    const linePattern = new RegExp('^(?:commit )(\\w*)(?:(?: \\()(.*?)(?:\\)))?(?:\\r?\\nAuthor: )(.*?)(?:<)(.*)?(?:>)(?:\\r?\\nDate: {3})(.*)(?:\\r?\\n){2} {4}(.*)$', 'gm');
 
     return (await Promise.all(Array.from(output.matchAll(linePattern), async line => {
         const oid = line[1];
