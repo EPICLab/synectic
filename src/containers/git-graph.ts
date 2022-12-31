@@ -1,5 +1,5 @@
 import dagre from 'dagre';
-import { Edge, isEdge, isNode, MarkerType, Node } from 'react-flow-renderer';
+import { Edge, isEdge, isNode, MarkerType, Node } from 'reactflow';
 import { colorSets } from './colors';
 import { CommitVertex, GitGraph } from './hooks/useGitGraph';
 
