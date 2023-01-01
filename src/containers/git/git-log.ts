@@ -81,7 +81,8 @@ export const processLogOutput = async (output: string, dir: PathLike): Promise<C
         const authorEmail = line[4];
         const timestamp = line[5];
         const message = line[6];
-        const parents = oid ? (await revParse({ dir: dir, args: `${oid}^@` })).split(/\r?\n/) : [];
+        const parentRevs = oid ?? (await revParse({ dir: dir, args: `${oid}^@` }));
+        const parents = parentRevs !== undefined ? parentRevs.split(/\r?\n/) : [];
         return oid && message ? {
             oid: oid,
             message: message,

@@ -83,7 +83,7 @@ export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
         const status = (await worktreeStatus({ dir: root }))?.status ?? 'uncommitted';
         const head = commits.length > 0 ? (commits[0] as CommitObject).oid : '';
         const revBare = await revParse({ dir: root, options: ['isBareRepository'] });
-        const bare = isBoolean(revBare) ?? Boolean(revBare);
+        const bare = (revBare !== undefined && isBoolean(revBare)) ?? Boolean(revBare);
 
         return thunkAPI.dispatch(branchAdded({
             id: v4(),

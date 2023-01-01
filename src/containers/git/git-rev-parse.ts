@@ -10,7 +10,8 @@ type RevParseOption = 'isBareRepository' | 'isShallowRepository';
  * @param obj.dir - The worktree root directory.
  * @param obj.options - The options fo distinguishing particular parameters.
  * @param obj.args - Flags and parameters to be parsed.
- * @returns {Promise<string>} A Promise object containing a string version of the output results.
+ * @returns {Promise<string | undefined>} A Promise object containing a string version of the output results,
+ * or `undefined` if execute failed.
  */
 export const revParse = async ({
     dir, options, args
@@ -18,10 +19,11 @@ export const revParse = async ({
     dir: PathLike;
     options?: RevParseOption[];
     args?: string;
-}): Promise<string> => {
+}): Promise<string | undefined> => {
     const opts = options?.map(option => processRevParseOption(option)).join(' ') ?? '';
     const output = await execute(`git rev-parse ${opts} ${args ?? ''}`, dir.toString());
-    if (output.stderr.length > 0) console.error(output.stderr);
+    // execute output can result in `{ stdout: undefined, stderr: undefined }`
+    if (output.stderr !== undefined && output.stderr.length > 0) console.error(output.stderr);
     return output.stdout;
 }
 
