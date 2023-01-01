@@ -116,6 +116,7 @@ body {
   position: absolute;
   bottom: 0;
   font-family: 'Lato', Georgia, Serif;
+  overflow: hidden;
 }
 
 .card-back {
