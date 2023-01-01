@@ -36,8 +36,7 @@ const GitGraph = ({ repo }: { repo: UUID }) => {
         nodeTypes={nodeTypes}
         onConnect={onConnect}
         onInit={onInit}
-        fitView
-        className='git-flow' />
+        fitView />
     </>
   );
 }

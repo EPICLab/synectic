@@ -57,9 +57,7 @@ export const log = async ({
     const maxCountOption = maxCount ? `--max-count=${maxCount}` : '';
     const untilOption = until ? `--until=${until.toHTTP()}` : '';
     const revOption = revRange ?? '';
-    const command = `git log ${maxCountOption} ${untilOption} ${revOption}`;
-    const output = await execute(command, dir.toString());
-    console.log(`git-log:`, { command, dir, output });
+    const output = await execute(`git log ${maxCountOption} ${untilOption} ${revOption}`, dir.toString());
     if (output.stderr.length > 0) console.error(output.stderr);
     return processLogOutput(output.stdout, dir);
 };
@@ -91,7 +89,7 @@ export const processLogOutput = async (output: string, dir: PathLike): Promise<C
             author: {
                 name: authorName ?? '',
                 email: authorEmail ?? '',
-                timestamp: timestamp ? DateTime.fromRFC2822(timestamp) : undefined,
+                timestamp: timestamp ? DateTime.fromRFC2822(timestamp).valueOf() : undefined,
             },
         } : undefined;
     }))).filter(isDefined);

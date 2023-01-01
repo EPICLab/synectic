@@ -22,12 +22,12 @@ export type CommitObject = {
     author: {
         name: string;
         email: string;
-        timestamp: DateTime | undefined;
+        timestamp: Timestamp | undefined;
     };
     committer?: {
         name: string;
         email: string;
-        timestamp: DateTime | undefined;
+        timestamp: Timestamp | undefined;
     };
 };
 /**
