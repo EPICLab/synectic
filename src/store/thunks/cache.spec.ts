@@ -18,7 +18,7 @@ const card: Card = {
     expanded: false,
     left: 10,
     top: 10,
-    zIndex: 0,
+    zIndex: 1,
     classes: []
 };
 
