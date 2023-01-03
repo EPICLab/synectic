@@ -116,6 +116,7 @@ body {
   position: absolute;
   bottom: 0;
   font-family: 'Lato', Georgia, Serif;
+  overflow: hidden;
 }
 
 .card-back {
@@ -364,8 +365,4 @@ img.diff_icon {
   margin-bottom: -25px;
   width: 100%;
   padding-left: 10px;
-}
-
-.git-flow {
-  z-index: -1;
 }

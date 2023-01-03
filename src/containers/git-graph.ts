@@ -1,5 +1,5 @@
 import dagre from 'dagre';
-import { Edge, isEdge, isNode, MarkerType, Node } from 'react-flow-renderer';
+import { Edge, isEdge, isNode, MarkerType, Node } from 'reactflow';
 import { colorSets } from './colors';
 import { CommitVertex, GitGraph } from './hooks/useGitGraph';
 
@@ -56,7 +56,7 @@ const getNode = (commit: CommitVertex): Node => {
 }
 
 const getEdges = (commit: CommitVertex): Edge[] => {
-    return commit.parents.map(parent => ({
+    return commit.parents.filter(parent => parent.length > 0).map(parent => ({
         id: `e${parent.slice(0, 7)}=${commit.staged ? commit.oid : commit.oid.slice(0, 7)}`,
         source: parent,
         target: commit.oid,

@@ -11,6 +11,7 @@ export * from './git-log';
 export * from './git-merge';
 export * from './git-path';
 export * from './git-restore';
+export * from './git-rev-list';
 export * from './git-rev-parse';
 export * from './git-status';
 export * from './git-utils';
