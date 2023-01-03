@@ -28,7 +28,7 @@ const mockedStore: RootState = {
                 expanded: false,
                 left: 10,
                 top: 10,
-                zIndex: 0,
+                zIndex: 1,
                 classes: [],
             },
             '67406095-fd01-4441-8e52-b0fdbad3327a': {
@@ -42,7 +42,7 @@ const mockedStore: RootState = {
                 expanded: false,
                 left: 27,
                 top: 105,
-                zIndex: 0,
+                zIndex: 1,
                 classes: []
             }
         }

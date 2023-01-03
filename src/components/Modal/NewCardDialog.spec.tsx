@@ -23,7 +23,7 @@ const card1: Card = {
     expanded: false,
     left: 10,
     top: 10,
-    zIndex: 0,
+    zIndex: 1,
     classes: []
 };
 
@@ -38,7 +38,7 @@ const card2: Card = {
     expanded: false,
     left: 27,
     top: 105,
-    zIndex: 0,
+    zIndex: 1,
     classes: []
 };
 

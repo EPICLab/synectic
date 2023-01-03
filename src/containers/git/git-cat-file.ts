@@ -62,13 +62,11 @@ export const processCatFileOutput = (output: string): CommitObject | undefined =
     const authorName = lineResult?.[3];
     const authorEmail = lineResult?.[4];
     const authorTimestampRaw = lineResult?.[5];
-    const authorTimestamp = authorTimestampRaw && isNumber(authorTimestampRaw) ? DateTime.fromSeconds(Number(authorTimestampRaw)) : undefined;
-    // const authorTimezoneOffset = isNumber(lineResult?.[6]) ? Number(lineResult?.[6]) : undefined;
+    const authorTimestamp = authorTimestampRaw && isNumber(authorTimestampRaw) ? DateTime.fromSeconds(Number(authorTimestampRaw)).valueOf() : undefined;
     const committerName = lineResult?.[6];
     const committerEmail = lineResult?.[7];
     const committerTimestampRaw = lineResult?.[8];
-    const committerTimestamp = committerTimestampRaw && isNumber(committerTimestampRaw) ? DateTime.fromSeconds(Number(committerTimestampRaw)) : undefined;
-    // const committerTimezoneOffset = isNumber(lineResult?.[10]) ? Number(lineResult?.[10]) : undefined;
+    const committerTimestamp = committerTimestampRaw && isNumber(committerTimestampRaw) ? DateTime.fromSeconds(Number(committerTimestampRaw)).valueOf() : undefined;
     const message = lineResult?.[9];
 
     return tree ? {
