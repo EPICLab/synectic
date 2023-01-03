@@ -74,7 +74,7 @@ export const popCards = createAppAsyncThunk<void, { cards: UUID[], delta?: XYCoo
             removingCards.map(card => thunkAPI.dispatch(cardUpdated({
                 ...card,
                 captured: undefined,
-                zIndex: 0,
+                zIndex: 1,
                 left: input.delta ? (stack.left + card.left + input.delta.x) : stack.left + card.left + 25,
                 top: input.delta ? (stack.top + card.top + input.delta.y) : stack.top + card.top + 25
             })));
@@ -88,7 +88,7 @@ export const popCards = createAppAsyncThunk<void, { cards: UUID[], delta?: XYCoo
             remainingCards.map((card, index) => thunkAPI.dispatch(cardUpdated({
                 ...card,
                 captured: updated.cards.length < 2 ? undefined : card.captured,
-                zIndex: updated.cards.length < 2 ? 0 : index,
+                zIndex: updated.cards.length < 2 ? 1 : index,
                 left: updated.cards.length < 2 ? (updated.left + card.left + 25) : (10 * index + 10),
                 top: updated.cards.length < 2 ? (updated.top + card.top + 25) : (10 * index + 50)
             })));
