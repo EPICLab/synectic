@@ -15,7 +15,7 @@ const card1: Card = {
     modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
     captured: undefined,
     expanded: false,
-    zIndex: 0,
+    zIndex: 1,
     left: 30,
     top: 50,
     classes: []
@@ -30,7 +30,7 @@ const card2: Card = {
     modified: DateTime.fromISO('2022-01-28T07:44:15.276-08:00').valueOf(),
     captured: undefined,
     expanded: false,
-    zIndex: 1,
+    zIndex: 2,
     left: 45,
     top: 65,
     classes: []
@@ -45,7 +45,7 @@ const card3: Card = {
     modified: DateTime.fromISO('2021-12-25T07:44:15.276-08:00').valueOf(),
     captured: undefined,
     expanded: false,
-    zIndex: 2,
+    zIndex: 3,
     left: 30,
     top: 85,
     classes: []
@@ -147,7 +147,7 @@ describe('thunks/stacks', () => {
         const updatedCard2 = store.getState().cards.entities[card2.id];
         expect(updatedCard2).toStrictEqual(expect.objectContaining({
             captured: undefined,
-            zIndex: 0,
+            zIndex: 1,
             left: 55,
             top: 135
         }));
@@ -174,7 +174,7 @@ describe('thunks/stacks', () => {
         const updatedCard2 = store.getState().cards.entities[card2.id];
         expect(updatedCard2).toStrictEqual(expect.objectContaining({
             captured: undefined,
-            zIndex: 0,
+            zIndex: 1,
             left: 40,
             top: 210
         }));
