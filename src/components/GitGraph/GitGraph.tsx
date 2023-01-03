@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import ReactFlow, { addEdge, Connection, Edge, isEdge, isNode, ReactFlowInstance, useEdgesState, useNodesState } from 'react-flow-renderer';
+// eslint-disable-next-line import/no-named-as-default
+import ReactFlow, { addEdge, Connection, Edge, isEdge, isNode, ReactFlowInstance, useEdgesState, useNodesState } from 'reactflow';
+import 'reactflow/dist/style.css';
 import { nodeTypes } from './GitNode';
 import useGitGraph from '../../containers/hooks/useGitGraph';
 import layoutGraph from '../../containers/git-graph';
@@ -34,8 +36,7 @@ const GitGraph = ({ repo }: { repo: UUID }) => {
         nodeTypes={nodeTypes}
         onConnect={onConnect}
         onInit={onInit}
-        fitView
-        className='git-flow' />
+        fitView />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { clipboard } from 'electron';
-import { Handle, NodeProps, Position } from 'react-flow-renderer';
+import { Handle, NodeProps, Position } from 'reactflow';
 import { v4 } from 'uuid';
 import { ColorSet } from '../../containers/colors';
 import { removeUndefinedProperties } from '../../containers/utils';
