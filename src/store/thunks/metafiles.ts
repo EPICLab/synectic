@@ -196,9 +196,8 @@ export const revertChanges = createAppAsyncThunk<void, VersionedMetafile>(
 
         if (metafile.status !== 'unmodified' && branch) {
             await checkoutPathspec({ dir: branch.root, pathspec: metafile.path.toString(), ours: true });
-            let updated = await thunkAPI.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-            updated = await thunkAPI.dispatch(updateVersionedMetafile(updated)).unwrap();
-            console.log(updated);
+            const updated = await thunkAPI.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+            await thunkAPI.dispatch(updateVersionedMetafile(updated)).unwrap();
         }
     }
 )
