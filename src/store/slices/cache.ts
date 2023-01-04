@@ -9,7 +9,7 @@ export type Cache = {
     readonly path: string;
     /** The list of Card UUIDs with an interest in this cache object. */
     readonly reserved: UUID[];
-    /** The cached content associated with the underlying object content in the filesystem. */
+    /** The MD5 checksum value of cached content associated with the underlying object in the filesystem. */
     readonly content: string;
 }
 
