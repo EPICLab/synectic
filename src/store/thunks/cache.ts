@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { PathLike } from 'fs-extra';
 import { readFileAsync } from '../../containers/io';
 import { createAppAsyncThunk } from '../hooks';
@@ -21,7 +22,7 @@ export const subscribe = createAppAsyncThunk<Cache, { path: PathLike, card: UUID
         return thunkAPI.dispatch(cacheUpdated({
             path: path.toString(),
             reserved: reserved,
-            content: await readFileAsync(path, { encoding: 'utf-8' })
+            content: createHash('md5').update(await readFileAsync(path, { encoding: 'utf-8' })).digest('hex')
         })).payload;
     }
 );
