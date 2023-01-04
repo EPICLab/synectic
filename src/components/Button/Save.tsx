@@ -1,18 +1,19 @@
-import React from 'react';
+import { IconButton, Tooltip } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
+import { createHash } from 'crypto';
+import React from 'react';
 import { fileSaveDialog } from '../../containers/dialogs';
 import { writeFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
+import cachedSelectors from '../../store/selectors/cache';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
 import { isFileMetafile, isVirtualMetafile, metafileUpdated } from '../../store/slices/metafiles';
-import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { IconButton, Tooltip } from '@material-ui/core';
-import { UUID } from '../../store/types';
 import { updateVersionedMetafile } from '../../store/thunks/metafiles';
-import cachedSelectors from '../../store/selectors/cache';
+import { UUID } from '../../store/types';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 /**
  * Button for saving the content of modified metafiles to their associated files. This button tracks the state of metafiles associated
@@ -30,7 +31,7 @@ const SaveButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID
     const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const cache = useAppSelector(state => cachedSelectors.selectEntities(state));
-    const modified = metafiles.filter(m => (isFileMetafile(m) && m.content !== cache[m.path.toString()]?.content) || (isVirtualMetafile(m) && m.content && m.content.length > 0));
+    const modified = metafiles.filter(m => (isFileMetafile(m) && createHash('md5').update(m.content).digest('hex') !== cache[m.path.toString()]?.content) || (isVirtualMetafile(m) && m.content && m.content.length > 0));
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 

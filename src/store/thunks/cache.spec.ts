@@ -6,6 +6,7 @@ import { Cache, cacheAdded } from '../slices/cache';
 import { FileMetafile, metafileAdded } from '../slices/metafiles';
 import { DateTime } from 'luxon';
 import { Card, cardAdded } from '../slices/cards';
+import { createHash } from 'crypto';
 
 const card: Card = {
     id: 'f6b3f2a3-9145-4b59-a4a1-bf414214f30b',
@@ -65,7 +66,7 @@ describe('thunks/cards', () => {
         expect(cache).toStrictEqual(expect.objectContaining({
             path: metafile.path.toString(),
             reserved: expect.arrayContaining([card.id]),
-            content: metafile.content
+            content: createHash('md5').update(metafile.content).digest('hex')
         }));
     });
 
@@ -73,7 +74,7 @@ describe('thunks/cards', () => {
         const cache: Cache = {
             path: metafile.path.toString(),
             reserved: [card.id],
-            content: metafile.content
+            content: createHash('md5').update(metafile.content).digest('hex')
         }
         store.dispatch(cacheAdded(cache));
         const updated = await store.dispatch(subscribe({ path: 'foo/example.ts', card: '3f9ea183-d648-4a30-ad76-bcbec3e60b55' })).unwrap();

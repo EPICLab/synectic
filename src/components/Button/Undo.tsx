@@ -1,16 +1,17 @@
-import React from 'react';
+import { IconButton, Tooltip } from '@material-ui/core';
 import { Undo } from '@material-ui/icons';
+import { createHash } from 'crypto';
+import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
+import cachedSelectors from '../../store/selectors/cache';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
 import { isFileMetafile } from '../../store/slices/metafiles';
-import { Mode, useIconButtonStyle } from './useStyledIconButton';
-import { IconButton, Tooltip } from '@material-ui/core';
+import { updateFilebasedMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
-import cachedSelectors from '../../store/selectors/cache';
-import { updateVersionedMetafile, updateFilebasedMetafile } from '../../store/thunks/metafiles';
+import { Mode, useIconButtonStyle } from './useStyledIconButton';
 
 /**
  * Button for undoing changes back to the most recent version according to the filesystem for file-based cards. This button tracks the 
@@ -28,7 +29,7 @@ const UndoButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID
     const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
     const cache = useAppSelector(state => cachedSelectors.selectEntities(state));
-    const modified = metafiles.filter(m => m.path && m.content !== cache[m.path.toString()]?.content);
+    const modified = metafiles.filter(m => isFileMetafile(m) && createHash('md5').update(m.content).digest('hex') !== cache[m.path.toString()]?.content);
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
