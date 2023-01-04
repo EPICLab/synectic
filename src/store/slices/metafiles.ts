@@ -29,6 +29,7 @@ export type Metafile = {
 
 /** A metafile without the requisite ID field, which can be used for composing valid Metafiles prior to them being assigned an ID. */
 export type MetafileTemplate = Omit<Metafile, 'id'>;
+/** A metafile without an associated filesystem object. */
 export type VirtualMetafile = Omit<Metafile, keyof FilebasedProps>;
 export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafile => !isFilebasedMetafile(metafile);
 
