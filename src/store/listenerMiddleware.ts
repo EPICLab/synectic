@@ -26,6 +26,7 @@ startAppListening({
     effect: async (action) => {
         console.group(`${action.type} : ${DateTime.local().toHTTP()}`);
         console.log(`meta: `, action.meta);
+        console.log(`payload: `, action.payload);
         console.log(action.error);
         console.groupEnd();
     }
