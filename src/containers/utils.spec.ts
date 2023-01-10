@@ -1,8 +1,23 @@
 import { DateTime } from 'luxon';
 import { FileMetafile } from '../store/slices/metafiles';
 import * as utils from './utils';
+import { MockInstance, file, mock } from '../test-utils/mock-fs';
 
 describe('containers/utils', () => {
+
+  let mockedInstance: MockInstance;
+  beforeAll(async () => {
+    const instance = await mock({
+      foo: {
+        bar: file({ content: 'file contents', mtime: new Date(1) }),
+        zap: file({ content: 'file contents', mtime: new Date(1) }),
+        'tracked-file.js': 'directory is tracked by git',
+      },
+    });
+    return mockedInstance = instance;
+  });
+
+  afterAll(() => mockedInstance.reset());
 
   it('isPresent returns true on present', () => {
     expect(utils.isPresent({ data: 'hello world' })).toBeTruthy();
@@ -73,24 +88,44 @@ describe('containers/utils', () => {
     content: 'file contents'
   };
 
-  it('isUpdateable returns false for empty objects', () => {
-    expect(utils.isUpdateable(mockedMetafile, {})).toBeFalsy();
+  it('hasUpdates returns false for empty objects', () => {
+    expect(utils.hasUpdates(mockedMetafile, {})).toBeFalsy();
   });
 
-  it('isUpdateable returns false for exactly similar metafiles', () => {
-    expect(utils.isUpdateable(mockedMetafile, mockedMetafile)).toBeFalsy();
+  it('hasUpdates returns false for exactly similar metafiles', () => {
+    expect(utils.hasUpdates(mockedMetafile, mockedMetafile)).toBeFalsy();
   });
 
-  it('isUpdateable returns true on new property', () => {
-    expect(utils.isUpdateable(mockedMetafile, { repo: '23', branch: '101' })).toBeTruthy();
+  it('hasUpdates returns true on new property', () => {
+    expect(utils.hasUpdates(mockedMetafile, { repo: '23', branch: '101' })).toBeTruthy();
   });
 
-  it('isUpdateable returns true on modified property', () => {
+  it('hasUpdates returns true on modified property', () => {
     const updatedMetafile: FileMetafile = {
       ...mockedMetafile,
       content: 'new content'
     };
-    expect(utils.isUpdateable(mockedMetafile, updatedMetafile)).toBeTruthy();
+    expect(utils.hasUpdates(mockedMetafile, updatedMetafile)).toBeTruthy();
+  });
+
+  it('isNumber returns true on numeric-only strings', () => {
+    expect(utils.isNumber('135')).toBe(true);
+    expect(utils.isNumber('493721')).toBe(true);
+  });
+
+  it('isNumber returns false on non-numeric and mixed strings', () => {
+    expect(utils.isNumber('test')).toBe(false);
+    expect(utils.isNumber('3again2')).toBe(false);
+  });
+
+  it('getConflictingChunks to locate conflicts in a string', () => {
+    const testfileContent = `<html>\n<div>\n   <ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n=======\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>>\n<li><a href="contact.html">Contact Us</a><li>\n<<<<<<< HEAD\n      <li><a href="license.html">Legal</a></li>\n=======\n      <li><a href="license.html">License</a></li>\n>>>>>>>\n   <\\ul>\n<\\div>\n`;
+    expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([21, 203]);
+  });
+
+  it('getConflictingChunks returns an empty array on malformed strings', () => {
+    const testfileContent = `<ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>\n   <\\ul>\n<\\div>\n`;
+    expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([]);
   });
 
   it('deserialize to parse a JSON string into a TypeScript object', () => {
@@ -322,5 +357,29 @@ describe('containers/utils', () => {
     const buf1 = Buffer.from(arr1);
     const arr2 = utils.toArrayBuffer(buf1);
     expect(utils.equalArrayBuffers(arr1, arr2)).toBe(true);
+  });
+
+  it('getRandomInt returns numbers bounded by min and max parameters', () => {
+    const randomNumber = utils.getRandomInt(1, 5);
+    expect(randomNumber).toBeGreaterThanOrEqual(1);
+    expect(randomNumber).toBeLessThanOrEqual(5);
+  });
+
+  it('execute returns results of successful shell commands', async () => {
+    expect(utils.execute('ls', 'foo/')).resolves.toStrictEqual(
+      expect.objectContaining({
+        stdout: 'bar\ntracked-file.js\nzap\n',
+        stderr: ''
+      })
+    );
+  });
+
+  it('execute returns results of unsuccessful shell commands', async () => {
+    expect(utils.execute('ls', 'foo/bar')).resolves.toStrictEqual(
+      expect.objectContaining({
+        stdout: undefined,
+        stderr: undefined
+      })
+    );
   });
 });

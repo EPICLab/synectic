@@ -113,7 +113,7 @@ export const isFilled = <T>(t: T | null): t is T => {
  * @param properties The updated state properties.
  * @returns {boolean} A boolean indicating true if at least one property is new or contains modified values, false otherwise.
  */
-export const isUpdateable = <T extends Record<string | number | symbol, unknown>>(object: T, properties: Partial<T>): boolean => {
+export const hasUpdates = <T extends Record<string | number | symbol, unknown>>(object: T, properties: Partial<T>): boolean => {
   let prop: keyof typeof properties;
   for (prop in properties) {
     if (!(prop in object)) return true;
@@ -202,11 +202,12 @@ export const partition = <T>(array: T[], predicate: (e: T) => boolean): [T[], T[
  * @param array2 An array of elements.
  * @param predicate A predicate function that resolves to true if element `e1` from `array1` has a equivalent complement
  * in `array2`, and false otherwise.
- * @returns {[object[], object[], object[]]} The resulting array of arrays where symmetrically different elements from `array1` 
+ * @returns {Array.<[object[], object[], object[]]>} The resulting array of arrays where symmetrically different elements from `array1` 
  * are in the left subarray, intersection subarray containing pairs of element `e1` from `array1` and the complementary element
  * `e2` from `array2` in the center subarray, and the symmetrically different elements from `array2` are in the right subarray.
  */
-export const symmetrical = <T, U>(array1: T[], array2: U[], predicate: (e1: T, e2: U) => boolean): [T[], [T, U][], U[]] => {
+export const symmetrical = <T, U>(array1: T[], array2: U[], predicate: (e1: T, e2: U) => boolean)
+  : [left: T[], intersect: [T, U][], right: U[]] => {
   const intersection: [T, U][] = [];
   const leftComplement: T[] = array1.filter(t => {
     const match = array2.find(u => predicate(t, u));
