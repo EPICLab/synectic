@@ -4,30 +4,34 @@ import { dirname, join, relative } from 'path';
 import { v4 } from 'uuid';
 import { flattenArray } from '../../containers/flatten';
 import { checkoutPathspec, checkUnmergedPath, Conflict, fileStatus, getIgnore, getRoot, worktreeStatus } from '../../containers/git';
-import { extractFilename, isEqualPaths, readDirAsyncDepth, readFileAsync } from '../../containers/io';
-import { ExactlyOne, isDefined, isUpdateable, removeDuplicates, symmetrical } from '../../containers/utils';
+import { extractFilename, extractStats, isEqualPaths, readDirAsyncDepth, readFileAsync } from '../../containers/io';
+import { ExactlyOne, isDefined, hasUpdates, removeDuplicates, symmetrical } from '../../containers/utils';
 import { createAppAsyncThunk } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import metafileSelectors from '../selectors/metafiles';
-import { DirectoryMetafile, FilebasedMetafile, isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, isVersionedMetafile, Metafile, metafileAdded, MetafileTemplate, metafileUpdated, VersionedMetafile } from '../slices/metafiles';
+import { DirectoryMetafile, FilebasedMetafile, FileMetafile, isDirectoryMetafile, isFilebasedMetafile, isVersionedMetafile, Metafile, metafileAdded, MetafileTemplate, metafileUpdated, VersionedMetafile } from '../slices/metafiles';
 import { CardType, UUID } from '../types';
 import { addBranch, fetchBranch } from './branches';
 import { fetchFiletype } from './filetypes';
 import { fetchRepo } from './repos';
 
-export const isHydrated = (metafile: Metafile): boolean => {
-    // if metafile is filebased, verify that DirectoryMetafile/FileMetafile fields are populated
-    const filebasedHydrated = isFilebasedMetafile(metafile) ?
-        (metafile.filetype === 'Directory' && isDirectoryMetafile(metafile)) ||
-        (metafile.filetype !== 'Directory' && isFileMetafile(metafile)) : true;
+/**
+ * Check for updates to the content of a filesystem object (i.e. file or directory) by examining whether the 
+ * [`fs.Stats.mtime`](https://nodejs.org/api/fs.html#class-fsstats) previously recorded for a metafile is stale, or
+ * non-existent in the case of a newly created metafile.
+ * 
+ * @param metafile The filebased Metafile object that should be evaluated for possible filesystem updates.
+ * @returns {string | undefined} A string containing the epoch milliseconds of the latest `mtime` timestamp if newer
+ * than the previous `mtime` timestamp of the metafile, or `undefined` otherwise. 
+ */
+export const hasFilebasedUpdates = async (metafile: FilebasedMetafile): Promise<number | undefined> => {
+    const mtime = (await extractStats(metafile.path))?.mtime;
+    if (!isDefined(mtime)) return undefined; // file does not exist in the filesystem
+    const timestamp = DateTime.fromJSDate(mtime);
 
-    // if metafile is versioned, verify that VersionedMetafile fields are populated
-    const versionedHydrated = isVersionedMetafile(metafile) ?
-        (metafile as VersionedMetafile).branch !== undefined &&
-        (metafile as VersionedMetafile).status !== undefined &&
-        (metafile as VersionedMetafile).conflicts !== undefined : true;
-
-    return filebasedHydrated && versionedHydrated;
+    if (!isDefined(metafile.mtime)) return timestamp.valueOf(); // metafile not previously identified as filebased
+    const delta = timestamp.diff(DateTime.fromMillis(metafile.mtime)).valueOf();
+    return delta > 0 ? timestamp.valueOf() : undefined; // only return timestamp if newer than previous timestamp
 }
 
 export const fetchMetafile = createAppAsyncThunk<Metafile, { path: PathLike, handlers?: CardType[] }>(
@@ -58,18 +62,18 @@ export const createMetafile = createAppAsyncThunk<Metafile, ExactlyOne<{ path: P
     }
 );
 
-export const updateFilebasedMetafile = createAppAsyncThunk<FilebasedMetafile, FilebasedMetafile>(
-    'metafiles/updateFilebasedMetafile',
+export const updateDirectoryMetafile = createAppAsyncThunk<DirectoryMetafile, FilebasedMetafile>(
+    'metafiles/updateDirectoryMetafile',
     async (metafile, thunkAPI) => {
-        if (metafile.filetype === 'Directory') {
-            const state = thunkAPI.getState();
-            const ignore = await getIgnore(metafile.path, true); // TODO: Load this once instead of doing it for every file
-            const paths: string[] = (await readDirAsyncDepth(metafile.path, 1))
-                .filter(p => p !== metafile.path)
-                .filter(p => !ignore.ignores(relative(metafile.path.toString(), p)));
-            const contains = (await paths.reduce(async (accumulator: Promise<Metafile[]>, current) => {
+        const mtime = await hasFilebasedUpdates(metafile);
+        if (isDefined(mtime)) {
+            const gitIgnore = await getIgnore(metafile.path, true);
+            const descendants = (await readDirAsyncDepth(metafile.path, 1))
+                .filter(p => p != metafile.path)
+                .filter(p => !gitIgnore.ignores(relative(metafile.path.toString(), p)));
+            const contains = (await descendants.reduce(async (accumulator: Promise<Metafile[]>, current) => {
                 const metafiles = await accumulator;
-                const existing = metafileSelectors.selectByFilepath(state, current);
+                const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), current);
                 if (existing.length > 0) metafiles.push(...existing);
                 else {
                     const metafile = await thunkAPI.dispatch(createMetafile({ path: current })).unwrap();
@@ -77,19 +81,51 @@ export const updateFilebasedMetafile = createAppAsyncThunk<FilebasedMetafile, Fi
                 }
                 return metafiles;
             }, Promise.resolve([]))).map(metafile => metafile.id);
-            return isUpdateable(metafile, { contains }) ? thunkAPI.dispatch(metafileUpdated({
+            const updating = hasUpdates(metafile, { contains });
+            const oldContains = metafile.contains;
+            if (updating) console.log(`UPDATE directory contains => ${metafile.path.toString()}`, { contains, oldContains });
+            else console.log(`NO UPDATE directory contains => ${metafile.path.toString()}`, { contains, oldContains });
+            return updating ? thunkAPI.dispatch(metafileUpdated({
                 ...metafile,
                 contains: contains,
                 state: 'unmodified'
-            })).payload as FilebasedMetafile : metafile;
-        } else {
+            })).payload as DirectoryMetafile : metafile as DirectoryMetafile;
+        }
+        const oldContains = metafile.contains;
+        console.log(`NO MTIME UPDATE directory contains => ${metafile.path.toString()}`, { mtime, oldContains });
+        return metafile as DirectoryMetafile;
+    }
+);
+
+export const updateFileMetafile = createAppAsyncThunk<FileMetafile, FilebasedMetafile>(
+    'metafiles/updateFileMetafile',
+    async (metafile, thunkAPI) => {
+        const mtime = await hasFilebasedUpdates(metafile);
+        if (isDefined(mtime)) {
             const content = await readFileAsync(metafile.path, { encoding: 'utf-8' });
-            return isUpdateable(metafile, { content }) ? thunkAPI.dispatch(metafileUpdated({
+            const updating = hasUpdates(metafile, { content });
+            const oldContent = metafile.content;
+            if (updating) console.log(`FILE METAFILE: updating content => ${metafile.path.toString()}`, { content, oldContent });
+            else console.log(`FILE METAFILE: no update => ${metafile.path.toString()}`, { content, oldContent });
+            return updating ? thunkAPI.dispatch(metafileUpdated({
                 ...metafile,
                 content: content,
+                mtime: mtime,
                 state: 'unmodified'
-            })).payload as FilebasedMetafile : metafile;
+            })).payload as FileMetafile : metafile as FileMetafile;
         }
+        const oldContent = metafile.content;
+        console.log(`FILE METAFILE: no update => ${metafile.path.toString()}`, { mtime, oldContent });
+        return metafile as FileMetafile;
+    }
+);
+
+export const updateFilebasedMetafile = createAppAsyncThunk<DirectoryMetafile | FileMetafile, FilebasedMetafile>(
+    'metafiles/updateFilebasedMetafile',
+    async (metafile, thunkAPI) => {
+        return isDirectoryMetafile(metafile) ?
+            await thunkAPI.dispatch(updateDirectoryMetafile(metafile)).unwrap() :
+            await thunkAPI.dispatch(updateFileMetafile(metafile)).unwrap();
     }
 );
 
@@ -98,16 +134,15 @@ export const updateVersionedMetafile = createAppAsyncThunk<VersionedMetafile | F
     async (metafile, thunkAPI) => {
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
-        const isDir: boolean = metafile.filetype === 'Directory';
-        const conflicted: Awaited<ReturnType<typeof checkUnmergedPath>> = await checkUnmergedPath(metafile.path);
-        const typedConflicts = isDir ? conflicted.map(c => c.path) : conflicted[0]?.conflicts ?? [];
+        console.log(`updateVersionedMetafile => ${metafile.id}::${metafile.name}, repo: ${repo?.id}, branch: ${branch?.id}`);
+        if (!isDefined(repo) || !isDefined(branch)) return metafile; // not under version control
 
-        if (isDir) {
+        if (isDirectoryMetafile(metafile)) {
             const root = await getRoot(metafile.path);
             const descendants = root ? metafileSelectors.selectByRoot(thunkAPI.getState(), root) : [];
             const statuses = root ? (await worktreeStatus({ dir: root, pathspec: metafile.path }))?.entries : undefined;
 
-            if (statuses && isDefined(repo) && isDefined(branch)) {
+            if (isDefined(statuses)) {
                 const [newEntries, updatedMetafiles, unmodifiedMetafiles] = symmetrical(statuses, descendants,
                     (status, descendant) => isEqualPaths(status.path, descendant.path)
                 );
@@ -136,9 +171,10 @@ export const updateVersionedMetafile = createAppAsyncThunk<VersionedMetafile | F
             }
         }
         const status: Awaited<ReturnType<typeof fileStatus>> = await fileStatus(metafile.path);
+        const conflicted: Awaited<ReturnType<typeof checkUnmergedPath>> = [];// await checkUnmergedPath(metafile.path);
+        const typedConflicts = isDirectoryMetafile(metafile) ? conflicted.map(c => c.path) : conflicted[0]?.conflicts ?? [];
 
-        return (isDefined(repo) && isDefined(branch) && isDefined(status)
-            && isUpdateable<Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: typedConflicts })) ?
+        return (isDefined(status) && hasUpdates<Metafile>(metafile, { repo: repo.id, branch: branch.id, status, conflicts: typedConflicts })) ?
             thunkAPI.dispatch(metafileUpdated({
                 ...metafile,
                 repo: repo.id,
