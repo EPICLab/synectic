@@ -16,6 +16,20 @@ import { fetchFiletype } from './filetypes';
 import { fetchRepo } from './repos';
 
 /**
+ * Equality function for selectors that rely on shallow metafile equality; i.e. should only force a re-render if the
+ * metafile UUIDs have been updated.
+ * 
+ * @param prevMetafiles The previous array of Metafile objects.
+ * @param nextMetafiles The possibly updated version of Metafile objects.
+ * @returns {boolean} A boolean indicating true if the UUIDs of Metafile objects in both arrays match, and false otherwise.
+ */
+export const shallowMetafilesEqualityFn = (prevMetafiles: Metafile[], nextMetafiles: Metafile[]) => {
+    const predicate = (oldMetafile: Metafile, newMetafile: Metafile) => oldMetafile.id === newMetafile.id;
+    const [subarray1, , subarray2] = symmetrical(prevMetafiles, nextMetafiles, predicate);
+    return subarray1.length === 0 && subarray2.length == 0;
+};
+
+/**
  * Check for updates to the content of a filesystem object (i.e. file or directory) by examining whether the 
  * [`fs.Stats.mtime`](https://nodejs.org/api/fs.html#class-fsstats) previously recorded for a metafile is stale, or
  * non-existent in the case of a newly created metafile.
