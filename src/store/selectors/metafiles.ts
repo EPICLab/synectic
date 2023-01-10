@@ -34,9 +34,10 @@ const selectByFilepaths = createSelector(
 const selectByRoot = createSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
-    (metafiles, root) => metafiles.filter(m =>
-        isFilebasedMetafile(m) &&
-        isDescendant(root, m.path)
+    (_state: RootState, _root: PathLike, direct?: boolean) => direct,
+    (metafiles, root, direct) => (direct
+        ? metafiles.filter(m => isFilebasedMetafile(m) && isDescendant(root, m.path, direct))
+        : metafiles.filter(m => isFilebasedMetafile(m) && isDescendant(root, m.path))
     ) as FilebasedMetafile[]
 );
 
