@@ -41,6 +41,14 @@ const selectByRoot = createSelector(
     ) as FilebasedMetafile[]
 );
 
+const selectDescendants = createSelector(
+    (state: RootState, root: PathLike, direct?: boolean) => selectByRoot(state, root, direct),
+    (descendants) => descendants.reduce((accumulator: { directories: FilebasedMetafile[], files: FilebasedMetafile[] }, item) => (item.filetype === 'Directory')
+        ? (accumulator.directories.push(item), accumulator)
+        : (accumulator.files.push(item), accumulator), { directories: [], files: [] }
+    )
+);
+
 const selectByRepo = createSelector(
     selectors.selectAll,
     (_state: RootState, repo: UUID) => repo,
@@ -109,7 +117,7 @@ const selectUnstagedByBranch = createSelector(
 )
 
 const metafileSelectors = {
-    ...selectors, selectByIds, selectByFilepath, selectByFilepaths, selectByRoot, selectByRepo, selectByBranch,
+    ...selectors, selectByIds, selectByFilepath, selectByFilepaths, selectByRoot, selectDescendants, selectByRepo, selectByBranch,
     selectByVirtual, selectByState, selectByCards, selectByConflicted, selectStagedFieldsByRepo, selectStagedByBranch, selectUnstagedByBranch
 };
 
