@@ -2,7 +2,7 @@ import { DeleteForever as Delete } from '@material-ui/icons';
 import React from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
-import { getBranchMotif } from '../../containers/motif';
+import { useBranchMotif } from '../../containers/hooks/useMotif';
 import { removeUndefinedProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
@@ -31,6 +31,7 @@ const BranchItem = ({ repoId, branchId, deletable = false, highlight = false, on
     const branches = useAppSelector(state => branchSelectors.selectEntities(state));
     const branch = useAppSelector(state => branchSelectors.selectById(state, branchId));
     const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
+    const motif = useBranchMotif(branch);
     const dispatch = useAppDispatch();
 
     // Enable BranchItem as a drop source (i.e. allowing this component to be draggable)
@@ -83,7 +84,6 @@ const BranchItem = ({ repoId, branchId, deletable = false, highlight = false, on
         }
     }
 
-    const motif = branch ? getBranchMotif(branch) : undefined;
     const optionals = removeUndefinedProperties({
         color: motif?.color,
         labelInfo: deletable ? Delete : undefined,
