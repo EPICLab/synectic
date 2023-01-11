@@ -80,34 +80,28 @@ export const updateDirectoryMetafile = createAppAsyncThunk<DirectoryMetafile, Fi
     'metafiles/updateDirectoryMetafile',
     async (metafile, thunkAPI) => {
         const mtime = await hasFilebasedUpdates(metafile);
-        if (isDefined(mtime)) {
-            const gitIgnore = await getIgnore(metafile.path, true);
-            const descendants = (await readDirAsyncDepth(metafile.path, 1))
-                .filter(p => p != metafile.path)
-                .filter(p => !gitIgnore.ignores(relative(metafile.path.toString(), p)));
-            const contains = (await descendants.reduce(async (accumulator: Promise<Metafile[]>, current) => {
-                const metafiles = await accumulator;
-                const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), current);
-                if (existing.length > 0) metafiles.push(...existing);
-                else {
-                    const metafile = await thunkAPI.dispatch(createMetafile({ path: current })).unwrap();
-                    metafiles.push(metafile);
-                }
-                return metafiles;
-            }, Promise.resolve([]))).map(metafile => metafile.id);
-            const updating = hasUpdates(metafile, { contains });
-            const oldContains = metafile.contains;
-            if (updating) console.log(`UPDATE directory contains => ${metafile.path.toString()}`, { contains, oldContains });
-            else console.log(`NO UPDATE directory contains => ${metafile.path.toString()}`, { contains, oldContains });
-            return updating ? thunkAPI.dispatch(metafileUpdated({
-                ...metafile,
-                contains: contains,
-                state: 'unmodified'
-            })).payload as DirectoryMetafile : metafile as DirectoryMetafile;
-        }
-        const oldContains = metafile.contains;
-        console.log(`NO MTIME UPDATE directory contains => ${metafile.path.toString()}`, { mtime, oldContains });
-        return metafile as DirectoryMetafile;
+        if (!isDefined(mtime)) return metafile as DirectoryMetafile;
+        const gitIgnore = await getIgnore(metafile.path, true);
+        const descendants = (await readDirAsyncDepth(metafile.path, 1))
+            .filter(p => p != metafile.path)
+            .filter(p => !gitIgnore.ignores(relative(metafile.path.toString(), p)));
+        const contains = (await descendants.reduce(async (accumulator: Promise<Metafile[]>, current) => {
+            const metafiles = await accumulator;
+            const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), current);
+            if (existing.length > 0) metafiles.push(...existing);
+            else {
+                const metafile = await thunkAPI.dispatch(createMetafile({ path: current })).unwrap();
+                metafiles.push(metafile);
+            }
+            return metafiles;
+        }, Promise.resolve([]))).map(metafile => metafile.id);
+        const updating = hasUpdates(metafile, { contains });
+        return updating ? thunkAPI.dispatch(metafileUpdated({
+            ...metafile,
+            contains: contains,
+            mtime: mtime,
+            state: 'unmodified'
+        })).payload as DirectoryMetafile : metafile as DirectoryMetafile;
     }
 );
 
@@ -115,29 +109,22 @@ export const updateFileMetafile = createAppAsyncThunk<FileMetafile, FilebasedMet
     'metafiles/updateFileMetafile',
     async (metafile, thunkAPI) => {
         const mtime = await hasFilebasedUpdates(metafile);
-        if (isDefined(mtime)) {
-            const content = await readFileAsync(metafile.path, { encoding: 'utf-8' });
-            const updating = hasUpdates(metafile, { content });
-            const oldContent = metafile.content;
-            if (updating) console.log(`FILE METAFILE: updating content => ${metafile.path.toString()}`, { content, oldContent });
-            else console.log(`FILE METAFILE: no update => ${metafile.path.toString()}`, { content, oldContent });
-            return updating ? thunkAPI.dispatch(metafileUpdated({
-                ...metafile,
-                content: content,
-                mtime: mtime,
-                state: 'unmodified'
-            })).payload as FileMetafile : metafile as FileMetafile;
-        }
-        const oldContent = metafile.content;
-        console.log(`FILE METAFILE: no update => ${metafile.path.toString()}`, { mtime, oldContent });
-        return metafile as FileMetafile;
+        if (!isDefined(mtime)) return metafile as FileMetafile;
+        const content = await readFileAsync(metafile.path, { encoding: 'utf-8' });
+        const updating = hasUpdates(metafile, { content });
+        return updating ? thunkAPI.dispatch(metafileUpdated({
+            ...metafile,
+            content: content,
+            mtime: mtime,
+            state: 'unmodified'
+        })).payload as FileMetafile : metafile as FileMetafile;
     }
 );
 
 export const updateFilebasedMetafile = createAppAsyncThunk<DirectoryMetafile | FileMetafile, FilebasedMetafile>(
     'metafiles/updateFilebasedMetafile',
     async (metafile, thunkAPI) => {
-        return isDirectoryMetafile(metafile) ?
+        return metafile.filetype === 'Directory' ?
             await thunkAPI.dispatch(updateDirectoryMetafile(metafile)).unwrap() :
             await thunkAPI.dispatch(updateFileMetafile(metafile)).unwrap();
     }
