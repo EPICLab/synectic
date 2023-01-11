@@ -59,6 +59,7 @@ const mockedDirectoryMetafile: DirectoryMetafile = {
     path: 'foo',
     state: 'unmodified',
     contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'],
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
     repo: '23',
     branch: 'master',
     status: 'unmodified',

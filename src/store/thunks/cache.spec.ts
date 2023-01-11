@@ -32,7 +32,8 @@ const metafile: FileMetafile = {
     flags: [],
     path: 'foo/example.ts',
     state: 'unmodified',
-    content: 'const rand = Math.floor(Math.random() * 6) + 1;'
+    content: 'const rand = Math.floor(Math.random() * 6) + 1;',
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
 };
 
 describe('thunks/cards', () => {

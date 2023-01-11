@@ -19,7 +19,8 @@ const mockedMetafile1: FileMetafile = {
   flags: [],
   path: 'foo/bar.js',
   state: 'unmodified',
-  content: 'file contents'
+  content: 'file contents',
+  mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
 };
 
 const mockedMetafile2: FileMetafile = {
@@ -31,7 +32,8 @@ const mockedMetafile2: FileMetafile = {
   flags: [],
   path: 'zap/tap.js',
   state: 'unmodified',
-  content: 'new content'
+  content: 'new content',
+  mtime: DateTime.fromISO('2020-02-13T11:23:05.276-08:00').valueOf()
 };
 
 const unhydratedDirectory: FilebasedMetafile = {
@@ -54,7 +56,8 @@ const hydratedDirectory: DirectoryMetafile = {
   flags: [],
   path: 'zap',
   state: 'unmodified',
-  contains: ['a5a6806b-f7e1-4f13-bca1-b1440ecd4431']
+  contains: ['a5a6806b-f7e1-4f13-bca1-b1440ecd4431'],
+  mtime: DateTime.fromISO('2021-05-19T11:53:41.276-08:00').valueOf()
 };
 
 describe('Directory', () => {
