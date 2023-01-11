@@ -41,8 +41,8 @@ export type FilebasedProps = {
     /** The latest Filesystem status code for this file relative to the associated content. */
     readonly state: FilesystemStatus;
 };
-export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMetafile => {
-    return metafile
+export const isFilebasedMetafile = (metafile: Metafile | undefined): metafile is FilebasedMetafile => {
+    return isDefined(metafile)
         && (metafile as FilebasedMetafile).path !== undefined
         && (metafile as FilebasedMetafile).state !== undefined;
 };
@@ -52,9 +52,14 @@ export type FileMetafile = Override<FilebasedMetafile, FileProps>;
 export type FileProps = {
     /** The textual contents maintained for files; can differ from actual file content when unsaved changes have been made. */
     readonly content: string;
+    /** The timestamp for last observed update to the associated filesystem object (represented by the `mtime` filesystem value). */
+    readonly mtime: Timestamp;
 };
-export const isFileMetafile = (metafile: Metafile): metafile is FileMetafile => {
-    return isFilebasedMetafile(metafile) && (metafile as FileMetafile).content !== undefined;
+export const isFileMetafile = (metafile: Metafile | undefined): metafile is FileMetafile => {
+    return isFilebasedMetafile(metafile)
+        && metafile.filetype !== 'Directory'
+        && (metafile as FileMetafile).content !== undefined
+        && (metafile as FileMetafile).mtime !== undefined;
 };
 
 /** A metafile that contains directory information related to a similar type of filesystem object. */
@@ -62,9 +67,14 @@ export type DirectoryMetafile = Override<FilebasedMetafile, DirectoryProps>;
 export type DirectoryProps = {
     /** An array with all Metafile object UUIDs for direct sub-files and sub-directories. */
     readonly contains: UUID[];
+    /** The timestamp for last observed update to the associated filesystem object (represented by the `mtime` filesystem value). */
+    readonly mtime: Timestamp;
 };
-export const isDirectoryMetafile = (metafile: Metafile): metafile is DirectoryMetafile => {
-    return isFilebasedMetafile(metafile) && (metafile as DirectoryMetafile).contains !== undefined;
+export const isDirectoryMetafile = (metafile: Metafile | undefined): metafile is DirectoryMetafile => {
+    return isFilebasedMetafile(metafile)
+        && metafile.filetype === 'Directory'
+        && (metafile as FileMetafile).contains !== undefined
+        && (metafile as FileMetafile).mtime !== undefined;
 };
 
 /** A metafile that is associated with a filesystem object that is tracked by a version control system. */
