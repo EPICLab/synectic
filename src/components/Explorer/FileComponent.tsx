@@ -11,12 +11,7 @@ import { isHydrated, updateFilebasedMetafile } from '../../store/thunks/metafile
 import { buildCard } from '../../store/thunks/cards';
 import { Skeleton } from '@material-ui/lab';
 
-
-type FileType = {
-    metafile: FilebasedMetafile;
-}
-
-const FileComponent = ({ metafile }: FileType) => {
+const FileComponent = ({ metafileId: id }: { metafileId: UUID }) => {
     const motif = metafile && isFileMetafile(metafile) ? getSourceMotif(metafile) : undefined;
     const onHoverText = metafile.status !== 'unmodified' ? metafile.status : undefined;
     const optionals = removeUndefinedProperties({ color: motif?.color, onHoverText: onHoverText });

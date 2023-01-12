@@ -11,14 +11,9 @@ import { isHydrated, updateFilebasedMetafile } from '../../store/thunks/metafile
 import { FilebasedMetafile } from '../../store/slices/metafiles';
 import { isDescendant } from '../../containers/io';
 
-type DirectoryType = {
-    /** The UUID for the top-level `DirectoryMetafile` entry. */
-    id: UUID;
-    /** All relevant metafiles, including the top-level `DirectoryMetafile`. */
-    metafiles: FilebasedMetafile[];
-};
-
-const Directory = ({ id, metafiles }: DirectoryType) => {
+const Directory = ({ metafileId: id }: { metafileId: UUID }) => {
+    const { directories, files } = useAppSelector(state => metafileSelectors.selectDescendants(state, metafile?.path ?? '', true));
+    const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
     const [expanded, toggle] = useState(false);
     const dispatch = useAppDispatch();
 

@@ -9,8 +9,8 @@ import { useAppSelector } from '../../store/hooks';
 import { UUID } from '../../store/types';
 import { isDescendant } from '../../containers/io';
 
-const Explorer = (props: { metafile: UUID }) => {
-  const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.metafile));
+const Explorer = ({ metafileId: id }: { metafileId: UUID }) => {
+  const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
   const descendants = useAppSelector(state => metafileSelectors.selectByRoot(state, metafile?.path ?? ''));
   const directories = descendants.filter(child => isDescendant(metafile?.path ?? '', child.path, true) && child.filetype === 'Directory' &&
     !child.name.startsWith('.') && child.name !== 'node_modules' && child.id !== metafile?.id);

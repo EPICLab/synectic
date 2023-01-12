@@ -88,7 +88,7 @@ describe('Directory', () => {
     expect.assertions(2);
     render(
       <Provider store={store} >
-        <TreeView><Directory id={unhydratedDirectory.id} metafiles={[mockedMetafile1]} /> </TreeView>
+        <TreeView><Directory metafileId={unhydratedDirectory.id} /> </TreeView>
       </Provider>
     );
     expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('Directory', () => {
     expect.assertions(3);
     render(
       <Provider store={store} >
-        <TreeView><Directory id={unhydratedDirectory.id} metafiles={[unhydratedDirectory, mockedMetafile1]} /> </TreeView>
+        <TreeView><Directory metafileId={unhydratedDirectory.id} /> </TreeView>
       </Provider>
     );
     expect(screen.getByRole('treeitem')).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe('Directory', () => {
     expect.assertions(4);
     render(
       <Provider store={store}>
-        <TreeView><Directory id={hydratedDirectory.id} metafiles={[hydratedDirectory, mockedMetafile2]} /></TreeView>
+        <TreeView><Directory metafileId={hydratedDirectory.id} /></TreeView>
       </Provider>
     );
     expect(screen.getByRole('treeitem')).toBeInTheDocument();

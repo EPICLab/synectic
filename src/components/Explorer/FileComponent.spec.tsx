@@ -42,7 +42,7 @@ describe('FileComponent', () => {
     it('FileComponent eventually renders file information', async () => {
         render(
             <Provider store={store}>
-                <TreeView><FileComponent metafile={mockedMetafile} /></TreeView>
+                <TreeView><FileComponent metafileId={mockedMetafile.id} /></TreeView>
             </Provider>
         );
         expect(screen.getByText('bar.js')).toBeInTheDocument();
