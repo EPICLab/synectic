@@ -2,9 +2,9 @@ import { FSWatcher, watch } from 'chokidar';
 import { createHash } from 'crypto';
 import { diffArrays } from 'diff';
 import { PathLike } from 'fs-extra';
-import React, { ReactNode, createContext, useEffect } from 'react';
+import React, { ReactNode, createContext, useContext, useEffect } from 'react';
 import { flattenArray } from '../../containers/flatten';
-import useMap from '../../containers/hooks/useMap';
+import useMap, { ReturnMap } from '../../containers/hooks/useMap';
 import { WatchEventType } from '../../containers/hooks/useWatcher';
 import { extractStats, isEqualPaths, readFileAsync } from '../../containers/io';
 import { isDefined } from '../../containers/utils';
@@ -15,16 +15,20 @@ import metafileSelectors from '../selectors/metafiles';
 import { cacheRemoved, cacheUpdated } from '../slices/cache';
 import { Card } from '../slices/cards';
 import { isDirectoryMetafile, isFileMetafile, isFilebasedMetafile, metafileRemoved } from '../slices/metafiles';
-import { fetchCache, subscribe } from '../thunks/cache';
+import { fetchCache } from '../thunks/cache';
 import { fetchMetafile } from '../thunks/metafiles';
 
-export const FSCache = createContext({});
+export const FSCacheContext = createContext<ReturnMap<PathLike, FSWatcher>>([
+    new Map([]),
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    { set: () => { }, setAll: () => { }, remove: () => { }, reset: () => { } }
+]);
 
-export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
+const FSCacheServices = ({ children }: { children: ReactNode }) => {
     const cacheIds = useAppSelector(state => cacheSelectors.selectIds(state));
     const cards = useAppSelector(state => cardSelectors.selectAll(state));
     const metafiles = useAppSelector(state => metafileSelectors.selectEntities(state));
-    const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]); // filepath to file watcher
+    const [watchers, watcherActions] = useContext(FSCacheContext);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -59,9 +63,10 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
                 const stats = await extractStats(filename);
                 const metafile = await dispatch(fetchMetafile({ path: filename })).unwrap();
                 const card = selectByFilepath(filename);
-                const existing = await dispatch(fetchCache(filename)).unwrap();
+                const existing = watchers.has(filename);
+
+
                 if (!existing && card && stats && !stats.isDirectory()) { // verify file exists on FS and is not a directory
-                    dispatch(subscribe({ path: filename, card: card.id }));
                     const newWatcher = watch(filename.toString(), { ignoreInitial: true });
                     newWatcher.on('all', eventHandler);
                     watcherActions.set(filename, newWatcher);
@@ -72,10 +77,12 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
             }
             case 'change': {
                 const existing = await dispatch(fetchCache(filename.toString())).unwrap();
-                if (existing) dispatch(cacheUpdated({
-                    ...existing,
-                    content: createHash('md5').update(await readFileAsync(filename, { encoding: 'utf-8' })).digest('hex')
-                }));
+                if (existing) {
+                    dispatch(cacheUpdated({
+                        ...existing,
+                        content: createHash('md5').update(await readFileAsync(filename, { encoding: 'utf-8' })).digest('hex')
+                    }));
+                }
                 break;
             }
             case 'unlink': {
@@ -93,8 +100,21 @@ export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return (
-        <FSCache.Provider value={{}}>
+        <FSCacheContext.Provider value={[watchers, watcherActions]}>
             {children}
-        </FSCache.Provider>
+        </FSCacheContext.Provider>
     );
+}
+
+export const FSCacheProvider = ({ children }: { children: ReactNode }) => {
+    // Map from absolute filepath to FSWatcher instance
+    const [watchers, watcherActions] = useMap<PathLike, FSWatcher>([]);
+
+    return (
+        <FSCacheContext.Provider value={[watchers, watcherActions]}>
+            <FSCacheServices>
+                {children}
+            </FSCacheServices>
+        </FSCacheContext.Provider>
+    )
 }

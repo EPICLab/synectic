@@ -1,17 +1,19 @@
-import { addListener, createListenerMiddleware, isAnyOf, isFulfilled, isRejected, TypedAddListener, TypedStartListening } from '@reduxjs/toolkit';
+import { TypedAddListener, TypedStartListening, addListener, createListenerMiddleware, isAnyOf, isFulfilled, isRejected } from '@reduxjs/toolkit';
+import { createHash } from 'crypto';
 import { DateTime } from 'luxon';
+import { isDefined } from '../containers/utils';
 import branchSelectors from './selectors/branches';
 import cacheSelectors from './selectors/cache';
 import cardSelectors from './selectors/cards';
 import metafileSelectors from './selectors/metafiles';
-import { cacheRemoved } from './slices/cache';
-import { cardAdded, cardRemoved, cardUpdated } from './slices/cards';
-import { isDirectoryMetafile, isFilebasedMetafile, isFileMetafile, metafileRemoved, metafileUpdated } from './slices/metafiles';
+import { cacheUpdated } from './slices/cache';
+import { cardRemoved } from './slices/cards';
+import { isDirectoryMetafile, isFileMetafile, isFilebasedMetafile, metafileUpdated } from './slices/metafiles';
 import { AppDispatch, RootState } from './store';
 import { removeBranch } from './thunks/branches';
 import { subscribeAll, unsubscribe } from './thunks/cache';
+import { buildCard } from './thunks/cards';
 import { switchBranch, updateFilebasedMetafile, updateVersionedMetafile } from './thunks/metafiles';
-import { UUID } from './types';
 
 export const listenerMiddleware = createListenerMiddleware<RootState>();
 export type AppStartListening = TypedStartListening<RootState, AppDispatch>;
@@ -75,6 +77,27 @@ startAppListening({
         }
     }
 });
+
+/**
+ * Listen for card removed and update cache subscriptions; and also handle the case of Diff cards that might ref the removed card.
+ */
+startAppListening({
+    actionCreator: cardRemoved,
+    effect: async (action, listenerApi) => {
+        const card = listenerApi.getOriginalState().cards.entities[action.payload];
+        const metafile = card ? listenerApi.getState().metafiles.entities[card.metafile] : undefined;
+
+        // handle Diff cards that contain a reference to the removed card
+        const diffs = cardSelectors.selectByTarget(listenerApi.getState(), action.payload.toString());
+        diffs.map(card => listenerApi.dispatch(cardRemoved(card.id)));
+
+        if (isDefined(card) && isFilebasedMetafile(metafile)) {
+            const descendants = isDirectoryMetafile(metafile) ? metafileSelectors.selectByIds(listenerApi.getState(), metafile.contains).filter(isFilebasedMetafile) : [];
+            await Promise.all([metafile, ...descendants].map(async metafile => await listenerApi.dispatch(unsubscribe({ path: metafile.path, card: card.id }))));
+        }
+    }
+});
+
 
 /**
  * Listen for pending Metafile async thunk update actions and add the `updating` flag.
