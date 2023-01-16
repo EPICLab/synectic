@@ -57,6 +57,26 @@ startAppListening({
 });
 
 /**
+ * Listen for cache updates and check for corresponding file content updates that should be reflected in the Metafile.
+ */
+startAppListening({
+    actionCreator: cacheUpdated,
+    effect: async (action, listenerApi) => {
+        const cached = action.payload;
+        const metafile = metafileSelectors.selectByFilepath(listenerApi.getState(), cached.path)[0];
+        if (isFileMetafile(metafile)) {
+            const content = createHash('md5').update(metafile.content).digest('hex');
+            // TODO: prompt the user to resolve the version conflict when metafile has a `modified` state 
+            // and the cache indicates that updates should flow from filesystem into metafile
+            if (content != cached.content) {
+                await listenerApi.dispatch(updateFilebasedMetafile(metafile));
+                await listenerApi.dispatch(updateVersionedMetafile(metafile));
+            }
+        }
+    }
+});
+
+/**
  * Listen for pending Metafile async thunk update actions and add the `updating` flag.
  */
 startAppListening({
