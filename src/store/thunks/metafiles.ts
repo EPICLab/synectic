@@ -135,7 +135,6 @@ export const updateVersionedMetafile = createAppAsyncThunk<VersionedMetafile | F
     async (metafile, thunkAPI) => {
         const repo = await thunkAPI.dispatch(fetchRepo({ metafile })).unwrap();
         const branch = await thunkAPI.dispatch(fetchBranch({ metafile })).unwrap();
-        console.log(`updateVersionedMetafile => ${metafile.id}::${metafile.name}, repo: ${repo?.id}, branch: ${branch?.id}`);
         if (!isDefined(repo) || !isDefined(branch)) return metafile; // not under version control
 
         if (isDirectoryMetafile(metafile)) {

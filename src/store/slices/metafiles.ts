@@ -93,7 +93,7 @@ export type VersionedProps = {
      */
     readonly conflicts: (number | PathLike)[];
 };
-export const isVersionedMetafile = (metafile: Metafile): metafile is VersionedMetafile => {
+export const isVersionedMetafile = (metafile: Metafile | undefined): metafile is VersionedMetafile => {
     return isFilebasedMetafile(metafile) && (metafile as VersionedMetafile).repo !== undefined;
 };
 
