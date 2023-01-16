@@ -6,10 +6,10 @@ import { extractFilename } from '../../containers/io';
 import { ExactlyOne } from '../../containers/utils';
 import { createAppAsyncThunk } from '../hooks';
 import repoSelectors from '../selectors/repos';
-import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
+import { FilebasedMetafile, isFilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
 import { fetchBranches } from './branches';
-import { fetchParentMetafile } from './metafiles';
+import { fetchMetafile, fetchParentMetafile } from './metafiles';
 
 export const fetchRepo = createAppAsyncThunk<Repository | undefined, ExactlyOne<{ filepath: PathLike, metafile: FilebasedMetafile }>>(
     'repos/fetchRepo',
@@ -24,15 +24,26 @@ export const fetchRepo = createAppAsyncThunk<Repository | undefined, ExactlyOne<
             repo = (parent && isVersionedMetafile(parent)) ? repoSelectors.selectById(state, parent.repo) : repo;
             if (repo) return repo;
         }
-        // if filepath has a root path, check for matching repository
+        // unless filepath has a root path, there is no repository
         const filepath: PathLike = input.metafile ? input.metafile.path : input.filepath;
         const { dir, worktreeDir } = await getWorktreePaths(filepath);
-        let repo = dir ? repoSelectors.selectByRoot(state, dir) : undefined;
+        if (!dir) return undefined;
 
-        // otherwise create a new repository
-        const root = worktreeDir ? worktreeDir : dir;
-        repo = (!repo && root) ? await thunkAPI.dispatch(buildRepo(root)).unwrap() : repo;
-        return repo;
+        // check root metafile for an existing repository
+        const rootMetafile = await thunkAPI.dispatch(fetchMetafile({ path: dir })).unwrap();
+        if (isVersionedMetafile(rootMetafile)) {
+            const repo = repoSelectors.selectById(state, rootMetafile.repo);
+            if (repo) return repo;
+        }
+
+        // no existing repo in parent or root metafiles, check by path and build a new repo if needed
+        if (isFilebasedMetafile(rootMetafile)) {
+            const existingRepo = repoSelectors.selectByRoot(state, rootMetafile.path);
+            const root = worktreeDir ? worktreeDir : dir;
+            const repo = existingRepo ? existingRepo : await thunkAPI.dispatch(buildRepo(root)).unwrap();
+            return repo;
+        }
+        return undefined;
     }
 )
 

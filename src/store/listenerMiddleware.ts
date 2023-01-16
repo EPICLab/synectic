@@ -33,6 +33,30 @@ startAppListening({
 });
 
 /**
+ * Listen for successful card build and update additional Metafile fields (filebased and versioned), and cache subscriptions.
+ */
+startAppListening({
+    actionCreator: buildCard.fulfilled,
+    effect: async (action, listenerApi) => {
+        const metafile = listenerApi.getState().metafiles.entities[action.payload.metafile];
+        if (isFilebasedMetafile(metafile)) {
+            // update filebased fields
+            const updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
+            const descendants = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains).filter(isFilebasedMetafile) : [];
+            await Promise.all(descendants.map(async desc => await listenerApi.dispatch(updateFilebasedMetafile(desc))));
+
+            // update versioned fields
+            await listenerApi.dispatch(updateVersionedMetafile(metafile));
+            await Promise.all(descendants.map(async desc => await listenerApi.dispatch(updateVersionedMetafile(desc))));
+
+            // update FSCache subscriptions
+            const descendantsUpdated = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains).filter(isFilebasedMetafile) : [];
+            await listenerApi.dispatch(subscribeAll({ paths: [metafile, ...descendantsUpdated].filter(isFileMetafile).map(m => m.path), card: action.payload.id }));
+        }
+    }
+});
+
+/**
  * Listen for pending Metafile async thunk update actions and add the `updating` flag.
  */
 startAppListening({
@@ -98,25 +122,6 @@ startAppListening({
         if (action.payload === true) {
             const cards = cardSelectors.selectByRepo(listenerApi.getState(), action.meta.arg.repoId, action.meta.arg.branch.id);
             cards.map(card => listenerApi.dispatch(cardRemoved(card.id)));
-        }
-    }
-});
-
-/**
- * Listen for card add actions and update cache subscriptions.
- */
-startAppListening({
-    actionCreator: cardAdded,
-    effect: async (action, listenerApi) => {
-        const metafile = listenerApi.getState().metafiles.entities[action.payload.metafile];
-
-        if (metafile && isFilebasedMetafile(metafile)) {
-            let updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-            updated = await listenerApi.dispatch(updateVersionedMetafile(updated)).unwrap();
-            const metafiles = isDirectoryMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), updated.contains) :
-                isFileMetafile(updated) ? metafileSelectors.selectByIds(listenerApi.getState(), [metafile.id]) : [];
-            const paths = metafiles.filter(isFileMetafile).map(m => m.path);
-            listenerApi.dispatch(subscribeAll({ paths: paths, card: action.payload.id }));
         }
     }
 });
