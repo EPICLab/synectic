@@ -347,6 +347,19 @@ export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
 };
 
 /**
+ * Compares two objects for equality based on a filtered subset of properties. Checks for equality on the provided
+ * properties only, enabling masked equality checks between complex objects.
+ * 
+ * @param obj1 A JavaScript object.
+ * @param obj2 A JavaScript object.
+ * @param props An array of keys derived from the type definition of comparable objects.
+ * @returns {boolean} A boolean indicating true if the objects are equal among all selected properties, or false otherwise.
+ */
+export const filteredEquality = <T, K extends keyof T>(obj1: T, obj2: T, props: K[]): boolean => {
+  return props.every(p => JSON.stringify(obj1[p]) === JSON.stringify(obj2[p]));
+}
+
+/**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 
  * and `Buffer`. However, `Buffer` has `.equals()` and `.compare()` functions for comparisons and these should 
  * be used in lieu of this function. `TypedArray` is a class of objects, which includes all of the following: 

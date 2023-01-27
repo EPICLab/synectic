@@ -295,15 +295,24 @@ describe('containers/utils', () => {
     expect(utils.equalMaps(map1, map3)).toBe(false);
   });
 
-  it('equalArrays indentifies equal and non-equal arrays containing primitive types', () => {
+  it('equalArrays identifies equal and non-equal arrays containing primitive types', () => {
     expect(utils.equalArrays([13, 'a', 14, 'b'], [13, 'a', 14, 'b'])).toBe(true);
     expect(utils.equalArrays([13, 'a', 14, 'b'], [13, 'a', 14, 'c'])).toBe(false);
   });
 
-  it('equalArrays indentifies equal and non-equal arrays containing nested types', () => {
+  it('equalArrays identifies equal and non-equal arrays containing nested types', () => {
     const arr = [13, 'a', [3, 2, 1], { name: 'john' }];
     expect(utils.equalArrays(arr, [13, 'a', [3, 2, 1], { name: 'john' }])).toBe(true);
     expect(utils.equalArrays(arr, [13, 'a', [3, 0, 1], { name: 'john' }])).toBe(false);
+  });
+
+  it('filteredEquality identifies equal and non-equal objects based on property filters', () => {
+    const a = { name: 'rose', age: 32, attending: true };
+    const b = { name: 'rose', age: 32, attending: false };
+    const c = { name: 'bob', age: 56, attending: true };
+    expect(utils.filteredEquality(a, b, ['age'])).toBe(true);
+    expect(utils.filteredEquality(a, b, ['age', 'attending'])).toBe(false);
+    expect(utils.filteredEquality(a, c, ['attending'])).toBe(true);
   });
 
   it('equalArrayBuffers identifies equal and non-equal Buffers containing UTF-8 string data', () => {
