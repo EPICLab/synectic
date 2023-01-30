@@ -372,7 +372,6 @@ export const filteredArrayEquality = <T, K extends keyof T>(arr1: T[], arr2: T[]
   if (arr1.length != arr2.length) return false;
   for (let i = 0; i != arr1.length; i++) {
     const [a, b] = [arr1[i], arr2[i]];
-    if (isDefined(a) && isDefined(b)) console.log({ a, b }, `filteredEquality: ${filteredEquality(a, b, props)}`);
     if (isDefined(a) && isDefined(b) && !filteredEquality(a, b, props)) return false;
   }
   return true;
