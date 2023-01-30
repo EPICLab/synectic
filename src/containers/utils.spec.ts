@@ -315,6 +315,16 @@ describe('containers/utils', () => {
     expect(utils.filteredEquality(a, c, ['attending'])).toBe(true);
   });
 
+  it('filteredArrayEquality identifies equal and non-equal arrays of objects based on property filters', () => {
+    const a = { name: 'rose', age: 32, attending: true };
+    const b = { name: 'rose', age: 32, attending: false };
+    const c = { name: 'cyrus', age: 32, attending: false };
+    const d = { name: 'bob', age: 32, attending: false };
+    expect(utils.filteredArrayEquality([a, b, c], [a, b, c], ['age'])).toBe(true);
+    expect(utils.filteredArrayEquality([a, b, c], [a, b, c, d], ['age'])).toBe(false);
+    expect(utils.filteredArrayEquality([a, b, c], [b, c, d], ['age', 'attending'])).toBe(false);
+  });
+
   it('equalArrayBuffers identifies equal and non-equal Buffers containing UTF-8 string data', () => {
     const buf1 = Buffer.from('test content');
     const buf2 = Buffer.from('test content');

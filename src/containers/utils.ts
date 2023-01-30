@@ -357,7 +357,26 @@ export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
  */
 export const filteredEquality = <T, K extends keyof T>(obj1: T, obj2: T, props: K[]): boolean => {
   return props.every(p => JSON.stringify(obj1[p]) === JSON.stringify(obj2[p]));
-}
+};
+
+/**
+ * Compares two arrays of object for equality based on a filtered subset of object properties. Checks for equality on the
+ * provided properties only, enabling masked equality checks between arrays of complex objects.
+ * 
+ * @param arr1 An `Array` object containing JavaScript objects.
+ * @param arr2 An `Array` object containing JavaScript objects.
+ * @param props An array of keys derived from the type definition of comparable objects.
+ * @returns {boolean} A boolean indicating true if all objects in both arrays are equal among all selected properties, or false otherwise.
+ */
+export const filteredArrayEquality = <T, K extends keyof T>(arr1: T[], arr2: T[], props: K[]): boolean => {
+  if (arr1.length != arr2.length) return false;
+  for (let i = 0; i != arr1.length; i++) {
+    const [a, b] = [arr1[i], arr2[i]];
+    if (isDefined(a) && isDefined(b)) console.log({ a, b }, `filteredEquality: ${filteredEquality(a, b, props)}`);
+    if (isDefined(a) && isDefined(b) && !filteredEquality(a, b, props)) return false;
+  }
+  return true;
+};
 
 /**
  * Compares two `ArrayBufferLike` objects for equality; compatible objects include `TypedArray`, `DataView`, 
