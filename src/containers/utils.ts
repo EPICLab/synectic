@@ -355,8 +355,8 @@ export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
  * @param props An array of keys derived from the type definition of comparable objects.
  * @returns {boolean} A boolean indicating true if the objects are equal among all selected properties, or false otherwise.
  */
-export const filteredEquality = <T, K extends keyof T>(obj1: T, obj2: T, props: K[]): boolean => {
-  return props.every(p => JSON.stringify(obj1[p]) === JSON.stringify(obj2[p]));
+export const filteredObjectEquality = <T, K extends keyof T>(obj1: T, obj2: T, props: K[]): boolean => {
+  return props.every(p => obj1[p] === obj2[p]);
 };
 
 /**
@@ -372,7 +372,7 @@ export const filteredArrayEquality = <T, K extends keyof T>(arr1: T[], arr2: T[]
   if (arr1.length != arr2.length) return false;
   for (let i = 0; i != arr1.length; i++) {
     const [a, b] = [arr1[i], arr2[i]];
-    if (isDefined(a) && isDefined(b) && !filteredEquality(a, b, props)) return false;
+    if (isDefined(a) && isDefined(b) && !filteredObjectEquality(a, b, props)) return false;
   }
   return true;
 };

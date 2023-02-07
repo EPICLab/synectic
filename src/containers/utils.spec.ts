@@ -306,13 +306,13 @@ describe('containers/utils', () => {
     expect(utils.equalArrays(arr, [13, 'a', [3, 0, 1], { name: 'john' }])).toBe(false);
   });
 
-  it('filteredEquality identifies equal and non-equal objects based on property filters', () => {
+  it('filteredObjectEquality identifies equal and non-equal objects based on property filters', () => {
     const a = { name: 'rose', age: 32, attending: true };
     const b = { name: 'rose', age: 32, attending: false };
     const c = { name: 'bob', age: 56, attending: true };
-    expect(utils.filteredEquality(a, b, ['age'])).toBe(true);
-    expect(utils.filteredEquality(a, b, ['age', 'attending'])).toBe(false);
-    expect(utils.filteredEquality(a, c, ['attending'])).toBe(true);
+    expect(utils.filteredObjectEquality(a, b, ['age'])).toBe(true);
+    expect(utils.filteredObjectEquality(a, b, ['age', 'attending'])).toBe(false);
+    expect(utils.filteredObjectEquality(a, c, ['attending'])).toBe(true);
   });
 
   it('filteredArrayEquality identifies equal and non-equal arrays of objects based on property filters', () => {
