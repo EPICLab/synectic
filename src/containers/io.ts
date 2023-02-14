@@ -110,8 +110,8 @@ export const isEqualPaths = (path1: PathLike, path2: PathLike): boolean => {
 }
 
 /**
- * Evaluate whether a filepath is a descendant of a root path. Enabling `direct` further constrains this function to
- * only consider direct children as being descendants of the root path.
+ * Evaluate whether a filepath is a descendant of a root path. Enabling `direct` flag further constrains this function to
+ * only consider direct children.
  * 
  * @param root The relative or absolute path to evaluate `{from}`.
  * @param filepath The relative or absolute path to evaluate `{to}`.
