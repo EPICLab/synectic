@@ -6,10 +6,10 @@ import { DateTime } from 'luxon';
 import { file, mock, MockInstance } from '../../test-utils/mock-fs';
 import { emptyStore } from '../../test-utils/empty-store';
 import { mockStore } from '../../test-utils/mock-store';
-import { FilebasedMetafile, metafileAdded } from '../../store/slices/metafiles';
+import { FileMetafile, metafileAdded } from '../../store/slices/metafiles';
 import FileComponent from './FileComponent';
 
-const mockedMetafile: FilebasedMetafile = {
+const mockedMetafile: FileMetafile = {
     id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
     name: 'bar.js',
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
@@ -17,7 +17,9 @@ const mockedMetafile: FilebasedMetafile = {
     filetype: 'Javascript',
     flags: [],
     path: 'foo/bar.js',
-    state: 'unmodified'
+    state: 'unmodified',
+    content: 'file contents',
+    mtime: DateTime.now().valueOf(),
 };
 
 describe('FileComponent', () => {
@@ -39,13 +41,15 @@ describe('FileComponent', () => {
         store.clearActions();
     });
 
-    it('FileComponent eventually renders file information', async () => {
+    it('FileComponent renders file information', async () => {
         render(
             <Provider store={store}>
                 <TreeView><FileComponent metafileId={mockedMetafile.id} /></TreeView>
             </Provider>
         );
-        expect(screen.getByText('bar.js')).toBeInTheDocument();
+        const component = await screen.findByText('bar.js');
+
+        expect(component).toBeInTheDocument();
     });
 
 });
