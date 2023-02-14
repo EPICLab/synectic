@@ -9,7 +9,7 @@ import { Branch, branchAdded } from '../slices/branches';
 import { Filetype, filetypeAdded } from '../slices/filetypes';
 import { DirectoryMetafile, FilebasedMetafile, FileMetafile, metafileAdded, MetafileTemplate } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
-import { createMetafile, fetchParentMetafile, hasFilebasedUpdates, updateFilebasedMetafile, updateVersionedMetafile } from './metafiles';
+import { createMetafile, fetchMetafile, fetchParentMetafile, hasFilebasedUpdates, updateFilebasedMetafile, updateVersionedMetafile } from './metafiles';
 
 const mockedFiletype1: Filetype = {
     id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
@@ -30,6 +30,20 @@ const mockedFiletype3: Filetype = {
     filetype: 'Text',
     handler: 'Editor',
     extensions: ['txt']
+}
+
+const mockedMetafile: FileMetafile = {
+    id: '8ac62438-0069-4208-9231-f03b61fdd8e6',
+    name: 'zap.ts',
+    modified: DateTime.fromISO('2021-04-05T14:21:32.783-08:00').valueOf(),
+    handler: 'Editor',
+    filetype: 'TypeScript',
+    flags: [],
+    path: 'foo/zap.ts',
+    state: 'unmodified',
+    content: 'file contents',
+    mtime: DateTime.fromISO('2021-04-05T14:21:32.783-08:00').valueOf()
+
 }
 
 describe('thunks/metafiles', () => {
@@ -136,6 +150,29 @@ describe('thunks/metafiles', () => {
             state: 'unmodified'
         };
         await expect(hasFilebasedUpdates(deletedFile)).resolves.toBeUndefined();
+    });
+
+    it('fetchMetafile resolves a metafile via existing filepath', async () => {
+        store.dispatch(metafileAdded(mockedMetafile));
+        const metafile = await store.dispatch(fetchMetafile({ path: mockedMetafile.path })).unwrap();
+        expect(metafile).toStrictEqual(mockedMetafile);
+    });
+
+    it('fetchMetafile resolves a metafile via existing filepath and handlers', async () => {
+        store.dispatch(metafileAdded(mockedMetafile));
+        const metafile = await store.dispatch(fetchMetafile({ path: mockedMetafile.path, handlers: [mockedMetafile.handler] })).unwrap();
+        expect(metafile).toStrictEqual(mockedMetafile);
+    });
+
+    it('fetchMetafile resolves a new metafile when no matching filepath exists', async () => {
+        const metafile = await store.dispatch(fetchMetafile({ path: mockedMetafile.path })).unwrap();
+        expect(metafile).not.toStrictEqual(mockedMetafile);
+    });
+
+    it('fetchMetafile resolves a new metafile when no matching filepath and handlers exist', async () => {
+        store.dispatch(metafileAdded(mockedMetafile));
+        const metafile = await store.dispatch(fetchMetafile({ path: mockedMetafile.path, handlers: ['Browser'] })).unwrap();
+        expect(metafile).not.toStrictEqual(mockedMetafile);
     });
 
     it('createMetafile resolves a supported metafile via filepath', async () => {

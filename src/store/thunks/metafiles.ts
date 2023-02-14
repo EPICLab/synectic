@@ -51,9 +51,7 @@ export const hasFilebasedUpdates = async (metafile: FilebasedMetafile): Promise<
 export const fetchMetafile = createAppAsyncThunk<Metafile, { path: PathLike, handlers?: CardType[] }>(
     'metafiles/fetchMetafile',
     async ({ path: filepath, handlers }, thunkAPI) => {
-        const existing = handlers
-            ? metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath, handlers)
-            : metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath);
+        const existing = metafileSelectors.selectByFilepath(thunkAPI.getState(), filepath, handlers);
         return (existing.length > 0) ? existing[0] as FilebasedMetafile : await thunkAPI.dispatch(createMetafile({ path: filepath })).unwrap();
     }
 );
@@ -111,8 +109,7 @@ export const updateFileMetafile = createAppAsyncThunk<FileMetafile, FilebasedMet
         const mtime = await hasFilebasedUpdates(metafile);
         if (!isDefined(mtime)) return metafile as FileMetafile;
         const content = await readFileAsync(metafile.path, { encoding: 'utf-8' });
-        const updating = hasUpdates(metafile, { content });
-        return updating ? thunkAPI.dispatch(metafileUpdated({
+        return hasUpdates(metafile, { content }) ? thunkAPI.dispatch(metafileUpdated({
             ...metafile,
             content: content,
             mtime: mtime,
@@ -171,6 +168,7 @@ export const updateVersionedMetafile = createAppAsyncThunk<VersionedMetafile | F
             }
         }
         const status: Awaited<ReturnType<typeof fileStatus>> = await fileStatus(metafile.path);
+        // TODO: FIX THIS UNCHECKED CONFLICT CODE
         const conflicted: Awaited<ReturnType<typeof checkUnmergedPath>> = [];// await checkUnmergedPath(metafile.path);
         const typedConflicts = isDirectoryMetafile(metafile) ? conflicted.map(c => c.path) : conflicted[0]?.conflicts ?? [];
 
@@ -194,18 +192,19 @@ export const fetchParentMetafile = createAppAsyncThunk<DirectoryMetafile | undef
 );
 
 /**
- * Switch branches or restore working tree files in the filesystem and return an updated Metafile object. This will create
- * a new linked worktree (if not already present) based on the HEAD of the branch reference provided. This thunk also creates
- * a new Metafile object pointing to the same file in the new branch.
+ * Switch branches or restore working tree files in the filesystem and return an updated Metafile object. This will create a new linked 
+ * worktree (if not already present) based on the HEAD of the branch reference provided. This thunk also creates a new Metafile object 
+ * pointing to the same file in the new branch.
  * 
  * @param obj - A destructured object for named parameters.
  * @param obj.metafileId - The UUID of a Metafile that should be reparented to a new linked worktree (branch and root path).
+ * @param obj.cardId - The UUID of a Card that is requesting this branch switch action.
  * @param obj.ref - The name of the branch to check out and switch to.
  * @param obj.root - The relative or absolute path to a root directory (i.e. the `dir` or `worktreeDir` in the `WorktreePaths` type).
  * @returns {Metafile | undefined} A new Metafile object pointing to the same file as the metafile referenced in the parameters except
- * rooted in the new worktree, or undefined if a linked worktred could not be created.
+ * rooted in the new worktree, or undefined if a linked worktree could not be created.
  */
-export const switchBranch = createAppAsyncThunk<Metafile | undefined, { metafileId: UUID, ref: string, root: PathLike }>(
+export const switchBranch = createAppAsyncThunk<Metafile | undefined, { metafileId: UUID, cardId: UUID, ref: string, root: PathLike }>(
     'metafiles/switchBranch',
     async ({ metafileId, ref, root }, thunkAPI) => {
         const state = thunkAPI.getState();

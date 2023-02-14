@@ -36,7 +36,7 @@ export const fetchRepo = createAppAsyncThunk<Repository | undefined, ExactlyOne<
             if (repo) return repo;
         }
 
-        // no existing repo in parent or root metafiles, check by path and build a new repo if needed
+        // no existing repo in parent or root metafiles; check by path and build a new repo if needed
         if (isFilebasedMetafile(rootMetafile)) {
             const existingRepo = repoSelectors.selectByRoot(state, rootMetafile.path);
             const root = worktreeDir ? worktreeDir : dir;
