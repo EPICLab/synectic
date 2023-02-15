@@ -1,7 +1,7 @@
 import { PathLike } from 'fs-extra';
 import { execute } from '../utils';
 
-type RevParseOption = 'isBareRepository' | 'isShallowRepository';
+type RevParseOption = 'isBareRepository' | 'isShallowRepository' | 'abbrevRef';
 
 /**
  * Pick out and massage parameters for accessing porcelainish commands.
@@ -34,6 +34,9 @@ const processRevParseOption = (option: RevParseOption) => {
         }
         case 'isShallowRepository': {
             return '--is-shallow-repository';
+        }
+        case 'abbrevRef': {
+            return '--abbrev-ref'
         }
         default: {
             return '';
