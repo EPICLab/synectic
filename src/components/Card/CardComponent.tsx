@@ -35,7 +35,7 @@ const Header = (props: PropsWithChildren<{ title: string, expanded: boolean, exp
   };
 
   return (
-    <div className={clsx('card-header', { 'unmerged': props.conflicts > 0 })} onClick={handleClick}
+    <div className={clsx('card-header', { 'flagged': props.conflicts > 0 })} onClick={handleClick}
       style={{ cursor: props.expanded ? 'default' : 'move' }} >
       <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left' }} color='error' overlap='rectangular'
         badgeContent={props.conflicts}>
