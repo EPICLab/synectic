@@ -27,7 +27,7 @@ export const fetchBranch = createAppAsyncThunk<Branch | undefined, ExactlyOne<{ 
         }
 
         const root = input.metafile ? await getRoot(input.metafile.path) : input.branchIdentifiers.root;
-        const current = input.metafile && root ? (await listBranch({ dir: root, showCurrent: true }))[0]?.ref : undefined;
+        const current = input.metafile && root ? (await revParse({ dir: root, options: ['abbrevRef'], args: 'HEAD' })) : undefined;
         const ref = input.metafile ? current : input.branchIdentifiers.ref;
         const scope = input.metafile ? 'local' : input.branchIdentifiers.scope;
 
@@ -122,7 +122,7 @@ export const addBranch = createAppAsyncThunk<Branch | undefined, { ref: string, 
         const state = thunkAPI.getState();
 
         // check whether ref matches the current branch in the repository root path, if so return a metafile for it
-        const current = (await listBranch({ dir: root, showCurrent: true }))[0]?.ref;
+        const current = await revParse({ dir: root, options: ['abbrevRef'], args: 'HEAD' })
         if (ref === current) return await thunkAPI
             .dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: ref, scope: 'local' } }))
             .unwrap();
@@ -164,7 +164,7 @@ export const removeBranch = createAppAsyncThunk<boolean, { repoId: UUID, branch:
 
         const repo = repoSelectors.selectById(state, repoId);
         if (!repo) return false;
-        const current = (await listBranch({ dir: repo.root, showCurrent: true }))[0]?.ref;
+        const current = await revParse({ dir: repo.root, options: ['abbrevRef'], args: 'HEAD' });
         if (branch.ref === current) return false;
         const worktreeRemoved = branch.linked ? await worktreeRemove({ dir: branch.root, worktree: branch.ref }) : true;
         const branchRemoved = repo ? await deleteBranch({ dir: repo.root, branchName: branch.ref, force: true }) : false;

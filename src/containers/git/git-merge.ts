@@ -6,11 +6,11 @@ import { pathExists, PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';
 import { isDirectory, isEqualPaths, readFileAsync } from '../io';
 import { getIgnore } from './git-ignore';
-import { listBranch } from './git-branch';
 import { VersionedMetafile } from '../../store/slices/metafiles';
 import { Status } from '../../components/Status';
 import { log } from './git-log';
 import { revList } from './git-rev-list';
+import { revParse } from './git-rev-parse';
 
 export type Conflict = Pick<VersionedMetafile, 'path' | 'conflicts'>;
 
@@ -156,7 +156,7 @@ const checkUnmergedDirectory = async (directory: PathLike): Promise<Conflict[]> 
 export const checkUnmergedBranch = async (dir: PathLike, branch: string): Promise<Conflict[]> => {
     const branchRoot = await getBranchRoot(dir, branch);
     const worktree = await getWorktreePaths(dir);
-    const current = (await listBranch({ dir: dir, showCurrent: true }))[0]?.ref;
+    const current = await revParse({ dir: dir, options: ['abbrevRef'], args: 'HEAD' });
     // skip any locally-tracked branches that are not checked out in the main worktree directory
     const trackedLocalBranch = (branchRoot && worktree.dir) ? isEqualPaths(branchRoot, worktree.dir) && branch !== current : false;
     if (!branchRoot || trackedLocalBranch) return [];
