@@ -20,29 +20,34 @@ export const fetchBranch = createAppAsyncThunk<Branch | undefined, ExactlyOne<{ 
     async (input, thunkAPI) => {
         const state = thunkAPI.getState();
 
+        if (input.branchIdentifiers) {
+            // check for a directly matching branch before using any expensive methods
+            const branch = branchSelectors.selectByRef(state, input.branchIdentifiers.root, input.branchIdentifiers.ref, input.branchIdentifiers.scope);
+            if (branch) return branch;
+        }
+
+        const root = input.metafile ? await getRoot(input.metafile.path) : input.branchIdentifiers.root;
+        const current = input.metafile && root ? (await listBranch({ dir: root, showCurrent: true }))[0]?.ref : undefined;
+        const ref = input.metafile ? current : input.branchIdentifiers.ref;
+        const scope = input.metafile ? 'local' : input.branchIdentifiers.scope;
+
         if (input.metafile) {
             // if metafile already has a branch UUID, check for matching branch
-            let branch: Branch | undefined = input.metafile.branch ? branchSelectors.selectById(state, input.metafile.branch) : undefined;
-            const parent: DirectoryMetafile | undefined = !branch ? await thunkAPI.dispatch(fetchParentMetafile(input.metafile)).unwrap() : undefined;
+            let branch = isVersionedMetafile(input.metafile) ? branchSelectors.selectById(state, input.metafile.branch) : undefined;
+            if (branch) return branch;
+
             // otherwise if parent metafile already has a branch UUID, check for matching branch
+            const parent = !branch ? await thunkAPI.dispatch(fetchParentMetafile(input.metafile)).unwrap() : undefined;
             branch = (parent && isVersionedMetafile(parent)) ? branchSelectors.selectById(state, parent.branch) : branch;
-            if (branch) return await thunkAPI.dispatch(updateBranch(branch)).unwrap();
+            if (branch) return branch;
+
+            // otherwise check for the current branch in the root git directory (calculated from the metafile)
+            branch = root && ref ? branchSelectors.selectByRef(state, root, ref, scope) : undefined;
+            if (branch) return branch;
         }
-        const root: Awaited<ReturnType<typeof getRoot>> = input.metafile ? await getRoot(input.metafile.path) : input.branchIdentifiers.root;
-        // if filepath has a root path, then check for a matching branch
-        const current = root ? (await listBranch({ dir: root, showCurrent: true }))[0]?.ref : undefined;
-        const branchSelectTarget: { scope: 'local' | 'remote', ref: string } | undefined =
-            input.branchIdentifiers?.branch ? {
-                scope: input.branchIdentifiers.scope,
-                ref: input.branchIdentifiers.branch
-            } : current ? {
-                scope: 'local',
-                ref: current
-            } : undefined;
-        let branch = root && branchSelectTarget ? branchSelectors.selectByRef(state, branchSelectTarget.ref, branchSelectTarget.scope)[0] : undefined;
-        // otherwise create a new branch
-        branch = (!branch && input.branchIdentifiers) ? await thunkAPI.dispatch(buildBranch(input.branchIdentifiers)).unwrap() : branch;
-        return branch ? await thunkAPI.dispatch(updateBranch(branch)).unwrap() : undefined;
+
+        const branch = root && ref ? await thunkAPI.dispatch(buildBranch({ ref, root, scope })).unwrap() : undefined;
+        return branch;
     }
 );
 
