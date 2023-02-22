@@ -29,8 +29,8 @@ export type NonNullableProperties<T> = { [P in keyof T as T[P] extends undefined
  * Inspired by: https://stackoverflow.com/a/60574436
  */
 export type NonNullableObject<T> = {
-  [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
-} | Nullable<T>;
+  [P in keyof NonNullableProperties<T>]-?: Exclude<T[P], null | undefined | void>;
+} | Record<string, never>;
 
 /**
  * Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
@@ -253,10 +253,10 @@ export const removeObjectProperty = <V, T extends Record<string, V>, K extends k
  * @param obj The given object containing key-value properties that should be filtered for nullable values.
  * @returns {object} The resulting object devoid of any nullable values.
  */
-export const removeNullableProperties = <V, T extends Record<string | number | symbol, V>>(obj: T): NonNullableProperties<T> => {
+export const removeNullableProperties = <V, T extends Record<string | number | symbol, V>>(obj: T): NonNullableObject<T> => {
   return Object.entries(obj)
     .filter((e): e is [string, NonNullable<V>] => e[1] !== undefined && e[1] !== null)
-    .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {} as NonNullableProperties<T>);
+    .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
 };
 
 /**
