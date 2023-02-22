@@ -203,14 +203,14 @@ describe('containers/utils', () => {
     expect(utils.removeObjectProperty(obj, 'c')).toStrictEqual({ a: 3, b: 'alpha' });
   });
 
-  it('removeUndefinedProperties removes undefined from Object of Primitive types', () => {
+  it('removeNullableProperties removes undefined from Object of Primitive types', () => {
     const obj = { a: 3, b: 'a', c: undefined, d: true };
-    expect(utils.removeUndefinedProperties(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
+    expect(utils.removeNullableProperties(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
   });
 
-  it('removeUndefinedProperties removes top-level undefined from Object with nested Objects', () => {
+  it('removeNullableProperties removes top-level undefined from Object with nested Objects', () => {
     const obj = { a: undefined, b: { c: 3 }, d: { e: undefined }, f: { g: 7 } };
-    expect(utils.removeUndefinedProperties(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
+    expect(utils.removeNullableProperties(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
   });
 
   it('removeDuplicates removes duplicates from array of Primitive types', () => {

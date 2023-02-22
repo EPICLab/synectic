@@ -19,12 +19,10 @@ export type Nullable<T> = {
 };
 
 /**
- * Requires properties to be defined, or excluded from the type otherwise. Allows for empty object.
+ * Requires properties to be non-nullable (i.e. `null` or `undefined` or `void`), or excluded from the subsequent type. Allows for empty objects.
  * Inspired by: https://stackoverflow.com/a/60574436
  */
-export type NonUndefinedProperties<T> = {
-  [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
-} | Record<string, never>;
+export type NonNullableProperties<T> = { [P in keyof T as T[P] extends undefined | null ? never : P]: T[P] };
 
 /**
  * Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
@@ -241,16 +239,16 @@ export const removeObjectProperty = <V, T extends Record<string, V>, K extends k
 }
 
 /**
- * Filters an object and removes any properties with undefined values.
+ * Filters an object and removes any properties with nullable values (`undefined` | `null` | `void`).
  *
- * @param obj The given object containing key-value properties that should be filtered for undefined.
- * @returns {object} The resulting object devoid of any undefined values.
+ * @param obj The given object containing key-value properties that should be filtered for nullable values.
+ * @returns {object} The resulting object devoid of any nullable values.
  */
-export const removeUndefinedProperties = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NonUndefinedProperties<T> => {
+export const removeNullableProperties = <V, T extends Record<string | number | symbol, V>>(obj: T): NonNullableProperties<T> => {
   return Object.entries(obj)
-    .filter((e): e is [string, V] => isPresent(e[1]))
-    .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
-}
+    .filter((e): e is [string, NonNullable<V>] => e[1] !== undefined && e[1] !== null)
+    .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {} as NonNullableProperties<T>);
+};
 
 /**
  * Generic for deduplicating array of elements given a comparator function that
