@@ -11,7 +11,7 @@ const promiseExec = util.promisify(exec);
 export type Override<T, U> = Omit<T, keyof U> & U;
 
 /**
- * Requires all properties to be nullable (i.e. `null` or `undefined` or `void`).
+ * Requires all properties to be nullable (i.e. `null` or `undefined` or `void`); the inverse of `NonNullable<T>`.
  * Inspired by: https://javascript.plainenglish.io/typescript-advanced-mapped-and-conditional-types-2d10c96042fe
  */
 export type Nullable<T> = {
@@ -19,10 +19,18 @@ export type Nullable<T> = {
 };
 
 /**
- * Requires properties to be non-nullable (i.e. `null` or `undefined` or `void`), or excluded from the subsequent type. Allows for empty objects.
+ * Requires all properties in T that resolve to only nullable types (`undefined | null | void`) be excluded from the subsequent type.
+ */
+export type NonNullableProperties<T> = { [P in keyof T as T[P] extends undefined | null | void ? never : P]: T[P] };
+
+/**
+ * Requires all properties in T to be non-nullable; either through type narrowing to exclude nullable types or excluding the property
+ * entirely when it resolves to only nullable types (`undefined | null | void`).
  * Inspired by: https://stackoverflow.com/a/60574436
  */
-export type NonNullableProperties<T> = { [P in keyof T as T[P] extends undefined | null ? never : P]: T[P] };
+export type NonNullableObject<T> = {
+  [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
+} | Nullable<T>;
 
 /**
  * Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
@@ -239,7 +247,8 @@ export const removeObjectProperty = <V, T extends Record<string, V>, K extends k
 }
 
 /**
- * Filters an object and removes any properties with nullable values (`undefined` | `null` | `void`).
+ * Filters an object and removes any properties that resolve to only nullable values (`undefined | null | void`), and narrows
+ * property types to remove nullable types from union types.
  *
  * @param obj The given object containing key-value properties that should be filtered for nullable values.
  * @returns {object} The resulting object devoid of any nullable values.
