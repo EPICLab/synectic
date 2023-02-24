@@ -5,6 +5,22 @@ import { GitStatus } from '../store/types';
 const promiseExec = util.promisify(exec);
 
 /**
+ * Expand object types one level deep; which has the side effect that IntelliSense will infer
+ * the resolved type of a complex type (i.e. types that use TS Utility Types).
+ * Reused from: https://stackoverflow.com/a/57683652 
+ */
+export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+
+/**
+ * Expand object types recursively; which has the side effect that IntelliSense will infer
+ * the resolved type of a complex type (i.e. types that use TS Utility Types).
+ * Reused from: https://stackoverflow.com/a/57683652 
+ */
+export type ExpandRecursively<T> = T extends object
+  ? T extends infer O ? { [K in keyof O]: ExpandRecursively<O[K]> } : never
+  : T;
+
+/**
  * Requires all properties in U to override types in the intersection of T & U.
  * Reused from: https://dev.to/vborodulin/ts-how-to-override-properties-with-type-intersection-554l
  */
