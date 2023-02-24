@@ -182,7 +182,7 @@ export const getConflictingChunks = (content: string): number[] => {
  * @param json A valid JSON string.
  * @returns {object} A typed object (or nested array of objects).
  */
-export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
+export const deserialize = <T>(json: string): T => JSON.parse(json) satisfies T;
 
 /**
  * Generic for partitioning an array into two disjoint arrays given a predicate function that indicates whether an 
