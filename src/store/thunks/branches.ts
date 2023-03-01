@@ -8,7 +8,7 @@ import { createAppAsyncThunk } from '../hooks';
 import branchSelectors from '../selectors/branches';
 import repoSelectors from '../selectors/repos';
 import { Branch, branchAdded, branchReplaced, isMergingBranch } from '../slices/branches';
-import { DirectoryMetafile, FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
+import { FilebasedMetafile, isVersionedMetafile } from '../slices/metafiles';
 import { Repository, repoUpdated } from '../slices/repos';
 import { CommitObject, UUID } from '../types';
 import { fetchParentMetafile } from './metafiles';
@@ -57,13 +57,12 @@ export const fetchBranches = createAppAsyncThunk<{ local: Branch[], remote: Bran
         const branches = await showBranch({ dir: root, all: true });
         const local = (await Promise.all(branches.filter(branch => branch.scope === 'local')
             .filter(branch => branch.ref !== 'HEAD')
-            .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: branch.ref, scope: 'local' } })).unwrap())
+            .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, ref: branch.ref, scope: 'local' } })).unwrap())
         )).filter(isDefined);
         const remote = (await Promise.all(branches.filter(branch => branch.scope === 'remote')
             .filter(branch => branch.ref !== 'HEAD')
-            .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: branch.ref, scope: 'remote' } })).unwrap())
+            .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, ref: branch.ref, scope: 'remote' } })).unwrap())
         )).filter(isDefined);
-
         return { local, remote };
     }
 );
@@ -76,15 +75,16 @@ export const fetchBranches = createAppAsyncThunk<{ local: Branch[], remote: Bran
 export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
     'branches/buildBranch',
     async (identifiers, thunkAPI) => {
-        const branchRoot: Awaited<ReturnType<typeof getBranchRoot>> = await getBranchRoot(identifiers.root, identifiers.branch);
+
+        const branchRoot: Awaited<ReturnType<typeof getBranchRoot>> = await getBranchRoot(identifiers.root, identifiers.ref);
         const root: PathLike = (identifiers.scope === 'local' && branchRoot) ? branchRoot : identifiers.root;
         const { dir, gitdir, worktreeDir, worktreeGitdir } = await getWorktreePaths(root);
 
         const rootGitdir = worktreeGitdir ? worktreeGitdir : gitdir ? gitdir : '';
         const linked = isDefined(worktreeDir);
-        const config = await getConfig({ dir: dir ? dir : root, keyPath: `branch.${identifiers.branch}.remote` });
+        const config = await getConfig({ dir: dir ? dir : root, keyPath: `branch.${identifiers.ref}.remote` });
         const remote = (config && config.scope !== 'none') ? config.value : 'origin';
-        const commits = await log({ dir: root, revRange: identifiers.scope === 'local' ? identifiers.branch : `remotes/${remote}/${identifiers.branch}` });
+        const commits = await log({ dir: root, revRange: identifiers.scope === 'local' ? identifiers.ref : `remotes/${remote}/${identifiers.ref}` });
         const status = (await worktreeStatus({ dir: root }))?.status ?? 'uncommitted';
         const head = commits.length > 0 ? (commits[0] as CommitObject).oid : '';
         const revBare = await revParse({ dir: root, options: ['isBareRepository'] });
@@ -93,7 +93,7 @@ export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
         return thunkAPI.dispatch(branchAdded({
             id: v4(),
             scope: identifiers.scope,
-            ref: identifiers.branch,
+            ref: identifiers.ref,
             linked: linked,
             bare: bare,
             root: root,
@@ -124,7 +124,7 @@ export const addBranch = createAppAsyncThunk<Branch | undefined, { ref: string, 
         // check whether ref matches the current branch in the repository root path, if so return a metafile for it
         const current = await revParse({ dir: root, options: ['abbrevRef'], args: 'HEAD' })
         if (ref === current) return await thunkAPI
-            .dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: ref, scope: 'local' } }))
+            .dispatch(fetchBranch({ branchIdentifiers: { root: root, ref: ref, scope: 'local' } }))
             .unwrap();
 
         // check whether a linked worktree has already been created for ref
@@ -141,7 +141,7 @@ export const addBranch = createAppAsyncThunk<Branch | undefined, { ref: string, 
                 : undefined;
         if (linkedRoot) {
             if (!existingWorktree) await worktreeAdd({ dir: root, path: linkedRoot, commitish: ref });
-            return await thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: linkedRoot, branch: ref, scope: 'local' } })).unwrap();
+            return await thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: linkedRoot, ref: ref, scope: 'local' } })).unwrap();
         }
         return undefined;
     }
