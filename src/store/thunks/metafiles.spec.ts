@@ -1,15 +1,15 @@
 import { DateTime, Settings } from 'luxon';
 import isUUID from 'validator/lib/isUUID';
-import * as gitBranch from '../../containers/git/git-branch';
+import * as gitRevParse from '../../containers/git/git-rev-parse';
 import * as gitStatus from '../../containers/git/git-status';
 import { emptyStore } from '../../test-utils/empty-store';
-import { file, mock, MockInstance } from '../../test-utils/mock-fs';
+import { MockInstance, file, mock } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { Branch, branchAdded } from '../slices/branches';
 import { Filetype, filetypeAdded } from '../slices/filetypes';
-import { DirectoryMetafile, FilebasedMetafile, FileMetafile, metafileAdded, MetafileTemplate } from '../slices/metafiles';
-import { repoAdded, Repository } from '../slices/repos';
-import { createMetafile, fetchMetafile, fetchParentMetafile, hasFilebasedUpdates, updateFilebasedMetafile, updateVersionedMetafile } from './metafiles';
+import { DirectoryMetafile, FileMetafile, FilebasedMetafile, MetafileTemplate, hasFilebasedUpdates, metafileAdded } from '../slices/metafiles';
+import { Repository, repoAdded } from '../slices/repos';
+import { createMetafile, fetchMetafile, fetchParentMetafile, updateFilebasedMetafile, updateVersionedMetafile } from './metafiles';
 
 const mockedFiletype1: Filetype = {
     id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
@@ -270,7 +270,7 @@ describe('thunks/metafiles', () => {
 
     it('updateVersionedMetafile updates version information to filebased metafile', async () => {
         jest.spyOn(gitStatus, 'fileStatus').mockResolvedValue('unmodified');
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitRevParse, 'revParse').mockResolvedValue('test'); // mock for git-rev-parse of curent branch name
         jest.spyOn(gitStatus, 'worktreeStatus').mockResolvedValueOnce({ // mock for git-status of current branch
             ref: 'test',
             root: 'foo/',
@@ -343,7 +343,7 @@ describe('thunks/metafiles', () => {
             bare: false,
             entries: []
         });
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'test' }]); // mock for current branch name
+        jest.spyOn(gitRevParse, 'revParse').mockResolvedValue('test'); // mock for git-rev-parse of curent branch name
         const repo: Repository = {
             id: 'c5739e69-9979-41fe-8605-5bb5ff341027',
             name: 'foo/myRepo',
