@@ -2,7 +2,7 @@ import { PathLike } from 'fs-extra';
 import { normalize } from 'path';
 import { v4 } from 'uuid';
 import isBoolean from 'validator/lib/isBoolean';
-import { deleteBranch, fetchMergingBranches, getBranchRoot, getConfig, getRoot, getWorktreePaths, listBranch, log, revParse, worktreeAdd, worktreeList, worktreeRemove, worktreeStatus } from '../../containers/git';
+import { deleteBranch, fetchMergingBranches, getBranchRoot, getConfig, getRoot, getWorktreePaths, log, revParse, showBranch, worktreeAdd, worktreeList, worktreeRemove, worktreeStatus } from '../../containers/git';
 import { ExactlyOne, isDefined, removeObjectProperty } from '../../containers/utils';
 import { createAppAsyncThunk } from '../hooks';
 import branchSelectors from '../selectors/branches';
@@ -54,7 +54,7 @@ export const fetchBranch = createAppAsyncThunk<Branch | undefined, ExactlyOne<{ 
 export const fetchBranches = createAppAsyncThunk<{ local: Branch[], remote: Branch[] }, PathLike>(
     'branches/fetchBranches',
     async (root, thunkAPI) => {
-        const branches: Awaited<ReturnType<typeof listBranch>> = await listBranch({ dir: root, all: true });
+        const branches = await showBranch({ dir: root, all: true });
         const local = (await Promise.all(branches.filter(branch => branch.scope === 'local')
             .filter(branch => branch.ref !== 'HEAD')
             .map(branch => thunkAPI.dispatch(fetchBranch({ branchIdentifiers: { root: root, branch: branch.ref, scope: 'local' } })).unwrap())

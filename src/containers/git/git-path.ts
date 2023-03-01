@@ -1,8 +1,7 @@
 import { pathExists, PathLike } from 'fs-extra';
 import { dirname, join, normalize, parse, relative } from 'path';
 import { extractStats, isDirectory, readDirAsync, readFileAsync } from '../io';
-import { listBranch } from './git-branch';
-import { findUp, Match } from 'find-up';
+import { showBranch } from './git-show-branch';
 
 export type WorktreePaths = {
     /** The main worktree root directory (e.g. *'/{project}'*), or `undefined` if not under version control. */
@@ -65,7 +64,7 @@ export const getRoot = async (filepath: PathLike): Promise<PathLike | undefined>
  */
 export const getBranchRoot = async (root: PathLike, branch: string): Promise<PathLike | undefined> => {
     const { dir, worktrees } = await getWorktreePaths(root);
-    const existsLocally = dir && (await listBranch({ dir: dir })).find(b => b.ref === branch) ? true : false;
+    const existsLocally = dir && (await showBranch({ dir: dir })).find(b => b.ref === branch) ? true : false;
     if (!existsLocally) return undefined; // branch is either remote-only or non-existent
 
     // check to see if the branch matches one of the linked worktrees
