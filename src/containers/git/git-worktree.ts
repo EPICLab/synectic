@@ -3,7 +3,7 @@ import { Branch } from '../../store/slices/branches';
 import { execute, Expand, isDefined, removeNullableProperties, WithRequired } from '../utils'
 import { checkGitVersion } from './git-version';
 
-type BranchOutput = WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>;
+type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
 
 /**
  * Create a worktree at `path` and checkout `commitish` into it. The new worktree is linked to the current repository, sharing everything
