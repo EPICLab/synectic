@@ -3,7 +3,7 @@ import React from 'react';
 import { ConnectableElement, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
 import { useBranchMotif } from '../../containers/hooks/useMotif';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { removeNullableProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
@@ -84,7 +84,7 @@ const BranchItem = ({ repoId, branchId, deletable = false, highlight = false, on
         }
     }
 
-    const optionals = removeUndefinedProperties({
+    const optionals = removeNullableProperties({
         color: motif?.color,
         labelInfo: deletable ? Delete : undefined,
         labelInfoClickHandler: deletable ? handleLabelInfoClick : undefined
