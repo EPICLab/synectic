@@ -12,7 +12,7 @@ export interface Actions<K, V> {
 }
 
 // We hide some setters from the returned map to disable autocompletion
-export type ReturnMap<K, V> = [Omit<Map<K, V>, 'set' | 'clear' | 'delete'>, Actions<K, V>]
+export type ReturnMap<K, V> = [Omit<Map<K, V>, 'set' | 'clear' | 'delete'>, Actions<K, V>];
 
 /**
  * Custom React Hook for providing an API to interact with a `Map` data structure. It takes an array of tuples in 
