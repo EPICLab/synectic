@@ -6,6 +6,7 @@ import { PURGE } from 'redux-persist';
 import { branchRemoved } from './branches';
 import { CardType, FilesystemStatus, Flag, GitStatus, Timestamp, UUID } from '../types';
 import { PathLike } from 'fs-extra';
+import { extractStats } from '../../containers/io';
 
 /** A metafile representing specifications and state for files, directories, diffs, and virtual content loaded into Synectic. */
 export type Metafile = {
@@ -105,6 +106,25 @@ export type DiffProps = {
 export const isDiffMetafile = (metafile: Metafile): metafile is DiffMetafile => {
     return (metafile as DiffMetafile).targets !== undefined;
 };
+
+/**
+ * Check for updates to the content of a filesystem object (i.e. file or directory) by examining whether the 
+ * [`fs.Stats.mtime`](https://nodejs.org/api/fs.html#class-fsstats) previously recorded for a metafile is stale, or
+ * non-existent in the case of a newly created metafile.
+ * 
+ * @param metafile The filebased Metafile object that should be evaluated for possible filesystem updates.
+ * @returns {string | undefined} A string containing the epoch milliseconds of the latest `mtime` timestamp if newer
+ * than the previous `mtime` timestamp of the metafile, or `undefined` otherwise. 
+ */
+export const hasFilebasedUpdates = async (metafile: FilebasedMetafile): Promise<number | undefined> => {
+    const mtime = (await extractStats(metafile.path))?.mtime;
+    if (!isDefined(mtime)) return undefined; // file does not exist in the filesystem
+    const timestamp = DateTime.fromJSDate(mtime);
+
+    if (!isDefined(metafile.mtime)) return timestamp.valueOf(); // metafile not previously identified as filebased
+    const delta = timestamp.diff(DateTime.fromMillis(metafile.mtime)).valueOf();
+    return delta > 0 ? timestamp.valueOf() : undefined; // only return timestamp if newer than previous timestamp
+}
 
 export const metafileAdapter = createEntityAdapter<Metafile>();
 
