@@ -13,7 +13,7 @@ import { Repository, repoUpdated } from '../slices/repos';
 import { CommitObject, UUID } from '../types';
 import { fetchParentMetafile } from './metafiles';
 
-type BranchIdentifiers = { root: PathLike, branch: string, scope: 'local' | 'remote' };
+type BranchIdentifiers = Pick<Branch, 'ref' | 'root' | 'scope'>;
 
 export const fetchBranch = createAppAsyncThunk<Branch | undefined, ExactlyOne<{ branchIdentifiers: BranchIdentifiers, metafile: FilebasedMetafile }>>(
     'branches/fetchBranch',
