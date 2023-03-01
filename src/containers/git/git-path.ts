@@ -1,3 +1,4 @@
+import { findUp, Match } from 'find-up';
 import { pathExists, PathLike } from 'fs-extra';
 import { dirname, join, normalize, parse, relative } from 'path';
 import { extractStats, isDirectory, readDirAsync, readFileAsync } from '../io';

@@ -34,8 +34,8 @@ export type decoderEncoding = 'utf-8' | 'ibm866' | 'iso-8859-2' | 'iso-8859-3' |
   'iso-2022-jp' | 'shift-jis' | 'euc-kr' | 'iso-2022-kr' | 'utf-16be' | 'utf-16le' | 'bytes';
 
 /**
- * Extracts the file stats information from the filepath. Returns an `fs.Stats` class 
- * object as defined in the Node.js File System API (@link https://nodejs.org/api/fs.html#fs_class_fs_stats).
+ * Extracts the file stats information from the filepath. Returns an [`fs.Stats`](https://nodejs.org/api/fs.html#fs_class_fs_stats) 
+ * class object.
  * 
  * @param filepath The relative or absolute path to evaluate.
  * @returns {Promise<fs.Stats | undefined>} A Promise object for a fs.Stats object containing information about 
