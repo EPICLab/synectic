@@ -10,7 +10,7 @@ import { diff } from '../../containers/diff';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import cardSelectors from '../../store/selectors/cards';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { removeNullableProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
@@ -43,7 +43,7 @@ const Diff = ({ metafileId: id }: { metafileId: UUID }) => {
     setMarkers(extractMarkers(diffOutput));
   }, [diffOutput]);
 
-  const mode = removeUndefinedProperties({ mode: original?.filetype?.toLowerCase() });
+  const mode = removeNullableProperties({ mode: original?.filetype?.toLowerCase() });
 
   return (
     <AceEditor {...mode} theme='github' name={original?.id + '-diff'} value={diffOutput}

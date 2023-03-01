@@ -2,7 +2,7 @@ import { InsertDriveFile } from '@material-ui/icons';
 import React from 'react';
 import { add, restore } from '../../containers/git';
 import { extractFilename } from '../../containers/io';
-import { isStaged, isModified, removeUndefinedProperties } from '../../containers/utils';
+import { isStaged, isModified, removeNullableProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { isFilebasedMetafile, isFileMetafile, isVersionedMetafile } from '../../store/slices/metafiles';
@@ -37,7 +37,7 @@ const SourceFileComponent = (props: { metafileId: UUID }) => {
         }
     }
 
-    const optionals = removeUndefinedProperties({ color: motif?.color, labelInfo: motif?.icon });
+    const optionals = removeNullableProperties({ color: motif?.color, labelInfo: motif?.icon });
 
     return (
         <>

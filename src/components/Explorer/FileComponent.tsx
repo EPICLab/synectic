@@ -4,7 +4,7 @@ import { remove as removePath } from 'fs-extra';
 import React from 'react';
 import { useFileMotif } from '../../containers/hooks/useMotif';
 import { extractFilename } from '../../containers/io';
-import { getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/utils';
+import { getRandomInt, isDefined, removeNullableProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { isFileMetafile, isFilebasedMetafile } from '../../store/slices/metafiles';
@@ -18,7 +18,7 @@ const FileComponent = ({ metafileId: id }: { metafileId: UUID }) => {
     const dispatch = useAppDispatch();
 
     const onHoverText = isDefined(metafile) && metafile.status !== 'unmodified' ? metafile.status : undefined;
-    const optionals = removeUndefinedProperties({ color: motif?.color, onHoverText: onHoverText });
+    const optionals = removeNullableProperties({ color: motif?.color, onHoverText: onHoverText });
     const skeletonWidth = metafile ? Math.min(metafile.name.length * 15, 245) : getRandomInt(55, 220);
 
     const handleClick = async () => {

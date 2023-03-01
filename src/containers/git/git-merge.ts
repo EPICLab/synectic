@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { SHA1 } from '../../store/types';
-import { execute, getConflictingChunks, ProgressCallback, removeUndefinedProperties } from '../utils';
+import { execute, getConflictingChunks, ProgressCallback, removeNullableProperties } from '../utils';
 import { worktreeList } from './git-worktree';
 import { pathExists, PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';
@@ -232,7 +232,7 @@ export const processMergeOutput = async (output: Awaited<ReturnType<typeof execu
         alreadyMerged: alreadyMerged,
         fastForward: fastForward,
         output: failed ? output.stderr : output.stdout,
-        ...removeUndefinedProperties({
+        ...removeNullableProperties({
             mergeCommit: mergeCommit,
             mergeStrategy: rebaseStrategy ? 'rebase' : mergeStrategy,
             conflicts: conflicts

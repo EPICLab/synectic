@@ -10,7 +10,7 @@ import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 import metafileSelectors from '../../store/selectors/metafiles';
 import { isFileMetafile, isFilebasedMetafile, metafileUpdated } from '../../store/slices/metafiles';
-import { getConflictingChunks, getRandomInt, removeUndefinedProperties } from '../../containers/utils';
+import { getConflictingChunks, getRandomInt, removeNullableProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { UUID } from '../../store/types';
 import { Skeleton } from '@material-ui/lab';
@@ -27,7 +27,7 @@ import { Skeleton } from '@material-ui/lab';
 const Editor = ({ metafileId: id, expanded = false }: { metafileId: UUID, expanded?: boolean }) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
   const [editorRef] = useState(React.createRef<AceEditor>());
-  const mode = removeUndefinedProperties({ mode: metafile?.filetype?.toLowerCase() });
+  const mode = removeNullableProperties({ mode: metafile?.filetype?.toLowerCase() });
   const skeletonWidth = getRandomInt(55, 90);
   const dispatch = useAppDispatch();
 
