@@ -15,39 +15,6 @@ import { addBranch, fetchBranch } from './branches';
 import { fetchFiletype } from './filetypes';
 import { fetchRepo } from './repos';
 
-/**
- * Equality function for selectors that rely on shallow metafile equality; i.e. should only force a re-render if the
- * metafile UUIDs have been updated.
- * 
- * @param prevMetafiles The previous array of Metafile objects.
- * @param nextMetafiles The possibly updated version of Metafile objects.
- * @returns {boolean} A boolean indicating true if the UUIDs of Metafile objects in both arrays match, and false otherwise.
- */
-export const shallowMetafilesEqualityFn = (prevMetafiles: Metafile[], nextMetafiles: Metafile[]) => {
-    const predicate = (oldMetafile: Metafile, newMetafile: Metafile) => oldMetafile.id === newMetafile.id;
-    const [subarray1, , subarray2] = symmetrical(prevMetafiles, nextMetafiles, predicate);
-    return subarray1.length === 0 && subarray2.length == 0;
-};
-
-/**
- * Check for updates to the content of a filesystem object (i.e. file or directory) by examining whether the 
- * [`fs.Stats.mtime`](https://nodejs.org/api/fs.html#class-fsstats) previously recorded for a metafile is stale, or
- * non-existent in the case of a newly created metafile.
- * 
- * @param metafile The filebased Metafile object that should be evaluated for possible filesystem updates.
- * @returns {string | undefined} A string containing the epoch milliseconds of the latest `mtime` timestamp if newer
- * than the previous `mtime` timestamp of the metafile, or `undefined` otherwise. 
- */
-export const hasFilebasedUpdates = async (metafile: FilebasedMetafile): Promise<number | undefined> => {
-    const mtime = (await extractStats(metafile.path))?.mtime;
-    if (!isDefined(mtime)) return undefined; // file does not exist in the filesystem
-    const timestamp = DateTime.fromJSDate(mtime);
-
-    if (!isDefined(metafile.mtime)) return timestamp.valueOf(); // metafile not previously identified as filebased
-    const delta = timestamp.diff(DateTime.fromMillis(metafile.mtime)).valueOf();
-    return delta > 0 ? timestamp.valueOf() : undefined; // only return timestamp if newer than previous timestamp
-}
-
 export const fetchMetafile = createAppAsyncThunk<Metafile, { path: PathLike, handlers?: CardType[] }>(
     'metafiles/fetchMetafile',
     async ({ path: filepath, handlers }, thunkAPI) => {
