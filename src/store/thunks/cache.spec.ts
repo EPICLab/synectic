@@ -1,7 +1,7 @@
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
-import { subscribe } from './cache';
+import { subscribeCache } from './cache';
 import { Cache, cacheAdded } from '../slices/cache';
 import { FileMetafile, metafileAdded } from '../slices/metafiles';
 import { DateTime } from 'luxon';
@@ -36,7 +36,7 @@ const metafile: FileMetafile = {
     mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
 };
 
-describe('thunks/cards', () => {
+describe('thunks/cache', () => {
     const store = mockStore(emptyStore, false);
     let mockedInstance: MockInstance;
 
@@ -62,8 +62,8 @@ describe('thunks/cards', () => {
 
     afterEach(() => store.clearActions());
 
-    it('subscribe resolves a Cache for a filepath and Card UUID', async () => {
-        const cache = await store.dispatch(subscribe({ path: 'foo/example.ts', card: card.id })).unwrap();
+    it('subscribeCache resolves a Cache for a filepath and Card UUID', async () => {
+        const cache = await store.dispatch(subscribeCache({ path: 'foo/example.ts', card: card.id })).unwrap();
         expect(cache).toStrictEqual(expect.objectContaining({
             path: metafile.path.toString(),
             reserved: expect.arrayContaining([card.id]),
@@ -71,14 +71,14 @@ describe('thunks/cards', () => {
         }));
     });
 
-    it('subscribe adds new card UUIDs to existing Cache reserved', async () => {
+    it('subscribeCache adds new card UUIDs to existing Cache reserved', async () => {
         const cache: Cache = {
             path: metafile.path.toString(),
             reserved: [card.id],
             content: createHash('md5').update(metafile.content).digest('hex')
         }
         store.dispatch(cacheAdded(cache));
-        const updated = await store.dispatch(subscribe({ path: 'foo/example.ts', card: '3f9ea183-d648-4a30-ad76-bcbec3e60b55' })).unwrap();
+        const updated = await store.dispatch(subscribeCache({ path: 'foo/example.ts', card: '3f9ea183-d648-4a30-ad76-bcbec3e60b55' })).unwrap();
         expect(updated.reserved).toHaveLength(2);
     });
 
