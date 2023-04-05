@@ -1,44 +1,76 @@
-import parsePath from 'parse-path';
+import { EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
-import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../store';
-import { repoAdapter, Repository } from '../slices/repos';
+import { createCachedSelector } from 're-reselect';
+import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { isEqualPaths } from '../../containers/io';
+import { equalArrays, isDefined } from '../../containers/utils';
+import { repoAdapter, Repository } from '../slices/repos';
+import { RootState } from '../store';
 
 const selectors = repoAdapter.getSelectors<RootState>(state => state.repos);
 
+type RepoEntities = ReturnType<typeof selectors.selectEntities>;
+
+const shallowEntitiesEqualityCheck = (a: RepoEntities, b: RepoEntities) =>
+    equalArrays(Object.values(a).filter(isDefined), Object.values(b).filter(isDefined));
+const shallowReposEqualityCheck = (a: Repository[], b: Repository[]) => equalArrays(a, b);
+
 /**
- * Custom Redux selector for locating a repository in the Redux store based on name.
- * 
- * @param state The state object for the Redux store.
- * @param name The repository name.
- * @returns A Repository object or undefined if no match.
+ * Selector for retrieving Repository entities based on `id`. This selector caches on `id` as long as `state.repos.entities` has not changed.
+ * The persisted selector cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated when entitites change in
+ * `selectEntities`, but not when `id` input selector changes.
  */
-const selectByName = createSelector(
+const selectById = createCachedSelector(
+    selectors.selectEntities,
+    (_state: RootState, id: EntityId) => id,
+    (repos, id) => repos[id]
+)({
+    keySelector: (_, id) => id,
+    selectorCreator: createSelectorCreator(defaultMemoize, shallowEntitiesEqualityCheck),
+});
+
+/**
+ * Selector for retrieving Repository entities based on `name`. This selector caches on `name` as long as `state.repos.entities` has not changed.
+ * The persisted selector cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated when entities change in
+ * `selectAll`, but not when `name` input selector changes.
+ */
+const selectByName = createCachedSelector(
     selectors.selectAll,
     (_state: RootState, name: string) => name,
     (repos, name): Repository | undefined => repos.find(repo => repo.name === name)
-);
+)({
+    keySelector: (_, name) => name,
+    selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck),
+});
 
-const selectByRoot = createSelector(
+/**
+ * Selector for retrieving Repository entities based on `root`. This selector caches on `root` as long as `state.repos.entities` has not changed.
+ * The persisted selector cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated when entities change in
+ * `selectAll`, but not when `root` input selector changes.
+ */
+const selectByRoot = createCachedSelector(
     selectors.selectAll,
     (_state: RootState, root: PathLike) => root,
     (repos, root) => repos.find(r => isEqualPaths(root, r.root))
-);
+)({
+    keySelector: (_, root) => root,
+    selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck),
+});
 
 /**
- * Custom Redux selector for locating a repository in the Redux store based on URL.
- * 
- * @param state The state object for the Redux store.
- * @param url The remote URL of a repository; can use http, https, ssh, or git protocols.
- * @returns A Repository object or undefined if no match.
+ * Selector for retrieving Repository entities based on `url`. This selector caches on `url` as long as `state.repos.entities` has not changed.
+ * The persisted selector cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated when entities change in
+ * `selectAll`, but not when `url` input selector changes.
  */
-const selectByUrl = createSelector(
+const selectByUrl = createCachedSelector(
     selectors.selectAll,
-    (_state: RootState, url: parsePath.ParsedPath) => url,
-    (repos, url): Repository | undefined => repos.find(repo => repo.url === url.href)
-);
+    (_state: RootState, url: string) => url,
+    (repos, url): Repository | undefined => repos.find(repo => repo.url === url)
+)({
+    keySelector: (_, url) => url,
+    selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck),
+});
 
-const repoSelectors = { ...selectors, selectByName, selectByRoot, selectByUrl };
+const repoSelectors = { ...selectors, selectById, selectByName, selectByRoot, selectByUrl };
 
 export default repoSelectors;

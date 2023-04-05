@@ -10,7 +10,7 @@ import { diff } from '../../containers/diff';
 import { useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import cardSelectors from '../../store/selectors/cards';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { removeNullableProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 
 const extractMarkers = (diffOutput: string): IMarker[] => {
@@ -25,8 +25,8 @@ const extractMarkers = (diffOutput: string): IMarker[] => {
   return markers;
 };
 
-const Diff = (props: { metafile: UUID }) => {
-  const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.metafile));
+const Diff = ({ metafileId: id }: { metafileId: UUID }) => {
+  const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
   const originalCard = useAppSelector(state => cardSelectors.selectById(state, metafile?.targets?.[0] ? metafile.targets[0] : ''));
   const original = useAppSelector(state => metafileSelectors.selectById(state, originalCard ? originalCard.metafile : ''));
   const updatedCard = useAppSelector(state => cardSelectors.selectById(state, metafile?.targets?.[1] ? metafile.targets[1] : ''));
@@ -43,7 +43,7 @@ const Diff = (props: { metafile: UUID }) => {
     setMarkers(extractMarkers(diffOutput));
   }, [diffOutput]);
 
-  const mode = removeUndefinedProperties({ mode: original?.filetype?.toLowerCase() });
+  const mode = removeNullableProperties({ mode: original?.filetype?.toLowerCase() });
 
   return (
     <AceEditor {...mode} theme='github' name={original?.id + '-diff'} value={diffOutput}

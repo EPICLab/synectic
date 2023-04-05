@@ -77,11 +77,11 @@ body {
   align-items: center;
 }
 
-.card-header.unmerged {
+.card-header.flagged {
   background: rgba(218, 100, 115, 1);
 }
 
-.card-header.unmerged .title {
+.card-header.flagged .title {
   color: rgba(0, 0, 0, 0.54);
 }
 
@@ -274,7 +274,7 @@ img.diff_icon {
   color: rgb(200, 210, 220);
 }
 
-.branch-ribbon-container.unmerged {
+.branch-ribbon-container.flagged {
   background-color: rgba(218, 100, 115, 1);
   color: rgba(0, 0, 0, 0.54);
 }

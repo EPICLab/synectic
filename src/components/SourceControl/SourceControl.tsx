@@ -15,8 +15,8 @@ const SourceControl = (props: { sourceControlId: UUID }) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.sourceControlId));
   const repo = useAppSelector(state => repoSelectors.selectById(state, metafile && metafile.repo ? metafile.repo : ''));
   const branch = useAppSelector(state => branchSelectors.selectById(state, metafile && metafile.branch ? metafile.branch : ''));
-  const staged = useAppSelector(state => metafileSelectors.selectStagedByBranch(state, branch ? branch.id : ''));
-  const unstaged = useAppSelector(state => metafileSelectors.selectUnstagedByBranch(state, branch ? branch.id : ''));
+  const staged = useAppSelector(state => metafileSelectors.selectStagedByRepo(state, repo?.id ?? '', branch?.id ?? ''));
+  const unstaged = useAppSelector(state => metafileSelectors.selectUnstagedByRepo(state, repo?.id ?? '', branch?.id ?? ''));
 
   return (
     <>
