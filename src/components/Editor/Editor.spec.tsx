@@ -5,10 +5,10 @@ import { mockStore } from '../../test-utils/mock-store';
 import { emptyStore } from '../../test-utils/empty-store';
 import Editor from './Editor';
 import { DateTime } from 'luxon';
-import { FilebasedMetafile, metafileAdded } from '../../store/slices/metafiles';
+import { FileMetafile, metafileAdded } from '../../store/slices/metafiles';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 
-const metafile: FilebasedMetafile = {
+const metafile: FileMetafile = {
     id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
     name: 'example.ts',
     modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
@@ -18,6 +18,7 @@ const metafile: FilebasedMetafile = {
     path: 'foo/example.ts',
     state: 'unmodified',
     content: 'const rand = Math.floor(Math.random() * 6) + 1;',
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
     repo: '23',
     branch: '503',
     status: 'unmodified',
@@ -47,7 +48,7 @@ describe('Editor component', () => {
 
     afterAll(() => mockedInstance.reset());
 
-    it('Editor renders in the DOM', () => {
+    it('Editor renders in the DOM', async () => {
         render(
             <Provider store={store}>
                 <Editor metafileId={metafile.id} />
@@ -56,8 +57,7 @@ describe('Editor component', () => {
 
         // using DOM selector method instead of RTL
         // eslint-disable-next-line testing-library/no-node-access
-        const editor = document.querySelector('.ace_editor');
-
+        const editor = document.querySelector(`.ace_editor`);
         expect(editor).toBeInTheDocument();
     });
 

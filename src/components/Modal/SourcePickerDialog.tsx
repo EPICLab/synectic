@@ -8,7 +8,7 @@ import { createMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { getBranchRoot } from '../../containers/git';
 import branchSelectors from '../../store/selectors/branches';
-import { isDefined, removeUndefinedProperties } from '../../containers/utils';
+import { isDefined, removeNullableProperties } from '../../containers/utils';
 import { UUID } from '../../store/types';
 import RepoSelect from '../RepoSelect';
 import BranchSelect from '../Branches/BranchSelect';
@@ -46,7 +46,7 @@ const SourcePickerDialog = (props: Modal) => {
   const handleClose = () => dispatch(modalRemoved(props.id));
 
   const handleClick = async () => {
-    const optionals = repo && branch && removeUndefinedProperties({ path: await getBranchRoot(repo.root, branch.ref) });
+    const optionals = repo && branch && removeNullableProperties({ path: await getBranchRoot(repo.root, branch.ref) });
     const metafile = await dispatch(createMetafile({
       metafile: {
         name: 'Source Control',

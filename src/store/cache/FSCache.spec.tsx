@@ -30,6 +30,7 @@ const metafile2: FileMetafile = {
     path: 'foo/example.ts',
     state: 'unmodified',
     content: 'const rand = Math.floor(Math.random() * 6) + 1;',
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
     repo: 'c5739e69-9979-41fe-8605-5bb5ff341027',
     branch: 'master',
     status: 'unmodified',
@@ -46,6 +47,7 @@ const metafile3: FileMetafile = {
     path: 'foo/bar.js',
     state: 'unmodified',
     content: 'file contents',
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
 };
 
 // const metafile4: FileMetafile = {

@@ -1,9 +1,9 @@
 import * as fs from 'fs-extra'
 import { Branch } from '../../store/slices/branches';
-import { execute, isDefined, removeUndefinedProperties, WithRequired } from '../utils'
+import { execute, Expand, isDefined, removeNullableProperties, WithRequired } from '../utils'
 import { checkGitVersion } from './git-version';
 
-type BranchOutput = WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>;
+type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
 
 /**
  * Create a worktree at `path` and checkout `commitish` into it. The new worktree is linked to the current repository, sharing everything
@@ -282,7 +282,7 @@ export const processWorktreeOutput = (output: string, porcelain = false): Branch
                 ref: branch,
                 bare: bare,
                 scope: 'local',
-                ...removeUndefinedProperties({ root: worktree, head: head })
+                ...removeNullableProperties({ root: worktree, head: head })
             } as BranchOutput : undefined;
         }).filter(isDefined);
     } else {
@@ -305,7 +305,7 @@ export const processWorktreeOutput = (output: string, porcelain = false): Branch
                 ref: branch,
                 bare: bare,
                 scope: 'local',
-                ...removeUndefinedProperties({ root: worktree, head: head })
+                ...removeNullableProperties({ root: worktree, head: head })
             } as BranchOutput : undefined;
         }).filter(isDefined);
     }

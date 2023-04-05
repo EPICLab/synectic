@@ -18,8 +18,9 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 /**
  * Button for saving the content of modified metafiles to their associated files. This button tracks the state of metafiles associated
  * with the list of cards supplied via props. The button is only enabled when at least one associated metafile has content that is
- * diverged from the cache (according to FSCache). Clicking on the button will trigger all modified metafiles to write their content
- * to the associates files. This button operates as the inverse operation to the `UndoButton`.
+ * diverged from the cache or a virtual metafile with content (which by definition has not been written to a file yet). Clicking on the 
+ * button will trigger all modified metafiles to write their content to the associates files. This button operates as the inverse 
+ * operation to the `UndoButton`.
  * 
  * @param props - Prop object for cards associated with specific files.
  * @param props.cardIds - List of Card UUIDs that should be tracked by this button.
@@ -28,12 +29,17 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  * @returns {React.Component} A React function component.
  */
 const SaveButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
+    const classes = useIconButtonStyle({ mode: mode });
     const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    // const selectByIds = useMemo(metafileSelectors.makeSelectByIds, []); // create a memoized selector for each component instance, on mount
+    // const metafiles = useAppSelector(state => selectByIds(state, cards.map(c => c.metafile)));
     const cache = useAppSelector(state => cachedSelectors.selectEntities(state));
-    const modified = metafiles.filter(m => (isFileMetafile(m) && createHash('md5').update(m.content).digest('hex') !== cache[m.path.toString()]?.content) || (isVirtualMetafile(m) && m.content && m.content.length > 0));
+    const modified = metafiles.filter(m =>
+        (isFileMetafile(m) && createHash('md5').update(m.content).digest('hex') !== cache[m.path.toString()]?.content) ||
+        (isVirtualMetafile(m) && m.content && m.content.length > 0)
+    );
     const dispatch = useAppDispatch();
-    const classes = useIconButtonStyle({ mode: mode });
 
     const save = async (event: React.MouseEvent) => {
         event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
