@@ -31,7 +31,7 @@ const ResolveButton = ({ cardId, enabled = true, mode = 'light' }: { cardId: UUI
     const card = useAppSelector(state => cardSelectors.selectById(state, cardId));
     const metafile = useAppSelector(state => metafileSelectors.selectById(state, card?.metafile ?? ''));
     const branch = useAppSelector(state => branchSelectors.selectById(state, metafile?.branch ?? ''));
-    const conflicted = useAppSelector(state => metafileSelectors.selectByConflicted(state, metafile?.repo ?? '', branch?.id));
+    const conflicted = useAppSelector(state => metafileSelectors.selectConflictedByRepo(state, metafile?.repo ?? '', branch?.id));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
 
@@ -41,7 +41,7 @@ const ResolveButton = ({ cardId, enabled = true, mode = 'light' }: { cardId: UUI
             const mergingBranches = await fetchMergingBranches(branch.root);
             const result = await commit({ dir: branch.root, message: `Merge branch '${mergingBranches.compare}' into ${branch.ref}` });
             console.log(`commit result: ${result}`);
-            await dispatch(updateFilebasedMetafile(metafile));
+            // await dispatch(updateFilebasedMetafile(metafile));
             await dispatch(updateVersionedMetafile(metafile));
             await dispatch(updateBranch(branch));
         } else {

@@ -1,6 +1,6 @@
 import React from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { removeNullableProperties } from '../../containers/utils';
 
 export type NavItemProps = {
   label: string;
@@ -10,7 +10,7 @@ export type NavItemProps = {
 
 const NavItem = ({ label, click, disabled }: NavItemProps) => {
   return (
-    <MenuItem onClick={click} {...removeUndefinedProperties({ disabled: disabled })}>{label}</MenuItem>
+    <MenuItem onClick={click} {...removeNullableProperties({ disabled: disabled })}>{label}</MenuItem>
   );
 };
 

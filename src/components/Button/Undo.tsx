@@ -1,7 +1,7 @@
 import { IconButton, Tooltip } from '@material-ui/core';
 import { Undo } from '@material-ui/icons';
 import { createHash } from 'crypto';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import cachedSelectors from '../../store/selectors/cache';
@@ -9,9 +9,9 @@ import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { cardUpdated } from '../../store/slices/cards';
 import { isFileMetafile } from '../../store/slices/metafiles';
-import { updateFilebasedMetafile, updateVersionedMetafile } from '../../store/thunks/metafiles';
 import { UUID } from '../../store/types';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
+import { isDefined } from '../../containers/utils';
 
 /**
  * Button for undoing changes back to the most recent version according to the filesystem for file-based cards. This button tracks the 
@@ -27,21 +27,25 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
  */
 const UndoButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
-    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cardIds));
+    // const selectByIds = useMemo(metafileSelectors.makeSelectByIds, []); // create a memoized selector for each component instance, on mount
+    // const metafiles = useAppSelector(state => selectByIds(state, cards.map(c => c.metafile)));
     const cache = useAppSelector(state => cachedSelectors.selectEntities(state));
-    const modified = metafiles.filter(m => isFileMetafile(m) && createHash('md5').update(m.content).digest('hex') !== cache[m.path.toString()]?.content);
+    const modified = metafiles.filter(m => isFileMetafile(m));
+    // const modified = metafiles.filter(m => isFileMetafile(m) && createHash('md5').update(m.content).digest('hex') !== cache[m.path.toString()]?.content);
     const dispatch = useAppDispatch();
     const classes = useIconButtonStyle({ mode: mode });
 
     const undo = async (event: React.MouseEvent) => {
         event.stopPropagation(); // prevent propogating the click event to underlying components that might have click event handlers
-        await Promise.all(modified
-            .filter(isFileMetafile)
-            .map(async metafile => {
-                await dispatch(updateFilebasedMetafile(metafile));
-                await dispatch(updateVersionedMetafile(metafile));
-            })
-        );
+        modified.map(m => console.log(`undoing ${m.name}`));
+        // await Promise.all(modified
+        //     .filter(isFileMetafile)
+        //     .map(async metafile => {
+        //         // await dispatch(updateFilebasedMetafile(metafile));
+        //         await dispatch(updateVersionedMetafile(metafile));
+        //     })
+        // );
 
         offHover();
     }
@@ -49,7 +53,7 @@ const UndoButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID
     // check whether button is on a single card and also captured
     const isCaptured = cards[0]?.captured !== undefined;
     // check whether button is on a content-based card that can be undone based on file-content
-    const isUndoable = modified[0]?.filetype !== 'Directory' && modified[0]?.handler === 'Editor';
+    const isUndoable = isDefined(modified[0]) && isFileMetafile(modified[0]);
 
     const onHover = () => {
         if (cards.length > 1) {

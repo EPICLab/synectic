@@ -5,7 +5,7 @@ import Browser from './Browser';
 describe('Browser', () => {
 
   it('Browser component is rendered', async () => {
-    render(<Browser card='1' />);
+    render(<Browser metafileId='1' />);
     expect(screen.getByPlaceholderText('URL')).toBeInTheDocument();
   });
 

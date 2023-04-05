@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -28,6 +28,8 @@ import { isStaged, isModified } from '../../containers/utils';
 const ResetButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    // const selectByIds = useMemo(metafileSelectors.makeSelectByIds, []); // create a memoized selector for each component instance, on mount
+    // const metafiles = useAppSelector(state => selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles.filter(m => isVersionedMetafile(m) && isModified(m.status));
     const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
     const unmerged = metafiles.filter(m => m.status ? m.status === 'unmerged' : false);
