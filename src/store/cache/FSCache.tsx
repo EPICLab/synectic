@@ -20,8 +20,7 @@ import { fetchMetafile } from '../thunks/metafiles';
 
 export const FSCacheContext = createContext<ReturnMap<PathLike, FSWatcher>>([
     new Map([]),
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    { set: () => { }, setAll: () => { }, remove: () => { }, reset: () => { } }
+    { set: () => null, setAll: () => null, remove: () => null, reset: () => null }
 ]);
 
 const FSCacheServices = ({ children }: { children: ReactNode }) => {
@@ -36,6 +35,7 @@ const FSCacheServices = ({ children }: { children: ReactNode }) => {
             const diff = diffArrays(Array.from(watchers.keys()).map(k => k.toString()), cacheIds as string[]);
             const added = flattenArray(diff.filter(change => change.added === true).map(change => change.value));
             const removed = flattenArray(diff.filter(change => change.removed === true).map(change => change.value));
+            console.error(`FSCacheService useEffect updates... { added: ${added.length}, removed: ${removed.length} }`);
             await Promise.all(added.map(filepath => eventHandler('add', filepath)));
             await Promise.all(removed.map(filepath => eventHandler('unlink', filepath)));
         }
@@ -78,6 +78,7 @@ const FSCacheServices = ({ children }: { children: ReactNode }) => {
             case 'change': {
                 const existing = await dispatch(fetchCache(filename.toString())).unwrap();
                 if (existing) {
+                    console.log(`FSCache change event: ${filename.toString()}`);
                     dispatch(cacheUpdated({
                         ...existing,
                         content: createHash('md5').update(await readFileAsync(filename, { encoding: 'utf-8' })).digest('hex')

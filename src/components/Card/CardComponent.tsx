@@ -23,6 +23,7 @@ import ResolveButton from '../Button/Resolve';
 import AbortButton from '../Button/Abort';
 import { Card, cardUpdated } from '../../store/slices/cards';
 import metafileSelectors from '../../store/selectors/metafiles';
+import SubscribeButton from '../Button/Subscribe';
 
 type DragObject = {
   id: string,
@@ -138,6 +139,7 @@ const CardComponent = (card: Card) => {
         <SaveButton cardIds={[card.id]} />
         <AbortButton cardId={card.id} />
         <ResolveButton cardId={card.id} />
+        <SubscribeButton cardId={card.id} />
         <FlipButton cardId={card.id} onClickHandler={() => setFlipped(!flipped)} />
         <CloseButton cardId={card.id} />
       </Header>
