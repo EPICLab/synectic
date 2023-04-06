@@ -1,7 +1,6 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { PURGE } from 'redux-persist';
 import { UUID } from '../types';
-// import { fetchCache } from '../thunks/cache';
 
 /** A reference to the cached file contents maintained by FSCache and holding a reserve count to determine when to invalidate and purge. */
 export type Cache = {
