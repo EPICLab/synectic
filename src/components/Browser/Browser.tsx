@@ -3,6 +3,7 @@ import React, { useCallback, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core';
 import { useHistory } from '../../containers/hooks/useHistory';
 import UrlBar from './UrlBar';
+import { UUID } from '../../store/types';
 
 const useStyles = makeStyles((theme) => ({
   webviewContent: {
@@ -16,18 +17,18 @@ const useStyles = makeStyles((theme) => ({
 
 type Mode = 'light' | 'dark';
 
-const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
+const Browser = ({ metafileId: id, mode = 'dark' }: { metafileId: UUID, mode?: Mode }) => {
   const styles = useStyles({ mode: mode });
   const { state, set, goBack, goForward, canGoBack, canGoForward } = useHistory(new URL('https://epiclab.github.io/'));
 
   const refresh = () => {
-    const webview: Electron.WebviewTag | null = document.querySelector(`[id="${card}-webview"]`);
+    const webview: Electron.WebviewTag | null = document.querySelector(`[id="${id}-webview"]`);
     webview?.reload();
   }
 
   const go = (url: URL) => {
     if (state.present.href !== url.href) {
-      const webview: Electron.WebviewTag | null = document.querySelector(`[id="${card}-webview"]`);
+      const webview: Electron.WebviewTag | null = document.querySelector(`[id="${id}-webview"]`);
       webview?.loadURL(url.href);
       set(url);
     }
@@ -37,7 +38,7 @@ const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
     if (canGoBack) {
       const url = state.past[state.past.length - 1] as URL;
       goBack();
-      const webview: Electron.WebviewTag | null = document.querySelector(`[id="${card}-webview"]`);
+      const webview: Electron.WebviewTag | null = document.querySelector(`[id="${id}-webview"]`);
       webview?.loadURL(url.href);
     }
   }
@@ -46,7 +47,7 @@ const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
     if (canGoForward) {
       const url = state.future[0] as URL;
       goForward();
-      const webview: Electron.WebviewTag | null = document.querySelector(`[id="${card}-webview"]`);
+      const webview: Electron.WebviewTag | null = document.querySelector(`[id="${id}-webview"]`);
       webview?.loadURL(url.href);
     }
   }
@@ -56,13 +57,13 @@ const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
   }, [set, state.present.href]);
 
   useEffect(() => {
-    const webview: Electron.WebviewTag | null = document.querySelector(`[id="${card}-webview"]`);
+    const webview: Electron.WebviewTag | null = document.querySelector(`[id="${id}-webview"]`);
     webview?.addEventListener('did-navigate', handleNavigationEvent);
     return () => {
       webview?.removeEventListener('did-navigate', handleNavigationEvent);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card]);
+  }, [id]);
 
   return (
     <>
@@ -71,7 +72,7 @@ const Browser = ({ card, mode = 'dark' }: { card: string, mode?: Mode }) => {
         canGoForward={canGoForward} forward={forward}
       />
       <div className={styles.webviewContent}>
-        <webview id={`${card}-webview`} src={'https://epiclab.github.io/'}
+        <webview id={`${id}-webview`} src={'https://epiclab.github.io/'}
           style={{ height: '100%', width: '100%', borderRadius: '10px!important' }} />
       </div>
     </>

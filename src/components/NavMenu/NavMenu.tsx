@@ -5,7 +5,7 @@ import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { removeNullableProperties } from '../../containers/utils';
 import NavItem, { NavItemProps } from '../NavItem/NavItem';
 
 type NavMenuProps = {
@@ -46,7 +46,7 @@ const NavMenu = ({ label, submenu }: NavMenuProps) => {
                 <MenuList autoFocusItem={open} id={`${label}-menu-list`} onKeyDown={handleListKeyDown}>
                   {submenu.map(item => <NavItem key={item.label}
                     label={item.label}
-                    {...removeUndefinedProperties({ disabled: item.disabled })}
+                    {...removeNullableProperties({ disabled: item.disabled })}
                     click={(event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
                       item.click(event);
                       setOpen(false);

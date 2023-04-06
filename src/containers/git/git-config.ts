@@ -5,7 +5,7 @@ import * as ini from 'ini';
 import parse from 'parse-git-config';
 import { join, resolve } from 'path';
 import { writeFileAsync } from '../io';
-import { removeUndefinedProperties } from '../utils';
+import { removeNullableProperties } from '../utils';
 import { getWorktreePaths } from './git-path';
 
 export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
@@ -47,7 +47,7 @@ export const getConfig = async ({
         const config = parse.expandKeys(configFile);
         return hasProperty(config, key) ? getProperty(config, key) as string : null;
     }
-    const includeOrigin = (configPath: string | null) => showOrigin ? removeUndefinedProperties({ origin: configPath }) : {};
+    const includeOrigin = (configPath: string | null) => showOrigin ? removeNullableProperties({ origin: configPath }) : {};
 
     const localValue = local ? await readConfigValue(localConfigPath, keyPath) : null;
     const globalValue = global ? await readConfigValue(globalConfigPath, keyPath) : null;

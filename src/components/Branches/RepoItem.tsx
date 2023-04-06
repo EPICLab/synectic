@@ -13,7 +13,7 @@ import { fetchMetafile } from '../../store/thunks/metafiles';
 
 const RepoItem = (props: { repoId: string }) => {
     const repo = useAppSelector(state => repoSelectors.selectById(state, props.repoId));
-    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, repo, true));
+    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, repo?.id ?? '', true));
     const sortedBranches = branches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref));
     const dispatch = useAppDispatch();
 

@@ -39,11 +39,14 @@ export const cardSlice = createSlice({
     reducers: {
         cardAdded: cardAdapter.addOne,
         cardRemoved: cardAdapter.removeOne,
-        cardUpdated: (state: EntityState<Card>, action: PayloadAction<Card>) => {
-            cardAdapter.upsertOne(state, {
-                ...action.payload, modified: DateTime.local().valueOf()
-            })
-        }
+        cardUpdated: {
+            reducer: (state: EntityState<Card>, action: PayloadAction<Card>) => {
+                cardAdapter.upsertOne(state, action.payload);
+            },
+            prepare: (card: Card) => {
+                return { payload: { ...card, modified: DateTime.local().valueOf() } };
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
