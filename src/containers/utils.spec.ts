@@ -1,8 +1,23 @@
 import { DateTime } from 'luxon';
 import { FileMetafile } from '../store/slices/metafiles';
 import * as utils from './utils';
+import { MockInstance, file, mock } from '../test-utils/mock-fs';
 
 describe('containers/utils', () => {
+
+  let mockedInstance: MockInstance;
+  beforeAll(async () => {
+    const instance = await mock({
+      foo: {
+        bar: file({ content: 'file contents', mtime: new Date(1) }),
+        zap: file({ content: 'file contents', mtime: new Date(1) }),
+        'tracked-file.js': 'directory is tracked by git',
+      },
+    });
+    return mockedInstance = instance;
+  });
+
+  afterAll(() => mockedInstance.reset());
 
   it('isPresent returns true on present', () => {
     expect(utils.isPresent({ data: 'hello world' })).toBeTruthy();
@@ -70,27 +85,48 @@ describe('containers/utils', () => {
     flags: [],
     path: 'foo/bar.js',
     state: 'unmodified',
-    content: 'file contents'
+    content: 'file contents',
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
   };
 
-  it('isUpdateable returns false for empty objects', () => {
-    expect(utils.isUpdateable(mockedMetafile, {})).toBeFalsy();
+  it('hasUpdates returns false for empty objects', () => {
+    expect(utils.hasUpdates(mockedMetafile, {})).toBeFalsy();
   });
 
-  it('isUpdateable returns false for exactly similar metafiles', () => {
-    expect(utils.isUpdateable(mockedMetafile, mockedMetafile)).toBeFalsy();
+  it('hasUpdates returns false for exactly similar metafiles', () => {
+    expect(utils.hasUpdates(mockedMetafile, mockedMetafile)).toBeFalsy();
   });
 
-  it('isUpdateable returns true on new property', () => {
-    expect(utils.isUpdateable(mockedMetafile, { repo: '23', branch: '101' })).toBeTruthy();
+  it('hasUpdates returns true on new property', () => {
+    expect(utils.hasUpdates(mockedMetafile, { repo: '23', branch: '101' })).toBeTruthy();
   });
 
-  it('isUpdateable returns true on modified property', () => {
+  it('hasUpdates returns true on modified property', () => {
     const updatedMetafile: FileMetafile = {
       ...mockedMetafile,
       content: 'new content'
     };
-    expect(utils.isUpdateable(mockedMetafile, updatedMetafile)).toBeTruthy();
+    expect(utils.hasUpdates(mockedMetafile, updatedMetafile)).toBeTruthy();
+  });
+
+  it('isNumber returns true on numeric-only strings', () => {
+    expect(utils.isNumber('135')).toBe(true);
+    expect(utils.isNumber('493721')).toBe(true);
+  });
+
+  it('isNumber returns false on non-numeric and mixed strings', () => {
+    expect(utils.isNumber('test')).toBe(false);
+    expect(utils.isNumber('3again2')).toBe(false);
+  });
+
+  it('getConflictingChunks to locate conflicts in a string', () => {
+    const testfileContent = `<html>\n<div>\n   <ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n=======\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>>\n<li><a href="contact.html">Contact Us</a><li>\n<<<<<<< HEAD\n      <li><a href="license.html">Legal</a></li>\n=======\n      <li><a href="license.html">License</a></li>\n>>>>>>>\n   <\\ul>\n<\\div>\n`;
+    expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([21, 203]);
+  });
+
+  it('getConflictingChunks returns an empty array on malformed strings', () => {
+    const testfileContent = `<ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>\n   <\\ul>\n<\\div>\n`;
+    expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([]);
   });
 
   it('deserialize to parse a JSON string into a TypeScript object', () => {
@@ -167,14 +203,14 @@ describe('containers/utils', () => {
     expect(utils.removeObjectProperty(obj, 'c')).toStrictEqual({ a: 3, b: 'alpha' });
   });
 
-  it('removeUndefinedProperties removes undefined from Object of Primitive types', () => {
+  it('removeNullableProperties removes undefined from Object of Primitive types', () => {
     const obj = { a: 3, b: 'a', c: undefined, d: true };
-    expect(utils.removeUndefinedProperties(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
+    expect(utils.removeNullableProperties(obj)).toStrictEqual({ a: 3, b: 'a', d: true });
   });
 
-  it('removeUndefinedProperties removes top-level undefined from Object with nested Objects', () => {
+  it('removeNullableProperties removes top-level undefined from Object with nested Objects', () => {
     const obj = { a: undefined, b: { c: 3 }, d: { e: undefined }, f: { g: 7 } };
-    expect(utils.removeUndefinedProperties(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
+    expect(utils.removeNullableProperties(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
   });
 
   it('removeDuplicates removes duplicates from array of Primitive types', () => {
@@ -259,15 +295,34 @@ describe('containers/utils', () => {
     expect(utils.equalMaps(map1, map3)).toBe(false);
   });
 
-  it('equalArrays indentifies equal and non-equal arrays containing primitive types', () => {
+  it('equalArrays identifies equal and non-equal arrays containing primitive types', () => {
     expect(utils.equalArrays([13, 'a', 14, 'b'], [13, 'a', 14, 'b'])).toBe(true);
     expect(utils.equalArrays([13, 'a', 14, 'b'], [13, 'a', 14, 'c'])).toBe(false);
   });
 
-  it('equalArrays indentifies equal and non-equal arrays containing nested types', () => {
+  it('equalArrays identifies equal and non-equal arrays containing nested types', () => {
     const arr = [13, 'a', [3, 2, 1], { name: 'john' }];
     expect(utils.equalArrays(arr, [13, 'a', [3, 2, 1], { name: 'john' }])).toBe(true);
     expect(utils.equalArrays(arr, [13, 'a', [3, 0, 1], { name: 'john' }])).toBe(false);
+  });
+
+  it('filteredObjectEquality identifies equal and non-equal objects based on property filters', () => {
+    const a = { name: 'rose', age: 32, attending: true };
+    const b = { name: 'rose', age: 32, attending: false };
+    const c = { name: 'bob', age: 56, attending: true };
+    expect(utils.filteredObjectEquality(a, b, ['age'])).toBe(true);
+    expect(utils.filteredObjectEquality(a, b, ['age', 'attending'])).toBe(false);
+    expect(utils.filteredObjectEquality(a, c, ['attending'])).toBe(true);
+  });
+
+  it('filteredArrayEquality identifies equal and non-equal arrays of objects based on property filters', () => {
+    const a = { name: 'rose', age: 32, attending: true };
+    const b = { name: 'rose', age: 32, attending: false };
+    const c = { name: 'cyrus', age: 32, attending: false };
+    const d = { name: 'bob', age: 32, attending: false };
+    expect(utils.filteredArrayEquality([a, b, c], [a, b, c], ['age'])).toBe(true);
+    expect(utils.filteredArrayEquality([a, b, c], [a, b, c, d], ['age'])).toBe(false);
+    expect(utils.filteredArrayEquality([a, b, c], [b, c, d], ['age', 'attending'])).toBe(false);
   });
 
   it('equalArrayBuffers identifies equal and non-equal Buffers containing UTF-8 string data', () => {
@@ -322,5 +377,29 @@ describe('containers/utils', () => {
     const buf1 = Buffer.from(arr1);
     const arr2 = utils.toArrayBuffer(buf1);
     expect(utils.equalArrayBuffers(arr1, arr2)).toBe(true);
+  });
+
+  it('getRandomInt returns numbers bounded by min and max parameters', () => {
+    const randomNumber = utils.getRandomInt(1, 5);
+    expect(randomNumber).toBeGreaterThanOrEqual(1);
+    expect(randomNumber).toBeLessThanOrEqual(5);
+  });
+
+  it('execute returns results of successful shell commands', async () => {
+    expect(utils.execute('ls', 'foo/')).resolves.toStrictEqual(
+      expect.objectContaining({
+        stdout: 'bar\ntracked-file.js\nzap\n',
+        stderr: ''
+      })
+    );
+  });
+
+  it('execute returns results of unsuccessful shell commands', async () => {
+    expect(utils.execute('ls', 'foo/bar')).resolves.toStrictEqual(
+      expect.objectContaining({
+        stdout: undefined,
+        stderr: undefined
+      })
+    );
   });
 });

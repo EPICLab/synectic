@@ -13,7 +13,7 @@ export const fetchCache = createAppAsyncThunk<Cache | undefined, PathLike>(
     }
 );
 
-export const subscribe = createAppAsyncThunk<Cache, { path: PathLike, card: UUID }>(
+export const subscribeCache = createAppAsyncThunk<Cache, { path: PathLike, card: UUID }>(
     'cache/subscribe',
     async ({ path, card }, thunkAPI) => {
         const existing = cacheSelectors.selectById(thunkAPI.getState(), path.toString());
@@ -27,14 +27,14 @@ export const subscribe = createAppAsyncThunk<Cache, { path: PathLike, card: UUID
     }
 );
 
-export const subscribeAll = createAppAsyncThunk<Cache[], { paths: PathLike[], card: UUID }>(
+export const subscribeCacheAll = createAppAsyncThunk<Cache[], { paths: PathLike[], card: UUID }>(
     'cache/subscribeAll',
     async ({ paths, card }, thunkAPI) => {
-        return await Promise.all(paths.map(async p => await thunkAPI.dispatch(subscribe({ path: p, card: card })).unwrap()));
+        return await Promise.all(paths.map(async p => await thunkAPI.dispatch(subscribeCache({ path: p, card: card })).unwrap()));
     }
 );
 
-export const unsubscribe = createAppAsyncThunk<undefined, { path: PathLike, card: UUID }>(
+export const unsubscribeCache = createAppAsyncThunk<undefined, { path: PathLike, card: UUID }>(
     'cache/unsubscribe',
     async ({ path, card }, thunkAPI) => {
         const existing = cacheSelectors.selectById(thunkAPI.getState(), path.toString());
@@ -49,10 +49,10 @@ export const unsubscribe = createAppAsyncThunk<undefined, { path: PathLike, card
     }
 );
 
-export const unsubscribeAll = createAppAsyncThunk<undefined, { paths: PathLike[], card: UUID }>(
+export const unsubscribeCacheAll = createAppAsyncThunk<undefined, { paths: PathLike[], card: UUID }>(
     'cache/unsubscribeAll',
     async ({ paths, card }, thunkAPI) => {
-        paths.forEach(async p => await thunkAPI.dispatch(unsubscribe({ path: p, card: card })));
+        paths.forEach(async p => await thunkAPI.dispatch(unsubscribeCache({ path: p, card: card })));
         return undefined;
     }
 );

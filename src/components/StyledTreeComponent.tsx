@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import TreeItem, { TreeItemProps } from '@material-ui/lab/TreeItem';
 import { createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 import { SvgIconProps } from '@material-ui/core/SvgIcon';
-import { Either, removeUndefinedProperties } from '../containers/utils';
+import { Either, removeNullableProperties } from '../containers/utils';
 
 declare module 'csstype' {
   interface Properties {
@@ -44,9 +44,9 @@ export const useTreeItemStyles = makeStyles((theme: Theme) =>
       color: theme.palette.text.secondary,
       borderTopRightRadius: theme.spacing(2),
       borderBottomRightRadius: theme.spacing(2),
-      ...removeUndefinedProperties({ fontWeight: theme.typography.fontWeightMedium }),
+      ...removeNullableProperties({ fontWeight: theme.typography.fontWeightMedium }),
       '$expanded > &': {
-        ...removeUndefinedProperties({ fontWeight: theme.typography.fontWeightRegular }),
+        ...removeNullableProperties({ fontWeight: theme.typography.fontWeightRegular }),
       },
     },
     group: {
@@ -113,7 +113,7 @@ export const StyledTreeItem = (props: StyledTreeItemProps) => {
         </div>
       }
       style={{
-        ...removeUndefinedProperties({
+        ...removeNullableProperties({
           '--tree-view-color': color,
           '--tree-view-bg-color': bgColor
         }),
