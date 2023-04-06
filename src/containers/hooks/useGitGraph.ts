@@ -6,7 +6,7 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { Branch } from '../../store/slices/branches';
 import { CommitObject, UUID } from '../../store/types';
-import { removeUndefined } from '../utils';
+import { filteredArrayEquality, removeUndefined } from '../utils';
 import usePrevious from './usePrevious';
 import { checkUnmergedBranch, worktreeStatus } from '../git';
 
@@ -32,9 +32,9 @@ type useGitGraphHook = {
 
 const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
-    const staged = useAppSelector(state => metafileSelectors.selectStagedFieldsByRepo(state, repo ? repo.id : ''));
+    const staged = useAppSelector(state => metafileSelectors.selectStagedByRepo(state, repo?.id ?? ''));
     const prevStaged = usePrevious(staged);
-    const branches = useAppSelector(state => repo ? branchSelectors.selectByRepo(state, repo) : []);
+    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, repo?.id ?? ''));
     const prevBranches = usePrevious(branches);
     const [graph, setGraph] = useState(new Map<Oid, CommitVertex>());
 
@@ -44,7 +44,7 @@ const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
     }, [branches]);
 
     useEffect(() => {
-        const changed = prevStaged ? diffArrays(prevStaged, staged).filter(change => change.added || change.removed).length > 0 : true;
+        const changed = prevStaged ? !filteredArrayEquality(prevStaged, staged, ['id', 'repo', 'branch', 'status']) : true;
         if (changed) process('staged');
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [staged]);

@@ -1,7 +1,7 @@
 import { PathLike } from 'fs-extra';
 import parsePath from 'parse-path';
 import { v4 } from 'uuid';
-import { extractFromURL, extractRepoName, getConfig, getWorktreePaths, GitConfig, listBranch, worktreePrune } from '../../containers/git';
+import { extractFromURL, extractRepoName, getConfig, getWorktreePaths, GitConfig, revParse, worktreePrune } from '../../containers/git';
 import { extractFilename } from '../../containers/io';
 import { ExactlyOne } from '../../containers/utils';
 import { createAppAsyncThunk } from '../hooks';
@@ -19,19 +19,20 @@ export const fetchRepo = createAppAsyncThunk<Repository | undefined, ExactlyOne<
         if (input.metafile) {
             // if metafile already has a repo UUID, check for matching repository
             let repo = input.metafile.repo ? repoSelectors.selectById(state, input.metafile.repo) : undefined;
-            const parent = !repo ? await thunkAPI.dispatch(fetchParentMetafile(input.metafile)).unwrap() : undefined;
             // otherwise if parent metafile already has a repo UUID, check for matching repository
+            const parent = !repo ? await thunkAPI.dispatch(fetchParentMetafile(input.metafile)).unwrap() : undefined;
             repo = (parent && isVersionedMetafile(parent)) ? repoSelectors.selectById(state, parent.repo) : repo;
             if (repo) return repo;
         }
-        // if filepath has a root path, check for matching repository
+        // unless filepath has a root path, there is no repository
         const filepath: PathLike = input.metafile ? input.metafile.path : input.filepath;
         const { dir, worktreeDir } = await getWorktreePaths(filepath);
-        let repo = dir ? repoSelectors.selectByRoot(state, dir) : undefined;
+        if (!dir) return undefined;
 
-        // otherwise create a new repository
+        // check root for existing repository
         const root = worktreeDir ? worktreeDir : dir;
-        repo = (!repo && root) ? await thunkAPI.dispatch(buildRepo(root)).unwrap() : repo;
+        const existingRepo = repoSelectors.selectByRoot(state, root);
+        const repo = existingRepo ? existingRepo : await thunkAPI.dispatch(buildRepo(root)).unwrap();
         return repo;
     }
 )
@@ -41,8 +42,8 @@ export const buildRepo = createAppAsyncThunk<Repository, PathLike>(
     async (filepath, thunkAPI) => {
         const { dir } = await getWorktreePaths(filepath);
         const { url, oauth } = await getRemoteConfig(dir);
-        if (dir) await worktreePrune({ dir: dir, verbose: true }); // Prune worktree information to remove stale linked branches
-        const current = dir ? await listBranch({ dir: dir, showCurrent: true }) : [];
+        if (dir) await worktreePrune({ dir: dir, verbose: true }); // prune worktree information to remove stale linked branches
+        const current = dir ? await revParse({ dir: dir, options: ['abbrevRef'], args: 'HEAD' }) : undefined;
         const branches = dir ? await thunkAPI.dispatch(fetchBranches(dir)).unwrap() : { local: [], remote: [] };
         const { local, remote } = { local: branches.local.map(branch => branch.id), remote: branches.remote.map(branch => branch.id) };
         const { username, password } = await getCredentials(dir);
@@ -50,13 +51,9 @@ export const buildRepo = createAppAsyncThunk<Repository, PathLike>(
             id: v4(),
             name: url ? extractRepoName(url.href) : (dir ? extractFilename(dir) : ''),
             root: dir ? dir : '',
-            /**
-             * TODO: The corsProxy is just a stubbed URL for now, but eventually we need to support Cross-Origin 
-             * Resource Sharing (CORS) since isomorphic-git requires it
-             */
             corsProxy: 'https://cors-anywhere.herokuapp.com',
             url: url ? url.href : '',
-            default: current[0] ? current[0].ref : '',
+            default: current ?? '',
             local: local,
             remote: remote,
             oauth: oauth ? oauth : 'github',
