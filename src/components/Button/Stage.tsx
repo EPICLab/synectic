@@ -1,6 +1,6 @@
 import { IconButton, Tooltip } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { add } from '../../containers/git';
 import { isModified, isUnmerged } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -27,6 +27,8 @@ import { Mode, useIconButtonStyle } from './useStyledIconButton';
 const StageButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    // const selectByIds = useMemo(metafileSelectors.makeSelectByIds, []); // create a memoized selector for each component instance, on mount
+    // const metafiles = useAppSelector(state => selectByIds(state, cards.map(c => c.metafile)));
     const unstaged = metafiles.filter(m => isVersionedMetafile(m) && (isModified(m.status) || isUnmerged(m.status)));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();

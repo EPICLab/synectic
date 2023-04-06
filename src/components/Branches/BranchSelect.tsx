@@ -6,21 +6,6 @@ import { Repository } from '../../store/slices/repos';
 import { UUID } from '../../store/types';
 import { Branch } from '../../store/slices/branches';
 
-const emptyRepo: Repository = {
-    id: '',
-    name: '',
-    root: '',
-    corsProxy: '',
-    url: '',
-    default: '',
-    local: [],
-    remote: [],
-    oauth: 'github',
-    username: '',
-    password: '',
-    token: ''
-}
-
 type BranchSelectProps = {
     label: string;
     repo: Repository | undefined;
@@ -30,7 +15,7 @@ type BranchSelectProps = {
 }
 
 const BranchSelect = (props: BranchSelectProps) => {
-    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, props.repo ? props.repo : emptyRepo, true));
+    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, props.repo?.id ?? '', true));
     const branchLookup = useAppSelector(state => branchSelectors.selectEntities(state));
     const predicate = props.optionsFilter ? props.optionsFilter : undefined; // Cannot descriminate types from variables; see https://github.com/microsoft/TypeScript/issues/10530
     const options = (predicate ? branches.filter(b => predicate(b)) : branches).map(b => { return { label: b.id, value: b.ref }; });

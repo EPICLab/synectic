@@ -5,13 +5,29 @@ import { GitStatus } from '../store/types';
 const promiseExec = util.promisify(exec);
 
 /**
+ * Expand object types one level deep; which has the side effect that IntelliSense will infer
+ * the resolved type of a complex type (i.e. types that use TS Utility Types).
+ * Reused from: https://stackoverflow.com/a/57683652 
+ */
+export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+
+/**
+ * Expand object types recursively; which has the side effect that IntelliSense will infer
+ * the resolved type of a complex type (i.e. types that use TS Utility Types).
+ * Reused from: https://stackoverflow.com/a/57683652 
+ */
+export type ExpandRecursively<T> = T extends object
+  ? T extends infer O ? { [K in keyof O]: ExpandRecursively<O[K]> } : never
+  : T;
+
+/**
  * Requires all properties in U to override types in the intersection of T & U.
  * Reused from: https://dev.to/vborodulin/ts-how-to-override-properties-with-type-intersection-554l
  */
 export type Override<T, U> = Omit<T, keyof U> & U;
 
 /**
- * Requires all properties to be nullable (i.e. `null` or `undefined` or `void`).
+ * Requires all properties to be nullable (i.e. `null` or `undefined` or `void`); the inverse of `NonNullable<T>`.
  * Inspired by: https://javascript.plainenglish.io/typescript-advanced-mapped-and-conditional-types-2d10c96042fe
  */
 export type Nullable<T> = {
@@ -19,11 +35,17 @@ export type Nullable<T> = {
 };
 
 /**
- * Requires properties to be defined, or excluded from the type otherwise. Allows for empty object.
+ * Requires all properties in T that resolve to only nullable types (`undefined | null | void`) be excluded from the subsequent type.
+ */
+export type NonNullableProperties<T> = { [P in keyof T as T[P] extends undefined | null | void ? never : P]: T[P] };
+
+/**
+ * Requires all properties in T to be non-nullable; either through type narrowing to exclude nullable types or excluding the property
+ * entirely when it resolves to only nullable types (`undefined | null | void`).
  * Inspired by: https://stackoverflow.com/a/60574436
  */
-export type NonUndefinedProperties<T> = {
-  [P in keyof T]-?: Exclude<T[P], null | undefined | void>;
+export type NonNullableObject<T> = {
+  [P in keyof NonNullableProperties<T>]-?: Exclude<T[P], null | undefined | void>;
 } | Record<string, never>;
 
 /**
@@ -113,7 +135,7 @@ export const isFilled = <T>(t: T | null): t is T => {
  * @param properties The updated state properties.
  * @returns {boolean} A boolean indicating true if at least one property is new or contains modified values, false otherwise.
  */
-export const isUpdateable = <T extends Record<string | number | symbol, unknown>>(object: T, properties: Partial<T>): boolean => {
+export const hasUpdates = <T extends Record<string | number | symbol, unknown>>(object: T, properties: Partial<T>): boolean => {
   let prop: keyof typeof properties;
   for (prop in properties) {
     if (!(prop in object)) return true;
@@ -176,7 +198,7 @@ export const getConflictingChunks = (content: string): number[] => {
  * @param json A valid JSON string.
  * @returns {object} A typed object (or nested array of objects).
  */
-export const deserialize = <T>(json: string): T => JSON.parse(json) as T;
+export const deserialize = <T>(json: string): T => JSON.parse(json) satisfies T;
 
 /**
  * Generic for partitioning an array into two disjoint arrays given a predicate function that indicates whether an 
@@ -202,11 +224,12 @@ export const partition = <T>(array: T[], predicate: (e: T) => boolean): [T[], T[
  * @param array2 An array of elements.
  * @param predicate A predicate function that resolves to true if element `e1` from `array1` has a equivalent complement
  * in `array2`, and false otherwise.
- * @returns {[object[], object[], object[]]} The resulting array of arrays where symmetrically different elements from `array1` 
+ * @returns {Array.<[object[], object[], object[]]>} The resulting array of arrays where symmetrically different elements from `array1` 
  * are in the left subarray, intersection subarray containing pairs of element `e1` from `array1` and the complementary element
  * `e2` from `array2` in the center subarray, and the symmetrically different elements from `array2` are in the right subarray.
  */
-export const symmetrical = <T, U>(array1: T[], array2: U[], predicate: (e1: T, e2: U) => boolean): [T[], [T, U][], U[]] => {
+export const symmetrical = <T, U>(array1: T[], array2: U[], predicate: (e1: T, e2: U) => boolean)
+  : [left: T[], intersect: [T, U][], right: U[]] => {
   const intersection: [T, U][] = [];
   const leftComplement: T[] = array1.filter(t => {
     const match = array2.find(u => predicate(t, u));
@@ -240,16 +263,17 @@ export const removeObjectProperty = <V, T extends Record<string, V>, K extends k
 }
 
 /**
- * Filters an object and removes any properties with undefined values.
+ * Filters an object and removes any properties that resolve to only nullable values (`undefined | null | void`), and narrows
+ * property types to remove nullable types from union types.
  *
- * @param obj The given object containing key-value properties that should be filtered for undefined.
- * @returns {object} The resulting object devoid of any undefined values.
+ * @param obj The given object containing key-value properties that should be filtered for nullable values.
+ * @returns {object} The resulting object devoid of any nullable values.
  */
-export const removeUndefinedProperties = <V, T extends Record<string, V | undefined | null | void>>(obj: T): NonUndefinedProperties<T> => {
+export const removeNullableProperties = <V, T extends Record<string | number | symbol, V>>(obj: T): NonNullableObject<T> => {
   return Object.entries(obj)
-    .filter((e): e is [string, V] => isPresent(e[1]))
-    .reduce((accumulator, [k, v]) => ({ ...accumulator, [k]: v }), {});
-}
+    .filter((e): e is [string, NonNullable<V>] => e[1] !== undefined && e[1] !== null)
+    .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
+};
 
 /**
  * Generic for deduplicating array of elements given a comparator function that
@@ -341,6 +365,37 @@ export const equalArrays = <T>(arr1: Array<T>, arr2: Array<T>): boolean => {
   if (arr1.length != arr2.length) return false;
   for (let i = 0; i != arr1.length; i++) {
     if (JSON.stringify(arr1[i]) != JSON.stringify(arr2[i]) || arr1[i] === undefined) return false;
+  }
+  return true;
+};
+
+/**
+ * Compares two objects for equality based on a filtered subset of properties. Checks for equality on the provided
+ * properties only, enabling masked equality checks between complex objects.
+ * 
+ * @param obj1 A JavaScript object.
+ * @param obj2 A JavaScript object.
+ * @param props An array of keys derived from the type definition of comparable objects.
+ * @returns {boolean} A boolean indicating true if the objects are equal among all selected properties, or false otherwise.
+ */
+export const filteredObjectEquality = <T, K extends keyof T>(obj1: T, obj2: T, props: K[]): boolean => {
+  return props.every(p => obj1[p] === obj2[p]);
+};
+
+/**
+ * Compares two arrays of object for equality based on a filtered subset of object properties. Checks for equality on the
+ * provided properties only, enabling masked equality checks between arrays of complex objects.
+ * 
+ * @param arr1 An `Array` object containing JavaScript objects.
+ * @param arr2 An `Array` object containing JavaScript objects.
+ * @param props An array of keys derived from the type definition of comparable objects.
+ * @returns {boolean} A boolean indicating true if all objects in both arrays are equal among all selected properties, or false otherwise.
+ */
+export const filteredArrayEquality = <T, K extends keyof T>(arr1: T[], arr2: T[], props: K[]): boolean => {
+  if (arr1.length != arr2.length) return false;
+  for (let i = 0; i != arr1.length; i++) {
+    const [a, b] = [arr1[i], arr2[i]];
+    if (isDefined(a) && isDefined(b) && !filteredObjectEquality(a, b, props)) return false;
   }
   return true;
 };

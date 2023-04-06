@@ -1,7 +1,8 @@
 import path from 'path';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
-import * as gitBranch from './git-branch';
+// import * as gitBranch from './git-branch';
+import * as gitShowBranch from '../../containers/git/git-show-branch';
 
 describe('containers/git/git-path', () => {
     let mockedInstance: MockInstance;
@@ -71,25 +72,25 @@ describe('containers/git/git-path', () => {
 
     it('getBranchRoot resolves root path for main worktree from `dir` path', async () => {
         expect.assertions(1);
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
+        jest.spyOn(gitShowBranch, 'showBranch').mockResolvedValue([{ ref: 'bad-branch', remote: 'origin', scope: 'local' }, { ref: 'main', remote: 'origin', scope: 'local' }]); // mock for branches
         await expect(getBranchRoot('foo', 'main')).resolves.toEqual('foo');
     });
 
     it('getBranchRoot resolves root path for main worktree from `worktreeDir` path', async () => {
         expect.assertions(1);
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
+        jest.spyOn(gitShowBranch, 'showBranch').mockResolvedValue([{ ref: 'bad-branch', remote: 'origin', scope: 'local' }, { ref: 'main', remote: 'origin', scope: 'local' }]); // mock for branches
         await expect(getBranchRoot('.syn/bad-branch', 'main')).resolves.toEqual('foo');
     });
 
     it('getBranchRoot resolves root path for linked worktree from `dir` path', async () => {
         expect.assertions(1);
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
+        jest.spyOn(gitShowBranch, 'showBranch').mockResolvedValue([{ ref: 'bad-branch', remote: 'origin', scope: 'local' }, { ref: 'main', remote: 'origin', scope: 'local' }]); // mock for branches
         await expect(getBranchRoot('foo', 'bad-branch')).resolves.toEqual(path.normalize('.syn/bad-branch'));
     });
 
     it('getBranchRoot resolves root path for linked worktree from `worktreeDir` path', async () => {
         expect.assertions(1);
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'bad-branch' }, { ref: 'main' }]);
+        jest.spyOn(gitShowBranch, 'showBranch').mockResolvedValue([{ ref: 'bad-branch', remote: 'origin', scope: 'local' }, { ref: 'main', remote: 'origin', scope: 'local' }]); // mock for branches
         await expect(getBranchRoot('.syn/bad-branch', 'bad-branch')).resolves.toEqual(path.normalize('.syn/bad-branch'));
     });
 

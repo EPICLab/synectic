@@ -3,12 +3,12 @@ import { clipboard } from 'electron';
 import { Handle, NodeProps, Position } from 'reactflow';
 import { v4 } from 'uuid';
 import { ColorSet } from '../../containers/colors';
-import { removeUndefinedProperties } from '../../containers/utils';
+import { removeNullableProperties } from '../../containers/utils';
 import { useAppDispatch } from '../../store/hooks';
 import { modalAdded } from '../../store/slices/modals';
 import OutlinedCard from './GitGraphTag';
 
-const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => removeUndefinedProperties({
+const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => removeNullableProperties({
   borderRadius: '50%',
   borderStyle: border,
   borderWidth: 'thin',

@@ -114,7 +114,7 @@ const CommitDialog = (props: Modal) => {
                         defaultEndIcon={<div style={{ width: 8 }} />}
                     >
                         {staged.filter(isFileMetafile).sort((a, b) => a.name.localeCompare(b.name))
-                            .map(metafile => <FileComponent key={metafile.id} metafile={metafile} />)}
+                            .map(metafile => <FileComponent key={metafile.id} metafileId={metafile.id} />)}
                     </TreeView>
                     <Typography color='textSecondary' variant='body2'>
                         Enter a commit message.

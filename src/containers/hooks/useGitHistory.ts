@@ -32,7 +32,7 @@ type useGitHistoryHook = {
  */
 export const useGitHistory = (repoId: UUID): useGitHistoryHook => {
   const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
-  const branches = useAppSelector(state => repo ? branchSelectors.selectByRepo(state, repo) : []);
+  const branches = useAppSelector(state => repo ? branchSelectors.selectByRepo(state, repo.id) : []);
   const [commits, setCommits] = useState(new Map<string, CommitInfo>());
   const [heads, setHeads] = useState(new Map<string, string>());
 
