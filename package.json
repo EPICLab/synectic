@@ -82,7 +82,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-testing-library": "^5.9.1",
     "file-loader": "^6.2.0",
-    "fork-ts-checker-webpack-plugin": "^7.2.14",
+    "fork-ts-checker-webpack-plugin": "^8.0.0",
     "genversion": "^3.1.1",
     "git-remote-protocol": "^0.1.0",
     "identity-obj-proxy": "^3.0.0",
