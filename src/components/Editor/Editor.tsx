@@ -9,17 +9,11 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/webpack-resolver'; // resolver for dynamically loading modes, requires webpack file-loader module
 import metafileSelectors from '../../store/selectors/metafiles';
-import { metafileUpdated } from '../../store/slices/metafiles';
-import { getConflictingChunks, getRandomInt, isDefined, removeUndefinedProperties } from '../../containers/utils';
+import { isFileMetafile, isFilebasedMetafile, metafileUpdated } from '../../store/slices/metafiles';
+import { getConflictingChunks, getRandomInt, removeNullableProperties } from '../../containers/utils';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { UUID } from '../../store/types';
-import { isHydrated } from '../../store/thunks/metafiles';
 import { Skeleton } from '@material-ui/lab';
-
-type EditorProps = {
-  metafileId: UUID,
-  expanded?: boolean
-};
 
 /**
  * React Component to display an interactive editor for the content of a specific file. Virtual files can be
@@ -30,13 +24,14 @@ type EditorProps = {
  * @param props.expanded - An optional toggle for enabling fullscreen mode in the editor; defaults to false.
  * @returns {React.Component} A React function component.
  */
-const Editor = ({ metafileId: id, expanded = false }: EditorProps) => {
+const Editor = ({ metafileId: id, expanded = false }: { metafileId: UUID, expanded?: boolean }) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
   const [editorRef] = useState(React.createRef<AceEditor>());
-  const mode = removeUndefinedProperties({ mode: metafile?.filetype?.toLowerCase() });
+  const mode = removeNullableProperties({ mode: metafile?.filetype?.toLowerCase() });
   const skeletonWidth = getRandomInt(55, 90);
   const dispatch = useAppDispatch();
 
+  // AceEditor instance requires resizing when card is expanded
   useEffect(() => editorRef.current?.editor.resize(), [editorRef, expanded]);
 
   const onChange = async (newCode: string | undefined) => {
@@ -54,7 +49,7 @@ const Editor = ({ metafileId: id, expanded = false }: EditorProps) => {
 
   return (
     <>
-      {isDefined(metafile) && isHydrated(metafile) ?
+      {isFilebasedMetafile(metafile) && isFileMetafile(metafile) ?
         <AceEditor {...mode} theme='monokai' onChange={onChange} name={id + '-editor'} value={metafile.content ?? ''}
           ref={editorRef} className='editor' height='100%' width='100%' showGutter={expanded} focus={false}
           setOptions={{ useWorker: false, hScrollBarAlwaysVisible: false, vScrollBarAlwaysVisible: false }} />

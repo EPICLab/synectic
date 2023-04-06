@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { v4 } from 'uuid';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { Done } from '@material-ui/icons';
@@ -27,6 +27,8 @@ import { isStaged } from '../../containers/utils';
 const CommitButton = ({ cardIds, enabled = true, mode = 'light' }: { cardIds: UUID[], enabled?: boolean, mode?: Mode }) => {
     const cards = useAppSelector(state => cardSelectors.selectByIds(state, cardIds));
     const metafiles = useAppSelector(state => metafileSelectors.selectByIds(state, cards.map(c => c.metafile)));
+    // const selectByIds = useMemo(metafileSelectors.makeSelectByIds, []); // create a memoized selector for each component instance, on mount
+    // const metafiles = useAppSelector(state => selectByIds(state, cards.map(c => c.metafile)));
     const staged = metafiles.filter(m => isVersionedMetafile(m) && isStaged(m.status));
     const classes = useIconButtonStyle({ mode: mode });
     const dispatch = useAppDispatch();
