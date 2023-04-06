@@ -1,14 +1,15 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import { shell } from 'electron';
 import { DateTime } from 'luxon';
-import React from 'react';
+import React, { useContext } from 'react';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
 import { v4 } from 'uuid';
 import version from '../../../version';
 import { fileOpenDialog } from '../../containers/dialogs';
+import { FSCacheContext } from '../../store/cache/FSCache';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
-import cachedSelectors from '../../store/selectors/cache';
+import cacheSelectors from '../../store/selectors/cache';
 import cardSelectors from '../../store/selectors/cards';
 import filetypeSelectors from '../../store/selectors/filetypes';
 import metafileSelectors from '../../store/selectors/metafiles';
@@ -58,10 +59,11 @@ const Canvas = () => {
   const cards = useAppSelector(state => cardSelectors.selectEntities(state));
   const filetypes = useAppSelector(state => filetypeSelectors.selectAll(state));
   const metafiles = useAppSelector(state => metafileSelectors.selectAll(state));
-  const cached = useAppSelector(state => cachedSelectors.selectAll(state));
+  const cache = useAppSelector(state => cacheSelectors.selectAll(state));
   const repos = useAppSelector(state => repoSelectors.selectAll(state));
   const branches = useAppSelector(state => branchSelectors.selectAll(state));
   const modals = useAppSelector(state => modalSelectors.selectAll(state));
+  const [watchers] = useContext(FSCacheContext);
   const dispatch = useAppDispatch();
   const styles = useStyles();
 
@@ -102,7 +104,7 @@ const Canvas = () => {
     console.log(`CARDS [${Object.keys(cards).length}]`, cards);
     console.log(`FILETYPES [${filetypes.length}]`);
     console.log(`METAFILES [${metafiles.length}]`, metafiles);
-    console.log(`CACHED [${cached.length}]`, cached);
+    console.log(`CACHE [${cache.length}]`, cache);
     console.log(`REPOS [${repos.length}]`, repos);
     console.log(`BRANCHES [${branches.length}]`, branches);
     console.log(`MODALS [${modals.length}]`, modals);
@@ -111,7 +113,9 @@ const Canvas = () => {
 
   const showCache = () => {
     console.group(`FS Cache : ${DateTime.local().toHTTP()}`);
-    console.log(`CACHE [${cached.length}]`, cached.map(m => { return { path: m.path, reserve: m.reserved } }));
+    console.log(`CACHE [${cache.length}]`, cache);
+    const watchersArray = Array.from(watchers.keys()).map(k => ({ path: k.toString() }));
+    console.log(`WATCHERS [${watchersArray.length}]`, watchersArray);
     console.groupEnd();
   }
 

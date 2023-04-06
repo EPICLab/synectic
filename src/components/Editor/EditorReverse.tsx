@@ -14,7 +14,7 @@ import Metadata from '../Card/Metadata';
 const EditorReverse = (props: Card) => {
     const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.metafile));
     const repo = useAppSelector(state => repoSelectors.selectById(state, metafile?.repo ?? ''));
-    const [view, setView] = useState('branches');
+    const [view, setView] = useState('metadata');
 
     return (
         <>

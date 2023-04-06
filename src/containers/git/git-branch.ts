@@ -1,8 +1,8 @@
 import { PathLike } from 'fs-extra';
 import { Branch } from '../../store/slices/branches';
-import { execute, isDefined, WithRequired } from '../utils';
+import { execute, Expand, isDefined, WithRequired } from '../utils';
 
-type BranchOutput = WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>;
+type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
 
 /**
  * List branches. The default is to list local branches (similar to `git branch`). Enabling additional options expands the output. 

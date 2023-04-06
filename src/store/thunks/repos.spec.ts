@@ -1,13 +1,17 @@
 import { DateTime } from 'luxon';
 import isUUID from 'validator/lib/isUUID';
+import * as gitRemote from '../../containers/git/git-remote';
+import * as gitRevParse from '../../containers/git/git-rev-parse';
+import * as gitShowBranch from '../../containers/git/git-show-branch';
+import * as gitWorktree from '../../containers/git/git-worktree';
+import { isDefined } from '../../containers/utils';
+import { emptyStore } from '../../test-utils/empty-store';
 import { mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
-import { emptyStore } from '../../test-utils/empty-store';
-import * as gitBranch from '../../containers/git/git-branch';
-import { buildRepo, fetchRepo } from './repos';
-import { isDefined } from '../../containers/utils';
+import { Branch, branchAdded } from '../slices/branches';
 import { DirectoryMetafile, FilebasedMetafile, metafileAdded } from '../slices/metafiles';
 import { repoAdded, Repository } from '../slices/repos';
+import { buildRepo, fetchRepo } from './repos';
 
 const mockedMetafile1: FilebasedMetafile = {
     id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
@@ -59,6 +63,7 @@ const mockedDirectoryMetafile: DirectoryMetafile = {
     path: 'foo',
     state: 'unmodified',
     contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'],
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
     repo: '23',
     branch: 'master',
     status: 'unmodified',
@@ -72,12 +77,26 @@ const mockedRepository: Repository = {
     corsProxy: 'http://www.oregonstate.edu',
     url: 'https://github.com/foo/myRepo',
     default: 'master',
-    local: ['master', 'sample', 'test'],
+    local: ['b12bbec1-0903-4b74-8bf9-b313ea5af934'],
     remote: [],
     oauth: 'github',
     username: 'sampleUser',
     password: '12345',
     token: '584n29dkj1683a67f302x009q164'
+};
+
+const mockedBranch1: Branch = {
+    id: '8843ba60-5a1c-431d-aa0a-042012b2e8d9',
+    ref: 'default',
+    linked: false,
+    bare: false,
+    root: 'baz/',
+    gitdir: 'baz/.git',
+    scope: 'local',
+    remote: 'origin',
+    status: 'clean',
+    commits: [],
+    head: '43e47372349e1123af230332f7fb385696101e0d'
 };
 
 describe('thunks/repos', () => {
@@ -90,6 +109,7 @@ describe('thunks/repos', () => {
         store.dispatch(metafileAdded(mockedMetafile3));
         store.dispatch(metafileAdded(mockedDirectoryMetafile));
         store.dispatch(repoAdded(mockedRepository));
+        store.dispatch(branchAdded(mockedBranch1));
         const instance = await mock({
             foo: {
                 'bar.js': 'content',
@@ -98,6 +118,7 @@ describe('thunks/repos', () => {
                     config: '',
                     HEAD: 'refs/heads/main',
                     refs: {
+                        'heads/main': 'a4400ff0ceb22fb1c4f4032b6e3c649011dd259e',
                         'remotes/origin/HEAD': 'ref: refs/remotes/origin/main'
                     }
                 }
@@ -106,7 +127,11 @@ describe('thunks/repos', () => {
                 'qux.ts': 'const content = examples',
                 '.git': {
                     config: '',
-                    'refs/remotes/origin/HEAD': '987654321'
+                    HEAD: 'refs/heads/default',
+                    refs: {
+                        'heads/default': '43e47372349e1123af230332f7fb385696101e0d',
+                        'remotes/origin/HEAD': '987654321'
+                    }
                 }
             }
         });
@@ -133,7 +158,10 @@ describe('thunks/repos', () => {
     });
 
     it('fetchRepo resolves new repository via root path', async () => {
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'main' }]); // mock for current branch name
+        jest.spyOn(gitRevParse, 'revParse').mockResolvedValue('default'); // mock for git-rev-parse of curent branch name
+        jest.spyOn(gitWorktree, 'worktreePrune').mockResolvedValue(undefined); // mock for pruning worktrees
+        jest.spyOn(gitRemote, 'getRemote').mockResolvedValue([{ remote: 'origin' }]); // mock for pruning worktrees
+        jest.spyOn(gitShowBranch, 'showBranch').mockResolvedValue([{ ref: 'default', scope: 'local', remote: 'origin' }]); // mock for branches
         expect.assertions(2);
         const repo = await store.dispatch(fetchRepo({ filepath: 'baz/qux.ts' })).unwrap();
         expect(isDefined(repo) && isUUID(repo.id)).toBeTruthy();
@@ -143,17 +171,18 @@ describe('thunks/repos', () => {
     });
 
     it('buildRepo resolves a supported repository', async () => {
-        jest.spyOn(gitBranch, 'listBranch').mockResolvedValue([{ ref: 'main' }]); // mock for current branch name
+        jest.spyOn(gitRevParse, 'revParse').mockResolvedValue('default'); // mock for git-rev-parse of curent branch name
+        jest.spyOn(gitWorktree, 'worktreePrune').mockResolvedValue(undefined); // mock for pruning worktrees
         expect.assertions(2);
-        const repo = await store.dispatch(buildRepo('foo')).unwrap();
+        const repo = await store.dispatch(buildRepo('baz')).unwrap();
         expect(isDefined(repo) && isUUID(repo.id)).toBeTruthy();
         expect(repo).toStrictEqual(expect.objectContaining({
-            name: 'foo',
-            root: 'foo',
+            name: 'baz',
+            root: 'baz',
             corsProxy: 'https://cors-anywhere.herokuapp.com',
             url: '',
-            default: 'main',
-            local: [],
+            default: 'default',
+            local: [mockedBranch1.id],
             remote: [],
             oauth: 'github',
             token: ''

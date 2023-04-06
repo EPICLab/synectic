@@ -6,7 +6,7 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import repoSelectors from '../../store/selectors/repos';
 import { Mode, useIconButtonStyle } from './useStyledIconButton';
 import { getBranchRoot } from '../../containers/git';
-import { isDefined, removeUndefinedProperties } from '../../containers/utils';
+import { isDefined, removeNullableProperties } from '../../containers/utils';
 import branchSelectors from '../../store/selectors/branches';
 import { UUID } from '../../store/types';
 import { buildCard } from '../../store/thunks/cards';
@@ -48,7 +48,7 @@ const SourceControlButton = ({ repoId, metafileId, enabled = true, mode = 'light
         }
 
         const branchName = branches[metafile.branch]?.ref;
-        const optionals = branchName ? removeUndefinedProperties({ path: await getBranchRoot(repo.root, branchName) }) : {};
+        const optionals = branchName ? removeNullableProperties({ path: await getBranchRoot(repo.root, branchName) }) : {};
         const sourceControl = await dispatch(createMetafile({
             metafile: {
                 name: 'Source Control',
