@@ -6,6 +6,7 @@ import { PURGE } from 'redux-persist';
 import { branchRemoved } from './branches';
 import { CardType, FilesystemStatus, Flag, GitStatus, Timestamp, UUID } from '../types';
 import { PathLike } from 'fs-extra';
+import { extractStats } from '../../containers/io';
 
 /** A metafile representing specifications and state for files, directories, diffs, and virtual content loaded into Synectic. */
 export type Metafile = {
@@ -29,6 +30,7 @@ export type Metafile = {
 
 /** A metafile without the requisite ID field, which can be used for composing valid Metafiles prior to them being assigned an ID. */
 export type MetafileTemplate = Omit<Metafile, 'id'>;
+/** A metafile without an associated filesystem object. */
 export type VirtualMetafile = Omit<Metafile, keyof FilebasedProps>;
 export const isVirtualMetafile = (metafile: Metafile): metafile is VirtualMetafile => !isFilebasedMetafile(metafile);
 
@@ -40,8 +42,8 @@ export type FilebasedProps = {
     /** The latest Filesystem status code for this file relative to the associated content. */
     readonly state: FilesystemStatus;
 };
-export const isFilebasedMetafile = (metafile: Metafile): metafile is FilebasedMetafile => {
-    return metafile
+export const isFilebasedMetafile = (metafile: Metafile | undefined): metafile is FilebasedMetafile => {
+    return isDefined(metafile)
         && (metafile as FilebasedMetafile).path !== undefined
         && (metafile as FilebasedMetafile).state !== undefined;
 };
@@ -51,9 +53,14 @@ export type FileMetafile = Override<FilebasedMetafile, FileProps>;
 export type FileProps = {
     /** The textual contents maintained for files; can differ from actual file content when unsaved changes have been made. */
     readonly content: string;
+    /** The timestamp for last observed update to the associated filesystem object (represented by the `mtime` filesystem value). */
+    readonly mtime: Timestamp;
 };
-export const isFileMetafile = (metafile: Metafile): metafile is FileMetafile => {
-    return isFilebasedMetafile(metafile) && (metafile as FileMetafile).content !== undefined;
+export const isFileMetafile = (metafile: Metafile | undefined): metafile is FileMetafile => {
+    return isFilebasedMetafile(metafile)
+        && metafile.filetype !== 'Directory'
+        && (metafile as FileMetafile).content !== undefined
+        && (metafile as FileMetafile).mtime !== undefined;
 };
 
 /** A metafile that contains directory information related to a similar type of filesystem object. */
@@ -61,9 +68,14 @@ export type DirectoryMetafile = Override<FilebasedMetafile, DirectoryProps>;
 export type DirectoryProps = {
     /** An array with all Metafile object UUIDs for direct sub-files and sub-directories. */
     readonly contains: UUID[];
+    /** The timestamp for last observed update to the associated filesystem object (represented by the `mtime` filesystem value). */
+    readonly mtime: Timestamp;
 };
-export const isDirectoryMetafile = (metafile: Metafile): metafile is DirectoryMetafile => {
-    return isFilebasedMetafile(metafile) && (metafile as DirectoryMetafile).contains !== undefined;
+export const isDirectoryMetafile = (metafile: Metafile | undefined): metafile is DirectoryMetafile => {
+    return isFilebasedMetafile(metafile)
+        && metafile.filetype === 'Directory'
+        && (metafile as FileMetafile).contains !== undefined
+        && (metafile as FileMetafile).mtime !== undefined;
 };
 
 /** A metafile that is associated with a filesystem object that is tracked by a version control system. */
@@ -82,7 +94,7 @@ export type VersionedProps = {
      */
     readonly conflicts: (number | PathLike)[];
 };
-export const isVersionedMetafile = (metafile: Metafile): metafile is VersionedMetafile => {
+export const isVersionedMetafile = (metafile: Metafile | undefined): metafile is VersionedMetafile => {
     return isFilebasedMetafile(metafile) && (metafile as VersionedMetafile).repo !== undefined;
 };
 
@@ -94,6 +106,25 @@ export type DiffProps = {
 export const isDiffMetafile = (metafile: Metafile): metafile is DiffMetafile => {
     return (metafile as DiffMetafile).targets !== undefined;
 };
+
+/**
+ * Check for updates to the content of a filesystem object (i.e. file or directory) by examining whether the 
+ * [`fs.Stats.mtime`](https://nodejs.org/api/fs.html#class-fsstats) previously recorded for a metafile is stale, or
+ * non-existent in the case of a newly created metafile.
+ * 
+ * @param metafile The filebased Metafile object that should be evaluated for possible filesystem updates.
+ * @returns {string | undefined} A string containing the epoch milliseconds of the latest `mtime` timestamp if newer
+ * than the previous `mtime` timestamp of the metafile, or `undefined` otherwise. 
+ */
+export const hasFilebasedUpdates = async (metafile: FilebasedMetafile): Promise<number | undefined> => {
+    const mtime = (await extractStats(metafile.path))?.mtime;
+    if (!isDefined(mtime)) return undefined; // file does not exist in the filesystem
+    const timestamp = DateTime.fromJSDate(mtime);
+
+    if (!isDefined(metafile.mtime)) return timestamp.valueOf(); // metafile not previously identified as filebased
+    const delta = timestamp.diff(DateTime.fromMillis(metafile.mtime)).valueOf();
+    return delta > 0 ? timestamp.valueOf() : undefined; // only return timestamp if newer than previous timestamp
+}
 
 export const metafileAdapter = createEntityAdapter<Metafile>();
 

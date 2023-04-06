@@ -12,7 +12,8 @@ const basicMetafile: FileMetafile = {
     flags: [],
     path: 'foo/bar.js',
     state: 'unmodified',
-    content: 'file contents'
+    content: 'file contents',
+    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
 };
 
 const virtualMetafile: VirtualMetafile = {

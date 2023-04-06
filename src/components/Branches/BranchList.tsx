@@ -27,7 +27,7 @@ const BranchList = ({ cardId, repoId }: { cardId: UUID, repoId: UUID }) => {
     const card = useAppSelector(state => cardSelectors.selectById(state, cardId));
     const metafile = useAppSelector(state => metafileSelectors.selectById(state, card?.metafile ?? ''));
     const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
-    const repoBranches = useAppSelector(state => branchSelectors.selectByRepo(state, repo, true));
+    const repoBranches = useAppSelector(state => branchSelectors.selectByRepo(state, repo?.id ?? '', true));
     const branches = repoBranches.filter(branch => branch.ref !== 'HEAD').sort((a, b) => a.ref.localeCompare(b.ref));
     const dispatch = useAppDispatch();
 
@@ -41,7 +41,7 @@ const BranchList = ({ cardId, repoId }: { cardId: UUID, repoId: UUID }) => {
         console.log(`checkout: ${branchRef}`);
         if (card && metafile && repo) {
             try {
-                const updated = await dispatch(switchBranch({ metafileId: metafile.id, ref: branchRef, root: repo.root })).unwrap();
+                const updated = await dispatch(switchBranch({ metafileId: metafile.id, cardId: card.id, ref: branchRef, root: repo.root })).unwrap();
                 if (updated) dispatch(cardUpdated({
                     ...card,
                     name: updated.name,

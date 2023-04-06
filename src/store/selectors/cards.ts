@@ -1,66 +1,123 @@
-import { RootState } from '../store';
-import { Card, cardAdapter } from '../slices/cards';
-import { createSelector, EntityId } from '@reduxjs/toolkit';
-import metafileSelectors from './metafiles';
+import { EntityId, createSelector } from '@reduxjs/toolkit';
+import { createCachedSelector } from 're-reselect';
+import { createSelectorCreator, defaultMemoize } from 'reselect';
 import { flattenArray } from '../../containers/flatten';
+import { equalArrays, filteredArrayEquality, isDefined } from '../../containers/utils';
+import { Card, cardAdapter } from '../slices/cards';
+import { RootState } from '../store';
 import { UUID } from '../types';
-import { Metafile } from '../slices/metafiles';
+import metafileSelectors from './metafiles';
 
 const selectors = cardAdapter.getSelectors<RootState>(state => state.cards);
 
-const selectByIds = createSelector(
+type CardEntities = ReturnType<typeof selectors.selectEntities>;
+type MetafileEntities = ReturnType<typeof metafileSelectors.selectEntities>;
+
+const deepEntitiesEqualityCheck = (a: CardEntities, b: CardEntities) =>
+    filteredArrayEquality(Object.values(a).filter(isDefined), Object.values(b).filter(isDefined), ['id', 'modified']);
+const deepCardsEqualityCheck = (a: Card[], b: Card[]) => filteredArrayEquality(a, b, ['id', 'modified']);
+
+const selectEntities = createSelector(
     selectors.selectEntities,
-    (_state: RootState, ids: EntityId[]) => ids,
-    (cards, ids) => ids.map(id => cards[id]).filter((c): c is Card => c !== undefined)
+    (branches) => branches,
+    { memoizeOptions: { equalityCheck: deepEntitiesEqualityCheck } }
 );
 
-const selectByMetafile = createSelector(
+const selectById = createCachedSelector(
+    selectEntities,
+    (_state: RootState, id: EntityId) => id,
+    (cards, id) => cards[id]
+)({
+    keySelector: (_, id) => id,
+    selectorCreator: createSelectorCreator(defaultMemoize, { equalityCheck: deepEntitiesEqualityCheck })
+});
+
+const selectByIds = createCachedSelector(
+    selectEntities,
+    (_state: RootState, ids: EntityId[]) => ids,
+    (cards, ids) => ids.map(id => cards[id]).filter(isDefined)
+)({
+    keySelector: (_, ids) => ids.join(':'),
+    selectorCreator: createSelectorCreator(defaultMemoize, deepEntitiesEqualityCheck)
+});
+
+const selectByMetafile = createCachedSelector(
     selectors.selectAll,
     (_state: RootState, metafile: UUID) => metafile,
     (cards, metafile) => cards.filter(c => c.metafile === metafile)
-);
+)({
+    keySelector: (_, metafile) => metafile,
+    selectorCreator: createSelectorCreator(defaultMemoize, deepCardsEqualityCheck)
+});
 
-const selectByMetafiles = createSelector(
+const selectByMetafiles = createCachedSelector(
+    (state: RootState, metafiles: UUID[]) => metafiles.map(id => selectByMetafile(state, id)),
+    (cards) => flattenArray(cards)
+)({
+    keySelector: (_, metafiles) => metafiles.join(':'),
+    selectorCreator: createSelectorCreator(defaultMemoize, {
+        equalityCheck: (a: Card[][], b: Card[][]) => equalArrays(a, b)
+    })
+});
+
+const selectByStack = createCachedSelector(
     selectors.selectAll,
-    (_state: RootState, metafiles: Metafile[]) => metafiles,
-    (cards, metafiles) => flattenArray(metafiles.map(m => cards.filter(c => c.metafile === m.id)))
-);
+    (_state: RootState, stack: UUID) => stack,
+    (cards, stack) => cards.filter(c => c.captured === stack)
+)({
+    keySelector: (_, stack) => stack,
+    selectorCreator: createSelectorCreator(defaultMemoize, deepCardsEqualityCheck)
+});
 
 /**
- * Custom Redux selector for locating cards that:
- *  (1) have a metafile associated with them,
- *  (2) that metafile contains a repo that matches the parameter repo,
- *  (3) that metafile contains a branch that matches the parameter branch (if needed)
- * 
- * @param state The state object for the Redux store.
- * @param repo The UUID of a Repository entry in the Redux store.
- * @param branch Git branch name or commit hash.
- * @returns An array of Card objects that meet the selection criteria.
+ * Selector for retrieving Card entities based on `target`, using `target` UUID information stored on each Metafile instance. 
+ * This selector caches on `target` as long as `selectAll` and `metafileSelectors.selectEntities` have not changed. The persisted 
+ * selector cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated only when the `selectAll`
+ * or `metafileSelectors.selectEntities` results change, but not when `target` input selector changes.
  */
-const selectByRepo = createSelector(
-    selectors.selectAll,
-    metafileSelectors.selectEntities,
-    (_state: RootState, repoId: UUID) => repoId,
-    (_state: RootState, _repoId: UUID, branch?: string) => branch,
-    (cards, metafiles, repoId, branchId) => cards
-        .filter(c => metafiles[c.metafile] ? metafiles[c.metafile]?.repo === repoId : false)
-        .filter(c => branchId ? metafiles[c.metafile]?.branch === branchId : true)
-);
-
-const selectByStack = createSelector(
-    selectors.selectAll,
-    (_state: RootState, stackId: UUID) => stackId,
-    (cards, stackId) => cards
-        .filter(c => c.captured === stackId)
-);
-
-const selectByTarget = createSelector(
+const selectByTarget = createCachedSelector(
     selectors.selectAll,
     metafileSelectors.selectEntities,
     (_state: RootState, target: UUID) => target,
-    (cards, metafiles, target) => cards.filter(c => c.type === 'Diff' && metafiles[c.metafile]?.targets?.includes(target))
-);
+    (cards, metafiles, target) => cards
+        .filter(c => c.type === 'Diff' && metafiles[c.metafile]?.targets?.includes(target))
+)({
+    keySelector: (_, target) => target,
+    selectorCreator: createSelectorCreator(defaultMemoize, {
+        equalityCheck: (a: Card[] | MetafileEntities | UUID, b: Card[] | MetafileEntities | UUID) => {
+            return Array.isArray(a) && Array.isArray(b) ? deepCardsEqualityCheck(a, b) : a === b;
+        },
+        resultEqualityCheck: deepCardsEqualityCheck
+    })
+});
 
-const cardSelectors = { ...selectors, selectByIds, selectByMetafile, selectByMetafiles, selectByRepo, selectByStack, selectByTarget };
+/**
+ * Selector for retrieving Card entities based on `repo` and `branch` (optional). This selector caches on `repo` and
+ * `branch` as long as `selectAll` and `metafileSelectors.selectEntities` have not changed. The persisted selector 
+ * cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated only when the `selectAll`
+ * or `metafileSelectors.selectEntities` results change, but not when `repo` or `branch` input selectors change.
+ */
+const selectByRepo = createCachedSelector(
+    selectors.selectAll,
+    metafileSelectors.selectEntities,
+    (_state: RootState, repo: UUID) => repo,
+    (_state: RootState, _repo: UUID, branch?: UUID) => branch,
+    (cards, metafiles, repo, branch) => cards
+        .filter(c => metafiles[c.metafile]?.repo === repo)
+        .filter(c => branch ? metafiles[c.metafile]?.branch === branch : true)
+)({
+    keySelector: (_, repo, branch?: UUID) => `${repo}:${branch}`,
+    selectorCreator: createSelectorCreator(defaultMemoize, {
+        equalityCheck: (a: Card[] | MetafileEntities | UUID, b: Card[] | MetafileEntities | UUID) => {
+            return Array.isArray(a) && Array.isArray(b) ? deepCardsEqualityCheck(a, b) : a === b;
+        },
+        resultEqualityCheck: deepCardsEqualityCheck
+    })
+});
+
+const cardSelectors = {
+    ...selectors, selectEntities, selectById, selectByIds, selectByMetafile, selectByMetafiles,
+    selectByStack, selectByTarget, selectByRepo
+};
 
 export default cardSelectors;

@@ -10,20 +10,20 @@ import Branches from '../Branches';
 
 const Content = (card: Card) => {
     switch (card.type) {
-        case 'Loading':
-            return (<Loading />);
         case 'Editor':
             return (<Editor metafileId={card.metafile} expanded={card.expanded} />);
-        case 'Diff':
-            return (<Diff metafile={card.metafile} />);
         case 'Explorer':
-            return (<Explorer metafile={card.metafile} />);
+            return (<Explorer metafileId={card.metafile} />);
+        case 'Browser':
+            return (<Browser metafileId={card.metafile} mode={'dark'} />);
+        case 'Diff':
+            return (<Diff metafileId={card.metafile} />);
         case 'SourceControl':
             return (<SourceControl sourceControlId={card.metafile} />);
-        case 'Browser':
-            return (<Browser card={card.id} />);
         case 'Branches':
             return (<Branches />);
+        case 'Loading':
+            return (<Loading />);
         default:
             return null;
     }

@@ -15,7 +15,7 @@ const BranchRibbon = ({ metafile, onClick }: { metafile: Metafile | undefined, o
       <div onClick={onClick}
         className={clsx('branch-ribbon-container', {
           'preview': loading,
-          'unmerged': branch?.status === 'unmerged',
+          'flagged': branch?.status === 'unmerged',
         })}>
         {loading ?
           <Skeleton variant='rect' aria-label='loading' animation='wave'>

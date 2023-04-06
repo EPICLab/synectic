@@ -26,7 +26,7 @@ export type Branch = {
      * in the case of linked worktrees, and the main worktree git directory in the main worktree otherwise. 
      */
     readonly gitdir: PathLike;
-    /** The reference scope of the branch; typically a branch will have an instance of both a `local` and `remote` branch. */
+    /** The reference scope of the branch; a branch can exist in either scope, or both scopes at the same time. */
     readonly scope: 'local' | 'remote';
     /** The name of the remote to fetch from/push to using `git fetch` and `git push` commands for this branch; default is `origin`. */
     readonly remote: string;

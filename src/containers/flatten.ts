@@ -5,7 +5,7 @@ type ObjectElementType<T> = T extends Record<string | number | symbol, infer U> 
  * Flattens an n-depth array into a single level array containing all sub-array elements. Solutions for the problem of 
  * flattening n-depth arrays in JavaScript are fairly simple, but the TypeScript compiler requires closed type guarding
  * in order to bubble up sub-types from within the sub-array elements. Luckily, TypeScript 4.1 includes recursive
- * conditional types (@link https://devblogs.microsoft.com/typescript/announcing-typescript-4-1/#recursive-conditional-types), 
+ * conditional types ([TS4.1 Recursive Conditional Types](https://devblogs.microsoft.com/typescript/announcing-typescript-4-1/#recursive-conditional-types)), 
  * which allows for deferred type checking while recursive sub-typing resolves the type intersections for individual 
  * element depths. Some type casting is required (but should be type-safe) in order to handle the gradual typing of `<unknown>`
  * within the reducer function, but this is an issue that could be solved in the future if TypeScript adds gradual inferred
