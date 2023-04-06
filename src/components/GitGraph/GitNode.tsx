@@ -1,33 +1,34 @@
 import React, { useState } from 'react';
 import { clipboard } from 'electron';
 import { Handle, NodeProps, Position } from 'reactflow';
-import { v4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { ColorSet } from '../../containers/colors';
 import { removeNullableProperties } from '../../containers/utils';
 import { useAppDispatch } from '../../store/hooks';
 import { modalAdded } from '../../store/slices/modals';
 import OutlinedCard from './GitGraphTag';
 
-const customNodeStyles = (color: ColorSet, border: string, opacity?: string) => removeNullableProperties({
-  borderRadius: '50%',
-  borderStyle: border,
-  borderWidth: 'thin',
-  opacity: opacity,
-  background: color.primary,
-  color: color.secondary,
-  padding: 5,
-});
+const customNodeStyles = (color: ColorSet, border: string, opacity?: string) =>
+  removeNullableProperties({
+    borderRadius: '50%',
+    borderStyle: border,
+    borderWidth: 'thin',
+    opacity: opacity,
+    background: color.primary,
+    color: color.secondary,
+    padding: 5
+  });
 
 type GitNodeProps = NodeProps & {
   data: {
-    text: string,
-    tooltip: string,
-    color: ColorSet,
-    border: string,
-    opacity?: string,
-    branch?: string
-  }
-}
+    text: string;
+    tooltip: string;
+    color: ColorSet;
+    border: string;
+    opacity?: string;
+    branch?: string;
+  };
+};
 
 const GitNode = (props: GitNodeProps) => {
   const [isHovering, setIsHovering] = useState(false);
@@ -35,30 +36,39 @@ const GitNode = (props: GitNodeProps) => {
 
   const copyToClipboard = () => {
     clipboard.writeText(props.id);
-    dispatch(modalAdded({
-      id: v4(),
-      type: 'Notification',
-      options: {
-        'message': `'${props.id.replace(props.id.slice(7, -7), '...')}' copied to clipboard`
-      }
-    }));
-  }
+    dispatch(
+      modalAdded({
+        id: randomUUID(),
+        type: 'Notification',
+        options: {
+          message: `'${props.id.replace(props.id.slice(7, -7), '...')}' copied to clipboard`
+        }
+      })
+    );
+  };
 
   return (
     <>
-      {props.data.branch ? <OutlinedCard content={props.data.branch} placement='right' /> : null}
-      {isHovering ? <OutlinedCard content={`commit ${props.id}\nAuthor: ${props.data.author}\nMessage: ${props.data.message}`} placement='bottom' /> : null}
-      <div style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}
-        onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}
+      {props.data.branch ? <OutlinedCard content={props.data.branch} placement="right" /> : null}
+      {isHovering ? (
+        <OutlinedCard
+          content={`commit ${props.id}\nAuthor: ${props.data.author}\nMessage: ${props.data.message}`}
+          placement="bottom"
+        />
+      ) : null}
+      <div
+        style={customNodeStyles(props.data.color, props.data.border, props.data.opacity)}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
         onClick={copyToClipboard}
       >
-        <Handle type='target' position={Position.Top} style={{ visibility: 'hidden' }} />
+        <Handle type="target" position={Position.Top} style={{ visibility: 'hidden' }} />
         <div style={{ background: 'red' }}>{props.data.text}</div>
-        <Handle type='source' position={Position.Bottom} style={{ visibility: 'hidden' }} />
+        <Handle type="source" position={Position.Bottom} style={{ visibility: 'hidden' }} />
       </div>
     </>
-  )
-}
+  );
+};
 
 export const nodeTypes = {
   gitNode: GitNode
