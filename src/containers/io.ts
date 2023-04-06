@@ -176,7 +176,7 @@ export const isDescendant = (root: PathLike, filepath: PathLike, direct = false)
 export function readFileAsync(
   filepath: fs.PathLike,
   options: { flag: string } | { encoding: nodeEncoding; flag?: string }
-): Promise<string>;
+): Promise<string | Buffer>;
 export function readFileAsync(filepath: fs.PathLike): Promise<Buffer>;
 /**
  * Asynchronously read file contents into a Buffer or string.
@@ -216,7 +216,7 @@ export function readFileAsync(filepath: fs.PathLike): Promise<Buffer>;
 export function readFileAsync(
   filepath: fs.PathLike,
   options?: { flag: string } | { encoding: nodeEncoding; flag?: string }
-): Promise<string> | Promise<Buffer> {
+): Promise<string | Buffer> | Promise<Buffer> {
   const fullPath = path.resolve(filepath.toString());
   if (options) return fs.readFile(fullPath, options);
   else return fs.readFile(fullPath);

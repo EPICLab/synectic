@@ -1,7 +1,7 @@
 import { PathLike } from 'fs-extra';
 import { DateTime } from 'luxon';
 import { dirname, join, relative } from 'path';
-import { v4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { flattenArray } from '../../containers/flatten';
 import {
   checkoutPathspec,
@@ -64,7 +64,7 @@ export const createMetafile = createAppAsyncThunk<
   const filetype = await thunkAPI.dispatch(fetchFiletype(input.path ?? '')).unwrap();
   return thunkAPI.dispatch(
     metafileAdded({
-      id: v4(),
+      id: randomUUID(),
       name: input.metafile ? input.metafile.name : extractFilename(input.path),
       modified: DateTime.local().valueOf(),
       handler: input.metafile?.handler ?? filetype?.handler ?? 'Editor',
@@ -114,7 +114,7 @@ export const updateFileMetafile = createAppAsyncThunk<FileMetafile, FilebasedMet
   async (metafile, thunkAPI) => {
     const mtime = await hasFilebasedUpdates(metafile);
     if (!isDefined(mtime)) return metafile as FileMetafile;
-    const content = await readFileAsync(metafile.path, { encoding: 'utf-8' });
+    const content = (await readFileAsync(metafile.path, { encoding: 'utf-8' })).toString();
     return hasUpdates(metafile, { content })
       ? (thunkAPI.dispatch(
           metafileUpdated({

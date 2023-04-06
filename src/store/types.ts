@@ -5,30 +5,30 @@
 
 import { DateTime } from 'luxon';
 // import { PathLike } from 'fs-extra';
-import { v4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import sha1 from 'sha1';
 
 /** Universal unique identifier based on RFC4122 version 4 for cryptographically-strong random values. */
-export type UUID = ReturnType<typeof v4>;
+export type UUID = ReturnType<typeof randomUUID>;
 /** 160-bit hash value for identify revisions in Git and other VCS. */
 export type SHA1 = ReturnType<typeof sha1>;
 /** Epoch millisecond representation of a valid DateTime value. */
 export type Timestamp = ReturnType<DateTime['valueOf']>;
 /** Detailed commit representation for Git. */
 export type CommitObject = {
-    oid: string;
-    message: string;
-    parents: string[];
-    author: {
-        name: string;
-        email: string;
-        timestamp: Timestamp | undefined;
-    };
-    committer?: {
-        name: string;
-        email: string;
-        timestamp: Timestamp | undefined;
-    };
+  oid: string;
+  message: string;
+  parents: string[];
+  author: {
+    name: string;
+    email: string;
+    timestamp: Timestamp | undefined;
+  };
+  committer?: {
+    name: string;
+    email: string;
+    timestamp: Timestamp | undefined;
+  };
 };
 /**
  * | status                | description                                                                            |
@@ -48,8 +48,21 @@ export type CommitObject = {
  * | `"*undeletemodified"` | file was deleted from the index, but is present with modifications in the working dir  |
  * | `"unmerged"`          | file has unmerged changes from an incomplete merge                                     |
  */
-export type GitStatus = 'modified' | 'ignored' | 'unmodified' | '*modified' | '*deleted' | '*added'
-    | 'absent' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified' | 'unmerged';
+export type GitStatus =
+  | 'modified'
+  | 'ignored'
+  | 'unmodified'
+  | '*modified'
+  | '*deleted'
+  | '*added'
+  | 'absent'
+  | 'deleted'
+  | 'added'
+  | '*unmodified'
+  | '*absent'
+  | '*undeleted'
+  | '*undeletemodified'
+  | 'unmerged';
 /**
  * | status                | description                                                                            |
  * | --------------------- | -------------------------------------------------------------------------------------- |
@@ -66,7 +79,27 @@ export type BranchStatus = 'clean' | 'uncommitted' | 'unmerged';
  * | `"unlinked"`          | no file linked to metafile, virtual metafile                                           |
  */
 export type FilesystemStatus = 'modified' | 'unmodified' | 'unlinked';
-export type CardType = 'Loading' | 'Editor' | 'Diff' | 'Explorer' | 'Browser' | 'Branches' | 'Merge' | 'SourceControl';
-export type ModalType = 'BranchList' | 'CloneSelector' | 'DiffPicker' | 'Error' | 'GitGraph' | 'MergeSelector' | 'NewBranchDialog' | 'NewCardDialog' |
-    'SourcePicker' | 'CommitDialog' | 'Notification' | 'GitExplorer' | 'DirectExplorer';
+export type CardType =
+  | 'Loading'
+  | 'Editor'
+  | 'Diff'
+  | 'Explorer'
+  | 'Browser'
+  | 'Branches'
+  | 'Merge'
+  | 'SourceControl';
+export type ModalType =
+  | 'BranchList'
+  | 'CloneSelector'
+  | 'DiffPicker'
+  | 'Error'
+  | 'GitGraph'
+  | 'MergeSelector'
+  | 'NewBranchDialog'
+  | 'NewCardDialog'
+  | 'SourcePicker'
+  | 'CommitDialog'
+  | 'Notification'
+  | 'GitExplorer'
+  | 'DirectExplorer';
 export type Flag = 'checkout' | 'updating';
