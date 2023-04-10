@@ -435,13 +435,13 @@
   optionalDependencies:
     electron-installer-dmg "^4.0.0"
 
-"@electron-forge/maker-rpm@^6.0.4":
-  version "6.0.4"
-  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.0.4.tgz#3b84efaf2796bc43f346dc4f37274d6771717b1f"
-  integrity sha512-uNLm6zpK8OgXl2Eq9/uaQyUBKEJhlzJf4zu0DtpPqp5qeu1EObDor0/5OH6MTEmjpGSZ616tdvVN+kwqjNeNHg==
+"@electron-forge/maker-rpm@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@electron-forge/maker-rpm/-/maker-rpm-6.1.1.tgz#ab532e3f5d975708f0e7d5cbe8764563b8869e75"
+  integrity sha512-ya+XtNqHuYENQh4+0XLVM5MYQYR/Y3gKxfUO/V7top6R+TWQwgcUywGEcofxjKVB7fIbDVu4yYgqMujvF6m4QQ==
   dependencies:
-    "@electron-forge/maker-base" "^6.0.4"
-    "@electron-forge/shared-types" "^6.0.4"
+    "@electron-forge/maker-base" "6.1.1"
+    "@electron-forge/shared-types" "6.1.1"
   optionalDependencies:
     electron-installer-redhat "^3.2.0"
 
