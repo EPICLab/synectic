@@ -88,9 +88,9 @@ typings/
 # Electron-Forge
 out/
 
-# Yarn 2 configuration files
+# Yarn 2/3 configuration files
+.pnp.*
 .yarn/*
-!.yarn/cache
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases

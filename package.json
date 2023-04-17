@@ -138,5 +138,6 @@
     "reselect": "^4.1.7",
     "semver": "^7.4.0",
     "sha1": "^1.1.1"
-  }
+  },
+  "packageManager": "yarn@3.5.0"
 }
