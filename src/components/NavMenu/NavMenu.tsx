@@ -11,13 +11,13 @@ import NavItem, { NavItemProps } from '../NavItem/NavItem';
 type NavMenuProps = {
   label: string;
   submenu: NavItemProps[];
-}
+};
 
 const NavMenu = ({ label, submenu }: NavMenuProps) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef<HTMLButtonElement>(null);
 
-  const handleToggle = () => setOpen((prevOpen) => !prevOpen);
+  const handleToggle = () => setOpen(prevOpen => !prevOpen);
 
   const handleClose = (event: React.MouseEvent<EventTarget>) => {
     if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
@@ -35,22 +35,45 @@ const NavMenu = ({ label, submenu }: NavMenuProps) => {
 
   return (
     <>
-      <Button ref={anchorRef} aria-controls={open ? `${label}-menu` : undefined} aria-haspopup='true' onClick={handleToggle}>
+      <Button
+        ref={anchorRef}
+        aria-controls={open ? `${label}-menu` : undefined}
+        aria-haspopup="true"
+        onClick={handleToggle}
+      >
         {label}
       </Button>
-      <Popper open={open} anchorEl={anchorRef.current} role={undefined} style={{ zIndex: 1000 }} transition disablePortal>
+      <Popper
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        style={{ zIndex: 1000 }}
+        transition
+        disablePortal
+      >
         {({ TransitionProps, placement }) => (
-          <Grow {...TransitionProps} style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}>
+          <Grow
+            {...TransitionProps}
+            style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+          >
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList autoFocusItem={open} id={`${label}-menu-list`} onKeyDown={handleListKeyDown}>
-                  {submenu.map(item => <NavItem key={item.label}
-                    label={item.label}
-                    {...removeNullableProperties({ disabled: item.disabled })}
-                    click={(event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
-                      item.click(event);
-                      setOpen(false);
-                    }} />)}
+                <MenuList
+                  autoFocusItem={open}
+                  id={`${label}-menu-list`}
+                  onKeyDown={handleListKeyDown}
+                >
+                  {submenu.map(item => (
+                    <NavItem
+                      key={item.label}
+                      label={item.label}
+                      {...removeNullableProperties({ disabled: item.disabled })}
+                      click={(event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+                        item.click(event);
+                        setOpen(false);
+                      }}
+                    />
+                  ))}
                 </MenuList>
               </ClickAwayListener>
             </Paper>
@@ -59,6 +82,6 @@ const NavMenu = ({ label, submenu }: NavMenuProps) => {
       </Popper>
     </>
   );
-}
+};
 
 export default NavMenu;

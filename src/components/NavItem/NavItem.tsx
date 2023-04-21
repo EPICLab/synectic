@@ -10,7 +10,9 @@ export type NavItemProps = {
 
 const NavItem = ({ label, click, disabled }: NavItemProps) => {
   return (
-    <MenuItem onClick={click} {...removeNullableProperties({ disabled: disabled })}>{label}</MenuItem>
+    <MenuItem onClick={click} {...removeNullableProperties({ disabled: disabled })}>
+      {label}
+    </MenuItem>
   );
 };
 

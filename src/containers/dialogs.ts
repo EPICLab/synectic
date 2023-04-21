@@ -13,10 +13,21 @@ export const fileOpenDialog = createAppAsyncThunk<void, PickerType | void>(
   'dialogs/fileOpenDialog',
   async (pickerType, thunkAPI) => {
     const isMac = process.platform === 'darwin';
-    const properties: ('openFile' | 'openDirectory')[] = pickerType ? [pickerType] : (isMac ? ['openFile', 'openDirectory'] : ['openFile']);
-    const paths: Electron.OpenDialogReturnValue = await ipcRenderer.invoke('fileOpenDialog', properties);
+    const properties: ('openFile' | 'openDirectory')[] = pickerType
+      ? [pickerType]
+      : isMac
+      ? ['openFile', 'openDirectory']
+      : ['openFile'];
+    const paths: Electron.OpenDialogReturnValue = await ipcRenderer.invoke(
+      'fileOpenDialog',
+      properties
+    );
     if (!paths.canceled && paths.filePaths) {
-      await Promise.all(paths.filePaths.map(async filePath => await thunkAPI.dispatch(buildCard({ path: filePath }))));
+      await Promise.all(
+        paths.filePaths.map(
+          async filePath => await thunkAPI.dispatch(buildCard({ path: filePath }))
+        )
+      );
     }
   }
 );
@@ -25,17 +36,24 @@ export const fileSaveDialog = createAppAsyncThunk<boolean, Metafile>(
   'dialogs/fileSaveDialog',
   async (metafile, thunkAPI) => {
     const isMac = process.platform === 'darwin';
-    const properties: ('showHiddenFiles' | 'createDirectory')[] = isMac ? ['showHiddenFiles', 'createDirectory'] : ['showHiddenFiles'];
-    const response: Electron.SaveDialogReturnValue = await ipcRenderer.invoke('fileSaveDialog',
-      { defaultPath: join(process.cwd(), metafile.name), properties: properties });
+    const properties: ('showHiddenFiles' | 'createDirectory')[] = isMac
+      ? ['showHiddenFiles', 'createDirectory']
+      : ['showHiddenFiles'];
+    const response: Electron.SaveDialogReturnValue = await ipcRenderer.invoke('fileSaveDialog', {
+      defaultPath: join(process.cwd(), metafile.name),
+      properties: properties
+    });
     if (!response.canceled && response.filePath && metafile.content) {
       // update metafile
-      thunkAPI.dispatch(metafileUpdated({ ...metafile, path: response.filePath, state: 'unmodified' }));
+      thunkAPI.dispatch(
+        metafileUpdated({ ...metafile, path: response.filePath, state: 'unmodified' })
+      );
       // write file
       await writeFileAsync(response.filePath, metafile.content);
       // update git info
       await Promise.all(
-        metafileSelectors.selectByFilepath(thunkAPI.getState(), response.filePath)
+        metafileSelectors
+          .selectByFilepath(thunkAPI.getState(), response.filePath)
           .filter(isFilebasedMetafile)
           .map(async m => await thunkAPI.dispatch(updateVersionedMetafile(m)))
       );
@@ -47,11 +65,16 @@ export const fileSaveDialog = createAppAsyncThunk<boolean, Metafile>(
 
 export const cloneDirectoryDialog = createAppAsyncThunk<string | null, string>(
   'dialogs/cloneDirectoryDialog',
-  async (repoName) => {
+  async repoName => {
     const isMac = process.platform === 'darwin';
-    const properties: ('showHiddenFiles' | 'createDirectory')[] = isMac ? ['showHiddenFiles', 'createDirectory'] : ['showHiddenFiles'];
-    const response: Electron.SaveDialogReturnValue = await ipcRenderer.invoke('fileSaveDialog',
-      { defaultPath: join(process.cwd(), repoName), properties: properties, buttonLabel: 'Select Repo Location' });
+    const properties: ('showHiddenFiles' | 'createDirectory')[] = isMac
+      ? ['showHiddenFiles', 'createDirectory']
+      : ['showHiddenFiles'];
+    const response: Electron.SaveDialogReturnValue = await ipcRenderer.invoke('fileSaveDialog', {
+      defaultPath: join(process.cwd(), repoName),
+      properties: properties,
+      buttonLabel: 'Select Repo Location'
+    });
     if (!response.canceled && response.filePath) {
       return response.filePath;
     }
