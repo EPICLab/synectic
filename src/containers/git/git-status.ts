@@ -2,23 +2,23 @@ import { pathExists, PathLike } from 'fs-extra';
 import { join, relative, resolve } from 'path';
 import { BranchStatus, GitStatus } from '../../store/types';
 import { isDirectory, isEqualPaths } from '../io';
-import { execute } from '../utils';
+import { execute } from '../exec';
 import { getIgnore } from './git-ignore';
 import { getRoot, getWorktreePaths } from './git-path';
 
 type StatusOutput = {
-    ref: string;
-    root: PathLike;
-    status: BranchStatus;
-    bare: boolean;
-    entries: { path: PathLike, status: GitStatus }[]
-}
+  ref: string;
+  root: PathLike;
+  status: BranchStatus;
+  bare: boolean;
+  entries: { path: PathLike; status: GitStatus }[];
+};
 
 /**
  * Show the working tree status. This command displays paths that have differences between the index file and the current HEAD commit,
  * paths that have differences between the working tree and the index file, and paths in the working tree that are not tracked by *git*
  * (and are not ignored by `git-ignore`).
- * 
+ *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.pathspec - Pattern used to limit paths in *git* commands. See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}.
@@ -27,49 +27,65 @@ type StatusOutput = {
  * or `undefined` if not contained within a directory tracked by version control.
  */
 export const worktreeStatus = async ({
-    dir, pathspec, ignored = false
+  dir,
+  pathspec,
+  ignored = false
 }: {
-    dir: PathLike;
-    pathspec?: PathLike | string;
-    ignored?: boolean;
+  dir: PathLike;
+  pathspec?: PathLike | string;
+  ignored?: boolean;
 }): Promise<StatusOutput | undefined> => {
-    /**
-     * Regex pattern matches with the following capture groups:
-     * [1] base branch ref (e.g. `main` from `## main`)
-     * [2] optional compare branch ref (e.g. `origin/main` from `## main...origin/main`)
-     */
-    const branchesPattern = new RegExp('^## (.+?)(?:(?:\\.\\.\\.)(.+?))?$', 'gm');
-    /**
-     * Regex pattern matches with the following capture groups:
-     * [1] status code (e.g. ` M` or `DD`)
-     * [2] relative filepath from root path (e.g. `src/component/Dialog`)
-     */
-    const entriesPattern = new RegExp('(?<=\\r?\\n)(.{2}) (.*)', 'gm');
-    const root = await getRoot(dir);
-    if (!root) return undefined;
-    const ignore = await getIgnore(root);
+  /**
+   * Regex pattern matches with the following capture groups:
+   * [1] base branch ref (e.g. `main` from `## main`)
+   * [2] optional compare branch ref (e.g. `origin/main` from `## main...origin/main`)
+   */
+  const branchesPattern = new RegExp('^## (.+?)(?:(?:\\.\\.\\.)(.+?))?$', 'gm');
+  /**
+   * Regex pattern matches with the following capture groups:
+   * [1] status code (e.g. ` M` or `DD`)
+   * [2] relative filepath from root path (e.g. `src/component/Dialog`)
+   */
+  const entriesPattern = new RegExp('(?<=\\r?\\n)(.{2}) (.*)', 'gm');
+  const root = await getRoot(dir);
+  if (!root) return undefined;
+  const ignore = await getIgnore(root);
 
-    const output = await execute(`git status --porcelain --branch ${ignored ? '--ignored' : ''} ${pathspec?.toString()}`, dir.toString());
-    const ref = branchesPattern.exec(output.stdout)?.[1];
-    const entries: { path: PathLike, status: GitStatus }[] = Array.from(output.stdout.matchAll(entriesPattern))
-        .map(e => {
-            const filepath = e[2] as string;
-            const isIgnored = ignore.ignores(filepath);
-            return { path: resolve(root.toString(), filepath), status: isIgnored ? 'ignored' : processStatusCode(e[1]) };
-        });
-    const { worktreeLink } = await getWorktreePaths(root);
-    const mergingHead = worktreeLink ? await pathExists(join(worktreeLink.toString(), 'MERGE_HEAD')) : false; // check for an in-progress merge
-    const status: BranchStatus = entries.find(e => e.status === 'unmerged') || mergingHead ? 'unmerged' : entries.length == 0 ? 'clean' : 'uncommitted';
-
-    if (output.stderr.length > 0) console.error(output.stderr);
+  const output = await execute(
+    `git status --porcelain --branch ${ignored ? '--ignored' : ''} ${pathspec?.toString()}`,
+    dir.toString()
+  );
+  const ref = branchesPattern.exec(output.stdout)?.[1];
+  const entries: { path: PathLike; status: GitStatus }[] = Array.from(
+    output.stdout.matchAll(entriesPattern)
+  ).map(e => {
+    const filepath = e[2] as string;
+    const isIgnored = ignore.ignores(filepath);
     return {
-        ref: ref ? ref : '',
-        root: dir,
-        status: status,
-        bare: ref ? false : true,
-        entries: entries
+      path: resolve(root.toString(), filepath),
+      status: isIgnored ? 'ignored' : processStatusCode(e[1])
     };
-}
+  });
+  const { worktreeLink } = await getWorktreePaths(root);
+  const mergingHead = worktreeLink
+    ? await pathExists(join(worktreeLink.toString(), 'MERGE_HEAD'))
+    : false; // check for an in-progress merge
+  const status: BranchStatus =
+    entries.find(e => e.status === 'unmerged') || mergingHead
+      ? 'unmerged'
+      : entries.length == 0
+      ? 'clean'
+      : 'uncommitted';
+
+  if (output.stderr.length > 0) console.error(output.stderr);
+  return {
+    ref: ref ? ref : '',
+    root: dir,
+    status: status,
+    bare: ref ? false : true,
+    entries: entries
+  };
+};
 
 /**
  * Show the git status for a specific file in the working tree. This is a convenience command for examining individual files
@@ -80,37 +96,43 @@ export const worktreeStatus = async ({
  * @returns {Promise<GitStatus>} A Promise object containing the {@link GitStatus} for an individual filepath.
  */
 export const fileStatus = async (filepath: PathLike): Promise<GitStatus | undefined> => {
-    const root = await getRoot(filepath);
-    if (!root) {
-        console.error('git-status error: no .git exists within parent directories');
-        return undefined;
-    }
-    const branchStatus = await worktreeStatus({ dir: root, pathspec: filepath });
-    if (!branchStatus) {
-        console.error('git-status error: path not contained in a directory tracked by version control');
-        return undefined;
-    }
-    const isDir = await isDirectory(filepath);
-    if (isDir) {
-        const isIgnored = isEqualPaths(root, filepath) ? false : (await getIgnore(root)).ignores(relative(root.toString(), filepath.toString()));
-        if (isIgnored) return 'ignored';
+  const root = await getRoot(filepath);
+  if (!root) {
+    console.error('git-status error: no .git exists within parent directories');
+    return undefined;
+  }
+  const branchStatus = await worktreeStatus({ dir: root, pathspec: filepath });
+  if (!branchStatus) {
+    console.error('git-status error: path not contained in a directory tracked by version control');
+    return undefined;
+  }
+  const isDir = await isDirectory(filepath);
+  if (isDir) {
+    const isIgnored = isEqualPaths(root, filepath)
+      ? false
+      : (await getIgnore(root)).ignores(relative(root.toString(), filepath.toString()));
+    if (isIgnored) return 'ignored';
 
-        switch (branchStatus.status) {
-            case 'clean':
-                return 'unmodified';
-            case 'uncommitted':
-                return '*modified';
-            case 'unmerged':
-                return 'unmerged';
-        }
-    } else {
-        return branchStatus.entries.find(e => isEqualPaths(e.path, resolve(root.toString(), filepath.toString())))?.status ?? 'unmodified';
+    switch (branchStatus.status) {
+      case 'clean':
+        return 'unmodified';
+      case 'uncommitted':
+        return '*modified';
+      case 'unmerged':
+        return 'unmerged';
     }
-}
+  } else {
+    return (
+      branchStatus.entries.find(e =>
+        isEqualPaths(e.path, resolve(root.toString(), filepath.toString()))
+      )?.status ?? 'unmodified'
+    );
+  }
+};
 
 /**
  * Convert 2-digit status code to a {@link GitStatus} value, input format per https://git-scm.com/docs/git-status#_short_format:
- * 
+ *
  * | X        |     Y    |  Meaning                              |
  * | -------- | -------- | ------------------------------------- |
  * |          | [AMD]    | not updated                           |
@@ -135,22 +157,22 @@ export const fileStatus = async (filepath: PathLike): Promise<GitStatus | undefi
  * | U        | U        | unmerged, both modified               |
  * | ?        | ?        | untracked                             |
  * | !        | !        | ignored                               |
- * 
+ *
  * @param statusCode - A 2-digit status code from `git status --short`
  * @returns {GitStatus} An enumerated git status value.
  */
 export const processStatusCode = (statusCode: string | undefined): GitStatus => {
-    if (!statusCode) return 'unmodified';
-    if (statusCode == '!!') return 'ignored'; // git-ignore rules exclude this filepath
-    if (statusCode == '??') return 'absent'; // untracked path; not present in index or working tree
-    if (/(DD|AA|.U|U.)/.test(statusCode)) return 'unmerged'; // unmerged; merge conflict has occurred and has not yet been resolved
-    if (/M(?=[ MTD])/.test(statusCode)) return 'modified';
-    if (/(?=[ MTD])M/.test(statusCode)) return '*modified';
-    if (/A(?=[ MTD])/.test(statusCode)) return 'added';
-    if (/(?=[ MTD])A/.test(statusCode)) return '*added';
-    if (/D(?=[ MTD])/.test(statusCode)) return 'deleted';
-    if (/(?=[ MTD])D/.test(statusCode)) return '*deleted';
+  if (!statusCode) return 'unmodified';
+  if (statusCode == '!!') return 'ignored'; // git-ignore rules exclude this filepath
+  if (statusCode == '??') return 'absent'; // untracked path; not present in index or working tree
+  if (/(DD|AA|.U|U.)/.test(statusCode)) return 'unmerged'; // unmerged; merge conflict has occurred and has not yet been resolved
+  if (/M(?=[ MTD])/.test(statusCode)) return 'modified';
+  if (/(?=[ MTD])M/.test(statusCode)) return '*modified';
+  if (/A(?=[ MTD])/.test(statusCode)) return 'added';
+  if (/(?=[ MTD])A/.test(statusCode)) return '*added';
+  if (/D(?=[ MTD])/.test(statusCode)) return 'deleted';
+  if (/(?=[ MTD])D/.test(statusCode)) return '*deleted';
 
-    console.error(`Unable to convert '${statusCode}' status code`);
-    return 'unmodified';
-}
+  console.error(`Unable to convert '${statusCode}' status code`);
+  return 'unmodified';
+};

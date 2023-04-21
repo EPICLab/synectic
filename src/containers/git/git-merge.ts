@@ -1,11 +1,7 @@
 import * as path from 'path';
 import { SHA1 } from '../../store/types';
-import {
-  execute,
-  getConflictingChunks,
-  ProgressCallback,
-  removeNullableProperties
-} from '../utils';
+import { getConflictingChunks, ProgressCallback, removeNullableProperties } from '../utils';
+import { execute } from '../exec';
 import { worktreeList } from './git-worktree';
 import { pathExists, PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';

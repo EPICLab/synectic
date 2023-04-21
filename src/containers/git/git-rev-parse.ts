@@ -1,11 +1,11 @@
 import { PathLike } from 'fs-extra';
-import { execute } from '../utils';
+import { execute } from '../exec';
 
 type RevParseOption = 'isBareRepository' | 'isShallowRepository' | 'abbrevRef';
 
 /**
  * Pick out and massage parameters for accessing porcelainish commands.
- * 
+ *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.options - The options fo distinguishing particular parameters.
@@ -14,32 +14,34 @@ type RevParseOption = 'isBareRepository' | 'isShallowRepository' | 'abbrevRef';
  * or `undefined` if execute failed.
  */
 export const revParse = async ({
-    dir, options, args
+  dir,
+  options,
+  args
 }: {
-    dir: PathLike;
-    options?: RevParseOption[];
-    args?: string;
+  dir: PathLike;
+  options?: RevParseOption[];
+  args?: string;
 }): Promise<string | undefined> => {
-    const opts = options?.map(option => processRevParseOption(option)).join(' ') ?? '';
-    const output = await execute(`git rev-parse ${opts} ${args ?? ''}`, dir.toString());
-    // execute output can result in `{ stdout: undefined, stderr: undefined }`
-    if (output.stderr !== undefined && output.stderr.length > 0) console.error(output.stderr);
-    return output.stdout;
-}
+  const opts = options?.map(option => processRevParseOption(option)).join(' ') ?? '';
+  const output = await execute(`git rev-parse ${opts} ${args ?? ''}`, dir.toString());
+  // execute output can result in `{ stdout: undefined, stderr: undefined }`
+  if (output.stderr !== undefined && output.stderr.length > 0) console.error(output.stderr);
+  return output.stdout;
+};
 
 const processRevParseOption = (option: RevParseOption) => {
-    switch (option) {
-        case 'isBareRepository': {
-            return '--is-bare-repository';
-        }
-        case 'isShallowRepository': {
-            return '--is-shallow-repository';
-        }
-        case 'abbrevRef': {
-            return '--abbrev-ref'
-        }
-        default: {
-            return '';
-        }
+  switch (option) {
+    case 'isBareRepository': {
+      return '--is-bare-repository';
     }
-}
+    case 'isShallowRepository': {
+      return '--is-shallow-repository';
+    }
+    case 'abbrevRef': {
+      return '--abbrev-ref';
+    }
+    default: {
+      return '';
+    }
+  }
+};

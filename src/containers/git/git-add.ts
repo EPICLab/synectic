@@ -1,6 +1,6 @@
 import { PathLike } from 'fs-extra';
 import { relative } from 'path';
-import { execute } from '../utils';
+import { execute } from '../exec';
 import { getWorktreePaths } from './git-path';
 
 /**
@@ -11,17 +11,17 @@ import { getWorktreePaths } from './git-path';
  * @returns {Promise<boolean>} A Promise object containing a boolean indicating whether the file was successfully staged.
  */
 export const add = async (filepath: PathLike): Promise<boolean> => {
-    const { dir, worktreeDir } = await getWorktreePaths(filepath);
-    if (!dir) return false; // not under version control
+  const { dir, worktreeDir } = await getWorktreePaths(filepath);
+  if (!dir) return false; // not under version control
 
-    const root = worktreeDir ? worktreeDir : dir;
-    const relativePath = relative(root.toString(), filepath.toString());
+  const root = worktreeDir ? worktreeDir : dir;
+  const relativePath = relative(root.toString(), filepath.toString());
 
-    const output = await execute(`git add ${relativePath}`, root.toString());
-    if (output.stderr.length > 0) {
-        console.error(output.stderr);
-        return false;
-    }
-    console.log(output.stdout);
-    return true;
-}
+  const output = await execute(`git add ${relativePath}`, root.toString());
+  if (output.stderr.length > 0) {
+    console.error(output.stderr);
+    return false;
+  }
+  console.log(output.stdout);
+  return true;
+};
