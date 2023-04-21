@@ -40,7 +40,7 @@ const persistConfig = {
 };
 
 const logger = createLogger({
-  predicate: (getState, action) =>
+  predicate: (_getState, action) =>
     !action.type.startsWith('filetypes/') && !action.type.startsWith('persist/'),
   duration: true,
   collapsed: true,
