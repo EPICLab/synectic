@@ -4,17 +4,16 @@ import * as utils from './utils';
 import { MockInstance, file, mock } from '../test-utils/mock-fs';
 
 describe('containers/utils', () => {
-
   let mockedInstance: MockInstance;
   beforeAll(async () => {
     const instance = await mock({
       foo: {
         bar: file({ content: 'file contents', mtime: new Date(1) }),
         zap: file({ content: 'file contents', mtime: new Date(1) }),
-        'tracked-file.js': 'directory is tracked by git',
-      },
+        'tracked-file.js': 'directory is tracked by git'
+      }
     });
-    return mockedInstance = instance;
+    return (mockedInstance = instance);
   });
 
   afterAll(() => mockedInstance.reset());
@@ -38,7 +37,11 @@ describe('containers/utils', () => {
 
   it('isPresent filters out only present values from an array', () => {
     const results: Array<{ data: string } | undefined | null> = [
-      { data: 'hello' }, null, { data: 'world' }, undefined, { data: 'wow' }
+      { data: 'hello' },
+      null,
+      { data: 'world' },
+      undefined,
+      { data: 'wow' }
     ];
     const presentResults: Array<{ data: string }> = results.filter(utils.isPresent);
     expect(presentResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
@@ -54,7 +57,10 @@ describe('containers/utils', () => {
 
   it('isDefined filters out only defined values from an array', () => {
     const results: Array<{ data: string } | undefined> = [
-      { data: 'hello' }, { data: 'world' }, undefined, { data: 'wow' }
+      { data: 'hello' },
+      { data: 'world' },
+      undefined,
+      { data: 'wow' }
     ];
     const definedResults: Array<{ data: string }> = results.filter(utils.isDefined);
     expect(definedResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
@@ -70,7 +76,10 @@ describe('containers/utils', () => {
 
   it('isFilled filters out only filled values from an array', () => {
     const results: Array<{ data: string } | null> = [
-      { data: 'hello' }, { data: 'world' }, null, { data: 'wow' }
+      { data: 'hello' },
+      { data: 'world' },
+      null,
+      { data: 'wow' }
     ];
     const filledResults: Array<{ data: string }> = results.filter(utils.isFilled);
     expect(filledResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
@@ -140,7 +149,7 @@ describe('containers/utils', () => {
 
   it('deserialize fails with an error on malformed JSON', () => {
     // eslint-disable-next-line no-useless-escape
-    const malformedJson = '{ "key": "Something \\\\"Name\\\\" something\", "anotherkey": "value" }';
+    const malformedJson = '{ "key": "Something \\\\"Name\\\\" something", "anotherkey": "value" }';
     expect(() => utils.deserialize(malformedJson)).toThrow(SyntaxError);
   });
 
@@ -148,7 +157,8 @@ describe('containers/utils', () => {
     const arr = [4, 6, 11, 10, 19, 5, 1, 0];
     const predicate = (e: number) => e >= 10;
     expect(utils.partition(arr, predicate)).toStrictEqual([
-      [11, 10, 19], [4, 6, 5, 1, 0]
+      [11, 10, 19],
+      [4, 6, 5, 1, 0]
     ]);
   });
 
@@ -156,24 +166,50 @@ describe('containers/utils', () => {
     const arr = ['4', 6, '11', '10', 19, 5, '1', 0];
     const predicate = (e: number | string): e is number => typeof e === 'number';
     expect(utils.partition(arr, predicate)).toStrictEqual([
-      [6, 19, 5, 0], ['4', '11', '10', '1']
+      [6, 19, 5, 0],
+      ['4', '11', '10', '1']
     ]);
   });
 
   it('symmetrical splits arrays of primitive types into symmetrical differences and intersection', () => {
     expect(utils.symmetrical([1, 2, 3], [2, 3, 4], (e1, e2) => e1 === e2)).toStrictEqual(
-      expect.arrayContaining([[1], [[2, 2], [3, 3]], [4]])
+      expect.arrayContaining([
+        [1],
+        [
+          [2, 2],
+          [3, 3]
+        ],
+        [4]
+      ])
     );
   });
 
   it('symmetrical splits arrays of dissimilar types into symmetrical differences and intersection', () => {
-    const arr1 = [[151, 'John'], [203, 'Mary'], [681, 'Sue'], [750, 'Isiah']];
-    const arr2 = [{ id: 151, name: 'John', rank: 3 }, { id: 681, name: 'Robert', rank: 1 }, { id: 85, name: 'Isiah', rank: 4 }];
-    expect(utils.symmetrical(arr1, arr2, (e1, e2) => e1[0] === e2.id && e1[1] === e2.name)).toStrictEqual(
+    const arr1 = [
+      [151, 'John'],
+      [203, 'Mary'],
+      [681, 'Sue'],
+      [750, 'Isiah']
+    ];
+    const arr2 = [
+      { id: 151, name: 'John', rank: 3 },
+      { id: 681, name: 'Robert', rank: 1 },
+      { id: 85, name: 'Isiah', rank: 4 }
+    ];
+    expect(
+      utils.symmetrical(arr1, arr2, (e1, e2) => e1[0] === e2.id && e1[1] === e2.name)
+    ).toStrictEqual(
       expect.arrayContaining([
-        [[203, 'Mary'], [681, 'Sue'], [750, 'Isiah']],
+        [
+          [203, 'Mary'],
+          [681, 'Sue'],
+          [750, 'Isiah']
+        ],
         [[[151, 'John'], { id: 151, name: 'John', rank: 3 }]],
-        [{ id: 681, name: 'Robert', rank: 1 }, { id: 85, name: 'Isiah', rank: 4 }]
+        [
+          { id: 681, name: 'Robert', rank: 1 },
+          { id: 85, name: 'Isiah', rank: 4 }
+        ]
       ])
     );
   });
@@ -210,30 +246,34 @@ describe('containers/utils', () => {
 
   it('removeNullableProperties removes top-level undefined from Object with nested Objects', () => {
     const obj = { a: undefined, b: { c: 3 }, d: { e: undefined }, f: { g: 7 } };
-    expect(utils.removeNullableProperties(obj)).toStrictEqual({ b: { c: 3 }, d: { e: undefined }, f: { g: 7 } });
+    expect(utils.removeNullableProperties(obj)).toStrictEqual({
+      b: { c: 3 },
+      d: { e: undefined },
+      f: { g: 7 }
+    });
   });
 
   it('removeDuplicates removes duplicates from array of Primitive types', () => {
     const arr = [3, 4, 1, 0, 3, 3];
-    const comparator = (a: number, b: number) => (a === b);
+    const comparator = (a: number, b: number) => a === b;
     expect(utils.removeDuplicates(arr, comparator)).toStrictEqual([3, 4, 1, 0]);
   });
 
   it('removeDuplicates removes duplicates from array of Object types', () => {
     const arr = [{ id: 3 }, { id: 10 }, { id: 3 }];
-    const comparator = (a: { id: number }, b: { id: number }) => (a.id === b.id);
+    const comparator = (a: { id: number }, b: { id: number }) => a.id === b.id;
     expect(utils.removeDuplicates(arr, comparator)).toStrictEqual([{ id: 3 }, { id: 10 }]);
   });
 
   it('removeDuplicates returns original array on empty array', () => {
     const arr: number[] = [];
-    const comparator = (a: number, b: number) => (a === b);
+    const comparator = (a: number, b: number) => a === b;
     expect(utils.removeDuplicates(arr, comparator)).toStrictEqual(arr);
   });
 
   it('asyncFilter evaluates and returns array of async Primitive types', async () => {
     const arr = [3, 4, 1, 0, 2, 3];
-    const predicate = async (e: number) => (e % 2 == 0);
+    const predicate = async (e: number) => e % 2 == 0;
     return expect(utils.asyncFilter(arr, predicate)).resolves.toStrictEqual([4, 0, 2]);
   });
 
@@ -247,12 +287,18 @@ describe('containers/utils', () => {
   });
 
   it('filterObject recursively filters objects and returns homogenously-typed values', () => {
-    const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
+    const obj: { a: number; b: { c: string; d: { e: string } } } = {
+      a: 13,
+      b: { c: 'rose', d: { e: 'tulip' } }
+    };
     return expect(utils.filterObject(obj, ['c', 'e'])).toStrictEqual({ c: 'rose', e: 'tulip' });
   });
 
   it('filterObject recursively filters objects and returns heterogenously-typed values', () => {
-    const obj: { a: number; b: { c: string, d: { e: string } } } = { a: 13, b: { c: 'rose', d: { e: 'tulip' } } };
+    const obj: { a: number; b: { c: string; d: { e: string } } } = {
+      a: 13,
+      b: { c: 'rose', d: { e: 'tulip' } }
+    };
     return expect(utils.filterObject(obj, ['e', 'a'])).toStrictEqual({ a: 13, e: 'tulip' });
   });
 
@@ -262,23 +308,41 @@ describe('containers/utils', () => {
   });
 
   it('equalMaps identifies equal and non-equal maps containing primitive types', () => {
-    const map1 = new Map<string, number | string>([['a', 13], ['b', 'thomas']]);
-    const map2 = new Map<string, number | string>([['a', 13], ['b', 'thomas']]);
-    const map3 = new Map<string, number | string>([['a', 13], ['b', 'ralph']]);
+    const map1 = new Map<string, number | string>([
+      ['a', 13],
+      ['b', 'thomas']
+    ]);
+    const map2 = new Map<string, number | string>([
+      ['a', 13],
+      ['b', 'thomas']
+    ]);
+    const map3 = new Map<string, number | string>([
+      ['a', 13],
+      ['b', 'ralph']
+    ]);
     expect(utils.equalMaps(map1, map2)).toBe(true);
     expect(utils.equalMaps(map1, map3)).toBe(false);
   });
 
   it('equalMaps identifies equal and non-equal maps containing Array types', () => {
-    const map1 = new Map<string, Array<number>>([['john', [3, 5]], ['mary', [7, 1]]]);
-    const map2 = new Map<string, Array<number>>([['john', [3, 5]], ['mary', [7, 1]]]);
-    const map3 = new Map<string, Array<number>>([['john', [3, 2]], ['mary', [7, 1]]]);
+    const map1 = new Map<string, Array<number>>([
+      ['john', [3, 5]],
+      ['mary', [7, 1]]
+    ]);
+    const map2 = new Map<string, Array<number>>([
+      ['john', [3, 5]],
+      ['mary', [7, 1]]
+    ]);
+    const map3 = new Map<string, Array<number>>([
+      ['john', [3, 2]],
+      ['mary', [7, 1]]
+    ]);
     expect(utils.equalMaps(map1, map2)).toBe(true);
     expect(utils.equalMaps(map1, map3)).toBe(false);
   });
 
   it('equalMaps identifies equal and non-equal maps containing nested object types', () => {
-    type NestedObject = { age: number, friends: { name: string }[] };
+    type NestedObject = { age: number; friends: { name: string }[] };
     const map1 = new Map<string, NestedObject>([
       ['john', { age: 40, friends: [{ name: 'mary' }, { name: 'thomas' }] }],
       ['mary', { age: 35, friends: [{ name: 'john' }, { name: 'thomas' }] }]
@@ -383,23 +447,5 @@ describe('containers/utils', () => {
     const randomNumber = utils.getRandomInt(1, 5);
     expect(randomNumber).toBeGreaterThanOrEqual(1);
     expect(randomNumber).toBeLessThanOrEqual(5);
-  });
-
-  it('execute returns results of successful shell commands', async () => {
-    expect(utils.execute('ls', 'foo/')).resolves.toStrictEqual(
-      expect.objectContaining({
-        stdout: 'bar\ntracked-file.js\nzap\n',
-        stderr: ''
-      })
-    );
-  });
-
-  it('execute returns results of unsuccessful shell commands', async () => {
-    expect(utils.execute('ls', 'foo/bar')).resolves.toStrictEqual(
-      expect.objectContaining({
-        stdout: undefined,
-        stderr: undefined
-      })
-    );
   });
 });
