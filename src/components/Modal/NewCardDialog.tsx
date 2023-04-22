@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Button, Dialog, Divider, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from '@material-ui/core';
-import * as io from '../../containers/io';
+import {
+  Button,
+  Dialog,
+  Divider,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from '@material-ui/core';
 import { flattenArray } from '../../containers/flatten';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import filetypeSelectors from '../../store/selectors/filetypes';
@@ -10,13 +20,14 @@ import { createMetafile } from '../../store/thunks/metafiles';
 import { DateTime } from 'luxon';
 import { CardType } from '../../store/types';
 import { buildCard } from '../../store/thunks/cards';
+import { extractExtension, replaceExt, validateFileName } from '../../containers/io';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     newCardDialog: {
       width: '100%',
       maxWidth: 530,
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: theme.palette.background.paper
     },
     formControl1: {
       margin: theme.spacing(1),
@@ -24,10 +35,10 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     formControl2: {
       margin: theme.spacing(1),
-      minWidth: 240,
+      minWidth: 240
     },
     button: {
-      margin: theme.spacing(1),
+      margin: theme.spacing(1)
     },
     timeline: {
       margin: theme.spacing(1),
@@ -43,18 +54,18 @@ const useStyles = makeStyles((theme: Theme) =>
       }
     },
     tl_content: {
-      padding: theme.spacing(0.5, 1, 0),
+      padding: theme.spacing(0.5, 1, 0)
     },
     section1: {
-      margin: theme.spacing(3, 2, 1),
+      margin: theme.spacing(3, 2, 1)
     },
     section2: {
-      margin: theme.spacing(1, 1),
+      margin: theme.spacing(1, 1)
     },
     section3: {
-      margin: theme.spacing(1, 1),
-    },
-  }),
+      margin: theme.spacing(1, 1)
+    }
+  })
 );
 
 const NewCardDialog = (props: Modal) => {
@@ -63,8 +74,11 @@ const NewCardDialog = (props: Modal) => {
   const filetypes = useAppSelector(state => filetypeSelectors.selectAll(state));
   const exts: string[] = flattenArray(filetypes.map(filetype => filetype.extensions)); // List of all valid extensions found w/in filetypes
   // configExts is a list of all .config extensions found within exts:
-  const configExts: string[] = flattenArray((filetypes.map(filetype =>
-    filetype.extensions.filter(ext => ext.charAt(0) === '.'))).filter(arr => arr.length > 0));
+  const configExts: string[] = flattenArray(
+    filetypes
+      .map(filetype => filetype.extensions.filter(ext => ext.charAt(0) === '.'))
+      .filter(arr => arr.length > 0)
+  );
 
   const [category, setCategory] = useState<CardType | undefined>(undefined);
   const [fileName, setFileName] = React.useState('');
@@ -81,7 +95,8 @@ const NewCardDialog = (props: Modal) => {
   }, []);
 
   const isCreateReady = () => {
-    if (category === 'Editor') return (isFileNameValid && isExtensionValid && filetype !== '' && fileName.indexOf('.') !== -1);
+    if (category === 'Editor')
+      return isFileNameValid && isExtensionValid && filetype !== '' && fileName.indexOf('.') !== -1;
     if (category === 'Browser') return true;
     else return false;
   };
@@ -91,38 +106,47 @@ const NewCardDialog = (props: Modal) => {
       event.preventDefault();
       handleClick();
     }
-  }
+  };
 
   const handleFileNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(event.target.value);
     // currExt takes the current extension found within the filename, or is an empty string if no extension is found
-    const currExt = event.target.value.indexOf('.') !== -1 ? io.extractExtension(event.target.value) : '';
+    const currExt =
+      event.target.value.indexOf('.') !== -1 ? extractExtension(event.target.value) : '';
     // newExt matches currExt to an existing extension within filetypes. If none is found, it returns undefined
-    const newExt = filetypes.find(filetype => filetype.extensions.find(extension => currExt === extension || '.' + currExt === extension));
+    const newExt = filetypes.find(filetype =>
+      filetype.extensions.find(extension => currExt === extension || '.' + currExt === extension)
+    );
 
-    if (newExt) { // If a valid filetype extension was matched, then set the file type
+    if (newExt) {
+      // If a valid filetype extension was matched, then set the file type
       setFiletype(newExt.filetype);
       setIsExtensionValid(true);
-    } else { // Otherwise, the extension is not valid
+    } else {
+      // Otherwise, the extension is not valid
       setIsExtensionValid(false);
     }
 
-    io.validateFileName(event.target.value, configExts, exts) ? setIsFileNameValid(true) : setIsFileNameValid(false);
+    validateFileName(event.target.value, configExts, exts)
+      ? setIsFileNameValid(true)
+      : setIsFileNameValid(false);
   };
 
   const handleFiletypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setFiletype(event.target.value as string);
 
     // Match with a valid filetype
-    const newFiletype = filetypes.find(filetype => filetype.filetype === event.target.value as string);
-    // If no matches were found, return (forces typeof newFiletype to be Filetype and not undefined) 
+    const newFiletype = filetypes.find(
+      filetype => filetype.filetype === (event.target.value as string)
+    );
+    // If no matches were found, return (forces typeof newFiletype to be Filetype and not undefined)
     if (!newFiletype) return;
 
     // Update the current file name with the new selected filetype's extension
-    const currFileName = io.replaceExt(fileName, newFiletype);
+    const currFileName = replaceExt(fileName, newFiletype);
     setFileName(currFileName);
 
-    if (io.validateFileName(currFileName, configExts, exts)) {
+    if (validateFileName(currFileName, configExts, exts)) {
       setIsFileNameValid(true);
       setIsExtensionValid(true);
     } else {
@@ -133,97 +157,137 @@ const NewCardDialog = (props: Modal) => {
   const handleClose = () => dispatch(modalRemoved(props.id));
 
   const handleClick = async () => {
-    if (category === 'Editor' && isFileNameValid && filetype !== '' && fileName.indexOf('.') !== -1 && isExtensionValid) {
-      const metafile = await dispatch(createMetafile({
-        metafile: {
-          name: fileName,
-          modified: DateTime.local().valueOf(),
-          handler: 'Editor',
-          filetype: filetype,
-          flags: []
-        }
-      })).unwrap();
+    if (
+      category === 'Editor' &&
+      isFileNameValid &&
+      filetype !== '' &&
+      fileName.indexOf('.') !== -1 &&
+      isExtensionValid
+    ) {
+      const metafile = await dispatch(
+        createMetafile({
+          metafile: {
+            name: fileName,
+            modified: DateTime.local().valueOf(),
+            handler: 'Editor',
+            filetype: filetype,
+            flags: []
+          }
+        })
+      ).unwrap();
       if (metafile) await dispatch(buildCard({ metafile: metafile }));
       handleClose();
     }
     if (category === 'Browser') {
-      const metafile = await dispatch(createMetafile({
-        metafile: {
-          name: 'Browser',
-          modified: DateTime.local().valueOf(),
-          handler: 'Browser',
-          filetype: 'Text',
-          flags: []
-        }
-      })).unwrap();
+      const metafile = await dispatch(
+        createMetafile({
+          metafile: {
+            name: 'Browser',
+            modified: DateTime.local().valueOf(),
+            handler: 'Browser',
+            filetype: 'Text',
+            flags: []
+          }
+        })
+      ).unwrap();
       if (metafile) dispatch(buildCard({ metafile: metafile }));
       handleClose();
     }
   };
 
   return (
-    <Dialog id='new-card-dialog' data-testid='new-card-dialog' open={true} onClose={handleClose} aria-labelledby='new-card-dialog'>
+    <Dialog
+      id="new-card-dialog"
+      data-testid="new-card-dialog"
+      open={true}
+      onClose={handleClose}
+      aria-labelledby="new-card-dialog"
+    >
       <div className={styles.newCardDialog}>
         <div className={styles.section1}>
-          <Grid container alignItems='center'>
+          <Grid container alignItems="center">
             <Grid item xs>
-              <Typography gutterBottom variant='h4'>
+              <Typography gutterBottom variant="h4">
                 New Card
               </Typography>
             </Grid>
-            <Grid item>
-            </Grid>
+            <Grid item></Grid>
           </Grid>
-          <Typography color='textSecondary' variant='body2'>
+          <Typography color="textSecondary" variant="body2">
             Select the card category and any required subfields to create a card.
           </Typography>
         </div>
-        <Divider variant='middle' />
+        <Divider variant="middle" />
         <div className={styles.section2}>
-          <Button className={styles.button} data-testid='editor-button' variant={category === 'Editor' ? 'contained' : 'outlined'}
-            color='primary' onClick={() => setCategory('Editor')}>Editor</Button>
-          <Button className={styles.button} data-testid='browser-button' variant={category === 'Browser' ? 'contained' : 'outlined'}
-            color='primary' onClick={() => setCategory('Browser')}>Browser</Button>
+          <Button
+            className={styles.button}
+            data-testid="editor-button"
+            variant={category === 'Editor' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => setCategory('Editor')}
+          >
+            Editor
+          </Button>
+          <Button
+            className={styles.button}
+            data-testid="browser-button"
+            variant={category === 'Browser' ? 'contained' : 'outlined'}
+            color="primary"
+            onClick={() => setCategory('Browser')}
+          >
+            Browser
+          </Button>
         </div>
-        {category === 'Editor' ?
+        {category === 'Editor' ? (
           <div className={styles.section2}>
             <TextField
-              id='new-card-file-name'
-              variant='outlined'
+              id="new-card-file-name"
+              variant="outlined"
               className={styles.formControl2}
-              label='Filename'
+              label="Filename"
               value={fileName}
               onChange={handleFileNameChange}
-              onKeyDown={(e) => handleKeyDown(e)}
+              onKeyDown={e => handleKeyDown(e)}
               disabled={category !== 'Editor'}
               error={fileName.length > 0 && !isFileNameValid}
-              helperText={(fileName.length > 0 && !isFileNameValid) ? 'Invalid Filename' : ''}
+              helperText={fileName.length > 0 && !isFileNameValid ? 'Invalid Filename' : ''}
             />
-            <FormControl data-testid='new-card-filetype-form' variant='outlined' className={styles.formControl2}>
-              <InputLabel htmlFor={'new-card-filetype-selector'} >Filetype</InputLabel>
+            <FormControl
+              data-testid="new-card-filetype-form"
+              variant="outlined"
+              className={styles.formControl2}
+            >
+              <InputLabel htmlFor={'new-card-filetype-selector'}>Filetype</InputLabel>
               <Select
-                id='new-card-filetype-selector'
-                aria-label='new-card-filetype-selector'
+                id="new-card-filetype-selector"
+                aria-label="new-card-filetype-selector"
                 inputProps={{ 'data-testid': 'new-card-filetype-selector' }}
                 disabled={category !== 'Editor'}
                 value={filetype}
                 onChange={handleFiletypeChange}
-                label='Filetype'
+                label="Filetype"
               >
-                {filetypes.map(filetype => <MenuItem key={filetype.id} value={filetype.filetype}>{filetype.filetype}</MenuItem>)}
+                {filetypes.map(filetype => (
+                  <MenuItem key={filetype.id} value={filetype.filetype}>
+                    {filetype.filetype}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </div>
-          : null}
+        ) : null}
         <div className={styles.section3}>
-          <Button id='create-card-button'
+          <Button
+            id="create-card-button"
             className={styles.button}
-            data-testid='create-card-button'
-            variant='outlined'
-            color='primary'
+            data-testid="create-card-button"
+            variant="outlined"
+            color="primary"
             disabled={!isCreateReady()}
             onClick={() => handleClick()}
-          >Create Card</Button>
+          >
+            Create Card
+          </Button>
         </div>
       </div>
     </Dialog>

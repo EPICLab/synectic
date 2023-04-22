@@ -8,11 +8,13 @@ import { writeFileAsync } from '../io';
 import { removeNullableProperties } from '../utils';
 import { getWorktreePaths } from './git-path';
 
-export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: string, origin?: string };
+export type GitConfig =
+  | { scope: 'none' }
+  | { scope: 'local' | 'global'; value: string; origin?: string };
 
 /**
- * Read an entry from git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality to resolve global 
- * git-config files. The return object indicates the value for the git config entry and the scope (`local` or `global`) in which the value was located. 
+ * Read an entry from git-config files; modeled after the *isomorphic-git/getConfig* function, but includes additional functionality to resolve global
+ * git-config files. The return object indicates the value for the git config entry and the scope (`local` or `global`) in which the value was located.
  * If the `local` or `global` parameter are disabled, set to `false`, then the search will not attempt to locate git-config files in that scope. If both
  * parameters are enabled, then `local` scope is searched first and only if there were no matches will the `global` scope then be searched.
  *
@@ -27,67 +29,84 @@ export type GitConfig = { scope: 'none' } | { scope: 'local' | 'global', value: 
  * file, or only a scope of `none` if the value could not be found in any scope.
  */
 export const getConfig = async ({
-    dir, gitdir = join(dir.toString(), '.git'), keyPath, local = true, global = true, showOrigin = false
+  dir,
+  gitdir = join(dir.toString(), '.git'),
+  keyPath,
+  local = true,
+  global = true,
+  showOrigin = false
 }: {
-    dir: PathLike,
-    gitdir?: PathLike,
-    keyPath: string,
-    local?: boolean,
-    global?: boolean,
-    showOrigin?: boolean
+  dir: PathLike;
+  gitdir?: PathLike;
+  keyPath: string;
+  local?: boolean;
+  global?: boolean;
+  showOrigin?: boolean;
 }): Promise<GitConfig> => {
-    const worktree = await getWorktreePaths(gitdir);
-    const localConfigPath = (local && worktree.gitdir) ? resolve(join(worktree.gitdir.toString(), 'config')) : null;
-    const globalConfigPath = (global) ? getGitConfigPath('global') : null;
+  const worktree = await getWorktreePaths(gitdir);
+  const localConfigPath =
+    local && worktree.gitdir ? resolve(join(worktree.gitdir.toString(), 'config')) : null;
+  const globalConfigPath = global ? getGitConfigPath('global') : null;
 
-    const readConfigValue = async (configPath: string | null, key: string) => {
-        if (!configPath) return null;
-        const configFile = await parse({ path: configPath });
-        if (!configFile) return null;
-        const config = parse.expandKeys(configFile);
-        return hasProperty(config, key) ? getProperty(config, key) as string : null;
-    }
-    const includeOrigin = (configPath: string | null) => showOrigin ? removeNullableProperties({ origin: configPath }) : {};
+  const readConfigValue = async (configPath: string | null, key: string) => {
+    if (!configPath) return null;
+    const configFile = await parse({ path: configPath });
+    if (!configFile) return null;
+    const config = parse.expandKeys(configFile);
+    return hasProperty(config, key) ? (getProperty(config, key) as string) : null;
+  };
+  const includeOrigin = (configPath: string | null) =>
+    showOrigin ? removeNullableProperties({ origin: configPath }) : {};
 
-    const localValue = local ? await readConfigValue(localConfigPath, keyPath) : null;
-    const globalValue = global ? await readConfigValue(globalConfigPath, keyPath) : null;
+  const localValue = local ? await readConfigValue(localConfigPath, keyPath) : null;
+  const globalValue = global ? await readConfigValue(globalConfigPath, keyPath) : null;
 
-    if (localValue) return { scope: 'local', value: localValue, ...includeOrigin(localConfigPath) };
-    if (globalValue) return { scope: 'global', value: globalValue, ...includeOrigin(globalConfigPath) };
-    return { scope: 'none' };
+  if (localValue) return { scope: 'local', value: localValue, ...includeOrigin(localConfigPath) };
+  if (globalValue)
+    return { scope: 'global', value: globalValue, ...includeOrigin(globalConfigPath) };
+  return { scope: 'none' };
 };
 
 /**
  * Update an entry in the git-config files; modeled after the *isomorphic-git/setConfig* function, but includes additional functionality
- * to resolve global git-config files. The scope is strictly respected (i.e. if the entry exists only in `global` scope but `local` scope 
+ * to resolve global git-config files. The scope is strictly respected (i.e. if the entry exists only in `global` scope but `local` scope
  * is specified, then a new entry will be added to the git-config file in `local` scope). Entries can be removed by setting value to
  * `undefined`; attempting to remove a non-existing entry will result in a no-op.
  *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory path.
  * @param obj.gitdir - The worktree git file or directory path.
- * @param obj.scope - The scope indicating whether the entry update should occur in the `local` or `global` git-config file. 
+ * @param obj.scope - The scope indicating whether the entry update should occur in the `local` or `global` git-config file.
  * @param obj.keyPath - The dot notation path of the desired git config entry (i.e. `user.name` or `user.email`).
  * @param obj.value - The value to be added, updated, or removed (by setting `undefined`) from the git-config file.
  * @returns {Promise<string | null>} A Promise object containing a string in ini-format with the contents of the updated git-config file.
  */
-export const setConfig = async ({ dir, gitdir = join(dir.toString(), '.git'), scope, keyPath, value }: {
-    dir: PathLike,
-    gitdir?: PathLike,
-    scope: 'local' | 'global',
-    keyPath: string,
-    value: string | boolean | number | undefined
+export const setConfig = async ({
+  dir,
+  gitdir = join(dir.toString(), '.git'),
+  scope,
+  keyPath,
+  value
+}: {
+  dir: PathLike;
+  gitdir?: PathLike;
+  scope: 'local' | 'global';
+  keyPath: string;
+  value: string | boolean | number | undefined;
 }): Promise<string | null> => {
-    const worktree = await getWorktreePaths(gitdir);
-    const configPath = (scope == 'local' && worktree.gitdir) ? resolve(join(worktree.gitdir.toString(), 'config')) : getGitConfigPath('global');
-    if (!configPath) return null; // no git-config file exists for the requested scope
+  const worktree = await getWorktreePaths(gitdir);
+  const configPath =
+    scope == 'local' && worktree.gitdir
+      ? resolve(join(worktree.gitdir.toString(), 'config'))
+      : getGitConfigPath('global');
+  if (!configPath) return null; // no git-config file exists for the requested scope
 
-    const configFile = await parse({ path: configPath });
-    if (!configFile) return null; // git-config file cannot be parsed; possible corrupted file?
-    if (value === undefined) deleteProperty(configFile, keyPath);
-    else setProperty(configFile, keyPath, value);
+  const configFile = await parse({ path: configPath });
+  if (!configFile) return null; // git-config file cannot be parsed; possible corrupted file?
+  if (value === undefined) deleteProperty(configFile, keyPath);
+  else setProperty(configFile, keyPath, value);
 
-    const updatedConfig = ini.stringify(configFile, { section: '', whitespace: true });
-    await writeFileAsync(configPath, updatedConfig);
-    return updatedConfig;
-}
+  const updatedConfig = ini.stringify(configFile, { section: '', whitespace: true });
+  await writeFileAsync(configPath, updatedConfig);
+  return updatedConfig;
+};

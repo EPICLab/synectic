@@ -6,7 +6,10 @@ import { Repository } from '../store/slices/repos';
 
 const promiseExec = util.promisify(exec);
 
-export const build = async (repo: Repository, base: string): Promise<{ installCode: number; buildCode: number; }> => {
+export const build = async (
+  repo: Repository,
+  base: string
+): Promise<{ installCode: number; buildCode: number }> => {
   const branchRoot = await getBranchRoot(repo.root, base);
   if (!branchRoot) return { installCode: -1, buildCode: -1 };
   const worktree = await getWorktreePaths(branchRoot);
@@ -17,7 +20,9 @@ export const build = async (repo: Repository, base: string): Promise<{ installCo
 
   let [installCode, buildCode] = [-1, -1];
   try {
-    const installResults = promiseExec(`${packageManager} install`, { cwd: worktree.dir.toString() });
+    const installResults = promiseExec(`${packageManager} install`, {
+      cwd: worktree.dir.toString()
+    });
     installResults.child.stdout?.on('data', data => console.log('INSTALL: ' + data));
     installResults.child.stderr?.on('data', data => console.log('INSTALL error: ' + data));
     installResults.child.on('close', code => {
@@ -29,7 +34,7 @@ export const build = async (repo: Repository, base: string): Promise<{ installCo
       installCode = Number(code);
     });
     installResults.child.on('error', error => {
-      console.log('INSTALL \'error\' listener found error:');
+      console.log("INSTALL 'error' listener found error:");
       console.log({ error });
     });
     await installResults;
@@ -42,7 +47,9 @@ export const build = async (repo: Repository, base: string): Promise<{ installCo
   if (installCode === 0) {
     const packageManagerBuildScript = packageManager === 'yarn' ? 'run' : 'run-script';
     try {
-      const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} build`, { cwd: worktree.dir.toString() });
+      const buildResults = promiseExec(`${packageManager} ${packageManagerBuildScript} build`, {
+        cwd: worktree.dir.toString()
+      });
       buildResults.child.stdout?.on('data', data => console.log('BUILD: ' + data));
       buildResults.child.stderr?.on('data', data => console.log('BUILD error: ' + data));
       buildResults.child.on('close', code => {
@@ -54,7 +61,7 @@ export const build = async (repo: Repository, base: string): Promise<{ installCo
         buildCode = Number(code);
       });
       buildResults.child.on('error', error => {
-        console.log('BUILD \'error\' listener found error:');
+        console.log("BUILD 'error' listener found error:");
         console.log({ error });
       });
       await buildResults;
@@ -67,4 +74,4 @@ export const build = async (repo: Repository, base: string): Promise<{ installCo
   console.log(`BUILD final`, { installCode, buildCode });
 
   return { installCode, buildCode };
-}
+};

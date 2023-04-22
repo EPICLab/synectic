@@ -12,7 +12,7 @@ const selectors = repoAdapter.getSelectors<RootState>(state => state.repos);
 type RepoEntities = ReturnType<typeof selectors.selectEntities>;
 
 const shallowEntitiesEqualityCheck = (a: RepoEntities, b: RepoEntities) =>
-    equalArrays(Object.values(a).filter(isDefined), Object.values(b).filter(isDefined));
+  equalArrays(Object.values(a).filter(isDefined), Object.values(b).filter(isDefined));
 const shallowReposEqualityCheck = (a: Repository[], b: Repository[]) => equalArrays(a, b);
 
 /**
@@ -21,12 +21,12 @@ const shallowReposEqualityCheck = (a: Repository[], b: Repository[]) => equalArr
  * `selectEntities`, but not when `id` input selector changes.
  */
 const selectById = createCachedSelector(
-    selectors.selectEntities,
-    (_state: RootState, id: EntityId) => id,
-    (repos, id) => repos[id]
+  selectors.selectEntities,
+  (_state: RootState, id: EntityId) => id,
+  (repos, id) => repos[id]
 )({
-    keySelector: (_, id) => id,
-    selectorCreator: createSelectorCreator(defaultMemoize, shallowEntitiesEqualityCheck),
+  keySelector: (_, id) => id,
+  selectorCreator: createSelectorCreator(defaultMemoize, shallowEntitiesEqualityCheck)
 });
 
 /**
@@ -35,12 +35,12 @@ const selectById = createCachedSelector(
  * `selectAll`, but not when `name` input selector changes.
  */
 const selectByName = createCachedSelector(
-    selectors.selectAll,
-    (_state: RootState, name: string) => name,
-    (repos, name): Repository | undefined => repos.find(repo => repo.name === name)
+  selectors.selectAll,
+  (_state: RootState, name: string) => name,
+  (repos, name): Repository | undefined => repos.find(repo => repo.name === name)
 )({
-    keySelector: (_, name) => name,
-    selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck),
+  keySelector: (_, name) => name,
+  selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck)
 });
 
 /**
@@ -49,12 +49,12 @@ const selectByName = createCachedSelector(
  * `selectAll`, but not when `root` input selector changes.
  */
 const selectByRoot = createCachedSelector(
-    selectors.selectAll,
-    (_state: RootState, root: PathLike) => root,
-    (repos, root) => repos.find(r => isEqualPaths(root, r.root))
+  selectors.selectAll,
+  (_state: RootState, root: PathLike) => root,
+  (repos, root) => repos.find(r => isEqualPaths(root, r.root))
 )({
-    keySelector: (_, root) => root,
-    selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck),
+  keySelector: (_, root) => root,
+  selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck)
 });
 
 /**
@@ -63,12 +63,12 @@ const selectByRoot = createCachedSelector(
  * `selectAll`, but not when `url` input selector changes.
  */
 const selectByUrl = createCachedSelector(
-    selectors.selectAll,
-    (_state: RootState, url: string) => url,
-    (repos, url): Repository | undefined => repos.find(repo => repo.url === url)
+  selectors.selectAll,
+  (_state: RootState, url: string) => url,
+  (repos, url): Repository | undefined => repos.find(repo => repo.url === url)
 )({
-    keySelector: (_, url) => url,
-    selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck),
+  keySelector: (_, url) => url,
+  selectorCreator: createSelectorCreator(defaultMemoize, shallowReposEqualityCheck)
 });
 
 const repoSelectors = { ...selectors, selectById, selectByName, selectByRoot, selectByUrl };
