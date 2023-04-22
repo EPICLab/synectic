@@ -3,7 +3,7 @@ import { Save } from '@material-ui/icons';
 import { createHash } from 'crypto';
 import React from 'react';
 import { fileSaveDialog } from '../../containers/dialogs';
-import { writeFileAsync } from 'src/containers/writeFileAsync';
+import { writeFileAsync } from '../../containers/io';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addItemInArray, removeItemInArray } from '../../store/immutables';
 import cachedSelectors from '../../store/selectors/cache';
