@@ -135,7 +135,7 @@
     "redux": "^4.2.1",
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
-    "reselect": "^4.1.7",
+    "reselect": "^4.1.8",
     "semver": "^7.4.0",
     "sha1": "^1.1.1"
   }
