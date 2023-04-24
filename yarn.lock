@@ -633,18 +633,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-squirrel@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "@electron-forge/maker-squirrel@npm:6.0.4"
+"@electron-forge/maker-squirrel@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "@electron-forge/maker-squirrel@npm:6.1.1"
   dependencies:
-    "@electron-forge/maker-base": ^6.0.4
-    "@electron-forge/shared-types": ^6.0.4
+    "@electron-forge/maker-base": 6.1.1
+    "@electron-forge/shared-types": 6.1.1
     electron-winstaller: ^5.0.0
     fs-extra: ^10.0.0
   dependenciesMeta:
     electron-winstaller:
       optional: true
-  checksum: 83e4504c6a87c12b278e39a7586310266fdaedce3585dcb07a9f4313c5d79732b3df2445bf40f21e64bc2b060621a389305d712b3b8416c6f13f2277ef7d9e15
+  checksum: 69f6f40636578e085bb3874ed9bf25369bed8ba43da67ac9dbce3b2690cfb70628a07d33ef89984f076757fc1c01a572c605cdd103a77d90617358da378c4246
   languageName: node
   linkType: hard
 
@@ -11872,7 +11872,7 @@ __metadata:
     "@electron-forge/maker-deb": ^6.1.1
     "@electron-forge/maker-dmg": ^6.1.1
     "@electron-forge/maker-rpm": ^6.1.1
-    "@electron-forge/maker-squirrel": ^6.0.4
+    "@electron-forge/maker-squirrel": ^6.1.1
     "@electron-forge/plugin-webpack": 6.1.1
     "@material-ui/core": ^4.12.4
     "@material-ui/icons": ^4.11.3
