@@ -590,6 +590,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@electron-forge/maker-base@npm:6.2.1":
+  version: 6.2.1
+  resolution: "@electron-forge/maker-base@npm:6.2.1"
+  dependencies:
+    "@electron-forge/shared-types": 6.2.1
+    fs-extra: ^10.0.0
+    which: ^2.0.2
+  checksum: 0b22f5dce43f3b15088ba2fff660918f4538c7e0d15b803a5df93a4022617d410eaf72e9d0838da5851480d4ca852b9dd4d030d03c4f61e3586c8e58b93e7a11
+  languageName: node
+  linkType: hard
+
 "@electron-forge/maker-deb@npm:^6.1.1":
   version: 6.1.1
   resolution: "@electron-forge/maker-deb@npm:6.1.1"
@@ -633,18 +644,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-squirrel@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "@electron-forge/maker-squirrel@npm:6.0.4"
+"@electron-forge/maker-squirrel@npm:^6.2.1":
+  version: 6.2.1
+  resolution: "@electron-forge/maker-squirrel@npm:6.2.1"
   dependencies:
-    "@electron-forge/maker-base": ^6.0.4
-    "@electron-forge/shared-types": ^6.0.4
+    "@electron-forge/maker-base": 6.2.1
+    "@electron-forge/shared-types": 6.2.1
     electron-winstaller: ^5.0.0
     fs-extra: ^10.0.0
   dependenciesMeta:
     electron-winstaller:
       optional: true
-  checksum: 83e4504c6a87c12b278e39a7586310266fdaedce3585dcb07a9f4313c5d79732b3df2445bf40f21e64bc2b060621a389305d712b3b8416c6f13f2277ef7d9e15
+  checksum: 62f496bbeb7bc7690b9b509689ddc467920d12fe2e263064bebf1692fc91b9d68641623dec2b2e0bb3c959f0086681dea64ab53f80a21f875ca2c3c3e1935b99
   languageName: node
   linkType: hard
 
@@ -693,6 +704,17 @@ __metadata:
     electron-packager: ^17.1.1
     listr2: ^5.0.3
   checksum: 20fc8ca61616f928dfc0647dff210a6889617977af207bbd052722cb26e5d4bdef61bcd131354a5d356bddfd83f5b73ec41dbb2e547efb751c4d687bb9d66b55
+  languageName: node
+  linkType: hard
+
+"@electron-forge/shared-types@npm:6.2.1":
+  version: 6.2.1
+  resolution: "@electron-forge/shared-types@npm:6.2.1"
+  dependencies:
+    "@electron/rebuild": ^3.2.10
+    electron-packager: ^17.1.1
+    listr2: ^5.0.3
+  checksum: 524c27b9d40f5b085c4a624aa24c97499c47cc632ab2cf17a4de57c52ebdaf59d842231082a7b7549387df958e8e8dd512082c03e504ad56f3c62d600a44619e
   languageName: node
   linkType: hard
 
@@ -11872,7 +11894,7 @@ __metadata:
     "@electron-forge/maker-deb": ^6.1.1
     "@electron-forge/maker-dmg": ^6.1.1
     "@electron-forge/maker-rpm": ^6.1.1
-    "@electron-forge/maker-squirrel": ^6.0.4
+    "@electron-forge/maker-squirrel": ^6.2.1
     "@electron-forge/plugin-webpack": 6.1.1
     "@material-ui/core": ^4.12.4
     "@material-ui/icons": ^4.11.3
