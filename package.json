@@ -111,7 +111,7 @@
     "chokidar": "^3.5.3",
     "dagre": "^0.8.5",
     "diff": "^5.1.0",
-    "dot-prop": "7.2.0",
+    "dot-prop": "8.0.1",
     "electron-squirrel-startup": "^1.0.0",
     "find-up": "^6.3.0",
     "git-config-path": "^2.0.0",

@@ -5075,12 +5075,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dot-prop@npm:7.2.0":
-  version: 7.2.0
-  resolution: "dot-prop@npm:7.2.0"
+"dot-prop@npm:8.0.1":
+  version: 8.0.1
+  resolution: "dot-prop@npm:8.0.1"
   dependencies:
-    type-fest: ^2.11.2
-  checksum: 08e4ff14f7305ffb5fda7e4c88f3cdbeb3cd97bd27efa4f47503869a2ee7f96938b4c21b0a2abf9c37d891a1bdb3994a09d219b0dcfd6130da4eaeb44c6f067e
+    type-fest: ^3.8.0
+  checksum: c6f00724c58a202282cbc3950aacf9e79e07938d080cdd2e5003069450eebf7750104037e04dfcc8f0f1fc2d42f752beb77a89ab71c7422a632a87dab743e8f1
   languageName: node
   linkType: hard
 
@@ -11911,7 +11911,7 @@ __metadata:
     css-loader: ^6.7.3
     dagre: ^0.8.5
     diff: ^5.1.0
-    dot-prop: 7.2.0
+    dot-prop: 8.0.1
     electron: 24.1.2
     electron-devtools-installer: ^3.2.0
     electron-squirrel-startup: ^1.0.0
@@ -12435,10 +12435,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^2.11.2":
-  version: 2.19.0
-  resolution: "type-fest@npm:2.19.0"
-  checksum: a4ef07ece297c9fba78fc1bd6d85dff4472fe043ede98bd4710d2615d15776902b595abf62bd78339ed6278f021235fb28a96361f8be86ed754f778973a0d278
+"type-fest@npm:^3.8.0":
+  version: 3.12.0
+  resolution: "type-fest@npm:3.12.0"
+  checksum: 11cb6f40e42f92c462a13677eafedf5c48353eaefa8e489a146e55fe0ae5cecd59a2ba03cd6b294345b5ea304361891a6313c23ed959fa0117f63fb71ee6cbab
   languageName: node
   linkType: hard
 
