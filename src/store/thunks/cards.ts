@@ -1,66 +1,77 @@
-import { PathLike } from 'fs-extra';
-import { DateTime } from 'luxon';
-import { randomUUID } from 'crypto';
-import { ExactlyOne, getRandomInt } from '../../containers/utils';
-import { extractFilename } from '../../containers/io';
+import { ExactlyOne } from '../../containers/utils';
 import { createAppAsyncThunk } from '../hooks';
-import { Card, cardAdded, cardUpdated } from '../slices/cards';
+import cardSelectors from '../selectors/cards';
+import stackSelectors from '../selectors/stacks';
+import { cardAdded, cardRemoved, cardUpdated } from '../slices/cards';
+import { stackUpdated } from '../slices/stacks';
+import { PathLike, UUID } from '../types';
 import { Metafile } from '../slices/metafiles';
-import { createMetafile, fetchMetafile } from './metafiles';
+import { DateTime } from 'luxon';
+import { fetchMetafile } from './metafiles';
 
-export const buildCard = createAppAsyncThunk<
-  Card,
+/**
+ * Create a new Card component that is added to the Redux store and the UI.
+ * @param path The relative or absolute path to a file or directory.
+ * @param metafile The initial Metafile object that should be encapsulated within the new Card component.
+ * @returns {UUID} The UUID of the new Card component.
+ */
+export const createCard = createAppAsyncThunk<
+  UUID,
   ExactlyOne<{ path: PathLike; metafile: Metafile }>
->('cards/buildCard', async (input, thunkAPI) => {
-  let card: Card = thunkAPI.dispatch(
+>('cards/createCard', async (input, thunkAPI) => {
+  const cardId = window.api.uuid();
+  const card = thunkAPI.dispatch(
     cardAdded({
-      id: randomUUID(),
-      name: input.metafile ? input.metafile.name : extractFilename(input.path),
+      id: cardId,
+      name: input.metafile ? input.metafile.name : window.api.fs.extractFilename(input.path),
+      type: input.metafile?.handler ?? 'Editor',
+      metafile: input.metafile?.id ?? '',
       created: DateTime.local().valueOf(),
       modified: DateTime.local().valueOf(),
       captured: undefined,
       expanded: false,
-      zIndex: 1,
-      left: getRandomInt(10, 70),
-      top: getRandomInt(70, 130),
-      type: input.metafile ? input.metafile.handler : 'Loading',
-      metafile: input.metafile ? input.metafile.id : '',
-      classes: []
+      flipped: false,
+      x: 40,
+      y: 40
     })
   ).payload;
-
   if (input.path) {
     const metafile = await thunkAPI.dispatch(fetchMetafile({ path: input.path })).unwrap();
     if (metafile) {
-      card = thunkAPI.dispatch(
+      thunkAPI.dispatch(
         cardUpdated({
           ...card,
           name: metafile.name,
           type: metafile.handler,
           metafile: metafile.id
         })
-      ).payload;
+      );
     }
   }
-  return card;
+  return cardId;
 });
 
-export const addBranchCard = createAppAsyncThunk<Card, void>(
-  'cards/addBranchCard',
-  async (_, thunkAPI) => {
-    const metafile = await thunkAPI
-      .dispatch(
-        createMetafile({
-          metafile: {
-            name: 'Branches',
-            modified: DateTime.local().valueOf(),
-            handler: 'Branches',
-            filetype: 'Text',
-            flags: []
-          }
+/**
+ * Remove a Card component from the Redux store and the UI.
+ * @param card The UUID of the Card component to remove.
+ */
+export const removeCard = createAppAsyncThunk<void, { card: UUID }>(
+  'cards/removeCard',
+  async (input, thunkAPI) => {
+    const card = cardSelectors.selectById(thunkAPI.getState(), input.card);
+    const stacks = stackSelectors.selectEntities(thunkAPI.getState());
+    const stack = card?.captured ? stacks[card?.captured] : undefined;
+
+    if (stack && card) {
+      thunkAPI.dispatch(
+        stackUpdated({
+          ...stack,
+          cards: stack.cards.filter(c => c !== card.id)
         })
-      )
-      .unwrap();
-    return await thunkAPI.dispatch(buildCard({ metafile })).unwrap();
+      );
+      thunkAPI.dispatch(cardRemoved(card.id));
+    } else if (card) {
+      thunkAPI.dispatch(cardRemoved(card.id));
+    }
   }
 );

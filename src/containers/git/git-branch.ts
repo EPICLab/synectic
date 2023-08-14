@@ -1,14 +1,13 @@
 import { PathLike } from 'fs-extra';
 import { Branch } from '../../store/slices/branches';
 import { Expand, isDefined, WithRequired } from '../utils';
-import { execute } from '../exec';
+import execute from '../exec';
 
 type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
 
 /**
  * List branches. The default is to list local branches (similar to `git branch`). Enabling additional options expands the output.
  * Matches the functionality of [`git-branch`](https://git-scm.com/docs/git-branch).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.showCurrent - Optional flag to only print the name of the current branch. In detached HEAD state, nothing is printed.
@@ -36,30 +35,50 @@ export const listBranch = async ({
 
   // Remove any remote-tracking references that no longer exist on the remote
   // TODO: Migrate into any future `git-fetch` implementation
-  const cleanup = await execute(`git fetch --prune -a`, dir.toString());
-  if (cleanup.stderr.length > 0) console.error(cleanup.stderr);
-  if (cleanup.stdout.length > 0) console.log(cleanup.stdout);
+  const cleanup = await execute({
+    command: 'git',
+    args: ['fetch', '--prune', '-a'],
+    cwd: dir.toString()
+  });
+  if (cleanup.stderr) console.error(cleanup.stderr);
+  if (cleanup.stdout) console.log(cleanup.stdout);
 
   if (showCurrent) {
-    const output = await execute(`git branch --show-current`, dir.toString());
-    if (output.stderr.length > 0) console.error(output.stderr);
-    return [{ ref: output.stdout.replace(/[\n\r]/g, '') }];
+    const output = await execute({
+      command: 'git',
+      args: ['branch', '--show-current'],
+      cwd: dir.toString()
+    });
+    if (output.stderr) console.error(output.stderr);
+    return [{ ref: output.stdout?.replace(/[\n\r]/g, '') ?? '' }];
   }
 
   if (all) {
-    const output = await execute(`git branch --all ${verboseOption}`, dir.toString());
-    if (output.stderr.length > 0) console.error(output.stderr);
+    const output = await execute({
+      command: 'git',
+      args: ['branch', '--all', verboseOption],
+      cwd: dir.toString()
+    });
+    if (output.stderr) console.error(output.stderr);
     return processBranchOutput(output.stdout);
   }
 
   if (remotes) {
-    const output = await execute(`git branch --remotes ${verboseOption}`, dir.toString());
-    if (output.stderr.length > 0) console.error(output.stderr);
+    const output = await execute({
+      command: 'git',
+      args: ['branch', '--remotes', verboseOption],
+      cwd: dir.toString()
+    });
+    if (output.stderr) console.error(output.stderr);
     return processBranchOutput(output.stdout);
   }
 
-  const output = await execute(`git branch ${verboseOption}`, dir.toString());
-  if (output.stderr.length > 0) console.error(output.stderr);
+  const output = await execute({
+    command: 'git',
+    args: ['branch', verboseOption],
+    cwd: dir.toString()
+  });
+  if (output.stderr) console.error(output.stderr);
   return processBranchOutput(output.stdout);
 };
 
@@ -68,7 +87,6 @@ export const listBranch = async ({
  * case for `startPoint`, you may use `"A...B"` as a shortcut for the merge base of `A` and `B` if there is exactly one
  * merge base. You can leave out at most on of `A` or `B`, in which case it defaults to HEAD. Matches the functionality
  * of [`git-branch`](https://git-scm.com/docs/git-branch).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.branchName - Branch name that should be created.
@@ -89,11 +107,12 @@ export const createBranch = async ({
   startPoint?: string;
   force?: boolean;
 }): Promise<boolean> => {
-  const output = await execute(
-    `git branch ${branchName} ${startPoint} ${force ? '--force' : ''}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) {
+  const output = await execute({
+    command: 'git',
+    args: ['branch', branchName, startPoint, force ? '--force' : ''],
+    cwd: dir.toString()
+  });
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
@@ -104,7 +123,6 @@ export const createBranch = async ({
  * Set up the branch tracking information so that `upstream` is considered the `branchName`'s upstream branch. If no `branchName`
  * is specified, then it defaults to the current branch in the worktree root directory. This can also be achieved using
  * `git push --set-upstream`. Matches the functionality of [`git-branch`](https://git-scm.com/docs/git-branch).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.upstream - The remote name (e.g. `origin`).
@@ -119,18 +137,18 @@ export const setUpstreamBranch = async ({
   upstream: string;
   branchName?: string;
 }) => {
-  const output = await execute(
-    `git branch --set-upstream-to=${upstream} ${branchName ? branchName : ''}}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) console.error(output.stderr);
-  if (output.stdout.length > 0) console.log(output.stdout);
+  const output = await execute({
+    command: 'git',
+    args: ['branch', `--set-upstream-to=${upstream}`, branchName ?? ''],
+    cwd: dir.toString()
+  });
+  if (output.stderr) console.error(output.stderr);
+  if (output.stdout) console.log(output.stdout);
 };
 
 /**
  * Remove the upstream information for `branchName`. If no branch is specified it defaults to the current branch. Matches the
  * functionality of [`git-branch`](https://git-scm.com/docs/git-branch).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.branchName - Optional branch name that should be updated; defaults to the current branch if not provided.
@@ -142,18 +160,18 @@ export const unsetUpstreamBranch = async ({
   dir: PathLike;
   branchName?: string;
 }) => {
-  const output = await execute(
-    `git branch --unset_upstream ${branchName ? branchName : ''}}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) console.error(output.stderr);
-  if (output.stdout.length > 0) console.log(output.stdout);
+  const output = await execute({
+    command: 'git',
+    args: ['branch', '--unset_upstream', branchName ?? ''],
+    cwd: dir.toString()
+  });
+  if (output.stderr) console.error(output.stderr);
+  if (output.stdout) console.log(output.stdout);
 };
 
 /**
  * Move/rename a branch, together with its config and reflog.
  * Matches the functionality of [`git-branch`](https://git-scm.com/docs/git-branch).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.newBranch - New branch name.
@@ -174,21 +192,21 @@ export const moveBranch = async ({
   oldBranch?: string;
   force?: boolean;
 }): Promise<boolean> => {
-  const output = await execute(
-    `git branch ${force ? '--move --force' : '--move'} ${oldBranch ? oldBranch : ''} ${newBranch}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) {
+  const output = await execute({
+    command: 'git',
+    args: ['branch', '--move', force ? '--force' : '', oldBranch ?? '', newBranch],
+    cwd: dir.toString()
+  });
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
 /**
  * Copy a branch, together with its config and reflog. Matches the functionality of [`git-branch`](https://git-scm.com/docs/git-branch).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.newBranch - New branch name.
@@ -207,22 +225,22 @@ export const copyBranch = async ({
   oldBranch?: string;
   force?: boolean;
 }): Promise<boolean> => {
-  const output = await execute(
-    `git branch ${force ? '--copy --force' : '--copy'} ${oldBranch ? oldBranch : ''} ${newBranch}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) {
+  const output = await execute({
+    command: 'git',
+    args: ['branch', '--copy', force ? '--force' : '', oldBranch ?? '', newBranch],
+    cwd: dir.toString()
+  });
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
 /**
  * Delete a branch. The branch must be fully merged in its upstream branch, or in HEAD if no upstream was set with `git branch --track` or
  * `git branch --set-upstream-to`. Matches the functionality of [`git-branch`](https://git-scm.com/docs/git-branch).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.branchName - The branch to be deleted. You may specify more than one branch for deletion. If the branch currently has a reflog
@@ -243,19 +261,21 @@ export const deleteBranch = async ({
   remote?: boolean;
   force?: boolean;
 }) => {
-  const output = await execute(
-    `git branch ${force ? '--delete --force' : '--delete'} ${remote ? '-r' : ''} ${branchName}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) {
+  const output = await execute({
+    command: 'git',
+    args: ['branch', '--delete', force ? '--force' : '', remote ? '-r' : '', branchName],
+    cwd: dir.toString()
+  });
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
-export const processBranchOutput = (output: string): BranchOutput[] => {
+export const processBranchOutput = (output: string | undefined): BranchOutput[] => {
+  if (!isDefined(output)) return [];
   const result: BranchOutput[] = output
     .split(/\r?\n/)
     .map(line => {

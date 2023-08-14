@@ -1,32 +1,41 @@
 import { PathLike } from 'fs-extra';
-import { execute } from '../exec';
+import execute from '../exec';
 
-type RevParseOption = 'isBareRepository' | 'isShallowRepository' | 'abbrevRef';
+type RevParseOption = 'verify' | 'isBareRepository' | 'isShallowRepository' | 'abbrevRef';
 
 /**
  * Pick out and massage parameters for accessing porcelainish commands.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
- * @param obj.options - The options fo distinguishing particular parameters.
+ * @param obj.opts - The options fo distinguishing particular parameters.
  * @param obj.args - Flags and parameters to be parsed.
  * @returns {Promise<string | undefined>} A Promise object containing a string version of the output results,
- * or `undefined` if execute failed.
+ * or `undefined` if execute failed. If `verify` option is used, this becomes `true`/`false` strings.
  */
 export const revParse = async ({
   dir,
-  options,
+  opts,
   args
 }: {
   dir: PathLike;
-  options?: RevParseOption[];
-  args?: string;
+  opts?: RevParseOption[];
+  args?: string[];
 }): Promise<string | undefined> => {
-  const opts = options?.map(option => processRevParseOption(option)).join(' ') ?? '';
-  const output = await execute(`git rev-parse ${opts} ${args ?? ''}`, dir.toString());
-  // execute output can result in `{ stdout: undefined, stderr: undefined }`
-  if (output.stderr !== undefined && output.stderr.length > 0) console.error(output.stderr);
-  return output.stdout;
+  const options = opts?.map(opt => processRevParseOption(opt)) ?? [];
+  const argument = args ?? [];
+
+  const output = await execute({
+    command: 'git',
+    args: ['rev-parse', ...options, ...argument],
+    cwd: dir.toString()
+  });
+  if (output.stderr) {
+    if (options.includes('--verify')) return 'false';
+    console.error(output.stderr);
+  }
+  if (options.includes('--verify')) return 'true';
+  if (output.stdout) return output.stdout.trim();
+  return undefined;
 };
 
 const processRevParseOption = (option: RevParseOption) => {
@@ -40,8 +49,8 @@ const processRevParseOption = (option: RevParseOption) => {
     case 'abbrevRef': {
       return '--abbrev-ref';
     }
-    default: {
-      return '';
+    case 'verify': {
+      return '--verify';
     }
   }
 };

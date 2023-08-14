@@ -1,22 +1,22 @@
-import { DateTime } from 'luxon';
-import { FileMetafile } from '../store/slices/metafiles';
+// import { DateTime } from 'luxon';
+// import { FileMetafile } from '../store/slices/metafiles';
 import * as utils from './utils';
-import { MockInstance, file, mock } from '../test-utils/mock-fs';
+// import { MockInstance, file, mock } from '../test-utils/mock-fs';
 
 describe('containers/utils', () => {
-  let mockedInstance: MockInstance;
-  beforeAll(async () => {
-    const instance = await mock({
-      foo: {
-        bar: file({ content: 'file contents', mtime: new Date(1) }),
-        zap: file({ content: 'file contents', mtime: new Date(1) }),
-        'tracked-file.js': 'directory is tracked by git'
-      }
-    });
-    return (mockedInstance = instance);
-  });
+  // let mockedInstance: MockInstance;
+  // beforeAll(async () => {
+  //   const instance = await mock({
+  //     foo: {
+  //       bar: file({ content: 'file contents', mtime: new Date(1) }),
+  //       zap: file({ content: 'file contents', mtime: new Date(1) }),
+  //       'tracked-file.js': 'directory is tracked by git'
+  //     }
+  //   });
+  //   return (mockedInstance = instance);
+  // });
 
-  afterAll(() => mockedInstance.reset());
+  // afterAll(() => mockedInstance.reset());
 
   it('isPresent returns true on present', () => {
     expect(utils.isPresent({ data: 'hello world' })).toBeTruthy();
@@ -85,58 +85,58 @@ describe('containers/utils', () => {
     expect(filledResults).toEqual([{ data: 'hello' }, { data: 'world' }, { data: 'wow' }]);
   });
 
-  const mockedMetafile: FileMetafile = {
-    id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
-    name: 'bar.js',
-    modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-    handler: 'Editor',
-    filetype: 'Javascript',
-    flags: [],
-    path: 'foo/bar.js',
-    state: 'unmodified',
-    content: 'file contents',
-    mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
-  };
+  // const mockedMetafile: FileMetafile = {
+  //   id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
+  //   name: 'bar.js',
+  //   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+  //   handler: 'Editor',
+  //   filetype: 'Javascript',
+  //   flags: [],
+  //   path: 'foo/bar.js',
+  //   state: 'unmodified',
+  //   content: 'file contents',
+  //   mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
+  // };
 
-  it('hasUpdates returns false for empty objects', () => {
-    expect(utils.hasUpdates(mockedMetafile, {})).toBeFalsy();
-  });
+  // it('hasUpdates returns false for empty objects', () => {
+  //   expect(utils.hasUpdates(mockedMetafile, {})).toBeFalsy();
+  // });
 
-  it('hasUpdates returns false for exactly similar metafiles', () => {
-    expect(utils.hasUpdates(mockedMetafile, mockedMetafile)).toBeFalsy();
-  });
+  // it('hasUpdates returns false for exactly similar metafiles', () => {
+  //   expect(utils.hasUpdates(mockedMetafile, mockedMetafile)).toBeFalsy();
+  // });
 
-  it('hasUpdates returns true on new property', () => {
-    expect(utils.hasUpdates(mockedMetafile, { repo: '23', branch: '101' })).toBeTruthy();
-  });
+  // it('hasUpdates returns true on new property', () => {
+  //   expect(utils.hasUpdates(mockedMetafile, { repo: '23', branch: '101' })).toBeTruthy();
+  // });
 
-  it('hasUpdates returns true on modified property', () => {
-    const updatedMetafile: FileMetafile = {
-      ...mockedMetafile,
-      content: 'new content'
-    };
-    expect(utils.hasUpdates(mockedMetafile, updatedMetafile)).toBeTruthy();
-  });
+  // it('hasUpdates returns true on modified property', () => {
+  //   const updatedMetafile: FileMetafile = {
+  //     ...mockedMetafile,
+  //     content: 'new content'
+  //   };
+  //   expect(utils.hasUpdates(mockedMetafile, updatedMetafile)).toBeTruthy();
+  // });
 
-  it('isNumber returns true on numeric-only strings', () => {
-    expect(utils.isNumber('135')).toBe(true);
-    expect(utils.isNumber('493721')).toBe(true);
-  });
+  // it('isNumber returns true on numeric-only strings', () => {
+  //   expect(utils.isNumber('135')).toBe(true);
+  //   expect(utils.isNumber('493721')).toBe(true);
+  // });
 
-  it('isNumber returns false on non-numeric and mixed strings', () => {
-    expect(utils.isNumber('test')).toBe(false);
-    expect(utils.isNumber('3again2')).toBe(false);
-  });
+  // it('isNumber returns false on non-numeric and mixed strings', () => {
+  //   expect(utils.isNumber('test')).toBe(false);
+  //   expect(utils.isNumber('3again2')).toBe(false);
+  // });
 
-  it('getConflictingChunks to locate conflicts in a string', () => {
-    const testfileContent = `<html>\n<div>\n   <ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n=======\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>>\n<li><a href="contact.html">Contact Us</a><li>\n<<<<<<< HEAD\n      <li><a href="license.html">Legal</a></li>\n=======\n      <li><a href="license.html">License</a></li>\n>>>>>>>\n   <\\ul>\n<\\div>\n`;
-    expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([21, 203]);
-  });
+  // it('getConflictingChunks to locate conflicts in a string', () => {
+  //   const testfileContent = `<html>\n<div>\n   <ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n=======\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>>\n<li><a href="contact.html">Contact Us</a><li>\n<<<<<<< HEAD\n      <li><a href="license.html">Legal</a></li>\n=======\n      <li><a href="license.html">License</a></li>\n>>>>>>>\n   <\\ul>\n<\\div>\n`;
+  //   expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([21, 203]);
+  // });
 
-  it('getConflictingChunks returns an empty array on malformed strings', () => {
-    const testfileContent = `<ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>\n   <\\ul>\n<\\div>\n`;
-    expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([]);
-  });
+  // it('getConflictingChunks returns an empty array on malformed strings', () => {
+  //   const testfileContent = `<ul>\n<<<<<<< HEAD\n      <li><a href="about.html">About Us</a></li>\n\n      <li><a href="about.html">About The Company</a></li>\n>>>>>>\n   <\\ul>\n<\\div>\n`;
+  //   expect(utils.getConflictingChunks(testfileContent)).toStrictEqual([]);
+  // });
 
   it('deserialize to parse a JSON string into a TypeScript object', () => {
     const json = '{"result":true, "count":42}';

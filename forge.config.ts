@@ -44,6 +44,7 @@ const config: ForgeConfig = {
       mainConfig,
       renderer: {
         config: rendererConfig,
+        // nodeIntegration: true,
         entryPoints: [
           {
             html: './src/index.html',
@@ -54,7 +55,9 @@ const config: ForgeConfig = {
             }
           }
         ]
-      }
+      },
+      devContentSecurityPolicy:
+        "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:; worker-src * data: 'unsafe-eval' 'unsafe-inline' blob:"
     })
   ]
 };

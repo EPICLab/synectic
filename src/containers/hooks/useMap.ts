@@ -1,55 +1,43 @@
-// copied from: https://usehooks-ts.com/react-hook/use-map
-import { useCallback, useState } from 'react'
-
-export type MapOrEntries<K, V> = Map<K, V> | [K, V][]
-
-// Public interface
-export interface Actions<K, V> {
-    set: (key: K, value: V) => void
-    setAll: (entries: MapOrEntries<K, V>) => void
-    remove: (key: K) => void
-    reset: Map<K, V>['clear']
-}
-
-// We hide some setters from the returned map to disable autocompletion
-export type ReturnMap<K, V> = [Omit<Map<K, V>, 'set' | 'clear' | 'delete'>, Actions<K, V>];
+// copied from: https://usehooks.com/usemap, modified with TypeScript types as needed
+import { useReducer, useRef } from 'react';
 
 /**
- * Custom React Hook for providing an API to interact with a `Map` data structure. It takes an array of tuples in 
- * the `[key, value]` format and returns an interface for interacting with the Map instance via common map functions.
- * 
- * @param initialState An initial `Map` entry or nothing.
- * @returns {[Map, Actions]} An instance of `Map` (including `foreach`, `get`, `has`, `entries`, `keys`, `values`, and `size`),
- * and an object of methods (`set`, `setAll`, `remove`, and `reset`) for updating the map.
+ * Custom React Hook to synchronize and update state based on the Map data structure.
+ * This hook provides a wrapper around the JavaScript
+ * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map Map}
+ * object and allows you to easily update and synchronize the map state with the component’s
+ * rendering. By using this hook, you can add, delete, or clear entries in the map while ensuring
+ * that the component re-renders whenever these operations are performed.
+ * @param initialState An initial state consisting of key-value tuples in an array object, where
+ * any value (both objects and
+ * {@link https://developer.mozilla.org/en-US/docs/Glossary/Primitive primitive values}) maybe used
+ * as either a key or a value.
+ * @returns {Map} A Map object holding key-value pairs that adhere to the types provided explicitly
+ * by type variables, or resolved to the type of the first key-value pair in the `initialState`.
  */
-function useMap<K, V>(
-    initialState: MapOrEntries<K, V> = new Map(),
-): ReturnMap<K, V> {
-    const [map, setMap] = useState(new Map(initialState));
+const useMap = <K, V>(initialState: Iterable<readonly [K, V]> | null | undefined): Map<K, V> => {
+  const mapRef = useRef(new Map(initialState));
+  const [, reRender] = useReducer(x => x + 1, 0);
 
-    const actions: Actions<K, V> = {
-        set: useCallback((key, value) => {
-            setMap(prev => new Map(prev.set(key, value)))
-        }, []),
+  mapRef.current.set = (...args) => {
+    Map.prototype.set.apply(mapRef.current, args);
+    reRender();
+    return mapRef.current;
+  };
 
-        setAll: useCallback(entries => {
-            setMap(() => new Map(entries));
-        }, []),
+  mapRef.current.clear = (...args) => {
+    Map.prototype.clear.apply(mapRef.current, args);
+    reRender();
+  };
 
-        remove: useCallback(key => {
-            setMap(prev => {
-                const copy = new Map(prev);
-                copy.delete(key);
-                return copy;
-            })
-        }, []),
+  mapRef.current.delete = (...args) => {
+    const res = Map.prototype.delete.apply(mapRef.current, args);
+    reRender();
 
-        reset: useCallback(() => {
-            setMap(() => new Map());
-        }, []),
-    };
+    return res;
+  };
 
-    return [map, actions];
-}
+  return mapRef.current;
+};
 
 export default useMap;

@@ -1,12 +1,11 @@
 import { PathLike } from 'fs-extra';
 import { Either } from '../utils';
-import { execute } from '../exec';
+import execute from '../exec';
 
 /**
  * Updates the files in the working tree to match the version in the index or the specified tree. If no pathspec was
  * given, this command will also update HEAD to set the specified branch as the current branch. Matches the functionality
  * of [`git-checkout`](https://git-scm.com/docs/git-checkout).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.branch - The branch name to switch to by updating the index and files in the working tree, and by pointing
@@ -33,11 +32,12 @@ export const checkoutBranch = async ({
   force?: boolean;
   merge?: boolean;
 }): Promise<void> => {
-  const output = await execute(
-    `git checkout ${branch} ${force ? '--force' : ''} ${merge ? '--merge' : ''}`,
-    dir.toString()
-  );
-  if (!quiet && output.stderr.length > 0) console.error(output.stderr);
+  const output = await execute({
+    command: 'git',
+    args: ['checkout', branch, force ? '--force' : '', merge ? '--merge' : ''],
+    cwd: dir.toString()
+  });
+  if (!quiet && output.stderr) console.error(output.stderr);
 };
 
 /**
@@ -46,7 +46,6 @@ export const checkoutBranch = async ({
  * state recorded in the commit plus the local modifications. When the `commitish` argument is a branch name, this
  * command will detach HEAD at the tip of the branch. Matches the functionality of
  * [`git-checkout`](https://git-scm.com/docs/git-checkout).
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.commitish - The SHA1 commit hash or branch name to check out.
@@ -72,12 +71,13 @@ export const checkoutDetached = async ({
   force?: boolean;
   merge?: boolean;
 }): Promise<void> => {
-  const output = await execute(
-    `git checkout --detach ${commitish} ${force ? '--force' : ''} ${merge ? '--merge' : ''}`,
-    dir.toString()
-  );
-  if (!quiet && output.stderr.length > 0) console.error(output.stderr);
-  if (!quiet && output.stdout.length > 0) console.log(output.stdout);
+  const output = await execute({
+    command: 'git',
+    args: ['checkout', '--detach', commitish, force ? '--force' : '', merge ? '--merge' : ''],
+    cwd: dir.toString()
+  });
+  if (!quiet && output.stderr) console.error(output.stderr);
+  if (!quiet && output.stdout) console.log(output.stdout);
 };
 
 /**
@@ -89,7 +89,6 @@ export const checkoutDetached = async ({
  * index, the checkout operation will fail and nothing will be checked out. Using -f will ignore these unmerged entries. The contents from
  * a specific side of the merge can be checked out of the index by using --ours or --theirs. With -m, changes made to the working tree
  * file can be discarded to re-create the original conflicted merge result.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.pathspec - Pattern used to limit paths in *git* commands. See: {@link https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec}
@@ -101,6 +100,7 @@ export const checkoutDetached = async ({
  * the current branch and the branch to which you are switching, the command refuses to switch branches in order to
  * preserve your modifications in context. However, with this option, a three-way merge between the current branch,
  * your working tree contents, and the new branch is done, and you will be on the new branch.
+ * @returns {Promise<boolean>} A Promise object containing a boolean indicating whether the branch was successfully overwritten.
  */
 export const checkoutPathspec = async ({
   dir,
@@ -125,13 +125,20 @@ export const checkoutPathspec = async ({
     merge?: boolean;
   }
 >): Promise<boolean> => {
-  const output = await execute(
-    `git checkout ${force ? '--force' : ''} ${ours ? '--ours' : ''} ${theirs ? '--theirs' : ''} ${
-      merge ? '--merge' : ''
-    } -- ${pathspec}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) {
+  const output = await execute({
+    command: 'git',
+    args: [
+      'checkout',
+      force ? '--force' : '',
+      ours ? '--ours' : '',
+      theirs ? '--theirs' : '',
+      merge ? '--merge' : '',
+      '--',
+      pathspec
+    ],
+    cwd: dir.toString()
+  });
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
@@ -140,7 +147,6 @@ export const checkoutPathspec = async ({
 
 /**
  * A new branch will be created as if [`git-branch`](https://git-scm.com/docs/git-branch) were called and then checked out.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory. Matches the functionality of [`git-checkout`](https://git-scm.com/docs/git-checkout).
  * @param obj.newBranch - The branch name to be created.
@@ -160,11 +166,12 @@ export const checkoutNewBranch = async ({
   startPoint: string;
   force?: boolean;
 }): Promise<boolean> => {
-  const output = await execute(
-    `git checkout ${force ? '-B' : '-b'} ${newBranch} ${startPoint ? startPoint : ''}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) {
+  const output = await execute({
+    command: 'git',
+    args: ['checkout', force ? '-B' : '-b', newBranch, startPoint ?? ''],
+    cwd: dir.toString()
+  });
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }

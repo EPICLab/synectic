@@ -1,27 +1,56 @@
-import React, { useState } from 'react';
-import { isDefined } from '../../containers/utils';
-import { useAppSelector } from '../../store/hooks';
+import React from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import metafileSelectors from '../../store/selectors/metafiles';
 import { Card } from '../../store/slices/cards';
-import MetadataViewButton from '../Button/MetadataView';
-import RefreshButton from '../Button/Refresh';
-import Metadata from '../Card/Metadata';
+import { Badge, List } from '@mui/material';
+import { ReverseListItem } from '../Card/ReverseItem';
+import { Source } from '@mui/icons-material';
+import cardSelectors from '../../store/selectors/cards';
+import { modalAdded } from '../../store/slices/modals';
 
 const DiffReverse = (props: Card) => {
-    const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.metafile));
-    const [view, setView] = useState('metadata');
+  const metafile = useAppSelector(state => metafileSelectors.selectById(state, props.metafile));
+  const targetCards = useAppSelector(state =>
+    cardSelectors.selectByIds(state, metafile?.targets ?? [])
+  );
+  const targetMetafiles = useAppSelector(state =>
+    metafileSelectors.selectByIds(
+      state,
+      targetCards.map(c => c.metafile)
+    )
+  );
+  const dispatch = useAppDispatch();
 
-    return (
-        <>
-            <div className='buttons'>
-                <MetadataViewButton onClickHandler={() => setView('metadata')} enabled={isDefined(metafile)} mode='dark' />
-                {isDefined(metafile) ? <RefreshButton metafileIds={[metafile.id]} mode='dark' /> : undefined}
-            </div>
-            <div className='area'>
-                {view === 'metadata' && isDefined(metafile) ? <Metadata metafile={metafile} /> : undefined}
-            </div>
-        </>
+  const copyToClipboard = (text: string) => {
+    window.api.clipboard.writeText(text);
+    dispatch(
+      modalAdded({
+        id: window.api.uuid(),
+        type: 'Notification',
+        options: {
+          message: `'${text}' copied to clipboard`
+        }
+      })
     );
+  };
+
+  return (
+    <List dense>
+      {targetMetafiles.map((metafile, idx) => (
+        <ReverseListItem
+          key={idx}
+          icon={
+            <Badge badgeContent={idx + 1} color="primary">
+              <Source />
+            </Badge>
+          }
+          name={metafile?.path ?? ''}
+          tooltip="Filepath"
+          onClick={() => copyToClipboard(metafile?.path ?? '')}
+        />
+      ))}
+    </List>
+  );
 };
 
 export default DiffReverse;

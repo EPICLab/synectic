@@ -1,10 +1,9 @@
 import { pathExists, PathLike } from 'fs-extra';
 import { dirname } from 'path';
-import { execute } from '../exec';
+import execute from '../exec';
 
 /**
  * Clone a repository into a new directory.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.repo - The URL of a remote repository, or the path to a local repository.
@@ -44,14 +43,23 @@ export const cloneRepo = async ({
   const noCheckoutOption = noCheckout ? `--no-checkout` : '';
   const singleBranchOption = singleBranch ? `--single-branch` : '';
   const branchOption = branch ? `--branch ${branch}` : '';
-  const output = await execute(
-    `git clone ${repo.toString()} ${dir.toString()} ${branchOption} ${bareOption} ${noCheckoutOption} ${singleBranchOption}`,
-    parentDir.toString()
-  );
+  const output = await execute({
+    command: 'git',
+    args: [
+      'clone',
+      repo.toString(),
+      dir.toString(),
+      branchOption,
+      bareOption,
+      noCheckoutOption,
+      singleBranchOption
+    ],
+    cwd: parentDir.toString()
+  });
 
   const successfulClonePattern = new RegExp(/Cloning into '.*'.../, 'g');
   if (
-    output.stderr.length > 0 &&
+    output.stderr &&
     (output.stderr.split(/\\r?\\n/).length > 1 ||
       successfulClonePattern.test(output.stderr) === false)
   ) {

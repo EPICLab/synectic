@@ -99,25 +99,23 @@ Synectic has the following `CompilerOptions` set in `tsconfig.json`:
 
 The [`react-ace`](https://github.com/securingsincity/react-ace) module provides a set of React components for using the Ace code editor ([Ajax.org Cloud9 Editor](https://github.com/ajaxorg/ace)).
 
-The [`react-dnd`](https://react-dnd.github.io/react-dnd/) module provides a drag and drop library that works with React components and resembles the [Redux](https://github.com/reactjs/react-redux) architecture. The [`react-dnd-html5-backend`](https://react-dnd.github.io/react-dnd/docs/backends/html5) module adds a backend to React-DnD, and uses the [HTML5 drag and drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) under the hood to provide a widely supported base and hide some of [the quirks](http://quirksmode.org/blog/archives/2009/09/the_html5_drag.html). The [`react-dnd-preview`](https://louisbrunner.github.io/dnd-multi-backend/packages/react-dnd-preview/) modules emulates a drag and drop "ghost" preview when a backend system does not provide one or a custom preview is preferred.
+The [`@dnd-kit/core`](https://dndkit.com/) module provides a drag and drop library that works with React components and resembles the [Redux](https://github.com/reactjs/react-redux) architecture. The [`@dnd-kit/modifiers`](https://docs.dndkit.com/api-documentation/modifiers) module provides the ability to dynamically modify the movement coordinates that are detected by sensors (including restricting movement within a boundary). The [`@dnd-kit/sortable`](https://docs.dndkit.com/presets/sortable) module provides the building blocks to build sortable interfaces.
 
-Synectic uses React for user interface components and integrates those components into Electron using the [`react-dom`](https://reactjs.org/docs/react-dom.html) package, which provides DOM-specific methods that can be used at the top level of an app in order to execute outside of the React model. The [`react-dnd`](https://react-dnd.github.io/react-dnd/) and [`react-dnd-html5-backend`](https://react-dnd.github.io/react-dnd/docs/backends/html5) packages provide drag and drop interactions between React components within Synectic. The [`react-dnd-preview`](https://louisbrunner.github.io/dnd-multi-backend/packages/react-dnd-preview/) package provides a preview during drag and drop interactiosn between React components within Synectic. The [`react-dnd-test-backend`](https://react-dnd.github.io/react-dnd/docs/backends/test) package is a mock backend for testing React DnD apps without the DOM, and [`react-dnd-test-utils`](https://react-dnd.github.io/react-dnd/docs/testing) package provides convenience utility functions for testing React DnD interactions (e.g. `wrapInTestContext`).
+Synectic uses React for user interface components and integrates those components into Electron using the [`react-dom`](https://reactjs.org/docs/react-dom.html) package, which provides DOM-specific methods that can be used at the top level of an app in order to execute outside of the React model. The [`@dnd-kit/core`](https://dndkit.com/) and related packages provide drag and drop interactions between React components within Synectic.
 
 **Packages:**
 
 - _`dependencies`_
+  - `@dnd-kit/core`
+  - `@dnd-kit/modifiers`
+  - `@dnd-kit/sortable`
   - `react`
   - `react-ace`
-  - `react-dnd`
-  - `react-dnd-html5-backend`
-  - `react-dnd-preview`
   - `react-dom`
 - _`devDependencies`_
   - `@types/react`
   - `@types/react-dom`
   - `@types/react-transition-group`
-  - `react-dnd-test-backend`
-  - `react-dnd-test-utils`
 
 **Configuration:**
 

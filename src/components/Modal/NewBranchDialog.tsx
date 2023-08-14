@@ -1,129 +1,107 @@
 import React from 'react';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Button, Dialog, Divider, Grid, TextField, Typography } from '@material-ui/core';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { Modal, modalRemoved } from '../../store/slices/modals';
+import { NewBranchDialog, modalRemoved } from '../../store/slices/modals';
 import branchSelectors from '../../store/selectors/branches';
 import repoSelectors from '../../store/selectors/repos';
 import { addBranch, updateBranches } from '../../store/thunks/branches';
-import { checkoutBranch } from '../../containers/git';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  InputAdornment,
+  OutlinedInput,
+  Tooltip
+} from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
+import { createCard } from '../../store/thunks/cards';
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        newBranchDialog: {
-            width: '100%',
-            maxWidth: 530,
-            backgroundColor: theme.palette.background.paper,
-        },
-        formControl1: {
-            margin: theme.spacing(1),
-            minWidth: 496
-        },
-        formControl2: {
-            margin: theme.spacing(1),
-            minWidth: 240,
-        },
-        button: {
-            margin: theme.spacing(1),
-        },
-        timeline: {
-            margin: theme.spacing(1),
-            '& > :last-child .MuiTimelineItem-content': {
-                height: 28
-            }
-        },
-        tl_item: {
-            padding: theme.spacing(0, 2),
-            '&:before': {
-                flex: 0,
-                padding: theme.spacing(0)
-            }
-        },
-        tl_content: {
-            padding: theme.spacing(0.5, 1, 0),
-        },
-        section1: {
-            margin: theme.spacing(3, 2, 1),
-        },
-        section2: {
-            margin: theme.spacing(1, 1),
-        },
-        section3: {
-            margin: theme.spacing(1, 1),
-        },
-    }),
-);
+const NewBranchDialog = (props: NewBranchDialog) => {
+  const dispatch = useAppDispatch();
+  const repo = useAppSelector(state => repoSelectors.selectById(state, props.repo));
+  const branches = useAppSelector(state =>
+    branchSelectors.selectByRepo(state, repo?.id ?? '', true)
+  );
+  const [branchName, setBranchName] = React.useState('');
+  const isNoneDuplicate = !branches?.find(b => b.ref === branchName);
 
-const NewBranchDialog = (props: Modal) => {
-    const styles = useStyles();
-    const dispatch = useAppDispatch();
-    const repo = useAppSelector(state => repoSelectors.selectById(state, props.target ? props.target : ''));
-    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, repo?.id ?? '', true));
-    const [branchName, setBranchName] = React.useState('');
-    const isNoneDuplicate = !branches?.find(b => b.ref === branchName);
-
-    const isCreateReady = () => (branchName.length > 0 && isNoneDuplicate) ? true : false;
-    const handleBranchNameChange = (event: React.ChangeEvent<HTMLInputElement>) => setBranchName(event.target.value);
-    const handleClose = () => dispatch(modalRemoved(props.id));
-    const handleClick = async () => {
-        if (repo) {
-            await checkoutBranch({ dir: repo.root, branch: branchName });
-            await dispatch(addBranch({ ref: branchName, root: repo.root })).unwrap();
-            await dispatch(updateBranches(repo));
-        }
-        handleClose();
-    };
-    const handleKeyDown = (event: React.KeyboardEvent) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            handleClick();
-        }
+  const isCreateReady = () => (branchName.length > 0 && isNoneDuplicate ? true : false);
+  const handleBranchNameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setBranchName(event.target.value);
+  const handleClose = () => dispatch(modalRemoved(props.id));
+  const handleClick = async () => {
+    console.log(`NewBranchDialog handleClick => `, { repo, branchName, props });
+    if (repo) {
+      const branch = await dispatch(
+        addBranch({ root: repo.root, ref: branchName, head: props.head.toString() })
+      ).unwrap();
+      await dispatch(updateBranches(repo));
+      if (branch) await dispatch(createCard({ path: branch.root }));
     }
+    handleClose();
+  };
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleClick();
+    }
+  };
 
-    return (
-        <Dialog id='new-branch-dialog' data-testid='new-branch-dialog' open={true} onClose={handleClose} aria-labelledby='new-branch-dialog'>
-            <div className={styles.newBranchDialog}>
-                <div className={styles.section1}>
-                    <Grid container alignItems='center'>
-                        <Grid item xs>
-                            <Typography gutterBottom variant='h4'>
-                                New Branch
-                            </Typography>
-                        </Grid>
-                        <Grid item>
-                        </Grid>
-                    </Grid>
-                    <Typography color='textSecondary' variant='body2'>
-                        Provide a name for the new branch.
-                    </Typography>
-                </div>
-                <Divider variant='middle' />
-                <div className={styles.section2}>
-                    <TextField
-                        id='new-branch-name'
-                        variant='outlined'
-                        className={styles.formControl2}
-                        label='Branch Name'
-                        value={branchName}
-                        onChange={handleBranchNameChange}
-                        onKeyDown={(e) => handleKeyDown(e)}
-                        error={branchName.length > 0 && !isNoneDuplicate}
-                        helperText={(branchName.length > 0 && !isNoneDuplicate) ? 'Branch name already exists' : ''}
-                    />
-                </div>
-                <div className={styles.section3}>
-                    <Button id='create-branch-button'
-                        className={styles.button}
-                        data-testid='create-branch-button'
-                        variant='outlined'
-                        color='primary'
-                        disabled={!isCreateReady()}
-                        onClick={handleClick}
-                    >Create Branch</Button>
-                </div>
-            </div>
-        </Dialog>
-    );
+  return (
+    <Dialog
+      open
+      onClose={handleClose}
+      aria-labelledby="new-branch-dialog-title"
+      aria-describedby="new-branch-dialog-description"
+    >
+      <DialogTitle id="new-branch-dialog-title">New Branch</DialogTitle>
+      <DialogContent sx={{ px: 2, pb: 1.5 }}>
+        <DialogContentText id="new-branch-description">
+          Provide a name for the new branch.
+        </DialogContentText>
+        <Box sx={{ width: '100%' }}>
+          <FormControl data-testid="new-card-filename-form" variant="outlined" sx={{ m: 1 }}>
+            <OutlinedInput
+              id="new-branch-filename"
+              size="small"
+              sx={{ width: 203 }}
+              value={branchName}
+              autoFocus
+              onChange={handleBranchNameChange}
+              onKeyDown={e => handleKeyDown(e)}
+              error={branchName.length > 0 && !isNoneDuplicate}
+              endAdornment={
+                branchName.length > 0 && !isNoneDuplicate ? (
+                  <InputAdornment position="end">
+                    <Tooltip title="Branch name already exists">
+                      <ErrorOutline sx={{ color: 'rgb(211, 47, 47)' }} />
+                    </Tooltip>
+                  </InputAdornment>
+                ) : null
+              }
+            />
+          </FormControl>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button id="cancel-button" variant="contained" onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button
+          id="create-branch-button"
+          variant="contained"
+          disabled={!isCreateReady()}
+          onClick={handleClick}
+        >
+          Create Branch
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 };
 
 export default NewBranchDialog;

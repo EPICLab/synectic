@@ -2,13 +2,11 @@ import { createSelector, EntityId } from '@reduxjs/toolkit';
 import { PathLike } from 'fs-extra';
 import { createCachedSelector } from 're-reselect';
 import { createSelectorCreator, defaultMemoize } from 'reselect';
-import { isEqualPaths } from '../../containers/io';
 import { filteredArrayEquality, isDefined } from '../../containers/utils';
 import { Branch, branchAdapter } from '../slices/branches';
 import { Repository } from '../slices/repos';
 import { RootState } from '../store';
 import repoSelectors from './repos';
-import { UUID } from '../types';
 
 const selectors = branchAdapter.getSelectors<RootState>(state => state.branches);
 
@@ -18,10 +16,12 @@ const deepEntitiesEqualityCheck = (a: BranchEntities, b: BranchEntities) =>
   filteredArrayEquality(Object.values(a).filter(isDefined), Object.values(b).filter(isDefined), [
     'id',
     'head',
-    'status'
+    'status',
+    'linked',
+    'commits'
   ]);
 const deepBranchesEqualityCheck = (a: Branch[], b: Branch[]) =>
-  filteredArrayEquality(a, b, ['id', 'head', 'status']);
+  filteredArrayEquality(a, b, ['id', 'head', 'status', 'linked', 'commits']);
 
 const selectEntities = createSelector(selectors.selectEntities, branches => branches, {
   memoizeOptions: { equalityCheck: deepEntitiesEqualityCheck }
@@ -51,7 +51,9 @@ const selectByRef = createCachedSelector(
   (_state: RootState, _root: PathLike, ref: string) => ref,
   (_state: RootState, _root: PathLike, _ref: string, scope: Branch['scope']) => scope,
   (branches, root, ref, scope) =>
-    branches.find(b => isEqualPaths(b.root, root) && b.ref === ref && b.scope === scope)
+    branches.find(
+      b => window.api.fs.isEqualPaths(b.root, root) && b.ref === ref && b.scope === scope
+    )
 )({
   keySelector: (_, root, ref: string, scope: Branch['scope']) =>
     `${root.toString()}:${ref}:${scope}`,
@@ -63,7 +65,7 @@ const selectByRef = createCachedSelector(
 const selectByRoot = createCachedSelector(
   selectors.selectAll,
   (_state: RootState, root: PathLike) => root,
-  (branches, root) => branches.filter(b => isEqualPaths(b.root, root))
+  (branches, root) => branches.filter(b => window.api.fs.isEqualPaths(b.root, root))
 )({
   keySelector: (_, root) => root,
   selectorCreator: createSelectorCreator(defaultMemoize, deepBranchesEqualityCheck)
@@ -72,22 +74,24 @@ const selectByRoot = createCachedSelector(
 const selectByGitdir = createCachedSelector(
   selectors.selectAll,
   (_state: RootState, gitdir: PathLike) => gitdir,
-  (branches, gitdir) => branches.filter(b => isEqualPaths(b.gitdir, gitdir))
+  (branches, gitdir) => branches.filter(b => window.api.fs.isEqualPaths(b.gitdir, gitdir))
 )({
   keySelector: (_, gitdir) => gitdir,
   selectorCreator: createSelectorCreator(defaultMemoize, deepBranchesEqualityCheck)
 });
 
 /**
- * Selector for retrieving Branch entities based on `repo`, using `local` and `remote` branch information stored on each Repository
- * instance. This selector caches on `repo.id` and `dedup` as long as `selectAll` and `repoSelectors.selectById` have not changed. The
- * persisted selector cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated only when the
- * `selectAll` or `repoSelectors.selectById` results change, but not when `repo.id` or `dedup` input selectors change.
+ * Selector for retrieving Branch entities based on `repo`, using `local` and `remote` branch
+ * information stored on each Repository instance. This selector caches on `repo.id` and `dedup`
+ * as long as `selectAll` and `repoSelectors.selectById` have not changed. The persisted selector
+ * cache provided by [re-reselect](https://github.com/toomuchdesign/re-reselect) is invalidated
+ * only when the `selectAll` or `repoSelectors.selectById` results change, but not when `repo.id`
+ * or `dedup` input selectors change.
  */
 const selectByRepo = createCachedSelector(
   selectors.selectAll,
-  (state: RootState, id: UUID) => repoSelectors.selectById(state, id),
-  (_state: RootState, _id: UUID, dedup = false) => dedup,
+  (state: RootState, id: EntityId) => repoSelectors.selectById(state, id),
+  (_state: RootState, _id: EntityId, dedup = false) => dedup,
   (branches, repo, dedup) =>
     branches.reduce((accumulator: Branch[], branch) => {
       if (repo?.local.includes(branch.id)) {
@@ -112,10 +116,8 @@ const selectByRepo = createCachedSelector(
     equalityCheck: (
       a: Branch[] | Repository | undefined | boolean,
       b: Branch[] | Repository | undefined | boolean
-    ) => {
-      return Array.isArray(a) && Array.isArray(b) ? deepBranchesEqualityCheck(a, b) : a === b;
-    },
-    resultEqualityCheck: deepEntitiesEqualityCheck
+    ) => (Array.isArray(a) && Array.isArray(b) ? deepBranchesEqualityCheck(a, b) : a === b),
+    resultEqualityCheck: (a: BranchEntities, b: BranchEntities) => deepEntitiesEqualityCheck(a, b)
   })
 });
 

@@ -1,50 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { shallowEqual } from 'react-redux';
-import {
-  createStyles,
-  FormControl,
-  makeStyles,
-  MenuItem,
-  Select,
-  Theme,
-  withStyles
-} from '@material-ui/core';
-import InputBase from '@material-ui/core/InputBase';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { randomUUID } from 'crypto';
 import repoSelectors from '../../store/selectors/repos';
 import modalSelectors from '../../store/selectors/modals';
 import { Modal, modalAdded, modalRemoved } from '../../store/slices/modals';
-
-const StyledInput = withStyles((theme: Theme) =>
-  createStyles({
-    input: {
-      borderRadius: 4,
-      position: 'relative',
-      backgroundColor: theme.palette.background.paper,
-      border: '1px solid #ced4da',
-      fontSize: 14,
-      padding: '10px 26px 10px 12px',
-      transition: theme.transitions.create(['border-color', 'box-shadow']),
-      '&:focus': {
-        borderRadius: 4,
-        borderColor: '#80bdff',
-        boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)'
-      }
-    }
-  })
-)(InputBase);
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    margin: {
-      margin: theme.spacing(1)
-    },
-    defaultItem: {
-      color: 'rgba(125,125,125,1)'
-    }
-  })
-);
+import { FormControl, InputBase, MenuItem, Select, SelectChangeEvent, styled } from '@mui/material';
 
 const GitGraphSelect = () => {
   const repos = useAppSelector(state => repoSelectors.selectAll(state));
@@ -54,22 +14,20 @@ const GitGraphSelect = () => {
     shallowEqual
   );
   const dispatch = useAppDispatch();
-  const styles = useStyles();
 
-  const handleChange = (event: React.ChangeEvent<{ value: string }>) =>
-    setSelected(event.target.value);
+  const handleChange = (event: SelectChangeEvent) => setSelected(event.target.value);
 
   useEffect(() => {
     if (graphs.length > 0) graphs.map(graph => dispatch(modalRemoved(graph.id)));
     const selectedRepo = repos.find(r => r.id === selected);
     if (selectedRepo)
-      dispatch(modalAdded({ id: randomUUID(), type: 'GitGraph', target: selected }));
+      dispatch(modalAdded({ id: window.api.uuid(), type: 'GitGraph', repo: selected }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [repos, selected]);
 
   return (
-    <div style={{ marginLeft: 'auto' }}>
-      <FormControl className={styles.margin}>
+    <StyledFormContainer>
+      <FormControl sx={{ margin: 4 }}>
         <Select
           labelId="repo-select-label"
           id="repo-select"
@@ -80,7 +38,7 @@ const GitGraphSelect = () => {
           onChange={handleChange}
           input={<StyledInput />}
         >
-          <MenuItem key="" value="" className={styles.defaultItem}>
+          <MenuItem key="" value="" sx={{ color: 'rgba(125,125,125,1)' }}>
             {selected ? 'Clear Map' : 'Repository Map'}
           </MenuItem>
           {repos.map(repo => (
@@ -90,8 +48,28 @@ const GitGraphSelect = () => {
           ))}
         </Select>
       </FormControl>
-    </div>
+    </StyledFormContainer>
   );
 };
 
+const StyledFormContainer = styled('div')(() => ({
+  marginLeft: 'auto',
+  position: 'absolute',
+  zIndex: 1
+}));
+
+const StyledInput = styled(InputBase)(({ theme }) => ({
+  borderRadius: 4,
+  position: 'relative',
+  backgroundColor: theme.palette.background.paper,
+  border: '1px solid #ced4da',
+  fontSize: 14,
+  padding: '10px 26px 10px 12px',
+  transition: theme.transitions.create(['border-color', 'box-shadow']),
+  '&:focus': {
+    borderRadius: 4,
+    borderColor: '#80bdff',
+    boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)'
+  }
+}));
 export default GitGraphSelect;

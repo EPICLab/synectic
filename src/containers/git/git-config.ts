@@ -7,6 +7,9 @@ import { join, resolve } from 'path';
 import { writeFileAsync } from '../io';
 import { removeNullableProperties } from '../utils';
 import { getWorktreePaths } from './git-path';
+import { Repository } from '../../store/slices/repos';
+import parsePath from 'parse-path';
+import { extractFromURL } from './git-utils';
 
 export type GitConfig =
   | { scope: 'none' }
@@ -17,7 +20,6 @@ export type GitConfig =
  * git-config files. The return object indicates the value for the git config entry and the scope (`local` or `global`) in which the value was located.
  * If the `local` or `global` parameter are disabled, set to `false`, then the search will not attempt to locate git-config files in that scope. If both
  * parameters are enabled, then `local` scope is searched first and only if there were no matches will the `global` scope then be searched.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The working tree directory path.
  * @param obj.gitdir - The git directory path.
@@ -43,7 +45,7 @@ export const getConfig = async ({
   global?: boolean;
   showOrigin?: boolean;
 }): Promise<GitConfig> => {
-  const worktree = await getWorktreePaths(gitdir);
+  const worktree = await getWorktreePaths(gitdir.toString());
   const localConfigPath =
     local && worktree.gitdir ? resolve(join(worktree.gitdir.toString(), 'config')) : null;
   const globalConfigPath = global ? getGitConfigPath('global') : null;
@@ -72,7 +74,6 @@ export const getConfig = async ({
  * to resolve global git-config files. The scope is strictly respected (i.e. if the entry exists only in `global` scope but `local` scope
  * is specified, then a new entry will be added to the git-config file in `local` scope). Entries can be removed by setting value to
  * `undefined`; attempting to remove a non-existing entry will result in a no-op.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory path.
  * @param obj.gitdir - The worktree git file or directory path.
@@ -94,7 +95,7 @@ export const setConfig = async ({
   keyPath: string;
   value: string | boolean | number | undefined;
 }): Promise<string | null> => {
-  const worktree = await getWorktreePaths(gitdir);
+  const worktree = await getWorktreePaths(gitdir.toString());
   const configPath =
     scope == 'local' && worktree.gitdir
       ? resolve(join(worktree.gitdir.toString(), 'config'))
@@ -109,4 +110,30 @@ export const setConfig = async ({
   const updatedConfig = ini.stringify(configFile, { section: '', whitespace: true });
   await writeFileAsync(configPath, updatedConfig);
   return updatedConfig;
+};
+
+export const getRemoteConfig = async (
+  dir: PathLike | undefined
+): Promise<{ url: parsePath.ParsedPath | undefined; oauth: Repository['oauth'] | undefined }> => {
+  const remoteConfig: GitConfig = dir
+    ? await getConfig({ dir: dir, keyPath: 'remote.origin.url' })
+    : { scope: 'none' };
+  return remoteConfig.scope !== 'none'
+    ? extractFromURL(remoteConfig.value)
+    : { url: undefined, oauth: undefined };
+};
+
+export const getCredentials = async (
+  dir: PathLike | undefined
+): Promise<{ username: string; password: string }> => {
+  const usernameConfig: GitConfig = dir
+    ? await getConfig({ dir: dir, keyPath: 'user.name' })
+    : { scope: 'none' };
+  const passwordConfig: GitConfig = dir
+    ? await getConfig({ dir: dir, keyPath: 'credential.helper' })
+    : { scope: 'none' };
+  return {
+    username: usernameConfig.scope === 'none' ? '' : usernameConfig.value,
+    password: passwordConfig.scope === 'none' ? '' : passwordConfig.value
+  };
 };

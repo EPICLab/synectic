@@ -1,131 +1,139 @@
-import { XYCoord } from 'react-dnd';
 import { DateTime } from 'luxon';
-import { randomUUID } from 'crypto';
-import { Stack, stackAdded, stackRemoved, stackUpdated } from '../slices/stacks';
-import { cardUpdated } from '../slices/cards';
-import { UUID } from '../types';
 import { createAppAsyncThunk } from '../hooks';
 import cardSelectors from '../selectors/cards';
+import { stackAdded, stackRemoved, stackUpdated } from '../slices/stacks';
+import { cardUpdated } from '../slices/cards';
+import { UUID } from '../types';
 import stackSelectors from '../selectors/stacks';
 
+/**
+ * Create a new Stack component that is added to the Redux store and the UI.
+ * @param name The name of the new Stack component.
+ * @param cards The UUIDs of Card components that should be pushed onto the Stack component.
+ * @param x The horizontal position of the new Stack component; defaults to 40.
+ * @param y The vertical position of the new Stack component; defaults to 40.
+ * @returns {UUID} The UUID of the new Stack component.
+ */
 export const createStack = createAppAsyncThunk<
-  Stack,
-  { name: string; note: string; cards: UUID[] }
+  UUID,
+  { name: string; cards: UUID[]; x?: number; y?: number }
 >('stacks/createStack', async (input, thunkAPI) => {
   const cards = cardSelectors.selectByIds(thunkAPI.getState(), input.cards);
 
-  const newStack = thunkAPI.dispatch(
+  const stackId = window.api.uuid();
+  thunkAPI.dispatch(
     stackAdded({
-      id: randomUUID(),
+      id: stackId,
       name: input.name,
       created: DateTime.local().valueOf(),
       modified: DateTime.local().valueOf(),
-      note: input.note,
       cards: input.cards,
-      left: cards[0] ? cards[0].left : 0,
-      top: cards[0] ? cards[0].top : 0
+      x: input.x ?? 40,
+      y: input.y ?? 40
     })
-  ).payload;
-  cards.map((card, index) =>
+  );
+  cards.map(card =>
     thunkAPI.dispatch(
       cardUpdated({
         ...card,
-        captured: newStack.id,
-        zIndex: index + 1,
-        top: 10 * index + 50,
-        left: 10 * index + 10
+        captured: stackId
       })
     )
   );
-  return newStack;
+  return stackId;
 });
 
-/** Add cards to an existing Stack object. */
+/**
+ * Remove a Stack component from the Redux store and the UI.
+ * @param stack The UUID of the Stack component to remove.
+ */
+export const removeStack = createAppAsyncThunk<void, { stack: UUID }>(
+  'stacks/removeStack',
+  async (input, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const stack = stackSelectors.selectById(state, input.stack);
+
+    if (stack) {
+      const cards = cardSelectors.selectByIds(state, stack.cards);
+      cards.map((card, index) =>
+        thunkAPI.dispatch(
+          cardUpdated({
+            ...card,
+            captured: undefined,
+            x: stack.x + index * 15,
+            y: stack.y + (index + 1) * 15
+          })
+        )
+      );
+      thunkAPI.dispatch(stackRemoved(stack.id));
+    }
+  }
+);
+
+/**
+ * Push Card components onto the Stack by updating the Redux store and UI.
+ * @param stack The UUID of the Stack component to receive the cards.
+ * @param cards The UUIDs of Card components that should be pushed onto the Stack component.
+ */
 export const pushCards = createAppAsyncThunk<void, { stack: UUID; cards: UUID[] }>(
   'stacks/pushCards',
   async (input, thunkAPI) => {
     const state = thunkAPI.getState();
     const stack = stackSelectors.selectById(state, input.stack);
     const cards = cardSelectors.selectByIds(state, input.cards);
+
     if (stack && cards.length > 0) {
-      const updated = thunkAPI.dispatch(
+      thunkAPI.dispatch(
         stackUpdated({
           ...stack,
           cards: [...stack.cards, ...input.cards]
         })
-      ).payload;
-
-      // filter out any cards that are already captured by the stack
-      cards
-        .filter(c => c.captured !== input.stack)
-        .map((card, index) => {
-          thunkAPI.dispatch(
-            cardUpdated({
-              ...card,
-              captured: updated.id,
-              zIndex: updated.cards.length + (index + 1),
-              top: 10 * (updated.cards.length + index) + 50,
-              left: 10 * (updated.cards.length + index) + 10
-            })
-          );
-        });
+      );
+      cards.map(card =>
+        thunkAPI.dispatch(
+          cardUpdated({
+            ...card,
+            captured: stack.id
+          })
+        )
+      );
     }
   }
 );
 
 /**
- * Remove cards from an existing Stack object. Positioning of the card becomes relative to the bounds of the canvas, unless no `delta`
- * parameter is provide (in which case the card is arbitrarily positioned outside of the stack). If the `delta` parameter used, then the
- * `{x,y}` values can be gathered from `DropTargetMonitor.getDifferenceFromInitialOffset()`.
+ * Pop Card components off of the Stack by updating the Redux store and UI.
+ * @param stack The UUID of the Stack component to pop the cards from.
+ * @param card The UUID of the Card component to be popped from the Stack component.
+ * @param x The updated horizontal position of the popped Card component.
+ * @param y The vertical position of the popped Card component.
  */
-export const popCards = createAppAsyncThunk<void, { cards: UUID[]; delta?: XYCoord }>(
-  'stacks/pushCards',
+export const popCard = createAppAsyncThunk<void, { stack: UUID; card: UUID; x: number; y: number }>(
+  'stacks/popCard',
   async (input, thunkAPI) => {
     const state = thunkAPI.getState();
-    const removingCards = cardSelectors.selectByIds(state, input.cards);
-    const stack = stackSelectors.selectById(
-      state,
-      removingCards[0]?.captured ? removingCards[0].captured : ''
-    );
-    if (stack) {
-      // update the cards targetted for removal
-      removingCards.map(card =>
+    const stack = stackSelectors.selectById(state, input.stack);
+    const card = cardSelectors.selectById(state, input.card);
+
+    if (stack && card) {
+      if (stack.cards.length <= 2) {
+        thunkAPI.dispatch(removeStack({ stack: stack.id }));
+      } else {
         thunkAPI.dispatch(
-          cardUpdated({
-            ...card,
-            captured: undefined,
-            zIndex: 1,
-            left: input.delta
-              ? stack.left + card.left + input.delta.x
-              : stack.left + card.left + 25,
-            top: input.delta ? stack.top + card.top + input.delta.y : stack.top + card.top + 25
+          stackUpdated({
+            ...stack,
+            cards: stack.cards.filter(id => id !== input.card)
           })
-        )
-      );
-      // update the stack
-      const remainingCards = cardSelectors.selectByIds(
-        state,
-        stack.cards.filter(id => !input.cards.some(c => c === id))
-      );
-      const updated = thunkAPI.dispatch(
-        stackUpdated({
-          ...stack,
-          cards: remainingCards.map(c => c.id)
+        );
+      }
+      thunkAPI.dispatch(
+        cardUpdated({
+          ...card,
+          captured: undefined,
+          x: input.x,
+          y: input.y
         })
-      ).payload;
-      // update the other cards in the stack
-      remainingCards.map((card, index) =>
-        thunkAPI.dispatch(
-          cardUpdated({
-            ...card,
-            captured: updated.cards.length < 2 ? undefined : card.captured,
-            zIndex: updated.cards.length < 2 ? 1 : index,
-            left: updated.cards.length < 2 ? updated.left + card.left + 25 : 10 * index + 10,
-            top: updated.cards.length < 2 ? updated.top + card.top + 25 : 10 * index + 50
-          })
-        )
       );
-      if (updated.cards.length < 2) thunkAPI.dispatch(stackRemoved(updated.id));
     }
   }
 );

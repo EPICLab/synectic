@@ -1,4 +1,4 @@
-import { execute } from '../exec';
+import execute from '../exec';
 
 export const checkRefFormat = async ({
   refname,
@@ -7,8 +7,11 @@ export const checkRefFormat = async ({
   refname: string;
   branch?: boolean;
 }): Promise<boolean> => {
-  const output = await execute(`git check-ref-format ${branch ? '--branch' : ''} ${refname}`);
-  if (output.stderr.length > 0) {
+  const output = await execute({
+    command: 'git',
+    args: ['check-ref-format', branch ? '--branch' : '', refname]
+  });
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }

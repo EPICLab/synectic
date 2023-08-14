@@ -3,7 +3,6 @@ import { relative } from 'path';
 
 /**
  * Evaluates whether two paths are equivalent.
- *
  * @param path1 The relative or absolute path to evaluate.
  * @param path2 The other relative or absolute path to evaluate.
  * @returns {boolean} A boolean indicating true if the paths are equivalent, or false otherwise.

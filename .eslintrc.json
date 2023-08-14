@@ -12,35 +12,27 @@
     "plugin:import/typescript",
     "plugin:testing-library/react",
     "plugin:react-hooks/recommended",
-    "plugin:jsdoc/recommended"
+    "plugin:jsdoc/recommended",
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "rules": {
     "@typescript-eslint/naming-convention": [
       "warn",
       {
-        "selector": [
-          "variable",
-          "function"
-        ],
-        "format": [
-          "camelCase",
-          "PascalCase"
-        ],
+        "selector": ["variable", "function"],
+        "format": ["camelCase", "PascalCase"],
         "leadingUnderscore": "allow"
       },
       {
         "selector": "memberLike",
-        "modifiers": [
-          "private"
-        ],
-        "format": [
-          "camelCase"
-        ],
+        "modifiers": ["private"],
+        "format": ["camelCase"],
         "leadingUnderscore": "require"
       }
     ],
     "jsdoc/require-param-type": "off",
+    "jsdoc/check-tag-names": ["error", { "definedTags": ["jsxImportSource"] }],
     "jsdoc/no-multi-asterisks": [
       "warn",
       {
@@ -51,8 +43,6 @@
     // "prefer-named-capture-group": "error"
   },
   "settings": {
-    "import/core-modules": [
-      "electron"
-    ]
+    "import/core-modules": ["electron"]
   }
 }

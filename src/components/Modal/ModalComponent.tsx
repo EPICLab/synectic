@@ -1,46 +1,48 @@
 import React from 'react';
-import { Modal } from '../../store/slices/modals';
-import CloneDialog from './CloneDialog';
-import CommitDialog from './CommitDialog';
-import DiffPickerDialog from './DiffPickerDialog';
-import ErrorDialog from './ErrorDialog';
-import GitGraph from '../GitGraph';
-import MergeDialog from '../MergeDialog';
+import {
+  Modal,
+  isCommitDialogModal,
+  isDeleteBranchDialog,
+  isGitGraphModal,
+  isMergeDialogModal,
+  isNewBranchDialog,
+  isNotification,
+  isRevertCommitDialog
+} from '../../store/slices/modals';
 import NewCardDialog from './NewCardDialog';
 import Notification from './Notification';
-import SourcePickerDialog from './SourcePickerDialog';
+import MergeDialog from './MergeDialog';
+import GitGraph from '../GitGraph';
 import NewBranchDialog from './NewBranchDialog';
-import GitExplorer from '../GitExplorer/GitExplorer';
-import DirectExplorer from '../GitExplorer/DirectExplorer';
+import DeleteBranchDialog from './DeleteBranchDialog';
+import CommitDialog from './CommitDialog';
+import RevertCommitDialog from './RevertCommitDialog';
 
 const ModalComponent = (props: Modal) => {
   switch (props.type) {
-    case 'DiffPicker':
-      return (<DiffPickerDialog {...props} />);
-    case 'CloneSelector':
-      return (<CloneDialog {...props} />);
-    case 'Error':
-      return (<ErrorDialog {...props} />);
+    // case 'CloneSelector':
+    //   return (<CloneDialog {...props} />);
     case 'GitGraph':
-      return props.target ? (<GitGraph repo={props.target} />) : null;
-    case 'MergeSelector':
-      return (<MergeDialog {...props} />)
-    case 'NewBranchDialog':
-      return (<NewBranchDialog {...props} />);
-    case 'NewCardDialog':
-      return (<NewCardDialog {...props} />);
-    case 'SourcePicker':
-      return (<SourcePickerDialog {...props} />);
+      return isGitGraphModal(props) ? <GitGraph repo={props.repo} /> : null;
     case 'CommitDialog':
-      return (<CommitDialog {...props} />);
+      return isCommitDialogModal(props) ? <CommitDialog props={props} /> : null;
+    case 'MergeDialog':
+      return isMergeDialogModal(props) ? <MergeDialog props={props} /> : null;
+    case 'NewBranchDialog':
+      return isNewBranchDialog(props) ? <NewBranchDialog {...props} /> : null;
+    case 'DeleteBranchDialog':
+      return isDeleteBranchDialog(props) ? <DeleteBranchDialog {...props} /> : null;
+    case 'NewCardDialog':
+      // no specific fields required for `NewCardDialog`, so just using Modal props
+      return <NewCardDialog props={props} />;
     case 'Notification':
-      return (<Notification {...props} />);
-    case 'GitExplorer':
-      return (<GitExplorer {...props} />);
-    case 'DirectExplorer':
-      return (<DirectExplorer {...props} />);
-    default:
+      return isNotification(props) ? <Notification {...props} /> : null;
+    case 'RevertCommitDialog':
+      return isRevertCommitDialog(props) ? <RevertCommitDialog {...props} /> : null;
+    default: {
+      console.error(`No Modal component found for ${props.type}`);
       return null;
+    }
   }
 };
 

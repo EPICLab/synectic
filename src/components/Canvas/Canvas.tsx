@@ -1,223 +1,145 @@
-import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
-import { shell } from 'electron';
+import { useDroppable } from '@dnd-kit/core';
+import { DarkMode, LightMode } from '@mui/icons-material';
+import { styled } from '@mui/material';
 import { DateTime } from 'luxon';
-import React, { useContext } from 'react';
-import { DropTargetMonitor, useDrop } from 'react-dnd';
-import { randomUUID } from 'crypto';
+import React, { PropsWithChildren, useContext } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import version from '../../../version';
 import { fileOpenDialog } from '../../containers/dialogs';
-import { FSCacheContext } from '../../store/cache/FSCache';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
-import cacheSelectors from '../../store/selectors/cache';
 import cardSelectors from '../../store/selectors/cards';
+import commitSelectors from '../../store/selectors/commits';
 import filetypeSelectors from '../../store/selectors/filetypes';
 import metafileSelectors from '../../store/selectors/metafiles';
 import modalSelectors from '../../store/selectors/modals';
 import repoSelectors from '../../store/selectors/repos';
 import stackSelectors from '../../store/selectors/stacks';
-import { cardUpdated } from '../../store/slices/cards';
-import { Modal, modalAdded } from '../../store/slices/modals';
-import { stackUpdated } from '../../store/slices/stacks';
-import redux from '../../store/store';
-import { addBranchCard } from '../../store/thunks/cards';
-import { popCards } from '../../store/thunks/stacks';
-import CardComponent from '../Card';
+import { modalAdded } from '../../store/slices/modals';
+import { AppThemeContext } from '../AppTheme';
+import Card from '../Card';
+import DndCanvasContext from '../Dnd/DndCanvasContext';
 import GitGraphSelect from '../GitGraph/GitGraphSelect';
 import ModalComponent from '../Modal';
-import { NavItemProps } from '../NavItem/NavItem';
-import NavMenu from '../NavMenu';
+import NavMenu, { NavItemProps } from '../NavMenu';
 import Stack from '../Stack';
+import { commitAdded, commitRemoved } from '../../store/slices/commits';
+import { fetchBranch } from '../../store/thunks/branches';
+import { branchUpdated } from '../../store/slices/branches';
+import { fetchCommit } from '../../store/thunks/commits';
 
-export enum DnDItemType {
-  CARD = 'CARD',
-  STACK = 'STACK',
-  BRANCH = 'BRANCH'
-}
+const isMac = window.api.globals.platform === 'darwin';
 
-type DragObject = {
-  id: string;
-  type: string;
-};
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    navBar: {
-      display: 'flex',
-      backgroundColor: 'rgba(232, 233, 233, 1)',
-      padding: theme.spacing(0.25)
-    }
-  })
-);
-
-const isMac = process.platform === 'darwin';
-
-const Canvas = () => {
-  const cardsArray = useAppSelector(state => cardSelectors.selectAll(state));
-  const stacksArray = useAppSelector(state => stackSelectors.selectAll(state));
-  const stacks = useAppSelector(state => stackSelectors.selectEntities(state));
-  const cards = useAppSelector(state => cardSelectors.selectEntities(state));
-  const filetypes = useAppSelector(state => filetypeSelectors.selectAll(state));
+const Canvas = ({ children }: PropsWithChildren) => {
   const metafiles = useAppSelector(state => metafileSelectors.selectAll(state));
-  const cache = useAppSelector(state => cacheSelectors.selectAll(state));
+  const cards = useAppSelector(state => cardSelectors.selectAll(state));
+  const stacks = useAppSelector(state => stackSelectors.selectAll(state));
+  const filetypes = useAppSelector(state => filetypeSelectors.selectAll(state));
+  const modals = useAppSelector(state => modalSelectors.selectAll(state));
   const repos = useAppSelector(state => repoSelectors.selectAll(state));
   const branches = useAppSelector(state => branchSelectors.selectAll(state));
-  const modals = useAppSelector(state => modalSelectors.selectAll(state));
-  const [watchers] = useContext(FSCacheContext);
+  const commits = useAppSelector(state => commitSelectors.selectAll(state));
   const dispatch = useAppDispatch();
-  const styles = useStyles();
-
-  // Enable CanvasComponent as a drop target (i.e. allow cards and stacks to be dropped on the canvas)
-  const [, drop] = useDrop({
-    accept: [DnDItemType.CARD, DnDItemType.STACK],
-    drop: (item: { id: string; type: string }, monitor: DropTargetMonitor<DragObject, void>) => {
-      switch (item.type) {
-        case DnDItemType.CARD: {
-          const card = cards[monitor.getItem().id];
-          const delta = monitor.getDifferenceFromInitialOffset();
-          if (!card || !delta) return; // no dragging is occurring, perhaps a card was picked up and dropped without dragging
-          if (card.captured) {
-            dispatch(popCards({ cards: [card.id], delta: delta }));
-          } else {
-            dispatch(
-              cardUpdated({
-                ...card,
-                left: Math.round(card.left + delta.x),
-                top: Math.round(card.top + delta.y)
-              })
-            );
-          }
-          break;
-        }
-        case DnDItemType.STACK: {
-          const stack = stacks[monitor.getItem().id];
-          const delta = monitor.getDifferenceFromInitialOffset();
-          if (!delta) return; // no dragging is occurring, perhaps a stack was picked up and dropped without dragging
-          if (stack)
-            dispatch(
-              stackUpdated({
-                ...stack,
-                left: Math.round(stack.left + delta.x),
-                top: Math.round(stack.top + delta.y)
-              })
-            );
-          break;
-        }
-        default: {
-          console.log('useDrop Error: default option, no item.type found');
-          break;
-        }
-      }
+  const { mode, toggleColorMode } = useContext(AppThemeContext);
+  const { isOver, setNodeRef } = useDroppable({
+    id: 'Canvas',
+    data: {
+      type: 'canvas'
     }
   });
 
+  const fileMenu: NavItemProps[] = [
+    {
+      label: 'New...',
+      click: () =>
+        dispatch(
+          modalAdded({
+            id: window.api.uuid(),
+            type: 'NewCardDialog'
+          })
+        )
+    },
+    ...(isMac
+      ? [
+          {
+            label: 'Open...',
+            click: () => dispatch(fileOpenDialog())
+          }
+        ]
+      : [
+          {
+            label: 'Open File...',
+            click: () => dispatch(fileOpenDialog({ properties: ['openFile', 'multiSelections'] }))
+          },
+          {
+            label: 'Open Directory...',
+            click: () =>
+              dispatch(fileOpenDialog({ properties: ['openDirectory', 'multiSelections'] }))
+          }
+        ])
+    // {
+    //   label: 'Notify...',
+    //   click: () => window.api.notifications.sendNotification('My custom message!')
+    // },
+    // {
+    //   label: 'Context',
+    //   click: async () => {
+    //     console.log(`Executing in ${isRenderer()}`);
+    //     const preloadContext = await window.api.context();
+    //     console.log(`Preload in ${preloadContext}`);
+    //   }
+    // }
+  ];
+
   const showStore = () => {
-    console.group(`Redux Store : ${DateTime.local().toHTTP()}`);
+    console.group(
+      `%cRedux Store : ${DateTime.local().toHTTP()}`,
+      'background: lightblue; color: #444; padding: 3px; border-radius: 5px;'
+    );
     console.log(`STACKS [${Object.keys(stacks).length}]`, stacks);
     console.log(`CARDS [${Object.keys(cards).length}]`, cards);
-    console.log(`FILETYPES [${filetypes.length}]`);
+    console.log(`FILETYPES [${filetypes.length}]`, filetypes);
     console.log(`METAFILES [${metafiles.length}]`, metafiles);
-    console.log(`CACHE [${cache.length}]`, cache);
+    // console.log(`CACHE [${cache.length}]`, cache);
     console.log(`REPOS [${repos.length}]`, repos);
     console.log(`BRANCHES [${branches.length}]`, branches);
+    console.log(`COMMITS [${commits.length}]`, commits);
     console.log(`MODALS [${modals.length}]`, modals);
     console.groupEnd();
   };
 
-  const showCache = () => {
-    console.group(`FS Cache : ${DateTime.local().toHTTP()}`);
-    console.log(`CACHE [${cache.length}]`, cache);
-    const watchersArray = Array.from(watchers.keys()).map(k => ({ path: k.toString() }));
-    console.log(`WATCHERS [${watchersArray.length}]`, watchersArray);
-    console.groupEnd();
-  };
-
-  const newCardDialogModal: Modal = {
-    id: randomUUID(),
-    type: 'NewCardDialog'
-  };
-  const fileMenu: NavItemProps[] = [
-    { label: 'New...', click: () => dispatch(modalAdded(newCardDialogModal)) },
-    ...(isMac
-      ? [{ label: 'Open...', click: () => dispatch(fileOpenDialog()) }]
-      : [
-          { label: 'Open File...', click: () => dispatch(fileOpenDialog('openFile')) },
-          { label: 'Open Directory...', click: () => dispatch(fileOpenDialog('openDirectory')) }
-        ]),
-    {
-      label: 'Clone...',
-      click: () => dispatch(modalAdded({ id: randomUUID(), type: 'CloneSelector' }))
-    }
-  ];
-
-  const diffPickerModal: Modal = {
-    id: randomUUID(),
-    type: 'DiffPicker'
-  };
-  const mergeSelectorModal: Modal = {
-    id: randomUUID(),
-    type: 'MergeSelector'
-  };
-  const sourcePickerModal: Modal = {
-    id: randomUUID(),
-    type: 'SourcePicker'
-  };
-  const gitExplorerModal: Modal = {
-    id: randomUUID(),
-    type: 'GitExplorer'
-  };
-  const actionMenu: NavItemProps[] = [
-    {
-      label: 'Diff...',
-      disabled: Object.values(cards).length < 2,
-      click: () => dispatch(modalAdded(diffPickerModal))
-    },
-    {
-      label: 'Merge...',
-      disabled: Object.values(repos).length == 0,
-      click: () => dispatch(modalAdded(mergeSelectorModal))
-    },
-    { label: 'Run...', click: () => dispatch(modalAdded(gitExplorerModal)) }
-  ];
-
-  const viewMenu: NavItemProps[] = [
-    {
-      label: 'Source Control...',
-      disabled: Object.values(repos).length == 0,
-      click: () => dispatch(modalAdded(sourcePickerModal))
-    },
-    { label: 'Branches...', click: async () => dispatch(addBranchCard()) }
-  ];
-
   const sysMenu: NavItemProps[] = [
     { label: 'View Datastore...', click: () => showStore() },
-    { label: 'View Cache...', click: () => showCache() },
-    { label: 'Clear Datastore...', click: async () => redux.persistor.purge() }
+    {
+      label: mode === 'light' ? 'Dark mode' : 'Light mode',
+      icon: mode === 'light' ? <DarkMode /> : <LightMode />,
+      click: () => toggleColorMode()
+    }
   ];
 
   const helpMenu: NavItemProps[] = [
     {
       label: 'Website...',
       click: async () => {
-        shell.openExternal('https://nomatic.dev/synectic');
+        window.api.openExternal('https://nomatic.dev/synectic');
       }
     },
     {
       label: 'Repository...',
       click: async () => {
-        shell.openExternal('https://github.com/EPICLab/synectic/');
+        window.api.openExternal('https://github.com/EPICLab/synectic/');
       }
     },
     {
       label: 'Release Notes...',
       click: async () => {
-        shell.openExternal('https://github.com/EPICLab/synectic/releases');
+        window.api.openExternal('https://github.com/EPICLab/synectic/releases');
       }
     },
     {
       label: 'View License...',
       click: async () => {
-        shell.openExternal(
+        window.api.openExternal(
           'https://github.com/EPICLab/synectic/blob/5ec51f6dc9dc857cae58c5253c3334c8f33a63c4/LICENSE'
         );
       }
@@ -227,7 +149,7 @@ const Canvas = () => {
       click: () =>
         dispatch(
           modalAdded({
-            id: randomUUID(),
+            id: window.api.uuid(),
             type: 'Notification',
             options: { message: `Synectic v${version}` }
           })
@@ -235,29 +157,131 @@ const Canvas = () => {
     }
   ];
 
+  const graphMenu: NavItemProps[] = [
+    {
+      label: 'Add Commit',
+      click: async () => {
+        const branch = await dispatch(
+          fetchBranch({
+            branchIdentifiers: {
+              root: '/Users/nelsonni/Workspace/simple-project',
+              ref: 'main',
+              scope: 'local'
+            }
+          })
+        ).unwrap();
+        if (branch) {
+          const oid = window.api.hash();
+          console.log(`Adding commit ${oid}...`);
+          dispatch(
+            commitAdded({
+              oid: oid,
+              message: 'TESTING',
+              parents: [branch.head],
+              author: {
+                name: 'unknown',
+                email: 'unknown@unknown.org',
+                timestamp: undefined
+              }
+            })
+          );
+          dispatch(
+            branchUpdated({
+              ...branch,
+              head: oid,
+              commits: [oid, ...branch.commits]
+            })
+          );
+        }
+      }
+    },
+    {
+      label: 'Remove Commit',
+      click: async () => {
+        const branch = await dispatch(
+          fetchBranch({
+            branchIdentifiers: {
+              root: '/Users/nelsonni/Workspace/simple-project',
+              ref: 'main',
+              scope: 'local'
+            }
+          })
+        ).unwrap();
+        const commit = branch
+          ? await dispatch(
+              fetchCommit({ commitIdentifiers: { oid: branch.head, root: branch.root } })
+            ).unwrap()
+          : undefined;
+
+        if (branch && commit) {
+          console.log(`Removing commit ${commit.oid}...`);
+          dispatch(
+            branchUpdated({
+              ...branch,
+              head: commit.parents[0]?.toString() ?? '',
+              commits: branch.commits.filter(c => c !== commit.oid)
+            })
+          );
+          dispatch(commitRemoved(commit.oid.toString()));
+        }
+      }
+    }
+  ];
+
   return (
-    <div className="canvas" ref={drop} data-testid="canvas-component">
-      <div className={styles.navBar}>
+    <AppContainer>
+      <NavBar>
         <NavMenu label="File" submenu={fileMenu} />
-        <NavMenu label="Action" submenu={actionMenu} />
-        <NavMenu label="View" submenu={viewMenu} />
+        <NavMenu label="Graph" submenu={graphMenu} />
         <NavMenu label="System" submenu={sysMenu} />
         <NavMenu label="Help" submenu={helpMenu} />
-        <GitGraphSelect />
-      </div>
-      {stacksArray.map(stack => (
-        <Stack key={stack.id} {...stack} />
-      ))}
-      {cardsArray
-        .filter(card => !card.captured)
-        .map(card => (
-          <CardComponent key={card.id} {...card} />
-        ))}
-      {modals.map(modal => (
-        <ModalComponent key={modal.id} {...modal} />
-      ))}
-    </div>
+      </NavBar>
+      <CanvasComponent id="Canvas" ref={setNodeRef} isOver={isOver}>
+        <ErrorBoundary fallback={<Error>💥GitGraphSelect Error💥</Error>}>
+          <GitGraphSelect />
+        </ErrorBoundary>
+        <DndCanvasContext>
+          <ErrorBoundary fallback={<Error>💥Stack Error💥</Error>}>
+            {stacks.map(stack => (
+              <Stack key={stack.id} id={stack.id} />
+            ))}
+          </ErrorBoundary>
+          <ErrorBoundary fallback={<Error>💥Card Error💥</Error>}>
+            {cards.map(card => (card.captured ? null : <Card key={card.id} id={card.id} />))}
+          </ErrorBoundary>
+          <ErrorBoundary fallback={<Error>💥Modal Error💥</Error>}>
+            {modals.map(modal => (
+              <ModalComponent key={modal.id} {...modal} />
+            ))}
+          </ErrorBoundary>
+          {children}
+        </DndCanvasContext>
+      </CanvasComponent>
+    </AppContainer>
   );
 };
+
+const AppContainer = styled('div')(() => ({
+  display: 'flex',
+  flexFlow: 'column',
+  height: '100vh'
+}));
+
+const NavBar = styled('div')(({ theme }) => ({
+  padding: 1,
+  backgroundColor: theme.palette.background.default,
+  color: theme.palette.text.secondary
+}));
+
+const CanvasComponent = styled('div')<{ isOver: boolean }>(props => ({
+  flex: 1,
+  background: `url(${require('../../assets/canvas.png')}) center/auto fixed`,
+  width: '100%',
+  color: props.isOver ? 'green' : undefined
+}));
+
+const Error = styled('div')(() => ({
+  color: '#FF0000'
+}));
 
 export default Canvas;

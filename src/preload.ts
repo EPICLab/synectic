@@ -1,30 +1,64 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
-import { contextBridge } from 'electron';
-import child_process from 'child_process';
+import {
+  OpenDialogOptions,
+  SaveDialogOptions,
+  clipboard,
+  contextBridge,
+  ipcRenderer,
+  shell
+} from 'electron';
 import path from 'path';
-import { randomUUID } from 'crypto';
+import { randomUUID, randomBytes, createHash } from 'crypto';
+import * as io from './containers/io';
+import * as git from './containers/git';
+import { performance } from 'perf_hooks';
 
-try {
-  console.log('preload.ts can access __dirname:', __dirname);
-} catch (error) {
-  console.error('preload.ts cannot access __dirname:', error);
-}
+const fileOpenDialog = async (
+  options: OpenDialogOptions
+): Promise<Electron.OpenDialogReturnValue> => await ipcRenderer.invoke('fileOpenDialog', options);
 
-console.log('preload.ts can import node modules:', { child_process, path });
+const fileSaveDialog = async (
+  options: SaveDialogOptions
+): Promise<Electron.SaveDialogReturnValue> => await ipcRenderer.invoke('fileSaveDialog', options);
 
-const command = (name: string) =>
-  setTimeout(() => {
-    const isRenderer = typeof process === 'undefined' || !process || process.type === 'renderer';
-    console.log(`foo for ${name} [${isRenderer ? 'renderer' : 'main'}]`);
-  }, 300);
+const checkContext = async (): Promise<string> => await ipcRenderer.invoke('context');
+
+const randomSHA1 = () => {
+  const randomString = randomBytes(16).toString('hex');
+  return createHash('sha1').update(randomString).digest('hex');
+};
 
 const PreloadAPI = {
-  child_process,
-  join: path.join,
-  test: command,
-  uuid: randomUUID
+  globals: {
+    sep: path.sep,
+    platform: process.platform
+  },
+  dialogs: {
+    fileOpen: fileOpenDialog,
+    fileSave: fileSaveDialog
+  },
+  clipboard: clipboard,
+  fs: {
+    cwd: process.cwd,
+    dirname: path.dirname,
+    join: path.join,
+    relative: path.relative,
+    normalize: path.normalize,
+    ...io
+  },
+  git,
+  perfTime: performance.now,
+  notifications: {
+    sendNotification: (message: string) => {
+      ipcRenderer.send('notify', message);
+    }
+  },
+  context: checkContext,
+  uuid: randomUUID,
+  hash: randomSHA1,
+  openExternal: shell.openExternal
 } as const;
 
 contextBridge.exposeInMainWorld('api', PreloadAPI);

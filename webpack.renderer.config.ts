@@ -20,15 +20,15 @@ export const rendererConfig: Configuration = {
     },
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
     fallback: {
-      // assert: false,
-      // constants: false,
-      // crypto: false,
-      // fs: false,
-      // os: false,
-      // path: false,
-      // stream: false,
-      // url: false,
-      // util: false
+      assert: false,
+      constants: false,
+      crypto: false,
+      fs: false,
+      os: false,
+      path: false,
+      stream: false,
+      url: false,
+      util: false
     }
   }
 };

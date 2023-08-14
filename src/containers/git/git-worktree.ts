@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import { Branch } from '../../store/slices/branches';
 import { Expand, isDefined, removeNullableProperties, WithRequired } from '../utils';
-import { execute } from '../exec';
+import execute from '../exec';
 import { checkGitVersion } from './git-version';
 
 type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
@@ -11,7 +11,6 @@ type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
  * except per-workrtree files such as `HEAD`, `index`, etc. As a convenience, `commitish` may be a bare `"-"`, which is synonymous with
  * `@{-1}`. Matches the functionality of
  * [`git-worktree.add`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addltpathgtltcommit-ishgt) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory of the main worktree in the repository (i.e. the worktree directory containing a `.git`
  * directory).
@@ -50,22 +49,27 @@ export const worktreeAdd = async ({
   quiet?: false;
 }): Promise<boolean> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(
-    `git worktree add ${force ? '--force' : ''} ${detach ? '--detach' : ''} ` +
-      `${checkout ? '' : '--no-checkout'} ${
-        lock ? `--lock ${lock.reason ? lock.reason : ''}` : ''
-      } ` +
-      `${newBranch ? `-b ${newBranch}` : ''} ${path ? path.toString() : ''} ${
-        commitish ? commitish : ''
-      }`,
-    dir.toString()
-  );
-  if (!quiet && output.stderr.length > 0 && output.stderr.search(/Preparing worktree/) == -1) {
+  const output = await execute({
+    command: 'git',
+    args: [
+      'worktree',
+      'add',
+      force ? '--force' : '',
+      detach ? '--detach' : '',
+      checkout ? '' : '--no-checkout',
+      lock ? `--lock ${lock.reason ?? ''}` : '',
+      newBranch ? `-b ${newBranch}` : '',
+      path.toString(),
+      commitish ?? ''
+    ],
+    cwd: dir.toString()
+  });
+  if (!quiet && output.stderr && output.stderr.search(/Preparing worktree/) == -1) {
     // Note: `git worktree add` behaves slightly strange and outputs "Preparing worktree (checking out 'branch name')" in `stderr` on success
     console.error(output.stderr);
     return false;
   }
-  if (!quiet && output.stdout.length > 0) console.log(output.stdout);
+  if (!quiet && output.stdout) console.log(output.stdout);
   return true;
 };
 
@@ -75,7 +79,6 @@ export const worktreeAdd = async ({
  * out (or "detached HEAD" if none), "locked" if the worktree is locked, "prunable" if the worktree can be pruned by
  * the {@link worktreePrune} command. Matches the functionality of
  * [`git-worktree.list`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-list) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.verbose - Optional flag to output additional information about worktrees.
@@ -93,11 +96,12 @@ export const worktreeList = async ({
   porcelain?: boolean;
 }): Promise<ReturnType<typeof processWorktreeOutput>> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(
-    `git worktree list ${verbose ? '--verbose' : ''} ${porcelain ? '--porcelain' : ''}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) console.error(output.stderr);
+  const output = await execute({
+    command: 'git',
+    args: ['worktree', 'list', verbose ? '--verbose' : '', porcelain ? '--porcelain' : ''],
+    cwd: dir.toString()
+  });
+  if (output.stderr) console.error(output.stderr);
   return processWorktreeOutput(output.stdout, porcelain);
 };
 
@@ -105,7 +109,6 @@ export const worktreeList = async ({
  * If a worktree is on a portable device or network share which is not always mounted, lock it to prevent its administrative files from
  * being pruned automatically. This also prevents it from being moved or deleted. Matches the functionality of
  * [`git-worktree.lock`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-lock) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.worktree - Worktrees can be identified by path, either relative or absolute. If the last path components in the worktree's path
@@ -123,16 +126,17 @@ export const worktreeLock = async ({
   reason?: string;
 }): Promise<boolean> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(
-    `git wortkree lock ${reason ? `--reason "${reason}"` : ''} ${worktree.toString()}`,
-    dir.toString()
-  );
+  const output = await execute({
+    command: 'git',
+    args: ['worktree', 'lock', reason ? `--reason "${reason}"` : '', worktree.toString()],
+    cwd: dir.toString()
+  });
   // TODO: false should be returned when the output is `fatal: {worktree} is already locked`
-  if (output.stderr.length > 0) {
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
@@ -141,7 +145,6 @@ export const worktreeLock = async ({
  * command. (The {@link worktreeRepair} command, however, can reestablish the connection with linked worktrees if you move the main
  * worktree manually.) Matches the functionality of
  * [`git-worktree.move`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-move) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.worktree - Worktrees can be identified by path, either relative or absolute. If the last path components in the worktree's path
@@ -159,16 +162,17 @@ export const worktreeMove = async ({
   newPath: fs.PathLike;
 }): Promise<boolean> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(
-    `git worktree move ${worktree.toString()} ${newPath.toString()}`,
-    dir.toString()
-  );
+  const output = await execute({
+    command: 'git',
+    args: ['worktree', 'move', worktree.toString(), newPath.toString()],
+    cwd: dir.toString()
+  });
   // TODO: false should be returned when the output is `fatal: {worktree} is locked`
-  if (output.stderr.length > 0) {
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
@@ -194,7 +198,6 @@ type ExpireTime =
  * Prune worktree information in `$GIT_DIR/worktrees` to remove any stale administrative files, unless the worktree is `locked` via `git
  * worktree lock` command. Matches the functionality of
  * [`git-worktree.prune`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-prune) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.dryRun - Do not remove anything; just report what it would remove.
@@ -213,26 +216,32 @@ export const worktreePrune = async ({
   expire?: ExpireTime;
 }): Promise<void> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(
-    `git worktree prune ${dryRun ? '--dry-run' : ''} ${verbose ? '--verbose' : ''} ${
+  const output = await execute({
+    command: 'git',
+    args: [
+      'worktree',
+      'prune',
+      dryRun ? '--dry-run' : '',
+      verbose ? '--verbose' : '',
       expire ? `--expire=${expire}` : ''
-    }`,
-    dir.toString()
-  );
+    ],
+    cwd: dir.toString()
+  });
   // TODO: Properly format the outputs for the `dryRun` and `verbose` options such that they can be ingested by other functions
-  if (output.stderr.length > 0) console.error(output.stderr);
-  if (verbose && output.stdout.length > 0) console.log(output.stdout);
+  if (output.stderr) console.error(output.stderr);
+  if (verbose && output.stdout) console.log(output.stdout);
 };
 
 /**
- * Remove a worktre. Only clean worktrees (no untracked files and no modification in tracked files) can be removed. Unclean worktrees
- * or ones with submodules can be removed with the {@link force} option enabled. The main worktree cannot be removed. Matches the
+ * Remove a worktree. Only clean worktrees (no untracked files and no modification in tracked files) can be removed. Unclean worktrees
+ * or ones with submodules can be removed with the `force` option enabled. The main worktree cannot be removed. Matches the
  * functionality of [`git-worktree.remove`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-remove) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.worktree - The branch name associated with the worktree.
  * @param obj.force - Optional flag to override the safeguards that prevent removing unclean worktrees or ones with submodules.
+ * @returns {boolean} A Promise object containing a boolean indicating whether the worktree was successfully removed.
+ * representing each worktree.
  */
 export const worktreeRemove = async ({
   dir,
@@ -244,16 +253,17 @@ export const worktreeRemove = async ({
   force?: boolean;
 }): Promise<boolean> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(
-    `git worktree remove ${force ? '--force' : ''} ${worktree.toString()}`,
-    dir.toString()
-  );
+  const output = await execute({
+    command: 'git',
+    args: ['worktree', 'remove', force ? '--force' : '', worktree.toString()],
+    cwd: dir.toString()
+  });
   // TODO: false should be returned when the output is `fatal: {worktree} is locked`
-  if (output.stderr.length > 0) {
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
@@ -264,7 +274,6 @@ export const worktreeRemove = async ({
  * linked worktree is moved without using `git worktree move`, the main worktree (or bare repository) will be unable to locate it. Running
  * `git worktree repair` within the recently-moved worktree will reestablish the connection. Matches the functionality of
  * [`git-worktree.repair`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-repairltpathgt82308203) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.paths - List of new paths for linked worktrees that were moved, so that the connection to all the specified paths is reestablished.
@@ -277,18 +286,18 @@ export const worktreeRepair = async ({
   paths?: fs.PathLike[];
 }): Promise<void> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(
-    `git worktree repair ${paths ? paths.map(p => p.toString()).join(' ') : ''}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) console.error(output.stderr);
-  if (output.stdout.length > 0) console.log(output.stdout);
+  const output = await execute({
+    command: 'git',
+    args: ['worktree', 'repair', ...(paths?.map(toString) ?? [])],
+    cwd: dir.toString()
+  });
+  if (output.stderr) console.error(output.stderr);
+  if (output.stdout) console.log(output.stdout);
 };
 
 /**
  * Unlock a worktree, allowing it to be pruned, moved or deleted. Matches the functionality of
  * [`git-worktree.unlock`](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-unlock) command.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.worktree - The branch name associated with the worktree.
@@ -302,17 +311,25 @@ export const worktreeUnlock = async ({
   worktree: string;
 }): Promise<boolean> => {
   await checkGitVersion('>=2.5'); // Linked worktrees require minimum git version 2.5: https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/
-  const output = await execute(`git wortkree unlock ${worktree.toString()}`, dir.toString());
+  const output = await execute({
+    command: 'git',
+    args: ['worktree', 'unlock', worktree.toString()],
+    cwd: dir.toString()
+  });
   // TODO: false should be returned when the output is `fatal: {worktree} is not locked`
-  if (output.stderr.length > 0) {
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
-export const processWorktreeOutput = (output: string, porcelain = false): BranchOutput[] => {
+export const processWorktreeOutput = (
+  output: string | undefined,
+  porcelain = false
+): BranchOutput[] => {
+  if (!isDefined(output)) return [];
   if (porcelain) {
     /**
      * Regex patterns that matches the following capture groups:

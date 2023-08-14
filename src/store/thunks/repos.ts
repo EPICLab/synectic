@@ -1,16 +1,4 @@
 import { PathLike } from 'fs-extra';
-import parsePath from 'parse-path';
-import { randomUUID } from 'crypto';
-import {
-  extractFromURL,
-  extractRepoName,
-  getConfig,
-  getWorktreePaths,
-  GitConfig,
-  revParse,
-  worktreePrune
-} from '../../containers/git';
-import { extractFilename } from '../../containers/io';
 import { ExactlyOne } from '../../containers/utils';
 import { createAppAsyncThunk } from '../hooks';
 import repoSelectors from '../selectors/repos';
@@ -38,26 +26,26 @@ export const fetchRepo = createAppAsyncThunk<
       parent && isVersionedMetafile(parent) ? repoSelectors.selectById(state, parent.repo) : repo;
     if (repo) return repo;
   }
+
   // unless filepath has a root path, there is no repository
-  const filepath: PathLike = input.metafile ? input.metafile.path : input.filepath;
-  const { dir, worktreeDir } = await getWorktreePaths(filepath);
+  const filepath = input.metafile ? input.metafile.path : input.filepath.toString();
+  const { dir } = await window.api.git.getWorktreePaths(filepath);
   if (!dir) return undefined;
 
   // check root for existing repository
-  const root = worktreeDir ? worktreeDir : dir;
-  const existingRepo = repoSelectors.selectByRoot(state, root);
-  const repo = existingRepo ? existingRepo : await thunkAPI.dispatch(buildRepo(root)).unwrap();
+  const existingRepo = repoSelectors.selectByRoot(state, dir);
+  const repo = existingRepo ? existingRepo : await thunkAPI.dispatch(buildRepo(dir)).unwrap();
   return repo;
 });
 
 export const buildRepo = createAppAsyncThunk<Repository, PathLike>(
   'repos/buildRepo',
   async (filepath, thunkAPI) => {
-    const { dir } = await getWorktreePaths(filepath);
-    const { url, oauth } = await getRemoteConfig(dir);
-    if (dir) await worktreePrune({ dir: dir, verbose: true }); // prune worktree information to remove stale linked branches
+    const { dir } = await window.api.git.getWorktreePaths(filepath.toString());
+    const { url, oauth } = await window.api.git.getRemoteConfig(dir);
+    if (dir) await window.api.git.worktreePrune({ dir: dir, verbose: true }); // prune worktree information to remove stale linked branches
     const current = dir
-      ? await revParse({ dir: dir, options: ['abbrevRef'], args: 'HEAD' })
+      ? await window.api.git.revParse({ dir: dir, opts: ['abbrevRef'], args: ['HEAD'] })
       : undefined;
     const branches = dir
       ? await thunkAPI.dispatch(fetchBranches(dir)).unwrap()
@@ -66,18 +54,23 @@ export const buildRepo = createAppAsyncThunk<Repository, PathLike>(
       local: branches.local.map(branch => branch.id),
       remote: branches.remote.map(branch => branch.id)
     };
-    const { username, password } = await getCredentials(dir);
+    const { username, password } = await window.api.git.getCredentials(dir);
+
     return thunkAPI.dispatch(
       repoAdded({
-        id: randomUUID(),
-        name: url ? extractRepoName(url.href) : dir ? extractFilename(dir) : '',
-        root: dir ? dir : '',
+        id: window.api.uuid(),
+        name: url
+          ? window.api.git.extractRepoName(url.href)
+          : dir
+          ? window.api.fs.extractFilename(dir)
+          : '',
+        root: dir ?? '',
         corsProxy: 'https://cors-anywhere.herokuapp.com',
-        url: url ? url.href : '',
+        url: url?.href ?? '',
         default: current ?? '',
         local: local,
         remote: remote,
-        oauth: oauth ? oauth : 'github',
+        oauth: oauth ?? 'github',
         username: username,
         password: password,
         token: ''
@@ -85,29 +78,3 @@ export const buildRepo = createAppAsyncThunk<Repository, PathLike>(
     ).payload;
   }
 );
-
-const getRemoteConfig = async (
-  dir: PathLike | undefined
-): Promise<{ url: parsePath.ParsedPath | undefined; oauth: Repository['oauth'] | undefined }> => {
-  const remoteConfig: GitConfig = dir
-    ? await getConfig({ dir: dir, keyPath: 'remote.origin.url' })
-    : { scope: 'none' };
-  return remoteConfig.scope !== 'none'
-    ? extractFromURL(remoteConfig.value)
-    : { url: undefined, oauth: undefined };
-};
-
-const getCredentials = async (
-  dir: PathLike | undefined
-): Promise<{ username: string; password: string }> => {
-  const usernameConfig: GitConfig = dir
-    ? await getConfig({ dir: dir, keyPath: 'user.name' })
-    : { scope: 'none' };
-  const passwordConfig: GitConfig = dir
-    ? await getConfig({ dir: dir, keyPath: 'credential.helper' })
-    : { scope: 'none' };
-  return {
-    username: usernameConfig.scope === 'none' ? '' : usernameConfig.value,
-    password: passwordConfig.scope === 'none' ? '' : passwordConfig.value
-  };
-};

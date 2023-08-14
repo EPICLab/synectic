@@ -1,17 +1,17 @@
+import {
+  Button,
+  ClickAwayListener,
+  Grow,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
+  styled
+} from '@mui/material';
 import React from 'react';
-import Button from '@material-ui/core/Button';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Grow from '@material-ui/core/Grow';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import MenuList from '@material-ui/core/MenuList';
 import { removeNullableProperties } from '../../containers/utils';
-import NavItem, { NavItemProps } from '../NavItem/NavItem';
-
-type NavMenuProps = {
-  label: string;
-  submenu: NavItemProps[];
-};
 
 const NavMenu = ({ label, submenu }: NavMenuProps) => {
   const [open, setOpen] = React.useState(false);
@@ -19,7 +19,7 @@ const NavMenu = ({ label, submenu }: NavMenuProps) => {
 
   const handleToggle = () => setOpen(prevOpen => !prevOpen);
 
-  const handleClose = (event: React.MouseEvent<EventTarget>) => {
+  const handleClose = (event: Event | React.SyntheticEvent) => {
     if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
       return;
     }
@@ -30,19 +30,21 @@ const NavMenu = ({ label, submenu }: NavMenuProps) => {
     if (event.key === 'Tab') {
       event.preventDefault();
       setOpen(false);
+    } else if (event.key === 'Escape') {
+      setOpen(false);
     }
   };
 
   return (
     <>
-      <Button
+      <StyledButton
         ref={anchorRef}
         aria-controls={open ? `${label}-menu` : undefined}
         aria-haspopup="true"
         onClick={handleToggle}
       >
         {label}
-      </Button>
+      </StyledButton>
       <Popper
         open={open}
         anchorEl={anchorRef.current}
@@ -67,7 +69,7 @@ const NavMenu = ({ label, submenu }: NavMenuProps) => {
                     <NavItem
                       key={item.label}
                       label={item.label}
-                      {...removeNullableProperties({ disabled: item.disabled })}
+                      {...removeNullableProperties({ icon: item.icon, disabled: item.disabled })}
                       click={(event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
                         item.click(event);
                         setOpen(false);
@@ -82,6 +84,36 @@ const NavMenu = ({ label, submenu }: NavMenuProps) => {
       </Popper>
     </>
   );
+};
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  color: theme.palette.text.secondary
+}));
+
+type NavMenuProps = {
+  label: string;
+  submenu: NavItemProps[];
+};
+
+export const NavItem = ({ icon, label, click, disabled }: NavItemProps) => {
+  return (
+    <MenuItem
+      onClick={click}
+      {...removeNullableProperties({ disabled: disabled })}
+      dense
+      sx={{ pl: 2, pr: 2, pt: 1, pb: 1 }}
+    >
+      <ListItemText>{label}</ListItemText>
+      {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+    </MenuItem>
+  );
+};
+
+export type NavItemProps = {
+  label: string;
+  icon?: JSX.Element;
+  disabled?: boolean;
+  click: (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => void;
 };
 
 export default NavMenu;

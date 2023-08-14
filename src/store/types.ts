@@ -4,17 +4,23 @@
 // TypeScript Version: 4.5
 
 import { DateTime } from 'luxon';
-// import { PathLike } from 'fs-extra';
-import { randomUUID } from 'crypto';
 import sha1 from 'sha1';
+import type { UniqueIdentifier } from '@dnd-kit/core';
 
 /** Universal unique identifier based on RFC4122 version 4 for cryptographically-strong random values. */
-export type UUID = ReturnType<typeof randomUUID>;
+export type UUID = UniqueIdentifier;
+/** Valid types for path values in "node::fs" module; fs-extra allows for `string | Buffer | URL` which is problematic when encoding for Redux. */
+export type PathLike = string;
 /** 160-bit hash value for identify revisions in Git and other VCS. */
 export type SHA1 = ReturnType<typeof sha1>;
 /** Epoch millisecond representation of a valid DateTime value. */
 export type Timestamp = ReturnType<DateTime['valueOf']>;
-/** Detailed commit representation for Git. */
+type RGB = `rgb(${number}, ${number}, ${number})`;
+type RGBA = `rgba(${number}, ${number}, ${number}, ${number})`;
+type HEX = `#${string}`;
+/** Color type representing CSS colors in hexidecimal, RGB, or RGBA format. */
+export type Color = RGB | RGBA | HEX;
+/** Detailed commit representation for Git. @deprecated Use `Commit` type, slice, selector, and thunks instead. */
 export type CommitObject = {
   oid: string;
   message: string;
@@ -29,6 +35,17 @@ export type CommitObject = {
     email: string;
     timestamp: Timestamp | undefined;
   };
+};
+/** Status code for various step-based actions on the filesystem and VCS. */
+export type Status = 'Unchecked' | 'Running' | 'Passing' | 'Failing';
+/** Detailed merge results representation for Git. */
+export type MergeOutput = {
+  status: Status;
+  alreadyMerged: boolean;
+  fastForward: boolean;
+  mergeCommit?: SHA1;
+  output?: string;
+  conflicts?: string[];
 };
 /**
  * | status                | description                                                                            |
@@ -67,10 +84,11 @@ export type GitStatus =
  * | status                | description                                                                            |
  * | --------------------- | -------------------------------------------------------------------------------------- |
  * | `"clean"`             | no untracked files and no modifications in tracked files                               |
- * | `"uncommitted"`       | untracked files or uncommitted changes in tracked files exist                          |
+ * | `"unstaged"`          | untracked files or uncommitted changes in tracked files exist, none are staged         |
+ * | `"uncommitted"`       | untracked files or uncommitted changes in tracked files exist, some are staged         |
  * | `"unmerged"`          | unmerged paths possibly exist in the worktree directory, indicates incomplete merge    |
  */
-export type BranchStatus = 'clean' | 'uncommitted' | 'unmerged';
+export type BranchStatus = 'clean' | 'unstaged' | 'uncommitted' | 'unmerged';
 /**
  * | status                | description                                                                            |
  * | --------------------- | -------------------------------------------------------------------------------------- |
@@ -91,15 +109,13 @@ export type CardType =
 export type ModalType =
   | 'BranchList'
   | 'CloneSelector'
-  | 'DiffPicker'
-  | 'Error'
+  | 'DeleteBranchDialog'
   | 'GitGraph'
+  | 'MergeDialog'
   | 'MergeSelector'
   | 'NewBranchDialog'
   | 'NewCardDialog'
-  | 'SourcePicker'
   | 'CommitDialog'
   | 'Notification'
-  | 'GitExplorer'
-  | 'DirectExplorer';
+  | 'RevertCommitDialog';
 export type Flag = 'checkout' | 'updating';

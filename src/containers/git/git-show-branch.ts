@@ -1,14 +1,13 @@
 import { PathLike } from 'fs-extra';
 import { Branch } from '../../store/slices/branches';
 import { Expand, WithRequired, isDefined, removeUndefined } from '../utils';
-import { execute } from '../exec';
+import execute from '../exec';
 import { getRemote } from './git-remote';
 
-type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
+type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref' | 'scope'>>;
 
 /**
  * Show branches and their commits.
- *
  * @param obj - A destructured object for named properties.
  * @param obj.dir - The worktree root directory.
  * @param obj.all - Show both remote-tracking branches and local branches.
@@ -34,15 +33,23 @@ export const showBranch = async ({
     all ? '--all' : undefined,
     remotes ? '--remotes' : undefined,
     list ? '--list' : undefined
-  ]).join(' ');
+  ]);
 
-  const output = await execute(`git show-branch ${options}`, dir.toString());
+  const output = await execute({
+    command: 'git',
+    args: ['show-branch', ...options],
+    cwd: dir.toString()
+  });
   const remoteNames = (await getRemote({ dir: dir })).map(r => r.remote);
-  if (output.stderr.length > 0) console.error(output.stderr);
+  if (output.stderr) console.error(output.stderr);
   return processShowBranchOutput(output.stdout, remoteNames);
 };
 
-export const processShowBranchOutput = (output: string, remotes: string[]): BranchOutput[] => {
+export const processShowBranchOutput = (
+  output: string | undefined,
+  remotes: string[]
+): BranchOutput[] => {
+  if (!isDefined(output)) return [];
   const result: BranchOutput[] = output
     .split(/\r?\n/)
     .map(line => {

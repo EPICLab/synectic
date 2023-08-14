@@ -1,9 +1,9 @@
 import { PathLike } from 'fs-extra';
 import { DateTime } from 'luxon';
-import { CommitObject } from '../../store/types';
 import { isDefined } from '../utils';
-import { execute } from '../exec';
+import execute from '../exec';
 import { revParse } from './git-rev-parse';
+import { Commit } from '../../store/slices/commits';
 
 /**
  * Show commit logs. List commits that are reachable by following the parent links from the given commit(s), but exclude commits that are
@@ -36,14 +36,13 @@ import { revParse } from './git-rev-parse';
  *
  * The command takes options applicable to the `git-rev-list` command to control what is shown and how, and options applicable to the
  * `git-diff` command to control how the changes each commit introduces are shown.
- *
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
  * @param obj.revRange - The revision range (or just SHA-1 commit hash) to begin walking backwards through the history from.
  * @param obj.maxCount - Optional limit of the number of commits to output; defaults to infinity.
  * @param obj.until - Optional threshold to limit commits older than a specific date.
  * @param obj.paths - Optional simplication for only including commits modifying the given paths.
- * @returns {Promise<string>} A Promise object containing an array of {@link CommitObject} objects
+ * @returns {Promise<Commit[]>} A Promise object containing an array of {@link Commit} objects
  * representing commit information.
  */
 export const log = async ({
@@ -57,19 +56,24 @@ export const log = async ({
   maxCount?: number;
   until?: DateTime;
   paths?: PathLike[];
-}): Promise<CommitObject[]> => {
+}): Promise<Commit[]> => {
   const maxCountOption = maxCount ? `--max-count=${maxCount}` : '';
   const untilOption = until ? `--until=${until.toHTTP()}` : '';
   const revOption = revRange ?? '';
-  const output = await execute(
-    `git log ${maxCountOption} ${untilOption} ${revOption}`,
-    dir.toString()
-  );
-  if (output.stderr.length > 0) console.error(output.stderr);
+  const output = await execute({
+    command: 'git',
+    args: ['log', maxCountOption, untilOption, revOption],
+    cwd: dir.toString()
+  });
+  if (output.stderr) console.error(output.stderr);
   return processLogOutput(output.stdout, dir);
 };
 
-export const processLogOutput = async (output: string, dir: PathLike): Promise<CommitObject[]> => {
+export const processLogOutput = async (
+  output: string | undefined,
+  dir: PathLike
+): Promise<Commit[]> => {
+  if (!isDefined(output)) return [];
   /**
    * Regex patterns that matches the following capture groups:
    * [1] sha1 hash for the commit (e.g. `e629b39c2`)
@@ -93,7 +97,7 @@ export const processLogOutput = async (output: string, dir: PathLike): Promise<C
         const authorEmail = line[4];
         const timestamp = line[5];
         const message = line[6];
-        const parentRevs = oid ?? (await revParse({ dir: dir, args: `${oid}^@` }));
+        const parentRevs = oid ? await revParse({ dir: dir, args: [`${oid}^@`] }) : undefined;
         const parents = parentRevs !== undefined ? parentRevs.split(/\r?\n/) : [];
         return oid && message
           ? {

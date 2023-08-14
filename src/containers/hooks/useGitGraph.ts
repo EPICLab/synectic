@@ -1,258 +1,354 @@
-import { diffArrays } from 'diff';
-import { useEffect, useMemo, useState } from 'react';
-import { useAppSelector } from '../../store/hooks';
+import { useCallback, useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
-import metafileSelectors from '../../store/selectors/metafiles';
-import repoSelectors from '../../store/selectors/repos';
-import { Branch } from '../../store/slices/branches';
-import { CommitObject, UUID } from '../../store/types';
-import { filteredArrayEquality, removeUndefined } from '../utils';
+import { Branch, isUnmergedBranch } from '../../store/slices/branches';
+import { Commit } from '../../store/slices/commits';
+import { fetchCommit } from '../../store/thunks/commits';
+import { Color, SHA1, UUID } from '../../store/types';
+import { removeDuplicates, removeUndefined, symmetrical } from '../utils';
+import useMap from './useMap';
 import usePrevious from './usePrevious';
-import { checkUnmergedBranch, worktreeStatus } from '../git';
 
-type Oid = string;
-export type GitGraph = Map<Oid, CommitVertex>;
-export type CommitVertex = CommitObject & {
-    scope: 'local' | 'remote',
-    branch: string,
-    parents: Oid[],
-    children: Oid[],
-    head: boolean,
-    staged: boolean,
-    conflicted: boolean
-}
-type useGitGraphHook = {
-    /** A map from commit oid to CommitVertex elements contained within a graph. */
-    graph: GitGraph,
-    /** The ordered list of commit oids for the elements within the graph. */
-    topological: Oid[],
-    /** A convenience function for printing both the graph and the topologically-sorted graph of elements. */
-    print: () => void
-}
+export type CommitVertex = Commit & {
+  /** The Repository object UUID that contains branches and this commit in their history. */
+  repo: UUID;
+  /** Array of Branch object UUIDs that include this commit in their history. */
+  branches: UUID[];
+  /** Array of Branch object UUIDs that have HEAD pointed at this commit. */
+  heads: UUID[];
+  /** Array of Branch object UUIDs that have an incomplete merge (ie. conflict) at this commit. */
+  conflicted: UUID[];
+  /** Array of Commit object UUIDs that point back to this commit as their parent. */
+  children: UUID[];
+  /** Background color to display for this vertex node. */
+  color: Color;
+  /** Indicator for whether this vertex node represents a possible future git commit. */
+  staged: boolean;
+};
+export type GitGraph = Map<SHA1, CommitVertex>;
 
-const useGitGraph = (repoId: UUID, pruned = false): useGitGraphHook => {
-    const repo = useAppSelector(state => repoSelectors.selectById(state, repoId));
-    const staged = useAppSelector(state => metafileSelectors.selectStagedByRepo(state, repo?.id ?? ''));
-    const prevStaged = usePrevious(staged);
-    const branches = useAppSelector(state => branchSelectors.selectByRepo(state, repo?.id ?? ''));
-    const prevBranches = usePrevious(branches);
-    const [graph, setGraph] = useState(new Map<Oid, CommitVertex>());
+export type useGitGraphHook = {
+  graph: GitGraph;
+  topological: UUID[];
+  printGraph: () => void;
+};
 
-    useEffect(() => {
-        process('branches');
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [branches]);
+export const useGitGraph = (id: UUID): useGitGraphHook => {
+  const graph = useMap<SHA1, CommitVertex>([]);
+  const [topological, setTopological] = useState<UUID[]>([]);
+  const branches = useAppSelector(state => branchSelectors.selectByRepo(state, id, true));
+  const previous = usePrevious(branches);
+  const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        const changed = prevStaged ? !filteredArrayEquality(prevStaged, staged, ['id', 'repo', 'branch', 'status']) : true;
-        if (changed) process('staged');
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [staged]);
+  const arrayAdd = <T>(arr: T[], addElem: T): T[] => {
+    return removeDuplicates([...arr, addElem], (a, b) => a === b);
+  };
 
-    const process = async (target: 'branches' | 'staged') => {
-        if (repo) {
-            const newGraph = new Map(graph);
-            const { added, removed, modified } = (target === 'branches') ? partition() : { added: [], removed: [], modified: [] };
+  const arrayRemove = <T>(arr: T[], removeElem: T): T[] => {
+    return arr.filter(e => e !== removeElem);
+  };
 
-            if (removed) { // no guarantee about providence of commits, invalidate graph and reconstruct
-                newGraph.clear();
-                await Promise.all(branches.map(branch => parse(newGraph, branch)));
-                await Promise.all(branches.map(branch => parseStaged(newGraph, branch)));
-            } else {
-                await Promise.all(added.map(branch => parse(newGraph, branch)));
-                await Promise.all(modified.map(branch => parse(newGraph, branch)));
-                await Promise.all(added.map(branch => parseStaged(newGraph, branch)));
-                await Promise.all(modified.map(branch => parseStaged(newGraph, branch)));
-            }
-            if (target === 'staged') {
-                await Promise.all(branches.map(branch => parseStaged(newGraph, branch)));
-            }
-            link(newGraph); // linking is needed for topological sorting to work properly
-            if (pruned) prune(newGraph);
-            setGraph(newGraph);
-        }
-    }
+  /**
+   * Add or update a vertex in the graph. Multiple branches can reference the same commit, thus
+   * this function adds a vertex if the commit was not previously part of the graph and adds
+   * updated information to an existing vertex (including status changes, associated branches,
+   * changes in head state, colors, etc.). This function is capable of discerning conflicts and
+   * whether the vertex represents the head of any associated branches.
+   */
+  const updateVertex = useCallback(
+    async <T extends Branch>(oid: SHA1, branch: T) => {
+      const commit = await dispatch(
+        fetchCommit({ commitIdentifiers: { oid: oid.toString(), root: branch.root } })
+      ).unwrap();
+      const existing = graph.get(oid);
 
-    /**
-     * Parse all commits in a branch and record new commits in the graph map. Time complexity is `O(C)` when used on a single branch, 
-     * where `C` is the number of commits. However, most of the time this will be used in conjunction with traversing through all branches 
-     * in repository, in which case the complexity becomes `O(B*C)` where `B` is the number of branches (local and remote instances of a 
-     * branch are considered separately).
-     * 
-     * @param graph - The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
-     * @param branch - A local or remote Branch object containing commits.
-     */
-    const parse = async (graph: GitGraph, branch: Branch) => {
-        // check for conflicts in head commit
-        const conflicted = (await checkUnmergedBranch(branch.root, branch.ref)).length > 0;
+      const updatedHeads =
+        branch.head === oid
+          ? arrayAdd(existing?.heads ?? [], branch.id)
+          : arrayRemove(existing?.heads ?? [], branch.id);
 
-        branch.commits.map((commit, idx) => {
-            !graph.has(commit.oid) ? graph.set(commit.oid, {
-                ...commit,
-                scope: branch.scope,
-                branch: branch.ref,
-                parents: commit.parents,
-                children: [],
-                head: idx === 0 ? true : false,
-                staged: false,
-                conflicted: idx === 0 ? conflicted : false
-            })
-                : null
+      const updatedConflicted =
+        branch.head === oid && branch.status === 'unmerged'
+          ? arrayAdd(existing?.conflicted ?? [], branch.id)
+          : arrayRemove(existing?.conflicted ?? [], branch.id);
+
+      const update: CommitVertex = {
+        ...(existing ?? commit),
+        repo: id,
+        branches: arrayAdd(existing?.branches ?? [], branch.id),
+        heads: updatedHeads,
+        conflicted: updatedConflicted,
+        children: existing?.children ?? [],
+        color:
+          updatedConflicted.length > 0
+            ? 'rgb(240, 128, 128)' // red
+            : updatedHeads.length > 0
+            ? 'rgb(143, 226, 0)' // green
+            : 'rgb(128, 128, 128)', // grey
+        staged: false
+      };
+
+      graph.set(oid, update);
+      if (!existing) update.parents.forEach(async parent => await updateVertex(parent, branch));
+    },
+    [dispatch, graph, id]
+  );
+
+  /**
+   * Add or update a placeholder vertex in the graph. Placeholders represent temporary states that
+   * are not represented as commits within the underlying git repository (i.e. incomplete merges,
+   * uncommitted changes, etc.). This function checks for uncommitted changes that have been staged
+   * within the branch, and adds a staged placeholder vertex to represent the future commit that
+   * encompasses these changes. This function also checks for incomplete merges within a branch,
+   * and adds conflict placeholder vertices for each incomplete merge involving the specified
+   * branch.
+   */
+  const updatePlaceholders = useCallback(
+    async <T extends Branch>(branch: T) => {
+      const prev = previous?.find(b => b.id === branch.id);
+      const compare = isUnmergedBranch(branch)
+        ? branches.find(b => b.scope === 'local' && b.ref === branch.merging)
+        : undefined;
+
+      // add a staged placeholder vertex
+      if (branch.status === 'uncommitted') {
+        const key = `${branch.scope}/${branch.ref}*`;
+
+        graph.set(key, {
+          oid: key,
+          message: `Staged changes in ${branch.scope}/${branch.ref}`,
+          parents: [branch.head],
+          author: {
+            name: '',
+            email: '',
+            timestamp: undefined
+          },
+          repo: id,
+          branches: [branch.id],
+          heads: [],
+          children: [],
+          color: 'rgb(97, 174, 238)', // blue
+          staged: true,
+          conflicted: []
         });
-    };
+      } else {
+        graph.delete(`${branch.scope}/${branch.ref}*`);
+      }
 
-    const parseStaged = async (graph: GitGraph, branch: Branch) => {
-        if (branch.scope === 'local') {
-            const existing = graph.has(`${branch.scope}/${branch.ref}*`);
-            const staged = ['added', 'modified', 'deleted'];
-            const statuses = await worktreeStatus({ dir: branch.root });
-            const hasStaged = statuses ? statuses.entries.filter(e => staged.includes(e.status)).length > 0 : false;
+      // add a conflict placeholder vertex
+      if (isUnmergedBranch(branch) && compare) {
+        const key = `${branch.scope}/${branch.ref}<>${branch.merging}`;
+        const head = graph.get(branch.head);
 
-            if (!existing && hasStaged) {
-                // add placeholder CommitVertex for newly staged files in the branch
-                graph.set(`${branch.scope}/${branch.ref}*`, {
-                    oid: `${branch.scope}/${branch.ref}*`,
-                    message: '',
-                    author: {
-                        name: '',
-                        email: '',
-                        timestamp: undefined
-                    },
-                    scope: branch.scope,
-                    branch: branch.ref,
-                    parents: branch.commits[0] ? [branch.commits[0].oid] : [],
-                    children: [],
-                    head: false,
-                    staged: true,
-                    conflicted: false
-                });
-            }
-            if (existing && !hasStaged) {
-                // delete any previously set placeholders CommitVertex
-                graph.delete(`${branch.scope}/${branch.ref}*`);
-            }
+        graph.set(key, {
+          oid: key,
+          message: `Incomplete merge from ${compare.scope}/${compare.ref} into ${branch.scope}/${branch.ref}`,
+          parents: [branch.head, compare.head],
+          author: {
+            name: '',
+            email: '',
+            timestamp: undefined
+          },
+          repo: id,
+          branches: [branch.id],
+          heads: [branch.id],
+          children: [],
+          color: 'rgb(240, 128, 128)', // red
+          staged: true,
+          conflicted: [branch.id]
+        });
+
+        if (head)
+          graph.set(head.oid, {
+            ...head,
+            color: 'rgb(240, 128, 128)', // red
+            conflicted: [compare.id]
+          });
+      } else if (isUnmergedBranch(prev)) {
+        const head = graph.get(prev.head);
+        graph.delete(`${branch.scope}/${branch.ref}<>${prev.merging}`);
+
+        if (head)
+          graph.set(head.oid, {
+            ...head,
+            color: 'rgb(143, 226, 0)', // green
+            conflicted: []
+          });
+      }
+    },
+    [branches, graph, id, previous]
+  );
+
+  /**
+   * Remove or update a vertex in the graph. Multiple branches can reference the same commit, thus
+   * this function only removes the vertex if removing association with a specified branch would
+   * result in the vertex being associated with no branches. Otherwise, this function will update
+   * the vertex to no longer include associations with the specified branch.
+   */
+  const removeVertex = useCallback(
+    async <T extends Branch>(oid: SHA1, branch: T) => {
+      const existing = graph.get(oid);
+      const parents = existing ? removeUndefined(existing.parents.map(p => graph.get(p))) : [];
+
+      parents.forEach(parent =>
+        graph.set(parent.oid, {
+          ...parent,
+          children: parent.children.filter(c => c != oid)
+        })
+      );
+
+      if (!existing || (existing.branches.includes(branch.id) && existing.branches.length === 1)) {
+        graph.delete(oid);
+      } else {
+        graph.set(oid, {
+          ...existing,
+          branches: existing.branches.filter(b => b != branch.id),
+          heads: existing.heads.filter(b => b != branch.id),
+          conflicted: existing.conflicted.filter(b => b != branch.id)
+        });
+      }
+
+      parents.forEach(async parent => await updateVertex(parent.oid, branch));
+    },
+    [graph, updateVertex]
+  );
+
+  /**
+   * Traverse all vertices and add backlinks to all child vertices. Time complexity is `O(V+E)`,
+   * where `V` is the number of vertices and `E` is the number of edges.
+   */
+  const link = useCallback(() => {
+    for (const vertex of graph.values()) {
+      for (const oid of vertex.parents) {
+        const parent = graph.get(oid.toString());
+        if (parent && !parent.children.some(child => child === vertex.oid)) {
+          graph.set(parent.oid.toString(), {
+            ...parent,
+            children: [...parent.children, vertex.oid.toString()]
+          });
         }
+      }
     }
+  }, [graph]);
 
-    /**
-     * Traverse all vertices and add backlinks to all child vertices. Time complexity is `O(V+E)`, where `V` is
-     * the number of vertices and `E` is the number of edges. 
-     * 
-     * @param graph - The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
-     */
-    const link = (graph: GitGraph) => {
-        for (const vertex of graph.values()) {
-            for (const oid of vertex.parents) {
-                const parent = graph.get(oid);
-                if (parent && !parent.children.some(child => child === vertex.oid)) {
-                    graph.set(parent.oid, { ...parent, children: [...parent.children, vertex.oid] });
-                }
-            }
+  const topologicalSortUtil = useCallback(
+    (key: SHA1, visited: Map<SHA1, boolean>, graph: GitGraph, stack: string[]) => {
+      visited.set(key, true);
+      const vertex = graph.get(key);
+      if (vertex) {
+        for (const v of vertex.children) {
+          if (visited.get(v.toString()) === false) {
+            topologicalSortUtil(v.toString(), visited, graph, stack);
+          }
         }
-    };
+      }
+      stack.push(key.toString());
+    },
+    []
+  );
 
-    /**
-     * Filter for sequential vertices in the graph; i.e. commits with only a single parent and child. Traverses all
-     * sequential vertices and relinks parent and child vertices to bypass the sequential vertex, and removes that 
-     * sequential vertex from the graph. This breaks from the ground truth within git worktrees, but provides a 
-     * minimum set of vertices for visualizing the repository graph. Time complexity is `O(V)`, where `V` is the number
-     * of vertices (since `Map.get` and `Map.set` are `O(1)` constant operations).
-     * 
-     * @param graph - The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
-     */
-    const prune = (graph: GitGraph) => {
-        const prunable = Array.from(graph.values()).filter(vertex => vertex.parents.length == 1 && vertex.children.length == 1);
-        for (const vertex of prunable) {
-            const sequential = graph.get(vertex.oid);                  // retrieve any vertex updates between for-loop iterations
-            const parent = sequential ? graph.get(sequential.parents[0] as string) : undefined; // sequential type guarantees only 1 parent
-            const child = sequential ? graph.get(sequential.children[0] as string) : undefined; // sequential type guarantees only 1 child
-
-            if (sequential && parent && child) {
-                child.parents = child.parents.map(p => p === sequential.oid ? parent.oid : p);
-                parent.children = parent.children.map(c => c === sequential.oid ? child.oid : c);
-                graph.set(parent.oid, parent);
-                graph.set(child.oid, child);
-                graph.delete(sequential.oid);
-            }
+  /**
+   * Topological sorting for Directed Acyclic Graph (DAG) is a linear ordering of vertices such
+   * that for every directed edge `u -> v`, vertex `u` comes before `v` in the ordering.
+   * Topological Sorting for a graph is not possible if the graph is not a DAG.
+   * @param graph The `Map` object containing a dictionary from SHA-1 commit hash to
+   * `CommitVertex` object.
+   * @returns {string[]} An array of keys corresponding to the elements in the graph, but sorted
+   * in topological order.
+   */
+  const topologicalSort = useCallback(
+    (graph: GitGraph) => {
+      const visited: Map<SHA1, boolean> = new Map([...graph.keys()].map(k => [k, false]));
+      const stack: string[] = [];
+      for (const key of graph.keys()) {
+        if (visited.get(key) === false) {
+          topologicalSortUtil(key, visited, graph, stack);
         }
-    };
+      }
+      setTopological(stack.reverse());
+    },
+    [topologicalSortUtil]
+  );
 
-    /**
-     * Filter and partition commits in a branch into added, removed, and modified. Time complexity is `O(B*C)` where `B` is the
-     * number of branches (local and remote instances are considered separately) and `C` is the number of commits in the repository.
-     *
-     * @returns {{ added: Branch[], removed: boolean, modified: Branch[] }} A filtered object containing branches that have been added, 
-     * branches that have been removed, and branches that contain modifications to the tracked commits, the commit pointed to by HEAD, or 
-     * staged/unstaged files.
-     */
-    const partition = (): { added: Branch[], removed: boolean, modified: Branch[] } => {
-        const removed = prevBranches ? prevBranches.some(branch => !branches.some(b => b.id === branch.id)) : false;
-        if (removed) return { added: [], removed: removed, modified: [] }; // branches were removed, so invalidate the graph
-
-        const isModified = (prev: Branch, curr: Branch) => {
-            const sameHead = prev.head === curr.head;
-            const sameCommits = !diffArrays(prev.commits, curr.commits, { comparator: (a, b) => a.oid === b.oid }).some(d => d.added || d.removed);
-            return !(sameHead && sameCommits);
+  const processChanges = useCallback(
+    (previous: Branch[] | undefined, branches: Branch[]) => {
+      const { added, modified, removed } = changeFilter(previous, branches, [
+        'id',
+        'head',
+        'status',
+        'linked',
+        'commits'
+      ]);
+      added.forEach(async branch => {
+        branch.commits.forEach(async oid => await updateVertex(oid.toString(), branch));
+        await updatePlaceholders(branch);
+      });
+      removed.forEach(async branch => {
+        branch.commits.forEach(async oid => await removeVertex(oid.toString(), branch));
+        await updatePlaceholders(branch);
+      });
+      modified.forEach(async mod => {
+        if (mod.changed.includes('commits')) {
+          const [added, , removed] = symmetrical(
+            mod.branch.commits,
+            mod.prev.commits,
+            (a, b) => a === b
+          );
+          added.forEach(async oid => await updateVertex(oid.toString(), mod.branch));
+          removed.forEach(async oid => await removeVertex(oid.toString(), mod.branch));
+          await updatePlaceholders(mod.branch);
         }
-
-        const isChanged = (branch: Branch) => {
-            const prev = prevStaged?.some(m => m.branch === branch.id);
-            const curr = staged.some(m => m.branch === branch.id);
-            return prev !== curr;
+        if (
+          !mod.changed.includes('commits') &&
+          (mod.changed.includes('status') || mod.changed.includes('head'))
+        ) {
+          if (mod.branch.commits.includes(mod.prev.head))
+            await updateVertex(mod.prev.head, mod.branch);
+          await updatePlaceholders(mod.branch);
         }
+      });
+      link();
+      topologicalSort(graph);
+    },
+    [graph, link, removeVertex, topologicalSort, updatePlaceholders, updateVertex]
+  );
 
-        const [added, modified] = branches.reduce((accumulator: [Branch[], Branch[]], branch) => {
-            const prev = prevBranches?.find(b => b.id === branch.id);
-            let modified = prev ? isModified(prev, branch) : true;
-            modified = modified ? modified : isChanged(branch);
-            return !prev ? (accumulator[0].push(branch), accumulator) : modified ? (accumulator[1].push(branch), accumulator) : accumulator;
-        }, [[], []]);
+  useEffect(() => {
+    processChanges(previous, branches);
+  }, [previous, branches, processChanges]);
 
-        return { added: added, removed: removed, modified: modified };
-    }
+  const printGraph = () => {
+    console.groupCollapsed(
+      `%c[useGitGraph] Print repo: ${id}`,
+      'background: RebeccaPurple; color: white; padding: 3px; border-radius: 5px;'
+    );
+    console.log(`Graph:`, { graph, topological });
+    console.log(`Branches:`, { prev: previous, branches });
+    console.groupEnd();
+  };
 
-    const topologicalSortUtil = (key: string, visited: Map<string, boolean>, graph: GitGraph, stack: string[]) => {
-        visited.set(key, true);
-        const vertex = graph.get(key);
-        if (vertex) {
-            for (const v of vertex.children) {
-                if (visited.get(v) === false) {
-                    topologicalSortUtil(v, visited, graph, stack);
-                }
-            }
-        }
-        stack.push(key);
-    }
+  return { graph, topological, printGraph };
+};
 
-    /**
-     * Topological sorting for Directed Acyclic Graph (DAG) is a linear ordering of vertices such that for every directed edge `u -> v`, 
-     * vertex `u` comes before `v` in the ordering. Topological Sorting for a graph is not possible if the graph is not a DAG.
-     *
-     * @param graph The `Map` object containing a dictionary from SHA-1 commit hash to `CommitVertex` object.
-     * @returns {string[]} An array of keys corresponding to the elements in the graph, but sorted in topological order.
-     */
-    const topologicalSort = (graph: GitGraph) => {
-        const visited: Map<string, boolean> = new Map([...graph.keys()].map(k => [k, false]));
-        const stack: string[] = [];
-        for (const key of graph.keys()) {
-            if (visited.get(key) === false) {
-                topologicalSortUtil(key, visited, graph, stack);
-            }
-        }
-        return stack.reverse();
-    }
+const changeFilter = <BranchProps extends keyof Branch>(
+  previous: Branch[] | undefined,
+  branches: Branch[],
+  props: BranchProps[]
+): {
+  added: Branch[];
+  modified: { prev: Branch; branch: Branch; changed: BranchProps[] }[];
+  removed: Branch[];
+} => {
+  const [added, existing, removed] = symmetrical(branches, previous ?? [], (a, b) => a.id === b.id);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const topological = useMemo(() => topologicalSort(graph), [graph]);
+  const modified = existing.reduce(
+    (accum: { prev: Branch; branch: Branch; changed: BranchProps[] }[], [curr, prev]) => {
+      const deltaProps = props.filter(prop => curr[prop] !== prev[prop]);
+      if (deltaProps.length > 0) accum.push({ prev, branch: curr, changed: deltaProps });
+      return accum;
+    },
+    []
+  );
 
-    const print = () => {
-        console.group(repo?.name);
-        const topologicallySorted = removeUndefined(topological.map(oid => graph.get(oid)));
-        console.log({ graph, topologicallySorted });
-        console.groupEnd();
-    }
-
-    return { graph, topological, print };
-}
-
-export default useGitGraph;
+  return { added, modified, removed };
+};

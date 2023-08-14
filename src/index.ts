@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Notification } from 'electron';
 import installExtension, {
   REDUX_DEVTOOLS,
   REACT_DEVELOPER_TOOLS
@@ -24,8 +24,9 @@ const createWindow = (): void => {
     width: 1400,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      contextIsolation: true,
       nodeIntegration: true,
+      contextIsolation: true,
+      // sandbox: true,
       webviewTag: true
     }
   });
@@ -42,12 +43,14 @@ const createWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-app.whenReady().then(() => {
-  installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-    .then(name => console.log(`Added extension: ${name}`))
-    .catch(err => console.log('An error occurred: ', err));
+app.on('ready', () => {
+  createWindow();
 });
+// app.whenReady().then(() => {
+//   installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+//     .then(name => console.log(`Added extension: ${name}`))
+//     .catch(err => console.log('An error occurred: ', err));
+// });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

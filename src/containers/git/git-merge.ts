@@ -1,50 +1,44 @@
 import * as path from 'path';
-import { SHA1 } from '../../store/types';
+import { MergeOutput } from '../../store/types';
 import { getConflictingChunks, ProgressCallback, removeNullableProperties } from '../utils';
-import { execute } from '../exec';
+import execute from '../exec';
 import { worktreeList } from './git-worktree';
 import { pathExists, PathLike } from 'fs-extra';
 import { getBranchRoot, getWorktreePaths } from './git-path';
 import { isDirectory, isEqualPaths, readFileAsync } from '../io';
 import { getIgnore } from './git-ignore';
 import { VersionedMetafile } from '../../store/slices/metafiles';
-import { Status } from '../../components/Status';
 import { log } from './git-log';
 import { revList } from './git-rev-list';
 import { revParse } from './git-rev-parse';
 
 export type Conflict = Pick<VersionedMetafile, 'path' | 'conflicts'>;
-
-export type MergeOutput = {
-  status: Status;
-  alreadyMerged: boolean;
-  fastForward: boolean;
-  mergeCommit?: SHA1;
-  output?: string;
-  conflicts?: PathLike[];
-};
+export type MergeAction = 'continue' | 'abort' | 'quit';
 
 /**
- * Incorporate changes from the named commits (since the time their histories diverged from the current branch) into the
- * current branch. This command is used by `git pull` to incorporate changes from another repository and can be used by
- * hand to merge changes from one branch into another.
- *
+ * Incorporate changes from the named commits (since the time their histories diverged from the
+ * current branch) into the current branch. This command is used by `git pull` to incorporate
+ * changes from another repository and can be used by hand to merge changes from one branch into
+ * another.
  * @param obj - A destructured object for named parameters.
  * @param obj.dir - The worktree root directory.
- * @param obj.squash - Optional flag to produce the working tree and index state as if a real merge happened (except for the
- * merge information), but do not actually make a commit, move the HEAD, or record `@GIT_DIR/MERGE_HEAD` (to cause the next
- * `git commit` command to create a merge commit). This allows you to create a single commit on top of the current branch whose
- * effect is the same as merging another branch (or more in case of an octopus). Defaults to `false`.
- * @param obj.fastForwardOnly - Optional flag to resolve the merge as a fast-forward when possible. When not possible, refuse
- * to merge and exit with a non-zero status. Defaults to `false`.
- * @param obj.verify - Optional flag to allow the *pre-merge* and *commit-msg* hooks to run. Defaults to `true`.
+ * @param obj.squash - Optional flag to produce the working tree and index state as if a real merge
+ * happened (except for the merge information), but do not actually make a commit, move the HEAD,
+ * or record `@GIT_DIR/MERGE_HEAD` (to cause the next `git commit` command to create a merge
+ * commit). This allows you to create a single commit on top of the current branch whose effect is
+ * the same as merging another branch (or more in case of an octopus). Defaults to `false`.
+ * @param obj.fastForwardOnly - Optional flag to resolve the merge as a fast-forward when possible.
+ * When not possible, refuse to merge and exit with a non-zero status. Defaults to `false`.
+ * @param obj.verify - Optional flag to allow the *pre-merge* and *commit-msg* hooks to run.
+ * Defaults to `true`.
  * @param obj.quiet - Optional flag to operate quietly. Defaults to `false`.
  * @param obj.base - Optional alternate base branch name to specify linked worktrees.
  * @param obj.commitish - The SHA1 commit hash or branch name to merge into our branch.
- * @param obj.message - Set the commit message to be used for the merge commit (in case one is created).
+ * @param obj.message - Set the commit message to be used for the merge commit (in case one is
+ * created).
  * @param obj.onProgress - Callback for listening to intermediate progress events during the merge.
- * @returns {Promise<MergeOutput>} A Promise object containing a {@link MergeOutput} object representing the
- * results of the merge.
+ * @returns {Promise<MergeOutput>} A Promise object containing a {@link MergeOutput} object
+ * representing the results of the merge.
  */
 export const mergeBranch = async ({
   dir,
@@ -87,18 +81,25 @@ export const mergeBranch = async ({
       )
     );
   }
-  const output = await execute(
-    `git merge ${squash ? '--squash' : ''} ${quiet ? '--quiet' : ''} ${
-      !verify ? '--no-verify' : ''
-    } ` + `${fastForwardOnly ? '--ff-only' : ''} ${commitish} ${message ? `-m ${message}` : ''}`,
-    root.toString()
-  );
+  const output = await execute({
+    command: 'git',
+    args: [
+      'merge',
+      squash ? '--squash' : '',
+      quiet ? '--quiet' : '',
+      !verify ? '--no-verify' : '',
+      fastForwardOnly ? '--ff-only' : '',
+      commitish,
+      message ? `-m ${message}` : ''
+    ],
+    cwd: root.toString()
+  });
 
-  if (!quiet && output.stderr.length > 0) {
+  if (!quiet && output.stderr) {
     if (onProgress) await onProgress({ phase: output.stderr, loaded: 1, total: 1 });
     console.error(output.stderr);
   }
-  if (!quiet && output.stdout.length > 0) {
+  if (!quiet && output.stdout) {
     if (onProgress) await onProgress({ phase: output.stdout, loaded: 1, total: 1 });
     console.log(output.stdout);
   }
@@ -106,38 +107,36 @@ export const mergeBranch = async ({
   return await processMergeOutput(output, root);
 };
 
-export const mergeInProgress = async ({
-  dir,
-  action
-}: {
-  dir: PathLike;
-  action: 'continue' | 'abort' | 'quit';
-}) => {
-  const output = await execute(`git merge --${action}`, dir.toString());
+export const mergeInProgress = async ({ dir, action }: { dir: PathLike; action: MergeAction }) => {
+  const output = await execute({
+    command: 'git',
+    args: ['merge', `--${action}`],
+    cwd: dir.toString()
+  });
   // TODO: false should be returned when the output is `fatal: There is no merge in progress (MERGE_HEAD missing).`
   // TODO: false should be returned when the output is `fatal: There is no merge to abort (MERGE_HEAD missing).`
   // TODO: false should be returned when `quit` is used, but there is no MERGE_HEAD (although no output is shown typically).
-  if (output.stderr.length > 0) {
+  if (output.stderr) {
     console.error(output.stderr);
     return false;
   }
-  if (output.stdout.length > 0) console.log(output.stdout);
+  if (output.stdout) console.log(output.stdout);
   return true;
 };
 
 /**
  * Check for conflicting chunks within a specific directory or file.
- *
  * @param filepath - The relative or absolute path to evaluate.
- * @returns {Promise<Conflict[]>} A Promise object containing an array of conflict information found in the specified
- * file or directory (the array does not include entries for non-conflicting files).
+ * @returns {Promise<Conflict[]>} A Promise object containing an array of conflict information
+ * found in the specified file or directory (the array does not include entries for
+ * non-conflicting files).
  */
-export const checkUnmergedPath = async (filepath: PathLike): Promise<Conflict[]> => {
+export const checkUnmergedPath = async (filepath: string): Promise<Conflict[]> => {
   const isDir = await isDirectory(filepath);
   return isDir ? await checkUnmergedDirectory(filepath) : await checkUnmergedFile(filepath);
 };
 
-const checkUnmergedFile = async (filepath: PathLike): Promise<Conflict[]> => {
+const checkUnmergedFile = async (filepath: string): Promise<Conflict[]> => {
   const { dir, worktreeDir } = await getWorktreePaths(filepath);
   if (!dir) return [];
 
@@ -155,11 +154,15 @@ const checkUnmergedFile = async (filepath: PathLike): Promise<Conflict[]> => {
 };
 
 const checkUnmergedDirectory = async (directory: PathLike): Promise<Conflict[]> => {
-  const result = await execute(`git diff --check`, directory.toString());
+  const result = await execute({
+    command: 'git',
+    args: ['diff', '--check'],
+    cwd: directory.toString()
+  });
 
   const conflictPattern = /(.+?)(?<=:)(\d)*(?=:)/gm; // Matches `<filename>:<position>` syntax, with a `:` positive lookbehind.
   const conflictedFiles = new Map<string, number[]>();
-  result.stdout.match(conflictPattern)?.forEach(match => {
+  result.stdout?.match(conflictPattern)?.forEach(match => {
     const [filename, position] = match.split(':').slice(0, 2) as [string, number];
     const filepath = path.join(directory.toString(), filename);
     const existing = conflictedFiles.get(filepath);
@@ -170,15 +173,14 @@ const checkUnmergedDirectory = async (directory: PathLike): Promise<Conflict[]> 
 
 /**
  * Check for conflicts in a base branch after attempting to merge.
- *
  * @param dir The root directory of either the main worktree or linked worktree.
  * @param branch The name of the branch to check against (i.e. the base branch).
  * @returns {Promise<Conflict[]>} A Promise object containing an array of conflict information found in the specified branch.
  */
-export const checkUnmergedBranch = async (dir: PathLike, branch: string): Promise<Conflict[]> => {
+export const checkUnmergedBranch = async (dir: string, branch: string): Promise<Conflict[]> => {
   const branchRoot = await getBranchRoot(dir, branch);
   const worktree = await getWorktreePaths(dir);
-  const current = await revParse({ dir: dir, options: ['abbrevRef'], args: 'HEAD' });
+  const current = await revParse({ dir: dir, opts: ['abbrevRef'], args: ['HEAD'] });
   // skip any locally-tracked branches that are not checked out in the main worktree directory
   const trackedLocalBranch =
     branchRoot && worktree.dir
@@ -186,11 +188,15 @@ export const checkUnmergedBranch = async (dir: PathLike, branch: string): Promis
       : false;
   if (!branchRoot || trackedLocalBranch) return [];
 
-  const result = await execute(`git diff --check`, branchRoot.toString());
+  const result = await execute({
+    command: 'git',
+    args: ['diff', '--check'],
+    cwd: branchRoot.toString()
+  });
 
   const conflictPattern = /(.+?)(?<=:)(\d)*(?=:)/gm; // Matches `<filename>:<position>` syntax, with a `:` positive lookbehind.
   const conflictedFiles = new Map<string, number[]>();
-  result.stdout.match(conflictPattern)?.forEach(match => {
+  result.stdout?.match(conflictPattern)?.forEach(match => {
     const [filename, position] = match.split(':').slice(0, 2) as [string, number];
     const filepath = path.join(branchRoot.toString(), filename);
     const existing = conflictedFiles.get(filepath);
@@ -218,13 +224,13 @@ export const checkUnmergedBranch = async (dir: PathLike, branch: string): Promis
  * # Conflicts:
  * #	components/list/index.tsx
  * ```
- *
  * @param root The root directory of the base branch involved in the merge; either a main or linked worktree path can be resolved.
  * @returns {Promise<{ base: string | undefined; compare: string | undefined; }>} A Promise object containing the base branch name (or
  * undefined if not included in the `MERGE_MSG` file) and the compare branch name.
  */
+
 export const fetchMergingBranches = async (
-  root: PathLike
+  root: string
 ): Promise<{ base: string | undefined; compare: string | undefined }> => {
   const branchPattern = /(?<=Merge( remote-tracking)? branch(es)? .*)('.+?')+/gm; // Match linked worktree and main worktree patterns
   const { gitdir, worktreeLink } = await getWorktreePaths(root);
@@ -258,21 +264,21 @@ export const processMergeOutput = async (
   const mergeStrategyPattern = new RegExp("Merge made by the '(.*)' strategy.", 'gm');
   const rebasePattern = new RegExp('Successfully rebased and updated', 'gm');
 
-  const alreadyMerged = output.stdout.match(alreadyMergedPattern) ? true : false;
-  const fastForward = output.stdout.match(fastForwardPattern) ? true : false;
+  const alreadyMerged = output.stdout?.match(alreadyMergedPattern) ? true : false;
+  const fastForward = output.stdout?.match(fastForwardPattern) ? true : false;
   const conflicts = output.stdout
-    .match(conflictPattern)
+    ?.match(conflictPattern)
     ?.map(filepath => path.resolve(root.toString(), filepath));
-  const rebaseStrategy = output.stdout.match(rebasePattern) ? true : false;
-  const mergeStrategy = mergeStrategyPattern.exec(output.stdout)?.[1];
+  const rebaseStrategy = output.stdout?.match(rebasePattern) ? true : false;
+  const mergeStrategy = output.stdout ? mergeStrategyPattern.exec(output.stdout)?.[1] : undefined;
   const mergeCommit = mergeStrategy ? (await log({ dir: root }))[0]?.oid : undefined;
-  const failed = output.stderr.match(failedPattern) ? true : false;
+  const failed = output.stderr?.match(failedPattern) ? true : false;
 
   const mergeOutput: MergeOutput = {
     status: failed || (conflicts && conflicts.length > 0) ? 'Failing' : 'Passing',
     alreadyMerged: alreadyMerged,
     fastForward: fastForward,
-    output: failed ? output.stderr : output.stdout,
+    output: failed ? output.stderr ?? '' : output.stdout ?? '',
     ...removeNullableProperties({
       mergeCommit: mergeCommit,
       mergeStrategy: rebaseStrategy ? 'rebase' : mergeStrategy,

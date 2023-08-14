@@ -83,12 +83,17 @@ export async function mock(
   config: DirectoryItems,
   gitRepo: MockedRepository
 ): Promise<MockInstanceEnhanced>;
+
 export async function mock(config: DirectoryItems): Promise<MockInstance>;
+
 /**
  * Configure the `fs` module so that it is backed by an in-memory file system.
- *
- * @param config - A recursively-defined JavaScript object representing the structural information to compose a mocked file system.
+ * @param config - A recursively-defined JavaScript object representing the structural information
+ * to compose a mocked file system.
  * @param gitRepo - Optional mocked Git repository for further extension of the mocked file system.
+ * @returns {Promise<MockInstance | MockInstanceEnhanced>} A Promise object containing either a
+ * simple in-memory file system, or an "enhanced" version that includes basic git version control
+ * functionality.
  */
 export async function mock(
   config: DirectoryItems,

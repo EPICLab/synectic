@@ -1,32 +1,78 @@
-import React from 'react';
-import TreeView from '@material-ui/lab/TreeView';
-import { ArrowDropDown, ArrowRight } from '@material-ui/icons';
-import metafileSelectors from '../../store/selectors/metafiles';
-import BranchRibbon from '../Branches/BranchRibbon';
-import Directory from './Directory';
-import FileComponent from './FileComponent';
+import { Description, Folder, FolderOpen } from '@mui/icons-material';
+import { TreeView } from '@mui/lab';
+import { styled } from '@mui/material';
+import React, { useState } from 'react';
 import { useAppSelector } from '../../store/hooks';
+import metafileSelectors from '../../store/selectors/metafiles';
 import { UUID } from '../../store/types';
+import Directory from './Directory';
+import File from './File';
 
-const Explorer = ({ metafileId: id }: { metafileId: UUID }) => {
+const Explorer = ({ id }: { id: UUID }) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
-  const { directories, files } = useAppSelector(state => metafileSelectors.selectDescendantsByRoot(state, metafile?.path ?? '', true));
+  const directories = useAppSelector(state =>
+    metafileSelectors.selectDirectories(state, metafile?.contains ?? [])
+  );
+  const files = useAppSelector(state =>
+    metafileSelectors.selectFiles(state, metafile?.contains ?? [])
+  );
+
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const handleToggle = (_event: React.SyntheticEvent, nodeIds: string[]) => {
+    setExpanded(nodeIds);
+  };
+
+  const handleSelect = (_event: React.SyntheticEvent, nodeIds: string[]) => {
+    setSelected(nodeIds);
+  };
 
   return (
     <>
-      <div className='list-component' data-testid='explorer-component'>
-        <BranchRibbon metafile={metafile} />
-        <TreeView
-          defaultCollapseIcon={<ArrowDropDown />}
-          defaultExpandIcon={<ArrowRight />}
-          defaultEndIcon={<div style={{ width: 8 }} />}
-        >
-          {directories.sort((a, b) => a.name.localeCompare(b.name)).map(dir => <Directory key={dir.id} metafileId={dir.id} />)}
-          {files.sort((a, b) => a.name.localeCompare(b.name)).map(file => <FileComponent key={file.id} metafileId={file.id} />)}
-        </TreeView>
-      </div>
+      <TreeViewComponent
+        aria-label="explorer"
+        defaultCollapseIcon={<FolderOpen />}
+        defaultExpandIcon={<Folder />}
+        defaultEndIcon={<Description />}
+        expanded={expanded}
+        selected={selected}
+        onNodeToggle={handleToggle}
+        onNodeSelect={handleSelect}
+        sx={{ height: '100%', flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+      >
+        {directories
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .filter(dir => !dir.name.startsWith('.'))
+          .map(dir => (
+            <Directory key={dir.id} id={dir.id} expanded={expanded} />
+          ))}
+        {files
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .filter(dir => !dir.name.startsWith('.'))
+          .map(file => (
+            <File key={file.id} id={file.id} />
+          ))}
+      </TreeViewComponent>
     </>
   );
-}
+};
+
+const TreeViewComponent = styled(TreeView)(() => ({
+  '&::-webkit-scrollbar': {
+    height: 7,
+    width: 7
+  },
+  '&::-webkit-scrollbar-track': {
+    boxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.1)',
+    webkitBoxShadow: 'inset 0 0 6px rgba(0, 0, 0, 0.1)',
+    borderRadius: 10
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: 'darkgrey',
+    outline: '1px solid slategrey',
+    borderRadius: 10
+  }
+}));
 
 export default Explorer;

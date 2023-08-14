@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`flattenObject flattenObject resolves nested heterogenous JavaScript objects 1`] = `
-Object {
+{
   "a": "string",
   "c": 13,
 }
