@@ -1,7 +1,3 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import Browser from './Browser';
-
 describe('Browser', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {
     expect(true).toBeTruthy();

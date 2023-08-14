@@ -1,8 +1,3 @@
-/* jest-dom adds custom jest matchers for asserting on DOM nodes, allowing for things like:
-   expect(element).toHaveTextContent(/react/i)
-   learn more: https://github.com/testing-library/jest-dom */
-import '@testing-library/jest-dom/extend-expect';
-
 /**
  * 'ace-builds/webpack-resolver' is for dynamically loading modes and themes, however, Jest does not rely on webpack
  * for setting configurations and resolving paths. Therefore, resolving paths to modes and themes during testing will

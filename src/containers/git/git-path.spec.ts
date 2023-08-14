@@ -1,9 +1,3 @@
-import path from 'path';
-import { mock, MockInstance } from '../../test-utils/mock-fs';
-import { getBranchRoot, getRoot, getWorktreePaths } from './git-path';
-// import * as gitBranch from './git-branch';
-import * as gitShowBranch from '../../containers/git/git-show-branch';
-
 describe('containers/git/git-path', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {
     expect(true).toBeTruthy();

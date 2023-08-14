@@ -1,11 +1,3 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-// import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
-import redux from '../../store/store';
-import StackComponent from './Stack';
-import { Stack } from '../../store/slices/stacks';
-
 describe('Stack component', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {
     expect(true).toBeTruthy();

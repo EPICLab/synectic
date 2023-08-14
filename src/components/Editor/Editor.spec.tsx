@@ -1,29 +1,19 @@
-import React from 'react';
-import { Provider } from 'react-redux';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { mockStore } from '../../test-utils/mock-store';
-import { emptyStore } from '../../test-utils/empty-store';
-import Editor from './Editor';
-import { DateTime } from 'luxon';
-import { FileMetafile, metafileAdded } from '../../store/slices/metafiles';
-import { mock, MockInstance } from '../../test-utils/mock-fs';
-
-const metafile: FileMetafile = {
-  id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
-  name: 'example.ts',
-  modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'Typescript',
-  flags: [],
-  path: 'foo/example.ts',
-  state: 'unmodified',
-  content: 'const rand = Math.floor(Math.random() * 6) + 1;',
-  mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
-  // repo: '23',
-  // branch: '503',
-  // status: 'unmodified',
-  // conflicts: []
-};
+// const metafile: FileMetafile = {
+//   id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
+//   name: 'example.ts',
+//   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'Typescript',
+//   flags: [],
+//   path: 'foo/example.ts',
+//   state: 'unmodified',
+//   content: 'const rand = Math.floor(Math.random() * 6) + 1;',
+//   mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf()
+//   // repo: '23',
+//   // branch: '503',
+//   // status: 'unmodified',
+//   // conflicts: []
+// };
 
 describe('Editor component', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

@@ -1,12 +1,3 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import * as path from 'path';
-import { file, mock, MockInstance } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { emptyStore } from '../../test-utils/empty-store';
-import useWatcher from './useWatcher';
-
 describe('containers/hooks/useWatcher', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {
     expect(true).toBeTruthy();

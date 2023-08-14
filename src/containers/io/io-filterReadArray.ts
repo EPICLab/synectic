@@ -4,7 +4,6 @@ import { isDirectory } from './io-isDirectory';
 /**
  * Asynchronously filter for either directories or files from an array of both. Returns filepaths
  * of all child directories (default), or all child files if `fileOnly` option is enabled.
- *
  * @param filepaths Array containing filepaths for directories and files.
  * @param fileOnly Flag for returning only filepaths for files; defaults to false.
  * @returns {Promise<PathLike[]>} A Promise object for an array containing filepaths for either all child directories or all

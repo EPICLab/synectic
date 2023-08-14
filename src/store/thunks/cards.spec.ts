@@ -1,27 +1,19 @@
-import { DateTime } from 'luxon';
-import { mock, MockInstance } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { emptyStore } from '../../test-utils/empty-store';
-import { FilebasedMetafile, metafileAdded } from '../slices/metafiles';
-import isUUID from 'validator/lib/isUUID';
-import { createCard } from './cards';
-
-const mockedMetafile1: FilebasedMetafile = {
-  id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
-  name: 'example.ts',
-  modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'Typescript',
-  flags: [],
-  path: 'foo/example.ts',
-  state: 'unmodified',
-  mtime: 0,
-  content: 'const rand = Math.floor(Math.random() * 6) + 1;',
-  repo: '23',
-  branch: '503',
-  status: 'unmodified',
-  conflicts: []
-};
+// const mockedMetafile1: FilebasedMetafile = {
+//   id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
+//   name: 'example.ts',
+//   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'Typescript',
+//   flags: [],
+//   path: 'foo/example.ts',
+//   state: 'unmodified',
+//   mtime: 0,
+//   content: 'const rand = Math.floor(Math.random() * 6) + 1;',
+//   repo: '23',
+//   branch: '503',
+//   status: 'unmodified',
+//   conflicts: []
+// };
 
 describe('thunks/cards', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

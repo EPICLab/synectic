@@ -1,5 +1,4 @@
 import { emptyStore } from '../../test-utils/empty-store';
-import { file, mock, MockInstance } from '../../test-utils/mock-fs';
 import { mockStore } from '../../test-utils/mock-store';
 import { Branch, branchAdded, branchUpdated } from '../slices/branches';
 import { repoAdded, Repository } from '../slices/repos';

@@ -18,7 +18,6 @@ const createMockStore = (withListeners = false) => configureMockStore<RootState,
  * 
  * For more information, see: https://github.com/reduxjs/redux-mock-store/issues/71 and 
  * https://github.com/reduxjs/redux-mock-store/issues/71#issuecomment-515209822
- * 
  * @param initialState An initial state of the store.
  * @returns {Function} A curried function for step-wise applying actions to an initial store state.
  */
@@ -27,12 +26,11 @@ export const createState = (initialState: RootState) => (actions: AnyAction[]): 
 
 /**
  * Creates a mocked Redux store for testing purposes. The resulting store can be interacted with using:
- *   `store.dispatch()`: To dispatch Redux actions, thunks, and async thunks.
- *   `store.getActions()`: Returns the actions list of the mocked store.
- *   `store.getState()`: Returns the state of the mocked store.
- *   `store.clearActions()`: Clears the stored actions.
- *   `store.subscribe()`: Subscribes a listener to the store for specific actions.
- *
+ * `store.dispatch()`: To dispatch Redux actions, thunks, and async thunks.
+ * `store.getActions()`: Returns the actions list of the mocked store.
+ * `store.getState()`: Returns the state of the mocked store.
+ * `store.clearActions()`: Clears the stored actions.
+ * `store.subscribe()`: Subscribes a listener to the store for specific actions.
  * @param initialState A JavaScript object containing an initial Redux store state that mimicks the shape of `RootState`.
  * @param withListeners Option for including possibly asynchronous listeners from createListenerMiddleware API.
  * @returns {MockStoreEnhanced} A mocked store enhanced with listeners for mimicking relevant listener middleware.

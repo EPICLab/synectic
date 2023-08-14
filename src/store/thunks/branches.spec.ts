@@ -1,122 +1,107 @@
-import { DateTime } from 'luxon';
-import { normalize } from 'path';
-import isUUID from 'validator/lib/isUUID';
-import * as gitLog from '../../containers/git/git-log';
-import * as gitRevParse from '../../containers/git/git-rev-parse';
-import * as gitShowBranch from '../../containers/git/git-show-branch';
-import * as gitStatus from '../../containers/git/git-status';
-import { emptyStore } from '../../test-utils/empty-store';
-import { mock, MockInstance } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { Branch, branchAdded } from '../slices/branches';
-import { DirectoryMetafile, FilebasedMetafile, metafileAdded } from '../slices/metafiles';
-import { repoAdded, Repository } from '../slices/repos';
-import { buildBranch, fetchBranch, fetchBranches } from './branches';
+// const mockedMetafile1: FilebasedMetafile = {
+//   id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
+//   name: 'example.ts',
+//   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'Typescript',
+//   flags: [],
+//   path: 'foo/example.ts',
+//   state: 'unmodified',
+//   mtime: 0,
+//   content: 'const rand = Math.floor(Math.random() * 6) + 1;',
+//   repo: '94304818-ca39-4fb1-9499-86aa329597b9',
+//   branch: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
+//   status: 'unmodified',
+//   conflicts: []
+// };
 
-const mockedMetafile1: FilebasedMetafile = {
-  id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
-  name: 'example.ts',
-  modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'Typescript',
-  flags: [],
-  path: 'foo/example.ts',
-  state: 'unmodified',
-  mtime: 0,
-  content: 'const rand = Math.floor(Math.random() * 6) + 1;',
-  repo: '94304818-ca39-4fb1-9499-86aa329597b9',
-  branch: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
-  status: 'unmodified',
-  conflicts: []
-};
+// const mockedMetafile2: FilebasedMetafile = {
+//   id: '821c9159-292b-4639-b90e-e84fc12740ee',
+//   name: 'test.js',
+//   modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'Javascript',
+//   flags: [],
+//   path: 'foo/test.js',
+//   state: 'unmodified',
+//   mtime: 0,
+//   content: 'var rand: number = Math.floor(Math.random() * 6) + 1;'
+// };
 
-const mockedMetafile2: FilebasedMetafile = {
-  id: '821c9159-292b-4639-b90e-e84fc12740ee',
-  name: 'test.js',
-  modified: DateTime.fromISO('2019-11-19T19:19:47.572-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'Javascript',
-  flags: [],
-  path: 'foo/test.js',
-  state: 'unmodified',
-  mtime: 0,
-  content: 'var rand: number = Math.floor(Math.random() * 6) + 1;'
-};
+// const mockedMetafile3: FilebasedMetafile = {
+//   id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
+//   name: 'bar.js',
+//   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'Javascript',
+//   flags: [],
+//   path: 'foo/bar.js',
+//   state: 'unmodified',
+//   mtime: 0,
+//   content: 'file contents'
+// };
 
-const mockedMetafile3: FilebasedMetafile = {
-  id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
-  name: 'bar.js',
-  modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'Javascript',
-  flags: [],
-  path: 'foo/bar.js',
-  state: 'unmodified',
-  mtime: 0,
-  content: 'file contents'
-};
+// const mockedDirectoryMetafile: DirectoryMetafile = {
+//   id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
+//   name: 'foo',
+//   modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
+//   handler: 'Explorer',
+//   filetype: 'Directory',
+//   flags: [],
+//   path: 'foo',
+//   state: 'unmodified',
+//   contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'],
+//   mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
+//   repo: '94304818-ca39-4fb1-9499-86aa329597b9',
+//   branch: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
+//   status: 'unmodified',
+//   conflicts: []
+// };
 
-const mockedDirectoryMetafile: DirectoryMetafile = {
-  id: 'b859d4e8-b932-4fc7-a2f7-29a8ef8cd8f8',
-  name: 'foo',
-  modified: DateTime.fromISO('2021-01-31T11:24:54.527-08:00').valueOf(),
-  handler: 'Explorer',
-  filetype: 'Directory',
-  flags: [],
-  path: 'foo',
-  state: 'unmodified',
-  contains: ['46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'],
-  mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
-  repo: '94304818-ca39-4fb1-9499-86aa329597b9',
-  branch: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
-  status: 'unmodified',
-  conflicts: []
-};
+// const mockedRepository: Repository = {
+//   id: '94304818-ca39-4fb1-9499-86aa329597b9',
+//   name: 'foo/myRepo',
+//   root: 'foo/',
+//   corsProxy: 'http://www.oregonstate.edu',
+//   url: 'https://github.com/foo/myRepo',
+//   default: 'master',
+//   local: ['7351312c-b7bf-4f9c-af65-d9fdfb7847e7'],
+//   remote: [],
+//   oauth: 'github',
+//   username: 'sampleUser',
+//   password: '12345',
+//   token: '584n29dkj1683a67f302x009q164'
+// };
 
-const mockedRepository: Repository = {
-  id: '94304818-ca39-4fb1-9499-86aa329597b9',
-  name: 'foo/myRepo',
-  root: 'foo/',
-  corsProxy: 'http://www.oregonstate.edu',
-  url: 'https://github.com/foo/myRepo',
-  default: 'master',
-  local: ['7351312c-b7bf-4f9c-af65-d9fdfb7847e7'],
-  remote: [],
-  oauth: 'github',
-  username: 'sampleUser',
-  password: '12345',
-  token: '584n29dkj1683a67f302x009q164'
-};
+// const mockedBranch1: Branch = {
+//   id: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
+//   ref: 'main',
+//   linked: false,
+//   current: true,
+//   bare: false,
+//   root: 'foo/',
+//   gitdir: 'foo/.git',
+//   scope: 'local',
+//   remote: 'origin',
+//   status: 'clean',
+//   commits: [],
+//   head: '2a57bfcebde7479fd10578ae7da65c93fbb41514'
+// };
 
-const mockedBranch1: Branch = {
-  id: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
-  ref: 'main',
-  linked: false,
-  current: true,
-  bare: false,
-  root: 'foo/',
-  gitdir: 'foo/.git',
-  scope: 'local',
-  remote: 'origin',
-  status: 'clean',
-  commits: [],
-  head: '2a57bfcebde7479fd10578ae7da65c93fbb41514'
-};
-
-const mockedBranch2: Branch = {
-  id: '37a161a5-2e50-47b1-8cde-d4dba8d5286b',
-  ref: 'test',
-  linked: false,
-  current: false,
-  bare: false,
-  root: 'foo/',
-  gitdir: 'foo/.git',
-  scope: 'local',
-  remote: 'origin',
-  status: 'clean',
-  commits: [],
-  head: '8d04e8c703f46ae79edbedc0cc4be8f686956e3f'
-};
+// const mockedBranch2: Branch = {
+//   id: '37a161a5-2e50-47b1-8cde-d4dba8d5286b',
+//   ref: 'test',
+//   linked: false,
+//   current: false,
+//   bare: false,
+//   root: 'foo/',
+//   gitdir: 'foo/.git',
+//   scope: 'local',
+//   remote: 'origin',
+//   status: 'clean',
+//   commits: [],
+//   head: '8d04e8c703f46ae79edbedc0cc4be8f686956e3f'
+// };
 
 describe('thunks/branches', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

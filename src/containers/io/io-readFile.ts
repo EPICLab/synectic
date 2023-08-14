@@ -9,7 +9,6 @@ export function readFileAsync(
 export function readFileAsync(filepath: fs.PathLike): Promise<Buffer>;
 /**
  * Asynchronously read file contents into a Buffer or string.
- *
  * @param filepath A valid filename or path to read from.
  * @param options Options object for setting either file encoding (default: `null`) or file system flags (default: `"r"`).
  * The possible option values are:

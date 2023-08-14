@@ -1,18 +1,9 @@
-import * as fs from 'fs-extra';
 import { Filetype } from '../../store/slices/filetypes';
-import { file, mock, MockInstance } from '../../test-utils/mock-fs';
-import { decompressBinaryObject } from './io-decompress';
 import { extractExtension, replaceExt } from './io-extension';
 import { extractDirname, extractFilename } from './io-extractName';
-import { extractStats } from './io-extractStats';
-import { filterReadArray } from './io-filterReadArray';
 import { isDescendant } from './io-isDescendant';
-import { isDirectory } from './io-isDirectory';
 import { isEqualPaths } from './io-isEqualPaths';
-import { readDirAsync, readDirAsyncDepth } from './io-readDir';
-import { readFileAsync } from './io-readFile';
 import { validateFileName } from './io-validateFileName';
-import { writeFileAsync } from './io-writeFile';
 
 describe('io.extractStats', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

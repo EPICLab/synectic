@@ -1,7 +1,6 @@
 /**
  * Checks whether or not a given file name and accompanying extension are valid. Checks for invalid characters and invalid placement of
  * characters. Also checks for an empty file name if the extension is not a .config file.
- *
  * @param fileName A string file name with its accompanying .extension.
  * @param configExts An array of strings containing only valid .config extensions in the state.
  * @param exts An array of strings containing all valid extensions in the state.

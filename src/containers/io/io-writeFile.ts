@@ -4,7 +4,6 @@ import { nodeEncoding } from './io-types';
 
 /**
  * Asynchronously write data to a file. Creates a new file if none exists; will destructively rewrite existing files.
- *
  * @param filepath - A valid filename or path to write data to.
  * @param data - A string or buffer containing data to be written.
  * @param options - Options object for setting file encoding (default: `"utf8"`), file mode (default: `0o666`), and file system flags

@@ -1,52 +1,44 @@
-import { DateTime } from 'luxon';
-import isUUID from 'validator/lib/isUUID';
-import { emptyStore } from '../../test-utils/empty-store';
-import { mock, MockInstance } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { Card, cardAdded } from '../slices/cards';
-import { createStack, popCard, pushCards } from './stacks';
+// const card1: Card = {
+//   id: 'b741f857-870c-4756-b38b-b375823a08f6',
+//   name: 'sample.js',
+//   type: 'Editor',
+//   metafile: 'a58e4a5b-c8ec-42ba-86d2-82fa4d47638b',
+//   created: DateTime.fromISO('2019-01-10T10:08:30.114-08:00').valueOf(),
+//   modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
+//   captured: undefined,
+//   expanded: false,
+//   flipped: false,
+//   x: 30,
+//   y: 50
+// };
 
-const card1: Card = {
-  id: 'b741f857-870c-4756-b38b-b375823a08f6',
-  name: 'sample.js',
-  type: 'Editor',
-  metafile: 'a58e4a5b-c8ec-42ba-86d2-82fa4d47638b',
-  created: DateTime.fromISO('2019-01-10T10:08:30.114-08:00').valueOf(),
-  modified: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
-  captured: undefined,
-  expanded: false,
-  flipped: false,
-  x: 30,
-  y: 50
-};
+// const card2: Card = {
+//   id: 'bca65655-a072-4a71-803b-9fef3a358a93',
+//   name: 'second.js',
+//   type: 'Editor',
+//   metafile: '7d2a0568-ad1b-4402-839b-593db00c445a',
+//   created: DateTime.fromISO('2019-01-10T10:08:30.114-08:00').valueOf(),
+//   modified: DateTime.fromISO('2022-01-28T07:44:15.276-08:00').valueOf(),
+//   captured: undefined,
+//   expanded: false,
+//   flipped: false,
+//   x: 45,
+//   y: 65
+// };
 
-const card2: Card = {
-  id: 'bca65655-a072-4a71-803b-9fef3a358a93',
-  name: 'second.js',
-  type: 'Editor',
-  metafile: '7d2a0568-ad1b-4402-839b-593db00c445a',
-  created: DateTime.fromISO('2019-01-10T10:08:30.114-08:00').valueOf(),
-  modified: DateTime.fromISO('2022-01-28T07:44:15.276-08:00').valueOf(),
-  captured: undefined,
-  expanded: false,
-  flipped: false,
-  x: 45,
-  y: 65
-};
-
-const card3: Card = {
-  id: 'e9da275d-0640-4f9f-a0da-bc9d2a2c70d6',
-  name: 'third.js',
-  type: 'Editor',
-  metafile: '7d2a0568-ad1b-4402-839b-593db00c445a',
-  created: DateTime.fromISO('2019-01-10T10:08:30.114-08:00').valueOf(),
-  modified: DateTime.fromISO('2021-12-25T07:44:15.276-08:00').valueOf(),
-  captured: undefined,
-  expanded: false,
-  flipped: false,
-  x: 30,
-  y: 85
-};
+// const card3: Card = {
+//   id: 'e9da275d-0640-4f9f-a0da-bc9d2a2c70d6',
+//   name: 'third.js',
+//   type: 'Editor',
+//   metafile: '7d2a0568-ad1b-4402-839b-593db00c445a',
+//   created: DateTime.fromISO('2019-01-10T10:08:30.114-08:00').valueOf(),
+//   modified: DateTime.fromISO('2021-12-25T07:44:15.276-08:00').valueOf(),
+//   captured: undefined,
+//   expanded: false,
+//   flipped: false,
+//   x: 30,
+//   y: 85
+// };
 
 describe('thunks/stacks', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

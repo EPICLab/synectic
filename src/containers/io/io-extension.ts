@@ -5,7 +5,6 @@ import { PathLike } from 'fs';
  * Extract the file extension from the path. Returns the extension after the last period character in the path,
  * otherwise returns full path if first character is a period or no period exists. Exhibits different behavior
  * from `path.extname` in order to allow config files (e.g. '.htaccess' returns 'htaccess', instead of '').
- *
  * @param filepath The relative or absolute path to evaluate.
  * @returns {string} A string containing the file extension.
  */
@@ -20,7 +19,6 @@ export const extractExtension = (filepath: PathLike): string => {
 /**
  * Appends a new file type extension to a given file name. Handles file names both with and without valid extensions, as well as file
  * names with a trailing '.' from a partially deleted extension.
- *
  * @param fileName A string holding the current file name, with or without the extension.
  * @param newFiletype A Filetype that contains the new extension to be added to the file name.
  * @returns {string} A string with the new extension correctly appended to the original file name.

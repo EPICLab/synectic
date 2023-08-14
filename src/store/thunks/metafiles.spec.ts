@@ -1,62 +1,36 @@
-import { DateTime, Settings } from 'luxon';
-import isUUID from 'validator/lib/isUUID';
-import * as gitRevParse from '../../containers/git/git-rev-parse';
-import * as gitStatus from '../../containers/git/git-status';
-import { emptyStore } from '../../test-utils/empty-store';
-import { MockInstance, file, mock } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { Branch, branchAdded } from '../slices/branches';
-import { Filetype, filetypeAdded } from '../slices/filetypes';
-import {
-  DirectoryMetafile,
-  FileMetafile,
-  FilebasedMetafile,
-  MetafileTemplate,
-  hasFilebasedUpdates,
-  metafileAdded
-} from '../slices/metafiles';
-import { Repository, repoAdded } from '../slices/repos';
-import {
-  createMetafile,
-  fetchMetafile,
-  fetchParentMetafile,
-  updateFilebasedMetafile,
-  updateVersionedMetafile
-} from './metafiles';
+// const mockedFiletype1: Filetype = {
+//   id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
+//   filetype: 'JavaScript',
+//   handler: 'Editor',
+//   extensions: ['js', 'jsm']
+// };
 
-const mockedFiletype1: Filetype = {
-  id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
-  filetype: 'JavaScript',
-  handler: 'Editor',
-  extensions: ['js', 'jsm']
-};
+// const mockedFiletype2: Filetype = {
+//   id: '78aa4b01-ce6e-3161-4671-b0019de5c375',
+//   filetype: 'Directory',
+//   handler: 'Explorer',
+//   extensions: []
+// };
 
-const mockedFiletype2: Filetype = {
-  id: '78aa4b01-ce6e-3161-4671-b0019de5c375',
-  filetype: 'Directory',
-  handler: 'Explorer',
-  extensions: []
-};
+// const mockedFiletype3: Filetype = {
+//   id: '0b743dd5-2559-4f03-8c02-0f67676e906a',
+//   filetype: 'Text',
+//   handler: 'Editor',
+//   extensions: ['txt']
+// };
 
-const mockedFiletype3: Filetype = {
-  id: '0b743dd5-2559-4f03-8c02-0f67676e906a',
-  filetype: 'Text',
-  handler: 'Editor',
-  extensions: ['txt']
-};
-
-const mockedMetafile: FileMetafile = {
-  id: '8ac62438-0069-4208-9231-f03b61fdd8e6',
-  name: 'zap.ts',
-  modified: DateTime.fromISO('2021-04-05T14:21:32.783-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'TypeScript',
-  flags: [],
-  path: 'foo/zap.ts',
-  state: 'unmodified',
-  content: 'file contents',
-  mtime: DateTime.fromISO('2021-04-05T14:21:32.783-08:00').valueOf()
-};
+// const mockedMetafile: FileMetafile = {
+//   id: '8ac62438-0069-4208-9231-f03b61fdd8e6',
+//   name: 'zap.ts',
+//   modified: DateTime.fromISO('2021-04-05T14:21:32.783-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'TypeScript',
+//   flags: [],
+//   path: 'foo/zap.ts',
+//   state: 'unmodified',
+//   content: 'file contents',
+//   mtime: DateTime.fromISO('2021-04-05T14:21:32.783-08:00').valueOf()
+// };
 
 describe('thunks/metafiles', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

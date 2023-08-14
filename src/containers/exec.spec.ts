@@ -1,6 +1,3 @@
-import execute from './exec';
-import { MockInstance, file, mock } from '../test-utils/mock-fs';
-
 describe('containers/execute', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {
     expect(true).toBeTruthy();

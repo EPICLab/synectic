@@ -1,26 +1,15 @@
-import { TreeView } from '@mui/lab';
-import { cleanup, render, screen } from '@testing-library/react';
-import { DateTime } from 'luxon';
-import React from 'react';
-import { Provider } from 'react-redux';
-import { FileMetafile, metafileAdded } from '../../store/slices/metafiles';
-import { emptyStore } from '../../test-utils/empty-store';
-import { MockInstance, file, mock } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import File from './File';
-
-const mockedMetafile: FileMetafile = {
-  id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
-  name: 'bar.js',
-  modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'Javascript',
-  flags: [],
-  path: 'foo/bar.js',
-  state: 'unmodified',
-  content: 'file contents',
-  mtime: DateTime.now().valueOf()
-};
+// const mockedMetafile: FileMetafile = {
+//   id: '88e2gd50-3a5q-6401-b5b3-203c6710e35c',
+//   name: 'bar.js',
+//   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'Javascript',
+//   flags: [],
+//   path: 'foo/bar.js',
+//   state: 'unmodified',
+//   content: 'file contents',
+//   mtime: DateTime.now().valueOf()
+// };
 
 describe('FileComponent', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

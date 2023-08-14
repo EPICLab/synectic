@@ -1,7 +1,6 @@
 /**
  * Immutably copy the values of all enumerable own properties from old object 
  * and map new values onto it in a new target object.
- * 
  * @param oldObject The initial source object from which to copy properties.
  * @param newValues The new value object from which to copy properties.
  * @returns {object} New object containing all enumerable own properties from both params.
@@ -12,7 +11,6 @@ export const updateObject = <T>(oldObject: T, newValues: Partial<T>): T => {
 
 /**
  * Immutably append a new item to an array by constructing a new combined array.
- * 
  * @param oldArray The initial source Array object.
  * @param newItem A new item to be appended to array.
  * @returns {object[]} New array containing all items from old array and including new item.
@@ -21,7 +19,6 @@ export const addItemInArray = <T>(oldArray: T[], newItem: T): T[] => [...oldArra
 
 /**
  * Immutably remove an element from an array by producing a new reduced array.
- * 
  * @param array The initial source Array object.
  * @param item A target item contained within the array.
  * @returns {object[]} New array containing all elements from array excluding target item.
@@ -32,7 +29,6 @@ export const removeItemInArray = <T>(array: T[], item: T): T[] => {
 
 /**
  * Immutably append a new item to a map by constructing a new combined map.
- * 
  * @param map The initial source key-value map object.
  * @param newItem A new item to be appended to map.
  * @returns {object} New map containing all items from old map and including new item.
@@ -48,7 +44,6 @@ export const addItemInMap = <T extends { id: string }>(map: { [id: string]: T },
 
 /**
  * Immutably remove an item from a map by producing a new reduced map.
- * 
  * @param map The initial source key-value map object.
  * @param itemId An id associated with an item contained in the map.
  * @returns {object} New map containing all items from map excluding item with matching id.
@@ -64,7 +59,6 @@ export const removeItemInMap = <T extends { id: string }>(map: { [id: string]: T
 
 /**
  * Immutably remove items from map using specified filter function.
- * 
  * @param map The initial source key-value map object.
  * @param filterFn Filter function that returns true for each item in map that 
  * meets conditions specified in function.
@@ -82,7 +76,6 @@ export const removeMatchesInMap = <T>(map: { [id: string]: T }, filterFn: (item:
 
 /**
  * Immutably filters items from map using specified filter function and applies a callback function to update each matching item.
- * 
  * @param map The initial source key-value map object.
  * @param filterFn Filter function that returns true for each item in map that 
  * meets conditions specified in function.
@@ -107,7 +100,6 @@ export const updateMatchesInMap = <T>(
 
 /**
  * Immutably update a specific item in a key-value map based on item id and applying a callback function to that item.
- * 
  * @param map The initial source key-value map object.
  * @param itemId An id associated with an item contained in the map.
  * @param updateItemCallback Callback function to apply towards item with matching id.

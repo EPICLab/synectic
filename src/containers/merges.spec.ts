@@ -1,6 +1,3 @@
-import { mock, MockInstance } from '../test-utils/mock-fs';
-import { checkUnmergedPath } from './git';
-
 describe('containers/merges', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {
     expect(true).toBeTruthy();

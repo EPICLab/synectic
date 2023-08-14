@@ -1,8 +1,3 @@
-import * as merge from './git-merge';
-import * as gitLog from './git-log';
-import { mock, MockInstance } from '../../test-utils/mock-fs';
-import { join, normalize } from 'path';
-
 describe('containers/git-merge', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {
     expect(true).toBeTruthy();

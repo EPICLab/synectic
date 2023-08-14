@@ -1,14 +1,8 @@
-import { emptyStore } from '../../test-utils/empty-store';
-import { file, mock, MockInstance } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { Modal, modalAdded, modalRemoved } from '../slices/modals';
-import modalSelectors from './modals';
-
-const mockedModal: Modal = {
-  id: '913dd7b1-5494-a513-f14f-490843a811b3',
-  type: 'MergeSelector',
-  target: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'
-};
+// const mockedModal: Modal = {
+//   id: '913dd7b1-5494-a513-f14f-490843a811b3',
+//   type: 'MergeSelector',
+//   target: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71'
+// };
 
 describe('modalsSelectors', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

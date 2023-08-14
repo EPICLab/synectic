@@ -1,87 +1,70 @@
-import { DateTime } from 'luxon';
-import { delay } from '../../containers/utils';
-import { emptyStore } from '../../test-utils/empty-store';
-import { file, mock, MockInstance } from '../../test-utils/mock-fs';
-import { mockStore } from '../../test-utils/mock-store';
-import { Branch, branchAdded } from '../slices/branches';
-import { Filetype, filetypeAdded } from '../slices/filetypes';
-import {
-  VersionedMetafile,
-  metafileAdded,
-  metafileUpdated,
-  metafilesUpdated
-} from '../slices/metafiles';
-import { repoAdded, Repository } from '../slices/repos';
-import { fetchMetafile } from '../thunks/metafiles';
-import metafileSelectors from './metafiles';
+// const mockedFiletype1: Filetype = {
+//   id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
+//   filetype: 'JavaScript',
+//   handler: 'Editor',
+//   extensions: ['js', 'jsm']
+// };
 
-const mockedFiletype1: Filetype = {
-  id: 'eb5d332e-61a1-422d-aeba-48186d9f79f3',
-  filetype: 'JavaScript',
-  handler: 'Editor',
-  extensions: ['js', 'jsm']
-};
+// const mockedFiletype2: Filetype = {
+//   id: '78aa4b01-ce6e-3161-4671-b0019de5c375',
+//   filetype: 'Directory',
+//   handler: 'Explorer',
+//   extensions: []
+// };
 
-const mockedFiletype2: Filetype = {
-  id: '78aa4b01-ce6e-3161-4671-b0019de5c375',
-  filetype: 'Directory',
-  handler: 'Explorer',
-  extensions: []
-};
+// const mockedFiletype3: Filetype = {
+//   id: '0b743dd5-2559-4f03-8c02-0f67676e906a',
+//   filetype: 'Text',
+//   handler: 'Editor',
+//   extensions: ['txt']
+// };
 
-const mockedFiletype3: Filetype = {
-  id: '0b743dd5-2559-4f03-8c02-0f67676e906a',
-  filetype: 'Text',
-  handler: 'Editor',
-  extensions: ['txt']
-};
+// const mockedRepository: Repository = {
+//   id: '94304818-ca39-4fb1-9499-86aa329597b9',
+//   name: 'foo/myRepo',
+//   root: 'foo/',
+//   corsProxy: 'http://www.oregonstate.edu',
+//   url: 'https://github.com/foo/myRepo',
+//   default: 'main',
+//   local: ['main', 'sample', 'test'],
+//   remote: [],
+//   oauth: 'github',
+//   username: 'sampleUser',
+//   password: '12345',
+//   token: '584n29dkj1683a67f302x009q164'
+// };
 
-const mockedRepository: Repository = {
-  id: '94304818-ca39-4fb1-9499-86aa329597b9',
-  name: 'foo/myRepo',
-  root: 'foo/',
-  corsProxy: 'http://www.oregonstate.edu',
-  url: 'https://github.com/foo/myRepo',
-  default: 'main',
-  local: ['main', 'sample', 'test'],
-  remote: [],
-  oauth: 'github',
-  username: 'sampleUser',
-  password: '12345',
-  token: '584n29dkj1683a67f302x009q164'
-};
+// const mockedBranch: Branch = {
+//   id: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
+//   ref: 'main',
+//   linked: false,
+//   current: true,
+//   bare: false,
+//   root: 'foo/',
+//   gitdir: 'foo/.git',
+//   scope: 'local',
+//   remote: 'origin',
+//   status: 'clean',
+//   commits: [],
+//   head: '987654321'
+// };
 
-const mockedBranch: Branch = {
-  id: '7351312c-b7bf-4f9c-af65-d9fdfb7847e7',
-  ref: 'main',
-  linked: false,
-  current: true,
-  bare: false,
-  root: 'foo/',
-  gitdir: 'foo/.git',
-  scope: 'local',
-  remote: 'origin',
-  status: 'clean',
-  commits: [],
-  head: '987654321'
-};
-
-const mockedMetafile: VersionedMetafile = {
-  id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
-  name: 'example.js',
-  modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
-  handler: 'Editor',
-  filetype: 'JavaScript',
-  flags: [],
-  path: 'foo/example.js',
-  state: 'unmodified',
-  content: 'var rand = Math.floor(Math.random() * 6) + 1;',
-  mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
-  repo: mockedRepository.id,
-  branch: mockedBranch.id,
-  status: 'unmodified',
-  conflicts: []
-};
+// const mockedMetafile: VersionedMetafile = {
+//   id: '46ae0111-0c82-4ee2-9ee5-cd5bdf8d8a71',
+//   name: 'example.js',
+//   modified: DateTime.fromISO('2015-06-19T19:10:47.319-08:00').valueOf(),
+//   handler: 'Editor',
+//   filetype: 'JavaScript',
+//   flags: [],
+//   path: 'foo/example.js',
+//   state: 'unmodified',
+//   content: 'var rand = Math.floor(Math.random() * 6) + 1;',
+//   mtime: DateTime.fromISO('2020-01-28T07:44:15.276-08:00').valueOf(),
+//   repo: mockedRepository.id,
+//   branch: mockedBranch.id,
+//   status: 'unmodified',
+//   conflicts: []
+// };
 
 describe('metafileSelectors', () => {
   it('node::fs module cannot be injected into this jest test suite, so passthrough', () => {

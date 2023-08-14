@@ -1,24 +1,23 @@
 
 import React, { useCallback, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core';
 import { useHistory } from '../../containers/hooks/useHistory';
 import UrlBar from './UrlBar';
 import { UUID } from '../../store/types';
 
-const useStyles = makeStyles((theme) => ({
-  webviewContent: {
-    background: (props: { mode: Mode }) => props.mode === 'dark' ? theme.palette.background.paper : 'rgba(40, 44, 52, 1)',
-    borderRadius: '0px 0px 10px 10px',
-    height: 'calc(100% - 42px)',
-    width: '100%',
-    overflow: 'hidden'
-  }
-}));
+// const useStyles = makeStyles((theme) => ({
+//   webviewContent: {
+//     background: (props: { mode: Mode }) => props.mode === 'dark' ? theme.palette.background.paper : 'rgba(40, 44, 52, 1)',
+//     borderRadius: '0px 0px 10px 10px',
+//     height: 'calc(100% - 42px)',
+//     width: '100%',
+//     overflow: 'hidden'
+//   }
+// }));
 
 type Mode = 'light' | 'dark';
 
 const Browser = ({ metafileId: id, mode = 'dark' }: { metafileId: UUID, mode?: Mode }) => {
-  const styles = useStyles({ mode: mode });
+  // const styles = useStyles({ mode: mode });
   const { state, set, goBack, goForward, canGoBack, canGoForward } = useHistory(new URL('https://epiclab.github.io/'));
 
   const refresh = () => {
@@ -71,7 +70,7 @@ const Browser = ({ metafileId: id, mode = 'dark' }: { metafileId: UUID, mode?: M
         canGoBack={canGoBack} back={back}
         canGoForward={canGoForward} forward={forward}
       />
-      <div className={styles.webviewContent}>
+      <div>
         <webview id={`${id}-webview`} src={'https://epiclab.github.io/'}
           style={{ height: '100%', width: '100%', borderRadius: '10px!important' }} />
       </div>
