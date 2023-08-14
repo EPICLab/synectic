@@ -1,7 +1,7 @@
 {
   "name": "synectic",
   "productName": "Synectic",
-  "version": "3.2.0",
+  "version": "4.0.0",
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
   "main": ".webpack/main",
   "scripts": {
