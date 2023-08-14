@@ -11728,7 +11728,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.5.4":
+"semver@npm:^7.5.2, semver@npm:^7.5.4":
   version: 7.5.4
   resolution: "semver@npm:7.5.4"
   dependencies:
@@ -12593,7 +12593,7 @@ __metadata:
     redux-mock-store: ^1.5.4
     redux-persist: ^6.0.0
     reselect: ^4.1.8
-    semver: ^7.5.4
+    semver: ^7.5.2
     sha1: ^1.1.1
     style-loader: ^3.3.3
     ts-jest: ^29.1.1
