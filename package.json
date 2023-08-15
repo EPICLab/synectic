@@ -9,9 +9,10 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "prebump": "yarn test && yarn lint && yarn version",
-    "bump": "yarn genversion version.js && git add version.js",
-    "postbump": "git push --atomic --tags",
+    "release": "yarn run release:version && yarn run release:git && yarn run release:push",
+    "release:version": "yarn version major && yarn genversion version.js",
+    "release:git": "git add package.json version.js && git commit -m 'v$npm_package_version'",
+    "release:push": "git tag v$npm_package_version && git push --atomic --tags",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
     "test:coverage": "jest --coverage --collectCoverageFrom=",
@@ -30,7 +31,7 @@
   "config": {
     "forge": "./forge.config.ts"
   },
-  "packageManager": "yarn@3.5.0",
+  "packageManager": "yarn@3.6.1",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0",

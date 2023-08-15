@@ -1,4 +1,5 @@
 # Synectic Integrated Development Environment
+
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EPICLab/synectic/production.yml?style=for-the-badge)
 ![Codecov](https://img.shields.io/codecov/c/github/EPICLab/synectic?style=for-the-badge)
 ![GitHub](https://img.shields.io/github/license/EPICLab/synectic?style=for-the-badge)
@@ -12,9 +13,10 @@ Versioning within this project adheres to the rules of [Semantic Versioning 2.0.
 # Usage
 
 Pre-built releases are available for MacOS, Linux, and Windows. The following formats are available:
-* MacOS - `dmg`, `zip`
-* Linux - `deb` (Debian-based, e.g. Ubuntu), `rpm` (RedHat-based, e.g. Fedora)
-* Windows - `exe`, `nupkg` ([Squirrel.Windows](https://www.electronforge.io/config/makers/squirrel.windows) target)
+
+- MacOS - `dmg`, `zip`
+- Linux - `deb` (Debian-based, e.g. Ubuntu), `rpm` (RedHat-based, e.g. Fedora)
+- Windows - `exe`, `nupkg` ([Squirrel.Windows](https://www.electronforge.io/config/makers/squirrel.windows) target)
 
 Downloads: [https://nomatic.dev/synectic](https://nomatic.dev/synectic)
 
@@ -23,41 +25,50 @@ Downloads: [https://nomatic.dev/synectic](https://nomatic.dev/synectic)
 1. Install [Node.js](https://nodejs.org/en/).
 2. Install [Yarn](https://yarnpkg.com/lang/en/) Package Manager.
 3. Clone this repository:
-    ```bash
-    git clone git@github.com:EPICLab/synectic.git
-    ```
+   ```bash
+   git clone git@github.com:EPICLab/synectic.git
+   ```
 4. Move into the project root directory:
-    ```bash
-    cd synectic
-    ```
+   ```bash
+   cd synectic
+   ```
 5. Install project dependencies (`npm`/`npx` can also be used, but `yarn` is preferred):
-    ```bash
-    yarn install
-    ```
+   ```bash
+   yarn install
+   ```
 6. Build and run Synectic IDE:
-    ```bash
-    yarn start
-    ```
+   ```bash
+   yarn start
+   ```
 
 # CLI
 
 Follow the instructions in [Install](#Install) section to install dependencies. Once installed, all of the following commands can be used from within the project root directory:
-* `yarn start` - build and executes Synectic from the application directory (when running, type `rs` to terminate and restart Synectic)
-* `yarn package` - packages the Synectic application into a platform specific format and puts the results in the `out/` directory
-* `yarn make` - make distributables for the Synectic application based on the forge config
-* `yarn publish` - attempts to make the Synectic application and then publish it to the publish targets defined in the forge config
-* `yarn lint` - runs static analysis for TypeScript and JavaScript code to conform to linting rules
-* `yarn clean` - removes all previous build output, packaging, and distribution files (`.webpack/` and `out/`)
+
+- `yarn start` - build and executes Synectic from the application directory (when running, type `rs` to terminate and restart Synectic)
+- `yarn package` - packages the Synectic application into a platform specific format and puts the results in the `out/` directory
+- `yarn make` - make distributables for the Synectic application based on the forge config
+- `yarn publish` - attempts to make the Synectic application and then publish it to the publish targets defined in the forge config
+- `yarn lint` - runs static analysis for TypeScript and JavaScript code to conform to linting rules
+- `yarn clean` - removes all previous build output, packaging, and distribution files (`.webpack/` and `out/`)
 
 # Testing
 
 Installation is required; see [CLI](#CLI) for installation instructions. The following commands can be used from within the project root directory:
-* `yarn test` - executes [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+
+- `yarn test` - executes [Jest](https://jestjs.io/) with [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 
 # Linting
 
 Installation is required; see [CLI](#CLI) for installation instructions. The following commands can be used from within the project root directory:
-* `yarn lint` - executes [ESLint](https://eslint.org/) and evalutes against `eslint:recommended`, `@typescript-eslint/recommended`, `react-hooks/recommended`, and `jsdoc/recommended` rules
+
+- `yarn lint` - executes [ESLint](https://eslint.org/) and evalutes against `eslint:recommended`, `@typescript-eslint/recommended`, `react-hooks/recommended`, and `jsdoc/recommended` rules
+
+# Releasing
+
+Installation is required; see [CLI](#CLI) for installation instructions. The following commands can be used from within the project root directory:
+
+- `yarn release` - executes [`yarn version`](https://yarnpkg.com/cli/version) plugin to initiate a major semver version bump, generate a new [version.js](https://github.com/EPICLab/synectic/blob/main/version.js) using [`genversion`](https://www.npmjs.com/package/genversion), stage and commit all relevant version files, generate a new [annotated Git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging), and [atomically](https://git-scm.com/docs/git-push#Documentation/git-push.txt---no-atomic) push changes to the remote repository to trigger [GitHub Actions](https://docs.github.com/en/actions).
 
 # Contributors
 
