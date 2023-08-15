@@ -12,7 +12,7 @@
     "release": "yarn run release:version && yarn run release:git && yarn run release:push",
     "release:version": "yarn version major && yarn genversion version.js",
     "release:git": "git add package.json version.js && git commit -m \"v$npm_package_version\"",
-    "release:push": "git tag v$npm_package_version && git push --atomic --tags",
+    "release:push": "git tag v$npm_package_version && git push --atomic origin main --tags",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
     "test:coverage": "jest --coverage --collectCoverageFrom=",
