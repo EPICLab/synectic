@@ -54,9 +54,6 @@ typings/
 # Output of 'npm pack'
 *.tgz
 
-# Yarn Integrity file
-.yarn-integrity
-
 # dotenv environment variables file
 .env
 .env.test
@@ -87,6 +84,9 @@ typings/
 
 # Electron-Forge
 out/
+
+# Yarn Integrity file
+.yarn-integrity
 
 # Yarn 2/3 configuration files
 .pnp.*
