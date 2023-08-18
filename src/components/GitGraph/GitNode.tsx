@@ -46,7 +46,8 @@ const GitNode = (props: GitNodeProps) => {
     } <${commit.author.email}>\nMessage: ${commit.message}`;
   }, [branches, props.data]);
   const color = props.data.color;
-  const border = props.data.staged ? 'dashed' : '';
+  const borderColor = props.selected ? '#F08080' : 'whitesmoke';
+  const borderStyle = props.selected ? 'solid' : props.data.staged ? 'dashed' : '';
   const opacity = props.data.staged ? '0.6' : '1.0';
 
   return (
@@ -54,11 +55,12 @@ const GitNode = (props: GitNodeProps) => {
       <GraphTooltip disabled={!isHovering} content={tooltip} placement="bottom" />
       <Node
         color={color}
-        border={border}
+        borderStyle={borderStyle}
+        borderColor={borderColor}
         opacity={opacity}
         onMouseEnter={() => toggleHovering(true)}
         onMouseLeave={() => toggleHovering(false)}
-        onClick={() => console.log({ props, color, border, opacity })}
+        onClick={() => console.log({ props, color, borderStyle, opacity })}
         onContextMenu={handleMenu}
       >
         <StyledHandle type="target" position={Position.Top} />
@@ -70,18 +72,22 @@ const GitNode = (props: GitNodeProps) => {
   );
 };
 
-const Node = styled('div')<{ color: Color; border: string; opacity?: string | undefined }>(
-  props => ({
-    width: 10,
-    borderRadius: '50%',
-    margin: 'auto',
-    borderStyle: props.border,
-    borderWidth: 'thin',
-    opacity: props.opacity,
-    background: props.color,
-    padding: 5
-  })
-);
+const Node = styled('div')<{
+  color: Color;
+  borderStyle: string;
+  borderColor: string;
+  opacity?: string | undefined;
+}>(props => ({
+  width: 10,
+  borderRadius: '50%',
+  margin: 'auto',
+  borderStyle: props.borderStyle,
+  borderColor: props.borderColor,
+  borderWidth: 'thin',
+  opacity: props.opacity,
+  background: props.color,
+  padding: 5
+}));
 
 const StyledHandle = styled(Handle)(() => ({
   visibility: 'hidden'
