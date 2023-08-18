@@ -23,10 +23,6 @@ import GitGraphSelect from '../GitGraph/GitGraphSelect';
 import ModalComponent from '../Modal';
 import NavMenu, { NavItemProps } from '../NavMenu';
 import Stack from '../Stack';
-import { commitAdded, commitRemoved } from '../../store/slices/commits';
-import { fetchBranch } from '../../store/thunks/branches';
-import { branchUpdated } from '../../store/slices/branches';
-import { fetchCommit } from '../../store/thunks/commits';
 
 const isMac = window.api.globals.platform === 'darwin';
 
@@ -157,82 +153,10 @@ const Canvas = ({ children }: PropsWithChildren) => {
     }
   ];
 
-  const graphMenu: NavItemProps[] = [
-    {
-      label: 'Add Commit',
-      click: async () => {
-        const branch = await dispatch(
-          fetchBranch({
-            branchIdentifiers: {
-              root: '/Users/nelsonni/Workspace/simple-project',
-              ref: 'main',
-              scope: 'local'
-            }
-          })
-        ).unwrap();
-        if (branch) {
-          const oid = window.api.hash();
-          console.log(`Adding commit ${oid}...`);
-          dispatch(
-            commitAdded({
-              oid: oid,
-              message: 'TESTING',
-              parents: [branch.head],
-              author: {
-                name: 'unknown',
-                email: 'unknown@unknown.org',
-                timestamp: undefined
-              }
-            })
-          );
-          dispatch(
-            branchUpdated({
-              ...branch,
-              head: oid,
-              commits: [oid, ...branch.commits]
-            })
-          );
-        }
-      }
-    },
-    {
-      label: 'Remove Commit',
-      click: async () => {
-        const branch = await dispatch(
-          fetchBranch({
-            branchIdentifiers: {
-              root: '/Users/nelsonni/Workspace/simple-project',
-              ref: 'main',
-              scope: 'local'
-            }
-          })
-        ).unwrap();
-        const commit = branch
-          ? await dispatch(
-              fetchCommit({ commitIdentifiers: { oid: branch.head, root: branch.root } })
-            ).unwrap()
-          : undefined;
-
-        if (branch && commit) {
-          console.log(`Removing commit ${commit.oid}...`);
-          dispatch(
-            branchUpdated({
-              ...branch,
-              head: commit.parents[0]?.toString() ?? '',
-              commits: branch.commits.filter(c => c !== commit.oid)
-            })
-          );
-          dispatch(commitRemoved(commit.oid.toString()));
-        }
-      }
-    }
-  ];
-
   return (
     <AppContainer>
       <NavBar>
         <NavMenu label="File" submenu={fileMenu} />
-        <NavMenu label="Graph" submenu={graphMenu} />
         <NavMenu label="System" submenu={sysMenu} />
         <NavMenu label="Help" submenu={helpMenu} />
       </NavBar>
