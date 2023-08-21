@@ -44,7 +44,7 @@
     "@electron-forge/maker-deb": "^6.3.0",
     "@electron-forge/maker-dmg": "^6.3.0",
     "@electron-forge/maker-rpm": "^6.3.0",
-    "@electron-forge/maker-squirrel": "^6.3.0",
+    "@electron-forge/maker-squirrel": "^6.4.0",
     "@electron-forge/plugin-webpack": "6.3.0",
     "@testing-library/dom": "^9.3.1",
     "@testing-library/jest-dom": "^6.0.0",
