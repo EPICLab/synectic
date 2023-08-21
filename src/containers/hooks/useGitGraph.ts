@@ -26,15 +26,18 @@ export type CommitVertex = Commit & {
   staged: boolean;
 };
 export type GitGraph = Map<SHA1, CommitVertex>;
+export type BranchLookup = Map<string, SHA1>;
 
 export type useGitGraphHook = {
   graph: GitGraph;
   topological: UUID[];
+  branchLookup: BranchLookup;
   printGraph: () => void;
 };
 
 export const useGitGraph = (id: UUID): useGitGraphHook => {
   const graph = useMap<SHA1, CommitVertex>([]);
+  const branchLookup = useMap<string, SHA1>([]);
   const [topological, setTopological] = useState<UUID[]>([]);
   const branches = useAppSelector(state => branchSelectors.selectByRepo(state, id, true));
   const previous = usePrevious(branches);
@@ -283,12 +286,14 @@ export const useGitGraph = (id: UUID): useGitGraphHook => {
         added.map(async branch => {
           branch.commits.forEach(async oid => await updateVertex(oid.toString(), branch));
           await updatePlaceholders(branch);
+          branchLookup.set(`${branch.scope}/${branch.ref}`, branch.head);
         })
       );
       await Promise.all(
         removed.map(async branch => {
           branch.commits.forEach(async oid => await removeVertex(oid.toString(), branch));
           await updatePlaceholders(branch);
+          branchLookup.delete(`${branch.scope}/${branch.ref}`);
         })
       );
       await Promise.all(
@@ -311,12 +316,13 @@ export const useGitGraph = (id: UUID): useGitGraphHook => {
               await updateVertex(mod.prev.head, mod.branch);
             await updatePlaceholders(mod.branch);
           }
+          branchLookup.set(`${mod.branch.scope}/${mod.branch.ref}`, mod.branch.head);
         })
       );
       link();
       topologicalSort(graph);
     },
-    [graph, link, removeVertex, topologicalSort, updatePlaceholders, updateVertex]
+    [branchLookup, graph, link, removeVertex, topologicalSort, updatePlaceholders, updateVertex]
   );
 
   useEffect(() => {
@@ -333,7 +339,7 @@ export const useGitGraph = (id: UUID): useGitGraphHook => {
     console.groupEnd();
   };
 
-  return { graph, topological, printGraph };
+  return { graph, topological, branchLookup, printGraph };
 };
 
 const changeFilter = <BranchProps extends keyof Branch>(

@@ -22,7 +22,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import layoutGraph from '../../containers/graph-layout';
-import { GitGraph, useGitGraph } from '../../containers/hooks/useGitGraph';
+import { BranchLookup, GitGraph, useGitGraph } from '../../containers/hooks/useGitGraph';
 import { UUID } from '../../store/types';
 import { nodeTypes } from './GitNode';
 import useToggle from '../../containers/hooks/useToggle';
@@ -34,6 +34,7 @@ const Flow = ({
   onEdgesChange,
   onConnect,
   graph,
+  branchLookup,
   printGraph,
   calculateLayout
 }: {
@@ -45,6 +46,7 @@ const Flow = ({
   onEdgesChange: OnEdgesChange | undefined;
   onConnect: OnConnect | undefined;
   graph: GitGraph;
+  branchLookup: BranchLookup;
   printGraph: () => void;
   calculateLayout: () => void;
 }) => {
@@ -58,7 +60,9 @@ const Flow = ({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      const vertex = graph.get(searchText);
+      const branchOid = branchLookup.get(searchText);
+      const vertex =
+        branchOid && graph.has(branchOid) ? graph.get(branchOid) : graph.get(searchText);
 
       if (vertex) {
         const { nodeInternals } = store.getState();
@@ -154,7 +158,7 @@ const SearchTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const GitGraph = ({ repo }: { repo: UUID }) => {
-  const { graph, topological, printGraph } = useGitGraph(repo);
+  const { graph, topological, branchLookup, printGraph } = useGitGraph(repo);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const onConnect = useCallback(
@@ -181,6 +185,7 @@ const GitGraph = ({ repo }: { repo: UUID }) => {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         graph={graph}
+        branchLookup={branchLookup}
         printGraph={printGraph}
         calculateLayout={calculateLayout}
       />
