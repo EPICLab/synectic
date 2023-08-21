@@ -271,7 +271,7 @@ export const useGitGraph = (id: UUID): useGitGraphHook => {
   );
 
   const processChanges = useCallback(
-    (previous: Branch[] | undefined, branches: Branch[]) => {
+    async (previous: Branch[] | undefined, branches: Branch[]) => {
       const { added, modified, removed } = changeFilter(previous, branches, [
         'id',
         'head',
@@ -279,34 +279,40 @@ export const useGitGraph = (id: UUID): useGitGraphHook => {
         'linked',
         'commits'
       ]);
-      added.forEach(async branch => {
-        branch.commits.forEach(async oid => await updateVertex(oid.toString(), branch));
-        await updatePlaceholders(branch);
-      });
-      removed.forEach(async branch => {
-        branch.commits.forEach(async oid => await removeVertex(oid.toString(), branch));
-        await updatePlaceholders(branch);
-      });
-      modified.forEach(async mod => {
-        if (mod.changed.includes('commits')) {
-          const [added, , removed] = symmetrical(
-            mod.branch.commits,
-            mod.prev.commits,
-            (a, b) => a === b
-          );
-          added.forEach(async oid => await updateVertex(oid.toString(), mod.branch));
-          removed.forEach(async oid => await removeVertex(oid.toString(), mod.branch));
-          await updatePlaceholders(mod.branch);
-        }
-        if (
-          !mod.changed.includes('commits') &&
-          (mod.changed.includes('status') || mod.changed.includes('head'))
-        ) {
-          if (mod.branch.commits.includes(mod.prev.head))
-            await updateVertex(mod.prev.head, mod.branch);
-          await updatePlaceholders(mod.branch);
-        }
-      });
+      await Promise.all(
+        added.map(async branch => {
+          branch.commits.forEach(async oid => await updateVertex(oid.toString(), branch));
+          await updatePlaceholders(branch);
+        })
+      );
+      await Promise.all(
+        removed.map(async branch => {
+          branch.commits.forEach(async oid => await removeVertex(oid.toString(), branch));
+          await updatePlaceholders(branch);
+        })
+      );
+      await Promise.all(
+        modified.map(async mod => {
+          if (mod.changed.includes('commits')) {
+            const [added, , removed] = symmetrical(
+              mod.branch.commits,
+              mod.prev.commits,
+              (a, b) => a === b
+            );
+            added.forEach(async oid => await updateVertex(oid.toString(), mod.branch));
+            removed.forEach(async oid => await removeVertex(oid.toString(), mod.branch));
+            await updatePlaceholders(mod.branch);
+          }
+          if (
+            !mod.changed.includes('commits') &&
+            (mod.changed.includes('status') || mod.changed.includes('head'))
+          ) {
+            if (mod.branch.commits.includes(mod.prev.head))
+              await updateVertex(mod.prev.head, mod.branch);
+            await updatePlaceholders(mod.branch);
+          }
+        })
+      );
       link();
       topologicalSort(graph);
     },
