@@ -29,15 +29,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@atao60/fse-cli@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@atao60/fse-cli@npm:0.1.7"
+"@atao60/fse-cli@npm:^0.1.9":
+  version: 0.1.9
+  resolution: "@atao60/fse-cli@npm:0.1.9"
   dependencies:
     "@babel/runtime": ^7.13.10
     arg: ^5.0.0
     chalk: ^4.1.0
     core-js: ^3.10.1
-    fs-extra: ^10.0.0
+    fs-extra: ^11.1.1
     graceful-fs: ^4.2.6
     inquirer: ^8.0.0
     regenerator-runtime: ^0.13.7
@@ -71,7 +71,7 @@ __metadata:
     fse-rimraf: bin/fse.js
     fse-touch: bin/fse.js
     fse-version: bin/fse.js
-  checksum: f20f2680a8b7242a58b4920fcd02496d106d651de6a60cda48c90c8f283a77755b969881c74a9efe4ed06371d86dcde2211e38a9c3e329b87f0034263a6226e3
+  checksum: 91db7d43e965303e9767142411883c840756bc832f51512c51648d1f1fb58bbb82d84fb04ab63bc4acc1917ec73bb1faba97fed0b9183b23b2ac937bc9c0e717
   languageName: node
   linkType: hard
 
@@ -6573,6 +6573,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-extra@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "fs-extra@npm:11.1.1"
+  dependencies:
+    graceful-fs: ^4.2.0
+    jsonfile: ^6.0.1
+    universalify: ^2.0.0
+  checksum: fb883c68245b2d777fbc1f2082c9efb084eaa2bbf9fddaa366130d196c03608eebef7fb490541276429ee1ca99f317e2d73e96f5ca0999eefedf5a624ae1edfd
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^4.0.0":
   version: 4.0.3
   resolution: "fs-extra@npm:4.0.3"
@@ -12166,7 +12177,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "synectic@workspace:."
   dependencies:
-    "@atao60/fse-cli": ^0.1.7
+    "@atao60/fse-cli": ^0.1.9
     "@dnd-kit/core": ^6.0.8
     "@dnd-kit/modifiers": ^6.0.1
     "@dnd-kit/sortable": ^7.0.2
