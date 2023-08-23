@@ -57,7 +57,7 @@ export const processCatFileOutput = (output: string | undefined, oid: SHA1): Com
    * [9] commit message (e.g. `Merge branch 'feature' into main`)
    */
   const linePattern = new RegExp(
-    '^(?:tree (.*)\\r?\\n)((?:parent \\w*\\r?\\n)+)?(?:author (?:(.*?) \\<(.*?)\\> (\\d*) (?:-\\d*))\\r?\\n)(?:committer (?:(.*?) \\<(.*?)\\> (\\d*) (?:-\\d*))\\r?\\n)?(?:gpgsig .*[\\s\\S]* -----END PGP SIGNATURE-----\\r?\\n \\r?\\n)?(?:\\r?\\n(.*[\\s\\S]*))$',
+    '^(?:tree (.*)\\r?\\n)((?:parent \\w*\\r?\\n)+)?(?:author (?:(.*?) \\<(.*?)\\> (\\d*) (?:[-+]\\d*))\\r?\\n)(?:committer (?:(.*?) \\<(.*?)\\> (\\d*) (?:[-+]\\d*))\\r?\\n)?(?:gpgsig .*[\\s\\S]* -----END PGP SIGNATURE-----\\r?\\n \\r?\\n)?(?:\\r?\\n(.*[\\s\\S]*))$',
     'gm'
   );
 
