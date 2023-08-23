@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import repoSelectors from '../../store/selectors/repos';
@@ -15,15 +15,21 @@ const GitGraphSelect = () => {
   );
   const dispatch = useAppDispatch();
 
-  const handleChange = (event: SelectChangeEvent) => setSelected(event.target.value);
-
-  useEffect(() => {
+  const handleChange = (event: SelectChangeEvent) => {
     if (graphs.length > 0) graphs.map(graph => dispatch(modalRemoved(graph.id)));
-    const selectedRepo = repos.find(r => r.id === selected);
+    setSelected(event.target.value);
+    const selectedRepo = repos.find(r => r.id === event.target.value);
     if (selectedRepo)
-      dispatch(modalAdded({ id: window.api.uuid(), type: 'GitGraph', repo: selected }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [repos, selected]);
+      dispatch(modalAdded({ id: window.api.uuid(), type: 'GitGraph', repo: selectedRepo.id }));
+  };
+
+  // useEffect(() => {
+  //   if (graphs.length > 0) graphs.map(graph => dispatch(modalRemoved(graph.id)));
+  //   const selectedRepo = repos.find(r => r.id === selected);
+  //   if (selectedRepo)
+  //     dispatch(modalAdded({ id: window.api.uuid(), type: 'GitGraph', repo: selected }));
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [repos, selected]);
 
   return (
     <StyledFormContainer>
