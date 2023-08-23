@@ -163,7 +163,6 @@ const GitGraph = ({ repo }: { repo: UUID }) => {
   );
 
   const calculateLayout = useCallback(() => {
-    console.log({ graph, topological });
     const rfElements = layoutGraph(graph, topological);
     setNodes(rfElements.filter(isNode));
     setEdges(rfElements.filter(isEdge));
