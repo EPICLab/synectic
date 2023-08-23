@@ -582,24 +582,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/core-utils@npm:6.3.0":
-  version: 6.3.0
-  resolution: "@electron-forge/core-utils@npm:6.3.0"
-  dependencies:
-    "@electron-forge/shared-types": 6.3.0
-    "@electron/rebuild": ^3.2.10
-    "@malept/cross-spawn-promise": ^2.0.0
-    chalk: ^4.0.0
-    debug: ^4.3.1
-    find-up: ^5.0.0
-    fs-extra: ^10.0.0
-    log-symbols: ^4.0.0
-    semver: ^7.2.1
-    yarn-or-npm: ^3.0.1
-  checksum: 0c74d3800acc1ab65a91a8b5f1ca88c7dbf2e9f55941f06cce5b6c4aaeff929401cafa86135fba399e11724b61c99d31a87a2342cce45cae0b9fb2bddd584c5b
-  languageName: node
-  linkType: hard
-
 "@electron-forge/core-utils@npm:6.4.0":
   version: 6.4.0
   resolution: "@electron-forge/core-utils@npm:6.4.0"
@@ -739,27 +721,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/plugin-base@npm:6.3.0":
-  version: 6.3.0
-  resolution: "@electron-forge/plugin-base@npm:6.3.0"
-  dependencies:
-    "@electron-forge/shared-types": 6.3.0
-  checksum: b6222e4b5bc6bb9c5f6f38fbe9c0f4dcb9cc2162175da03a95cfa424639d24b96a9a6287d7cf5ccddedc819c88c86487452536b1a0d8f7fa96709692158d1ee4
-  languageName: node
-  linkType: hard
-
 "@electron-forge/plugin-base@npm:6.4.0":
   version: 6.4.0
   resolution: "@electron-forge/plugin-base@npm:6.4.0"
-  dependencies:
-    "@electron-forge/shared-types": 6.4.0
-  checksum: c650b72ba8529fadc0fe6c76ca4a98114c49d06ff62911a94f1dae12511ff6895fe54d6f9e21f27984ecc8de796cf3ed085ccb2124150aa62da4f5d3ac157803
-  languageName: node
-  linkType: hard
-
-"@electron-forge/plugin-webpack@npm:6.3.0":
-  version: 6.3.0
-  resolution: "@electron-forge/plugin-webpack@npm:6.3.0"
   dependencies:
     "@electron-forge/shared-types": 6.4.0
   checksum: c650b72ba8529fadc0fe6c76ca4a98114c49d06ff62911a94f1dae12511ff6895fe54d6f9e21f27984ecc8de796cf3ed085ccb2124150aa62da4f5d3ac157803
