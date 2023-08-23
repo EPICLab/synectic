@@ -107,9 +107,7 @@ export const fetchBranches = createAppAsyncThunk<{ local: Branch[]; remote: Bran
   async (root, thunkAPI) => {
     const branches = (
       await Promise.all(
-        (
-          await window.api.git.showBranch({ dir: root, all: true })
-        )
+        (await window.api.git.showBranch({ dir: root, all: true }))
           .filter(branch => branch.ref !== 'HEAD')
           .map(branch =>
             thunkAPI
@@ -175,8 +173,16 @@ export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
     const bare = revBare?.toLowerCase() === 'true';
     const merging = (await window.api.git.fetchMergingBranches(root))?.compare;
 
+    const repo = dir ? repoSelectors.selectByRoot(thunkAPI.getState(), dir) : undefined;
+    const repoHas = (branch: UUID): boolean =>
+      repo ? repo.local.includes(branch) || repo.remote.includes(branch) : false;
     const existing = Object.values(thunkAPI.getState().branches.entities)
-      .filter(branch => branch?.scope === identifiers.scope && branch?.ref === identifiers.ref)
+      .filter(
+        branch =>
+          branch?.scope === identifiers.scope &&
+          branch?.ref === identifiers.ref &&
+          repoHas(branch.id)
+      )
       .filter(isDefined)[0];
 
     const base = {
