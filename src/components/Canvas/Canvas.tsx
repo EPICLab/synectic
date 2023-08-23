@@ -96,7 +96,6 @@ const Canvas = ({ children }: PropsWithChildren) => {
     console.log(`CARDS [${Object.keys(cards).length}]`, cards);
     console.log(`FILETYPES [${filetypes.length}]`, filetypes);
     console.log(`METAFILES [${metafiles.length}]`, metafiles);
-    // console.log(`CACHE [${cache.length}]`, cache);
     console.log(`REPOS [${repos.length}]`, repos);
     console.log(`BRANCHES [${branches.length}]`, branches);
     console.log(`COMMITS [${commits.length}]`, commits);
