@@ -140,7 +140,7 @@
     "react-redux": "^8.1.2",
     "react-transition-group": "^4.4.5",
     "react-use": "^17.4.0",
-    "reactflow": "^11.8.1",
+    "reactflow": "^11.8.3",
     "redux": "^4.2.1",
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
