@@ -706,18 +706,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-squirrel@npm:^6.3.0":
-  version: 6.3.0
-  resolution: "@electron-forge/maker-squirrel@npm:6.3.0"
+"@electron-forge/maker-squirrel@npm:^6.4.0":
+  version: 6.4.0
+  resolution: "@electron-forge/maker-squirrel@npm:6.4.0"
   dependencies:
-    "@electron-forge/maker-base": 6.3.0
-    "@electron-forge/shared-types": 6.3.0
+    "@electron-forge/maker-base": 6.4.0
+    "@electron-forge/shared-types": 6.4.0
     electron-winstaller: ^5.0.0
     fs-extra: ^10.0.0
   dependenciesMeta:
     electron-winstaller:
       optional: true
-  checksum: e92baeb4ad0853e371e2b8d7026b4d75ed56a88ed9d5de8ad8fa55c3c89adadbd61b1d7ae03500852f31cc8aeccae7fcd3a373b8a55e78dfd52621b134bdefa0
+  checksum: c1a977cb849868ac00d6cdce18a5226ad2b2e91edae3acb91935dac87367ef89c383ea1992d23785cf413bc8516aa82aaeb0df849453465605a80ab203d6a89f
   languageName: node
   linkType: hard
 
@@ -12249,7 +12249,7 @@ __metadata:
     "@electron-forge/maker-deb": ^6.4.0
     "@electron-forge/maker-dmg": ^6.3.0
     "@electron-forge/maker-rpm": ^6.3.0
-    "@electron-forge/maker-squirrel": ^6.3.0
+    "@electron-forge/maker-squirrel": ^6.4.0
     "@electron-forge/plugin-webpack": 6.4.0
     "@emotion/react": ^11.11.1
     "@emotion/styled": ^11.11.0
