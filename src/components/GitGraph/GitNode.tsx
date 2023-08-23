@@ -50,6 +50,10 @@ const GitNode = (props: GitNodeProps) => {
   const borderStyle = props.selected ? 'solid' : props.data.staged ? 'dashed' : '';
   const opacity = props.data.staged ? '0.6' : '1.0';
 
+  const copyToClipboard = (text: string) => {
+    window.api.clipboard.writeText(text);
+  };
+
   return (
     <>
       <GraphTooltip disabled={!isHovering} content={tooltip} placement="bottom" />
@@ -60,7 +64,11 @@ const GitNode = (props: GitNodeProps) => {
         opacity={opacity}
         onMouseEnter={() => toggleHovering(true)}
         onMouseLeave={() => toggleHovering(false)}
-        onClick={() => console.log({ props, color, borderStyle, opacity })}
+        onClick={() => {
+          copyToClipboard(props.id);
+          const node = props.data;
+          console.log(node);
+        }}
         onContextMenu={handleMenu}
       >
         <StyledHandle type="target" position={Position.Top} />
