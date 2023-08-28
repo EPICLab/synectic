@@ -582,24 +582,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/core-utils@npm:6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/core-utils@npm:6.4.0"
-  dependencies:
-    "@electron-forge/shared-types": 6.4.0
-    "@electron/rebuild": ^3.2.10
-    "@malept/cross-spawn-promise": ^2.0.0
-    chalk: ^4.0.0
-    debug: ^4.3.1
-    find-up: ^5.0.0
-    fs-extra: ^10.0.0
-    log-symbols: ^4.0.0
-    semver: ^7.2.1
-    yarn-or-npm: ^3.0.1
-  checksum: c119998c23aec97d9ef494d6a9f16fb6414a56ca5ace34f68a48d5b7081d69c273dcc3f6de0d02a6e6919f084bae013ac959f4e759b7ac4015c39a55538a8908
-  languageName: node
-  linkType: hard
-
 "@electron-forge/core-utils@npm:6.4.1":
   version: 6.4.1
   resolution: "@electron-forge/core-utils@npm:6.4.1"
@@ -682,17 +664,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-deb@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/maker-deb@npm:6.4.0"
+"@electron-forge/maker-deb@npm:^6.4.1":
+  version: 6.4.1
+  resolution: "@electron-forge/maker-deb@npm:6.4.1"
   dependencies:
-    "@electron-forge/maker-base": 6.4.0
-    "@electron-forge/shared-types": 6.4.0
+    "@electron-forge/maker-base": 6.4.1
+    "@electron-forge/shared-types": 6.4.1
     electron-installer-debian: ^3.2.0
   dependenciesMeta:
     electron-installer-debian:
       optional: true
-  checksum: aff6dfdc66405d5eea4df498bd77797f278d9f2aa51486dc55c6902403fe2a9c1bd048646a52aa365385f76c2b33825aa04e13b78f3f4bca780071435beff9f0
+  checksum: ee6c430622204aca427849f518fe5e3bc50b1bfc52b51ad0511c8d7c7d0d49e0cc8a7d2e21fd94264e2c34d465bad14321cccc1f3adf234f97f2dfee375e2fe2
   languageName: node
   linkType: hard
 
@@ -737,15 +719,6 @@ __metadata:
     electron-winstaller:
       optional: true
   checksum: c1a977cb849868ac00d6cdce18a5226ad2b2e91edae3acb91935dac87367ef89c383ea1992d23785cf413bc8516aa82aaeb0df849453465605a80ab203d6a89f
-  languageName: node
-  linkType: hard
-
-"@electron-forge/plugin-base@npm:6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/plugin-base@npm:6.4.0"
-  dependencies:
-    "@electron-forge/shared-types": 6.4.0
-  checksum: c650b72ba8529fadc0fe6c76ca4a98114c49d06ff62911a94f1dae12511ff6895fe54d6f9e21f27984ecc8de796cf3ed085ccb2124150aa62da4f5d3ac157803
   languageName: node
   linkType: hard
 
@@ -12207,7 +12180,7 @@ __metadata:
     "@dnd-kit/modifiers": ^6.0.1
     "@dnd-kit/sortable": ^7.0.2
     "@electron-forge/cli": ^6.4.1
-    "@electron-forge/maker-deb": ^6.4.0
+    "@electron-forge/maker-deb": ^6.4.1
     "@electron-forge/maker-dmg": ^6.4.0
     "@electron-forge/maker-rpm": ^6.4.0
     "@electron-forge/maker-squirrel": ^6.4.0
