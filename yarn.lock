@@ -600,6 +600,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@electron-forge/core-utils@npm:6.4.1":
+  version: 6.4.1
+  resolution: "@electron-forge/core-utils@npm:6.4.1"
+  dependencies:
+    "@electron-forge/shared-types": 6.4.1
+    "@electron/rebuild": ^3.2.10
+    "@malept/cross-spawn-promise": ^2.0.0
+    chalk: ^4.0.0
+    debug: ^4.3.1
+    find-up: ^5.0.0
+    fs-extra: ^10.0.0
+    log-symbols: ^4.0.0
+    semver: ^7.2.1
+    yarn-or-npm: ^3.0.1
+  checksum: bd88e16e498ab0a83bb2e218b70bf677816a2314fe08e770c3ae24a31926b01660c0bdd3fa6c9653a8c2772324f323605627532ee376ea2d741a4e07e3f81d1c
+  languageName: node
+  linkType: hard
+
 "@electron-forge/core@npm:6.4.0":
   version: 6.4.0
   resolution: "@electron-forge/core@npm:6.4.0"
@@ -719,14 +737,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/plugin-webpack@npm:6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/plugin-webpack@npm:6.4.0"
+"@electron-forge/plugin-base@npm:6.4.1":
+  version: 6.4.1
+  resolution: "@electron-forge/plugin-base@npm:6.4.1"
   dependencies:
-    "@electron-forge/core-utils": 6.4.0
-    "@electron-forge/plugin-base": 6.4.0
-    "@electron-forge/shared-types": 6.4.0
-    "@electron-forge/web-multi-logger": 6.4.0
+    "@electron-forge/shared-types": 6.4.1
+  checksum: 9201a1819483c27a42f14d9a3cf28c50b65c6bc1fb310f4e44f8a26d3d705b33dec8cbe1cf8086780fade8afb73b32c5cee4e2ef4027228e873ecb3869755d7e
+  languageName: node
+  linkType: hard
+
+"@electron-forge/plugin-webpack@npm:6.4.1":
+  version: 6.4.1
+  resolution: "@electron-forge/plugin-webpack@npm:6.4.1"
+  dependencies:
+    "@electron-forge/core-utils": 6.4.1
+    "@electron-forge/plugin-base": 6.4.1
+    "@electron-forge/shared-types": 6.4.1
+    "@electron-forge/web-multi-logger": 6.4.1
     chalk: ^4.0.0
     debug: ^4.3.1
     fs-extra: ^10.0.0
@@ -734,7 +761,7 @@ __metadata:
     webpack: ^5.69.1
     webpack-dev-server: ^4.0.0
     webpack-merge: ^5.7.3
-  checksum: 2c005d5804e187c0c79f1acb58b3b70c97e4e412dec38e4508788c1a8020d7acdb9b452da98c7ceb56c64faa4253df25f9dff1eb0c1d37b5871c1f5abb6faa79
+  checksum: da81af636fcd5413f7137371b5fc3609a93822c2d759576c49d6ece5165f0002b67462f2711b4c4c7d8c1d252e5f4110a257b69fcbf02c472486579e7dcc1b72
   languageName: node
   linkType: hard
 
@@ -755,6 +782,17 @@ __metadata:
     electron-packager: ^17.1.2
     listr2: ^5.0.3
   checksum: 80ef38897d4e7f906e92d9746fdb67900b123d7e49891b4ad18846fb40bf31ae386ad6eeac43a788af43c31d6602c65f35d8846ea1e27cbb77dfffc9babf7a09
+  languageName: node
+  linkType: hard
+
+"@electron-forge/shared-types@npm:6.4.1":
+  version: 6.4.1
+  resolution: "@electron-forge/shared-types@npm:6.4.1"
+  dependencies:
+    "@electron/rebuild": ^3.2.10
+    electron-packager: ^17.1.2
+    listr2: ^5.0.3
+  checksum: 0a629d559e4968f9bbcdf086850449194bb09f051dfd272644a0979f871de611b066da4936a0841e6f3d6b21d6487c5b3ee27fffadea055cec13926e8d89658f
   languageName: node
   linkType: hard
 
@@ -804,16 +842,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/web-multi-logger@npm:6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/web-multi-logger@npm:6.4.0"
+"@electron-forge/web-multi-logger@npm:6.4.1":
+  version: 6.4.1
+  resolution: "@electron-forge/web-multi-logger@npm:6.4.1"
   dependencies:
     express: ^4.17.1
     express-ws: ^5.0.2
     xterm: ^4.9.0
     xterm-addon-fit: ^0.5.0
     xterm-addon-search: ^0.8.0
-  checksum: df1802a34d86c9c0b42baef2b1e64ee3eac8fcd38332285f09f77236d85daccdac634b3a5b1adb98f92f4e213044070068511e02e78b3d99aa4eb55132e2c435
+  checksum: 94563e05a73d1f09242512da406ed892cc38ab8a622d47cb9e727f93b95b7ab38a4fa10510b2e6942caa49fb50694f0afc51875418f63e787605bf1c7d9859f4
   languageName: node
   linkType: hard
 
@@ -12150,7 +12188,7 @@ __metadata:
     "@electron-forge/maker-dmg": ^6.4.0
     "@electron-forge/maker-rpm": ^6.4.0
     "@electron-forge/maker-squirrel": ^6.4.0
-    "@electron-forge/plugin-webpack": 6.4.0
+    "@electron-forge/plugin-webpack": 6.4.1
     "@emotion/react": ^11.11.1
     "@emotion/styled": ^11.11.0
     "@mui/icons-material": ^5.14.3
