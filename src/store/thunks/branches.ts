@@ -131,7 +131,7 @@ export const fetchBranches = createAppAsyncThunk<{ local: Branch[]; remote: Bran
  * filesystem), but instead updates the store to reflect any newly created branches.
  * Use {@linkcode addBranch} to create a new branch within the filesystem.
  */
-export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
+export const buildBranch = createAppAsyncThunk<Branch | undefined, BranchIdentifiers>(
   'branches/buildBranch',
   async (identifiers, thunkAPI) => {
     const branchRoot = await window.api.git.getBranchRoot(identifiers.root, identifiers.ref);
@@ -139,6 +139,15 @@ export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
     const { dir, gitdir, worktreeDir, worktreeGitdir } = await window.api.git.getWorktreePaths(
       root
     );
+    const config = await window.api.git.getConfig({
+      dir: dir ? dir : root,
+      keyPath: `branch.${identifiers.ref}.remote`
+    });
+    const remote = config && config.scope !== 'none' ? config.value : 'origin';
+    const ref = identifiers.scope === 'remote' ? `${remote}/${identifiers.ref}` : identifiers.ref;
+    const existingRef =
+      (await window.api.git.revParse({ dir: root, opts: ['verify'], args: [ref] })) === 'true';
+    if (!existingRef) return undefined;
 
     const rootGitdir = worktreeGitdir ? worktreeGitdir : gitdir ? gitdir : '';
     const linked = isDefined(worktreeDir);
@@ -149,11 +158,6 @@ export const buildBranch = createAppAsyncThunk<Branch, BranchIdentifiers>(
           args: ['HEAD']
         })) === identifiers.ref
       : false;
-    const config = await window.api.git.getConfig({
-      dir: dir ? dir : root,
-      keyPath: `branch.${identifiers.ref}.remote`
-    });
-    const remote = config && config.scope !== 'none' ? config.value : 'origin';
     const commits = (
       await thunkAPI
         .dispatch(
