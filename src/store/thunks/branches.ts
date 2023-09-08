@@ -236,56 +236,105 @@ export const addBranch = createAppAsyncThunk<
 >('branches/addBranch', async ({ root, ref, head }, thunkAPI) => {
   const state = thunkAPI.getState();
 
-  // check whether ref matches the current branch in the repository root path, if so return branch
+  // check if ref refers to the current branch in repo root path; return it without adding a worktree
   const current = await window.api.git.revParse({
     dir: root,
     opts: ['abbrevRef'],
     args: ['HEAD']
   });
-  if (ref === current)
+  if (ref === current) {
     return await thunkAPI
       .dispatch(fetchBranch({ branchIdentifiers: { root: root, ref: ref, scope: 'local' } }))
       .unwrap();
+  }
 
-  // check whether a linked worktree has already been created for ref
+  const config = await window.api.git.getConfig({ dir: root, keyPath: `branch.${ref}.remote` });
+  const remote = config && config.scope !== 'none' ? config.value : 'origin';
+  // SHA-1 hash of head commit for local branch ref
+  const localRef =
+    (await window.api.git.revParse({ dir: root, opts: ['verify'], args: [ref] })) === 'true'
+      ? await window.api.git.revParse({ dir: root, opts: [], args: [ref] })
+      : undefined;
+  // SHA-1 hash of head commit for remote branch ref
+  const remoteRef =
+    (await window.api.git.revParse({ dir: root, opts: ['verify'], args: [`${remote}/${ref}`] })) ===
+    'true'
+      ? await window.api.git.revParse({ dir: root, opts: [], args: [`${remote}/${ref}`] })
+      : undefined;
   const repo = repoSelectors.selectByRoot(state, root);
-  // the current branch is included in `worktrees`, but that case is already handled above so we
-  // won't be searching for it
   const worktrees = repo ? await window.api.git.worktreeList({ dir: repo.root }) : [];
   const existingWorktree = worktrees.find(w => w.ref === ref);
-
-  // check whether ref does not exist in repository; i.e. a new branch is being requested at head
-  const existingRef =
-    (await window.api.git.revParse({ dir: root, opts: ['verify'], args: [ref] })) === 'true';
-
-  // if no linked worktree exists then create it, and then update the branch as needed before
-  // fetching the new metafile
   const linkedRoot = existingWorktree
     ? existingWorktree.root
     : repo
     ? window.api.fs.normalize(`${root.toString()}/../.syn/${repo.name}/${ref}`)
     : undefined;
+  if (!linkedRoot) return undefined; // cannot create a linked worktree when no repo exists
 
-  if (linkedRoot) {
-    if (!existingWorktree)
-      if (existingRef) {
-        await window.api.git.worktreeAdd({
-          dir: root,
-          path: linkedRoot,
-          commitish: ref
-        });
-      } else if (head && repo) {
-        await window.api.git.worktreeAdd({
+  // check if ref refers to a local branch in a linked worktree; return it without adding a worktree
+  if (existingWorktree) {
+    return await thunkAPI
+      .dispatch(fetchBranch({ branchIdentifiers: { root: linkedRoot, ref: ref, scope: 'local' } }))
+      .unwrap();
+  }
+
+  // check if ref refers to a local branch in the repo root directory; switch to new linked worktree
+  if (!existingWorktree && localRef) {
+    const newWorktree = head
+      ? {
           dir: root,
           path: linkedRoot,
           commitish: head.toString(),
           newBranch: ref
-        });
-      }
-    return thunkAPI
-      .dispatch(fetchBranch({ branchIdentifiers: { root: linkedRoot, ref: ref, scope: 'local' } }))
-      .unwrap();
+        }
+      : {
+          dir: root,
+          path: linkedRoot,
+          commitish: ref
+        };
+    return (await window.api.git.worktreeAdd(newWorktree))
+      ? thunkAPI
+          .dispatch(
+            fetchBranch({ branchIdentifiers: { root: linkedRoot, ref: ref, scope: 'local' } })
+          )
+          .unwrap()
+      : undefined;
   }
+
+  // check if ref refers to a remote-only branch
+  if (!existingWorktree && !localRef && remoteRef) {
+    const newWorktree = {
+      dir: root,
+      path: linkedRoot,
+      commitish: head ? head.toString() : remoteRef,
+      newBranch: ref
+    };
+    return (await window.api.git.worktreeAdd(newWorktree))
+      ? thunkAPI
+          .dispatch(
+            fetchBranch({ branchIdentifiers: { root: linkedRoot, ref: ref, scope: 'local' } })
+          )
+          .unwrap()
+      : undefined;
+  }
+
+  // check if ref cannot be resolved in the repository; i.e. a new branch is being requested
+  if (!localRef && !remoteRef && current) {
+    const newWorktree = {
+      dir: root,
+      path: linkedRoot,
+      commitish: head ? head.toString() : current,
+      newBranch: ref
+    };
+    return (await window.api.git.worktreeAdd(newWorktree))
+      ? thunkAPI
+          .dispatch(
+            fetchBranch({ branchIdentifiers: { root: linkedRoot, ref: ref, scope: 'local' } })
+          )
+          .unwrap()
+      : undefined;
+  }
+
   return undefined;
 });
 
