@@ -315,16 +315,19 @@ export const removeObjectProperty = <V, T extends Record<string, V>, K extends k
 };
 
 /**
- * Filters an object and removes any properties that resolve to only nullable values (`undefined | null | void`), and narrows
- * property types to remove nullable types from union types.
- * @param obj The given object containing key-value properties that should be filtered for nullable values.
- * @returns {object} The resulting object devoid of any nullable values.
+ * Generic for flattening and filtering an object given a set of filtering keys for inclusion in the
+ * resulting object.
+ * @param obj An object containing key-value indexed fields.
+ * @param keyFilter An array of keys that indicate which key-value pairs should be included.
+ * @returns {object} The resulting object devoid of key-value fields that did not match the key
+ * filter, or an empty object if all fields were removed.
  */
-export const removeNullableProperties = <V, T extends Record<string | number | symbol, V>>(
-  obj: T
-): NonNullableObject<T> => {
-  return Object.entries(obj)
-    .filter((e): e is [string, NonNullable<V>] => e[1] !== undefined && e[1] !== null)
+export const filterObject = <T extends Record<PropertyKey, unknown>>(
+  obj: T,
+  keyFilter: string[]
+): ReturnType<typeof flattenObject<T>> => {
+  return objectEntries(flattenObject(obj))
+    .filter(([k]) => typeof k === 'string' && keyFilter.includes(k))
     .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
 };
 
