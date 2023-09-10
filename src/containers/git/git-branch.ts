@@ -1,6 +1,6 @@
 import { PathLike } from 'fs-extra';
 import { Branch } from '../../store/slices/branches';
-import { Expand, isDefined, WithRequired } from '../utils';
+import { Expand, isDefined, removeNullableProperties, WithRequired } from '../utils';
 import execute from '../exec';
 
 type BranchOutput = Expand<WithRequired<Partial<Omit<Branch, 'id'>>, 'ref'>>;
@@ -300,13 +300,18 @@ export const processBranchOutput = (output: string | undefined): BranchOutput[] 
       const refPattern = new RegExp('(?:remotes/(?:(\\w+)/))?(.*)', 'g');
 
       const lineResult = linePattern.exec(line);
+      const type = lineResult?.[1];
+      const current = type === '* ';
+      const linked = type === '+ ';
       const branchRef = lineResult?.[2];
       const head = lineResult?.[4];
       const refResult = branchRef ? refPattern.exec(branchRef) : undefined;
       const ref = refResult?.[2];
       const scope: 'local' | 'remote' = refResult?.[1] ? 'remote' : 'local';
       const remote = refResult?.[1] ? refResult?.[1] : 'origin';
-      return ref ? { ref: ref, scope: scope, remote: remote, ...(head && { head }) } : undefined;
+      return ref
+        ? { ref, ...removeNullableProperties({ scope, remote, head, current, linked }) }
+        : undefined;
     })
     .filter(isDefined);
   return result;
