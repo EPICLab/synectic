@@ -44,10 +44,13 @@ export type Nullable<T> = {
 };
 
 /**
- * Requires all properties in T that resolve to only nullable types (`undefined | null | void`) be excluded from the subsequent type.
+ * Requires all properties in T to be non-nullable; either through type narrowing to exclude
+ * nullable types or excluding the property entirely when it resolves to only nullable types
+ * (`undefined | null | void`).
+ * Inspired by: https://stackoverflow.com/a/69338644
  */
-export type NonNullableProperties<T> = {
-  [P in keyof T as T[P] extends undefined | null | void ? never : P]: T[P];
+export type NonNullableObject<T extends object> = {
+  [P in keyof T]: Exclude<T[P], null | undefined | void>;
 };
 
 /**
@@ -220,6 +223,22 @@ export const isRenderer = (): 'renderer' | 'main' => {
 };
 
 /**
+ * Typed version of [Object.entries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries)
+ * which respects the types of the key/value pairs within properties on the input object.
+ * @param o An object.
+ * @returns {Array} An array of typed key/value pairs.
+ */
+export const objectEntries = <
+  T extends Record<PropertyKey, unknown>,
+  K extends keyof T,
+  V extends T[K]
+>(
+  o: T
+) => {
+  return Object.entries(o) as [K, V][];
+};
+
+/**
  * Check for conflicting chunks in a string (i.e. code surrounded by `<<<<<<<` and `>>>>>>>`).
  * @param content A string containing code that possibly includes conflicting chunks.
  * @returns {number[]} An array of indices representing the starting point for each conflicting
@@ -329,6 +348,26 @@ export const filterObject = <T extends Record<PropertyKey, unknown>>(
   return objectEntries(flattenObject(obj))
     .filter(([k]) => typeof k === 'string' && keyFilter.includes(k))
     .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
+};
+
+/**
+ * Filters an object and removes properties that only resolve to nullable values
+ * (`undefined | null | void`), while also narrowing the property types to remove nullable types
+ * from any type unions.
+ * @param obj The given object containing key-value properties that should be filtered for nullable
+ * values.
+ * @returns {object} The resulting object devoid of any nullable values.
+ */
+export const removeNullableProperties = <
+  T extends Record<PropertyKey, unknown>,
+  K extends keyof T,
+  V extends T[K]
+>(
+  obj: T
+): NonNullableObject<T> => {
+  return objectEntries(obj)
+    .filter((e): e is [K, NonNullable<V>] => isPresent(e[1]))
+    .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {} as NonNullableObject<T>);
 };
 
 /**
