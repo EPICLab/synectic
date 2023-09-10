@@ -42,7 +42,7 @@
     "@atao60/fse-cli": "^0.1.9",
     "@electron-forge/cli": "^6.4.1",
     "@electron-forge/maker-deb": "^6.4.1",
-    "@electron-forge/maker-dmg": "^6.4.0",
+    "@electron-forge/maker-dmg": "^6.4.1",
     "@electron-forge/maker-rpm": "^6.4.0",
     "@electron-forge/maker-squirrel": "^6.4.1",
     "@electron-forge/plugin-webpack": "6.4.1",

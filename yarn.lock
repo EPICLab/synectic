@@ -687,18 +687,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-dmg@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/maker-dmg@npm:6.4.0"
+"@electron-forge/maker-dmg@npm:^6.4.1":
+  version: 6.4.1
+  resolution: "@electron-forge/maker-dmg@npm:6.4.1"
   dependencies:
-    "@electron-forge/maker-base": 6.4.0
-    "@electron-forge/shared-types": 6.4.0
+    "@electron-forge/maker-base": 6.4.1
+    "@electron-forge/shared-types": 6.4.1
     electron-installer-dmg: ^4.0.0
     fs-extra: ^10.0.0
   dependenciesMeta:
     electron-installer-dmg:
       optional: true
-  checksum: 182688f45095b051459d4dd29a036ed62fc786bce997b6ee6b1ee8e948dc3731e5305e2332b6ddb9350698daba69e9e49cad4eb30e7413669f7f691b693a2742
+  checksum: e6c9cdc7e46064d2f92d26c08ad0a24fb989c1daaad856187605bf4baec76ce5f39d727bd28bcfe179d6f88521efa3c246439140499442bfc5294e7613023914
   languageName: node
   linkType: hard
 
@@ -12375,7 +12375,7 @@ __metadata:
     "@dnd-kit/sortable": ^7.0.2
     "@electron-forge/cli": ^6.4.1
     "@electron-forge/maker-deb": ^6.4.1
-    "@electron-forge/maker-dmg": ^6.4.0
+    "@electron-forge/maker-dmg": ^6.4.1
     "@electron-forge/maker-rpm": ^6.4.0
     "@electron-forge/maker-squirrel": ^6.4.1
     "@electron-forge/plugin-webpack": 6.4.1
