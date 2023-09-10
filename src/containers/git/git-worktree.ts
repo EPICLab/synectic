@@ -64,7 +64,10 @@ export const worktreeAdd = async ({
     ],
     cwd: dir.toString()
   });
-  if (!quiet && output.stderr && output.stderr.search(/Preparing worktree/) == -1) {
+  if (
+    !quiet &&
+    (output.stderr?.search(/fatal:/) !== -1 || output.stderr?.search(/Preparing worktree/) == -1)
+  ) {
     // Note: `git worktree add` behaves slightly strange and outputs "Preparing worktree (checking out 'branch name')" in `stderr` on success
     console.error(output.stderr);
     return false;
