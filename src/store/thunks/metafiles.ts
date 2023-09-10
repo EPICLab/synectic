@@ -374,15 +374,10 @@ export const switchBranch = createAppAsyncThunk<Metafile | undefined, { id: UUID
     if (!dir) return undefined; // unless metafile has a root path, there is no repository
 
     const branchA = branchSelectors.selectById(thunkAPI.getState(), metafile?.branch ?? '');
-    let branchB = await thunkAPI
-      .dispatch(fetchBranch({ branchIdentifiers: { root: dir, ref, scope: 'local' } }))
-      .unwrap();
-    // if target branch is not the current branch in the repo root directory, then convert from an
-    // unlinked wortkree to a linked worktree (as needed)
-    branchB =
-      branchA && !branchA.linked && branchB && !branchB.linked && !branchB.current
-        ? await thunkAPI.dispatch(addBranch({ root: dir, ref })).unwrap()
-        : branchB;
+    // `addBranch` handles cases where no new worktree (or branch) is needing and gracefully
+    // returns the target branch; this includes when the target branch is the current branch in the
+    // repository, and when the target branch is already in a linked worktree
+    const branchB = await thunkAPI.dispatch(addBranch({ root: dir, ref })).unwrap();
 
     if (isVersionedMetafile(metafile) && branchA && branchB) {
       // relative path from root to file
@@ -396,7 +391,7 @@ export const switchBranch = createAppAsyncThunk<Metafile | undefined, { id: UUID
     }
 
     console.error(
-      `Unable to switch ${metafile?.name} [${id}] from ${branchA?.scope}/${branchA?.ref} to ${branchB?.scope}/${branchB?.ref}`
+      `Unable to switch ${metafile?.name} [${id}] from '${branchA?.scope}/${branchA?.ref}' to '${branchB?.scope}/${branchB?.ref}'`
     );
     return undefined;
   }
