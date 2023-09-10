@@ -34,7 +34,6 @@ const NewBranchDialog = (props: NewBranchDialog) => {
     setBranchName(event.target.value);
   const handleClose = () => dispatch(modalRemoved(props.id));
   const handleClick = async () => {
-    console.log(`NewBranchDialog handleClick => `, { repo, branchName, props });
     if (repo) {
       const branch = await dispatch(
         addBranch({ root: repo.root, ref: branchName, head: props.head.toString() })
