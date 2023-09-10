@@ -20,6 +20,8 @@ Pre-built releases are available for MacOS, Linux, and Windows. The following fo
 
 Downloads: [https://nomatic.dev/synectic](https://nomatic.dev/synectic)
 
+⚠️ **Warning:** By default, MacOS protects users from malware by preventing software from being installed from unknown sources. This generally restricts any software not installed from the `Mac App Store` or `identified developers`. This second category refers to software produced by developers using an [Apple Developer ID certificate](https://developer.apple.com/support/certificates/), and requires purchasing an Apple Developer Program membership. Since this is experimental research software, we are not currently able to purchase and sign MacOS builds for Synectic. Please see the [Installation Guide](https://github.com/EPICLab/synectic/wiki/Installation-Guide) for instructions on how to load Synectic for the first time on MacOS.
+
 # Install
 
 1. Install [Node.js](https://nodejs.org/en/).
