@@ -29,6 +29,39 @@ export type ExpandRecursively<T> = T extends object
   : T;
 
 /**
+ * Extract keys from all leaf properties in an object and converts them into a tuple of string
+ * literals. For example, `{ a: number; b: { c: string; d: { e: string; }; }; }` would be turned
+ * into the type `["a", "c", "e"]`. This function uses mapped types, conditional types,
+ * lookup types, and recursive typing to accomplish this conversion.
+ * Inspired by: https://stackoverflow.com/a/68244131
+ */
+type NestedKeys<T extends object> = ExpandRecursively<
+  {
+    [K in Exclude<keyof T, symbol>]: T[K] extends object ? NestedKeys<T[K]> : `${K}`;
+  }[Exclude<keyof T, symbol>]
+>;
+
+type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`;
+/**
+ * Extract dot-prefixed path keys from all leaf properties in and object and converts them into a
+ * tuple of string literals. For example, `{ a: number; b: { c: string; d: { e: string; }; }; }`
+ * would be turned into the type `["a", "b.c", "b.d.e"]`. This function is similar to
+ * {@link NestedKeys}, but accomplishes the results through recursive descent and infering the
+ * resulting paths.
+ * Inspired by: https://stackoverflow.com/a/68404823
+ */
+export type NestedDotKeys<T> = (
+  T extends object
+    ? { [K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<NestedDotKeys<T[K]>>}` }[Exclude<
+        keyof T,
+        symbol
+      >]
+    : ''
+) extends infer D
+  ? Extract<D, string>
+  : never;
+
+/**
  * Requires all properties in U to override types in the intersection of T & U.
  * Reused from: https://dev.to/vborodulin/ts-how-to-override-properties-with-type-intersection-554l
  */
@@ -52,17 +85,6 @@ export type Nullable<T> = {
 export type NonNullableObject<T extends object> = {
   [P in keyof T]: Exclude<T[P], null | undefined | void>;
 };
-
-/**
- * Requires all properties in T to be non-nullable; either through type narrowing to exclude nullable types or excluding the property
- * entirely when it resolves to only nullable types (`undefined | null | void`).
- * Inspired by: https://stackoverflow.com/a/60574436
- */
-export type NonNullableObject<T> =
-  | {
-      [P in keyof NonNullableProperties<T>]-?: Exclude<T[P], null | undefined | void>;
-    }
-  | Record<string, never>;
 
 /**
  * Requires at least one type property, similar to `Partial<T>` but excludes the empty object.
@@ -325,7 +347,7 @@ export const removeUndefined = <T>(array: (T | undefined)[]): T[] => {
  * @param key The key of the property to be removed.
  * @returns {object} New object containing all properties except for the one associated with the key.
  */
-export const removeObjectProperty = <V, T extends Record<string, V>, K extends keyof T>(
+export const removeObjectProperty = <T extends Record<PropertyKey, unknown>, K extends keyof T>(
   obj: T,
   key: K
 ): Omit<T, K> => {
