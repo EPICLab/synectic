@@ -651,17 +651,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-base@npm:6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/maker-base@npm:6.4.0"
-  dependencies:
-    "@electron-forge/shared-types": 6.4.0
-    fs-extra: ^10.0.0
-    which: ^2.0.2
-  checksum: e58db4ae3a6818c8ac0daaa5e27b09d29aba883264e67d2d1bfe9251e0af04794a2589521fd49ba57bac036d0570ea76967be742b9bad41efbddce71c81044c0
-  languageName: node
-  linkType: hard
-
 "@electron-forge/maker-base@npm:6.4.1":
   version: 6.4.1
   resolution: "@electron-forge/maker-base@npm:6.4.1"
@@ -670,6 +659,17 @@ __metadata:
     fs-extra: ^10.0.0
     which: ^2.0.2
   checksum: 30b798cf3be3d84e3756ffe9c714e1529e6ddd27eaff74fc1470abe5671f9226480d352fa2c391cc9e7b0b07f4824fdd567268c1551e9319e83c054f917918f4
+  languageName: node
+  linkType: hard
+
+"@electron-forge/maker-base@npm:6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/maker-base@npm:6.4.2"
+  dependencies:
+    "@electron-forge/shared-types": 6.4.2
+    fs-extra: ^10.0.0
+    which: ^2.0.2
+  checksum: 59bc1e33b6fc1833930d3877ca1adbd15249a114108ebadba7e1f60c0798624099e255d52e08e816ce6ae8ff024295afd0296149f74a786d45acc57206a1ab7a
   languageName: node
   linkType: hard
 
@@ -702,17 +702,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-rpm@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/maker-rpm@npm:6.4.0"
+"@electron-forge/maker-rpm@npm:^6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/maker-rpm@npm:6.4.2"
   dependencies:
-    "@electron-forge/maker-base": 6.4.0
-    "@electron-forge/shared-types": 6.4.0
+    "@electron-forge/maker-base": 6.4.2
+    "@electron-forge/shared-types": 6.4.2
     electron-installer-redhat: ^3.2.0
   dependenciesMeta:
     electron-installer-redhat:
       optional: true
-  checksum: bb40f8c25a0ceab4094b0eda4a0a6c28771e474990c7b09f1a0c61961c36e93baed0eb529fe52e746efcc5af6d3a421d331bd0a91669b6a3366ee9151951a6ce
+  checksum: 3bbecfd7a6e21811945b5ada66336ba934c9c46314b28ce1e663d5d9588b0d36cfcaf1b247c174ea93959c7e2cc8df39288bfeab7b8926d94b6235a535221680
   languageName: node
   linkType: hard
 
@@ -768,17 +768,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/shared-types@npm:6.4.0":
-  version: 6.4.0
-  resolution: "@electron-forge/shared-types@npm:6.4.0"
-  dependencies:
-    "@electron/rebuild": ^3.2.10
-    electron-packager: ^17.1.2
-    listr2: ^5.0.3
-  checksum: 80ef38897d4e7f906e92d9746fdb67900b123d7e49891b4ad18846fb40bf31ae386ad6eeac43a788af43c31d6602c65f35d8846ea1e27cbb77dfffc9babf7a09
-  languageName: node
-  linkType: hard
-
 "@electron-forge/shared-types@npm:6.4.1":
   version: 6.4.1
   resolution: "@electron-forge/shared-types@npm:6.4.1"
@@ -787,6 +776,17 @@ __metadata:
     electron-packager: ^17.1.2
     listr2: ^5.0.3
   checksum: 0a629d559e4968f9bbcdf086850449194bb09f051dfd272644a0979f871de611b066da4936a0841e6f3d6b21d6487c5b3ee27fffadea055cec13926e8d89658f
+  languageName: node
+  linkType: hard
+
+"@electron-forge/shared-types@npm:6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/shared-types@npm:6.4.2"
+  dependencies:
+    "@electron/rebuild": ^3.2.10
+    electron-packager: ^17.1.2
+    listr2: ^5.0.3
+  checksum: cdc8f05a78c199d7a2b03949a6d0750fb72699cfaa490303df9cf0b541ff8372fb17d4c8ceb6a193adce607120ebafde2ebb73710f24b5a76c75fdc198746199
   languageName: node
   linkType: hard
 
@@ -12525,7 +12525,7 @@ __metadata:
     "@electron-forge/cli": ^6.4.1
     "@electron-forge/maker-deb": ^6.4.1
     "@electron-forge/maker-dmg": ^6.4.1
-    "@electron-forge/maker-rpm": ^6.4.0
+    "@electron-forge/maker-rpm": ^6.4.2
     "@electron-forge/maker-squirrel": ^6.4.1
     "@electron-forge/plugin-webpack": 6.4.1
     "@emotion/react": ^11.11.1
