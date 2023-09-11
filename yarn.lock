@@ -1658,9 +1658,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/icons-material@npm:^5.14.7":
-  version: 5.14.7
-  resolution: "@mui/icons-material@npm:5.14.7"
+"@mui/icons-material@npm:^5.14.8":
+  version: 5.14.8
+  resolution: "@mui/icons-material@npm:5.14.8"
   dependencies:
     "@babel/runtime": ^7.22.10
   peerDependencies:
@@ -1670,7 +1670,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 1596006ac7617f73a0b5f6354431d7f553e2f004c1144ea99ab494771de3a51c209df3ddc8214ec980a1dc519edeae62fe6b519e6a2944776a1344ca7a6def74
+  checksum: b4e73454b3ac22ccd78cb742d2a610c00494bf0fc5ffcae4133d40a6de92fd320553edbbe853e6595fd7565fa98fed97b9c2c733bc7e0a345a24527f699cc639
   languageName: node
   linkType: hard
 
@@ -12530,7 +12530,7 @@ __metadata:
     "@electron-forge/plugin-webpack": 6.4.1
     "@emotion/react": ^11.11.1
     "@emotion/styled": ^11.11.0
-    "@mui/icons-material": ^5.14.7
+    "@mui/icons-material": ^5.14.8
     "@mui/lab": ^5.0.0-alpha.142
     "@mui/material": ^5.14.6
     "@reduxjs/toolkit": ^1.9.5
