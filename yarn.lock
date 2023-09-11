@@ -673,6 +673,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@electron-forge/maker-base@npm:6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/maker-base@npm:6.4.2"
+  dependencies:
+    "@electron-forge/shared-types": 6.4.2
+    fs-extra: ^10.0.0
+    which: ^2.0.2
+  checksum: 59bc1e33b6fc1833930d3877ca1adbd15249a114108ebadba7e1f60c0798624099e255d52e08e816ce6ae8ff024295afd0296149f74a786d45acc57206a1ab7a
+  languageName: node
+  linkType: hard
+
 "@electron-forge/maker-deb@npm:^6.4.1":
   version: 6.4.1
   resolution: "@electron-forge/maker-deb@npm:6.4.1"
@@ -687,18 +698,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-dmg@npm:^6.4.1":
-  version: 6.4.1
-  resolution: "@electron-forge/maker-dmg@npm:6.4.1"
+"@electron-forge/maker-dmg@npm:^6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/maker-dmg@npm:6.4.2"
   dependencies:
-    "@electron-forge/maker-base": 6.4.1
-    "@electron-forge/shared-types": 6.4.1
+    "@electron-forge/maker-base": 6.4.2
+    "@electron-forge/shared-types": 6.4.2
     electron-installer-dmg: ^4.0.0
     fs-extra: ^10.0.0
   dependenciesMeta:
     electron-installer-dmg:
       optional: true
-  checksum: e6c9cdc7e46064d2f92d26c08ad0a24fb989c1daaad856187605bf4baec76ce5f39d727bd28bcfe179d6f88521efa3c246439140499442bfc5294e7613023914
+  checksum: c83689f929d19dee23fd34644f50b56eec93917a1f069243969621706e8267c3474aca50c457b1ce52aa4c0e2b0f6fc76fedd9b4cbd08cd070f9c4e161a51565
   languageName: node
   linkType: hard
 
@@ -787,6 +798,17 @@ __metadata:
     electron-packager: ^17.1.2
     listr2: ^5.0.3
   checksum: 0a629d559e4968f9bbcdf086850449194bb09f051dfd272644a0979f871de611b066da4936a0841e6f3d6b21d6487c5b3ee27fffadea055cec13926e8d89658f
+  languageName: node
+  linkType: hard
+
+"@electron-forge/shared-types@npm:6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/shared-types@npm:6.4.2"
+  dependencies:
+    "@electron/rebuild": ^3.2.10
+    electron-packager: ^17.1.2
+    listr2: ^5.0.3
+  checksum: cdc8f05a78c199d7a2b03949a6d0750fb72699cfaa490303df9cf0b541ff8372fb17d4c8ceb6a193adce607120ebafde2ebb73710f24b5a76c75fdc198746199
   languageName: node
   linkType: hard
 
@@ -12524,7 +12546,7 @@ __metadata:
     "@dnd-kit/sortable": ^7.0.2
     "@electron-forge/cli": ^6.4.1
     "@electron-forge/maker-deb": ^6.4.1
-    "@electron-forge/maker-dmg": ^6.4.1
+    "@electron-forge/maker-dmg": ^6.4.2
     "@electron-forge/maker-rpm": ^6.4.0
     "@electron-forge/maker-squirrel": ^6.4.1
     "@electron-forge/plugin-webpack": 6.4.1
