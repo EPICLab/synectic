@@ -673,17 +673,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/maker-deb@npm:^6.4.1":
-  version: 6.4.1
-  resolution: "@electron-forge/maker-deb@npm:6.4.1"
+"@electron-forge/maker-base@npm:6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/maker-base@npm:6.4.2"
   dependencies:
-    "@electron-forge/maker-base": 6.4.1
-    "@electron-forge/shared-types": 6.4.1
+    "@electron-forge/shared-types": 6.4.2
+    fs-extra: ^10.0.0
+    which: ^2.0.2
+  checksum: 59bc1e33b6fc1833930d3877ca1adbd15249a114108ebadba7e1f60c0798624099e255d52e08e816ce6ae8ff024295afd0296149f74a786d45acc57206a1ab7a
+  languageName: node
+  linkType: hard
+
+"@electron-forge/maker-deb@npm:^6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/maker-deb@npm:6.4.2"
+  dependencies:
+    "@electron-forge/maker-base": 6.4.2
+    "@electron-forge/shared-types": 6.4.2
     electron-installer-debian: ^3.2.0
   dependenciesMeta:
     electron-installer-debian:
       optional: true
-  checksum: ee6c430622204aca427849f518fe5e3bc50b1bfc52b51ad0511c8d7c7d0d49e0cc8a7d2e21fd94264e2c34d465bad14321cccc1f3adf234f97f2dfee375e2fe2
+  checksum: f7e2032ba429e6a8638dc6dd21d5b1f399f988df49521a27cffe840ed871738f7614c60bcab89255f189c75745dd9348c40b302f44eff3dec0993feefb0828fa
   languageName: node
   linkType: hard
 
@@ -787,6 +798,17 @@ __metadata:
     electron-packager: ^17.1.2
     listr2: ^5.0.3
   checksum: 0a629d559e4968f9bbcdf086850449194bb09f051dfd272644a0979f871de611b066da4936a0841e6f3d6b21d6487c5b3ee27fffadea055cec13926e8d89658f
+  languageName: node
+  linkType: hard
+
+"@electron-forge/shared-types@npm:6.4.2":
+  version: 6.4.2
+  resolution: "@electron-forge/shared-types@npm:6.4.2"
+  dependencies:
+    "@electron/rebuild": ^3.2.10
+    electron-packager: ^17.1.2
+    listr2: ^5.0.3
+  checksum: cdc8f05a78c199d7a2b03949a6d0750fb72699cfaa490303df9cf0b541ff8372fb17d4c8ceb6a193adce607120ebafde2ebb73710f24b5a76c75fdc198746199
   languageName: node
   linkType: hard
 
@@ -12523,7 +12545,7 @@ __metadata:
     "@dnd-kit/modifiers": ^6.0.1
     "@dnd-kit/sortable": ^7.0.2
     "@electron-forge/cli": ^6.4.1
-    "@electron-forge/maker-deb": ^6.4.1
+    "@electron-forge/maker-deb": ^6.4.2
     "@electron-forge/maker-dmg": ^6.4.1
     "@electron-forge/maker-rpm": ^6.4.0
     "@electron-forge/maker-squirrel": ^6.4.1
