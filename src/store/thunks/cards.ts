@@ -31,6 +31,7 @@ export const createCard = createAppAsyncThunk<
       captured: undefined,
       expanded: false,
       flipped: false,
+      loading: undefined,
       x: 40,
       y: 40
     })
