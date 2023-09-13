@@ -43,3 +43,14 @@ jobs:
           omitBodyDuringUpdate: true
           artifacts: 'out/make/**'
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Store release version (stripping any v-prefix)
+        run: |
+          VERSION = ${{ github.ref_name }}
+          echo "VERSION=${VERSION:1}" >> $GITHUB_ENV
+      - name: Repository Dispatch to https://nomatic.dev/synectic
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: nelsonni/website
+          event-type: release
+          client-payload: '{"version": "${{ github.ref_name }}", "raw_version": "${VERSION}"}'
