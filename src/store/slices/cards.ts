@@ -23,6 +23,11 @@ export type Card = {
   readonly expanded: boolean;
   /** Indicator for whether the card is flipped to the reverse side. */
   readonly flipped: boolean;
+  /**
+   * Indicator for whether the content is currently loading; provides a progress indicator value
+   * between 0 and 100 when loading, and `undefined` if loaded.
+   */
+  readonly loading: number | undefined;
   /** The horizontal position of card relative to parent object. */
   readonly x: number;
   /** The vertical position of card relative to parent object. */

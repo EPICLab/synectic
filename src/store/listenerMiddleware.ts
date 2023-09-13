@@ -10,6 +10,7 @@ import {
 import { DateTime } from 'luxon';
 import { partition } from '../containers/utils';
 import metafileSelectors from './selectors/metafiles';
+import { cardUpdated } from './slices/cards';
 import { isDirectoryMetafile, isFilebasedMetafile } from './slices/metafiles';
 import { AppDispatch, RootState } from './store';
 import { createCard } from './thunks/cards';
@@ -45,19 +46,6 @@ startAppListening({
     console.groupEnd();
   }
 });
-
-// startAppListening({
-//   matcher: isFulfilled,
-//   effect: action => {
-//     console.groupCollapsed(
-//       `%c${action.type} : ${DateTime.local().toHTTP()}`,
-//       'background: lightgreen; color: #444; padding: 3px; border-radius: 5px;'
-//     );
-//     console.log(`meta: `, action.meta);
-//     console.log(`payload: `, action.payload);
-//     console.groupEnd();
-//   }
-// });
 
 /**
  * Listen for successful file save actions and update any parent metafiles (filebased and versioned).
@@ -100,36 +88,55 @@ startAppListening({
       // update filebased fields
       const updateFilebasedTask = listenerApi.fork(async () => {
         const updated = await listenerApi.dispatch(updateFilebasedMetafile(metafile)).unwrap();
-
         const descendants = isDirectoryMetafile(updated)
           ? metafileSelectors
               .selectByIds(listenerApi.getState(), updated.contains)
               .filter(isFilebasedMetafile)
           : [];
+
+        let progress = 0;
+        const total = descendants.length + 1; // include the `updateVersionedMetafile` dispatch
+        if (card) listenerApi.dispatch(cardUpdated({ ...card, loading: 0 }));
         const [directories, files] = partition(
           descendants,
           descendant => descendant.filetype === 'Directory'
         );
+
         await Promise.allSettled(
           directories.map(
-            async desc => await listenerApi.dispatch(updateDirectoryMetafile({ id: desc.id }))
+            async desc =>
+              await listenerApi.dispatch(updateDirectoryMetafile({ id: desc.id })).then(() => {
+                progress += 1;
+                if (card)
+                  listenerApi.dispatch(
+                    cardUpdated({ ...card, loading: Math.floor((progress / total) * 100) })
+                  );
+              })
           )
         );
+
         await Promise.allSettled(
-          files.map(async desc => await listenerApi.dispatch(updateFileMetafile(desc.id)))
+          files.map(
+            async desc =>
+              await listenerApi.dispatch(updateFileMetafile(desc.id)).then(() => {
+                progress += 1;
+                if (card)
+                  listenerApi.dispatch(
+                    cardUpdated({ ...card, loading: Math.floor((progress / total) * 100) })
+                  );
+              })
+          )
         );
 
         await listenerApi.dispatch(updateVersionedMetafile(metafile.id));
+        if (card) listenerApi.dispatch(cardUpdated({ ...card, loading: 100 }));
         return `directories: ${directories.length}, files: ${files.length}`;
       });
 
       console.log(`executing tasks...`);
       const result = await updateFilebasedTask.result;
       console.log(`Child ${result.status}: ${result.status === 'ok' ? result.value : ''}`);
+      if (card) listenerApi.dispatch(cardUpdated({ ...card, loading: undefined }));
     }
   }
 });
-
-// startAppListening({
-//   actionCreator:
-// });

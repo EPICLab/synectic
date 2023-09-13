@@ -1,4 +1,4 @@
-import { styled } from '@mui/material';
+import { LinearProgress, styled } from '@mui/material';
 import React from 'react';
 import { useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
@@ -15,9 +15,14 @@ const Content = ({ reverse = false, id }: { reverse?: boolean; id: UUID }) => {
   const card = useAppSelector(state => cardSelectors.selectById(state, id));
 
   return (
-    <ContentComponent>
-      {reverse ? getCardTypeReverseContent(card) : getCardTypeContent(card)}
-    </ContentComponent>
+    <>
+      {card?.loading !== undefined ? (
+        <LinearProgress variant="determinate" value={card.loading} />
+      ) : null}
+      <ContentComponent loading={card?.loading !== undefined ? true : false}>
+        {reverse ? getCardTypeReverseContent(card) : getCardTypeContent(card)}
+      </ContentComponent>
+    </>
   );
 };
 
@@ -47,9 +52,14 @@ const getCardTypeReverseContent = (card: Card | undefined) => {
   }
 };
 
-const ContentComponent = styled('div')(() => ({
-  height: 'calc(100% - 40px)',
-  borderRadius: '0 0 10px 10px'
+const ContentComponent = styled('div', { shouldForwardProp: prop => prop !== 'loading' })<{
+  loading: boolean;
+}>(loading => ({
+  height: loading ? 'calc(100% - 44px)' : 'calc(100% - 40px)',
+  borderRadius: '0 0 10px 10px',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center'
 }));
 
 export default Content;
