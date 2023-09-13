@@ -42,12 +42,6 @@ jobs:
           omitBodyDuringUpdate: true
           artifacts: 'out/make/**'
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Store release version number (stripping any v-prefix)
-        id: raw_versions
-        if: runner.os == 'Linux'
-        run: |
-          TAG=${{ steps.package-version.outputs.current-version }}
-          echo "raw_version=${TAG#v}" >> $GITHUB_OUTPUT
       - name: Repository Dispatch to https://nomatic.dev/synectic
         if: runner.os == 'Linux'
         uses: peter-evans/repository-dispatch@v2
@@ -55,4 +49,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: nelsonni/website
           event-type: release
-          client-payload: '{"version": "${{ steps.package-version.outputs.current-version }}", "raw_version": "${{ steps.raw_versions.outputs.raw_version }}"}'
+          client-payload: '{"version": "${{ steps.package-version.outputs.current-version }}"}'
