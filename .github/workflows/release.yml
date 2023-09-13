@@ -23,9 +23,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Get package version
-        id: get_version
-        uses: daschaa/package-version@v1.1.0
+      - name: Get package.json version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
         with:
           path: './package.json'
       - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
@@ -35,7 +35,7 @@ jobs:
           cache: 'yarn'
       - run: yarn install
       - run: yarn make
-      - name: Create ${{ github.ref_name }} release on ${{ matrix.os }}
+      - name: Create ${{ steps.package-version.outputs.current-version }} release on ${{ matrix.os }}
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
@@ -43,11 +43,12 @@ jobs:
           omitBodyDuringUpdate: true
           artifacts: 'out/make/**'
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Store release version (stripping any v-prefix)
+      - name: Store release version number (stripping any v-prefix)
+        id: raw_versions
         if: runner.os == 'Linux'
         run: |
-          TAG=${{ github.ref_name }}
-          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+          TAG=${{ steps.package-version.outputs.current-version }}
+          echo "raw_version=${TAG#v}" >> $GITHUB_OUTPUT
       - name: Repository Dispatch to https://nomatic.dev/synectic
         if: runner.os == 'Linux'
         uses: peter-evans/repository-dispatch@v2
@@ -55,4 +56,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: nelsonni/website
           event-type: release
-          client-payload: '{"version": "${{ github.ref_name }}", "raw_version": "${VERSION}"}'
+          client-payload: '{"version": "${{ steps.package-version.outputs.current-version }}", "raw_version": "${{ steps.raw_versions.outputs.raw_version }}"}'
