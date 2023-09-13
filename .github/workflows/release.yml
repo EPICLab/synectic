@@ -46,7 +46,7 @@ jobs:
         if: runner.os == 'Linux'
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_DISPATCH }}
           repository: nelsonni/website
           event-type: release
           client-payload: '{"version": "${{ steps.package-version.outputs.current-version }}"}'
