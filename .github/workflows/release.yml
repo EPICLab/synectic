@@ -44,10 +44,12 @@ jobs:
           artifacts: 'out/make/**'
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Store release version (stripping any v-prefix)
+        if: runner.os == 'Linux'
         run: |
-          VERSION = ${{ github.ref_name }}
-          echo "VERSION=${VERSION:1}" >> $GITHUB_ENV
+          TAG=${{ github.ref_name }}
+          echo "VERSION=${TAG#v}" >> $GITHUB_ENV
       - name: Repository Dispatch to https://nomatic.dev/synectic
+        if: runner.os == 'Linux'
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
