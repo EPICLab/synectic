@@ -56,10 +56,7 @@ const ContentComponent = styled('div', { shouldForwardProp: prop => prop !== 'lo
   loading: boolean;
 }>(loading => ({
   height: loading ? 'calc(100% - 44px)' : 'calc(100% - 40px)',
-  borderRadius: '0 0 10px 10px',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center'
+  borderRadius: '0 0 10px 10px'
 }));
 
 export default Content;
