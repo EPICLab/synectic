@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make --arch=\"a32,x64\"",
+    "make": "electron-forge make --arch=\"ia32,x64\"",
     "publish": "electron-forge publish",
     "release:major": "yarn version major && yarn genversion version.js && yarn run release:git && yarn run release:push",
     "release:minor": "yarn version minor && yarn genversion version.js && yarn run release:git && yarn run release:push",
