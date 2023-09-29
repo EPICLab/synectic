@@ -3640,9 +3640,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synectic-conveyor@workspace:.":
+"synectic@workspace:.":
   version: 0.0.0-use.local
-  resolution: "synectic-conveyor@workspace:."
+  resolution: "synectic@workspace:."
   dependencies:
     "@dnd-kit/core": ^6.0.8
     "@dnd-kit/modifiers": ^6.0.1
