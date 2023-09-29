@@ -1,11 +1,8 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+node_modules
+dist
+out
 
+<<<<<<< Updated upstream
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -89,6 +86,9 @@ out/
 .yarn-integrity
 
 # Yarn 2/3 configuration files
+=======
+# Yarn without Zero-Installs
+>>>>>>> Stashed changes
 .pnp.*
 .yarn/*
 !.yarn/patches

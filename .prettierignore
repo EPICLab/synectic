@@ -1,0 +1,14 @@
+# Ignore artifacts
+out
+
+# Ignore config files
+**/.yarn
+**/.vscode
+**/.github
+conveyor.conf
+tsconfig.json
+tsconfig.*.json
+
+# Ignore all Markdown files
+**/*.md
+LICENSE
