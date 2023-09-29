@@ -1,4 +1,4 @@
-# Ignore artifacts
+# Ignore artifacts (node_modules is include by default)
 out
 
 # Ignore config files

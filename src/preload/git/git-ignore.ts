@@ -1,7 +1,7 @@
 import { PathLike } from 'fs-extra';
 import ignore, { Ignore } from 'ignore';
-import { extractFilename, readDirAsyncDepth, readFileAsync } from '../io';
 import { relative } from 'path';
+import { extractFilename, readDirAsyncDepth, readFileAsync } from '../io';
 
 /**
  * Locate and parse ignore rules from all `.gitignore` files within a directory. Returns an Ignore
