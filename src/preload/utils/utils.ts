@@ -1,6 +1,6 @@
-import { GitStatus } from '../store';
+import { GitStatus } from 'types/app';
+import { NonNullableObject } from 'types/util';
 import { flattenObject } from './flatten';
-import { NonNullableObject } from '../../renderer/src/store/types/util.types';
 
 /**
  * Removes `undefined` and `null` values from an Array or Object type via a `filter` and type guard.

@@ -7,6 +7,7 @@ import metafilesReducer from './slices/metafiles';
 import modalsReducer from './slices/modals';
 import reposReducer from './slices/repos';
 import stacksReducer from './slices/stacks';
+import { listenerMiddleware } from './listenerMiddleware';
 
 export const rootReducer = combineReducers({
   branches: branchesReducer,
@@ -21,8 +22,8 @@ export const rootReducer = combineReducers({
 
 const store = configureStore({
   reducer: rootReducer,
-  devTools: true
-  // middleware: getDefaultMiddleware => getDefaultMiddleware().concat([listenerMiddleware.middleware])
+  devTools: true,
+  middleware: getDefaultMiddleware => getDefaultMiddleware().concat([listenerMiddleware.middleware])
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
