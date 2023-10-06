@@ -10,5 +10,6 @@
     "noEmit": true,
     "types": ["electron-vite/node"],
     "noUncheckedIndexedAccess": true,
+    "allowImportingTsExtensions": true
   }
 }
