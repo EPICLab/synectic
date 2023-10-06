@@ -1,9 +1,9 @@
+import { Match, findUp } from 'find-up';
 import { pathExists } from 'fs-extra';
 import { dirname, join, normalize, parse, relative } from 'path';
 import type { PathLike } from 'types/app';
 import { extractStats, isDirectory, readDirAsync, readFileAsync } from '../io';
 import { showBranch } from './git-show-branch';
-import type { Match } from 'find-up';
 
 export type WorktreePaths = {
   /**
@@ -52,9 +52,7 @@ export const getMatchUp = async (
   filepath: PathLike,
   matcher: (directory: string) => boolean | Promise<boolean>
 ): Promise<PathLike | undefined> => {
-  return await (
-    await import('find-up')
-  ).findUp(
+  return await findUp(
     async directory => {
       return (await matcher(directory)) ? directory : undefined;
     },
@@ -86,8 +84,7 @@ export const getRoot = async (filepath: PathLike): Promise<PathLike | undefined>
     return (await pathExists(targetPath)) ? directory : undefined;
   };
 
-  const findUp = await import('find-up');
-  const dir = await findUp.findUp(matcher, { cwd: filepath.toString(), type: 'directory' });
+  const dir = await findUp(matcher, { cwd: filepath.toString(), type: 'directory' });
   if (!dir) return undefined;
 
   const parsed = parse(filepath.toString()); // does not output relative root for relative filepaths

@@ -10,9 +10,16 @@ export default defineConfig({
     }
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [externalizeDepsPlugin({ exclude: ['find-up'] })],
     build: {
-      outDir: 'out/preload'
+      outDir: 'out/preload',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            return id.includes('find-up') ? 'find-up' : undefined;
+          }
+        }
+      }
     }
   },
   renderer: {
@@ -24,6 +31,9 @@ export default defineConfig({
     plugins: [react()],
     build: {
       outDir: 'out/renderer'
+    },
+    define: {
+      APP_VERSION: JSON.stringify(process.env.npm_package_version)
     }
   }
 });
