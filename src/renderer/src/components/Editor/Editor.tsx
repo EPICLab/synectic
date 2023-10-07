@@ -1,14 +1,5 @@
-import 'ace-builds';
-import 'ace-builds/esm-resolver'; // resolver for dynamically loading modes, per https://github.com/mkslanc/ace-samples/blob/main/samples/ace-builds-vitejs/src/index.js
 import React, { useEffect, useState } from 'react';
-import AceEditor, { IAceEditorProps } from 'react-ace';
-/* webpack-resolver incorrectly resolves basePath for file-loader unless at least one mode has already been loaded, 
-thus the following javascript mode file is loaded to fix this bug */
 import { Skeleton } from '@mui/material';
-import 'ace-builds/src-noconflict/ext-beautify';
-import 'ace-builds/src-noconflict/ext-searchbox';
-import 'ace-builds/src-noconflict/mode-javascript';
-import 'ace-builds/src-noconflict/theme-monokai';
 import type { UUID } from 'types/app';
 import type { Metafile } from 'types/metafile';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -16,9 +7,16 @@ import metafileSelectors from '../../store/selectors/metafiles';
 import { metafileUpdated } from '../../store/slices/metafiles';
 import './EditorStyles.css';
 
+import 'ace-builds/src-noconflict/ace';
+import 'ace-builds/esm-resolver'; // resolver for dynamically loading modes, per https://github.com/mkslanc/ace-samples/blob/main/samples/ace-builds-vitejs/src/index.jsimport 'ace-builds/esm-resolver';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/ext-beautify';
+import 'ace-builds/src-noconflict/ext-searchbox';
+import 'ace-builds/src-noconflict/theme-monokai';
+import AceEditor, { IAceEditorProps } from 'react-ace';
+
 const getRandomInt = window.api.utils.getRandomInt;
 const isDefined = window.api.utils.isDefined;
-const removeNullableProperties = window.api.utils.removeNullableProperties;
 
 /**
  * React Component to display an interactive editor for the content of a specific file. Virtual files can be
@@ -31,7 +29,7 @@ const removeNullableProperties = window.api.utils.removeNullableProperties;
 const Editor = ({ id, expanded = false }: { id: UUID; expanded?: boolean }) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
   const [editorRef] = useState(React.createRef<AceEditor>());
-  const mode = removeNullableProperties({ mode: metafile?.filetype?.toLowerCase() });
+  const mode = metafile?.filetype?.toLowerCase() ?? 'text';
   const skeletonWidth = getRandomInt(55, 90);
   const dispatch = useAppDispatch();
 
@@ -57,11 +55,11 @@ const Editor = ({ id, expanded = false }: { id: UUID; expanded?: boolean }) => {
     <>
       {isEditorMetafile(metafile) ? (
         <AceEditor
-          {...mode}
           {...editorProps}
           name={id + '-editor'}
           ref={editorRef}
-          value={metafile.content}
+          value={metafile.content ?? ''}
+          mode={mode}
           showGutter={expanded}
           onChange={onChange}
         />
