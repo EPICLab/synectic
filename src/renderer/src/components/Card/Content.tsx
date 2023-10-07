@@ -3,22 +3,18 @@ import type { UUID } from 'types/app';
 import type { Card } from 'types/card';
 import { useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
-import Diff from '../Diff';
-import DiffReverse from '../Diff/DiffReverse';
-import Editor from '../Editor';
-import EditorReverse from '../Editor/EditorReverse';
-import Explorer from '../Explorer';
-import ExplorerReverse from '../Explorer/ExplorerReverse';
+import Diff, { DiffReverse } from '../Diff';
+import Editor, { EditorReverse } from '../Editor';
+import Explorer, { ExplorerReverse } from '../Explorer';
 
 const Content = ({ reverse = false, id }: { reverse?: boolean; id: UUID }) => {
   const card = useAppSelector(state => cardSelectors.selectById(state, id));
+  const loading = card?.loading !== undefined;
 
   return (
     <>
-      {card?.loading !== undefined ? (
-        <LinearProgress variant="determinate" value={card.loading} />
-      ) : null}
-      <ContentComponent loading={card?.loading !== undefined ? true : false}>
+      {loading ? <LinearProgress variant="determinate" value={card.loading} /> : null}
+      <ContentComponent loading={loading}>
         {reverse ? getCardTypeReverseContent(card) : getCardTypeContent(card)}
       </ContentComponent>
     </>
@@ -53,9 +49,9 @@ const getCardTypeReverseContent = (card: Card | undefined) => {
 
 const ContentComponent = styled('div', { shouldForwardProp: prop => prop !== 'loading' })<{
   loading: boolean;
-}>(loading => ({
-  height: loading ? 'calc(100% - 44px)' : 'calc(100% - 40px)',
-  borderRadius: '0 0 10px 10px'
+}>(props => ({
+  borderRadius: '0 0 10px 10px',
+  height: props.loading ? 'calc(100% - 44px)' : 'calc(100% - 40px)'
 }));
 
 export default Content;
