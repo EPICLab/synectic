@@ -1,19 +1,22 @@
 import { useDroppable } from '@dnd-kit/core';
 import { styled } from '@mui/material';
+import modalSelectors from '@renderer/store/selectors/modals';
 import { PropsWithChildren } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import canvasBackground from '../../assets/canvas.png';
 import { useAppSelector } from '../../store/hooks';
 import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
 import Card from '../Card';
 import DndCanvasContext from '../Dnd/DndCanvasContext';
+import ModalComponent from '../Modal';
 import Stack from '../Stack';
-import canvasBackground from '../../assets/canvas.png';
 import CanvasMenu from './MenuBar';
 
 const Canvas = ({ children }: PropsWithChildren) => {
   const cards = useAppSelector(state => cardSelectors.selectAll(state));
   const stacks = useAppSelector(state => stackSelectors.selectAll(state));
+  const modals = useAppSelector(state => modalSelectors.selectAll(state));
   const { isOver, setNodeRef } = useDroppable({
     id: 'Canvas',
     data: {
@@ -33,6 +36,11 @@ const Canvas = ({ children }: PropsWithChildren) => {
         </ErrorBoundary>
         <ErrorBoundary fallback={<Error>💥Card Error💥</Error>}>
           {cards.map(card => (card.captured ? null : <Card key={card.id} id={card.id} />))}
+        </ErrorBoundary>
+        <ErrorBoundary fallback={<Error>💥Modal Error💥</Error>}>
+          {modals.map(modal => (
+            <ModalComponent key={modal.id} {...modal} />
+          ))}
         </ErrorBoundary>
         {children}
       </DndCanvasContext>
