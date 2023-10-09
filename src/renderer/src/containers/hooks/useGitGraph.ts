@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { Color, SHA1, UUID } from 'types/app';
+import type { Branch } from 'types/branch';
+import type { Commit } from 'types/commit';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import branchSelectors from '../../store/selectors/branches';
-import { Branch, isUnmergedBranch } from '../../store/slices/branches';
-import { Commit } from '../../store/slices/commits';
+import { isUnmergedBranch } from '../../store/slices/branches';
 import { fetchCommit } from '../../store/thunks/commits';
-import { Color, SHA1, UUID } from '../../store/types';
-import { removeDuplicates, removeUndefined, symmetrical } from '../utils';
 import useMap from './useMap';
 import usePrevious from './usePrevious';
+
+const removeDuplicates = window.api.utils.removeDuplicates;
+const removeUndefined = window.api.utils.removeUndefined;
+const symmetrical = window.api.utils.symmetrical;
 
 export type CommitVertex = Commit & {
   /** The Repository object UUID that contains branches and this commit in their history. */
@@ -25,11 +29,11 @@ export type CommitVertex = Commit & {
   /** Indicator for whether this vertex node represents a possible future git commit. */
   staged: boolean;
 };
-export type GitGraph = Map<SHA1, CommitVertex>;
+export type CommitGraph = Map<SHA1, CommitVertex>;
 export type BranchLookup = Map<string, SHA1>;
 
 export type useGitGraphHook = {
-  graph: GitGraph;
+  graph: CommitGraph;
   topological: UUID[];
   branchLookup: BranchLookup;
   printGraph: () => void;
@@ -235,7 +239,7 @@ export const useGitGraph = (id: UUID): useGitGraphHook => {
   }, [graph]);
 
   const topologicalSortUtil = useCallback(
-    (key: SHA1, visited: Map<SHA1, boolean>, graph: GitGraph, stack: string[]) => {
+    (key: SHA1, visited: Map<SHA1, boolean>, graph: CommitGraph, stack: string[]) => {
       visited.set(key, true);
       const vertex = graph.get(key);
       if (vertex) {
@@ -260,7 +264,7 @@ export const useGitGraph = (id: UUID): useGitGraphHook => {
    * in topological order.
    */
   const topologicalSort = useCallback(
-    (graph: GitGraph) => {
+    (graph: CommitGraph) => {
       const visited: Map<SHA1, boolean> = new Map([...graph.keys()].map(k => [k, false]));
       const stack: string[] = [];
       for (const key of graph.keys()) {

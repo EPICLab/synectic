@@ -1,27 +1,28 @@
+import type { Modal } from 'types/modal';
 import {
   isCommitDialogModal,
   isDeleteBranchDialog,
+  isGitGraphModal,
   isMergeDialogModal,
   isNewBranchDialog,
   isNotification,
   isRevertCommitDialog
 } from '../../store/slices/modals';
-import MergeDialog from './MergeDialog';
-import NewCardDialog from './NewCardDialog';
-import Notification from './Notification';
-// import GitGraph from '../GitGraph';
-import type { Modal } from 'types/modal';
 import CommitDialog from './CommitDialog';
 import DeleteBranchDialog from './DeleteBranchDialog';
+import MergeDialog from './MergeDialog';
 import NewBranchDialog from './NewBranchDialog';
+import NewCardDialog from './NewCardDialog';
+import Notification from './Notification';
 import RevertCommitDialog from './RevertCommitDialog';
+import GitGraph from '../GitGraph';
 
 const ModalComponent = (props: Modal) => {
   switch (props.type) {
     // case 'CloneSelector':
     //   return (<CloneDialog {...props} />);
-    // case 'GitGraph':
-    //   return isGitGraphModal(props) ? <GitGraph repo={props.repo} /> : null;
+    case 'GitGraph':
+      return isGitGraphModal(props) ? <GitGraph repo={props.repo} /> : null;
     case 'CommitDialog':
       return isCommitDialogModal(props) ? <CommitDialog props={props} /> : null;
     case 'MergeDialog':

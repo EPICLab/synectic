@@ -9,6 +9,7 @@ import cardSelectors from '../../store/selectors/cards';
 import stackSelectors from '../../store/selectors/stacks';
 import Card from '../Card';
 import DndCanvasContext from '../Dnd/DndCanvasContext';
+import GitGraphSelect from '../GitGraph/GitGraphSelect';
 import ModalComponent from '../Modal';
 import Stack from '../Stack';
 import CanvasMenu from './MenuBar';
@@ -27,7 +28,10 @@ const Canvas = ({ children }: PropsWithChildren) => {
   return (
     <AppContainer>
       <CanvasMenu />
-      <CanvasComponent id="Canvas" ref={setNodeRef} isOver={isOver}></CanvasComponent>
+      <CanvasComponent id="Canvas" ref={setNodeRef} isOver={isOver}>
+        <ErrorBoundary fallback={<Error>💥GitGraphSelect Error💥</Error>}>
+          <GitGraphSelect />
+        </ErrorBoundary>
       <DndCanvasContext>
         <ErrorBoundary fallback={<Error>💥Stack Error💥</Error>}>
           {stacks.map(stack => (
@@ -44,6 +48,7 @@ const Canvas = ({ children }: PropsWithChildren) => {
         </ErrorBoundary>
         {children}
       </DndCanvasContext>
+      </CanvasComponent>
     </AppContainer>
   );
 };
