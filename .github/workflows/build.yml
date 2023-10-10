@@ -1,0 +1,23 @@
+name: Build Release
+
+on: [push, workflow_dispatch, workflow_call]
+jobs:
+  build:
+    # Important: must be run from Linux.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Git repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build Synectic
+        run: yarn build
