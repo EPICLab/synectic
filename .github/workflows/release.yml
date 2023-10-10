@@ -1,52 +1,31 @@
-name: Releases
+name: Build Release
 
-on:
-  push:
-    tags:
-      - '*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag'
-        required: true
-
+on: [push, workflow_dispatch, workflow_call]
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        node-version: [18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-    permissions:
-      contents: write
+  build:
+    # Important: must be run from Linux.
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Git repository
         uses: actions/checkout@v4
-      - name: Get package.json version
-        id: package-version
-        if: runner.os == 'Linux'
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
-      - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+
+      - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
+          # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
           cache: 'yarn'
-      - run: yarn install
-      - run: yarn make
-      - name: Create ${{ steps.package-version.outputs.current-version }} release on ${{ matrix.os }}
-        uses: ncipollo/release-action@v1
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build Synectic
+        run: yarn build
+
+      - name: Run Conveyor
+        uses: hydraulic-software/conveyor/actions/build@v11.4
         with:
-          allowUpdates: true
-          generateReleaseNotes: true
-          omitBodyDuringUpdate: true
-          artifacts: 'out/make/**'
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Repository Dispatch to https://nomatic.dev/synectic
-        if: runner.os == 'Linux'
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.RELEASE_DISPATCH }}
-          repository: nelsonni/website
-          event-type: synectic-release
-          client-payload: '{"version": "${{ steps.package-version.outputs.current-version }}"}'
+          command: make copied-site
+          extra_flags: -f ci.conveyor.conf
+          signing_key: ${{ secrets.SIGNING_KEY }}
+          agree_to_license: 1

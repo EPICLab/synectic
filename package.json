@@ -1,7 +1,7 @@
 {
   "name": "synectic",
   "productName": "Synectic",
-  "version": "5.0.0",
+  "version": "5.0",
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
   "main": "out/main/index.js",
   "author": {
@@ -11,11 +11,12 @@
   "license": "MIT",
   "packageManager": "yarn@3.6.4",
   "scripts": {
-    "clean": "rimraf out",
-    "format": "prettier --write .",
-    "start": "electron-vite preview",
+    "start": "electron-vite serve",
     "dev": "electron-vite dev",
-    "build": "electron-vite build"
+    "build": "electron-vite build",
+    "bundle": "electron-vite build && conveyor make copied-site",
+    "format": "prettier --write .",
+    "clean": "rimraf out"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
