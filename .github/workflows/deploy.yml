@@ -1,6 +1,14 @@
 name: Deploy to GitHub
 
-on: [workflow_dispatch]
+on: 
+  push:
+    tags:
+      - '*' # Push events to all tags
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
 jobs:
   build:
     uses: ./.github/workflows/build.yml

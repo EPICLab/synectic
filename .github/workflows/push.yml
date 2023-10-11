@@ -8,6 +8,8 @@ jobs:
   bump-version:
     name: 'Bump version on main branch'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Git repository
         uses: 'actions/checkout@v3'
