@@ -11,10 +11,10 @@
   "license": "MIT",
   "packageManager": "yarn@3.6.4",
   "scripts": {
-    "start": "electron-vite serve",
+    "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "bundle": "electron-vite build && conveyor make copied-site",
+    "bundle": "electron-vite build && conveyor make site",
     "format": "prettier --write .",
     "clean": "rimraf out"
   },
