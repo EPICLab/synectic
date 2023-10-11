@@ -1,11 +1,14 @@
 name: 'Bump Version'
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
-      - 'main'
+      - main
 jobs:
   bump-version:
+    if: github.event.pull_request.merged == true
     name: 'Bump version on main branch'
     runs-on: ubuntu-latest
     permissions:
