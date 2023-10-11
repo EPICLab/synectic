@@ -2,8 +2,7 @@ name: 'Bump Version'
 
 on:
   pull_request:
-    types:
-      - closed
+    types: [opened, reopened]
     branches:
       - main
 jobs:
