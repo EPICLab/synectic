@@ -1,11 +1,14 @@
 name: 'Bump Version'
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
-      - 'main'
+      - main
 jobs:
   bump-version:
+    if: github.event.pull_request.merged == true
     name: 'Bump version on main branch'
     runs-on: ubuntu-latest
     permissions:
@@ -14,7 +17,6 @@ jobs:
       - name: Checkout Git repository
         uses: 'actions/checkout@v3'
         with:
-          persist-credentials: false
           ref: ${{ github.ref }}
 
       - name: Read package.json
