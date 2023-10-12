@@ -13,8 +13,10 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+  bump:
+    uses: ./.github/workflows/bump.yml
   deploy:
-    needs: [build]
+    needs: [build, bump]
     # Important: must be run from Linux.
     runs-on: ubuntu-latest
     steps:
