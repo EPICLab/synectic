@@ -8,6 +8,8 @@ on:
       - main
   workflow_dispatch:
   workflow_call:
+env:
+  MANUAL_TRIGGER: ${{ github.event_name == 'workflow_dispatch' }}
 jobs:
   bump-version:
     name: 'Bump version on main branch'
@@ -24,7 +26,7 @@ jobs:
         run: cat ./package.json
 
       - name: Sanity Check
-        run: echo ${{ github.event_name == 'workflow_dispatch' }}
+        run: echo ${{ env.MANUAL_TRIGGER }}
 
       - name: Automated Version Bump
         id: version-bump
@@ -32,7 +34,7 @@ jobs:
         with:
           target-branch: 'main'
           tag-prefix: 'v'
-          skip-push: ${{ github.event_name == 'workflow_dispatch' }}
+          skip-push: ${{ env.MANUAL_TRIGGER}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
