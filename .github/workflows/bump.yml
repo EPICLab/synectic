@@ -23,6 +23,9 @@ jobs:
       - name: Read package.json
         run: cat ./package.json
 
+      - name: Sanity Check
+        run: echo ${{ github.event_name == 'workflow_dispatch' }}}
+
       - name: Automated Version Bump
         id: version-bump
         uses: 'phips28/gh-action-bump-version@master'
