@@ -9,18 +9,8 @@ on:
   workflow_dispatch:
   workflow_call:
 jobs:
-  if_manual:
-    name: Check for workflow_dispatch
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Halt on ${{ github.event_name }} event
-        run: |
-          echo Manually triggered event; halting version bump.
   bump-version:
     name: 'Bump version on main branch'
-    needs: [if_manual]
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -38,6 +28,7 @@ jobs:
         uses: 'phips28/gh-action-bump-version@master'
         with:
           tag-prefix: 'v'
+          skip-push: github.event_name == 'workflow_call'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
