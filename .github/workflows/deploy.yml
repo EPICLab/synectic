@@ -1,9 +1,9 @@
 name: Deploy to GitHub Pages
 
 on: 
-  push:
-    tags:
-      - '*' # Push events to all tags
+#  push:
+#    tags:
+#      - '*' # Push events to all tags
   workflow_dispatch:
     inputs:
       tag:

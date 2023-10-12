@@ -2,8 +2,7 @@ name: Bump Version
 
 on:
   pull_request:
-    types:
-      - closed
+    types: [opened, reopened]
     branches:
       - main
   workflow_dispatch:
@@ -25,16 +24,12 @@ jobs:
       - name: Read package.json
         run: cat ./package.json
 
-      - name: Sanity Check
-        run: echo ${{ env.MANUAL_TRIGGER }}
-
       - name: Automated Version Bump
         id: version-bump
         uses: 'phips28/gh-action-bump-version@master'
         with:
-          target-branch: 'main'
           tag-prefix: 'v'
-          skip-push: ${{ env.MANUAL_TRIGGER}}
+          skip-push: ${{ env.MANUAL_TRIGGER }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
