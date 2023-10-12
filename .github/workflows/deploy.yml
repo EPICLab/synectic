@@ -12,8 +12,10 @@ on:
         type: string
 jobs:
   build:
+    name: Build Check
     uses: ./.github/workflows/build.yml
   bump:
+    name: Bump Version
     uses: ./.github/workflows/bump.yml
   deploy:
     needs: [build, bump]

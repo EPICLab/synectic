@@ -17,11 +17,9 @@ jobs:
       - name: Halt on workflow_dispatch trigger
         run: |
           echo The workflow was manually triggered, so no version bump will be pushed.
-  build:
-    uses: ./.github/workflows/build.yml
   bump-version:
     name: 'Bump version on main branch'
-    needs: [build]
+    needs: [if_manual]
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
