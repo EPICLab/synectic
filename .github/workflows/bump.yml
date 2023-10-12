@@ -9,19 +9,20 @@ on:
   workflow_dispatch:
   workflow_call:
 jobs:
-  build:
-    uses: ./.github/workflows/build.yml
   if_manual:
-    needs: [build]
+    name: Check for workflow_dispatch
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo The workflow is manually triggered, no version bump.
+      - name: Halt on workflow_dispatch trigger
+        run: |
+          echo The workflow was manually triggered, so no version bump will be pushed.
+  build:
+    uses: ./.github/workflows/build.yml
   bump-version:
+    name: 'Bump version on main branch'
     needs: [build]
     if: github.event.pull_request.merged == true
-    name: 'Bump version on main branch'
     runs-on: ubuntu-latest
     permissions:
       contents: write
