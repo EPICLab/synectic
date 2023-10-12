@@ -11,12 +11,12 @@ on:
 jobs:
   if_manual:
     name: Check for workflow_dispatch
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - name: Halt on workflow_dispatch trigger
+      - name: Halt on ${{ github.event_name }} event
         run: |
-          echo The workflow was manually triggered, so no version bump will be pushed.
+          echo Manually triggered event; halting version bump.
   bump-version:
     name: 'Bump version on main branch'
     needs: [if_manual]

@@ -1,5 +1,6 @@
 # Ignore artifacts (node_modules is include by default)
 out
+output
 
 # Ignore config files
 **/.yarn
@@ -9,6 +10,6 @@ conveyor.conf
 tsconfig.json
 tsconfig.*.json
 
-# Ignore all Markdown files
+# Ignore all documentation files
 **/*.md
 LICENSE
