@@ -28,7 +28,7 @@ jobs:
         uses: 'phips28/gh-action-bump-version@master'
         with:
           tag-prefix: 'v'
-          skip-push: github.event_name == 'workflow_call'
+          skip-push: github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
