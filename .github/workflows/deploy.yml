@@ -1,4 +1,4 @@
-name: Deploy to GitHub
+name: Deploy to GitHub Pages
 
 on: 
   push:
@@ -9,11 +9,13 @@ on:
       tag:
         description: 'Tag to deploy'
         required: true
+        type: string
 jobs:
   build:
     uses: ./.github/workflows/build.yml
   deploy:
     needs: [build]
+    # Important: must be run from Linux.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git repository
@@ -45,6 +47,7 @@ jobs:
           path: ./artifacts          
         
       - name: Run Conveyor
+        if: github.event_name == 'push'
         uses: hydraulic-software/conveyor/actions/build@v11.4
         env:
           OAUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

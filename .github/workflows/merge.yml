@@ -1,4 +1,4 @@
-name: 'Bump Version'
+name: Bump Version
 
 on:
   pull_request:
@@ -6,8 +6,12 @@ on:
       - closed
     branches:
       - main
+  workflow_dispatch:
 jobs:
+  build:
+    uses: ./.github/workflows/build.yml
   bump-version:
+    needs: [build]
     if: github.event.pull_request.merged == true
     name: 'Bump version on main branch'
     runs-on: ubuntu-latest

@@ -1,9 +1,8 @@
-name: Build Release
+name: Build Check
 
-on: [push, workflow_dispatch, workflow_call]
+on: [pull_request, workflow_dispatch, workflow_call]
 jobs:
   build:
-    # Important: must be run from Linux.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git repository
@@ -21,3 +20,5 @@ jobs:
 
       - name: Build Synectic
         run: yarn build
+
+      # Add test steps here
