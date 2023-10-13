@@ -15,6 +15,7 @@ jobs:
     name: Build Check
     uses: ./.github/workflows/build.yml
   deploy:
+    name: Deploy to GitHub Pages
     needs: [build]
     # Important: must be run from Linux.
     runs-on: ubuntu-latest

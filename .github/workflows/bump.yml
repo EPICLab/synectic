@@ -10,8 +10,12 @@ on:
 env:
   MANUAL_TRIGGER: ${{ github.event_name == 'workflow_dispatch' }}
 jobs:
+  build:
+    name: Build Check
+    uses: ./.github/workflows/build.yml
   bump-version:
-    name: 'Bump version on main branch'
+    name: 'Bump version on ${{ github.ref_name }} branch'
+    needs: [build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
