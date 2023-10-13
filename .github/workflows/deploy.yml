@@ -1,9 +1,9 @@
 name: Deploy to GitHub Pages
 
 on: 
-#  push:
-#    tags:
-#      - '*' # Push events to all tags
+  push:
+    tags:
+      - '*' # Push events to all tags
   workflow_dispatch:
     inputs:
       tag:
@@ -14,41 +14,13 @@ jobs:
   build:
     name: Build Check
     uses: ./.github/workflows/build.yml
-  bump:
-    name: Bump Version
-    uses: ./.github/workflows/bump.yml
   deploy:
-    needs: [build, bump]
+    needs: [build]
     # Important: must be run from Linux.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
-        
-      - name: Download macOS ARM build
-        uses: actions/download-artifact@v3
-        with:
-          name: build-macos-aarch64
-          path: ./artifacts
-          
-      - name: Download macOS AMD64 build
-        uses: actions/download-artifact@v3
-        with:
-          name: build-macos-amd64
-          path: ./artifacts
-          
-      - name: Download Windows build
-        uses: actions/download-artifact@v3
-        with:
-          name: build-windows-amd64
-          # Windows is not in a tarball, so we extract to a separate directory.
-          path: ./artifacts/windows
-          
-      - name: Download Linux AMD64 build
-        uses: actions/download-artifact@v3
-        with:
-          name: build-linux-amd64
-          path: ./artifacts          
         
       - name: Run Conveyor
         if: github.event_name == 'push'
