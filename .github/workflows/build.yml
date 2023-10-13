@@ -21,17 +21,11 @@ jobs:
       - name: Build Synectic
         run: yarn build
 
-      - if: ${{ github.event_name == 'workflow_call' }}
-        # Only upload artifacts if this workflow will be used by another workflow
-        name: Upload artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: build-result
-          path: out
+          path: out/
           if-no-files-found: error
-
-      - if: ${{ github.event_name != 'workflow_call' }}
-        name: Upload artifact
-        run: echo "Not uploading artifact since workflow triggered by ${{ github.event_name }} event"
 
       # Add test steps here
