@@ -25,15 +25,17 @@ Synectic requires the host system to have [Git](https://git-scm.com/downloads) i
 
 ### Installation
 
-[![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://nomatic.dev/synectic)
-[![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://nomatic.dev/synectic)
-[![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://nomatic.dev/synectic)
+[![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://epiclab.github.io/synectic/download.html)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://epiclab.github.io/synectic/download.html)
+[![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://epiclab.github.io/synectic/download.html)
 
 ⚠️ **Warning:** Every operating system uses code signing to establish stable identities for programs that don't change when new versions are released, and to secure the software update process. Windows and macOS additionally use signing as a way to block malware.
 
 This is experimental research software, and is not intended for use in production environments. As such, we are not able to purchase signing keys for Windows and macOS. This means that you will see a warning when installing Synectic on Windows and macOS. You will need to click through the warning to install Synectic. If you are not comfortable with this, please do not install Synectic.
 
 See the [Installation Guide](https://github.com/EPICLab/synectic/wiki/Installation-Guide) for guidance on using unsigned builds of Synectic.
+
+[![Packaged](https://img.shields.io/badge/Packaged_with-Conveyor-blue?style=for-the-badge)](https://www.hydraulic.dev/)
 
 ## Development
 

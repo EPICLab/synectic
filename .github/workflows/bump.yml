@@ -11,7 +11,7 @@ env:
   MANUAL_TRIGGER: ${{ github.event_name == 'workflow_dispatch' }}
 jobs:
   build:
-    name: Build Check
+    name: Build
     uses: ./.github/workflows/build.yml
   bump-version:
     name: 'Bump version on ${{ github.ref_name }} branch'
