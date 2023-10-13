@@ -25,7 +25,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-result
-          path: out/
+          path: |
+            package.json
+            out/
+            types/
           if-no-files-found: error
 
       # Add test steps here
