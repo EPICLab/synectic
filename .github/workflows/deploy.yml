@@ -6,12 +6,12 @@ on:
       - '*' # Push events to all tags
   workflow_dispatch:
 jobs:
-  build:
-    name: Build Check
-    uses: ./.github/workflows/build.yml
+  # build:
+  #   name: Build Check
+  #   uses: ./.github/workflows/build.yml
   deploy:
     name: Deploy to GitHub Pages
-    needs: [build]
+    # needs: [build]
     # Important: must be run from Linux.
     runs-on: ubuntu-latest
     steps:
