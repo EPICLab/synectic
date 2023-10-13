@@ -23,10 +23,11 @@ jobs:
 
       - if: ${{ github.event_name == 'workflow_call' }}
         # Only upload artifacts if this workflow will be used by another workflow
-        name: Upload build artifacts
+        name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          path: out/
+          name: build-result
+          path: build/install/synectic/lib
           if-no-files-found: error
 
       # Add test steps here

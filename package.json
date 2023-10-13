@@ -16,7 +16,7 @@
     "build": "electron-vite build",
     "bundle": "electron-vite build && conveyor make site",
     "format": "prettier --write .",
-    "clean": "rimraf out"
+    "clean": "rimraf out && rimraf output"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
