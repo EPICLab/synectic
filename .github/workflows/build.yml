@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-result
-          path: build/install/synectic/lib
+          path: out
           if-no-files-found: error
 
       # Add test steps here
