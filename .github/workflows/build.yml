@@ -30,4 +30,8 @@ jobs:
           path: out
           if-no-files-found: error
 
+      - if: ${{ github.event_name != 'workflow_call' }}
+        name: Upload artifact
+        run: echo "Not uploading artifact since workflow triggered by ${{ github.event_name }} event"
+
       # Add test steps here
