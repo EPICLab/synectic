@@ -17,6 +17,44 @@ jobs:
     steps:
       - name: Checkout Git repository
         uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: yarn install
+
+      - name: Build Synectic
+        run: yarn build
+
+      # - name: Download macOS ARM build
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: build-macos-aarch64
+      #     path: ./artifact
+          
+      # - name: Download macOS AMD64 build
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: build-macos-amd64
+      #     path: ./artifact
+          
+      # - name: Download Windows build
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: build-windows-amd64
+      #     # Windows is not in a tarball, so we extract to a separate directory.
+      #     path: ./artifact/windows
+          
+      # - name: Download Linux AMD64 build
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: build-linux-amd64
+      #     path: ./artifact
         
       - name: Run Conveyor
         uses: hydraulic-software/conveyor/actions/build@v11.4
