@@ -1,7 +1,7 @@
 {
   "name": "synectic",
   "productName": "Synectic",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Research IDE for examining context-centric, problem-solving in development tools.",
   "main": "out/main/index.js",
   "author": {
