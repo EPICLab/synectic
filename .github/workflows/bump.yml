@@ -8,13 +8,11 @@ on:
   workflow_dispatch:
   workflow_call:
 env:
-  MANUAL_TRIGGER: ${{ github.event_name == 'workflow_dispatch' }}
+  MANUAL_TRIGGER: ${{ github.event_name == 'workflow_dispatch' || github.triggering_actor == 'dependabot' }}
 jobs:
   build:
-    name: Build
     uses: ./.github/workflows/build.yml
   bump-version:
-    name: 'Bump version on ${{ github.ref_name }} branch'
     needs: [build]
     runs-on: ubuntu-latest
     permissions:
