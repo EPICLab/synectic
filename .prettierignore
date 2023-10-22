@@ -1,15 +1,10 @@
-# Ignore artifacts (node_modules is include by default)
-out
-output
+**/node_modules
+**/dist
+**/*.svg
 
-# Ignore config files
-**/.yarn
-**/.vscode
-**/.github
-conveyor.conf
-tsconfig.json
-tsconfig.*.json
+package.json
+package-lock.json
+.electron-vendors.cache.json
 
-# Ignore all documentation files
-**/*.md
-LICENSE
+.github
+.idea
