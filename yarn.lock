@@ -1757,10 +1757,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/valid-url@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "@types/valid-url@npm:1.0.5"
-  checksum: a6a1546a7157a09c6fa487167dda94c10c4ba9677dfb1b7191c221f6365324d1952e6728d24b8b1da194216eaf44056892da3bfdb89e0eeef4d4258dc53ed316
+"@types/valid-url@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@types/valid-url@npm:1.0.6"
+  checksum: 5b03a7e797f96b8825f2b14b2a454eaf65d4e495973fd027e90478e5b5cf00b4c7bb60ab346da2dba72eecc60f527a495d363def86ec6c34d26bd2766a34d1eb
   languageName: node
   linkType: hard
 
@@ -4344,7 +4344,7 @@ __metadata:
     "@types/react-dom": ^18.2.13
     "@types/semver": ^7.5.3
     "@types/sha1": ^1.1.3
-    "@types/valid-url": ^1.0.5
+    "@types/valid-url": ^1.0.6
     "@vitejs/plugin-react": ^4.1.0
     dagre: ^0.8.5
     diff: ^5.1.0
