@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@types/dagre": "^0.7.50",
+    "@types/dagre": "^0.7.51",
     "@types/diff": "^5.0.5",
     "@types/fs-extra": "^11.0.2",
     "@types/git-config-path": "^2.0.2",
