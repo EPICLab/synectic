@@ -1,4 +1,4 @@
-import type {ElectronApplication, JSHandle} from 'playwright';
+import type {ElectronApplication, ElementHandle, JSHandle} from 'playwright';
 import {_electron as electron} from 'playwright';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {createHash} from 'crypto';
@@ -46,7 +46,10 @@ test('Main window web content', async () => {
   const page = await electronApp.firstWindow();
   const element = await page.$('#app', {strict: true});
   expect(element, 'Was unable to find the root element').toBeDefined();
-  expect((await element.innerHTML()).trim(), 'Window content was empty').not.equal('');
+  expect(
+    (await (element as ElementHandle<SVGElement | HTMLElement>).innerHTML()).trim(),
+    'Window content was empty',
+  ).not.equal('');
 });
 
 test('Preload versions', async () => {
@@ -64,7 +67,7 @@ test('Preload versions', async () => {
 
   for (const expectedVersionsKey in expectedVersions) {
     expect(renderedVersions).include(
-      `${expectedVersionsKey}:v${expectedVersions[expectedVersionsKey]}`,
+      `${expectedVersionsKey}v${expectedVersions[expectedVersionsKey]}`,
     );
   }
 });

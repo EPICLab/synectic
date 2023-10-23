@@ -5,7 +5,15 @@ const ReactiveCounter = () => {
 
   const increase = () => setCount(count + 1);
 
-  return <button onClick={increase}> count is: {count}</button>;
+  return (
+    <button
+      onClick={increase}
+      aria-label="reactive-counter"
+    >
+      {' '}
+      count is: {count}
+    </button>
+  );
 };
 
 export default ReactiveCounter;

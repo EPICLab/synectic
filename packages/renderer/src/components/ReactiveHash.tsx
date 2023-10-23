@@ -16,6 +16,7 @@ const ReactiveHash = () => {
             <input
               type="text"
               id="reactive-hash-raw-value"
+              aria-label="reactive-hash-raw-value"
               value={rawString}
               onChange={e => setRawString(e.target.value)}
             />
@@ -30,6 +31,7 @@ const ReactiveHash = () => {
             <input
               type="text"
               id="reactive-hash-hashed-value"
+              aria-label="reactive-hash-hashed-value"
               value={hashedString}
               readOnly
             />

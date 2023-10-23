@@ -5,9 +5,12 @@ const ElectronVersion = () => {
     <table id="process-versions">
       <tbody>
         {Object.entries(versions).map(([lib, version]) => (
-          <tr key={lib}>
+          <tr
+            key={lib}
+            aria-label="versions-row"
+          >
             <td>{lib}</td>
-            <td>{version}</td>
+            <td>v{version}</td>
           </tr>
         ))}
       </tbody>
