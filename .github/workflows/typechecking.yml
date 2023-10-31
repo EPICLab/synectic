@@ -19,7 +19,7 @@ jobs:
         with:
           cache: 'yarn'
 
-      - run: yarn ci
+      - run: yarn install --immutable
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
