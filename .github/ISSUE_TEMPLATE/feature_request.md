@@ -2,8 +2,8 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: enhancement
-assignees: cawa-93
+labels: feature
+assignees: ''
 
 ---
 

@@ -1,11 +1,11 @@
 # This workflow is the entry point for all CI processes.
 # It is from here that all other workflows are launched.
+name: CI Dispatcher
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-      - 'renovate/**'
     paths-ignore:
       - '.github/**'
       - '!.github/workflows/ci.yml'
@@ -13,10 +13,12 @@ on:
       - '!.github/workflows/tests.yml'
       - '!.github/workflows/release.yml'
       - '**.md'
+      - 'LICENSE'
       - .editorconfig
       - .gitignore
       - '.idea/**'
       - '.vscode/**'
+      - '.yarn/**'
   pull_request:
     paths-ignore:
       - '.github/**'
@@ -25,10 +27,12 @@ on:
       - '!.github/workflows/tests.yml'
       - '!.github/workflows/release.yml'
       - '**.md'
+      - 'LICENSE'
       - .editorconfig
       - .gitignore
       - '.idea/**'
       - '.vscode/**'
+      - '.yarn/**'
 
 concurrency:
   group: ci-${{ github.ref }}

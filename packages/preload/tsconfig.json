@@ -4,12 +4,16 @@
     "target": "esnext",
     "sourceMap": false,
     "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "strict": true,
     "isolatedModules": true,
     "types": ["node"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@syn-types/*": ["../../types/@syn-types/*"]
+    }
   },
-  "include": ["src/**/*.ts", "../../types/**/*.d.ts"],
+  "include": ["src/**/*.ts", "../../types/**/*.d.ts", "../../types/@syn-types/index.d.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]
 }

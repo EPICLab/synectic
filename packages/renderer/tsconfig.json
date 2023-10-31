@@ -9,15 +9,23 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "#preload": ["../preload/src/index"],
+      "@syn-types/*": ["../../types/@syn-types/*"],
       "/@/*": ["./src/*"]
     },
     "lib": ["ESNext", "dom", "dom.iterable"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "types/**/*.d.ts", "../../types/**/*.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "types/**/*.d.ts",
+    "../../types/**/*.d.ts",
+    "../../types/@syn-types/index.d.ts"
+  ],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]
 }

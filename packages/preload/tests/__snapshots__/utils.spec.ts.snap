@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`utils > deserialize to parse a JSON string into a TypeScript object 1`] = `
+{
+  "count": 42,
+  "result": true,
+}
+`;

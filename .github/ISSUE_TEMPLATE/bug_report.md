@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: bug
-assignees: cawa-93
+assignees: ''
 
 ---
 
@@ -23,6 +23,11 @@ A clear and concise description of what you expected to happen.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
+
+**Versions (please complete the following information):**
+
+- OS: [e.g. MacOS, Windows, Linux]
+- Synectic Version: [e.g. 0.8.5-beta, 0.9.0]
 
 **Additional context**
 Add any other context about the problem here.

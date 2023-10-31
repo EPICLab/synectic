@@ -1,5 +1,6 @@
 import {app, BrowserWindow} from 'electron';
 import {join, resolve} from 'node:path';
+import './ipc';
 
 async function createWindow() {
   const browserWindow = new BrowserWindow({

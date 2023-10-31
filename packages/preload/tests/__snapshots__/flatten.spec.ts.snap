@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`flattenObject > flattenObject resolves nested heterogenous JavaScript objects 1`] = `
+{
+  "a": "string",
+  "c": 13,
+}
+`;

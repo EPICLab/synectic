@@ -1,83 +1,99 @@
-# Vite Electron Builder Boilerplate
+# Synectic Integrated Development Environment
 
-This is a template for secure electron applications. Written following the latest safety requirements, recommendations and best practices.
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EPICLab/synectic/build.yml?style=for-the-badge) ![GitHub](https://img.shields.io/github/license/EPICLab/synectic?style=for-the-badge) ![GitHub release](https://img.shields.io/github/v/release/EPICLab/synectic?style=for-the-badge)
 
-Under the hood is [Vite] — A next-generation blazing fast bundler, and [electron-builder] for packaging.
+Synectics is a problem solving methodology that stimulates thought processes of which the subject may be unaware ([Wikipedia](https://en.wikipedia.org/wiki/Synectics)). Synectic IDE is a fundamentally different type of IDE, focused on supporting a human-oriented view of problem solving in software development. Synectic promotes context-specific functionality that compliments and enhances human cognition, memory, and reasoning. As a research prototype, this software has no expressed warranty or guarantees and should be treated as experimental software.
 
-## Get started
+The rationale and principles that guide the design of Synectic can be found in [DESIGN](https://github.com/EPICLab/synectic/blob/master/DESIGN.md). The complete set of programming languages, tools, bundlers, packagers, frameworks, and plugins included in Synectic, along with the configuration requirements, can be found in [ARCHITECTURE](https://github.com/EPICLab/synectic/blob/master/ARCHITECTURE.md). Synectic is released under an MIT license, which can be found in [LICENSE](https://github.com/EPICLab/synectic/blob/master/LICENSE).
 
-Follow these steps to get started with the template:
+Versioning within this project adheres to the rules of [Semantic Versioning 2.0.0](https://semver.org/).
 
-1. Click the **[Use this template](https://github.com/cawa-93/vite-electron-builder/generate)** button (you must be logged in) or just clone this repo.
-2. If you want to use another package manager you may need to edit [`.github/workflows`](https://github.com/search?q=npm+repo%3Acawa-93%2Fvite-electron-builder+path%3A.github%2Fworkflows&type=Code) since npm is used as default. (See also [cawa-93/vite-electron-builder#944](https://github.com/cawa-93/vite-electron-builder/issues/944))
-   > **Note**: This template configured to install `peerDependencies` automatically.
+## Usage
 
-That's all you need. 😉
+### Prerequisites
 
-❤️ **If you like this template, don't forget to give a ⭐ or [send support](https://www.buymeacoffee.com/kozack/)!**
+Synectic requires the host system to have [Git](https://git-scm.com/downloads) installed and available in order to natively execute git commands (version 2.5+ is recommended for [`git worktree`](https://github.blog/2015-07-29-git-2-5-including-multiple-worktrees-and-triangular-workflows/) support).
 
-## Features
+### Installation
 
-### Electron [![Electron version](https://img.shields.io/github/package-json/dependency-version/cawa-93/vite-electron-builder/dev/electron?label=%20)](https://github.com/electron/electron)
+Distributable versions of Synectic are available in various formats for MacOS, Linux, and Windows:
 
-- This template uses the latest electron version with all the latest security patches.
-- The architecture of the application is built according to the security [guides](https://www.electronjs.org/docs/tutorial/security) and best practices.
-- The latest version of the [electron-builder] is used to package the application.
+[![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://epiclab.github.io/synectic/download.html) [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://epiclab.github.io/synectic/download.html) [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://epiclab.github.io/synectic/download.html)
 
-### Vite [![Vite version](https://img.shields.io/github/package-json/dependency-version/cawa-93/vite-electron-builder/dev/vite?label=%20)](https://github.com/vitejs/vite/)
+:warning: **Warning** :warning:: Every operating system uses code signing to establish stable identities for programs that don't change when new versions are released, and to secure the software update process. Windows and macOS additionally use signing as a way to block malware.
 
-- [Vite] is used to bundle all source codes. It's an extremely fast bundler, that has a vast array of amazing features. You can learn more about how it is arranged in [this](https://www.youtube.com/watch?v=xXrhg26VCSc) video.
-- Vite [supports](https://vitejs.dev/guide/env-and-mode.html) reading `.env` files. You can also specify the types of your environment variables in [`types/env.d.ts`](types/env.d.ts).
-- Automatic hot-reloads for the `Main` and `Renderer` processes.
+This is experimental research software, and is not intended for use in production environments. As such, we are not able to purchase signing keys for Windows and macOS. This means that you will see a warning when installing Synectic on Windows and macOS. You will need to click through the warning to install Synectic. If you are not comfortable with this, please do not install Synectic.
 
-Vite provides many useful features, such as: `TypeScript`, `TSX/JSX`, `CSS/JSON Importing`, `CSS Modules` , `Web Assembly` and much more.
+See the [Installation Guide](https://github.com/EPICLab/synectic/wiki/Installation-Guide) for guidance on using unsigned builds of Synectic.
 
-> [See all Vite features](https://vitejs.dev/guide/features.html).
+[![Packaged](https://img.shields.io/badge/Packaged_with-Conveyor-blue?style=for-the-badge)](https://www.hydraulic.dev/)
 
-### TypeScript [![TypeScript version](https://img.shields.io/github/package-json/dependency-version/cawa-93/vite-electron-builder/dev/typescript?label=%20)](https://github.com/microsoft/TypeScript/) (optional)
+## Development
 
-- The latest version of TypeScript is used for all the source code.
-- **Vite** supports TypeScript out of the box. However, it does not support type checking.
-- Code formatting rules follow the latest TypeScript recommendations and best practices thanks to [@typescript-eslint/eslint-plugin](https://www.npmjs.com/package/@typescript-eslint/eslint-plugin).
+To run Synectic from source, or to contribute to the project, follow the instructions below.
 
-> [Guide to disable typescript and remove dependencies](https://github.com/cawa-93/vite-electron-builder/discussions/339)
+### Recommended Environment
 
-### Vue [![Vue version](https://img.shields.io/github/package-json/dependency-version/cawa-93/vite-electron-builder/dev/vue?label=%20&)](https://github.com/vuejs/vue-next) (optional)
+We recommend using [VSCode](https://code.visualstudio.com/) with the following plugins:
 
-- By default, web pages are built using [Vue]. However, you can easily change that. Or not use additional frameworks at all.
-- Code formatting rules follow the latest Vue recommendations and best practices thanks to [eslint-plugin-vue].
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
-> [Find more forks 🔱 for others frameworks or setups](https://github.com/cawa-93/vite-electron-builder/discussions/categories/forks)
+### Source Installation
 
-### Continuous Integration
+To install Synectic from source, use the following steps:
 
-- The configured workflow will check the types for each push and PR.
-- The configured workflow will check the code style for each push and PR.
-- **Automatic tests** used [Vitest ![Vitest version](https://img.shields.io/github/package-json/dependency-version/cawa-93/vite-electron-builder/dev/vitest?label=%20&color=yellow)](https://vitest.dev) -- A blazing fast test framework powered by Vite.
-  - Unit tests are placed within each package and are ran separately.
-  - End-to-end tests are placed in the root [`tests`](tests) directory and use [playwright].
+1. Install [Node.js](https://nodejs.org/en/).
+2. Install [Yarn](https://yarnpkg.com/lang/en/) Package Manager (`npm`/`npx` can also be used, but `yarn` is preferred).
+3. Clone this repository:
 
-![Workflow graph](https://user-images.githubusercontent.com/1662812/213429323-ef4bcc87-c273-4f2f-b77f-c04cf6dbc36d.png)
+   ```bash
+   git clone git@github.com:EPICLab/synectic.git
+   ```
 
-### Publishing
+4. Move into the project root directory:
 
-- Each time you push changes to the `main` branch, the [`release`](.github/workflows/release.yml) workflow starts, which creates a new draft release. For each next commit will be created and replaced artifacts. That way you will always have draft with latest artifacts, and the release can be published once it is ready.
-  - Code signing supported. See [`release` workflow](.github/workflows/release.yml).
-  - **Auto-update is supported**. After the release is published, all client applications will download the new version and install updates silently.
+   ```bash
+   cd synectic
+   ```
 
-> **Note**: This template **configured only for GitHub public repository**, but electron-builder also supports other update distribution servers. Find more in [electron-builder docs](https://www.electron.build/configuration/publish).
+5. Install project dependencies:
 
-## How it works
+   ```bash
+   yarn install
+   ```
 
-The template requires a minimum amount [dependencies](package.json). Only **Vite** is used for building, nothing more.
+6. Build the `main`/`preload`/`renderer` modules:
+
+   ```bash
+   yarn build
+   ```
+
+7. Start Synectic in watch mode:
+
+   ```bash
+   yarn watch
+   ```
+
+### CLI
+
+Make sure to follow the [Source Installation](#source-installation) instructions before using the CLI. The following commands can be used from within the project root directory:
+
+- `yarn watch` - Start Electron app in watch mode.
+- `yarn build` - Build app but for local debugging only.
+- `yarn lint` - Lint the code using [ESLint](https://eslint.org/).
+- `yarn typecheck` - Run a TypeScript check.
+- `yarn test` - Run all unit, integration, and e2e tests.
+- `yarn format` - Reformat all codebase to project code style.
+- `yarn bundle` - The command will execute the same steps as `yarn build`, but afterwards will call the [Conveyor `site`](https://conveyor.hydraulic.dev/11.4/tutorial/tortoise/5-serve-the-site/) task to request a full build of the download/repository site, before [Publishing through GitHub](https://conveyor.hydraulic.dev/11.4/configs/download-pages/#publishing-through-github).
 
 ### Project Structure
 
-The structure of this template is very similar to a monorepo. The entire source code of the project is divided into three modules (packages) that are each bundled independently:
+This project is based on the [Vite Electron Builder Boilerplate](https://github.com/cawa-93/vite-electron-builder) template, which was written following the latest safety requirements, recommendations and best practices. The structure of the project is similar to a [monorepo](https://monorepo.tools/). The entire scource code of the project is divided into three modules (packages) that are each bundled independently:
 
-- [`packages/renderer`](packages/renderer). Responsible for the contents of the application window. In fact, it is a regular web application. In developer mode, you can even open it in a browser. The development and build process is the same as for classic web applications. Access to low-level API electrons or Node.js is done through the _preload_ layer.
-- [`packages/preload`](packages/preload). Contain Electron [**preload scripts**](https://www.electronjs.org/docs/latest/tutorial/tutorial-preload). Acts as an intermediate bridge between the _renderer_ process and the API exposed by electron and Node.js. Runs in an _isolated browser context_, but has direct access to the full Node.js functionality.
-- [`packages/main`](packages/main) Contain Electron [**main script**](https://www.electronjs.org/docs/tutorial/quick-start#create-the-main-script-file). This is the main process that powers the application. It manages creating and handling the spawned BrowserWindow, setting and enforcing secure permissions and request handlers. You can also configure it to do much more as per your need, such as: logging, reporting statistics and health status among others.
+- **packages/renderer** - Responsible for the contents of the application window. In fact, it is a regular web application. In developer mode, you can even open it in a browser. The development and build process is the same as for classic web applications. Access to low-level API electrons or Node.js is done through the preload layer.
+- **packages/preload** - Contain Electron [preload scripts](https://www.electronjs.org/docs/latest/tutorial/tutorial-preload). Acts as an intermediate bridge between the renderer process and the API exposed by electron and Node.js. Runs in an isolated browser context, but has direct access to the full Node.js functionality.
+- **packages/main** - Contain Electron [main script](https://www.electronjs.org/docs/tutorial/quick-start#create-the-main-script-file). This is the main process that powers the application. It manages creating and handling the spawned BrowserWindow, setting and enforcing secure permissions and request handlers. You can also configure it to do much more as per your need, such as: logging, reporting statistics and health status among others.
 
 Schematically, the structure of the application and the method of communication between packages can be depicted as follows:
 
@@ -109,64 +125,21 @@ subgraph Window["Browser Window"]
 packages/renderer -- Call Exposed API --> P
 ```
 
-### Build web resources
+#### Context Isolation
 
-The `main` and `preload` packages are built in [library mode](https://vitejs.dev/guide/build.html#library-mode) as it is simple javascript. The `renderer` package builds as a regular web app.
+The `main` and `preload` packages are built in [library mode](https://vitejs.dev/guide/build.html#library-mode) after compiling from TypeScript to JavaScript. The `renderer` package builds as a regular web app.
 
-### Compile App
+Because the `renderer` works and builds like a _regular web application_, we can only use dependencies that support the browser or compile to a browser-friendly format. This means that we can use React (or any frontend dependencies we want) in the `renderer`, but we _CANNOT_ use any native Node.js APIs, such as, `systeminformation`.
 
-The next step is to package a ready to distribute Electron app for macOS, Windows and Linux with "auto update" support out of the box.
+Using any Node.js APIs in the `renderer` layer will cause the application to crash. Instead, any Node.js runtime APIs that are needed in the frontend have been exported from the `preload` package and exposed via the [`electron.contextBridge.exposeInMainWorld`](https://www.electronjs.org/docs/latest/api/context-bridge) method.
 
-To do this, use [electron-builder]:
+The `exposeInMainWorld` method is called automatically by the [`unplugin-auto-expose`](https://github.com/cawa-93/unplugin-auto-expose), so we can import and call these methods within the `renderer` package by using the `#preload` alias.
 
-- Using the npm script `compile`: This script is configured to compile the application as quickly as possible. It is not ready for distribution, it is compiled only for the current platform and is used for debugging.
-- Using GitHub Actions: The application is compiled for any platform and ready-to-distribute files are automatically added as a draft to the GitHub releases page.
+#### Working with Electron API
 
-### Working with dependencies
+Although the preload has access to all of Node.js's API, it _still runs in the BrowserWindow context_, so a limited set of electron modules are available in it. Check the [Electron documentation](https://www.electronjs.org/docs/latest/api/clipboard) for a full list of available methods.
 
-Because the `renderer` works and builds like a _regular web application_, you can only use dependencies that support the browser or compile to a browser-friendly format.
-
-This means that in the `renderer` you are free to use any frontend dependencies such as Vue, React, lodash, axios and so on. However, you _CANNOT_ use any native Node.js APIs, such as, `systeminformation`. These APIs are _only_ available in a Node.js runtime environment and will cause your application to crash if used in the `renderer` layer. Instead, if you need access to Node.js runtime APIs in your frontend, export a function form the `preload` package.
-
-All dependencies that require Node.js api can be used in the [`preload` script](https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts).
-
-#### Expose in main world
-
-Here is an example. Let's say you need to read some data from the file system or database in the renderer.
-
-In the preload context, create a function that reads and returns data. To make the function announced in the preload available in the render, you usually need to call the [`electron.contextBridge.exposeInMainWorld`](https://www.electronjs.org/ru/docs/latest/api/context-bridge). However, this template uses the [unplugin-auto-expose](https://github.com/cawa-93/unplugin-auto-expose) plugin, so you just need to export the method from the preload. The `exposeInMainWorld` will be called automatically.
-
-```ts
-// preload/index.ts
-import {readFile} from 'node:fs/promises';
-
-// Encapsulate types if you use typescript
-interface UserData {
-  prop: string;
-}
-
-// Encapsulate all node.js api
-// Everything you exported from preload/index.ts may be called in renderer
-export function getUserData(): Promise<UserData> {
-  return readFile('/path/to/file/in/user/filesystem.json', {encoding: 'utf8'}).then(JSON.parse);
-}
-```
-
-Now you can import and call the method in renderer
-
-```ts
-// renderer/anywere/component.ts
-import {getUserData} from '#preload';
-const userData = await getUserData();
-```
-
-> Find more in [Context Isolation tutorial](https://www.electronjs.org/docs/tutorial/context-isolation#security-considerations).
-
-### Working with Electron API
-
-Although the preload has access to all of Node.js's API, it **still runs in the BrowserWindow context**, so a limited electron modules are available in it. Check the [electron docs](https://www.electronjs.org/ru/docs/latest/api/clipboard) for full list of available methods.
-
-All other electron methods can be invoked in the `main`.
+All other electron methods can be invoked in the `main` module.
 
 As a result, the architecture of interaction between all modules is as follows:
 
@@ -184,22 +157,20 @@ preload->>renderer: Window maximized
 deactivate preload
 ```
 
-> Find more in [Inter-Process Communication tutorial](https://www.electronjs.org/docs/latest/tutorial/ipc).
+> Read more about [Inter-Process Communication](https://www.electronjs.org/docs/latest/tutorial/ipc)
 
-### Modes and Environment Variables
+#### Modes and Environment Variables
 
-All environment variables are set as part of the `import.meta`, so you can access them vie the following way: `import.meta.env`.
+> :warning: **Warning** :warning:: To prevent accidentally leaking env variables to the client, only variables prefixed with `VITE_` are exposed to any Vite-processed code.
 
-> **Note**: If you are using TypeScript and want to get code completion you must add all the environment variables to the [`ImportMetaEnv` in `types/env.d.ts`](types/env.d.ts).
-
-The mode option is used to specify the value of `import.meta.env.MODE` and the corresponding environment variables files that need to be loaded.
+All environment variables are set as part of the `import.meta`, and can be accessed via `import.meta.env`. The mode option is used to specify the value of `import.meta.env.MODE` and the corresponding environment variables files that need to be loaded.
 
 By default, there are two modes:
 
 - `production` is used by default
-- `development` is used by `npm run watch` script
+- `development` is used by `yarn watch` script
 
-When running the build script, the environment variables are loaded from the following files in your project root:
+When running the build script, the environment variables are loaded from the following files in the project root:
 
 ```bash
 .env                # loaded in all cases
@@ -208,32 +179,67 @@ When running the build script, the environment variables are loaded from the fol
 .env.[mode].local   # only loaded in specified env mode, ignored by git
 ```
 
-> **Warning**: To prevent accidentally leaking env variables to the client, only variables prefixed with `VITE_` are exposed to your Vite-processed code.
+See more about Vite environment variables here: [`envPrefix`](https://vitejs.dev/config/shared-options.html#envprefix)
 
-For example let's take the following `.env` file:
+### Releases
 
-```bash
-DB_PASSWORD=foobar
-VITE_SOME_KEY=123
-```
+Installation is required; see [CLI](#cli) for installation instructions. The following commands can be used from within the project root directory:
 
-Only `VITE_SOME_KEY` will be exposed as `import.meta.env.VITE_SOME_KEY` to your client source code, but `DB_PASSWORD` will not.
+- `yarn release` - executes [`yarn version`](https://yarnpkg.com/cli/version) plugin to initiate a major semver version bump, generate a new [version.js](https://github.com/EPICLab/synectic/blob/main/version.js) using [`genversion`](https://www.npmjs.com/package/genversion), stage and commit all relevant version files, generate a new [annotated Git tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging), and [atomically](https://git-scm.com/docs/git-push#Documentation/git-push.txt---no-atomic) push changes to the remote repository to trigger [GitHub Actions](https://docs.github.com/en/actions).
 
-You can change that prefix or add another. See [`envPrefix`](https://vitejs.dev/config/shared-options.html#envprefix)
+### Caveats
 
-## Contribution
+The Node.js ecosystem is currently undergoing a transition from CommonJS to ES Modules (ESM) in upstream libraries, and Electron is no exception. `electron@28.0.0` will be the first stable release of Electron to support ESM, and is set to release on 2023-12-05 according to the [Electron Timelines](https://github.com/electron/electron/blob/main/docs/tutorial/electron-timelines.md). Given the dependency on Electron, Synectic will not be able to take advantage of ESM until this time. There is a [ES Modules (ESM) in Electron](https://github.com/electron/electron/blob/main/docs/tutorial/esm.md) tutorial describing the steps required in order to take advantage of ESM once 28.0.0 is generally available.
 
-See [Contributing Guide](contributing.md).
+We can continue to use CJS modules, and ESM modules that provide a CJS fallback, until `electron@28.0.0` is released. But there are a few modules that are ESM-only, and are listed here in the hopes that they can be included in Synectic in a future release:
 
-- [vite](https://github.com/vitejs/vite/)
-- [electron](https://github.com/electron/electron)
-- [electron-builder](https://github.com/electron-userland/electron-builder)
-- [vue](https://github.com/vuejs/vue-next)
-- [vue-router](https://github.com/vuejs/vue-router-next/)
-- [typescript](https://github.com/microsoft/TypeScript/)
-- [playwright](https://playwright.dev)
-- [vitest](https://vitest.dev)
-- [vue-tsc](https://github.com/johnsoncodehk/vue-tsc)
-- [eslint-plugin-vue](https://github.com/vuejs/eslint-plugin-vue)
-- [cawa-93-github](https://github.com/cawa-93/)
-- [cawa-93-sponsor](https://www.patreon.com/Kozack/)
+- [`dot-prop`](https://github.com/sindresorhus/dot-prop)
+- [`find-up`](https://github.com/sindresorhus/find-up)
+
+Both of these modules are ESM-only, and provided by the same developer. The developer consistently references a particular GitHub Gist, [_Pure ESM package_](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c), whenever they are asked about CommonJS support.
+
+### Contributors
+
+We welcome contributions to this open source project on Github. When contributing, please follow the [Contributing Code Guide](https://github.com/EPICLab/synectic/blob/master/CONTRIBUTING.md). Also, any new contributors should include a commit that updates this `README.md` document to include your name and a link to your GitHub profile page (unless you wish to be anonymous).
+
+[![Contributors](https://contrib.rocks/image?repo=EPICLab/synectic)](https://github.com/EPICLab/synectic/graphs/contributors)[^1] [^1]: Contributor images made with [contrib.rocks](https://contrib.rocks).
+
+- Nicholas Nelson ([@nelsonni](https://github.com/nelsonni))
+- Andrea Tongsak ([@andrealit](https://github.com/andrealit))
+- Jett Seale ([@jettseale](https://github.com/jettseale))
+- Brandon Dring ([@El_Dringo_Brannde](https://github.com/El-Dringo-Brannde))
+- Marjan Adeli ([@Marjan-Adeli](https://github.com/Marjan-Adeli))
+- Hayden Coffey ([@hcoffey1](https://github.com/hcoffey1))
+- Lauren Gastineau ([@laurengastineau](https://github.com/laurengastineau))
+- Samarendra Hedaoo ([@knightsamar](https://github.com/knightsamar))
+
+### Continuous Integration
+
+- The configured workflow will check the types for each push and PR.
+- The configured workflow will check the code style for each push and PR.
+- **Automatic tests** used [Vitest ![Vitest version](https://img.shields.io/github/package-json/dependency-version/cawa-93/vite-electron-builder/dev/vitest?label=%20&color=yellow)](https://vitest.dev) -- A blazing fast test framework powered by Vite.
+  - Unit tests are placed within each package and are ran separately.
+  - End-to-end tests are placed in the root [`tests`](tests) directory and use [playwright].
+
+![Workflow graph](https://user-images.githubusercontent.com/1662812/213429323-ef4bcc87-c273-4f2f-b77f-c04cf6dbc36d.png)
+
+### Publishing
+
+- Each time you push changes to the `main` branch, the [`release`](.github/workflows/release.yml) workflow starts, which creates a new draft release. For each next commit will be created and replaced artifacts. That way you will always have draft with latest artifacts, and the release can be published once it is ready.
+  - Code signing supported. See [`release` workflow](.github/workflows/release.yml).
+  - **Auto-update is supported**. After the release is published, all client applications will download the new version and install updates silently.
+
+> **Note**: This template **configured only for GitHub public repository**, but electron-builder also supports other update distribution servers. Find more in [electron-builder docs](https://www.electron.build/configuration/publish).
+
+### Build web resources
+
+The `main` and `preload` packages are built in [library mode](https://vitejs.dev/guide/build.html#library-mode) after compiling from TypeScript to JavaScript. The `renderer` package builds as a regular web app.
+
+### Compile App
+
+The next step is to package a ready to distribute Electron app for macOS, Windows and Linux with "auto update" support out of the box.
+
+To do this, use [electron-builder]:
+
+- Using the npm script `compile`: This script is configured to compile the application as quickly as possible. It is not ready for distribution, it is compiled only for the current platform and is used for debugging.
+- Using GitHub Actions: The application is compiled for any platform and ready-to-distribute files are automatically added as a draft to the GitHub releases page.

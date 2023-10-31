@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          cache: 'npm'
+          cache: 'yarn'
 
-      - run: npm ci
+      - run: yarn ci
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
 
-      - run: npm run typecheck --if-present
+      - run: yarn typecheck --if-present
