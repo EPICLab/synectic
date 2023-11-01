@@ -38,7 +38,7 @@ const config = {
       input: join(PACKAGE_ROOT, 'index.html'),
     },
     emptyOutDir: true,
-    chunkSizeWarningLimit: 2000,
+    chunkSizeWarningLimit: 2100,
     reportCompressedSize: false,
   },
   test: {
