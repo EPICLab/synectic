@@ -1,4 +1,4 @@
-import {uuid} from '#preload';
+import {isDefined, uuid} from '#preload';
 import {ListItemIcon, ListItemText, Menu, MenuItem, Tooltip} from '@mui/material';
 import type {UUID} from '@syn-types/app';
 import type {Branch} from '@syn-types/branch';
@@ -162,6 +162,15 @@ const ContextMenu = ({
   };
 
   const actions: Action[] = [
+    ...node.data.parents
+      .map(parent => repoBranches.find(b => b.head === parent))
+      .filter(isDefined)
+      .map(branch => ({
+        icon: <GitBranch />,
+        name: `Checkout ${branch.scope}/${branch.ref}`,
+        disabled: !node.data.staged,
+        onClick: () => checkout({id: branch.id}),
+      })),
     ...node.data.heads.map(branch => ({
       icon: <GitBranch />,
       name: `Checkout ${branches[branch]?.scope}/${branches[branch]?.ref}`,
