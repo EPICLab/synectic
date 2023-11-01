@@ -1,5 +1,5 @@
 // copied from: https://usehooks.com/usemap, modified with TypeScript types as needed
-import { useReducer, useRef } from 'react';
+import {useReducer, useRef} from 'react';
 
 /**
  * Custom React Hook to synchronize and update state based on the Map data structure.

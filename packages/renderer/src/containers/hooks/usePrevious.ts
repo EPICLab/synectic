@@ -1,5 +1,5 @@
 // copied from: https://usehooks.com/usePrevious/
-import { useEffect, useRef } from 'react';
+import {useEffect, useRef} from 'react';
 
 /**
  * Custom React Hook for maintaining the previous value of props or state.

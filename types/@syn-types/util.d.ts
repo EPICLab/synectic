@@ -12,7 +12,7 @@ export type Prettify<T> = {
  * resolved type of a complex type (i.e. types that use TS Utility Types). Reused from:
  * https://stackoverflow.com/a/57683652
  */
-export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+export type Expand<T> = T extends infer O ? {[K in keyof O]: O[K]} : never;
 
 /**
  * Expand object types recursively; which has the side effect that IntelliSense will infer the
@@ -21,7 +21,7 @@ export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
  */
 export type ExpandRecursively<T> = T extends object
   ? T extends infer O
-    ? { [K in keyof O]: ExpandRecursively<O[K]> }
+    ? {[K in keyof O]: ExpandRecursively<O[K]>}
     : never
   : T;
 
@@ -48,7 +48,7 @@ type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`;
  */
 export type NestedDotKeys<T> = (
   T extends object
-    ? { [K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<NestedDotKeys<T[K]>>}` }[Exclude<
+    ? {[K in Exclude<keyof T, symbol>]: `${K}${DotPrefix<NestedDotKeys<T[K]>>}`}[Exclude<
         keyof T,
         symbol
       >]
@@ -86,7 +86,7 @@ export type NonNullableObject<T extends object> = {
  * Inspired by:
  * https://stackoverflow.com/questions/48230773/how-to-create-a-partial-like-that-requires-a-single-property-to-be-set/48244432#48244432
  */
-export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U];
+export type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U];
 
 /**
  * Requires exactly one type property in an object, no more and no less. Inspired by:
@@ -114,7 +114,7 @@ export type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>
  * not assignable to U). Reused from:
  * https://github.com/ts-essentials/ts-essentials/blob/e0307a2e54bb6ae55666dfe434f840ccfc04e0c5/lib/types.ts
  */
-export type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+export type Without<T, U> = {[P in Exclude<keyof T, keyof U>]?: never};
 
 /**
  * Require type to exclusively match either T or U, but not both. This is a `mutually exclusive or`

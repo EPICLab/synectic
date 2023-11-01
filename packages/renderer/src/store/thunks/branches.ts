@@ -126,9 +126,7 @@ export const fetchBranches = createAppAsyncThunk<{local: Branch[]; remote: Branc
   async (root, thunkAPI) => {
     const branches = (
       await Promise.all(
-        (
-          await showBranch({dir: root, all: true})
-        )
+        (await showBranch({dir: root, all: true}))
           .filter(branch => branch.ref !== 'HEAD')
           .map(branch =>
             thunkAPI

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import {useCallback, useState} from 'react';
 
 export const useImperativeRef = <T>() => {
   const [refState, setRefState] = useState<T>();

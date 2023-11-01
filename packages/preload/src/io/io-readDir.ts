@@ -34,9 +34,7 @@ export const readDirAsyncDepth = async (
   depth = Infinity,
 ): Promise<string[]> => {
   const files = await Promise.all(
-    (
-      await readdir(filepath.toString())
-    ).map(async f => {
+    (await readdir(filepath.toString())).map(async f => {
       const fullPath = join(filepath.toString(), f);
       return depth > 1 && (await isDirectory(fullPath))
         ? await readDirAsyncDepth(fullPath, depth - 1)
