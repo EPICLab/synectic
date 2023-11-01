@@ -13,11 +13,11 @@
   "main": "packages/main/dist/index.cjs",
   "scripts": {
     "build": "yarn build:main && yarn build:preload && yarn build:renderer",
-    "build:prod-all": "cross-env MODE=production yarn build",
     "build:main": "cd ./packages/main && vite build",
     "build:preload": "cd ./packages/preload && vite build",
     "build:renderer": "cd ./packages/renderer && vite build",
     "compile": "cross-env MODE=production yarn build && electron-builder build --config .electron-builder.config.js --dir --config.asar=false",
+    "package": "cross-env MODE=production yarn build && conveyor make copied-site",
     "clean": "rimraf dist && rimraf packages/*/dist",
     "test": "yarn test:main && yarn test:preload && yarn test:renderer && yarn test:e2e",
     "test:e2e": "yarn build && vitest run",
