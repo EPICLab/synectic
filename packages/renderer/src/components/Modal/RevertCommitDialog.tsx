@@ -32,6 +32,7 @@ const RevertCommitDialog = ({modal}: {modal: RevertCommitDialogModal}) => {
           ? `Deleted ${modal.commit.toString()} commit...`
           : `Unable to delete ${modal.commit.toString()} commit...`,
       );
+      if (result) handleClose();
     }
   };
 
