@@ -1,2 +1,2 @@
-export { default } from './Stack';
-export { default as BaseStack } from './BaseStack';
+export {default} from './Stack';
+export {default as BaseStack} from './BaseStack';

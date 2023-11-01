@@ -190,9 +190,9 @@ const ContextMenu = ({
     })),
     {
       icon: <GitCommit />,
-      name: `Commit to ${branches[node.data.branches[0] ?? '']?.scope}/${
-        branches[node.data.branches[0] ?? '']?.ref
-      }`,
+      name: `Commit to ${branches[node.data.branches[0] ?? '']?.scope}/${branches[
+        node.data.branches[0] ?? ''
+      ]?.ref}`,
       disabled: !node.data.staged,
       onClick: () => {
         commit(node.data.branches[0] ?? '');

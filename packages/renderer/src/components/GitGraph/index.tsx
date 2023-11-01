@@ -1,1 +1,1 @@
-export { default } from './GitGraph';
+export {default} from './GitGraph';

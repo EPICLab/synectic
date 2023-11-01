@@ -5,10 +5,10 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
-import { useState } from 'react';
-import { Action } from './ActionsMenu';
+import {useState} from 'react';
+import type {Action} from './ActionsMenu';
 
 type ItemProps = {
   icon: JSX.Element;
@@ -27,7 +27,10 @@ type MenuProps = {
 
 export const ReverseListItem = (props: ItemProps) => {
   return (
-    <ListItem dense disablePadding>
+    <ListItem
+      dense
+      disablePadding
+    >
       <ListItemButton onClick={props.onClick}>
         {props.tooltip ? (
           <Tooltip title={props.tooltip}>
@@ -36,7 +39,10 @@ export const ReverseListItem = (props: ItemProps) => {
         ) : (
           <ListItemIcon>{props.icon}</ListItemIcon>
         )}
-        <ListItemText primary={props.name} sx={{ maxWidth: 160, overflowWrap: 'break-word' }} />
+        <ListItemText
+          primary={props.name}
+          sx={{maxWidth: 160, overflowWrap: 'break-word'}}
+        />
       </ListItemButton>
     </ListItem>
   );
@@ -53,7 +59,10 @@ export const ReverseListMenu = (props: MenuProps) => {
   };
 
   return (
-    <ListItem dense disablePadding>
+    <ListItem
+      dense
+      disablePadding
+    >
       <ListItemButton
         id={`${props.name}-menu-button`}
         aria-controls={open ? `${props.name}-menu` : undefined}
@@ -88,7 +97,7 @@ export const ReverseListMenu = (props: MenuProps) => {
                 width: 32,
                 height: 32,
                 ml: -0.5,
-                mr: 1
+                mr: 1,
               },
               '&:before': {
                 content: '""',
@@ -100,19 +109,27 @@ export const ReverseListMenu = (props: MenuProps) => {
                 height: 10,
                 bgcolor: 'background.paper',
                 transform: 'translateY(-50%) rotate(45deg)',
-                zIndex: 0
-              }
-            }
-          }
+                zIndex: 0,
+              },
+            },
+          },
         }}
-        transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+        transformOrigin={{horizontal: 'left', vertical: 'top'}}
+        anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
       >
-        <MenuItem dense disabled divider>
+        <MenuItem
+          dense
+          disabled
+          divider
+        >
           <ListItemText>{props.actionPrompt}</ListItemText>
         </MenuItem>
         {props.actions.map((action, index) => (
-          <MenuItem dense key={index} onClick={action.onClick}>
+          <MenuItem
+            dense
+            key={index}
+            onClick={action.onClick}
+          >
             <ListItemIcon>{action.icon}</ListItemIcon>
             <ListItemText>{action.name}</ListItemText>
           </MenuItem>
