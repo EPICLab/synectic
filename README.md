@@ -18,7 +18,7 @@ Synectic requires the host system to have [Git](https://git-scm.com/downloads) i
 
 Distributable versions of Synectic are available in various formats for MacOS, Linux, and Windows:
 
-[![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://epiclab.github.io/synectic/download.html) [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://epiclab.github.io/synectic/download.html) [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://epiclab.github.io/synectic/download.html)
+[![macOS](https://img.shields.io/badge/mac%20os-676767?style=for-the-badge&logo=macos&logoColor=F0F0F0)](https://epiclab.github.io/synectic/download.html) [![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://epiclab.github.io/synectic/download.html) [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://epiclab.github.io/synectic/download.html)
 
 :warning: **Warning** :warning:: Every operating system uses code signing to establish stable identities for programs that don't change when new versions are released, and to secure the software update process. Windows and macOS additionally use signing as a way to block malware.
 
