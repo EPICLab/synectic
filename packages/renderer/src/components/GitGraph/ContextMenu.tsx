@@ -163,18 +163,20 @@ const ContextMenu = ({
 
   const actions: Action[] = [
     ...node.data.parents
-      .map(parent => repoBranches.find(b => b.head === parent))
+      .map(parent =>
+        repoBranches.find(b => b.head === parent && `${b.scope}/${b.ref}*` === node.data.oid),
+      )
       .filter(isDefined)
       .map(branch => ({
         icon: <GitBranch />,
         name: `Checkout ${branch.scope}/${branch.ref}`,
-        disabled: !node.data.staged,
+        disabled: !node.data.staged, // only show parents when staged
         onClick: () => checkout({id: branch.id}),
       })),
     ...node.data.heads.map(branch => ({
       icon: <GitBranch />,
       name: `Checkout ${branches[branch]?.scope}/${branches[branch]?.ref}`,
-      disabled: node.data.staged,
+      disabled: node.data.staged, // only show when not staged
       onClick: () => checkout({id: branch}),
     })),
     {
