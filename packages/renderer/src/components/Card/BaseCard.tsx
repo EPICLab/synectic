@@ -12,8 +12,8 @@ import {
   Merge,
   PlaylistAdd,
   PlaylistRemove,
+  ReplyAll,
   Save,
-  Undo,
 } from '@mui/icons-material';
 import {styled} from '@mui/material';
 import type {UUID} from '@syn-types/app';
@@ -55,6 +55,7 @@ import {fileSaveDialog} from '../Dialogs';
 import {GitCommit} from '../GitIcons';
 import Content from './Content';
 import MenuBar from './MenuBar';
+import type {Action} from './ActionsMenu';
 
 const BaseCard = forwardRef<HTMLDivElement, PropsWithChildren<Props>>(
   ({id, children, ...props}, ref) => {
@@ -89,7 +90,7 @@ const BaseCard = forwardRef<HTMLDivElement, PropsWithChildren<Props>>(
       branch.status !== 'uncommitted';
     const dispatch = useAppDispatch();
 
-    const actions = [
+    const actions: Action[] = [
       {
         icon: <Save />,
         name: 'Save',
@@ -102,13 +103,13 @@ const BaseCard = forwardRef<HTMLDivElement, PropsWithChildren<Props>>(
             : null,
       },
       {
-        icon: <Undo />,
-        name: 'Undo',
-        tooltip: 'Undo changes made to the file content to match the current filesystem version',
+        icon: <ReplyAll />,
+        name: 'Revert',
+        tooltip: 'Undo changes that have not been commited to the version control system',
         disabled:
           metafile?.handler !== 'Editor' ||
           !isVersionedMetafile(metafile) ||
-          metafile.status === 'unmodified',
+          !['*modified', '*added', '*deleted'].includes(metafile.status),
         onClick: () => {
           if (isVersionedMetafile(metafile)) dispatch(revertChanges(metafile));
         },

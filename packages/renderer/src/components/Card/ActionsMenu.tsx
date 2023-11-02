@@ -4,10 +4,15 @@ import type {MouseEvent} from 'react';
 import {useState} from 'react';
 
 export type Action = {
+  /** Icon displayed on this action. */
   icon: JSX.Element;
+  /** Title displayed on this action. */
   name: string;
+  /** Optional tooltip message displayed on this action. */
   tooltip?: string;
+  /** If `true`, the action is disabled.  */
   disabled?: boolean;
+  /** Click event handler for this action. */
   onClick: () => void;
 };
 
