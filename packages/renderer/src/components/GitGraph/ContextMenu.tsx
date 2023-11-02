@@ -231,7 +231,7 @@ const ContextMenu = ({
       disabled: false,
       onClick: () => abort(branch),
     })),
-  ];
+  ].filter(action => action.disabled !== true);
 
   return open ? (
     <Menu
