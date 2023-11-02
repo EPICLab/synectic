@@ -2,7 +2,7 @@
   "name": "synectic",
   "productName": "Synectic",
   "description": "Research IDE platform for exploring human-centered interactions with modern tooling",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "private": true,
   "author": {
     "name": "Nicholas Nelson",
