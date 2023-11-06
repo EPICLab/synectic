@@ -12,6 +12,7 @@ export * from './io-readDir';
 export * from './io-readFile';
 export * from './io-validateFileName';
 export * from './io-writeFile';
+export {unlink} from 'node:fs/promises';
 
 /**
  * **WARNING** If a method is not included here, please see

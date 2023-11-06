@@ -10,6 +10,7 @@ import {
   isVersionedMetafile,
   isVirtualMetafile,
   metafileAdded,
+  metafileRemoved,
   metafileUpdated,
 } from '../slices/metafiles';
 import {addBranch, fetchBranch, updateBranch} from './branches';
@@ -49,6 +50,7 @@ import {
   uuid,
   worktreeStatus,
   writeFileAsync,
+  unlink,
 } from '#preload';
 
 /**
@@ -330,6 +332,32 @@ export const saveFile = createAppAsyncThunk<boolean, {id: UUID; filepath?: strin
           .filter(isFilebasedMetafile)
           .map(async m => await thunkAPI.dispatch(updateVersionedMetafile(m.id))),
       );
+      return true;
+    }
+    return false;
+  },
+);
+
+/**
+ * Delete file from the filesystem and remove Metafile object from the store.
+ * @param obj - A destructured object for named parameters.
+ * @param obj.id - The UUID of a {@link Metafile} object that should be deleted.
+ * @returns {boolean} A boolean indicating true if the filesystem and metafile were successfully
+ * deleted, false otherwise.
+ */
+export const deleteFile = createAppAsyncThunk<boolean, UUID>(
+  'metafiles/deleteFile',
+  async (id, thunkAPI) => {
+    const metafile = thunkAPI.getState().metafiles.entities[id];
+
+    if (isFilebasedMetafile(metafile)) {
+      // delete file
+      await unlink(metafile.path);
+      // remove metafile
+      thunkAPI.dispatch(metafileRemoved(metafile.id));
+      // update parent metafile
+      const parent = await thunkAPI.dispatch(fetchParentMetafile(metafile)).unwrap();
+      if (parent) thunkAPI.dispatch(updateDirectoryMetafile(parent));
       return true;
     }
     return false;
