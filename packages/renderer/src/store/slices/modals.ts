@@ -3,6 +3,7 @@ import {createEntityAdapter, createSlice} from '@reduxjs/toolkit';
 import type {
   CommitDialog,
   DeleteBranchDialog,
+  DeleteFileDialog,
   GitGraph,
   MergeDialog,
   Modal,
@@ -36,6 +37,9 @@ export const isNewBranchDialog = (modal: Modal | undefined): modal is NewBranchD
 
 export const isDeleteBranchDialog = (modal: Modal | undefined): modal is DeleteBranchDialog =>
   isDefined(modal) && modal.type === 'DeleteBranchDialog';
+
+export const isDeleteFileDialog = (modal: Modal | undefined): modal is DeleteFileDialog =>
+  isDefined(modal) && modal.type === 'DeleteFileDialog';
 
 export const isNotification = (modal: Modal | undefined): modal is Notification =>
   isDefined(modal) && modal.type === 'Notification';

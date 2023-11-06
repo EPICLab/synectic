@@ -8,26 +8,22 @@ import {
   DialogTitle,
   styled,
 } from '@mui/material';
-import type {DeleteBranchDialog as DeleteBranchDialogModal} from '@syn-types/modal';
+import type {DeleteFileDialog as DeleteFileDialogModal} from '@syn-types/modal';
 import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import branchSelectors from '../../store/selectors/branches';
-import repoSelectors from '../../store/selectors/repos';
 import {modalRemoved} from '../../store/slices/modals';
-import {removeBranch} from '../../store/thunks/branches';
+import {deleteFile} from '/@/store/thunks/metafiles';
+import metafileSelectors from '/@/store/selectors/metafiles';
 
-const DeleteBranchDialog = ({modal}: {modal: DeleteBranchDialogModal}) => {
+const DeleteFileDialog = ({modal}: {modal: DeleteFileDialogModal}) => {
   const dispatch = useAppDispatch();
-  const repo = useAppSelector(state => repoSelectors.selectById(state, modal.repo));
-  const branch = useAppSelector(state => branchSelectors.selectById(state, modal.branch));
+  const metafile = useAppSelector(state => metafileSelectors.selectById(state, modal.metafile));
 
   const handleClose = () => dispatch(modalRemoved(modal.id));
   const handleClick = async () => {
-    if (repo && branch) {
-      const result = await dispatch(removeBranch({repoId: repo.id, branchId: branch.id})).unwrap();
+    if (metafile) {
+      const result = await dispatch(deleteFile(metafile.id));
       console.log(
-        result
-          ? `Deleted ${branch.scope}/${branch.ref} branch...`
-          : `Unable to delete ${branch.scope}/${branch.ref} branch...`,
+        result ? `Deleted ${metafile.name} file...` : `Unable to delete ${metafile.name} file...`,
       );
       if (result) handleClose();
     }
@@ -37,18 +33,18 @@ const DeleteBranchDialog = ({modal}: {modal: DeleteBranchDialogModal}) => {
     <StyledDialog
       open
       onClose={handleClose}
-      aria-labelledby="delete-branch-dialog-title"
-      aria-describedby="delete-branch-description"
+      aria-labelledby="delete-file-dialog-title"
+      aria-describedby="delete-file-description"
     >
-      <DialogTitle id="delete-branch-dialog-title">Delete Branch</DialogTitle>
+      <DialogTitle id="delete-file-dialog-title">Delete File</DialogTitle>
       <DialogContent sx={{px: 2, pb: 1.5}}>
-        <DialogContentText id="delete-branch-description">
-          Are you sure you want to permanently delete the branch{' '}
+        <DialogContentText id="delete-file-description">
+          Are you sure you want to permanently delete the file{' '}
           <Box
             component="span"
             fontWeight="fontWeightBold"
           >
-            {branch?.scope}/{branch?.ref}
+            {metafile?.name}
           </Box>{' '}
           ?
         </DialogContentText>
@@ -62,7 +58,7 @@ const DeleteBranchDialog = ({modal}: {modal: DeleteBranchDialogModal}) => {
           Cancel
         </Button>
         <Button
-          id="delete-branch-button"
+          id="delete-file-button"
           variant="contained"
           onClick={handleClick}
         >
@@ -79,4 +75,4 @@ const StyledDialog = styled(Dialog)(() => ({
   },
 }));
 
-export default DeleteBranchDialog;
+export default DeleteFileDialog;

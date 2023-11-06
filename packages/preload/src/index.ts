@@ -94,6 +94,7 @@ export {
   replaceExt,
   validateFileName,
   writeFileAsync,
+  unlink,
 } from './io';
 export {
   clipboard,

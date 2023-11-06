@@ -114,6 +114,7 @@ export type ModalType =
   | 'BranchList'
   | 'CloneSelector'
   | 'DeleteBranchDialog'
+  | 'DeleteFileDialog'
   | 'GitGraph'
   | 'MergeDialog'
   | 'MergeSelector'
