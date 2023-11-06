@@ -2,6 +2,7 @@ import type {Modal} from '@syn-types/modal';
 import GitGraph from '../GitGraph';
 import CommitDialog from './CommitDialog';
 import DeleteBranchDialog from './DeleteBranchDialog';
+import DeleteFileDialog from './DeleteFileDialog';
 import MergeDialog from './MergeDialog';
 import NewBranchDialog from './NewBranchDialog';
 import NewCardDialog from './NewCardDialog';
@@ -10,6 +11,7 @@ import RevertCommitDialog from './RevertCommitDialog';
 import {
   isCommitDialogModal,
   isDeleteBranchDialog,
+  isDeleteFileDialog,
   isGitGraphModal,
   isMergeDialogModal,
   isNewBranchDialog,
@@ -31,8 +33,10 @@ const ModalComponent = (props: Modal) => {
       return isNewBranchDialog(props) ? <NewBranchDialog modal={props} /> : null;
     case 'DeleteBranchDialog':
       return isDeleteBranchDialog(props) ? <DeleteBranchDialog modal={props} /> : null;
+    case 'DeleteFileDialog':
+      return isDeleteFileDialog(props) ? <DeleteFileDialog modal={props} /> : null;
     case 'NewCardDialog':
-      // no specific fields required for `NewCardDialog`, so just using Modal props
+      // no specific fields required for `NewCardDialog`, so no type predicate is needed
       return <NewCardDialog modal={props} />;
     case 'Notification':
       return isNotification(props) ? <Notification {...props} /> : null;

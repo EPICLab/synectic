@@ -14,6 +14,7 @@ export type Modal = {
   Partial<MergeDialogProps> &
   Partial<NewBranchDialogProps> &
   Partial<DeleteBranchDialogProps> &
+  Partial<DeleteFileDialogProps> &
   Partial<NotificationProps> &
   Partial<RevertCommitDialogProps>;
 
@@ -42,6 +43,13 @@ export type MergeDialogProps = {
   readonly base: UUID;
   /** Commands for interacting with a merge that is in progress. */
   readonly mode?: MergeAction;
+};
+
+/** A modal for deleting an existinf file within the filesystem and Redux store. */
+export type DeleteFileDialog = Prettify<Override<Modal, DeleteFileDialogProps>>;
+export type DeleteFileDialogProps = {
+  /** The UUID for associated Metafile object. */
+  readonly metafile: UUID;
 };
 
 /** A modal for creating a new branch within the filesystem and Redux store. */
