@@ -29,6 +29,7 @@ const DeleteBranchDialog = ({modal}: {modal: DeleteBranchDialogModal}) => {
           ? `Deleted ${branch.scope}/${branch.ref} branch...`
           : `Unable to delete ${branch.scope}/${branch.ref} branch...`,
       );
+      if (result) handleClose();
     }
   };
 
