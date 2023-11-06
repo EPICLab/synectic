@@ -1,3 +1,4 @@
+import {extractFilename, isModified, isStaged, isUnmerged, uuid} from '#preload';
 import {Description} from '@mui/icons-material';
 import {Skeleton} from '@mui/material';
 import type {UUID} from '@syn-types/app';
@@ -8,7 +9,7 @@ import {isFilebasedMetafile, isVersionedMetafile} from '../../store/slices/metaf
 import {createCard} from '../../store/thunks/cards';
 import {StageButton, UnstageButton} from './GitButtons';
 import {StyledTreeItem} from './TreeItem';
-import {extractFilename, isModified, isStaged, isUnmerged} from '#preload';
+import {modalAdded} from '/@/store/slices/modals';
 
 const File = ({id}: {id: UUID}) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
@@ -25,6 +26,17 @@ const File = ({id}: {id: UUID}) => {
 
   const handleClick = async () => {
     if (isFilebasedMetafile(metafile)) await dispatch(createCard({path: metafile.path}));
+  };
+
+  const handleRightClick = () => {
+    if (isFilebasedMetafile(metafile))
+      dispatch(
+        modalAdded({
+          id: uuid(),
+          type: 'DeleteFileDialog',
+          metafile: metafile.id,
+        }),
+      );
   };
 
   return (
@@ -53,6 +65,7 @@ const File = ({id}: {id: UUID}) => {
           endIcon={<Description />}
           color={motif?.color}
           onClick={handleClick}
+          onContextMenu={handleRightClick}
         />
       ) : (
         <Skeleton
