@@ -301,7 +301,7 @@ const CardComponent = styled('div')<StyledProps>(props => ({
   transform: props.dragOverlay ? undefined : CSS.Translate.toString(props.transform),
   transition: props.dragOverlay ? undefined : props.transition,
   perspective: 1000,
-  zIndex: 1,
+  zIndex: props.expanded ? 1000 : 1,
   left: props.expanded ? 0 : props.dragOverlay || props.captured ? undefined : props.x,
   top: props.expanded ? 38.5 : props.dragOverlay || props.captured ? undefined : props.y,
   visibility: !props.dragOverlay && props.dragging ? 'hidden' : 'unset',
