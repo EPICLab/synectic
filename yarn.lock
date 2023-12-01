@@ -2300,10 +2300,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/parse-git-config@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "@types/parse-git-config@npm:3.0.3"
-  checksum: 0b2daa846c78b489fb548ac8b7e41c038f9486df41e5ff91f0ab1305538c086d4d6296abd1dbe6094b4059652addbf8f3abaa6f1d4e489fa18d0085d2fb38fea
+"@types/parse-git-config@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "@types/parse-git-config@npm:3.0.4"
+  checksum: 9d13d69e6886c988967ba97f0e8a83752449e46f173e98c37134b263fc850d68d859f8e4b7b9bcf3dfc49c01d09ad6cfec5a4a904a5e35752d79e175748725ba
   languageName: node
   linkType: hard
 
@@ -7761,7 +7761,7 @@ __metadata:
     "@types/luxon": ^3.3.3
     "@types/node": 20.8.10
     "@types/pako": ^2.0.2
-    "@types/parse-git-config": ^3.0.3
+    "@types/parse-git-config": ^3.0.4
     "@types/parse-path": ^7.0.2
     "@types/react": ^18.2.33
     "@types/react-dom": ^18.2.14
