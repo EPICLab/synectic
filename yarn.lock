@@ -4005,16 +4005,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:27.0.3":
-  version: 27.0.3
-  resolution: "electron@npm:27.0.3"
+"electron@npm:28.2.1":
+  version: 28.2.1
+  resolution: "electron@npm:28.2.1"
   dependencies:
     "@electron/get": ^2.0.0
     "@types/node": ^18.11.18
     extract-zip: ^2.0.1
   bin:
     electron: cli.js
-  checksum: 17d312a1f95a30e71fac5b47ac95afb09b2ceb8dca78d7ecbab212e3cecadd01b587bc04c4aa84ad03d2dc95a494f5f31d2f6093b4cc3b5a5c579bb77f76d409
+  checksum: 50926b0b4e31b3cedc829566478966248c41d7cdd32c8b42f14572372e5e50cf4ad23d6186d98ef986f59bdc694935a48089ec5d997e5c739d7c13282a97fecb
   languageName: node
   linkType: hard
 
@@ -7776,7 +7776,7 @@ __metadata:
     dagre: ^0.8.5
     diff: ^5.1.0
     dot-prop-ts: ^1.1.1
-    electron: 27.0.3
+    electron: 28.2.1
     electron-builder: 24.8.0
     electron-updater: 6.1.6
     eslint: 8.52.0
