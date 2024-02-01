@@ -95,7 +95,7 @@
     "@mui/system": "^5.14.16",
     "@mui/x-tree-view": "^6.17.0",
     "@reduxjs/toolkit": "^1.9.7",
-    "ace-builds": "^1.31.1",
+    "ace-builds": "^1.32.5",
     "chokidar": "^3.5.3",
     "dagre": "^0.8.5",
     "electron-updater": "6.1.6",
