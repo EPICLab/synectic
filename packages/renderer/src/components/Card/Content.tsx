@@ -34,6 +34,7 @@ const getCardTypeContent = (card: Card | undefined) => {
       return (
         <Editor
           id={card.metafile}
+          flipped={card.flipped}
           expanded={card.expanded}
         />
       );
