@@ -21,19 +21,10 @@ import {metafileUpdated} from '/@/store/slices/metafiles';
  * loaded into this component.
  * @param props - Prop object for editable content in a specific file.
  * @param props.id - The UUID for the metafile used to represent the contents of this component.
- * @param props.flipped - An optional toggle for enabling the reverse side of the card; defaults to false.
  * @param props.expanded - An optional toggle for enabling fullscreen mode in the editor; defaults to false.
  * @returns {React.Component} A React function component.
  */
-const Editor = ({
-  id,
-  flipped = false,
-  expanded = false,
-}: {
-  id: UUID;
-  flipped?: boolean;
-  expanded?: boolean;
-}) => {
+const Editor = ({id, expanded = false}: {id: UUID; expanded?: boolean}) => {
   const metafile = useAppSelector(state => metafileSelectors.selectById(state, id));
   const [editorRef] = useState(React.createRef<AceEditor>());
   const mode = metafile?.filetype?.toLowerCase() ?? 'text';
@@ -60,7 +51,7 @@ const Editor = ({
 
   return (
     <>
-      {isEditorMetafile(metafile) && !flipped ? (
+      {isEditorMetafile(metafile) ? (
         <AceEditor
           {...editorProps}
           name={id + '-editor'}
