@@ -2367,14 +2367,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^18.2.33":
-  version: 18.2.33
-  resolution: "@types/react@npm:18.2.33"
+"@types/react@npm:^18.2.61":
+  version: 18.2.61
+  resolution: "@types/react@npm:18.2.61"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 75903c4d53898c69dd23d0b2730eac4676dc5ade15c25c793dec855f0d7c650cb823832bb1dd881efe8895724f15b06d4bf7081ea0b82391aa3059512ad49ccf
+  checksum: a100c09bc0d6d1a0a42b3fa0944b71d209b5adea6515fc21109972ec3267185372cc416c0467b1998afce6b90fc80f4c0029b5d975afb0b3070d864c7a924a5e
   languageName: node
   linkType: hard
 
@@ -7763,7 +7763,7 @@ __metadata:
     "@types/pako": ^2.0.2
     "@types/parse-git-config": ^3.0.3
     "@types/parse-path": ^7.0.2
-    "@types/react": ^18.2.33
+    "@types/react": ^18.2.61
     "@types/react-dom": ^18.2.14
     "@types/uuid-validate": ^0.0.2
     "@types/valid-url": ^1.0.6
