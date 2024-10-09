@@ -1,4 +1,4 @@
-# Synectic Integrated Development Environment
+# Synectic Development Environment
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/EPICLab/synectic/ci.yml?style=for-the-badge) ![GitHub](https://img.shields.io/github/license/EPICLab/synectic?style=for-the-badge) ![GitHub release](https://img.shields.io/github/v/release/EPICLab/synectic?style=for-the-badge)
 
